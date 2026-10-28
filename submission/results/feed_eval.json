@@ -1,0 +1,401 @@
+{
+ "at": "2026-10-28T07:28:11.595Z",
+ "model": {
+  "url": "http://127.0.0.1:11446/v1",
+  "model": "muse-glimmer"
+ },
+ "guard": {
+  "url": "http://127.0.0.1:11436",
+  "stats": {
+   "checked": 7,
+   "flagged": 0,
+   "skipped": 0,
+   "paused": 0,
+   "injected": 0
+  }
+ },
+ "totals": {
+  "runs": 3,
+  "queries": 15,
+  "requests": 30,
+  "cachedRequests": 30,
+  "found": 124,
+  "old": 7,
+  "duplicates": 6,
+  "fresh": 111,
+  "screened": 10,
+  "injected": 0,
+  "unscreened": 0,
+  "summarized": 7,
+  "unfit": 1,
+  "rejected": 2,
+  "flagged": 0,
+  "guardDown": 0,
+  "posted": 7
+ },
+ "timing": {
+  "promptGuardSeconds": {
+   "n": 10,
+   "median": 3.203,
+   "max": 8.995,
+   "mean": 3.141
+  },
+  "modelSeconds": {
+   "n": 10,
+   "median": 26.2,
+   "max": 42.91,
+   "mean": 26.196
+  },
+  "llamaGuardSeconds": {
+   "n": 7,
+   "median": 0.849,
+   "max": 1.113,
+   "mean": 0.863
+  },
+  "runSeconds": [
+   135.5,
+   203.4,
+   45.1
+  ],
+  "totalSeconds": 384.4
+ },
+ "errors": [
+  "badminton injury epidemiology: Semantic Scholar: rate-limited",
+  "tennis injury epidemiology: Semantic Scholar: rate-limited",
+  "basketball injury epidemiology: Semantic Scholar: rate-limited",
+  "pickleball injury epidemiology: Semantic Scholar: rate-limited",
+  "table tennis injury epidemiology: Semantic Scholar: rate-limited",
+  "volleyball injury epidemiology: Semantic Scholar: rate-limited",
+  "badminton match physical demands: Semantic Scholar: rate-limited",
+  "tennis match physical demands: Semantic Scholar: rate-limited",
+  "basketball match physical demands: Semantic Scholar: rate-limited",
+  "pickleball match physical demands: Semantic Scholar: rate-limited",
+  "table tennis match physical demands: Semantic Scholar: rate-limited",
+  "volleyball match physical demands: Semantic Scholar: rate-limited",
+  "badminton motor skill learning: Semantic Scholar: rate-limited",
+  "tennis motor skill learning: Semantic Scholar: rate-limited",
+  "basketball motor skill learning: Semantic Scholar: rate-limited"
+ ],
+ "runs": [
+  {
+   "at": 1793172107621,
+   "manual": true,
+   "week": "2026-W44",
+   "cap": 7,
+   "club": 7,
+   "posted": 3,
+   "want": 3,
+   "queries": [
+    "badminton injury epidemiology",
+    "tennis injury epidemiology",
+    "basketball injury epidemiology",
+    "pickleball injury epidemiology",
+    "table tennis injury epidemiology",
+    "volleyball injury epidemiology"
+   ],
+   "requests": 12,
+   "cached": 12,
+   "errors": [
+    "badminton injury epidemiology: Semantic Scholar: rate-limited",
+    "tennis injury epidemiology: Semantic Scholar: rate-limited",
+    "basketball injury epidemiology: Semantic Scholar: rate-limited",
+    "pickleball injury epidemiology: Semantic Scholar: rate-limited",
+    "table tennis injury epidemiology: Semantic Scholar: rate-limited",
+    "volleyball injury epidemiology: Semantic Scholar: rate-limited"
+   ],
+   "found": 48,
+   "fresh": 43,
+   "duplicates": 4,
+   "old": 1,
+   "screened": 3,
+   "injected": 0,
+   "unscreened": 0,
+   "summarized": 3,
+   "unfit": 0,
+   "rejected": 0,
+   "flagged": 0,
+   "guardDown": 0,
+   "seconds": 135.5,
+   "posts": [
+    {
+     "id": "pmvrsez97f270e76b",
+     "title": "From young aces to injury cases: a qualitative study of stakeholder perspectives on injury risk in junior to elite badminton",
+     "source": "OpenAlex",
+     "sport": "badminton"
+    },
+    {
+     "id": "pmvrsfnez3124977d",
+     "title": "Epidemiology of injuries in elite male volleyball players over a full season: A retrospective study",
+     "source": "OpenAlex",
+     "sport": "volleyball"
+    },
+    {
+     "id": "pmvrsgdy05ceb5fdd",
+     "title": "Predicting Performance in Badminton based on BDNF Val66Met Gene Polymorphism among Badminton Players",
+     "source": "OpenAlex",
+     "sport": "badminton"
+    }
+   ]
+  },
+  {
+   "at": 1793172243098,
+   "manual": true,
+   "week": "2026-W44",
+   "cap": 7,
+   "club": 7,
+   "posted": 3,
+   "want": 3,
+   "queries": [
+    "badminton match physical demands",
+    "tennis match physical demands",
+    "basketball match physical demands",
+    "pickleball match physical demands",
+    "table tennis match physical demands",
+    "volleyball match physical demands"
+   ],
+   "requests": 12,
+   "cached": 12,
+   "errors": [
+    "badminton match physical demands: Semantic Scholar: rate-limited",
+    "tennis match physical demands: Semantic Scholar: rate-limited",
+    "basketball match physical demands: Semantic Scholar: rate-limited",
+    "pickleball match physical demands: Semantic Scholar: rate-limited",
+    "table tennis match physical demands: Semantic Scholar: rate-limited",
+    "volleyball match physical demands: Semantic Scholar: rate-limited"
+   ],
+   "found": 48,
+   "fresh": 43,
+   "duplicates": 2,
+   "old": 3,
+   "screened": 6,
+   "injected": 0,
+   "unscreened": 0,
+   "summarized": 3,
+   "unfit": 1,
+   "rejected": 2,
+   "flagged": 0,
+   "guardDown": 0,
+   "seconds": 203.4,
+   "posts": [
+    {
+     "id": "pmvrsj9dwb780d0c7",
+     "title": "A Comparison of Mean and Peak Internal Training and Competition Physical Demands in Professional Male Basketball Players",
+     "source": "OpenAlex",
+     "sport": "basketball"
+    },
+    {
+     "id": "pmvrsjvsl1205f02f",
+     "title": "Physical Activity During Official Match Play in Female Masters Basketball Players: An Accelerometry-Based Study",
+     "source": "OpenAlex",
+     "sport": "basketball"
+    },
+    {
+     "id": "pmvrskqux855a2af7",
+     "title": "Comparison of Physical Activity and Stress Levels of Individuals Playing Pickleball in Türkiye and Abroad",
+     "source": "OpenAlex",
+     "sport": "pickleball"
+    }
+   ]
+  },
+  {
+   "at": 1793172446459,
+   "manual": true,
+   "week": "2026-W44",
+   "cap": 7,
+   "club": 7,
+   "posted": 1,
+   "want": 1,
+   "queries": [
+    "badminton motor skill learning",
+    "tennis motor skill learning",
+    "basketball motor skill learning"
+   ],
+   "requests": 6,
+   "cached": 6,
+   "errors": [
+    "badminton motor skill learning: Semantic Scholar: rate-limited",
+    "tennis motor skill learning: Semantic Scholar: rate-limited",
+    "basketball motor skill learning: Semantic Scholar: rate-limited"
+   ],
+   "found": 28,
+   "fresh": 25,
+   "duplicates": 0,
+   "old": 3,
+   "screened": 1,
+   "injected": 0,
+   "unscreened": 0,
+   "summarized": 1,
+   "unfit": 0,
+   "rejected": 0,
+   "flagged": 0,
+   "guardDown": 0,
+   "seconds": 45.1,
+   "posts": [
+    {
+     "id": "pmvrslpom313fdf93",
+     "title": "Externalizing Hand Grip Pressure Through Real-Time Visual Feedback",
+     "source": "arXiv",
+     "sport": "tennis"
+    }
+   ]
+  }
+ ],
+ "posts": [
+  {
+   "title": "From young aces to injury cases: a qualitative study of stakeholder perspectives on injury risk in junior to elite badminton",
+   "authors": [
+    "Brid Stepper",
+    "Lars Donath",
+    "Hendrik Stagge",
+    "Oliver Faude",
+    "Anne Hecksteden"
+   ],
+   "year": 2026,
+   "venue": "Sports Medicine - Open",
+   "link": "https://doi.org/10.1186/s40798-026-01107-9",
+   "source": "OpenAlex",
+   "sport": "badminton",
+   "summary": "Researchers looked at how experts judge injury risk when young badminton players move to elite level. Twenty national-level stakeholders including coaches, athletes, doctors and physios were interviewed. Experts relied on experience-based cues like pressure, recovery and attitude rather than objective factors.",
+   "forWhom": "Junior players and their coaches",
+   "checks": {
+    "promptGuard": 0.001,
+    "llamaGuard": "safe",
+    "tries": 1
+   }
+  },
+  {
+   "title": "Epidemiology of injuries in elite male volleyball players over a full season: A retrospective study",
+   "authors": [
+    "Hung-Yi Yu",
+    "Yi-Wen Chen"
+   ],
+   "year": 2026,
+   "venue": "International Journal of Sports Science & Coaching",
+   "link": "https://doi.org/10.1177/17479541261487019",
+   "source": "OpenAlex",
+   "sport": "volleyball",
+   "summary": "Researchers tracked time-loss injuries over a full season in elite male volleyball players in Taiwan’s Top Volleyball League using a self-administered questionnaire. About a third of players reported a time-loss injury, with an overall rate of 4.3 per 1000 athlete exposures. Outside hitters had a higher injury rate than liberos, while age and body mass index showed no significant association.",
+   "forWhom": "volleyball players, especially outside hitters",
+   "checks": {
+    "promptGuard": 0.001,
+    "llamaGuard": "safe",
+    "tries": 1
+   }
+  },
+  {
+   "title": "Predicting Performance in Badminton based on BDNF Val66Met Gene Polymorphism among Badminton Players",
+   "authors": [
+    "Muhammad Iqbal Shaharudin",
+    "Ahmad Munir Che Muhamed",
+    "Ernest Mangantig",
+    "Hazwani Ahmad Yusof"
+   ],
+   "year": 2026,
+   "venue": "International Journal of Racket Sports Science",
+   "link": "https://doi.org/10.30827/ijrss.36513",
+   "source": "OpenAlex",
+   "sport": "badminton",
+   "summary": "The study examined whether the BDNF Val66Met gene variant relates to performance and injury history in badminton. Buccal swabs and physical tests were done on 101 highly trained men who play badminton. The variant was linked to reaction speed, with a correlation of r = 0.230 for simple reaction time and ValVal carriers showing faster simple and choice reaction times than MetMet carriers.",
+   "forWhom": "competitive male badminton players",
+   "checks": {
+    "promptGuard": 0.001,
+    "llamaGuard": "safe",
+    "tries": 2
+   }
+  },
+  {
+   "title": "A Comparison of Mean and Peak Internal Training and Competition Physical Demands in Professional Male Basketball Players",
+   "authors": [
+    "Enrique Alonso",
+    "Rubén Portes",
+    "Sergio Lorenzo Jiménez Sáiz",
+    "Carlos Ribas",
+    "Neus Llinás",
+    "Adrián López-García"
+   ],
+   "year": 2026,
+   "venue": "Applied Sciences",
+   "link": "https://doi.org/10.3390/app16146916",
+   "source": "OpenAlex",
+   "sport": "basketball",
+   "summary": "Researchers looked at average and peak heart rate, oxygen consumption and respiratory rate in pro male basketball players. Measurements were taken during five pre-season matches and twenty training sessions in Spain’s top league. Peak measures rose more in competition than in practice, but average measures were largely alike.",
+   "forWhom": "basketball players interested in training versus game demands",
+   "checks": {
+    "promptGuard": 0.001,
+    "llamaGuard": "safe",
+    "tries": 2
+   }
+  },
+  {
+   "title": "Physical Activity During Official Match Play in Female Masters Basketball Players: An Accelerometry-Based Study",
+   "authors": [
+    "Dimitrios Balampanos",
+    "Dimitrios Pantazis",
+    "Christos Kokkotis",
+    "Alexandra A. Avloniti",
+    "Theodoros Stampoulis",
+    "Panagiotis Aggelakis"
+   ],
+   "year": 2026,
+   "venue": "Sports",
+   "link": "https://doi.org/10.3390/sports14060230",
+   "source": "OpenAlex",
+   "sport": "basketball",
+   "summary": "Researchers used tri-axial microsensors to measure activity intensity and external load during official matches at a three-day national masters tournament. Fifty-two female masters basketball players aged 37 to 63 took part. Time in activity zones differed, with light and vigorous activity higher than moderate, and moderate-to-vigorous activity summed to about 42.78 minutes per match.",
+   "forWhom": "Female masters players and members over forty",
+   "checks": {
+    "promptGuard": 0.001,
+    "llamaGuard": "safe",
+    "tries": 1
+   }
+  },
+  {
+   "title": "Comparison of Physical Activity and Stress Levels of Individuals Playing Pickleball in Türkiye and Abroad",
+   "authors": [
+    "Mihraç Köroǧlu",
+    "Burcu Yentürk",
+    "Nuri Çelik",
+    "Oktay Dal",
+    "Fikret Soyer"
+   ],
+   "year": 2026,
+   "venue": "Akdeniz Spor Bilimleri Dergisi",
+   "link": "https://doi.org/10.38021/asbid.1853228",
+   "source": "OpenAlex",
+   "sport": "pickleball",
+   "summary": "Researchers compared physical activity and perceived stress in pickleball players in Türkiye and abroad using scales and statistical analysis. 144 players took part. Physical activity scores did not differ significantly between the Turkish and foreign groups, but perceived stress scores did differ significantly.",
+   "forWhom": "pickleball regulars interested in stress and activity",
+   "checks": {
+    "promptGuard": 0.001,
+    "llamaGuard": "safe",
+    "tries": 1
+   }
+  },
+  {
+   "title": "Externalizing Hand Grip Pressure Through Real-Time Visual Feedback",
+   "authors": [
+    "Andrew L. Huard",
+    "Avinash Ajit Nargund",
+    "Misha Sra"
+   ],
+   "year": 2026,
+   "venue": "arXiv",
+   "link": "https://arxiv.org/abs/2610.36769",
+   "source": "arXiv",
+   "sport": "tennis",
+   "summary": "Researchers tested how different real-time visual displays of hand grip pressure help novices match pressure. 28 novices did baseball and table tennis grip tasks with an instrumented glove. A continuous gradient display led to more accurate pressure matching and more focused gaze than a discrete bar display, even though people thought the bar was more precise.",
+   "forWhom": "tennis players curious about grip feel",
+   "checks": {
+    "promptGuard": 0.008,
+    "llamaGuard": "safe",
+    "tries": 1
+   }
+  }
+ ],
+ "seen": {
+  "posted": 14,
+  "not about sport": 2,
+  "the summary failed": 4
+ },
+ "feedView": 7
+}
