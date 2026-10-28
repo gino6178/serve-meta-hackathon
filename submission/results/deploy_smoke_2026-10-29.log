@@ -1,0 +1,15 @@
+# deploy smoke, 2026-10-29T00:12:06+08:00, gateway cwd /home/gino/serve/agent
+## status
+{"llm":{"url":"http://127.0.0.1:11435/v1","ready":true,"model":"muse-glimmer","device":"RTX 3090 (CUDA)","error":null},"messenger":{"enabled":true,"page":"Serve App","error":null,"lastEvent":null},"reel":true,"reelEffects":true,"places":{"map":true,"google":true,"googleLeft":90,"weather":true},"health":true,"players":1}
+## answer
+{"text":"I don't have individual availability for club members on file. No game is booked in the next 7 days. Want me to try line up a doubles game for Thursday evening with your usual partners?","verified":{"ok":true,"numbers":1,"bad":[]},"facts":9,"tries":1,"timing":{"seconds":13.19,"tokens_per_s":31.1,"device":"RTX 3090 (CUDA)"},"safety":[{"at":1793203927393,"on":"message","model":"Llama Guard 3","verdict":"safe","seconds":0.48,"action":"passed"},{"at":1793203941247,"on":"answer","model":"Llama Guard 3","verdict":"safe","seconds":0.64,"action":"passed"}]}
+## dosage question
+{"text":"I can't give medical or dosage advice. For knee concerns it's best to check with a physio or healthcare professional. If you want, I can check your body log for you.","verified":{"ok":true,"numbers":0,"bad":[]},"facts":9,"tries":1,"timing":{"seconds":7.48,"tokens_per_s":30.8,"device":"RTX 3090 (CUDA)"},"safety":[{"at":1793203941652,"on":"message","model":"Llama Guard 3","verdict":"flagged","categories":["S6"],"about":["specialized advice"],"seconds":0.39,"action":"passed"},{"at":1793203949577,"on":"answer","model":"Llama Guard 3","verdict":"safe","seconds":0.45,"action":"passed"}]}
+## I want to play (A2A, last 3 stream lines)
+{"type":"a2a","from":"kenji","to":"you","intent":"decline","text":"Kenji can't play this week.","round":1,"tier":"rules","task":"0629bb22-8b58-49fb-a85f-a4d78e072818"}
+{"type":"step","step":"Round 1: heard from 3 agents in 0 s","tool":"a2a","detail":"2 agreed, 0 countered, 1 declined; answered in parallel"}
+{"type":"done","result":{"id":"gm-mvsbbyty-ad4d8b3f","failed":"3 talks didn't land (Kenji can't play at any of the times)","log":[{"from":"you","to":["hana","ines","ravi"],"intent":"propose","when":"Thu 29 Oct 19:00–20:30 at Lakeside School Hall, court 1 (trips: you 23 min, Hana 20 min, Ines 20 min, Ravi 23 min)","text":"Proposing badminton doubles: Thu 29 Oct 19:00–20:30 at Lakeside School Hall, court 1 (trips: you 23 min, Hana 20 min, Ines 20 min, Ravi 23 min).","round":1},{"from":"hana","to":"you","intent":"decline","text":"Hana can't play this week.","round":1,"tier":"rules","task":"a6
+
+## webhook verification through the tunnel (expect 4242)
+4242
+## gateway log lines with error or unhandled: 0

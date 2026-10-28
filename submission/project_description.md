@@ -318,4 +318,4 @@ Indie Developer track, one member.
 
 ## Where to find it
 
-- Code: https://github.com/gino6178/serve
+- Code: https://github.com/gino6178/serve-meta-hackathon

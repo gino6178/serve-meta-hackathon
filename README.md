@@ -55,7 +55,7 @@ A100 with the same Muse Glimmer build as our RTX 3090, and the report says which
 **How to watch or try it**
 - Watch the demo video: [VIDEO LINK].
 - Read the technical report: [submission/technical_report.md](submission/technical_report.md).
-- Code: https://github.com/gino6178/serve
+- Code: https://github.com/gino6178/serve-meta-hackathon
 - Run it yourself: `cd agent && npm install && npm test` runs 240 offline tests with no model or GPU (239 pass on
   Linux and one is skipped without LlamaFirewall's own Python environment; one needs `flock`). <!-- COUNT --> The full app needs a Linux server with a 24 GB NVIDIA GPU for Muse Glimmer ([Running it](#running-it)).
 
@@ -124,7 +124,7 @@ and your health data are read there and nowhere else; what you share in Messenge
   tool-using agent: `get_week`, `check_body`, `find_partners`, `find_places`, `negotiate`, `request_approval`,
   `nudge`, `finish`. Code runs every tool with checked arguments and returns the facts; the model picks the next step
   and says why. A step budget, and rules finish the plan if the model stalls. Nothing is booked without your yes.
-- **Agent to agent** (`agent/src/a2a/talk.js`, `a2a_server.js`): the **A2A protocol v1.0**, on the official SDK.
+- **Agent to agent** (`agent/src/a2a/talk.js`, `a2a/server.js`): the **A2A protocol v1.0**, on the official SDK.
   - Every club member has an A2A agent with its own Agent Card. Your agent sends each proposal with `SendMessage`
     and reads the member's decision from the task.
   - Code finds the times everyone is free that have a court. Each member's agent (Muse Glimmer, from what that member
@@ -258,7 +258,7 @@ digest) as our RTX 3090:
   - Muse Glimmer runs on GPU 1 (Ollama, 4 requests in parallel); the vision models on GPU 0; speech on the CPU.
   - Every API call except the status check needs the gateway's token. Without a token, the API answers only its own
     machine (unless `AGENT_OPEN=1`).
-- **Agent to agent over A2A v1.0**, on the official SDK (`a2a_server.js`, `a2a_client.js`).
+- **Agent to agent over A2A v1.0**, on the official SDK (`agent/src/a2a/server.js`, `a2a/client.js`).
   - Every member's agent has a signed Agent Card (a JWS over the card, Ed25519, the key at `/a2a/keys.json`), checked
     before your agent talks to it, and answers `SendMessage` in a task that ends with a decision artifact. One
     negotiation is one A2A context.
