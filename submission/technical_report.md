@@ -571,24 +571,37 @@ Where it does not win:
 
 A real trial would ask a group of friends to use Serve for a few days, which a hackathon does not allow. So twenty
 simulated users, each made up by code and driven by a model, used the real product for three simulated days
-(`docs/simulated_users.md`, `submission/results/sim_users_d2.json`): Messenger through the signed webhook, and the
+(`docs/simulated_users.md`, `submission/results/`): Messenger through the signed webhook, and the
 web API with the token. They are lazy on purpose: each has an inertia model that decides when they open the chat and
 when they give up. The same people also organized games without Serve, as a baseline.
 
-**Serve did not beat the baseline in this run.** One finished run (seed 2, 41 minutes on the A100 endpoints, 58
-model calls, no model errors): with Serve, 1 game booked and 0 played; without it, 1 played. With one seed and one game
-in each world, the run cannot show a difference either way. What it showed is where Serve lost its games:
-- **Most requests never reached matchmaking.** 1 of 9 was read as a request for a game; "need badminton doubles
-  tonight 19 to 22" was filed as a training session in the calendar.
-- **The Match helper never asked anyone.** Its daily ask needed a habit of two games at the same time in eight weeks,
-  which new users do not have: 0 asks.
-- **The one booked game fell through.** The partner's agent agreed from the partner's free times without asking them,
-  and the partner did not go.
+**The first run, before the fixes: Serve did not beat the baseline.** Seed 2, 41 minutes on the A100 endpoints, 58
+model calls, no model errors: with Serve, 1 game booked and 0 played; without it, 1 played. It showed where Serve lost
+its games: 1 of 9 requests was read as a request for a game ("need badminton doubles tonight 19 to 22" was filed as a
+training session); the Match helper never asked anyone, because its daily ask needed a habit of two games at the same
+time in eight weeks; and the one booked game fell through, because the partner's agent agreed without asking the
+partner. All three were fixed: the phrasings reach matchmaking, a new player is asked from the free times they gave,
+and a partner is asked ("I'm in" or "Can't make it") before their agent books.
 
-All three were fixed after the run: the phrasings reach matchmaking, a new player is asked from the free times they
-gave, and a partner is asked ("I'm in" or "Can't make it") before their agent books, and may back out. The run was
-**not repeated** in full. A rerun stopped part-way saw 3 of 7 requests read as games, 15 asks and 3 games booked, which
-is a check, not a measurement.
+**After the fixes, two seeds** (`submission/results/sim_users_v2s2.json`, `sim_users_v2s3.json`,
+`sim_users_v2_summary.json`; 2026-10-29). The same setup, fresh runs of the fixed code: 20 users, 3 simulated days,
+Muse Glimmer on two A100 endpoints with the same model digest as the server, no model errors.
+
+| | Seed 2 (the people of the first run) | Seed 3 |
+|---|---|---|
+| Games played, with Serve against without | 3 against 1 | 1 against 1 |
+| Users with a game | 8 against 2 of 20 | 2 against 2 |
+| Player-games per user, difference (95% CI) | +0.3 (0.1 to 0.5) | 0 (0 to 0) |
+| Places left empty at games (no-shows) | 3 against 0 | 2 against 0 |
+| Messages and taps per game played | 31 against 12 | 133 against 13 |
+| Match helper asks; partners asked, in, out | 8; 6, 5, 1 | 16; 12, 2, 10 |
+| Real time, gateway model calls | 41 min, 88 | 44 min, 132 |
+
+Over the two seeds, 0.25 player-games per user with Serve against 0.10 without. Seed 2 alone separates the arms; seed
+3 does not, and two seeds are too few to claim an effect in general. The fixes did what they were for: the Match helper
+now asks and partners are asked before anything is booked. What still loses games: people who do not turn up or did not
+know about a game (5 empty places over the two seeds, none without Serve), and in seed 3 partners said "Can't make it"
+10 times in 12, so the agent kept trying the next one at the cost of many more messages per game.
 
 ## 6. Safety and privacy
 
@@ -652,7 +665,8 @@ inputs. They do not show how real people would talk, vote or react.
 - **Holds last 30 minutes.** A plan left longer is checked again at booking; the player may have to pick again.
 - **Two gateways, not a federation.** The second gateway (3.11) is trusted by a pinned key and an allow-list; a club of
   many gateways would need key discovery and rotation. Within one gateway, every member's agent shares it.
-- **The simulated users did not play more** (5.12). The fixes they led to are not measured again.
+- **The simulated users** (5.12): two seeds after the fixes, one better than the baseline and one equal; no-shows and
+  partners backing out are not fixed.
 - **The ball tracker** finds the shuttle in under a third of the frames on footage from the stands.
 - **The guards are one layer.** Llama Guard 3 1B let 5 of 42 unsafe test messages through; Prompt Guard 2 missed 6 of
   10 poisoned reviews; the first message after Llama Guard restarts goes unchecked while it loads.

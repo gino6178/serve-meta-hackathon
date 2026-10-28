@@ -1,0 +1,289 @@
+{
+ "simulated": true,
+ "runs": [
+  "v2s2",
+  "v2s3"
+ ],
+ "seeds": [
+  2,
+  3
+ ],
+ "gamesPlayed": {
+  "serve": {
+   "values": [
+    3,
+    1
+   ],
+   "mean": 2,
+   "min": 1,
+   "max": 3
+  },
+  "baseline": {
+   "values": [
+    1,
+    1
+   ],
+   "mean": 1,
+   "min": 1,
+   "max": 1
+  }
+ },
+ "playerGamesPerUser": {
+  "serve": {
+   "values": [
+    0.4,
+    0.1
+   ],
+   "mean": 0.25,
+   "min": 0.1,
+   "max": 0.4
+  },
+  "baseline": {
+   "values": [
+    0.1,
+    0.1
+   ],
+   "mean": 0.1,
+   "min": 0.1,
+   "max": 0.1
+  },
+  "diff": {
+   "values": [
+    0.3,
+    0
+   ],
+   "mean": 0.15,
+   "min": 0,
+   "max": 0.3
+  },
+  "diffCI": [
+   [
+    0.1,
+    0.5
+   ],
+   [
+    0,
+    0
+   ]
+  ]
+ },
+ "usersWithAGame": {
+  "serve": {
+   "values": [
+    8,
+    2
+   ],
+   "mean": 5,
+   "min": 2,
+   "max": 8
+  },
+  "baseline": {
+   "values": [
+    2,
+    2
+   ],
+   "mean": 2,
+   "min": 2,
+   "max": 2
+  }
+ },
+ "actionsPerGame": {
+  "serve": {
+   "values": [
+    31,
+    133
+   ],
+   "mean": 82,
+   "min": 31,
+   "max": 133
+  },
+  "serveGameOnly": {
+   "values": [
+    6.67,
+    45
+   ],
+   "mean": 25.84,
+   "min": 6.67,
+   "max": 45
+  },
+  "baseline": {
+   "values": [
+    12,
+    13
+   ],
+   "mean": 12.5,
+   "min": 12,
+   "max": 13
+  }
+ },
+ "wantToBookedMin": {
+  "serve": {
+   "values": [
+    220,
+    0
+   ],
+   "mean": 110,
+   "min": 0,
+   "max": 220
+  },
+  "baseline": {
+   "values": [
+    60,
+    44
+   ],
+   "mean": 52,
+   "min": 44,
+   "max": 60
+  }
+ },
+ "noShows": {
+  "serve": {
+   "values": [
+    3,
+    2
+   ],
+   "mean": 2.5,
+   "min": 2,
+   "max": 3
+  },
+  "baseline": {
+   "values": [
+    0,
+    0
+   ],
+   "mean": 0,
+   "min": 0,
+   "max": 0
+  }
+ },
+ "asks": [
+  {
+   "matchHelperAsks": 8,
+   "offersAfterARequest": 4,
+   "autopilotPlans": 0,
+   "unanswered": 2,
+   "yes": 7,
+   "another": 0,
+   "notThisWeek": 1,
+   "drop": 2,
+   "ignored": 1,
+   "noDeal": 3,
+   "noGame": 0,
+   "partnerNotices": 0,
+   "partnerAsked": 6,
+   "partnerIn": 5,
+   "partnerOut": 1,
+   "triedNext": 1,
+   "requests": 4,
+   "readAsPlay": 5,
+   "readAsAutopilot": 0,
+   "filedAsEvent": 1
+  },
+  {
+   "matchHelperAsks": 16,
+   "offersAfterARequest": 13,
+   "autopilotPlans": 0,
+   "unanswered": 3,
+   "yes": 16,
+   "another": 1,
+   "notThisWeek": 6,
+   "drop": 3,
+   "ignored": 2,
+   "noDeal": 6,
+   "noGame": 0,
+   "partnerNotices": 0,
+   "partnerAsked": 12,
+   "partnerIn": 2,
+   "partnerOut": 10,
+   "triedNext": 10,
+   "requests": 7,
+   "readAsPlay": 8,
+   "readAsAutopilot": 0,
+   "filedAsEvent": 0
+  }
+ ],
+ "loop": [
+  "no proposal: the largest idea had 1 member (5 are needed, from weekday and weekend players); 1 of the 5 members it needs",
+  "no proposal: the largest idea had 1 member (5 are needed, from weekday and weekend players); 1 of the 5 members it needs"
+ ],
+ "feed": [
+  {
+   "on": true,
+   "posts": 1,
+   "byPeople": 1,
+   "byAgents": 0,
+   "postTries": 0,
+   "posted": 0,
+   "postsRefused": [],
+   "postsHeld": 0,
+   "likes": 0,
+   "likesOnPapers": 0,
+   "comments": 0,
+   "commentsRefused": [],
+   "opens": 0,
+   "note": "Feed refusals are false positives too: every post and comment the users wrote was benign."
+  },
+  {
+   "on": true,
+   "posts": 2,
+   "byPeople": 2,
+   "byAgents": 0,
+   "postTries": 0,
+   "posted": 0,
+   "postsRefused": [],
+   "postsHeld": 0,
+   "likes": 0,
+   "likesOnPapers": 0,
+   "comments": 0,
+   "commentsRefused": [],
+   "opens": 0,
+   "note": "Feed refusals are false positives too: every post and comment the users wrote was benign."
+  }
+ ],
+ "guard": [
+  {
+   "refusals": 0,
+   "kinds": {}
+  },
+  {
+   "refusals": 0,
+   "kinds": {}
+  }
+ ],
+ "never": [
+  [
+   "u01: opened the chat but never asked for a game (and nothing was offered)",
+   "u02: opened the chat but never asked for a game (and nothing was offered)",
+   "u03: opened the chat but never asked for a game (and nothing was offered)",
+   "u06: opened the chat but never asked for a game (and nothing was offered)",
+   "u07: opened the chat but never asked for a game (and nothing was offered)",
+   "u08: never opened the chat",
+   "u09: booked 1, but u04 didn't know about it, u08 didn't know about it",
+   "u11: turned the offers down",
+   "u13: booked 1, but u08 didn't know about it",
+   "u15: asked, no game came of it (No deal: Hwang and Hsieh and Daniel and you have no free time in common this week. No other opening at your usual times in the next days. Send /autopilot and I')",
+   "u16: opened the chat but never asked for a game (and nothing was offered)",
+   "u18: opened the chat but never asked for a game (and nothing was offered)"
+  ],
+  [
+   "u01: booked 1, but they didn't turn up",
+   "u02: opened the chat but never asked for a game (and nothing was offered)",
+   "u03: asked, no game came of it (No deal: nobody who plays badminton doubles is free at your times this week. No other opening at your usual times in the next days. Send /autopilot and I'll loo)",
+   "u05: asked, nothing came back they took up",
+   "u06: turned the offers down",
+   "u07: opened the chat but never asked for a game (and nothing was offered)",
+   "u08: turned the offers down",
+   "u10: asked, no game came of it (No deal: no time in your week fits that. No other opening at your usual times in the next days. Send /autopilot and I'll look at the rest of your week.)",
+   "u11: asked, nothing came back they took up",
+   "u12: turned the offers down",
+   "u13: booked 1, but u18 didn't turn up",
+   "u14: opened the chat but never asked for a game (and nothing was offered)",
+   "u15: asked, no game came of it (No deal: no time in your week fits that. No other opening at your usual times in the next days. Send /autopilot and I'll look at the rest of your week.)",
+   "u16: opened the chat but never asked for a game (and nothing was offered)",
+   "u17: turned the offers down",
+   "u18: booked 1, but they didn't turn up",
+   "u19: booked 1, but u01 didn't turn up",
+   "u20: asked, no game came of it (No deal: nobody who plays badminton doubles is free at your times this week. No other opening at your usual times in the next days. Send /autopilot and I'll loo)"
+  ]
+ ]
+}

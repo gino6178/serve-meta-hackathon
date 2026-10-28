@@ -10,7 +10,25 @@ has people in it (the cold start).
 for twenty plausible, varied and lazy people whose behaviour we wrote down, and it compares that with the same people
 organizing games without Serve. Every number below comes from these runs, and every file they made is marked simulated.
 
-## Results: one finished run (seed 2), so no spread over seeds
+## Rerun after the fixes: two seeds (2026-10-29)
+
+The fixed code, run fresh on seeds 2 and 3 (`submission/results/sim_users_v2s2.json`, `sim_users_v2s3.json`, and both
+together in `sim_users_v2_summary.json`), with Muse Glimmer on two A100 endpoints (the same model digest as the
+server):
+
+| | Seed 2 | Seed 3 |
+|---|---|---|
+| Games played, with Serve against without | 3 against 1 | 1 against 1 |
+| Users with a game | 8 against 2 | 2 against 2 |
+| Player-games per user, difference (95% CI) | +0.3 (0.1 to 0.5) | 0 (0 to 0) |
+| Empty places at games | 3 against 0 | 2 against 0 |
+| Messages and taps per game | 31 against 12 | 133 against 13 |
+
+Seed 2 separates the arms and seed 3 does not; two seeds are not enough to claim an effect. The Match helper now asks
+(8 and 16 asks) and partners are asked before booking; no-shows and partners backing out (10 of 12 in seed 3) are what
+still lose games. The first run, before the fixes, follows.
+
+## The first run, before the fixes: one finished run (seed 2), so no spread over seeds
 
 What was run, and what was not:
 - **Finished:** `d2`, 20 users, 3 days (Thu 5 to Sat 7 Nov, simulated), seed 2, Muse Glimmer on the A100 test
