@@ -1,0 +1,3634 @@
+{
+ "at": "2026-10-27T20:44:55.212Z",
+ "transport": "a2a",
+ "cases": 60,
+ "arms": {
+  "model": {
+   "summary": {
+    "mode": "model",
+    "members": 60,
+    "agreed": 31,
+    "broke": 0,
+    "brokeOfAll": 0,
+    "brokeOfAllCI95": [
+     0,
+     0.06
+    ],
+    "movedToAKeptTime": 31,
+    "keepable": 31,
+    "meanRounds": 1,
+    "seconds": 501.2,
+    "tokens": {
+     "calls": 61,
+     "prompt": 36387,
+     "cached": 803,
+     "fresh": 35584,
+     "cachedShare": 0.022,
+     "output": 29336,
+     "reasoning": 27644,
+     "seconds": 1985.2,
+     "empty": 0,
+     "invalid": 1
+    },
+    "byRule": {
+     "noDays": {
+      "asked": 11,
+      "agreed": 11,
+      "broke": 0
+     },
+     "endBy": {
+      "asked": 20,
+      "agreed": 20,
+      "broke": 0
+     },
+     "maxTrip": {
+      "asked": 23,
+      "agreed": 0,
+      "broke": 0
+     },
+     "maxMinutes": {
+      "asked": 6,
+      "agreed": 0,
+      "broke": 0
+     }
+    },
+    "sets": {
+     "model": null,
+     "binding": {
+      "talks": 60,
+      "precision": 1,
+      "recall": 0.982,
+      "exact": 58,
+      "falseWorks": 0,
+      "missedWorks": 3,
+      "precisionCI95": [
+       0.977,
+       1
+      ],
+      "recallCI95": [
+       0.948,
+       0.994
+      ]
+     }
+    }
+   },
+   "rows": [
+    {
+     "member": "s002",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Mira can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s010",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Sat 09:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s013",
+     "rules": {
+      "maxTrip": 20,
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Fri 20:30",
+     "keepable": true,
+     "agreed": "Fri 19:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s009",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Tue 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s020",
+     "rules": {
+      "maxTrip": 20,
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ana can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s017",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Thu 18:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s014",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Sat 14:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s032",
+     "rules": {
+      "maxTrip": 20,
+      "maxMinutes": 60
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Asha can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s021",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 09:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 8,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ken can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s043",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ],
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s060",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Thu 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Asha can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s046",
+     "rules": {
+      "endBy": "21:30",
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sat 08:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s071",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sat 09:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s049",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s076",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Bilal can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s074",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Wed 20:30",
+     "keepable": true,
+     "agreed": "Wed 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s079",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Fri 20:30",
+     "keepable": true,
+     "agreed": "Fri 18:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s083",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sun 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Emre can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s087",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sun 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 3,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Theo can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s088",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sat 08:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s114",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Sana can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s097",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Lea can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s096",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sat 09:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 8,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s084",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s124",
+     "rules": {
+      "endBy": "21:30",
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ana can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s116",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Wed 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [
+       "t3",
+       "t4"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s123",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Sat 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Nina can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s115",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s130",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Fri 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ken can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s143",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Wed 18:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s132",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s151",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Tue 20:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s155",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Kai can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s165",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Rami can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s175",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Hugo can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s161",
+     "rules": {
+      "maxTrip": 20,
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s179",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Thu 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Lea can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s180",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 8,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Elif can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s184",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Luca can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s189",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Pablo can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s191",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ivy can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s185",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Mon 20:30",
+     "keepable": true,
+     "agreed": "Thu 18:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s196",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 8,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Jonah can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s218",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Sora can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s216",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Mon 20:30",
+     "keepable": true,
+     "agreed": "Mon 20:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s226",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Sat 08:00 at Lakeside School Hall",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s169",
+     "rules": {
+      "endBy": "21:30",
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "endBy",
+     "asked": "Wed 20:30",
+     "keepable": true,
+     "agreed": "Wed 19:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s224",
+     "rules": {
+      "endBy": "21:30",
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "endBy",
+     "asked": "Wed 20:30",
+     "keepable": true,
+     "agreed": "Wed 20:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s230",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Mon 18:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s234",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s236",
+     "rules": {
+      "maxTrip": 20,
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sun 08:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s242",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Mon 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Asha can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s240",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Wed 20:30",
+     "keepable": true,
+     "agreed": "Wed 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s238",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Tue 20:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s254",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Omar can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s248",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ana can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s255",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Sun 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Maya can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s257",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Lina can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s256",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Wed 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Nadia can't play at any of the times",
+     "said": [
+      "decline:agent"
+     ]
+    },
+    {
+     "member": "s262",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sun 09:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [
+       "t3",
+       "t4"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    }
+   ]
+  },
+  "code": {
+   "summary": {
+    "mode": "code",
+    "members": 60,
+    "agreed": 30,
+    "broke": 0,
+    "brokeOfAll": 0,
+    "brokeOfAllCI95": [
+     0,
+     0.06
+    ],
+    "movedToAKeptTime": 30,
+    "keepable": 31,
+    "meanRounds": 1,
+    "seconds": 307.6,
+    "tokens": {
+     "calls": 32,
+     "prompt": 18708,
+     "cached": 736,
+     "fresh": 17972,
+     "cachedShare": 0.039,
+     "output": 19757,
+     "reasoning": 18679,
+     "seconds": 1207.3,
+     "empty": 2,
+     "invalid": 2
+    },
+    "byRule": {
+     "noDays": {
+      "asked": 11,
+      "agreed": 11,
+      "broke": 0
+     },
+     "endBy": {
+      "asked": 20,
+      "agreed": 19,
+      "broke": 0
+     },
+     "maxTrip": {
+      "asked": 23,
+      "agreed": 0,
+      "broke": 0
+     },
+     "maxMinutes": {
+      "asked": 6,
+      "agreed": 0,
+      "broke": 0
+     }
+    },
+    "sets": {
+     "model": null,
+     "binding": {
+      "talks": 59,
+      "precision": 1,
+      "recall": 1,
+      "exact": 59,
+      "falseWorks": 0,
+      "missedWorks": 0,
+      "precisionCI95": [
+       0.976,
+       1
+      ],
+      "recallCI95": [
+       0.976,
+       1
+      ]
+     }
+    }
+   },
+   "rows": [
+    {
+     "member": "s002",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Mira can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s014",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Sat 14:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s013",
+     "rules": {
+      "maxTrip": 20,
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Fri 20:30",
+     "keepable": true,
+     "agreed": "Fri 18:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s020",
+     "rules": {
+      "maxTrip": 20,
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ana can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s021",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 09:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 8,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ken can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s032",
+     "rules": {
+      "maxTrip": 20,
+      "maxMinutes": 60
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Asha can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s010",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Sat 09:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s009",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Tue 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s017",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Thu 18:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s060",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Thu 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Asha can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s043",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ],
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s046",
+     "rules": {
+      "endBy": "21:30",
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sun 14:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s076",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Bilal can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s071",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sat 09:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s083",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sun 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Emre can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s049",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 20:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s087",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sun 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 3,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Theo can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s074",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Wed 20:30",
+     "keepable": true,
+     "agreed": "Wed 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s079",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Fri 20:30",
+     "keepable": true,
+     "agreed": "Fri 18:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s097",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Lea can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s114",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Sana can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s088",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sun 14:00 at Westgate Badminton Hall",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s096",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sat 09:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 8,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s123",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Sat 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Nina can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s124",
+     "rules": {
+      "endBy": "21:30",
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ana can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s130",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Fri 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ken can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s116",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Wed 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [
+       "t3",
+       "t4"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s115",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s143",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Wed 18:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s155",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Kai can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s132",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s165",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Rami can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s151",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Tue 20:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s175",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Hugo can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s179",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Thu 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Lea can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s180",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 8,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Elif can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s184",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Luca can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s084",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": null,
+     "reason": "Rosa's agent did not answer",
+     "said": [
+      "none:agent"
+     ]
+    },
+    {
+     "member": "s189",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Pablo can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s191",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ivy can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s196",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Thu 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 8,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Jonah can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s161",
+     "rules": {
+      "maxTrip": 20,
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Thu 20:30",
+     "keepable": true,
+     "agreed": "Thu 20:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s218",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Sora can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s185",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Mon 20:30",
+     "keepable": true,
+     "agreed": "Thu 18:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s169",
+     "rules": {
+      "endBy": "21:30",
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "endBy",
+     "asked": "Wed 20:30",
+     "keepable": true,
+     "agreed": "Wed 19:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s216",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Mon 20:30",
+     "keepable": true,
+     "agreed": "Mon 19:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s224",
+     "rules": {
+      "endBy": "21:30",
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "endBy",
+     "asked": "Wed 20:30",
+     "keepable": true,
+     "agreed": "Wed 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 7,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s226",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Sat 08:00 at Lakeside School Hall",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s230",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Mon 18:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s234",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Thu 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s242",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Mon 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Asha can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s248",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Wed 19:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Ana can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s254",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Omar can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s255",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Sun 08:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Maya can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s256",
+     "rules": {
+      "maxMinutes": 60
+     },
+     "rule": "maxMinutes",
+     "asked": "Wed 18:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Nadia can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s257",
+     "rules": {
+      "maxTrip": 20
+     },
+     "rule": "maxTrip",
+     "asked": "Sat 14:00",
+     "keepable": false,
+     "agreed": null,
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [],
+      "R": null,
+      "F": []
+     },
+     "reason": "Lina can't play at any of the times",
+     "said": [
+      "decline:rules"
+     ]
+    },
+    {
+     "member": "s236",
+     "rules": {
+      "maxTrip": 20,
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sun 08:00 at Midtown Community Gym",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 6,
+      "T": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4",
+       "t5",
+       "t6"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s240",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Wed 20:30",
+     "keepable": true,
+     "agreed": "Wed 19:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 5,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s238",
+     "rules": {
+      "endBy": "21:30"
+     },
+     "rule": "endBy",
+     "asked": "Tue 20:30",
+     "keepable": true,
+     "agreed": "Tue 20:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 9,
+      "T": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ],
+      "R": null,
+      "F": [
+       "t2",
+       "t3",
+       "t4",
+       "t5",
+       "t6",
+       "t7",
+       "t8",
+       "t9"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    },
+    {
+     "member": "s262",
+     "rules": {
+      "noDays": [
+       "Fri"
+      ]
+     },
+     "rule": "noDays",
+     "asked": "Fri 18:00",
+     "keepable": true,
+     "agreed": "Sun 09:00 at Riverside Sports Centre",
+     "broke": null,
+     "rounds": 1,
+     "sets": {
+      "offered": 4,
+      "T": [
+       "t3",
+       "t4"
+      ],
+      "R": null,
+      "F": [
+       "t3",
+       "t4"
+      ]
+     },
+     "reason": null,
+     "said": [
+      "counter:agent"
+     ]
+    }
+   ]
+  }
+ },
+ "budgets": null
+}
