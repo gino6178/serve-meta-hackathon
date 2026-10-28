@@ -1,0 +1,424 @@
+{
+ "simulated": true,
+ "runs": [
+  "d2 (natural)"
+ ],
+ "sources": {
+  "taiwanExercise": {
+   "what": "Taiwan, 2023: 82.6% of people 13 and over exercise; 3.64 sessions a week on average; about 35% exercise regularly (the 7-3-3 standard)",
+   "source": "Sports Administration, Ministry of Education, 運動現況調查 2023, as reported by The News Lens (thenewslens.com/article/244223) and NOWnews (nownews.com/news/6348722)"
+  },
+  "badmintonWeekly": {
+   "what": "recreational badminton players play about twice a week: the most common answer was 2 times a week (Taipei venues, 2005), 2.11 a week on average (Malacca, Malaysia)",
+   "source": "airitilibrary.com 16808495-200512-x-13-74-87-a (Taipei facility users); Malaysian Orthopaedic Journal 2009 3(2) 'Injuries' (morthoj.org/2009v3n2/Injuries.pdf)"
+  },
+  "replies": {
+   "what": "about 70% of WhatsApp messages and 44% of Instagram messages answered within five minutes (3.4 million messages, 889 chats)",
+   "source": "'Sorry for the late reply: Response times and reciprocity in WhatsApp and Instagram chats', arXiv 2605.03687 (2026)"
+  },
+  "noShows": {
+   "what": "free events: a median no-show rate of about 28% (32% at events of 10 to 49 people), against 17% for paid ones, over 1,070 events",
+   "source": "PheedLoop Event Data Lab Report #05 (pheedloop.com/blog/event-data-lab-report-5): vendor data, not peer reviewed"
+  },
+  "simulators": {
+   "what": "LLM-simulated users are unreliable proxies: changing the model that plays the user moved agents' success by up to 9 points; non-collaborative users degrade agents",
+   "source": "Seshadri et al., 'Lost in Simulation', arXiv 2601.17087 (2026); Shim et al., 'Non-Collaborative User Simulators for Tool Agents', ICLR 2026, arXiv 2509.23124"
+  }
+ },
+ "plausibility": {
+  "replyDelays": {
+   "n": 7,
+   "medianMin": 0.05,
+   "within5min": 0.86,
+   "within60min": 0.86,
+   "modelMedians": {
+    "min": 13,
+    "median": 53.5,
+    "max": 172
+   },
+   "compare": {
+    "what": "about 70% of WhatsApp messages and 44% of Instagram messages answered within five minutes (3.4 million messages, 889 chats)",
+    "source": "'Sorry for the late reply: Response times and reciprocity in WhatsApp and Instagram chats', arXiv 2605.03687 (2026)"
+   },
+   "reading": "86% of the users' answers to their agent came within five minutes (answers in the chat they were already in, and answers to a push later). The model's own medians (53.5 minutes for the middle persona) are slower than people answering friends; slow answers cost Serve (holds lapse, talks wait) and the baseline (group-chat replies) alike."
+  },
+  "notThisWeek": {
+   "taps": 1,
+   "declined": 0,
+   "rate": 0,
+   "ci": [
+    0,
+    0.79
+   ],
+   "modelRange": [
+    0.12,
+    0.47
+   ],
+   "note": "No published rate found for turning down a game that fits; the model's numbers are assumptions (personas.mjs)."
+  },
+  "noShows": {
+   "model": {
+    "median": 0.28,
+    "min": 0.15,
+    "max": 0.45
+   },
+   "serve": {
+    "places": 2,
+    "missing": 1,
+    "rate": 0.5,
+    "ci": [
+     0.09,
+     0.91
+    ]
+   },
+   "baseline": {
+    "places": 2,
+    "missing": 0,
+    "rate": 0,
+    "ci": [
+     0,
+     0.66
+    ]
+   },
+   "compare": {
+    "what": "free events: a median no-show rate of about 28% (32% at events of 10 to 49 people), against 17% for paid ones, over 1,070 events",
+    "source": "PheedLoop Event Data Lab Report #05 (pheedloop.com/blog/event-data-lab-report-5): vendor data, not peer reviewed"
+   }
+  },
+  "playFrequency": {
+   "goalsPerWeek": {
+    "median": 1,
+    "mean": 1.55
+   },
+   "gamesPerUserPerWeek": {
+    "serve": [
+     0
+    ],
+    "baseline": [
+     0.23
+    ]
+   },
+   "compare": [
+    {
+     "what": "recreational badminton players play about twice a week: the most common answer was 2 times a week (Taipei venues, 2005), 2.11 a week on average (Malacca, Malaysia)",
+     "source": "airitilibrary.com 16808495-200512-x-13-74-87-a (Taipei facility users); Malaysian Orthopaedic Journal 2009 3(2) 'Injuries' (morthoj.org/2009v3n2/Injuries.pdf)"
+    },
+    {
+     "what": "Taiwan, 2023: 82.6% of people 13 and over exercise; 3.64 sessions a week on average; about 35% exercise regularly (the 7-3-3 standard)",
+     "source": "Sports Administration, Ministry of Education, 運動現況調查 2023, as reported by The News Lens (thenewslens.com/article/244223) and NOWnews (nownews.com/news/6348722)"
+    }
+   ],
+   "reading": "The personas want fewer games (median 1 a week) than recreational badminton players play (about 2): a conservative choice, since less wanting leaves less for Serve to win."
+  }
+ },
+ "variety": {
+  "personas": {
+   "archetypes": {
+    "parent": 2,
+    "freelancer": 2,
+    "office": 5,
+    "student": 3,
+    "retiree": 1,
+    "engineer": 2,
+    "retail": 2,
+    "nurse": 2,
+    "teacher": 1
+   },
+   "languages": {
+    "zh": 6,
+    "en": 9,
+    "mix": 5
+   },
+   "levels": {
+    "B": 5,
+    "C": 5,
+    "A": 5,
+    "D": 5
+   },
+   "prefers": {
+    "singles": 7,
+    "any": 7,
+    "doubles": 6
+   },
+   "homes": {
+    "North": 3,
+    "Lakeside": 5,
+    "Riverside": 6,
+    "Westgate": 2,
+    "Midtown": 4
+   },
+   "sports": {
+    "badminton+tennis": 5,
+    "badminton": 11,
+    "badminton+table tennis": 4
+   },
+   "goals": {
+    "1": 12,
+    "2": 5,
+    "3": 3
+   },
+   "weekendPlayers": 15,
+   "laziness": "0.15–0.88 (median 0.52)",
+   "pOpen": "0.43–0.88 (median 0.68)",
+   "replyMin": "13–172 (median 54)",
+   "pNotThisWeek": "0.12–0.47 (median 0.27)",
+   "flaky": "0.03–0.17 (median 0.09)",
+   "pBusy": "0.12–0.34 (median 0.21)",
+   "patienceH": "2–12 (median 6)",
+   "social": "0.1–0.84 (median 0.57)",
+   "civic": "0.08–0.83 (median 0.41)",
+   "improve": 7,
+   "bands": 12,
+   "beta": 5,
+   "trashTalk": 4,
+   "niggle": 4
+  },
+  "messages": {
+   "n": 36,
+   "distinct": 30,
+   "distinctShare": 0.83,
+   "lengthMedian": 17,
+   "lengthP10": 2,
+   "lengthP90": 46,
+   "mostlyChinese": 0.5,
+   "personasWriting": 8,
+   "similarityBetweenPeople": {
+    "mean": 0.03,
+    "max": 0.17
+   },
+   "similarityWithinPerson": {
+    "mean": 0.02
+   },
+   "reading": "Character-trigram Jaccard similarity of what each person wrote: one person's messages against another's, and a person's messages against each other."
+  }
+ },
+ "sensitivity": {
+  "seeds": 20,
+  "serveAsRun": {
+   "perUser": [
+    0
+   ],
+   "arms": [
+    "d2: natural"
+   ]
+  },
+  "baseline": [
+   {
+    "what": "as run",
+    "perUser": 0.16,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "everyone 0.2 less lazy",
+    "perUser": 0.22,
+    "p5": 0.1,
+    "p95": 0.5
+   },
+   {
+    "what": "everyone 0.1 less lazy",
+    "perUser": 0.19,
+    "p5": 0.1,
+    "p95": 0.5
+   },
+   {
+    "what": "everyone 0.1 lazier",
+    "perUser": 0.13,
+    "p5": 0,
+    "p95": 0.3
+   },
+   {
+    "what": "everyone 0.2 lazier",
+    "perUser": 0.09,
+    "p5": 0,
+    "p95": 0.3
+   },
+   {
+    "what": "life gets in the way half as often",
+    "perUser": 0.2,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "life gets in the way 1.5 times as often",
+    "perUser": 0.14,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "half as flaky",
+    "perUser": 0.16,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "twice as flaky",
+    "perUser": 0.15,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "answer four times faster",
+    "perUser": 0.18,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "answer four times slower",
+    "perUser": 0.13,
+    "p5": 0,
+    "p95": 0.3
+   },
+   {
+    "what": "\"not this week\" half as often",
+    "perUser": 0.16,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "everyone wants one more game a week",
+    "perUser": 0.16,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "everyone wants two games a week or more (as real players play)",
+    "perUser": 0.16,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "the group chat reaches everyone the same day",
+    "perUser": 0.17,
+    "p5": 0,
+    "p95": 0.4
+   },
+   {
+    "what": "the group chat reaches only those who look that day",
+    "perUser": 0.16,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "no bystander effect",
+    "perUser": 0.18,
+    "p5": 0.1,
+    "p95": 0.4
+   },
+   {
+    "what": "twice the bystander effect",
+    "perUser": 0.14,
+    "p5": 0,
+    "p95": 0.3
+   },
+   {
+    "what": "no counter-offers in the group chat",
+    "perUser": 0.16,
+    "p5": 0.1,
+    "p95": 0.3
+   },
+   {
+    "what": "organizers never give up on a court",
+    "perUser": 0.17,
+    "p5": 0.1,
+    "p95": 0.4
+   }
+  ],
+  "serveTurnout": [
+   {
+    "what": "as run",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "everyone 0.2 less lazy",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "everyone 0.1 less lazy",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "everyone 0.1 lazier",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "everyone 0.2 lazier",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "life gets in the way half as often",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "life gets in the way 1.5 times as often",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "half as flaky",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "twice as flaky",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "answer four times faster",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "answer four times slower",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "\"not this week\" half as often",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "everyone wants one more game a week",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "everyone wants two games a week or more (as real players play)",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   },
+   {
+    "what": "as run, partners always keep a game their agent agreed",
+    "booked": 1,
+    "played": 0,
+    "playerGamesPerUser": 0
+   }
+  ],
+  "reading": "Baseline: player-games per user over the trial, the mean and the 5th to 95th percentile over 20 seeds. Serve: the games its runs booked, turned up to again under each change (what was booked is not re-run)."
+ },
+ "personaModel": {
+  "note": "Not done: a second persona model. The A100 test endpoints serve only Muse Glimmer, and the server's Llama 3.2 3B is not on them; pulling one onto a shared test VM was left to the maintainer."
+ }
+}
