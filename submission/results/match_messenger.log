@@ -1,0 +1,36 @@
+
+> Hi  (0.3 s)
+< Hi there, you're linked to Serve, your sports agent.
+
+Only these messages pass through Messenger; your videos and health data stay on your own server.
+
+I'm your Serve agent, here 24 hours a day, with three helpers:
+• Body keeps your body log. Tell me what hurts ("my right knee is sore after jumping"); I check in on it a couple of days later and plan your games around it.
+• Match watches your usual play times. When one is open and the people you play best with are free, I ask you: want a game?
+• Talk takes your yes to the other players' agents and agrees the time and the court.
+Just write to me: your schedule ("club training Wed 19:00-21:00"), how a game went ("played two hours with Leo"), or what hurts. Send a photo of the scoreboard after a game and I'll file the result. Share your health app's export (Apple Health, Google Fit) or a GPX, TCX or CSV file and I'll file your workouts.
+/game ask me for a game now · /autopilot plan the whole week · /courts basketball near Da'an Park · /body your body log · /report your body report · /week calendar · /log a session · /improve on help improve Serve · /idea share an idea with the club · /ideas what the club asks for · /beta on try changes first · /forget delete everything I stored about you
+
+> I want to play singles this week  (6.9 s)
+< On it: asking the agents of the people most likely to say yes, then agreeing a time and a court.
+< › Your agent: Proposing badminton singles: Thu 29 Oct 19:00–20:30 at Riverside Sports Centre, court 4 (trips: you 9 min, Leo 9 min). Also possible: Thu 29 Oct 20:00, Sat 31 Oct 09:00.
+› Leo's agent: Leo can do Thu 29 Oct 19:00.
+
+Leo's agent said yes to singles on Thursday 19:00 at Riverside Sports Centre, court 4. (Leo's agent said very likely before the talk.) Nothing is booked yet. Book it?  [Book it] [Drop it]
+  PASS the message is read as a play request
+  PASS the agents agreed a game, and it comes as a question
+  PASS with Book it and Drop it
+  PASS nothing is booked before the tap
+  PASS the members' agents gave bands (4 estimates in the audit: very likely, likely)
+  PASS the calendar has no game yet
+
+> Book it  (0.3 s)
+< Booked: Singles Thursday 19:00 at Riverside Sports Centre with Leo, court 4. I'll remind you an hour before.
+  PASS the tap books it
+  PASS and it is in the player's calendar
+
+> /forget  (0.3 s)
+< Done: your memories, messages, calendar, games, body log and health data are deleted from the server. Send /start to begin again.
+  PASS /forget deletes the estimates the player asked for
+
+ALL PASSED
