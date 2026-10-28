@@ -1,0 +1,268 @@
+{
+ "made": "2026-10-27T23:30:10.392Z",
+ "commit": "a391aaa",
+ "model": {
+  "name": "muse-glimmer",
+  "digest": "de878ce33ad81d060001db1469a02eebe4d86f0ad58cfe52dc062fdcbe4464c1",
+  "parameters": "27.9B",
+  "quantization": "Q4_K_M",
+  "context": 16384
+ },
+ "ollama": "0.40.11",
+ "gpu": "RTX 3090 (GPU 1), 4 requests in parallel",
+ "seed": "simulated members: population.js seed 7",
+ "files": [
+  {
+   "file": "autopilot_eval.json",
+   "what": "the Autopilot, 8 weeks, with the stop check",
+   "made": "2026-10-27T17:17:30.689Z",
+   "by": "node test/autopilot_eval.mjs data/autopilot_eval.json"
+  },
+  {
+   "file": "autopilot_eval_summary.json",
+   "what": "its summary",
+   "made": "2026-10-27T17:17:30.691Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "autopilot_eval_tokens.json",
+   "what": "its token ledger, by call site",
+   "made": "2026-10-27T17:17:30.692Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "autopilot_eval_before_stopcheck.json",
+   "what": "the Autopilot, 8 weeks, before the stop check",
+   "made": "2026-10-27T17:02:39.056Z",
+   "by": "(the same command, before the stop check)"
+  },
+  {
+   "file": "autopilot_eval_before_stopcheck_summary.json",
+   "what": "its summary",
+   "made": "2026-10-27T17:02:39.059Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "autopilot_eval_k3.json",
+   "what": "the Autopilot, 8 weeks three times each (pass^3)",
+   "made": "2026-10-27T17:59:56.375Z",
+   "by": "EVAL_REPEAT=3 node test/autopilot_eval.mjs data/autopilot_eval_k3.json"
+  },
+  {
+   "file": "autopilot_eval_k3_summary.json",
+   "what": "its summary, with pass^3",
+   "made": "2026-10-27T17:59:56.377Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "autopilot_eval_k3_tokens.json",
+   "what": "its token ledger",
+   "made": "2026-10-27T17:59:56.380Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "persona_eval.json",
+   "what": "the members' rules, two arms, 60 talks each, with the acceptable sets graded",
+   "made": "2026-10-27T18:13:15.709Z",
+   "by": "node test/persona_eval.mjs data/persona_eval.json"
+  },
+  {
+   "file": "scale_eval.json",
+   "what": "the club from 11 to 1,001 members",
+   "made": "2026-10-27T18:18:46.779Z",
+   "by": "node test/scale_eval.mjs data/scale_eval.json"
+  },
+  {
+   "file": "redteam.json",
+   "what": "the adversarial suite",
+   "made": "2026-10-27T23:11:54.673Z",
+   "by": "node test/redteam.mjs"
+  },
+  {
+   "file": "cascade_raw.json",
+   "what": "the quick pick on 120 labeled decisions, three budgets",
+   "made": "2026-10-27T15:11:53.731Z",
+   "by": "node test/cascade_eval.mjs (the quick pick only)"
+  },
+  {
+   "file": "cascade_summary.json",
+   "what": "its analysis: accuracy with cluster-bootstrap intervals, the budget test, calibration, conformal thresholds",
+   "made": "2026-10-27T16:58:40.456Z",
+   "by": "node test/cascade_analysis.mjs data/cascade_raw.json data/cascade_summary.json"
+  },
+  {
+   "file": "budget_probe.json",
+   "what": "every call site at one reasoning budget, a few cases each",
+   "made": "2026-10-27T14:44:43.571Z",
+   "by": "node test/budget_probe.mjs"
+  },
+  {
+   "file": "glimmer_in_practice.json",
+   "what": "Muse Glimmer per call site over the evaluations' ledgers: calls, tokens, reasoning share, empty replies, replies that did not fit their schema, bad tool arguments, seconds",
+   "made": "2026-10-27T22:41:53.974Z",
+   "by": "node test/glimmer_report.mjs data/*-ledger.jsonl"
+  },
+  {
+   "file": "load_eval.json",
+   "what": "throughput at 1 to 16 talks at once, and the player's wait with and without the priority scheduler",
+   "made": "2026-10-27T18:39:06.099Z",
+   "by": "node test/load_eval.mjs data/load_eval.json"
+  },
+  {
+   "file": "private_eval_week.json",
+   "what": "private calendars against the shared view, a usual week",
+   "made": "2026-10-27T19:10:13.688Z",
+   "by": "node test/private_eval.mjs"
+  },
+  {
+   "file": "private_eval_all_first.json",
+   "what": "the same with a week free every day, first run (before listing every hour)",
+   "made": "2026-10-27T19:20:04.456Z",
+   "by": "PRIVATE_WEEK=all node test/private_eval.mjs"
+  },
+  {
+   "file": "private_eval_all_fixed.json",
+   "what": "the private arm again, listing every hour a game fits",
+   "made": "2026-10-27T19:30:46.922Z",
+   "by": "PRIVATE_WEEK=all PRIVATE_ARMS=private node test/private_eval.mjs"
+  },
+  {
+   "file": "scale_eval_first.json",
+   "what": "the club from 11 to 1,001 members, first run",
+   "made": "2026-10-27T18:13:20.459Z",
+   "by": "(the first run of scale_eval, before the population fix)"
+  },
+  {
+   "file": "autopilot_eval_a2a.json",
+   "what": "the Autopilot, 8 weeks three times each, the members' agents answering over A2A (JSON-RPC on a local port, with the token)",
+   "made": "2026-10-27T20:44:54.745Z",
+   "by": "EVAL_A2A=1 EVAL_REPEAT=3 node test/autopilot_eval.mjs data/autopilot_eval_a2a.json"
+  },
+  {
+   "file": "autopilot_eval_a2a_summary.json",
+   "what": "its summary, with pass^3",
+   "made": "2026-10-27T20:44:54.748Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "autopilot_eval_a2a_tokens.json",
+   "what": "its token ledger",
+   "made": "2026-10-27T20:44:54.750Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "persona_eval_a2a.json",
+   "what": "the members' rules, two arms, 60 talks each, over A2A",
+   "made": "2026-10-27T20:58:24.037Z",
+   "by": "EVAL_A2A=1 node test/persona_eval.mjs data/persona_eval_a2a.json"
+  },
+  {
+   "file": "contention_eval.json",
+   "what": "two talks at once for one member, holds off and on: double agreements and games booked",
+   "made": "2026-10-27T22:25:24.270Z",
+   "by": "node test/contention_eval.mjs data/contention_eval.json"
+  },
+  {
+   "file": "contention_eval_a2a.json",
+   "what": "the same over A2A: the members' agents answer and hold over JSON-RPC",
+   "made": "2026-10-27T22:41:25.800Z",
+   "by": "EVAL_A2A=1 node test/contention_eval.mjs data/contention_eval_a2a.json"
+  },
+  {
+   "file": "autopilot_eval_signed2.json",
+   "what": "the Autopilot on the final code with signed Agent Cards: 8 weeks once each, over A2A",
+   "made": "2026-10-27T23:29:49.430Z",
+   "by": "EVAL_A2A=1 node test/autopilot_eval.mjs data/autopilot_eval_signed2.json"
+  },
+  {
+   "file": "autopilot_eval_signed2_summary.json",
+   "what": "its summary",
+   "made": "2026-10-27T23:29:49.431Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "autopilot_eval_final.json",
+   "what": "the Autopilot on the final code: 8 weeks three times each, over A2A, holds on",
+   "made": "2026-10-27T22:04:29.425Z",
+   "by": "EVAL_A2A=1 EVAL_REPEAT=3 node test/autopilot_eval.mjs data/autopilot_eval_final.json"
+  },
+  {
+   "file": "autopilot_eval_final_summary.json",
+   "what": "its summary, with pass^3",
+   "made": "2026-10-27T22:04:29.426Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "autopilot_eval_final_tokens.json",
+   "what": "its token ledger",
+   "made": "2026-10-27T22:04:29.427Z",
+   "by": "(the same run)"
+  },
+  {
+   "file": "e2e.log",
+   "what": "the Messenger end-to-end test's output",
+   "made": "2026-10-27T23:17:00.442Z",
+   "by": "node test/e2e.mjs"
+  },
+  {
+   "file": "unit.log",
+   "what": "the unit tests' output",
+   "made": "2026-10-27T23:10:12.164Z",
+   "by": "node test/unit.mjs"
+  },
+  {
+   "file": "crash_matrix.log",
+   "what": "the crash matrix's output (SIGKILL at each durable step, a stand-in model)",
+   "made": "2026-10-27T23:10:20.001Z",
+   "by": "node test/crash_matrix.mjs"
+  },
+  {
+   "file": "redteam.log",
+   "what": "the adversarial suite's output",
+   "made": "2026-10-27T23:11:54.673Z",
+   "by": "node test/redteam.mjs"
+  },
+  {
+   "file": "a2a_resume.log",
+   "what": "the crash and resume test's output (the real model)",
+   "made": "2026-10-27T23:17:37.859Z",
+   "by": "node test/a2a_resume.mjs"
+  },
+  {
+   "file": "decider_probe.json",
+   "what": "what Ollama gives for one pass with no reasoning: raw generate with the next token's top 20, the begin-of-text token, the templated first token, the native decision request (on an A100)",
+   "made": "2026-10-28T04:17:00.000Z",
+   "by": "LLM_URL=http://127.0.0.1:11445/v1 node test/decider_probe.mjs data/decider_probe.json"
+  },
+  {
+   "file": "decider_dev_raw.json",
+   "what": "the one-pass decider's dev set (seed 11, 61 cases): five prompt variants and the full answer; RTX 3090 with the lock held, but raw:habits on an A100",
+   "made": "2026-10-28T03:49:00.000Z",
+   "by": "DECIDER_SEED=11 DECIDER_MEMBERS=300 node test/decider_eval.mjs data/decider_dev_raw.json raw,rawall,full (and per variant)"
+  },
+  {
+   "file": "decider_dev_summary.json",
+   "what": "its analysis for the chosen variant; the latencies in docs/decider.md come from its 3090 rows",
+   "made": "2026-10-28T04:26:00.000Z",
+   "by": "node test/decider_analysis.mjs data/decider_dev_raw.json data/decider_dev_summary.json raw:habits"
+  },
+  {
+   "file": "decider_raw.json",
+   "what": "the decider against the full answer on seed 7 (196 cases, 152 members), on an A100: five variants, the variants without code's filter, the full answer",
+   "made": "2026-10-28T03:55:00.000Z",
+   "by": "LLM_URL=http://127.0.0.1:11445/v1 node test/decider_eval.mjs data/decider_raw.json raw,rawall,full (and per variant)"
+  },
+  {
+   "file": "decider_raw_full2.json",
+   "what": "the full answer again on the same cases, on a second A100 with the same model",
+   "made": "2026-10-28T04:26:00.000Z",
+   "by": "LLM_URL=http://127.0.0.1:11446/v1 node test/decider_eval.mjs data/decider_raw_full2.json full2"
+  },
+  {
+   "file": "decider_summary.json",
+   "what": "its analysis: agreement with cluster-bootstrap intervals, declines, preference hits, calibration, conformal thresholds, the cascade on held-out members",
+   "made": "2026-10-28T04:26:00.000Z",
+   "by": "node test/decider_analysis.mjs data/decider_raw.json,data/decider_raw_full2.json data/decider_summary.json raw:habits"
+  }
+ ]
+}
