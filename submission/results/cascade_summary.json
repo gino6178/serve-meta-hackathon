@@ -1,0 +1,289 @@
+{
+ "at": "2026-10-27T16:58:40.454Z",
+ "cases": 120,
+ "members": 33,
+ "split": {
+  "calibration": 13,
+  "test": 20
+ },
+ "table": [
+  {
+   "system": "s1",
+   "budget": 150,
+   "cases": 120,
+   "accuracy": 0.042,
+   "ci": [
+    0.009,
+    0.08
+   ],
+   "output": 161,
+   "reasoning": 160,
+   "seconds": 10.858,
+   "empty": 115,
+   "tokensPerRight": 3856
+  },
+  {
+   "system": "s1",
+   "budget": 300,
+   "cases": 120,
+   "accuracy": 0.342,
+   "ci": [
+    0.263,
+    0.421
+   ],
+   "output": 285,
+   "reasoning": 283,
+   "seconds": 17.293,
+   "empty": 79,
+   "tokensPerRight": 833
+  },
+  {
+   "system": "s1",
+   "budget": 600,
+   "cases": 120,
+   "accuracy": 0.758,
+   "ci": [
+    0.667,
+    0.845
+   ],
+   "output": 402,
+   "reasoning": 400,
+   "seconds": 24.096,
+   "empty": 26,
+   "tokensPerRight": 530
+  }
+ ],
+ "budgets": {
+  "s2": null,
+  "s1": {
+   "margin": 0.05,
+   "against": 600,
+   "tests": [
+    {
+     "budget": 150,
+     "difference": -0.717,
+     "ci": [
+      -0.802,
+      -0.627
+     ],
+     "nonInferior": false
+    },
+    {
+     "budget": 300,
+     "difference": -0.417,
+     "ci": [
+      -0.495,
+      -0.336
+     ],
+     "nonInferior": false
+    },
+    {
+     "budget": 600,
+     "difference": 0,
+     "ci": [
+      0,
+      0
+     ],
+     "nonInferior": true
+    }
+   ],
+   "chosen": 600
+  }
+ },
+ "thresholds": {
+  "150": {
+   "eps": 0.05,
+   "n": 45,
+   "threshold": 1,
+   "steps": [
+    {
+     "threshold": 1,
+     "answered": 2,
+     "wrong": 0,
+     "bound": 0.022
+    }
+   ]
+  },
+  "300": {
+   "eps": 0.05,
+   "n": 45,
+   "threshold": 0,
+   "steps": [
+    {
+     "threshold": 1,
+     "answered": 9,
+     "wrong": 0,
+     "bound": 0.022
+    },
+    {
+     "threshold": 0.999,
+     "answered": 11,
+     "wrong": 0,
+     "bound": 0.022
+    },
+    {
+     "threshold": 0,
+     "answered": 16,
+     "wrong": 0,
+     "bound": 0.022
+    }
+   ]
+  },
+  "600": {
+   "eps": 0.05,
+   "n": 45,
+   "threshold": 0,
+   "steps": [
+    {
+     "threshold": 1,
+     "answered": 13,
+     "wrong": 0,
+     "bound": 0.022
+    },
+    {
+     "threshold": 0.999,
+     "answered": 15,
+     "wrong": 0,
+     "bound": 0.022
+    },
+    {
+     "threshold": 0.997,
+     "answered": 16,
+     "wrong": 0,
+     "bound": 0.022
+    },
+    {
+     "threshold": 0,
+     "answered": 37,
+     "wrong": 0,
+     "bound": 0.022
+    }
+   ]
+  }
+ },
+ "calibration": {
+  "150": {
+   "scored": 5,
+   "of": 120,
+   "ece": 0,
+   "bins": [
+    {
+     "from": 0.9,
+     "n": 5,
+     "confidence": 1,
+     "accuracy": 1
+    }
+   ],
+   "riskCoverage": [
+    {
+     "threshold": 1,
+     "coverage": 0.042,
+     "risk": 0
+    }
+   ]
+  },
+  "300": {
+   "scored": 41,
+   "of": 120,
+   "ece": 0.198,
+   "bins": [
+    {
+     "from": 0,
+     "n": 8,
+     "confidence": 0,
+     "accuracy": 1
+    },
+    {
+     "from": 0.9,
+     "n": 33,
+     "confidence": 0.997,
+     "accuracy": 1
+    }
+   ],
+   "riskCoverage": [
+    {
+     "threshold": 1,
+     "coverage": 0.242,
+     "risk": 0
+    },
+    {
+     "threshold": 0.999,
+     "coverage": 0.258,
+     "risk": 0
+    },
+    {
+     "threshold": 0.989,
+     "coverage": 0.267,
+     "risk": 0
+    },
+    {
+     "threshold": 0.904,
+     "coverage": 0.275,
+     "risk": 0
+    },
+    {
+     "threshold": 0,
+     "coverage": 0.342,
+     "risk": 0
+    }
+   ]
+  },
+  "600": {
+   "scored": 94,
+   "of": 120,
+   "ece": 0.531,
+   "bins": [
+    {
+     "from": 0,
+     "n": 51,
+     "confidence": 0,
+     "accuracy": 0.961
+    },
+    {
+     "from": 0.9,
+     "n": 43,
+     "confidence": 0.999,
+     "accuracy": 0.977
+    }
+   ],
+   "riskCoverage": [
+    {
+     "threshold": 1,
+     "coverage": 0.308,
+     "risk": 0
+    },
+    {
+     "threshold": 0.999,
+     "coverage": 0.325,
+     "risk": 0
+    },
+    {
+     "threshold": 0.997,
+     "coverage": 0.333,
+     "risk": 0
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.342,
+     "risk": 0
+    },
+    {
+     "threshold": 0.989,
+     "coverage": 0.35,
+     "risk": 0
+    },
+    {
+     "threshold": 0.964,
+     "coverage": 0.358,
+     "risk": 0.023
+    },
+    {
+     "threshold": 0,
+     "coverage": 0.783,
+     "risk": 0.032
+    }
+   ]
+  }
+ },
+ "cascades": []
+}
