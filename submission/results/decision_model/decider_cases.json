@@ -1,0 +1,276 @@
+{
+ "cases": 196,
+ "members": 152,
+ "graded": 32,
+ "full_vs_full2": {
+  "value": 0.7347,
+  "ci95": [
+   0.6753,
+   0.7938
+  ],
+  "n": 196
+ },
+ "full_liked": 27,
+ "full2_liked": 27,
+ "full_first_listed": 0.5816,
+ "students": {
+  "3b_v3": {
+   "vs_full": {
+    "value": 0.6888,
+    "ci95": [
+     0.6244,
+     0.755
+    ],
+    "n": 196
+   },
+   "vs_full2": {
+    "value": 0.7653,
+    "ci95": [
+     0.7026,
+     0.8238
+    ],
+    "n": 196
+   },
+   "vs_full_where_full_agree": {
+    "value": 0.8194,
+    "ci95": [
+     0.7483,
+     0.8857
+    ],
+    "n": 144
+   },
+   "minus_full2_vs_full": {
+    "value": -0.0459,
+    "ci95": [
+     -0.1168,
+     0.0222
+    ],
+    "n": 196
+   },
+   "liked": "26 of 32",
+   "first_listed": 0.5408,
+   "declines": 0,
+   "read_matches_code": 196,
+   "by_rule": {
+    "endBy": "80 of 138",
+    "noDays": "42 of 45",
+    "maxTrip": "13 of 13"
+   }
+  },
+  "1b_v3": {
+   "vs_full": {
+    "value": 0.6327,
+    "ci95": [
+     0.5672,
+     0.695
+    ],
+    "n": 196
+   },
+   "vs_full2": {
+    "value": 0.7296,
+    "ci95": [
+     0.6615,
+     0.791
+    ],
+    "n": 196
+   },
+   "vs_full_where_full_agree": {
+    "value": 0.7569,
+    "ci95": [
+     0.6779,
+     0.8276
+    ],
+    "n": 144
+   },
+   "minus_full2_vs_full": {
+    "value": -0.102,
+    "ci95": [
+     -0.178,
+     -0.0309
+    ],
+    "n": 196
+   },
+   "liked": "32 of 32",
+   "first_listed": 0.4796,
+   "declines": 0,
+   "read_matches_code": 196,
+   "by_rule": {
+    "endBy": "73 of 138",
+    "noDays": "40 of 45",
+    "maxTrip": "11 of 13"
+   }
+  },
+  "3b_v2": {
+   "vs_full": {
+    "value": 0.6939,
+    "ci95": [
+     0.6263,
+     0.7626
+    ],
+    "n": 196
+   },
+   "vs_full2": {
+    "value": 0.699,
+    "ci95": [
+     0.635,
+     0.761
+    ],
+    "n": 196
+   },
+   "vs_full_where_full_agree": {
+    "value": 0.7778,
+    "ci95": [
+     0.7042,
+     0.8467
+    ],
+    "n": 144
+   },
+   "minus_full2_vs_full": {
+    "value": -0.0408,
+    "ci95": [
+     -0.1173,
+     0.0366
+    ],
+    "n": 196
+   },
+   "liked": "18 of 32",
+   "first_listed": 0.6531,
+   "declines": 0,
+   "read_matches_code": 196,
+   "by_rule": {
+    "endBy": "84 of 138",
+    "noDays": "41 of 45",
+    "maxTrip": "11 of 13"
+   }
+  },
+  "1b_v2": {
+   "vs_full": {
+    "value": 0.6786,
+    "ci95": [
+     0.6078,
+     0.7475
+    ],
+    "n": 196
+   },
+   "vs_full2": {
+    "value": 0.6888,
+    "ci95": [
+     0.6238,
+     0.7551
+    ],
+    "n": 196
+   },
+   "vs_full_where_full_agree": {
+    "value": 0.7569,
+    "ci95": [
+     0.6812,
+     0.8288
+    ],
+    "n": 144
+   },
+   "minus_full2_vs_full": {
+    "value": -0.0561,
+    "ci95": [
+     -0.132,
+     0.0213
+    ],
+    "n": 196
+   },
+   "liked": "23 of 32",
+   "first_listed": 0.6378,
+   "declines": 0,
+   "read_matches_code": 196,
+   "by_rule": {
+    "endBy": "83 of 138",
+    "noDays": "38 of 45",
+    "maxTrip": "12 of 13"
+   }
+  },
+  "3b_sft": {
+   "vs_full": {
+    "value": 0.5867,
+    "ci95": [
+     0.5103,
+     0.6598
+    ],
+    "n": 196
+   },
+   "vs_full2": {
+    "value": 0.6173,
+    "ci95": [
+     0.5492,
+     0.6872
+    ],
+    "n": 196
+   },
+   "vs_full_where_full_agree": {
+    "value": 0.6528,
+    "ci95": [
+     0.5646,
+     0.7351
+    ],
+    "n": 144
+   },
+   "minus_full2_vs_full": {
+    "value": -0.148,
+    "ci95": [
+     -0.2353,
+     -0.065
+    ],
+    "n": 196
+   },
+   "liked": "24 of 32",
+   "first_listed": 0.4694,
+   "declines": 0,
+   "read_matches_code": 195,
+   "by_rule": {
+    "endBy": "62 of 138",
+    "noDays": "41 of 45",
+    "maxTrip": "12 of 13"
+   }
+  },
+  "1b_sft": {
+   "vs_full": {
+    "value": 0.6633,
+    "ci95": [
+     0.595,
+     0.732
+    ],
+    "n": 196
+   },
+   "vs_full2": {
+    "value": 0.6122,
+    "ci95": [
+     0.5396,
+     0.6866
+    ],
+    "n": 196
+   },
+   "vs_full_where_full_agree": {
+    "value": 0.7083,
+    "ci95": [
+     0.6233,
+     0.7872
+    ],
+    "n": 144
+   },
+   "minus_full2_vs_full": {
+    "value": -0.0714,
+    "ci95": [
+     -0.1566,
+     0.0101
+    ],
+    "n": 196
+   },
+   "liked": "17 of 32",
+   "first_listed": 0.6633,
+   "declines": 0,
+   "read_matches_code": 196,
+   "by_rule": {
+    "endBy": "79 of 138",
+    "noDays": "39 of 45",
+    "maxTrip": "12 of 13"
+   }
+  }
+ }
+}
