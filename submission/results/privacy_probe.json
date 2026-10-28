@@ -1,0 +1,959 @@
+{
+ "at": "2026-10-28T12:29:21.779Z",
+ "targets": 60,
+ "hoursScored": 112,
+ "seed": 7,
+ "month": {
+  "start": "2026-11-02",
+  "days": 28
+ },
+ "rates": {
+  "noIfFree": 0.067,
+  "unlikelyIfFree": 0.103,
+  "n": 854
+ },
+ "prior": {
+  "auc": 0.892,
+  "aucPlausible": 0.852,
+  "f1": 0,
+  "freeShare": 0.09,
+  "plausibleHours": 84,
+  "daysKnown": 0
+ },
+ "curves": [
+  {
+   "name": "no budget, active + bands",
+   "env": {},
+   "N": 0,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.949,
+    "aucPlausible": 0.937,
+    "f1": 0.593,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.4
+   },
+   "file": {
+    "day28": {
+     "auc": 0.892,
+     "aucPlausible": 0.852,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.892,
+     "aucPlausible": 0.852,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 0,
+    "answers": 0,
+    "withheld": 0,
+    "bandsAsked": 6720,
+    "bandsRefused": 5880
+   }
+  },
+  {
+   "name": "no budget, active + bands",
+   "env": {},
+   "N": 5,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.968,
+    "aucPlausible": 0.969,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.976
+   },
+   "file": {
+    "day28": {
+     "auc": 0.852,
+     "aucPlausible": 0.83,
+     "f1": 0.366,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.853,
+     "aucPlausible": 0.823,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 300,
+    "answers": 7371,
+    "withheld": 0,
+    "bandsAsked": 6720,
+    "bandsRefused": 5880
+   }
+  },
+  {
+   "name": "no budget, active + bands",
+   "env": {},
+   "N": 10,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.972,
+    "aucPlausible": 0.974,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.976
+   },
+   "file": {
+    "day28": {
+     "auc": 0.833,
+     "aucPlausible": 0.82,
+     "f1": 0.463,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.876,
+     "aucPlausible": 0.85,
+     "f1": 0.02,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 600,
+    "answers": 15301,
+    "withheld": 0,
+    "bandsAsked": 6720,
+    "bandsRefused": 5880
+   }
+  },
+  {
+   "name": "no budget, active + bands",
+   "env": {},
+   "N": 20,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.981,
+    "aucPlausible": 0.984,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.976
+   },
+   "file": {
+    "day28": {
+     "auc": 0.792,
+     "aucPlausible": 0.792,
+     "f1": 0.512,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.827,
+     "aucPlausible": 0.815,
+     "f1": 0.222,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 1200,
+    "answers": 33057,
+    "withheld": 0,
+    "bandsAsked": 6720,
+    "bandsRefused": 5880
+   }
+  },
+  {
+   "name": "no budget, active + bands",
+   "env": {},
+   "N": 40,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.976,
+    "aucPlausible": 0.978,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.976
+   },
+   "file": {
+    "day28": {
+     "auc": 0.793,
+     "aucPlausible": 0.796,
+     "f1": 0.535,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.831,
+     "aucPlausible": 0.826,
+     "f1": 0.361,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 61202,
+    "withheld": 0,
+    "bandsAsked": 6720,
+    "bandsRefused": 5880
+   }
+  },
+  {
+   "name": "default budget, active + bands",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "24",
+    "A2A_BUDGET_MEMBER_CELLS": "72",
+    "A2A_BUDGET_SURE": "0.9"
+   },
+   "N": 0,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.968,
+    "aucPlausible": 0.957,
+    "f1": 0.665,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.007
+   },
+   "file": {
+    "day28": {
+     "auc": 0.892,
+     "aucPlausible": 0.852,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.892,
+     "aucPlausible": 0.852,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 0,
+    "answers": 0,
+    "withheld": 0,
+    "bandsAsked": 6720,
+    "bandsRefused": 6333
+   }
+  },
+  {
+   "name": "default budget, active + bands",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "24",
+    "A2A_BUDGET_MEMBER_CELLS": "72",
+    "A2A_BUDGET_SURE": "0.9"
+   },
+   "N": 5,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.98,
+    "aucPlausible": 0.975,
+    "f1": 0.753,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.262
+   },
+   "file": {
+    "day28": {
+     "auc": 0.906,
+     "aucPlausible": 0.872,
+     "f1": 0.248,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.891,
+     "aucPlausible": 0.851,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 300,
+    "answers": 5675,
+    "withheld": 4583,
+    "bandsAsked": 6720,
+    "bandsRefused": 6658
+   }
+  },
+  {
+   "name": "default budget, active + bands",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "24",
+    "A2A_BUDGET_MEMBER_CELLS": "72",
+    "A2A_BUDGET_SURE": "0.9"
+   },
+   "N": 10,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.98,
+    "aucPlausible": 0.975,
+    "f1": 0.748,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.302
+   },
+   "file": {
+    "day28": {
+     "auc": 0.898,
+     "aucPlausible": 0.864,
+     "f1": 0.25,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.889,
+     "aucPlausible": 0.848,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 600,
+    "answers": 10140,
+    "withheld": 8904,
+    "bandsAsked": 6720,
+    "bandsRefused": 6660
+   }
+  },
+  {
+   "name": "default budget, active + bands",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "24",
+    "A2A_BUDGET_MEMBER_CELLS": "72",
+    "A2A_BUDGET_SURE": "0.9"
+   },
+   "N": 20,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.98,
+    "aucPlausible": 0.974,
+    "f1": 0.748,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.269
+   },
+   "file": {
+    "day28": {
+     "auc": 0.905,
+     "aucPlausible": 0.871,
+     "f1": 0.255,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.892,
+     "aucPlausible": 0.852,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 1200,
+    "answers": 17100,
+    "withheld": 15912,
+    "bandsAsked": 6720,
+    "bandsRefused": 6682
+   }
+  },
+  {
+   "name": "default budget, active + bands",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "24",
+    "A2A_BUDGET_MEMBER_CELLS": "72",
+    "A2A_BUDGET_SURE": "0.9"
+   },
+   "N": 40,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.98,
+    "aucPlausible": 0.975,
+    "f1": 0.748,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.324
+   },
+   "file": {
+    "day28": {
+     "auc": 0.907,
+     "aucPlausible": 0.872,
+     "f1": 0.263,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.901,
+     "aucPlausible": 0.864,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 32027,
+    "withheld": 30370,
+    "bandsAsked": 6720,
+    "bandsRefused": 6688
+   }
+  }
+ ],
+ "frontier": [
+  {
+   "name": "no budget",
+   "env": {},
+   "N": 40,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.976,
+    "aucPlausible": 0.978,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.976
+   },
+   "file": {
+    "day28": {
+     "auc": 0.793,
+     "aucPlausible": 0.796,
+     "f1": 0.535,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.831,
+     "aucPlausible": 0.826,
+     "f1": 0.361,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 61202,
+    "withheld": 0,
+    "bandsAsked": 6720,
+    "bandsRefused": 5880
+   },
+   "utility": {
+    "you": {
+     "games": 320,
+     "possible": 216,
+     "agreedWhenPossible": 1,
+     "bestWhenPossible": 0.889,
+     "meanRounds": 1,
+     "meanRoundsWhenAgreed": 1,
+     "endedByBudget": 0,
+     "broke": 0,
+     "singles": 1,
+     "doubles": 1
+    },
+    "flex": {
+     "games": 320,
+     "possible": 256,
+     "agreedWhenPossible": 1,
+     "bestWhenPossible": 0.926,
+     "meanRounds": 1.43,
+     "meanRoundsWhenAgreed": 1.04,
+     "endedByBudget": 0,
+     "broke": 0,
+     "singles": 1,
+     "doubles": 1
+    }
+   }
+  },
+  {
+   "name": "budget 8",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "8",
+    "A2A_BUDGET_MEMBER_CELLS": "24"
+   },
+   "N": 40,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.947,
+    "aucPlausible": 0.928,
+    "f1": 0.502,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.426
+   },
+   "file": {
+    "day28": {
+     "auc": 0.901,
+     "aucPlausible": 0.864,
+     "f1": 0.141,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.9,
+     "aucPlausible": 0.862,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 29040,
+    "withheld": 28294,
+    "bandsAsked": 6720,
+    "bandsRefused": 6720
+   },
+   "utility": {
+    "you": {
+     "games": 320,
+     "possible": 216,
+     "agreedWhenPossible": 1,
+     "bestWhenPossible": 0.889,
+     "meanRounds": 1,
+     "meanRoundsWhenAgreed": 1,
+     "endedByBudget": 0,
+     "broke": 0,
+     "singles": 1,
+     "doubles": 1
+    },
+    "flex": {
+     "games": 320,
+     "possible": 256,
+     "agreedWhenPossible": 0.652,
+     "bestWhenPossible": 0.559,
+     "meanRounds": 1.57,
+     "meanRoundsWhenAgreed": 1,
+     "endedByBudget": 129,
+     "broke": 0,
+     "singles": 0.685,
+     "doubles": 0.333
+    }
+   }
+  },
+  {
+   "name": "budget 12",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "12",
+    "A2A_BUDGET_MEMBER_CELLS": "36"
+   },
+   "N": 40,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.961,
+    "aucPlausible": 0.948,
+    "f1": 0.601,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.569
+   },
+   "file": {
+    "day28": {
+     "auc": 0.902,
+     "aucPlausible": 0.864,
+     "f1": 0.152,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.9,
+     "aucPlausible": 0.862,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 28920,
+    "withheld": 27804,
+    "bandsAsked": 6720,
+    "bandsRefused": 6720
+   },
+   "utility": {
+    "you": {
+     "games": 320,
+     "possible": 216,
+     "agreedWhenPossible": 1,
+     "bestWhenPossible": 0.889,
+     "meanRounds": 1,
+     "meanRoundsWhenAgreed": 1,
+     "endedByBudget": 0,
+     "broke": 0,
+     "singles": 1,
+     "doubles": 1
+    },
+    "flex": {
+     "games": 320,
+     "possible": 256,
+     "agreedWhenPossible": 0.766,
+     "bestWhenPossible": 0.68,
+     "meanRounds": 1.59,
+     "meanRoundsWhenAgreed": 1,
+     "endedByBudget": 103,
+     "broke": 0,
+     "singles": 0.81,
+     "doubles": 0.333
+    }
+   }
+  },
+  {
+   "name": "budget 24",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "24",
+    "A2A_BUDGET_MEMBER_CELLS": "72"
+   },
+   "N": 40,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.96,
+    "aucPlausible": 0.96,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.957
+   },
+   "file": {
+    "day28": {
+     "auc": 0.892,
+     "aucPlausible": 0.86,
+     "f1": 0.287,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.889,
+     "aucPlausible": 0.852,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 29820,
+    "withheld": 27882,
+    "bandsAsked": 6720,
+    "bandsRefused": 6660
+   },
+   "utility": {
+    "you": {
+     "games": 320,
+     "possible": 216,
+     "agreedWhenPossible": 1,
+     "bestWhenPossible": 0.889,
+     "meanRounds": 1,
+     "meanRoundsWhenAgreed": 1,
+     "endedByBudget": 0,
+     "broke": 0,
+     "singles": 1,
+     "doubles": 1
+    },
+    "flex": {
+     "games": 320,
+     "possible": 256,
+     "agreedWhenPossible": 1,
+     "bestWhenPossible": 0.926,
+     "meanRounds": 1.43,
+     "meanRoundsWhenAgreed": 1.04,
+     "endedByBudget": 50,
+     "broke": 0,
+     "singles": 1,
+     "doubles": 1
+    }
+   }
+  },
+  {
+   "name": "minimal m=1",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "999",
+    "A2A_BUDGET_MEMBER_CELLS": "999",
+    "A2A_DISCLOSE_MIN": "1"
+   },
+   "N": 40,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.965,
+    "aucPlausible": 0.965,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.976
+   },
+   "file": {
+    "day28": {
+     "auc": 0.787,
+     "aucPlausible": 0.792,
+     "f1": 0.709,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.822,
+     "aucPlausible": 0.82,
+     "f1": 0.558,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 57707,
+    "withheld": 51814,
+    "bandsAsked": 6720,
+    "bandsRefused": 5880
+   },
+   "utility": {
+    "you": {
+     "games": 320,
+     "possible": 216,
+     "agreedWhenPossible": 0.995,
+     "bestWhenPossible": 0.884,
+     "meanRounds": 1,
+     "meanRoundsWhenAgreed": 1,
+     "endedByBudget": 0,
+     "broke": 0,
+     "singles": 1,
+     "doubles": 0.938
+    },
+    "flex": {
+     "games": 320,
+     "possible": 256,
+     "agreedWhenPossible": 0.984,
+     "bestWhenPossible": 0.91,
+     "meanRounds": 1.45,
+     "meanRoundsWhenAgreed": 1.03,
+     "endedByBudget": 0,
+     "broke": 0,
+     "singles": 1,
+     "doubles": 0.833
+    }
+   }
+  },
+  {
+   "name": "budget 24 + check 0.9 (default)",
+   "env": {
+    "A2A_BUDGET": "on",
+    "A2A_BUDGET_CELLS": "24",
+    "A2A_BUDGET_MEMBER_CELLS": "72",
+    "A2A_BUDGET_SURE": "0.9"
+   },
+   "N": 40,
+   "mode": "active",
+   "bands": true,
+   "guess": {
+    "auc": 0.98,
+    "aucPlausible": 0.975,
+    "f1": 0.748,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.324
+   },
+   "file": {
+    "day28": {
+     "auc": 0.907,
+     "aucPlausible": 0.872,
+     "f1": 0.263,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.901,
+     "aucPlausible": 0.864,
+     "f1": 0,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 32027,
+    "withheld": 30370,
+    "bandsAsked": 6720,
+    "bandsRefused": 6688
+   },
+   "utility": {
+    "you": {
+     "games": 320,
+     "possible": 216,
+     "agreedWhenPossible": 1,
+     "bestWhenPossible": 0.815,
+     "meanRounds": 1,
+     "meanRoundsWhenAgreed": 1,
+     "endedByBudget": 0,
+     "broke": 0,
+     "singles": 1,
+     "doubles": 1
+    },
+    "flex": {
+     "games": 320,
+     "possible": 256,
+     "agreedWhenPossible": 0.938,
+     "bestWhenPossible": 0.516,
+     "meanRounds": 1.54,
+     "meanRoundsWhenAgreed": 1.05,
+     "endedByBudget": 12,
+     "broke": 0,
+     "singles": 0.948,
+     "doubles": 0.833
+    }
+   }
+  }
+ ],
+ "file": [
+  {
+   "name": "file: counts kept",
+   "env": {
+    "A2A_MEMORY_HALFLIFE_DAYS": "off"
+   },
+   "N": 40,
+   "mode": "passive",
+   "bands": false,
+   "guess": {
+    "auc": 0.957,
+    "aucPlausible": 0.958,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.976
+   },
+   "file": {
+    "day28": {
+     "auc": 0.885,
+     "aucPlausible": 0.852,
+     "f1": 0.174,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.885,
+     "aucPlausible": 0.852,
+     "f1": 0.174,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 30900,
+    "withheld": 0,
+    "bandsAsked": 0,
+    "bandsRefused": 0
+   }
+  },
+  {
+   "name": "file: counts fade, half-life 14 days",
+   "env": {},
+   "N": 40,
+   "mode": "passive",
+   "bands": false,
+   "guess": {
+    "auc": 0.957,
+    "aucPlausible": 0.957,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.976
+   },
+   "file": {
+    "day28": {
+     "auc": 0.888,
+     "aucPlausible": 0.854,
+     "f1": 0.174,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.892,
+     "aucPlausible": 0.857,
+     "f1": 0.174,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 30900,
+    "withheld": 0,
+    "bandsAsked": 0,
+    "bandsRefused": 0
+   }
+  },
+  {
+   "name": "file: fade + part of the day",
+   "env": {
+    "A2A_MEMORY_GRAIN": "part"
+   },
+   "N": 40,
+   "mode": "passive",
+   "bands": false,
+   "guess": {
+    "auc": 0.961,
+    "aucPlausible": 0.961,
+    "f1": 0.967,
+    "freeShare": 0.09,
+    "plausibleHours": 84,
+    "daysKnown": 0.976
+   },
+   "file": {
+    "day28": {
+     "auc": 0.779,
+     "aucPlausible": 0.768,
+     "f1": 0.38,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    },
+    "day56": {
+     "auc": 0.794,
+     "aucPlausible": 0.778,
+     "f1": 0.38,
+     "freeShare": 0.09,
+     "plausibleHours": 84
+    }
+   },
+   "told": {
+    "talks": 2400,
+    "answers": 31152,
+    "withheld": 0,
+    "bandsAsked": 0,
+    "bandsRefused": 0
+   }
+  }
+ ],
+ "seconds": 681.2
+}
