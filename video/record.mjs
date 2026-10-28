@@ -18,7 +18,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const want = process.argv.slice(2);
 const DEFAULT = ["impact", "autopilot", "body", "courts", "pocket", "highlight", "club", "meta", "tech", "end"];
 const run = (n) => (want.length ? want.includes(n) : DEFAULT.includes(n));
-const BODY_SEED = JSON.parse(fs.readFileSync(path.join(OUT, "body_seed.json"), "utf8"));
+const BODY_SEED = JSON.parse(fs.readFileSync(path.join(HERE, "body_seed.json"), "utf8")) // the demo's body log and sample health import (made up);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const marks = fs.existsSync(MARKS) ? JSON.parse(fs.readFileSync(MARKS, "utf8")) : {};
 
@@ -165,10 +165,10 @@ if (run("autopilot")) {
   await rec("autopilot", async (mark) => {
     await callout("fx1", `It learned ${G}when you play${E} and ${G}who you play best with${E}`, 80, 110); await wait(2600); await uncall("fx1");
     await click(".report-head .btn.primary", "Run my week now", 900); mark("run");
-    await page.waitForFunction(() => document.querySelector(".ap-steps li.check_body"), { timeout: 240000, polling: 200 }); mark("body");
+    await page.waitForFunction(() => document.querySelector(".ap-steps li.t-check_body"), { timeout: 240000, polling: 200 }); mark("body");
     await scrollEl(".ap-run", "start", 1200);
     await callout("fx2", `Muse Glimmer ${G}picks each tool${E}; code runs it and checks the result`, 80, 110);
-    await page.waitForFunction(() => document.querySelector(".ap-steps li.find_partners"), { timeout: 240000, polling: 200 }); mark("partners");
+    await page.waitForFunction(() => document.querySelector(".ap-steps li.t-find_partners"), { timeout: 240000, polling: 200 }); mark("partners");
     await page.waitForFunction(() => document.querySelector(".ap-thread"), { timeout: 240000, polling: 200 }); mark("talk");
     await uncall("fx2");
     await callout("fx3", `Your agent and ${G}three players' agents${E}, answering at once`, 80, 110);
@@ -296,7 +296,7 @@ if (run("highlight") && process.env.HIGHLIGHT_CLIP) {
     await page.waitForFunction(() => document.querySelector(".own-card.ready, .own-card.failed"), { timeout: 600000, polling: 200 }); mark("read");
     await resetFx();
     await click(".hl-actions .btn.primary", "Create video", 800);
-    await page.waitForFunction(() => document.querySelector("canvas.hl-canvas")?.dataset.phase === "replay", { timeout: 120000, polling: 50 }); mark("replay");
+    await page.waitForFunction(() => ["replay", "impact", "effect"].includes(document.querySelector("canvas.hl-canvas")?.dataset.phase), { timeout: 120000, polling: 50 }); mark("replay");
     const cv = await center("canvas.hl-canvas", null, .5, .41);
     if (cv) await zoom(cv.x, cv.y, 1.4, 1000);
     await callout("fx2", `Your moment, in ${G}slow motion${E}`, 80, 110);

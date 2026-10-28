@@ -13,7 +13,7 @@ const puppeteer = require("puppeteer-core");
 const B = "http://127.0.0.1:5191";
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1"));
 const OUT = path.join(HERE, "..", "submission", "shots");
-const BODY_SEED = JSON.parse(fs.readFileSync(path.join(HERE, "build", "body_seed.json"), "utf8"));
+const BODY_SEED = JSON.parse(fs.readFileSync(path.join(HERE, "body_seed.json"), "utf8"));
 const ALL = ["home", "home_dark", "phone_home", "talk", "autopilot", "play", "body", "courts", "club", "reel", "phone_club"];
 const want = process.argv.slice(2).length ? process.argv.slice(2) : ALL;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
