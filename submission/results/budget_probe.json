@@ -1,0 +1,301 @@
+[
+ {
+  "site": "life.read",
+  "budget": 900,
+  "cases": 4,
+  "right": 4,
+  "calls": 4,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 200,
+  "reasoningPerCall": 152,
+  "secondsPerCall": 12.5,
+  "wrong": []
+ },
+ {
+  "site": "body.read",
+  "budget": 900,
+  "cases": 2,
+  "right": 2,
+  "calls": 2,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 235,
+  "reasoningPerCall": 179,
+  "secondsPerCall": 16.6,
+  "wrong": []
+ },
+ {
+  "site": "ask.word",
+  "budget": 900,
+  "cases": 1,
+  "right": 1,
+  "calls": 1,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 508,
+  "reasoningPerCall": 479,
+  "secondsPerCall": 17.6,
+  "wrong": []
+ },
+ {
+  "site": "a2a.answer",
+  "budget": 900,
+  "cases": 2,
+  "right": 2,
+  "calls": 2,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 310,
+  "reasoningPerCall": 239,
+  "secondsPerCall": 15.2,
+  "wrong": []
+ },
+ {
+  "site": "a2a.pick",
+  "budget": 900,
+  "cases": 2,
+  "right": 1,
+  "calls": 2,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 492,
+  "reasoningPerCall": 491,
+  "secondsPerCall": 33.8,
+  "wrong": [
+   "kenji singles"
+  ]
+ },
+ {
+  "site": "a2a.write",
+  "budget": 900,
+  "cases": 2,
+  "right": 2,
+  "calls": 3,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 430,
+  "reasoningPerCall": 380,
+  "secondsPerCall": 28.1,
+  "wrong": []
+ },
+ {
+  "site": "places.judge",
+  "budget": 900,
+  "cases": 1,
+  "right": 1,
+  "calls": 4,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 349,
+  "reasoningPerCall": 265,
+  "secondsPerCall": 20.4,
+  "wrong": []
+ },
+ {
+  "site": "places.english",
+  "budget": 900,
+  "cases": 1,
+  "right": 1,
+  "calls": 1,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 366,
+  "reasoningPerCall": 336,
+  "secondsPerCall": 13.1,
+  "wrong": []
+ },
+ {
+  "site": "life.read",
+  "budget": 400,
+  "cases": 4,
+  "right": 4,
+  "calls": 4,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 188,
+  "reasoningPerCall": 139,
+  "secondsPerCall": 11.8,
+  "wrong": []
+ },
+ {
+  "site": "body.read",
+  "budget": 400,
+  "cases": 2,
+  "right": 2,
+  "calls": 2,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 235,
+  "reasoningPerCall": 179,
+  "secondsPerCall": 9.6,
+  "wrong": []
+ },
+ {
+  "site": "ask.word",
+  "budget": 400,
+  "cases": 1,
+  "right": 0,
+  "calls": 1,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 408,
+  "reasoningPerCall": 379,
+  "secondsPerCall": 14.5,
+  "wrong": [
+   "want a game?"
+  ]
+ },
+ {
+  "site": "a2a.answer",
+  "budget": 400,
+  "cases": 2,
+  "right": 2,
+  "calls": 2,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 356,
+  "reasoningPerCall": 289,
+  "secondsPerCall": 24.7,
+  "wrong": []
+ },
+ {
+  "site": "a2a.pick",
+  "budget": 400,
+  "cases": 2,
+  "right": 1,
+  "calls": 2,
+  "empty": 1,
+  "invalid": 0,
+  "outputPerCall": 343,
+  "reasoningPerCall": 341,
+  "secondsPerCall": 13.7,
+  "wrong": [
+   "kenji singles"
+  ]
+ },
+ {
+  "site": "a2a.write",
+  "budget": 400,
+  "cases": 2,
+  "right": 2,
+  "calls": 3,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 365,
+  "reasoningPerCall": 317,
+  "secondsPerCall": 14.7,
+  "wrong": []
+ },
+ {
+  "site": "places.judge",
+  "budget": 400,
+  "cases": 1,
+  "right": 1,
+  "calls": 4,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 333,
+  "reasoningPerCall": 261,
+  "secondsPerCall": 19.4,
+  "wrong": []
+ },
+ {
+  "site": "places.english",
+  "budget": 400,
+  "cases": 1,
+  "right": 1,
+  "calls": 1,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 366,
+  "reasoningPerCall": 336,
+  "secondsPerCall": 13.1,
+  "wrong": []
+ },
+ {
+  "site": "life.read",
+  "budget": 250,
+  "cases": 4,
+  "right": 4,
+  "calls": 4,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 219,
+  "reasoningPerCall": 171,
+  "secondsPerCall": 14.9,
+  "wrong": []
+ },
+ {
+  "site": "body.read",
+  "budget": 250,
+  "cases": 2,
+  "right": 2,
+  "calls": 2,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 227,
+  "reasoningPerCall": 171,
+  "secondsPerCall": 16.8,
+  "wrong": []
+ },
+ {
+  "site": "ask.word",
+  "budget": 250,
+  "cases": 1,
+  "right": 0,
+  "calls": 1,
+  "empty": 1,
+  "invalid": 0,
+  "outputPerCall": 390,
+  "reasoningPerCall": 389,
+  "secondsPerCall": 14,
+  "wrong": [
+   "want a game?"
+  ]
+ },
+ {
+  "site": "a2a.answer",
+  "budget": 250,
+  "cases": 2,
+  "right": 2,
+  "calls": 2,
+  "empty": 0,
+  "invalid": 0,
+  "outputPerCall": 199,
+  "reasoningPerCall": 137,
+  "secondsPerCall": 10.3,
+  "wrong": []
+ },
+ {
+  "site": "a2a.pick",
+  "budget": 250,
+  "cases": 2,
+  "right": 0,
+  "calls": 2,
+  "empty": 2,
+  "invalid": 0,
+  "outputPerCall": 262,
+  "reasoningPerCall": 261,
+  "secondsPerCall": 12.7,
+  "wrong": [
+   "leo singles",
+   "kenji singles"
+  ]
+ },
+ {
+  "site": "a2a.write",
+  "budget": 250,
+  "cases": 2,
+  "right": 1,
+  "calls": 2,
+  "empty": 1,
+  "invalid": 0,
+  "outputPerCall": 450,
+  "reasoningPerCall": 448,
+  "secondsPerCall": 32.1,
+  "wrong": [
+   "kenji singles"
+  ]
+ }
+]
