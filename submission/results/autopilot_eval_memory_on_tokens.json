@@ -1,0 +1,171 @@
+{
+ "at": "2026-10-28T01:05:38.137Z",
+ "label": "",
+ "budgets": {},
+ "total": {
+  "calls": 38,
+  "prompt": 86009,
+  "cached": 75608,
+  "fresh": 10401,
+  "cachedShare": 0.879,
+  "output": 10131,
+  "reasoning": 6960,
+  "seconds": 432.4,
+  "empty": 2,
+  "invalid": 2
+ },
+ "perWeek": [
+  {
+   "scenario": "Two games, Tomás left out (what the player said)",
+   "success": true,
+   "seconds": 63.4,
+   "calls": 8,
+   "prompt": 23874,
+   "cached": 19761,
+   "fresh": 4113,
+   "cachedShare": 0.828,
+   "output": 1253,
+   "reasoning": 502,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Two games, Tomás left out (what the player said)",
+   "success": true,
+   "seconds": 160.3,
+   "calls": 17,
+   "prompt": 41962,
+   "cached": 38189,
+   "fresh": 3773,
+   "cachedShare": 0.91,
+   "output": 3254,
+   "reasoning": 1544,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Two games, Tomás left out (what the player said)",
+   "success": true,
+   "seconds": 35.6,
+   "calls": 6,
+   "prompt": 16946,
+   "cached": 15784,
+   "fresh": 1162,
+   "cachedShare": 0.931,
+   "output": 897,
+   "reasoning": 312,
+   "empty": 0,
+   "invalid": 0
+  }
+ ],
+ "bySite": [
+  {
+   "site": "a2a.answer",
+   "calls": 7,
+   "prompt": 3227,
+   "cached": 1874,
+   "fresh": 1353,
+   "cachedShare": 0.581,
+   "output": 4727,
+   "reasoning": 4602,
+   "seconds": 173.1,
+   "empty": 2,
+   "invalid": 2,
+   "perCall": {
+    "prompt": 461,
+    "output": 675,
+    "seconds": 24.7
+   }
+  },
+  {
+   "site": "autopilot.runWeek",
+   "calls": 26,
+   "prompt": 81746,
+   "cached": 73729,
+   "fresh": 8017,
+   "cachedShare": 0.902,
+   "output": 3731,
+   "reasoning": 1122,
+   "seconds": 149.1,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 3144,
+    "output": 144,
+    "seconds": 5.7
+   }
+  },
+  {
+   "site": "places.judge",
+   "calls": 4,
+   "prompt": 936,
+   "cached": 4,
+   "fresh": 932,
+   "cachedShare": 0.004,
+   "output": 1384,
+   "reasoning": 968,
+   "seconds": 85.2,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 234,
+    "output": 346,
+    "seconds": 21.3
+   }
+  },
+  {
+   "site": "memory.index",
+   "calls": 0,
+   "prompt": 0,
+   "cached": 0,
+   "fresh": 0,
+   "cachedShare": 0,
+   "output": 0,
+   "reasoning": 0,
+   "seconds": 12.3,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 0,
+    "output": 0,
+    "seconds": 12.3
+   }
+  },
+  {
+   "site": "places.english",
+   "calls": 1,
+   "prompt": 100,
+   "cached": 1,
+   "fresh": 99,
+   "cachedShare": 0.01,
+   "output": 289,
+   "reasoning": 268,
+   "seconds": 11.4,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 100,
+    "output": 289,
+    "seconds": 11.4
+   }
+  },
+  {
+   "site": "memory.query",
+   "calls": 0,
+   "prompt": 0,
+   "cached": 0,
+   "fresh": 0,
+   "cachedShare": 0,
+   "output": 0,
+   "reasoning": 0,
+   "seconds": 1.3,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 0,
+    "output": 0,
+    "seconds": 1.3
+   }
+  }
+ ]
+}
