@@ -1,0 +1,200 @@
+{
+ "train": {
+  "cases": 3000,
+  "members": 1526,
+  "glimmer_answers": 2997,
+  "asked": 3000,
+  "private_calendars": 2901,
+  "doubles": 1222,
+  "reworded_habits": 1509,
+  "intents": {
+   "counter": 2990,
+   "decline": 7,
+   "none": 3
+  },
+  "times_that_work_p50": 3,
+  "listed_p50": 12,
+  "why_the_proposed_time_fails": {
+   "not free": 2878,
+   "no games": 91,
+   "it ends": 15,
+   "a 21-minute": 7,
+   "a 23-minute": 4,
+   "a 22-minute": 2
+  }
+ },
+ "trainshared": {
+  "cases": 596,
+  "members": 180,
+  "glimmer_answers": 593,
+  "asked": 596,
+  "private_calendars": 0,
+  "doubles": 1,
+  "reworded_habits": 297,
+  "intents": {
+   "counter": 593,
+   "none": 3
+  },
+  "times_that_work_p50": 4,
+  "listed_p50": 6,
+  "why_the_proposed_time_fails": {
+   "no games": 347,
+   "a 23-minute": 79,
+   "it ends": 68,
+   "a 21-minute": 49,
+   "a 24-minute": 24,
+   "a 22-minute": 22
+  }
+ },
+ "asked": {
+  "cases": 1378,
+  "members": 1099,
+  "glimmer_answers": 1278,
+  "asked": 1378,
+  "private_calendars": 0,
+  "doubles": 0,
+  "reworded_habits": 695,
+  "intents": {
+   "counter": 1278,
+   "none": 100
+  },
+  "times_that_work_p50": 5,
+  "listed_p50": 7,
+  "why_the_proposed_time_fails": {
+   "it ends": 940,
+   "no games": 307,
+   "a 22-minute": 48,
+   "a 23-minute": 44,
+   "a 21-minute": 29,
+   "a 24-minute": 7
+  }
+ },
+ "test": {
+  "cases": 500,
+  "members": 238,
+  "glimmer_answers": 1500,
+  "asked": 1500,
+  "private_calendars": 480,
+  "doubles": 203,
+  "reworded_habits": 0,
+  "intents": {
+   "counter": 1500
+  },
+  "times_that_work_p50": 3,
+  "listed_p50": 12,
+  "why_the_proposed_time_fails": {
+   "not free": 480,
+   "no games": 12,
+   "it ends": 7,
+   "a 22-minute": 1
+  }
+ },
+ "shared": {
+  "cases": 228,
+  "members": 40,
+  "glimmer_answers": 386,
+  "asked": 456,
+  "private_calendars": 0,
+  "doubles": 1,
+  "reworded_habits": 0,
+  "intents": {
+   "counter": 386,
+   "none": 70
+  },
+  "times_that_work_p50": 4,
+  "listed_p50": 6,
+  "why_the_proposed_time_fails": {
+   "no games": 158,
+   "it ends": 39,
+   "a 24-minute": 14,
+   "a 22-minute": 13,
+   "a 25-minute": 2,
+   "a 21-minute": 1
+  }
+ },
+ "val": {
+  "cases": 300,
+  "members": 278,
+  "glimmer_answers": 600,
+  "asked": 600,
+  "private_calendars": 289,
+  "doubles": 123,
+  "reworded_habits": 147,
+  "intents": {
+   "counter": 598,
+   "decline": 2
+  },
+  "times_that_work_p50": 4,
+  "listed_p50": 12,
+  "why_the_proposed_time_fails": {
+   "not free": 284,
+   "no games": 10,
+   "it ends": 4,
+   "a 21-minute": 2
+  }
+ },
+ "demo": {
+  "cases": 150,
+  "members": 10,
+  "glimmer_answers": 450,
+  "asked": 450,
+  "private_calendars": 123,
+  "doubles": 69,
+  "reworded_habits": 0,
+  "intents": {
+   "counter": 449,
+   "decline": 1
+  },
+  "times_that_work_p50": 3,
+  "listed_p50": 12,
+  "why_the_proposed_time_fails": {
+   "not free": 121,
+   "it starts": 29
+  }
+ },
+ "varied": {
+  "cases": 300,
+  "members": 273,
+  "glimmer_answers": 600,
+  "asked": 600,
+  "private_calendars": 287,
+  "doubles": 112,
+  "reworded_habits": 300,
+  "intents": {
+   "counter": 597,
+   "decline": 3
+  },
+  "times_that_work_p50": 3,
+  "listed_p50": 12,
+  "why_the_proposed_time_fails": {
+   "not free": 286,
+   "no games": 6,
+   "a 26-minute": 2,
+   "a 22-minute": 2,
+   "a 21-minute": 2,
+   "it ends": 2
+  }
+ },
+ "decider": {
+  "cases": 196,
+  "members": 152,
+  "glimmer_answers": 392,
+  "asked": 392,
+  "private_calendars": 0,
+  "doubles": 0,
+  "reworded_habits": 0,
+  "intents": {
+   "counter": 392
+  },
+  "times_that_work_p50": 6,
+  "listed_p50": 7,
+  "why_the_proposed_time_fails": {
+   "it ends": 134,
+   "no games": 49,
+   "a 22-minute": 6,
+   "a 21-minute": 3,
+   "a 23-minute": 3,
+   "a 24-minute": 1
+  }
+ }
+}
