@@ -1,0 +1,22 @@
+{
+ "at": "2026-10-27T17:59:56.376Z",
+ "runs": 24,
+ "ok": 24,
+ "byModel": {
+  "runs": 22,
+  "ok": 22
+ },
+ "oracleFailures": 0,
+ "passK": {
+  "k": 3,
+  "weeks": 8,
+  "passK": 1,
+  "pass1": 1
+ },
+ "seconds": 105.6,
+ "modelCalls": 13.5,
+ "toolCalls": 9,
+ "peak": 4,
+ "refused": 14,
+ "rules": 2
+}
