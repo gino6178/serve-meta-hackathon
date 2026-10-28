@@ -1,0 +1,1547 @@
+{
+ "at": "2026-10-27T19:10:13.920Z",
+ "me": [
+  "Mon 08-22",
+  "Tue 08-22",
+  "Wed 08-22",
+  "Thu 08-22",
+  "Fri 08-22",
+  "Sat 08-22",
+  "Sun 08-22"
+ ],
+ "cases": 50,
+ "arms": {
+  "shared": {
+   "summary": {
+    "mode": "shared",
+    "talks": 50,
+    "possible": 42,
+    "agreedWhenPossible": 42,
+    "agreedWhenNot": 0,
+    "broke": 0,
+    "meanRounds": 0.88,
+    "meanRoundsWhenAgreed": 1,
+    "seconds": 305,
+    "tokens": {
+     "calls": 50,
+     "prompt": 29026,
+     "cached": 2820,
+     "fresh": 26206,
+     "cachedShare": 0.097,
+     "output": 18861,
+     "reasoning": 16989,
+     "seconds": 1196.5,
+     "empty": 0,
+     "invalid": 0
+    },
+    "toldWindows": 207,
+    "toldAnswers": 52,
+    "roundsWhenAgreed": {
+     "1": 42
+    },
+    "byFormat": {
+     "singles": {
+      "talks": 40,
+      "possible": 39,
+      "agreed": 39,
+      "meanRounds": 1
+     },
+     "doubles": {
+      "talks": 10,
+      "possible": 3,
+      "agreed": 3,
+      "meanRounds": 0.4
+     }
+    }
+   },
+   "rows": [
+    {
+     "members": [
+      "s001"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 23.085,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s015"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 25.683,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s022"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 26.925,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s008"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 26.973,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s029"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 24.767,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s043"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 22.442,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s036"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 25.205,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s050"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 25.655,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s057"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 25.652,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s064"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 25.607,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s071"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 28.032,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s078"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 27.439,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s092"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 19.238,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s099"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 24.965,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s106"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 25.924,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s085"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 40.184,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s113"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 27.296,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s120"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 23.764,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s127"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 14:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 32.068,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s141"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 20.853,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s134"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 31.076,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s148"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 26.444,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s155"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 22.016,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s162"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 18.421,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s169"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 33.751,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s183"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 23.244,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s176"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 32.403,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s190"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Fri 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 31.006,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s218"
+     ],
+     "format": "singles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 1,
+     "broke": [],
+     "reason": "Sora can't play at any of the times",
+     "seconds": 0.006,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s197"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 17.552,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s211"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 20.152,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s225"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 22.492,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s232"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 26.095,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s204"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 41.041,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s246"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 26.576,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s239"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 36.75,
+     "toldWindows": 4,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s260"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 21.143,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s253"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Thu 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 27.024,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s267"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Fri 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 25.231,
+     "toldWindows": 3,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s050",
+      "s051",
+      "s052"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 0,
+     "broke": [],
+     "reason": "Mira and Joel and Ana and you have no free time in common this week",
+     "seconds": 0.005,
+     "toldWindows": 8,
+     "toldAnswers": 0
+    },
+    {
+     "members": [
+      "s073",
+      "s074",
+      "s075"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 0,
+     "broke": [],
+     "reason": "Zara and Marco and Oona and you have no free time in common this week",
+     "seconds": 0.004,
+     "toldWindows": 9,
+     "toldAnswers": 0
+    },
+    {
+     "members": [
+      "s096",
+      "s097",
+      "s098"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 0,
+     "broke": [],
+     "reason": "Ida and Lea and Lea and you have no free time in common this week",
+     "seconds": 0.004,
+     "toldWindows": 10,
+     "toldAnswers": 0
+    },
+    {
+     "members": [
+      "s119",
+      "s120",
+      "s121"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 0,
+     "broke": [],
+     "reason": "Ana and Jonah and Jonah and you have no free time in common this week",
+     "seconds": 0.003,
+     "toldWindows": 9,
+     "toldAnswers": 0
+    },
+    {
+     "members": [
+      "s274"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 24.269,
+     "toldWindows": 2,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s165",
+      "s166",
+      "s167"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 0,
+     "broke": [],
+     "reason": "Rami and Emre and Maya and you have no free time in common this week",
+     "seconds": 0.002,
+     "toldWindows": 8,
+     "toldAnswers": 0
+    },
+    {
+     "members": [
+      "s188",
+      "s189",
+      "s190"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 0,
+     "broke": [],
+     "reason": "Pablo and Pablo and Teo and you have no free time in common this week",
+     "seconds": 0.002,
+     "toldWindows": 9,
+     "toldAnswers": 0
+    },
+    {
+     "members": [
+      "s004",
+      "s005",
+      "s006"
+     ],
+     "format": "doubles",
+     "possible": true,
+     "agreed": "Tue 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 26.385,
+     "toldWindows": 10,
+     "toldAnswers": 3
+    },
+    {
+     "members": [
+      "s027",
+      "s028",
+      "s029"
+     ],
+     "format": "doubles",
+     "possible": true,
+     "agreed": "Mon 19:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 35.275,
+     "toldWindows": 9,
+     "toldAnswers": 3
+    },
+    {
+     "members": [
+      "s142",
+      "s143",
+      "s144"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 1,
+     "broke": [],
+     "reason": "Luca can't play at any of the times",
+     "seconds": 30.399,
+     "toldWindows": 10,
+     "toldAnswers": 3
+    },
+    {
+     "members": [
+      "s211",
+      "s212",
+      "s213"
+     ],
+     "format": "doubles",
+     "possible": true,
+     "agreed": "Wed 18:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 37.303,
+     "toldWindows": 8,
+     "toldAnswers": 3
+    }
+   ]
+  },
+  "private": {
+   "summary": {
+    "mode": "private",
+    "talks": 50,
+    "possible": 42,
+    "agreedWhenPossible": 24,
+    "agreedWhenNot": 0,
+    "broke": 0,
+    "meanRounds": 1.52,
+    "meanRoundsWhenAgreed": 1,
+    "seconds": 240.2,
+    "tokens": {
+     "calls": 37,
+     "prompt": 16514,
+     "cached": 37,
+     "fresh": 16477,
+     "cachedShare": 0.002,
+     "output": 14268,
+     "reasoning": 13250,
+     "seconds": 887.8,
+     "empty": 0,
+     "invalid": 0
+    },
+    "toldWindows": 0,
+    "toldAnswers": 116,
+    "roundsWhenAgreed": {
+     "1": 24
+    },
+    "byFormat": {
+     "singles": {
+      "talks": 40,
+      "possible": 39,
+      "agreed": 24,
+      "meanRounds": 1.4
+     },
+     "doubles": {
+      "talks": 10,
+      "possible": 3,
+      "agreed": 0,
+      "meanRounds": 2
+     }
+    }
+   },
+   "rows": [
+    {
+     "members": [
+      "s001"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Bilal can't play at any of the times",
+     "seconds": 0.04,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s008"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Lucia can't play at any of the times",
+     "seconds": 0.04,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s022"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Tariq can't play at any of the times",
+     "seconds": 0.033,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s029"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Ken can't play at any of the times",
+     "seconds": 0.018,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s036"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Luca can't play at any of the times",
+     "seconds": 0.015,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s057"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Luca can't play at any of the times",
+     "seconds": 0.007,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s064"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 18.87,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s015"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 21.482,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s050"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 26.057,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s043"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 31.864,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s092"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Yara can't play at any of the times",
+     "seconds": 0.016,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s071"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 19.973,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s106"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Sana can't play at any of the times",
+     "seconds": 0.008,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s099"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 18.479,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s085"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 28.236,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s127"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Bilal can't play at any of the times",
+     "seconds": 0.018,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s134"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Luca can't play at any of the times",
+     "seconds": 0.016,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s141"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Elif can't play at any of the times",
+     "seconds": 0.014,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s148"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Rami can't play at any of the times",
+     "seconds": 0.008,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s155"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Kai can't play at any of the times",
+     "seconds": 0.008,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s078"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 40.951,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s113"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 26.551,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s120"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 27.595,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s183"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Omar can't play at any of the times",
+     "seconds": 0.018,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s162"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 24.49,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s169"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 19.31,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s190"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 18.408,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s211"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Ken can't play at any of the times",
+     "seconds": 0.019,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s218"
+     ],
+     "format": "singles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Sora can't play at any of the times",
+     "seconds": 0.019,
+     "toldWindows": 0,
+     "toldAnswers": 2
+    },
+    {
+     "members": [
+      "s197"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 20.685,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s176"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 37.244,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s204"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 25.836,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s239"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 18.014,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s225"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 26.519,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s246"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 17.125,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s232"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 28.188,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s253"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 19.104,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s260"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 19.701,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s027",
+      "s028",
+      "s029"
+     ],
+     "format": "doubles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Mei and Bilal and Ken can't play at any of the times",
+     "seconds": 0.024,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    },
+    {
+     "members": [
+      "s274"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sat 08:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 24.345,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s267"
+     ],
+     "format": "singles",
+     "possible": true,
+     "agreed": "Sun 09:00",
+     "rounds": 1,
+     "broke": [],
+     "reason": null,
+     "seconds": 33.703,
+     "toldWindows": 0,
+     "toldAnswers": 1
+    },
+    {
+     "members": [
+      "s004",
+      "s005",
+      "s006"
+     ],
+     "format": "doubles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Maya and Zara and Luca can't play at any of the times",
+     "seconds": 22.839,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    },
+    {
+     "members": [
+      "s096",
+      "s097",
+      "s098"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Ida and Lea and Lea can't play at any of the times",
+     "seconds": 24.772,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    },
+    {
+     "members": [
+      "s142",
+      "s143",
+      "s144"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Luca and Rami and Femi can't play at any of the times",
+     "seconds": 0.026,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    },
+    {
+     "members": [
+      "s050",
+      "s051",
+      "s052"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Mira and Joel and Ana can't play at any of the times",
+     "seconds": 40.554,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    },
+    {
+     "members": [
+      "s073",
+      "s074",
+      "s075"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Zara and Marco and Oona can't play at any of the times",
+     "seconds": 37.488,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    },
+    {
+     "members": [
+      "s119",
+      "s120",
+      "s121"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Ana and Jonah and Jonah can't play at any of the times",
+     "seconds": 40.202,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    },
+    {
+     "members": [
+      "s188",
+      "s189",
+      "s190"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Pablo and Pablo and Teo can't play at any of the times",
+     "seconds": 31.81,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    },
+    {
+     "members": [
+      "s165",
+      "s166",
+      "s167"
+     ],
+     "format": "doubles",
+     "possible": false,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Rami and Emre and Maya can't play at any of the times",
+     "seconds": 36.938,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    },
+    {
+     "members": [
+      "s211",
+      "s212",
+      "s213"
+     ],
+     "format": "doubles",
+     "possible": true,
+     "agreed": null,
+     "rounds": 2,
+     "broke": [],
+     "reason": "Ken and Tariq and Asha can't play at any of the times",
+     "seconds": 50.59,
+     "toldWindows": 0,
+     "toldAnswers": 6
+    }
+   ]
+  }
+ }
+}
