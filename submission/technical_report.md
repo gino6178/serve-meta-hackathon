@@ -5,7 +5,13 @@
 Serve is a self-evolving sports social platform built to beat the inertia that keeps people from playing. Its agent
 does the hassle (it finds the court and the people, agrees the match with the other players' agents, and asks the
 player only for a yes), and what the community asks for makes the platform better through a safety review and changes
-that roll themselves back.
+that roll themselves back. It is built from verifiable agents: code computes the facts and keeps the rules, the models
+choose only where a real choice is left, and every text a model writes is checked before anyone sees it (3.8).
+
+**What Serve is not.** It is not a coach or a sports analyzer: it gives no technique feedback and scores no one's
+performance. It is not a medical tool: it gives no diagnosis, treatment or dosage. What a player says about their body
+is a scheduling constraint (doubles instead of singles, a shorter game, one game fewer), and a highlight is a clip to
+share with friends.
 
 Every number below names the file it comes from. Timings name the hardware: one NVIDIA RTX 3090 on our GPU server, or
 cloud A100s serving the same Muse Glimmer build (the same model digest), reached through that server.
@@ -128,20 +134,20 @@ player instead (3.3).
 
 ![The venue in the middle: each player's trip on the club map, and the step that picked it](shots/venue_in_the_middle.png)
 
-### 3.3 Body log, health import and courts
+### 3.3 Scheduling limits (body log, health import) and courts
 
-Glimmer files what hurts with one tool call (part, side, level, cause), checked by code (`agent/src/body/body.js`). A health
+What a player says about their body becomes a scheduling limit, never advice. Glimmer files it with one tool call (part, side, level, cause), checked by code (`agent/src/body/body.js`). A health
 export (Apple Health, Google Fit, GPX, TCX or CSV) is parsed on the server with Python's standard library and deleted
 (`health_import.py`). Code works out the load (minutes × effort, this week against the last four) and the plan rules.
-It records and plans; it does not diagnose.
+It records and schedules; it gives no diagnosis, treatment or dosage.
 
 Courts (`agent/src/club/places.js`) come from OpenStreetMap, with Google Maps ratings and reviews when the server has a key
 and the Open-Meteo forecast. Glimmer judges four places at once; a reason that does not cite the map, a review (word
 for word) or the forecast is dropped. Prompt Guard 2 reads the reviews first.
 
-### 3.4 Highlights, and the orbit prototype
+### 3.4 Highlights for sharing, and the orbit prototype
 
-In `video/pose/reel.py`, DETR [16] finds the people in the player's own video, Sapiens2 reads every pose and SAM 2.1
+A highlight is a clip to share; nothing in it scores technique or performance. In `video/pose/reel.py`, DETR [16] finds the people in the player's own video, Sapiens2 reads every pose and SAM 2.1
 [17] cuts each player out. The reel replays the moment (a racket's fastest swing, the top of a jump, a kick) in slow
 motion, with a caption Glimmer writes and code checks.
 

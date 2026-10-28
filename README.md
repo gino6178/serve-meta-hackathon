@@ -4,9 +4,16 @@
 
 ## For judges
 
-**Serve is a self-evolving sports social platform built to beat inertia. Finding a court, finding people and
-matching up is enough hassle that people don't play, so your agent does that work and waits for your yes, and what
-the community asks for makes the platform better.**
+**Serve is a self-evolving sports social platform built from verifiable agents, to beat inertia. Finding a court,
+finding people and matching up is enough hassle that people don't play, so your agent agrees the game with the other
+players' agents over A2A and waits for your yes, and what the community asks for makes the platform better. Code
+computes every fact and keeps every rule; the models choose only where a real choice is left, and what they write is
+checked before anyone sees it.**
+
+**What Serve is not.** It is not a coach or a sports analyzer: it gives no technique feedback and scores no one's
+performance. It is not a medical tool: it gives no diagnosis, treatment or dosage. What a player says about their body
+is a scheduling constraint (doubles instead of singles, a shorter game, one game fewer), and a highlight is a clip to
+share with friends.
 
 **Built during the hackathon.** Everything in this repository was written during the building period (October 27
 to November 4, 2026). The only earlier work is TrackNetV5, our published shuttle tracker, fetched at run time as a
@@ -81,10 +88,10 @@ defence against injected instructions is mapped to the published patterns in
 ## About Serve
 
 Serve is a self-evolving sports social platform. Its agent takes on the hassle that keeps people from playing: it
-lines up your games with the people you play best with, agrees them with their agents, plans around your body and your
-health app, finds a court in any ball sport, and cuts your highlight for Instagram. You just say yes. Your agent has
+lines up your games with the people you play best with, agrees them with their agents, plans around the limits you set (a sore knee, a
+heavy week) and your health app, finds a court in any ball sport, and cuts your highlight for Instagram. You just say yes. Your agent has
 three helpers that do the organizing. **Body**
-keeps your body log and checks in on what hurts. **Match** notices when your usual time is open and asks you "want a
+turns what you say about your body into scheduling limits and checks in two days later. **Match** notices when your usual time is open and asks you "want a
 game?". **Talk** takes your yes to the other players' agents and agrees the time and the court. Every agent runs on
 **Muse Glimmer**, Meta's open-weights model, on a GPU we own; Meta's **Sapiens2**, **SAM 2.1** and **DETR** read the
 video; **Llama Guard 3** and **Prompt Guard 2** screen what comes in and goes out; **DRAMA** gives the agent a memory
@@ -146,7 +153,7 @@ and your health data are read there and nowhere else; what you share in Messenge
   brings the agreed game back with Book it and Drop it buttons. Nothing is booked before your tap. A real player's
   agent gives no band until they say `/bands on`, and `/forget` deletes the records and turns it off again. The same order is used by the Autopilot and the Match helper
   ([docs/agent_matchmaking_plan.md](docs/agent_matchmaking_plan.md)).
-- **Body log and health app** (`agent/src/body/body.js`, `health.js`, `#/body`).
+- **Scheduling limits: body log and health app** (`agent/src/body/body.js`, `health.js`, `#/body`).
   - Tell it what hurts, in the app or in Messenger ("my right knee is sore after jumping, 3 out of 5"). Muse Glimmer
     files it with one tool call (part, side, how bad, what set it off), checked by code; it appears on the 3D body,
     on the side that hurts.
@@ -156,8 +163,8 @@ and your health data are read there and nowhere else; what you share in Messenge
   - From all of it, code works out your load (minutes × effort, this week against your last four) and what to do:
     doubles first and no jump sports while a knee is sore, 60-minute games for a sore back, 90 minutes after soreness
     that follows long games, one game fewer in a week over 1.5 times your usual, a check-in two days later (with
-    buttons in Messenger), and a note that it is worth seeing a physio when the same part is bad twice or keeps
-    coming back. It records and plans; it never diagnoses.
+    buttons in Messenger), and, when the same part is bad twice or keeps coming back, a plain note to ask a physio
+    rather than play through it. It records and schedules; it gives no diagnosis, treatment or dosage.
   - Your activity trail (weeks by sport, every session, GPS routes on a map drawn from OpenStreetMap) and a body
     report whose summary Muse Glimmer writes from the facts, every number checked; download it as a PDF.
 - **Courts near you** (`agent/src/club/places.js`, `#/courts`). For any ball sport and any hour: public courts, sports
@@ -167,7 +174,8 @@ and your health data are read there and nowhere else; what you share in Messenge
   for word) or the forecast. The Autopilot uses it to put a basketball game on a free public court, and three hours
   before a game on an outdoor court the agent checks the forecast again: if rain is likely, it finds a club venue with
   a free court at the same time and asks in Messenger, with buttons, whether to move the game.
-- **Highlights** (`video/pose/reel.py`, `#/highlights`). Film your game in any ball sport. On your server, DETR
+- **Highlights for sharing** (`video/pose/reel.py`, `#/highlights`). A clip for friends, not an analysis: it scores
+  nothing and gives no technique advice. Film your game in any ball sport. On your server, DETR
   finds you, Sapiens2 reads your pose and SAM 2.1 cuts you out; the reel finds your moment (a racket's fastest swing,
   the top of a jump, a kick) and replays it in slow motion with you lit up. Muse Glimmer writes the caption, checked
   against the rallies, and the share sheet sends it to Instagram or Facebook.
@@ -222,7 +230,7 @@ Beyond a chat box:
    is planned. Refused calls (a day outside the week, a member who isn't free) come back as facts, and it re-plans.
 2. **Many agents at once.** For a doubles game your agent negotiates with three agents, who answer together on four
    parallel slots of one GPU.
-3. **Checked before you see it.** Every time, court and trip is computed by code. Numbers in a model's text must be in
+3. **Verifiable: checked before you see it.** Every time, court and trip is computed by code. Numbers in a model's text must be in
    the facts it was given (small counts excepted), a quoted review must be in that review, and there is no he or she.
    A body report that fails is redrafted and then replaced by rules; other texts that fail go straight to a
    template, and a court's reason that fails is dropped.

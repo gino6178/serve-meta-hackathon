@@ -9,8 +9,14 @@ Serve
 
 ## In one line
 
-**Play more. Manage less.** A self-evolving sports social platform: your agent does the hassle of playing (the court,
-the people, the match), and what the community asks for makes the platform better.
+**Play more. Manage less.** A self-evolving sports social platform built from verifiable agents: your agent agrees
+the game with the other players' agents over A2A (the court, the people, the time) and waits for your yes, and what
+the community asks for makes the platform better.
+
+**What Serve is not.** It is not a coach or a sports analyzer: it gives no technique feedback and scores no one's
+performance. It is not a medical tool: it gives no diagnosis, treatment or dosage. What a player says about their body
+is a scheduling constraint (doubles instead of singles, a shorter game, one game fewer), and a highlight is a clip to
+share with friends.
 
 ## Track, and the theme
 
@@ -87,15 +93,15 @@ says which side they were before it is filed.
 **Voice notes.** "My right shoulder is sore after smashing, four out of five", sent as a voice note in Messenger.
 Meta's Omnilingual ASR hears it on the server, the player sees "I heard: …", and it is filed as if typed.
 
-**Body log and health app.** "My right knee is sore after jumping, 3 out of 5." Muse Glimmer files it with one tool
+**Scheduling limits: body log and health app.** "My right knee is sore after jumping, 3 out of 5." Muse Glimmer files it with one tool
 call (part, side, level, what set it off) and it appears on a 3D body, on the side that hurts. The player can share
 their health app's export (Apple Health, Google Fit, or a GPX, TCX or CSV file from any app), read on their own
 server and deleted. Workouts are linked to booked games, so a game the watch says ran 132 minutes teaches the
 Autopilot who the player clicks with. Code then works out the load (minutes × effort, this week against the last four)
 and what to do: doubles first and no jump sports while a knee is sore, shorter games for a sore back, one game fewer
-in a week over 1.5 times the usual, a check-in two days later, and a note that it is worth seeing a physio when the
-same part keeps coming back. The page shows the activity trail (weeks by sport, every session, GPS routes) and a body
-report whose summary Muse Glimmer writes with every number checked. It records and plans; it never diagnoses.
+in a week over 1.5 times the usual, a check-in two days later, and, when the
+same part keeps coming back, a plain note to ask a physio rather than play through it. The page shows the activity trail (weeks by sport, every session, GPS routes) and a body
+report whose summary Muse Glimmer writes with every number checked. It records and schedules; it gives no diagnosis, treatment or dosage.
 
 **Courts near you, any sport.** "Basketball courts near me tonight." Public courts, sports centres and parks come from
 OpenStreetMap, with their Google Maps rating and reviews (when the server has a key), and the forecast for that hour
@@ -103,7 +109,8 @@ from Open-Meteo. Muse Glimmer judges each place, four at once: hoops or nets, li
 rain is likely, crowds, something broken or locked. Every reason cites the map, a review or the weather, and a quoted
 review must be in that review word for word. The Autopilot uses it to put a basketball game on a free public court.
 
-**Highlights.** Film a game on a phone, in any ball sport. On the player's own server, DETR finds them, Sapiens2 reads
+**Highlights for sharing.** A clip for friends, not an analysis: it scores nothing and gives no technique advice.
+Film a game on a phone, in any ball sport. On the player's own server, DETR finds them, Sapiens2 reads
 their pose and SAM 2.1 cuts them out; the reel finds the moment (a racket's fastest swing, the top of a jump, a kick)
 and replays it in slow motion with the player lit up. Muse Glimmer writes the caption, checked against the rallies,
 and the share sheet sends it to Instagram or Facebook.
