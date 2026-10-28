@@ -1,0 +1,255 @@
+{
+ "at": "2026-10-28T03:46:12.853Z",
+ "label": "",
+ "budgets": {},
+ "total": {
+  "calls": 87,
+  "prompt": 194563,
+  "cached": 173464,
+  "fresh": 21099,
+  "cachedShare": 0.892,
+  "output": 20919,
+  "reasoning": 13928,
+  "seconds": 958.4,
+  "empty": 0,
+  "invalid": 1
+ },
+ "perWeek": [
+  {
+   "scenario": "Two games a week",
+   "success": true,
+   "seconds": 47.1,
+   "calls": 8,
+   "prompt": 23288,
+   "cached": 21241,
+   "fresh": 2047,
+   "cachedShare": 0.912,
+   "output": 1015,
+   "reasoning": 231,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Two games, sore knee (doubles first)",
+   "success": true,
+   "seconds": 33.8,
+   "calls": 6,
+   "prompt": 16484,
+   "cached": 14830,
+   "fresh": 1654,
+   "cachedShare": 0.9,
+   "output": 694,
+   "reasoning": 129,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Three games a week",
+   "success": true,
+   "seconds": 82.7,
+   "calls": 12,
+   "prompt": 39051,
+   "cached": 36576,
+   "fresh": 2475,
+   "cachedShare": 0.937,
+   "output": 1701,
+   "reasoning": 482,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Thursday already booked",
+   "success": true,
+   "seconds": 30.8,
+   "calls": 4,
+   "prompt": 9982,
+   "cached": 8886,
+   "fresh": 1096,
+   "cachedShare": 0.89,
+   "output": 660,
+   "reasoning": 352,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Tennis, one game",
+   "success": true,
+   "seconds": 169.5,
+   "calls": 17,
+   "prompt": 40222,
+   "cached": 36019,
+   "fresh": 4203,
+   "cachedShare": 0.896,
+   "output": 3052,
+   "reasoning": 1507,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Two games, Kenji just played long",
+   "success": true,
+   "seconds": 38.9,
+   "calls": 6,
+   "prompt": 16375,
+   "cached": 14621,
+   "fresh": 1754,
+   "cachedShare": 0.893,
+   "output": 944,
+   "reasoning": 417,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Sore knee and a heavy week (body log + health app)",
+   "success": true,
+   "seconds": 21.6,
+   "calls": 4,
+   "prompt": 11670,
+   "cached": 10140,
+   "fresh": 1530,
+   "cachedShare": 0.869,
+   "output": 520,
+   "reasoning": 189,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Two games, Tomás left out (what the player said)",
+   "success": true,
+   "seconds": 54.7,
+   "calls": 6,
+   "prompt": 16949,
+   "cached": 15269,
+   "fresh": 1680,
+   "cachedShare": 0.901,
+   "output": 1063,
+   "reasoning": 488,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Basketball, two on two (public courts)",
+   "success": true,
+   "seconds": 132.6,
+   "calls": 10,
+   "prompt": 14113,
+   "cached": 11520,
+   "fresh": 2593,
+   "cachedShare": 0.816,
+   "output": 2449,
+   "reasoning": 1644,
+   "empty": 0,
+   "invalid": 0
+  }
+ ],
+ "bySite": [
+  {
+   "site": "autopilot.runWeek",
+   "calls": 63,
+   "prompt": 186018,
+   "cached": 169092,
+   "fresh": 16926,
+   "cachedShare": 0.909,
+   "output": 8692,
+   "reasoning": 2769,
+   "seconds": 413.7,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 2953,
+    "output": 138,
+    "seconds": 6.6
+   }
+  },
+  {
+   "site": "a2a.answer",
+   "calls": 14,
+   "prompt": 6429,
+   "cached": 4362,
+   "fresh": 2067,
+   "cachedShare": 0.678,
+   "output": 8821,
+   "reasoning": 8489,
+   "seconds": 346.7,
+   "empty": 0,
+   "invalid": 1,
+   "perCall": {
+    "prompt": 459,
+    "output": 630,
+    "seconds": 24.8
+   }
+  },
+  {
+   "site": "places.judge",
+   "calls": 8,
+   "prompt": 1918,
+   "cached": 8,
+   "fresh": 1910,
+   "cachedShare": 0.004,
+   "output": 2765,
+   "reasoning": 2071,
+   "seconds": 167.1,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 240,
+    "output": 346,
+    "seconds": 20.9
+   }
+  },
+  {
+   "site": "places.english",
+   "calls": 2,
+   "prompt": 198,
+   "cached": 2,
+   "fresh": 196,
+   "cachedShare": 0.01,
+   "output": 641,
+   "reasoning": 599,
+   "seconds": 24.8,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 99,
+    "output": 321,
+    "seconds": 12.4
+   }
+  },
+  {
+   "site": "memory.index",
+   "calls": 0,
+   "prompt": 0,
+   "cached": 0,
+   "fresh": 0,
+   "cachedShare": 0,
+   "output": 0,
+   "reasoning": 0,
+   "seconds": 5.8,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 0,
+    "output": 0,
+    "seconds": 5.8
+   }
+  },
+  {
+   "site": "memory.query",
+   "calls": 0,
+   "prompt": 0,
+   "cached": 0,
+   "fresh": 0,
+   "cachedShare": 0,
+   "output": 0,
+   "reasoning": 0,
+   "seconds": 0.2,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 0,
+    "output": 0,
+    "seconds": 0.2
+   }
+  }
+ ]
+}
