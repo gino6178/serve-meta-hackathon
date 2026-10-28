@@ -1,0 +1,16 @@
+{
+ "at": "2026-10-27T17:17:30.691Z",
+ "runs": 8,
+ "ok": 8,
+ "byModel": {
+  "runs": 8,
+  "ok": 8
+ },
+ "oracleFailures": 0,
+ "seconds": 111.4,
+ "modelCalls": 12.6,
+ "toolCalls": 9,
+ "peak": 4,
+ "refused": 5,
+ "rules": 0
+}
