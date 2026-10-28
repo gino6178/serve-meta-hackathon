@@ -1,0 +1,71 @@
+{
+ "thresholds": [
+  {
+   "threshold": 0.0,
+   "test_answered_by_student": 1.0,
+   "test_cascade_agrees_with_glimmer": 0.894,
+   "decider_answered_by_student": 1.0,
+   "decider_cascade_agrees_with_full": 0.6071,
+   "decider_liked": "30 of 32"
+  },
+  {
+   "threshold": 0.4,
+   "test_answered_by_student": 0.998,
+   "test_cascade_agrees_with_glimmer": 0.895,
+   "decider_answered_by_student": 1.0,
+   "decider_cascade_agrees_with_full": 0.6071,
+   "decider_liked": "30 of 32"
+  },
+  {
+   "threshold": 0.5,
+   "test_answered_by_student": 0.99,
+   "test_cascade_agrees_with_glimmer": 0.896,
+   "decider_answered_by_student": 0.9694,
+   "decider_cascade_agrees_with_full": 0.6122,
+   "decider_liked": "30 of 32"
+  },
+  {
+   "threshold": 0.6,
+   "test_answered_by_student": 0.96,
+   "test_cascade_agrees_with_glimmer": 0.899,
+   "decider_answered_by_student": 0.7296,
+   "decider_cascade_agrees_with_full": 0.6837,
+   "decider_liked": "29 of 32"
+  },
+  {
+   "threshold": 0.7,
+   "test_answered_by_student": 0.926,
+   "test_cascade_agrees_with_glimmer": 0.907,
+   "decider_answered_by_student": 0.5,
+   "decider_cascade_agrees_with_full": 0.7551,
+   "decider_liked": "30 of 32"
+  },
+  {
+   "threshold": 0.8,
+   "test_answered_by_student": 0.874,
+   "test_cascade_agrees_with_glimmer": 0.909,
+   "decider_answered_by_student": 0.3418,
+   "decider_cascade_agrees_with_full": 0.75,
+   "decider_liked": "28 of 32"
+  },
+  {
+   "threshold": 0.9,
+   "test_answered_by_student": 0.784,
+   "test_cascade_agrees_with_glimmer": 0.9,
+   "decider_answered_by_student": 0.2755,
+   "decider_cascade_agrees_with_full": 0.7551,
+   "decider_liked": "28 of 32"
+  },
+  {
+   "threshold": 0.95,
+   "test_answered_by_student": 0.698,
+   "test_cascade_agrees_with_glimmer": 0.897,
+   "decider_answered_by_student": 0.2041,
+   "decider_cascade_agrees_with_full": 0.7398,
+   "decider_liked": "27 of 32"
+  }
+ ],
+ "test_glimmer_first_answer_vs_others": 0.883,
+ "decider_full2_vs_full": 0.7347,
+ "decider_full_liked": 27
+}
