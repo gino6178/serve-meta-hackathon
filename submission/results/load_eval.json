@@ -1,0 +1,70 @@
+{
+ "at": "2026-10-27T18:25:34.043Z",
+ "slots": 4,
+ "throughput": [
+  {
+   "atOnce": 1,
+   "talks": 2,
+   "agreed": 2,
+   "seconds": 26.2,
+   "talksPerMinute": 4.6,
+   "talkP50": 15.2,
+   "talkP95": 15.2,
+   "calls": 2,
+   "waitP50": 0,
+   "waitP95": 0
+  },
+  {
+   "atOnce": 4,
+   "talks": 8,
+   "agreed": 8,
+   "seconds": 59,
+   "talksPerMinute": 8.1,
+   "talkP50": 24.5,
+   "talkP95": 34.5,
+   "calls": 8,
+   "waitP50": 0,
+   "waitP95": 0
+  },
+  {
+   "atOnce": 8,
+   "talks": 16,
+   "agreed": 16,
+   "seconds": 147.9,
+   "talksPerMinute": 6.5,
+   "talkP50": 52.4,
+   "talkP95": 79,
+   "calls": 16,
+   "waitP50": 19.5,
+   "waitP95": 52.4
+  },
+  {
+   "atOnce": 16,
+   "talks": 32,
+   "agreed": 32,
+   "seconds": 237,
+   "talksPerMinute": 8.1,
+   "talkP50": 69.7,
+   "talkP95": 117.6,
+   "calls": 32,
+   "waitP50": 43.1,
+   "waitP95": 87.1
+  }
+ ],
+ "priority": [
+  {
+   "scheduler": "on",
+   "yourTalks": 8,
+   "yourP50": 37.8,
+   "yourP95": 42.9,
+   "backgroundTalks": 13
+  },
+  {
+   "scheduler": "off",
+   "yourTalks": 8,
+   "yourP50": 82.5,
+   "yourP95": 111.3,
+   "backgroundTalks": 22
+  }
+ ]
+}
