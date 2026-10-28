@@ -1,0 +1,185 @@
+{
+ "about": "Ball labels for ball_check.py (badminton, the app's three CC BY sample clips, every 20th frame). A point the tracker gave was judged by eye on a 4x crop: its offset to the shuttle in px of the 1280x720 clip, or 'no'. A frame with no point counts as a miss when it falls in the rally's in-play interval (set by eye from the sheets; from the stands the whole court is in view, so a shuttle in play is in frame), else as a true negative. Labelled by the coding agent.",
+ "in_play": {
+  "singles_point_01": [
+   80,
+   640
+  ],
+  "singles_rally_01": [
+   0,
+   659
+  ],
+  "doubles_rally_01": [
+   60,
+   640
+  ]
+ },
+ "labels": {
+  "badminton": {
+   "singles_point_01": {
+    "0": "none",
+    "20": "none",
+    "40": "none",
+    "60": "none",
+    "80": "in play, not found",
+    "100": "in play, not found",
+    "120": "in play, not found",
+    "140": "in play, not found",
+    "160": "in play, not found",
+    "180": "in play, not found",
+    "200": "in play, not found",
+    "220": "in play, not found",
+    "240": "in play, not found",
+    "260": "in play, not found",
+    "280": "in play, not found",
+    "300": "in play, not found",
+    "320": "in play, not found",
+    "340": [
+     0,
+     0
+    ],
+    "360": "in play, not found",
+    "380": "in play, not found",
+    "400": [
+     0,
+     0
+    ],
+    "420": "no",
+    "440": "no",
+    "460": [
+     -2,
+     8
+    ],
+    "480": [
+     -3,
+     -2
+    ],
+    "500": "in play, not found",
+    "520": [
+     -1,
+     1
+    ],
+    "540": "in play, not found",
+    "560": "in play, not found",
+    "580": "no",
+    "600": [
+     -3,
+     -1
+    ],
+    "620": "in play, not found",
+    "640": "in play, not found",
+    "660": "none",
+    "680": "none",
+    "700": "none",
+    "720": "none"
+   },
+   "singles_rally_01": {
+    "0": [
+     0,
+     -1
+    ],
+    "20": [
+     -2,
+     -2
+    ],
+    "40": "no",
+    "60": [
+     1,
+     -1
+    ],
+    "80": "in play, not found",
+    "100": [
+     -1,
+     -3
+    ],
+    "120": "no",
+    "140": "no",
+    "160": "no",
+    "180": "no",
+    "200": [
+     0,
+     0
+    ],
+    "220": "no",
+    "240": [
+     0,
+     0
+    ],
+    "260": "in play, not found",
+    "280": [
+     0,
+     -1
+    ],
+    "300": "no",
+    "320": [
+     -1,
+     -2
+    ],
+    "340": "no",
+    "360": [
+     -2,
+     -4
+    ],
+    "380": "no",
+    "400": "no",
+    "420": "in play, not found",
+    "440": "no",
+    "460": "in play, not found",
+    "480": "in play, not found",
+    "500": "no",
+    "520": [
+     -1,
+     -2
+    ],
+    "540": "in play, not found",
+    "560": "in play, not found",
+    "580": "no",
+    "600": "in play, not found",
+    "620": "no"
+   },
+   "doubles_rally_01": {
+    "0": "none",
+    "20": "none",
+    "40": "none",
+    "60": "in play, not found",
+    "80": "in play, not found",
+    "100": "in play, not found",
+    "120": "in play, not found",
+    "140": "no",
+    "160": "no",
+    "180": "no",
+    "200": "in play, not found",
+    "220": "no",
+    "240": "in play, not found",
+    "260": "in play, not found",
+    "280": "in play, not found",
+    "300": "in play, not found",
+    "320": "no",
+    "340": "no",
+    "360": "in play, not found",
+    "380": "in play, not found",
+    "400": "no",
+    "420": "no",
+    "440": "no",
+    "460": "no",
+    "480": [
+     0,
+     -2
+    ],
+    "500": "in play, not found",
+    "520": "in play, not found",
+    "540": [
+     -1,
+     0
+    ],
+    "560": [
+     -1,
+     0
+    ],
+    "580": "no",
+    "600": "no",
+    "620": "in play, not found"
+   }
+  }
+ }
+}
