@@ -1,0 +1,19 @@
+{
+ "about": "Hand labels for orbit_fit.py: is an orbit frame good enough for a highlight? 1 = a viewer would not notice a defect in a 2-second sweep on a phone; 0 = something reads as broken (a bent post, doubled or smeared people, a blurred band at the edge, a half-transparent player). Frames are orbit.py --probe renders at fixed angles (degrees; + moves the camera to the right) for each test moment (sub-clip_seconds, approach a), made from the CC BY 3.0 clip listed in exists_labels.json. Labelled by eye by the coding agent, from contact sheets, without the features in view.",
+ "labels": {
+  "s76_3p5":  {"-18": 1, "-12": 1, "-6": 1, "6": 1, "12": 1, "18": 0},
+  "s76_3p84": {"-18": 1, "-12": 1, "-6": 1, "6": 1, "12": 1, "18": 0},
+  "s21_6p52": {"-18": 0, "-12": 0, "-6": 1, "6": 0, "12": 0, "18": 0},
+  "s21_7p0":  {"-18": 0, "-12": 0, "-6": 1, "6": 0, "12": 0, "18": 0},
+  "s21_8p0":  {"-18": 0, "-12": 0, "-6": 1, "6": 0, "12": 0, "18": 0},
+  "s21_0p88": {"-18": 0, "-12": 0, "-6": 0, "6": 0, "12": 0, "18": 0},
+  "s12_1p04": {"-18": 0, "-12": 0, "-6": 1, "6": 0, "12": 0, "18": 0},
+  "s12_2p44": {"-18": 0, "-12": 0, "-6": 0, "6": 0, "12": 0, "18": 0},
+  "s12_3p56": {"-18": 0, "-12": 0, "-6": 0, "6": 0, "12": 0, "18": 0},
+  "s54_0p16": {"-18": 0, "-12": 0, "-6": 0, "6": 0, "12": 0, "18": 0},
+  "s54_2p16": {"-18": 0, "-12": 0, "-6": 0, "6": 0, "12": 0, "18": 0},
+  "s54_4p0":  {"-18": 0, "-12": 0, "-6": 0, "6": 0, "12": 0, "18": 0},
+  "s76_0p04": {"-18": 0, "-12": 0, "-6": 0, "6": 0, "12": 0, "18": 0},
+  "s76_8p68": {"-18": 0, "-12": 0, "-6": 0, "6": 0, "12": 0, "18": 0}
+ }
+}
