@@ -1,0 +1,99 @@
+{
+ "at": "2026-10-28T02:03:15.660Z",
+ "label": "",
+ "budgets": {},
+ "total": {
+  "calls": 26,
+  "prompt": 61494,
+  "cached": 55595,
+  "fresh": 5899,
+  "cachedShare": 0.904,
+  "output": 6294,
+  "reasoning": 4244,
+  "seconds": 229.7,
+  "empty": 0,
+  "invalid": 0
+ },
+ "perWeek": [
+  {
+   "scenario": "Two games, Tomás left out (what the player said)",
+   "success": false,
+   "seconds": 37.2,
+   "calls": 7,
+   "prompt": 19738,
+   "cached": 17802,
+   "fresh": 1936,
+   "cachedShare": 0.902,
+   "output": 991,
+   "reasoning": 343,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Two games, Tomás left out (what the player said)",
+   "success": false,
+   "seconds": 36,
+   "calls": 6,
+   "prompt": 16179,
+   "cached": 14958,
+   "fresh": 1221,
+   "cachedShare": 0.925,
+   "output": 966,
+   "reasoning": 452,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Two games, Tomás left out (what the player said)",
+   "success": false,
+   "seconds": 41.3,
+   "calls": 8,
+   "prompt": 23287,
+   "cached": 21456,
+   "fresh": 1831,
+   "cachedShare": 0.921,
+   "output": 1062,
+   "reasoning": 280,
+   "empty": 0,
+   "invalid": 0
+  }
+ ],
+ "bySite": [
+  {
+   "site": "a2a.answer",
+   "calls": 5,
+   "prompt": 2290,
+   "cached": 1379,
+   "fresh": 911,
+   "cachedShare": 0.602,
+   "output": 3275,
+   "reasoning": 3169,
+   "seconds": 115.2,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 458,
+    "output": 655,
+    "seconds": 23
+   }
+  },
+  {
+   "site": "autopilot.runWeek",
+   "calls": 21,
+   "prompt": 59204,
+   "cached": 54216,
+   "fresh": 4988,
+   "cachedShare": 0.916,
+   "output": 3019,
+   "reasoning": 1075,
+   "seconds": 114.5,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 2819,
+    "output": 144,
+    "seconds": 5.5
+   }
+  }
+ ]
+}
