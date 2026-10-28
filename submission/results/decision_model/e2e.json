@@ -1,0 +1,489 @@
+{
+ "off": {
+  "autopilot": {
+   "at": "2026-10-28T11:19:07.393Z",
+   "transport": "a2a",
+   "runs": 9,
+   "ok": 9,
+   "byModel": {
+    "runs": 8,
+    "ok": 8
+   },
+   "oracleFailures": 0,
+   "seconds": 53.5,
+   "modelCalls": 7.7,
+   "toolCalls": 8.2,
+   "peak": 4,
+   "refused": 3,
+   "rules": 1,
+   "weeks": [
+    {
+     "scenario": "Two games a week",
+     "success": true,
+     "oracle": [],
+     "seconds": 29.9,
+     "modelCalls": 7,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Tom\u00e1s, Ines",
+      "badminton doubles Sat 09:00 with Leo, Tom\u00e1s, Hana"
+     ]
+    },
+    {
+     "scenario": "Two games, sore knee (doubles first)",
+     "success": true,
+     "oracle": [],
+     "seconds": 18,
+     "modelCalls": 6,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Ines, Tom\u00e1s",
+      "badminton doubles Sat 09:00 with Leo, Tom\u00e1s, Kenji"
+     ]
+    },
+    {
+     "scenario": "Three games a week",
+     "success": true,
+     "oracle": [],
+     "seconds": 44.6,
+     "modelCalls": 13,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Ines, Tom\u00e1s",
+      "badminton doubles Sat 09:00 with Leo, Tom\u00e1s, Hana",
+      "badminton singles Tue 19:30 with Yuki"
+     ]
+    },
+    {
+     "scenario": "Thursday already booked",
+     "success": true,
+     "oracle": [],
+     "seconds": 16,
+     "modelCalls": 4,
+     "games": [
+      "badminton doubles Sat 09:00 with Leo, Tom\u00e1s, Kenji"
+     ]
+    },
+    {
+     "scenario": "Tennis, one game",
+     "success": true,
+     "oracle": [],
+     "seconds": 139.4,
+     "modelCalls": 12,
+     "games": [
+      "tennis doubles Thu 19:00 with Tom\u00e1s, Ines, Hana"
+     ]
+    },
+    {
+     "scenario": "Two games, Kenji just played long",
+     "success": true,
+     "oracle": [],
+     "seconds": 41.5,
+     "modelCalls": 6,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Ines, Tom\u00e1s",
+      "badminton doubles Sat 09:00 with Leo, Tom\u00e1s, Kenji"
+     ]
+    },
+    {
+     "scenario": "Sore knee and a heavy week (body log + health app)",
+     "success": true,
+     "oracle": [],
+     "seconds": 26.4,
+     "modelCalls": 4,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Ines, Tom\u00e1s"
+     ]
+    },
+    {
+     "scenario": "Two games, Tom\u00e1s left out (what the player said)",
+     "success": true,
+     "oracle": [],
+     "seconds": 37.7,
+     "modelCalls": 7,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Ines, Aisha",
+      "badminton doubles Sat 09:00 with Leo, Hana, Kenji"
+     ]
+    },
+    {
+     "scenario": "Basketball, two on two (public courts)",
+     "success": true,
+     "oracle": [],
+     "seconds": 127.9,
+     "modelCalls": 10,
+     "games": [
+      "basketball doubles Thu 20:00 with Leo, Ravi, Kenji"
+     ]
+    }
+   ],
+   "ledger": {
+    "glimmer_calls_all_sites": 69,
+    "glimmer_tokens_all_sites": {
+     "prompt": 158840,
+     "output": 11621,
+     "reasoning": 5819
+    },
+    "member_answers_by_glimmer": 4,
+    "member_answer_tokens": {
+     "prompt": 1573,
+     "output": 1246,
+     "reasoning": 1127
+    },
+    "member_answer_seconds_p50": 7.08,
+    "member_answer_seconds_p95": 14.45,
+    "student_asked": 0,
+    "student_answered": 0,
+    "student_errors": 0,
+    "student_worker_ms_p50": null,
+    "student_worker_ms_p95": null,
+    "student_wall_s_p50": null,
+    "student_wall_s_p95": null,
+    "student_prompt_tokens": 0
+   }
+  },
+  "persona": {
+   "members": 60,
+   "agreed": 31,
+   "broke": 0,
+   "movedToAKeptTime": 31,
+   "keepable": 31,
+   "seconds": 315.5,
+   "sets": {
+    "model": null,
+    "binding": {
+     "talks": 60,
+     "precision": 1,
+     "recall": 1,
+     "exact": 60,
+     "falseWorks": 0,
+     "missedWorks": 0,
+     "precisionCI95": [
+      0.974,
+      1
+     ],
+     "recallCI95": [
+      0.974,
+      1
+     ]
+    }
+   },
+   "ledger": {
+    "glimmer_calls_all_sites": 30,
+    "glimmer_tokens_all_sites": {
+     "prompt": 16666,
+     "output": 17824,
+     "reasoning": 16779
+    },
+    "member_answers_by_glimmer": 30,
+    "member_answer_tokens": {
+     "prompt": 16666,
+     "output": 17824,
+     "reasoning": 16779
+    },
+    "member_answer_seconds_p50": 41.78,
+    "member_answer_seconds_p95": 61.22,
+    "student_asked": 0,
+    "student_answered": 0,
+    "student_errors": 0,
+    "student_worker_ms_p50": null,
+    "student_worker_ms_p95": null,
+    "student_wall_s_p50": null,
+    "student_wall_s_p95": null,
+    "student_prompt_tokens": 0
+   },
+   "said": {
+    "rules": 30,
+    "agent": 30,
+    "student": 0
+   }
+  },
+  "private": {
+   "shared": {
+    "talks": 50,
+    "possible": 29,
+    "agreedWhenPossible": 29,
+    "agreedWhenNot": 0,
+    "broke": 0,
+    "meanRounds": 0.58,
+    "seconds": 0.4
+   },
+   "private": {
+    "talks": 50,
+    "possible": 29,
+    "agreedWhenPossible": 29,
+    "agreedWhenNot": 0,
+    "broke": 0,
+    "meanRounds": 1,
+    "seconds": 73.4
+   },
+   "ledger": {
+    "glimmer_calls_all_sites": 13,
+    "glimmer_tokens_all_sites": {
+     "prompt": 6551,
+     "output": 4943,
+     "reasoning": 4569
+    },
+    "member_answers_by_glimmer": 13,
+    "member_answer_tokens": {
+     "prompt": 6551,
+     "output": 4943,
+     "reasoning": 4569
+    },
+    "member_answer_seconds_p50": 23.69,
+    "member_answer_seconds_p95": 31.46,
+    "student_asked": 0,
+    "student_answered": 0,
+    "student_errors": 0,
+    "student_worker_ms_p50": null,
+    "student_worker_ms_p95": null,
+    "student_wall_s_p50": null,
+    "student_wall_s_p95": null,
+    "student_prompt_tokens": 0
+   }
+  }
+ },
+ "on": {
+  "autopilot": {
+   "at": "2026-10-28T12:08:10.784Z",
+   "transport": "a2a",
+   "runs": 9,
+   "ok": 9,
+   "byModel": {
+    "runs": 8,
+    "ok": 8
+   },
+   "oracleFailures": 0,
+   "seconds": 76.2,
+   "modelCalls": 7.7,
+   "toolCalls": 8.6,
+   "peak": 4,
+   "refused": 4,
+   "rules": 1,
+   "weeks": [
+    {
+     "scenario": "Two games a week",
+     "success": true,
+     "oracle": [],
+     "seconds": 48.9,
+     "modelCalls": 7,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Tom\u00e1s, Ines",
+      "badminton doubles Sat 09:00 with Leo, Tom\u00e1s, Hana"
+     ]
+    },
+    {
+     "scenario": "Two games, sore knee (doubles first)",
+     "success": true,
+     "oracle": [],
+     "seconds": 91.5,
+     "modelCalls": 7,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Tom\u00e1s, Ines",
+      "badminton doubles Sat 09:00 with Leo, Tom\u00e1s, Hana"
+     ]
+    },
+    {
+     "scenario": "Three games a week",
+     "success": true,
+     "oracle": [],
+     "seconds": 93.3,
+     "modelCalls": 13,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Tom\u00e1s, Ines",
+      "badminton doubles Sat 09:00 with Leo, Tom\u00e1s, Hana",
+      "badminton singles Tue 19:30 with Noor"
+     ]
+    },
+    {
+     "scenario": "Thursday already booked",
+     "success": true,
+     "oracle": [],
+     "seconds": 53.5,
+     "modelCalls": 5,
+     "games": [
+      "badminton doubles Sat 09:00 with Tom\u00e1s, Leo, Hana"
+     ]
+    },
+    {
+     "scenario": "Tennis, one game",
+     "success": true,
+     "oracle": [],
+     "seconds": 137.3,
+     "modelCalls": 10,
+     "games": [
+      "tennis singles Thu 18:00 with Hana"
+     ]
+    },
+    {
+     "scenario": "Two games, Kenji just played long",
+     "success": true,
+     "oracle": [],
+     "seconds": 53.5,
+     "modelCalls": 6,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Tom\u00e1s, Ines",
+      "badminton doubles Sat 09:00 with Leo, Tom\u00e1s, Kenji"
+     ]
+    },
+    {
+     "scenario": "Sore knee and a heavy week (body log + health app)",
+     "success": true,
+     "oracle": [],
+     "seconds": 28.8,
+     "modelCalls": 4,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Tom\u00e1s, Ines"
+     ]
+    },
+    {
+     "scenario": "Two games, Tom\u00e1s left out (what the player said)",
+     "success": true,
+     "oracle": [],
+     "seconds": 86.2,
+     "modelCalls": 7,
+     "games": [
+      "badminton doubles Thu 19:00 with Leo, Ines, Aisha",
+      "badminton doubles Sat 09:00 with Leo, Hana, Kenji"
+     ]
+    },
+    {
+     "scenario": "Basketball, two on two (public courts)",
+     "success": true,
+     "oracle": [],
+     "seconds": 92.4,
+     "modelCalls": 10,
+     "games": [
+      "basketball doubles Thu 20:00 with Ravi, Kenji, Leo"
+     ]
+    }
+   ],
+   "ledger": {
+    "glimmer_calls_all_sites": 69,
+    "glimmer_tokens_all_sites": {
+     "prompt": 169515,
+     "output": 11307,
+     "reasoning": 5624
+    },
+    "member_answers_by_glimmer": 6,
+    "member_answer_tokens": {
+     "prompt": 2516,
+     "output": 2262,
+     "reasoning": 2083
+    },
+    "member_answer_seconds_p50": 21.98,
+    "member_answer_seconds_p95": 55.85,
+    "student_asked": 0,
+    "student_answered": 0,
+    "student_errors": 0,
+    "student_worker_ms_p50": null,
+    "student_worker_ms_p95": null,
+    "student_wall_s_p50": null,
+    "student_wall_s_p95": null,
+    "student_prompt_tokens": 0
+   }
+  },
+  "persona": {
+   "members": 60,
+   "agreed": 29,
+   "broke": 0,
+   "movedToAKeptTime": 29,
+   "keepable": 29,
+   "seconds": 190.2,
+   "sets": {
+    "model": null,
+    "binding": {
+     "talks": 60,
+     "precision": 1,
+     "recall": 1,
+     "exact": 60,
+     "falseWorks": 0,
+     "missedWorks": 0,
+     "precisionCI95": [
+      0.973,
+      1
+     ],
+     "recallCI95": [
+      0.973,
+      1
+     ]
+    }
+   },
+   "ledger": {
+    "glimmer_calls_all_sites": 10,
+    "glimmer_tokens_all_sites": {
+     "prompt": 5700,
+     "output": 5296,
+     "reasoning": 4927
+    },
+    "member_answers_by_glimmer": 10,
+    "member_answer_tokens": {
+     "prompt": 5700,
+     "output": 5296,
+     "reasoning": 4927
+    },
+    "member_answer_seconds_p50": 39.57,
+    "member_answer_seconds_p95": 57.46,
+    "student_asked": 29,
+    "student_answered": 19,
+    "student_errors": 10,
+    "student_worker_ms_p50": 8825.5,
+    "student_worker_ms_p95": 19002.8,
+    "student_wall_s_p50": 10.408,
+    "student_wall_s_p95": 19.031,
+    "student_prompt_tokens": 5532
+   },
+   "said": {
+    "rules": 31,
+    "agent": 10,
+    "student": 19
+   },
+   "same_outcome_as_off": {
+    "talks": 58,
+    "same": 51
+   }
+  },
+  "private": {
+   "shared": {
+    "talks": 50,
+    "possible": 29,
+    "agreedWhenPossible": 29,
+    "agreedWhenNot": 0,
+    "broke": 0,
+    "meanRounds": 0.58,
+    "seconds": 3.4
+   },
+   "private": {
+    "talks": 50,
+    "possible": 29,
+    "agreedWhenPossible": 29,
+    "agreedWhenNot": 0,
+    "broke": 0,
+    "meanRounds": 1,
+    "seconds": 77.9
+   },
+   "ledger": {
+    "glimmer_calls_all_sites": 6,
+    "glimmer_tokens_all_sites": {
+     "prompt": 3016,
+     "output": 2322,
+     "reasoning": 2152
+    },
+    "member_answers_by_glimmer": 6,
+    "member_answer_tokens": {
+     "prompt": 3016,
+     "output": 2322,
+     "reasoning": 2152
+    },
+    "member_answer_seconds_p50": 28.56,
+    "member_answer_seconds_p95": 35.59,
+    "student_asked": 13,
+    "student_answered": 7,
+    "student_errors": 5,
+    "student_worker_ms_p50": 6795.7,
+    "student_worker_ms_p95": 9394.1,
+    "student_wall_s_p50": 12.309,
+    "student_wall_s_p95": 13.692,
+    "student_prompt_tokens": 1821
+   }
+  }
+ },
+ "off2": {}
+}
