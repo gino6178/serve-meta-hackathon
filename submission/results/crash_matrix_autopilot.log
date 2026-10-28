@@ -1,0 +1,302 @@
+
+crash at round-saved
+  [gateway] crash at round-saved
+  PASS the gateway died at round-saved
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages)
+
+crash at answer-saved
+  [gateway] crash at answer-saved
+  PASS the gateway died at answer-saved
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages, 1 answered before the crash)
+
+crash at talk-done
+  [gateway] crash at talk-done
+  PASS the gateway died at talk-done
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages, 1 answered before the crash)
+
+crash at settled
+  [gateway] crash at settled
+  PASS the gateway died at settled
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages, 1 answered before the crash)
+
+crash at booked
+  [gateway] crash at booked
+  PASS the gateway died at booked
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages, 1 answered before the crash)
+
+I want to play, crash at request-saved
+  [gateway] crash at request-saved
+  PASS the gateway died at request-saved
+  PASS the request ends with the game as a question, its outbox empty (moved)
+  PASS no member's agent was asked for an estimate twice (4 estimates, 4 members)
+  PASS every A2A message was decided once (1 model decisions, 1 messages)
+  PASS no hold is left but the agreed game's (1 held, neg-gm-mvs2ke8x-846b3882-0)
+  PASS the player's yes books it exactly once (1)
+
+I want to play, crash at request-ranked
+  [gateway] crash at request-ranked
+  PASS the gateway died at request-ranked
+  PASS the request ends with the game as a question, its outbox empty (moved)
+  PASS no member's agent was asked for an estimate twice (4 estimates, 4 members)
+  PASS every A2A message was decided once (1 model decisions, 1 messages)
+  PASS no hold is left but the agreed game's (1 held, neg-gm-mvs2kgpj-3126213d-0)
+  PASS the player's yes books it exactly once (1)
+
+I want to play, crash at round-saved
+  [gateway] crash at round-saved
+  PASS the gateway died at round-saved
+  PASS the request ends with the game as a question, its outbox empty (moved)
+  PASS no member's agent was asked for an estimate twice (4 estimates, 4 members)
+  PASS every A2A message was decided once (1 model decisions, 1 messages)
+  PASS no hold is left but the agreed game's (1 held, neg-gm-mvs2kjsk-a0ae09d3-0)
+  PASS the player's yes books it exactly once (1)
+
+I want to play, crash at answer-saved
+  [gateway] crash at answer-saved
+  PASS the gateway died at answer-saved
+  PASS the request ends with the game as a question, its outbox empty (moved)
+  PASS no member's agent was asked for an estimate twice (4 estimates, 4 members)
+  PASS every A2A message was decided once (1 model decisions, 1 messages)
+  PASS no hold is left but the agreed game's (1 held, neg-gm-mvs2kn4d-6716b871-0)
+  PASS the player's yes books it exactly once (1)
+
+I want to play, crash at talk-done
+  [gateway] crash at talk-done
+  PASS the gateway died at talk-done
+  PASS the request ends with the game as a question, its outbox empty (moved)
+  PASS no member's agent was asked for an estimate twice (4 estimates, 4 members)
+  PASS every A2A message was decided once (1 model decisions, 1 messages)
+  PASS no hold is left but the agreed game's (1 held, neg-gm-mvs2kqyb-a2f20098-0)
+  PASS the player's yes books it exactly once (1)
+
+I want to play, crash at request-settled
+  [gateway] crash at request-settled
+  PASS the gateway died at request-settled
+  PASS the request ends with the game as a question, its outbox empty (moved)
+  PASS no member's agent was asked for an estimate twice (4 estimates, 4 members)
+  PASS every A2A message was decided once (1 model decisions, 1 messages)
+  PASS no hold is left but the agreed game's (1 held, neg-gm-mvs2kuw5-3836a850-0)
+  PASS the player's yes books it exactly once (1)
+
+Autopilot, no crash (the week to compare with)
+  2 games: Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas · 6 model turns, 2 A2A proposals
+  PASS without a crash the week ends with 2 games, one approval message and 2 bookings (2, 1, 2)
+
+Autopilot, crash at autopilot-started
+  [gateway] crash at autopilot-started
+  PASS the gateway died at autopilot-started
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 0 turns and 0 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-step@1
+  [gateway] crash at autopilot-step@1
+  PASS the gateway died at autopilot-step@1
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 1 turns and 2 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-step@2
+  [gateway] crash at autopilot-step@2
+  PASS the gateway died at autopilot-step@2
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 2 turns and 3 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-negotiating@1
+  [gateway] crash at autopilot-negotiating@1
+  PASS the gateway died at autopilot-negotiating@1
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 2 turns and 3 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at round-saved@1
+  [gateway] crash at round-saved@1
+  PASS the gateway died at round-saved@1
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 2 turns and 3 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at answer-saved@1
+  [gateway] crash at answer-saved@1
+  PASS the gateway died at answer-saved@1
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 2 turns and 3 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at talk-done@1
+  [gateway] crash at talk-done@1
+  PASS the gateway died at talk-done@1
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 2 turns and 3 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-negotiated@1
+  [gateway] crash at autopilot-negotiated@1
+  PASS the gateway died at autopilot-negotiated@1
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 2 turns and 4 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-step@4
+  [gateway] crash at autopilot-step@4
+  PASS the gateway died at autopilot-step@4
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 4 turns and 5 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-negotiating@2
+  [gateway] crash at autopilot-negotiating@2
+  PASS the gateway died at autopilot-negotiating@2
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 4 turns and 5 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at round-saved@2
+  [gateway] crash at round-saved@2
+  PASS the gateway died at round-saved@2
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 4 turns and 5 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at answer-saved@2
+  [gateway] crash at answer-saved@2
+  PASS the gateway died at answer-saved@2
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 4 turns and 5 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at talk-done@2
+  [gateway] crash at talk-done@2
+  PASS the gateway died at talk-done@2
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 4 turns and 5 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-negotiated@2
+  [gateway] crash at autopilot-negotiated@2
+  PASS the gateway died at autopilot-negotiated@2
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 4 turns and 6 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-asked
+  [gateway] crash at autopilot-asked
+  PASS the gateway died at autopilot-asked
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 5 turns and 7 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-notified
+  [gateway] crash at autopilot-notified
+  PASS the gateway died at autopilot-notified
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash; 6 turns and 8 tool calls from the journal)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-answered
+  [gateway] crash at autopilot-answered
+  PASS the gateway died at autopilot-answered
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot, crash at autopilot-booked
+  [gateway] crash at autopilot-booked
+  PASS the gateway died at autopilot-booked
+  PASS exactly one approval message (1)
+  PASS the same games as without the crash (Thu 19:00 riverside court 4 with leo; Sat 09:00 riverside court 4 with tomas)
+  PASS the model was asked for no turn it had already taken (6 turns, 6 without a crash)
+  PASS no member's agent got a proposal twice (2 proposals, 2 without a crash; 2 decided)
+  PASS no hold left over (2 held before the yes, all the plan's; 0 after)
+  PASS the yes booked each game exactly once (2 bookings)
+  PASS the outbox is empty and no run is left unfinished (outbox empty, 0 open)
+
+Autopilot crash points: 18 of 18 passed
+  [gateway] crash at autopilot-negotiated@1
+  baseline (not resumed), crash at autopilot-negotiated@1: 1 proposals sent again, 1 holds left over from the cut-off run, 2 extra model turns, 1 approval message
+  [gateway] crash at round-saved@2
+  baseline (not resumed), crash at round-saved@2: 1 proposals sent again, 1 holds left over from the cut-off run, 4 extra model turns, 1 approval message
+  [gateway] crash at autopilot-asked
+  baseline (not resumed), crash at autopilot-asked: 2 proposals sent again, 0 holds left over from the cut-off run, 5 extra model turns, 1 approval message
+
+ALL PASSED
+DONE
