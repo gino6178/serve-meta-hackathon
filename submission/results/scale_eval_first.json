@@ -1,0 +1,210 @@
+{
+ "at": "2026-10-27T16:13:45.377Z",
+ "model": "muse-glimmer",
+ "context": 16384,
+ "sizes": [
+  {
+   "members": 11,
+   "simulated": 0,
+   "codeMs": 1.34,
+   "codeFound": 1,
+   "freeThatDay": 7,
+   "wholeClubTokens": 787,
+   "wholeClubCached": 0,
+   "wholeClubSeconds": 0.86,
+   "wholeClub": "measured"
+  },
+  {
+   "members": 51,
+   "simulated": 40,
+   "codeMs": 1.25,
+   "codeFound": 1,
+   "freeThatDay": 25,
+   "wholeClubTokens": 3135,
+   "wholeClubCached": 0,
+   "wholeClubSeconds": 2.99,
+   "wholeClub": "measured"
+  },
+  {
+   "members": 101,
+   "simulated": 90,
+   "codeMs": 3.11,
+   "codeFound": 1,
+   "freeThatDay": 40,
+   "wholeClubTokens": 6006,
+   "wholeClubCached": 0,
+   "wholeClubSeconds": 5.56,
+   "wholeClub": "measured"
+  },
+  {
+   "members": 201,
+   "simulated": 190,
+   "codeMs": 1.57,
+   "codeFound": 1,
+   "freeThatDay": 85,
+   "wholeClubTokens": 11815,
+   "wholeClubCached": 0,
+   "wholeClubSeconds": 10.87,
+   "wholeClub": "measured"
+  },
+  {
+   "members": 401,
+   "simulated": 390,
+   "codeMs": 1.71,
+   "codeFound": 1,
+   "freeThatDay": 142,
+   "wholeClubTokens": 23423,
+   "wholeClub": "does not fit",
+   "estimated": true
+  },
+  {
+   "members": 1001,
+   "simulated": 990,
+   "codeMs": 2.19,
+   "codeFound": 1,
+   "freeThatDay": 353,
+   "wholeClubTokens": 58249,
+   "wholeClub": "does not fit",
+   "estimated": true
+  }
+ ],
+ "autopilot": [
+  {
+   "members": 11,
+   "run": 1,
+   "agreed": 2,
+   "approval": true,
+   "seconds": 161.5,
+   "modelCalls": 17,
+   "toolCalls": 9,
+   "tokens": {
+    "calls": 17,
+    "prompt": 23177,
+    "cached": 18037,
+    "fresh": 5140,
+    "cachedShare": 0.778,
+    "output": 5140,
+    "reasoning": 4202,
+    "seconds": 292.8,
+    "empty": 0,
+    "invalid": 1
+   },
+   "traceTokens": null,
+   "agentMessages": 13,
+   "simulatedPartners": 0,
+   "games": [
+    "doubles Sat 09:00 with Leo Park, Hana Chen, Tomás Ruiz",
+    "doubles Thu 19:00 with Leo Park, Kenji Wu, Tomás Ruiz"
+   ],
+   "error": null
+  },
+  {
+   "members": 11,
+   "run": 2,
+   "agreed": 2,
+   "approval": true,
+   "seconds": 129.1,
+   "modelCalls": 13,
+   "toolCalls": 8,
+   "tokens": {
+    "calls": 13,
+    "prompt": 18648,
+    "cached": 17169,
+    "fresh": 1479,
+    "cachedShare": 0.921,
+    "output": 4215,
+    "reasoning": 3476,
+    "seconds": 227.3,
+    "empty": 0,
+    "invalid": 1
+   },
+   "traceTokens": null,
+   "agentMessages": 9,
+   "simulatedPartners": 0,
+   "games": [
+    "doubles Sat 09:00 with Leo Park, Hana Chen, Tomás Ruiz",
+    "doubles Thu 19:00 with Leo Park, Hana Chen, Tomás Ruiz"
+   ],
+   "error": null
+  },
+  {
+   "members": 301,
+   "run": 1,
+   "agreed": 2,
+   "approval": true,
+   "seconds": 140,
+   "modelCalls": 17,
+   "toolCalls": 9,
+   "tokens": {
+    "calls": 17,
+    "prompt": 23181,
+    "cached": 21597,
+    "fresh": 1584,
+    "cachedShare": 0.932,
+    "output": 4550,
+    "reasoning": 3587,
+    "seconds": 280.8,
+    "empty": 0,
+    "invalid": 1
+   },
+   "traceTokens": null,
+   "agentMessages": 13,
+   "simulatedPartners": 0,
+   "games": [
+    "doubles Sat 09:00 with Leo Park, Hana Chen, Tomás Ruiz",
+    "doubles Thu 19:00 with Leo Park, Kenji Wu, Tomás Ruiz"
+   ],
+   "error": null
+  },
+  {
+   "members": 301,
+   "run": 2,
+   "agreed": 2,
+   "approval": true,
+   "seconds": 83.6,
+   "modelCalls": 12,
+   "toolCalls": 8,
+   "tokens": {
+    "calls": 12,
+    "prompt": 18038,
+    "cached": 15483,
+    "fresh": 2555,
+    "cachedShare": 0.858,
+    "output": 2762,
+    "reasoning": 2043,
+    "seconds": 187,
+    "empty": 0,
+    "invalid": 0
+   },
+   "traceTokens": null,
+   "agentMessages": 8,
+   "simulatedPartners": 0,
+   "games": [
+    "doubles Thu 19:00 with Leo Park, Hana Chen, Tomás Ruiz",
+    "doubles Sat 09:00 with Leo Park, Hana Chen, Tomás Ruiz"
+   ],
+   "error": null
+  }
+ ],
+ "tokensPerMember": 58,
+ "summary": {
+  "11": {
+   "runs": 2,
+   "prompt": 20913,
+   "fresh": 3310,
+   "output": 4678,
+   "tracePrompt": 0,
+   "seconds": 145,
+   "agreed": 2
+  },
+  "301": {
+   "runs": 2,
+   "prompt": 20610,
+   "fresh": 2070,
+   "output": 3656,
+   "tracePrompt": 0,
+   "seconds": 112,
+   "agreed": 2
+  }
+ }
+}
