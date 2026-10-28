@@ -1,0 +1,1 @@
+{"base": "/home/Gino/models/meta-1b", "train": "jev/data/train,jev/data/trainshared,jev/data/asked", "val": null, "test": null, "out": "jev/runs/1b_v3", "eval": null, "pred": null, "epochs": 3, "lr": 0.0002, "bs": 4, "accum": 4, "r": 16, "jepa": 0.0, "k": 1, "works_w": 1.0, "short_p": 0.5, "order": "time", "seed": 0, "limit": 0}
