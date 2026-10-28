@@ -1,0 +1,295 @@
+{
+ "at": "2026-10-27T22:28:17.315Z",
+ "transport": "a2a",
+ "members": 12,
+ "arms": {
+  "off": {
+   "summary": {
+    "pairs": 12,
+    "double": 12,
+    "bothAgreed": 12,
+    "gamesBooked": 12,
+    "refusedAtBooking": 12,
+    "seconds": 392
+   },
+   "rows": [
+    {
+     "member": "s004",
+     "prefer": "Mon 19:00",
+     "a": "2026-11-02 19:00",
+     "b": "2026-11-02 19:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Maya was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s006",
+     "prefer": "Wed 19:00",
+     "a": "2026-10-28 19:00",
+     "b": "2026-10-28 19:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Luca was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s012",
+     "prefer": "Wed 19:00",
+     "a": "2026-10-28 19:00",
+     "b": "2026-10-28 19:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Hugo was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s015",
+     "prefer": "Tue 18:00",
+     "a": "2026-11-03 18:00",
+     "b": "2026-11-03 18:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Pablo was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s018",
+     "prefer": "Wed 19:00",
+     "a": "2026-10-28 19:00",
+     "b": "2026-10-28 19:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Lina was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s019",
+     "prefer": "Tue 18:00",
+     "a": "2026-11-03 19:00",
+     "b": "2026-11-03 18:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Teo was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s022",
+     "prefer": "Fri 18:00",
+     "a": "2026-10-30 18:00",
+     "b": "2026-10-30 18:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Tariq was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s024",
+     "prefer": "Sun 09:00",
+     "a": "2026-11-01 09:00",
+     "b": "2026-11-01 09:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Mei was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s027",
+     "prefer": "Tue 18:00",
+     "a": "2026-11-03 18:00",
+     "b": "2026-11-03 18:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Mei was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s028",
+     "prefer": "Mon 18:00",
+     "a": "2026-11-02 18:00",
+     "b": "2026-11-02 18:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Bilal was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s029",
+     "prefer": "Mon 18:00",
+     "a": "2026-11-02 18:00",
+     "b": "2026-11-02 18:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Ken was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    },
+    {
+     "member": "s031",
+     "prefer": "Sun 08:00",
+     "a": "2026-11-01 08:00",
+     "b": "2026-11-01 08:00",
+     "double": true,
+     "agreed": 2,
+     "booked": 1,
+     "refused": [
+      "Luca was booked into another game at that time meanwhile. Ask again for a fresh option."
+     ]
+    }
+   ]
+  },
+  "on": {
+   "summary": {
+    "pairs": 12,
+    "double": 0,
+    "bothAgreed": 12,
+    "gamesBooked": 24,
+    "refusedAtBooking": 0,
+    "seconds": 397
+   },
+   "rows": [
+    {
+     "member": "s004",
+     "prefer": "Mon 19:00",
+     "a": "2026-11-03 18:00",
+     "b": "2026-11-02 19:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s006",
+     "prefer": "Wed 19:00",
+     "a": "2026-10-29 18:00",
+     "b": "2026-10-28 19:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s012",
+     "prefer": "Wed 19:00",
+     "a": "2026-10-28 19:00",
+     "b": "2026-10-29 18:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s015",
+     "prefer": "Tue 18:00",
+     "a": "2026-11-03 18:00",
+     "b": "2026-11-01 10:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s018",
+     "prefer": "Wed 19:00",
+     "a": "2026-10-29 19:00",
+     "b": "2026-10-28 19:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s019",
+     "prefer": "Tue 18:00",
+     "a": "2026-11-03 18:00",
+     "b": "2026-11-02 18:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s022",
+     "prefer": "Fri 18:00",
+     "a": "2026-10-28 18:00",
+     "b": "2026-10-30 18:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s024",
+     "prefer": "Sun 09:00",
+     "a": "2026-11-01 09:00",
+     "b": "2026-10-28 18:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s027",
+     "prefer": "Tue 18:00",
+     "a": "2026-11-03 18:00",
+     "b": "2026-10-28 19:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s028",
+     "prefer": "Mon 18:00",
+     "a": "2026-11-01 14:00",
+     "b": "2026-11-02 18:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s029",
+     "prefer": "Mon 18:00",
+     "a": "2026-10-28 18:00",
+     "b": "2026-11-02 18:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    },
+    {
+     "member": "s031",
+     "prefer": "Sun 08:00",
+     "a": "2026-11-01 08:00",
+     "b": "2026-10-28 19:00",
+     "double": false,
+     "agreed": 2,
+     "booked": 2,
+     "refused": []
+    }
+   ]
+  }
+ }
+}
