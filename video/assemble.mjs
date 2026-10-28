@@ -95,14 +95,14 @@ S.push([["pocket", 0.2, Math.min(m("pocket", "end"), 0.2 + LEN[4]), LEN[4]]]);
 // 6 · the highlight reel: asked, drawn (sped up), the smash replayed in slow motion at real speed, a cut to the finished
 //     reel and its caption, then one tap to Instagram or Facebook
 {
-  const c1 = say(5, 1), c2 = say(5, 2), c3 = say(5, 3), c4 = say(5, 4), h = (k) => m("highlight", k);
+  // the recorder's marks: sent, read (the server's DETR, Sapiens2 and SAM 2.1 done), replay (the moment in slow motion
+  // or its camera effect), ready (the finished reel), caption, end
+  const c2 = say(5, 2), c3 = say(5, 3), h = (k) => m("highlight", k);
   S.push([
-    ["highlight", 0.3, h("cutting") + 0.8, c1],
-    ["highlight", h("cutting") + 0.8, h("replay"), c2 - c1, "Drawing the reel"],
-    ["highlight", h("replay"), h("replayed") + 0.6, c3 - c2],
-    ["highlight", h("ready") - 0.4, h("caption"), 1.6], // a cut past the other four rallies to the finished reel
-    ["highlight", h("caption"), h("share"), c4 - c3 - 1.6],
-    ["highlight", h("share"), h("end"), LEN[5] - c4],
+    ["highlight", 0.3, h("read") + 0.5, c2, "Reading your video on your server"],
+    ["highlight", h("read") + 0.5, h("ready") - 0.4, c3 - c2],
+    ["highlight", h("ready") - 0.4, h("caption"), 1.6],
+    ["highlight", h("caption"), h("end"), LEN[5] - c3 - 1.6],
   ]);
 }
 // 7 · the club: the leaderboard; your best match (sped up); the two agents agreeing (sped up), then the agreed thread
