@@ -1,0 +1,71 @@
+{
+ "thresholds": [
+  {
+   "threshold": 0.0,
+   "test_answered_by_student": 1.0,
+   "test_cascade_agrees_with_glimmer": 0.902,
+   "decider_answered_by_student": 1.0,
+   "decider_cascade_agrees_with_full": 0.6939,
+   "decider_liked": "26 of 32"
+  },
+  {
+   "threshold": 0.4,
+   "test_answered_by_student": 1.0,
+   "test_cascade_agrees_with_glimmer": 0.902,
+   "decider_answered_by_student": 1.0,
+   "decider_cascade_agrees_with_full": 0.6939,
+   "decider_liked": "26 of 32"
+  },
+  {
+   "threshold": 0.5,
+   "test_answered_by_student": 1.0,
+   "test_cascade_agrees_with_glimmer": 0.902,
+   "decider_answered_by_student": 0.9796,
+   "decider_cascade_agrees_with_full": 0.7041,
+   "decider_liked": "26 of 32"
+  },
+  {
+   "threshold": 0.6,
+   "test_answered_by_student": 0.976,
+   "test_cascade_agrees_with_glimmer": 0.906,
+   "decider_answered_by_student": 0.8061,
+   "decider_cascade_agrees_with_full": 0.7041,
+   "decider_liked": "25 of 32"
+  },
+  {
+   "threshold": 0.7,
+   "test_answered_by_student": 0.958,
+   "test_cascade_agrees_with_glimmer": 0.903,
+   "decider_answered_by_student": 0.6173,
+   "decider_cascade_agrees_with_full": 0.7296,
+   "decider_liked": "27 of 32"
+  },
+  {
+   "threshold": 0.8,
+   "test_answered_by_student": 0.926,
+   "test_cascade_agrees_with_glimmer": 0.904,
+   "decider_answered_by_student": 0.4337,
+   "decider_cascade_agrees_with_full": 0.75,
+   "decider_liked": "27 of 32"
+  },
+  {
+   "threshold": 0.9,
+   "test_answered_by_student": 0.864,
+   "test_cascade_agrees_with_glimmer": 0.893,
+   "decider_answered_by_student": 0.3061,
+   "decider_cascade_agrees_with_full": 0.75,
+   "decider_liked": "27 of 32"
+  },
+  {
+   "threshold": 0.95,
+   "test_answered_by_student": 0.792,
+   "test_cascade_agrees_with_glimmer": 0.891,
+   "decider_answered_by_student": 0.2908,
+   "decider_cascade_agrees_with_full": 0.7449,
+   "decider_liked": "27 of 32"
+  }
+ ],
+ "test_glimmer_first_answer_vs_others": 0.883,
+ "decider_full2_vs_full": 0.7347,
+ "decider_full_liked": 27
+}
