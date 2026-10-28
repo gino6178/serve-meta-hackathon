@@ -1,0 +1,304 @@
+{
+ "player": {
+  "reel_box": {
+   "tp": 120,
+   "fp": 4,
+   "fn": 16,
+   "tn": 30,
+   "precision": 0.968,
+   "recall": 0.882,
+   "absent_caught": 0.882
+  },
+  "pose_conf": {
+   "tp": 120,
+   "fp": 4,
+   "fn": 16,
+   "tn": 30,
+   "precision": 0.968,
+   "recall": 0.882,
+   "absent_caught": 0.882
+  },
+  "sam_presence": {
+   "tp": 124,
+   "fp": 10,
+   "fn": 12,
+   "tn": 24,
+   "precision": 0.925,
+   "recall": 0.912,
+   "absent_caught": 0.706
+  },
+  "sam_presence_and_area": {
+   "tp": 124,
+   "fp": 1,
+   "fn": 12,
+   "tn": 33,
+   "precision": 0.992,
+   "recall": 0.912,
+   "absent_caught": 0.971
+  },
+  "combined_raw": {
+   "tp": 120,
+   "fp": 0,
+   "fn": 16,
+   "tn": 34,
+   "precision": 1.0,
+   "recall": 0.882,
+   "absent_caught": 1.0
+  },
+  "combined_hysteresis": {
+   "tp": 120,
+   "fp": 0,
+   "fn": 16,
+   "tn": 34,
+   "precision": 1.0,
+   "recall": 0.882,
+   "absent_caught": 1.0
+  }
+ },
+ "hand": {
+  "pose_conf": {
+   "tp": 87,
+   "fp": 3,
+   "fn": 13,
+   "tn": 30,
+   "precision": 0.967,
+   "recall": 0.87,
+   "absent_caught": 0.909
+  },
+  "combined_hysteresis": {
+   "tp": 84,
+   "fp": 3,
+   "fn": 16,
+   "tn": 30,
+   "precision": 0.966,
+   "recall": 0.84,
+   "absent_caught": 0.909
+  }
+ },
+ "effects": [
+  {
+   "clip": "s21",
+   "moment": 400,
+   "speed": 2.88,
+   "in": 346,
+   "out": 440,
+   "aimed_at_absent_without_check": true,
+   "absent_frames": [
+    420,
+    430,
+    440
+   ],
+   "with_check": "cut",
+   "window_with_check": [
+    346,
+    418
+   ],
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s21",
+   "moment": 326,
+   "speed": 2.5,
+   "in": 284,
+   "out": 366,
+   "aimed_at_absent_without_check": false,
+   "absent_frames": [],
+   "with_check": "play",
+   "window_with_check": [
+    284,
+    366
+   ],
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s21",
+   "moment": 44,
+   "speed": 2.37,
+   "in": 24,
+   "out": 84,
+   "aimed_at_absent_without_check": false,
+   "absent_frames": [],
+   "with_check": "play",
+   "window_with_check": [
+    24,
+    84
+   ],
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s54",
+   "moment": 200,
+   "speed": 2.4,
+   "in": 170,
+   "out": 240,
+   "aimed_at_absent_without_check": true,
+   "absent_frames": [
+    210,
+    220,
+    230,
+    240
+   ],
+   "with_check": "drop",
+   "window_with_check": null,
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s54",
+   "moment": 8,
+   "speed": 1.57,
+   "in": 0,
+   "out": 48,
+   "aimed_at_absent_without_check": false,
+   "absent_frames": [],
+   "with_check": "drop",
+   "window_with_check": null,
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s54",
+   "moment": 108,
+   "speed": 1.15,
+   "in": 82,
+   "out": 148,
+   "aimed_at_absent_without_check": false,
+   "absent_frames": [],
+   "with_check": "play",
+   "window_with_check": [
+    82,
+    148
+   ],
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s12",
+   "moment": 178,
+   "speed": 3.54,
+   "in": 132,
+   "out": 218,
+   "aimed_at_absent_without_check": true,
+   "absent_frames": [
+    200,
+    210
+   ],
+   "with_check": "cut",
+   "window_with_check": [
+    132,
+    198
+   ],
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s12",
+   "moment": 52,
+   "speed": 2.87,
+   "in": 20,
+   "out": 92,
+   "aimed_at_absent_without_check": false,
+   "absent_frames": [],
+   "with_check": "play",
+   "window_with_check": [
+    20,
+    92
+   ],
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s12",
+   "moment": 122,
+   "speed": 0.72,
+   "in": 80,
+   "out": 162,
+   "aimed_at_absent_without_check": false,
+   "absent_frames": [],
+   "with_check": "play",
+   "window_with_check": [
+    80,
+    162
+   ],
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s76",
+   "moment": 434,
+   "speed": 7.98,
+   "in": 360,
+   "out": 474,
+   "aimed_at_absent_without_check": true,
+   "absent_frames": [
+    460,
+    470
+   ],
+   "with_check": "drop",
+   "window_with_check": null,
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s76",
+   "moment": 2,
+   "speed": 4.31,
+   "in": 0,
+   "out": 42,
+   "aimed_at_absent_without_check": false,
+   "absent_frames": [],
+   "with_check": "play",
+   "window_with_check": [
+    0,
+    42
+   ],
+   "aimed_at_absent_with_check": false
+  },
+  {
+   "clip": "s76",
+   "moment": 192,
+   "speed": 3.6,
+   "in": 160,
+   "out": 232,
+   "aimed_at_absent_without_check": false,
+   "absent_frames": [],
+   "with_check": "drop",
+   "window_with_check": null,
+   "aimed_at_absent_with_check": false
+  }
+ ],
+ "flips": {
+  "s21": {
+   "seconds": 9.0,
+   "player_raw": 2,
+   "player_hysteresis": 2,
+   "hand_raw": 2,
+   "hand_hysteresis": 1
+  },
+  "s54": {
+   "seconds": 11.0,
+   "player_raw": 2,
+   "player_hysteresis": 2,
+   "hand_raw": 8,
+   "hand_hysteresis": 4
+  },
+  "s12": {
+   "seconds": 5.0,
+   "player_raw": 2,
+   "player_hysteresis": 2,
+   "hand_raw": 4,
+   "hand_hysteresis": 4
+  },
+  "s76": {
+   "seconds": 10.0,
+   "player_raw": 1,
+   "player_hysteresis": 1,
+   "hand_raw": 11,
+   "hand_hysteresis": 5
+  }
+ },
+ "effects_summary": {
+  "effects": 12,
+  "aimed_at_absent_without_check": 4,
+  "with_check": {
+   "play": 6,
+   "cut": 2,
+   "drop": 4
+  },
+  "aimed_at_absent_with_check": 0,
+  "dropped_though_fine": 2
+ }
+}
