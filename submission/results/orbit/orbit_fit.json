@@ -1,0 +1,86 @@
+{
+ "frames": 84,
+ "good": 14,
+ "moments": 14,
+ "arcs_chosen": {
+  "tp": 11,
+  "fp": 0,
+  "fn": 3,
+  "tn": 70,
+  "precision": 1.0,
+  "recall": 0.786,
+  "accuracy": 0.964
+ },
+ "threshold_invented_any_loo": {
+  "tp": 11,
+  "fp": 0,
+  "fn": 3,
+  "tn": 70,
+  "precision": 1.0,
+  "recall": 0.786,
+  "accuracy": 0.964,
+  "thresholds": [
+   0.0626,
+   0.0626,
+   0.0626,
+   0.0626,
+   0.0626,
+   0.0626,
+   0.0614,
+   0.0626,
+   0.0626,
+   0.0626,
+   0.0626,
+   0.0626,
+   0.0626,
+   0.0635
+  ]
+ },
+ "logistic_loo": {
+  "tp": 11,
+  "fp": 2,
+  "fn": 3,
+  "tn": 68,
+  "precision": 0.846,
+  "recall": 0.786,
+  "accuracy": 0.94
+ },
+ "threshold_invented_any_all": {
+  "threshold": 0.0626,
+  "tp": 11,
+  "fp": 0,
+  "fn": 3,
+  "tn": 70,
+  "precision": 1.0,
+  "recall": 0.786,
+  "accuracy": 0.964
+ },
+ "logistic_all_weights": {
+  "names": [
+   "bias",
+   "invented_any",
+   "invented_near",
+   "angle_x_edges",
+   "angle"
+  ],
+  "w": [
+   -7.441,
+   -4.745,
+   -2.293,
+   -3.393,
+   2.856
+  ],
+  "mean": [
+   0.1473,
+   0.1413,
+   1.3421,
+   1.2
+  ],
+  "sd": [
+   0.0788,
+   0.1276,
+   0.5873,
+   0.4899
+  ]
+ }
+}
