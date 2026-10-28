@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head><meta charset="utf-8"><title>Serve cover</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; width: 1920px; height: 1080px; background: #ffffff; color: #0a0a0b; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+  .accent { color: #0a7f44; }
+  .glow { position: absolute; inset: 0; background: radial-gradient(ellipse at 82% 46%, rgba(10, 127, 68, .10), transparent 58%), radial-gradient(ellipse at 0% 100%, rgba(31, 111, 214, .06), transparent 45%); }
+  .lead { position: absolute; left: 110px; top: 150px; width: 660px; }
+  .mark { display: flex; align-items: center; gap: 14px; font: 800 38px/1 system-ui, sans-serif; letter-spacing: -.035em; }
+  .mark svg { width: 50px; height: 50px; fill: none; stroke: #0a0a0b; stroke-width: 5.5; stroke-linecap: round; }
+  .mark svg circle { fill: #0a7f44; stroke: none; }
+  h1 { font: 800 92px/1.0 system-ui, sans-serif; letter-spacing: -.04em; margin: 64px 0 28px; }
+  .pitch { font-size: 30px; line-height: 1.42; color: #3b3b40; margin: 0 0 48px; }
+  .points { display: grid; gap: 18px; margin: 0; padding: 0; list-style: none; }
+  .points li { display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 650; color: #0a0a0b; }
+  .points li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; flex: none; background: #0a7f44; box-shadow: 0 0 0 5px rgba(10, 127, 68, .18); }
+  .event { position: absolute; left: 110px; bottom: 64px; font-size: 22px; color: #65656c; }
+  .screen { position: absolute; left: 820px; top: 150px; width: 1000px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(0, 0, 0, .12); box-shadow: 0 30px 90px rgba(0, 0, 0, .16), 0 4px 14px rgba(0, 0, 0, .06); background: #fff; }
+  .screen > img { width: 100%; display: block; }
+  /* the phone shows the conversation with the Serve App Page in Messenger */
+  .phone { position: absolute; left: 1540px; top: 388px; width: 318px; height: 612px; border-radius: 40px; overflow: hidden; border: 8px solid #0a0a0b; box-shadow: 0 30px 80px rgba(0, 0, 0, .28); background: #fff; display: flex; flex-direction: column; }
+  .bar { display: flex; align-items: center; gap: 10px; padding: 18px 16px 12px; border-bottom: 1px solid #ececef; }
+  .bar .av { width: 34px; height: 34px; border-radius: 50%; background: #8fd18f; color: #0a3d1f; display: grid; place-items: center; font: 800 16px/1 system-ui, sans-serif; }
+  .bar b { display: block; font-size: 15px; }
+  .bar span { display: block; font-size: 11px; color: #65656c; }
+  .chat { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 12px 12px 14px; font-size: 13px; line-height: 1.36; justify-content: flex-end; }
+  .b { max-width: 86%; padding: 8px 12px; border-radius: 18px; background: #f0f0f2; color: #0a0a0b; }
+  .me { align-self: flex-end; background: #7a3cff; color: #fff; }
+  .qr { display: flex; flex-wrap: wrap; gap: 6px; }
+  .qr span { padding: 6px 10px; border-radius: 16px; border: 1px solid #d6d6dc; font-size: 12px; font-weight: 600; }
+  .talk { color: #3b3b40; }
+  .talk em { font-style: normal; font-weight: 650; color: #0a0a0b; }
+</style></head>
+<body>
+  <div class="glow"></div>
+  <section class="lead">
+    <div class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 48 C 22 8, 42 8, 54 30" /><circle cx="54" cy="30" r="5" /></svg>serve</div>
+    <h1>Play more.<br /><span class="accent">Manage less.</span></h1>
+    <p class="pitch">A self-evolving sports social platform. Your agent finds the court, the people and the match, agrees it with the other players' agents, and waits for your yes.</p>
+    <ul class="points">
+      <li>Your agent does the hassle: Body, Match and Talk</li>
+      <li>The club's wishes make the platform better</li>
+      <li>Muse Glimmer agents on your own GPU, in Messenger</li>
+    </ul>
+  </section>
+  <footer class="event">Indie Developer track · Meta Global AI Developer Hackathon 2026</footer>
+  <div class="screen"><img src="shots/agent_home.png" alt="" /></div>
+  <div class="phone" aria-hidden="true">
+    <div class="bar"><span class="av">S</span><span><b>Serve App</b><span>Messenger</span></span></div>
+    <div class="chat">
+      <div class="b">Thursday 19:00: Leo is free, your games with Leo ran 29% past the booking. Want to play badminton singles then?</div>
+      <div class="qr"><span>Yes, set it up</span><span>Another time</span><span>Not this week</span></div>
+      <div class="b me">Yes, set it up</div>
+      <div class="b">Talking to Leo's agent about Thu 19:00…</div>
+      <div class="b talk"><em>Leo's agent:</em> Leo can do it.<br /><br /><em>Booked:</em> Singles Thursday 19:00 at Riverside Sports Centre with Leo, court 4. I'll remind you an hour before.</div>
+    </div>
+  </div>
+</body></html>
