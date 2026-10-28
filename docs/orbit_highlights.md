@@ -1,7 +1,8 @@
-# Orbit replays: a prototype
+# Orbit replays
 
-At your moment, time stops and the camera moves around you, then the rally plays on. This is a measured prototype on
-the GPU server (`video/pose/orbit.py`), not yet in the app. It runs after the highlight pipeline (`reel.py`) and
+At your moment, time stops and the camera moves around you, then the rally plays on. It runs on
+the GPU server (`video/pose/orbit.py`) and is in the app as an optional camera effect ("Add a camera effect" on
+Highlights; `docs/web_features.md`). It runs after the highlight pipeline (`reel.py`) and
 reuses its Sapiens2 keypoints and SAM 2.1 outlines.
 
 **Verdict on phone footage.** A short frozen-time orbit works when the player is big in the frame, away from its

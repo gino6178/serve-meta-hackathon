@@ -65,7 +65,7 @@ sport, highlight reels from the player's own video, voice notes, scoreboard phot
   to the React web app as NDJSON, so the player watches the agent work.
 - **Where the models run.** Muse Glimmer: GPU 1, an RTX 3090, under Ollama 0.40.11 with a 16,384-token context and 4
   requests in parallel (`submission/results/manifest.json`). DETR, Sapiens2, SAM 2.1, TrackNetV5 and
-  MapAnything (for the orbit prototype): GPU 0. Llama Guard 3 1B, Prompt Guard 2 86M, DRAMA and Omnilingual ASR: the server's CPU, so they take no GPU memory
+  MapAnything (for orbit replays): GPU 0. Llama Guard 3 1B, Prompt Guard 2 86M, DRAMA and Omnilingual ASR: the server's CPU, so they take no GPU memory
   from Glimmer.
 - **One client for every model call** (`agent/src/core/llm.js`). It keeps to the model server's 4 slots, puts calls a
   player is waiting on ahead of background work, asks for JSON Schemas, and logs every call by call site in a token
@@ -145,7 +145,7 @@ Courts (`agent/src/club/places.js`) come from OpenStreetMap, with Google Maps ra
 and the Open-Meteo forecast. Glimmer judges four places at once; a reason that does not cite the map, a review (word
 for word) or the forecast is dropped. Prompt Guard 2 reads the reviews first.
 
-### 3.4 Highlights for sharing, and the orbit prototype
+### 3.4 Highlights for sharing, and orbit replays
 
 A highlight is a clip to share; nothing in it scores technique or performance. In `video/pose/reel.py`, DETR [16] finds the people in the player's own video, Sapiens2 reads every pose and SAM 2.1
 [17] cuts each player out. The reel replays the moment (a racket's fastest swing, the top of a jump, a kick) in slow
@@ -158,7 +158,8 @@ exact when they find the shuttle (median error 1.4 px) but find it rarely (preci
 stands the shuttle is 2 to 4 px. So the effects use the ball only near the player (the freeze moves to a ball turn
 only within one player-height of the racket hand) and otherwise fall back to the pose.
 
-`video/pose/orbit.py` is a measured prototype, not in the app: time stops and the camera moves round the player.
+`video/pose/orbit.py` is the app's optional camera effect ("Add a camera effect"): time stops and the camera moves
+round the player.
 MapAnything [18] reads metric depth and the camera from the moment's frame, SAM 2.1 cuts the player out, the court
 behind them comes from neighbouring frames, and a learned threshold on invented pixels picks the widest arc that still
 looks right, or a zoom. `video/pose/exists.py` decides frame by frame whether the player and the racket hand are there,
@@ -306,7 +307,7 @@ asker must learn that some hours are free.
 
 ## 4. Meta models and tools
 
-Only what is wired into the code. "Prototype" means a measured script the app does not call yet.
+Only what is wired into the code.
 
 | Meta model or tool | Status | Runs on | What it does in Serve |
 |---|---|---|---|
@@ -316,9 +317,9 @@ Only what is wired into the code. "Prototype" means a measured script the app do
 | **DRAMA** (`facebook/drama-base`) | In the app | Transformers, CPU | Memory by meaning; clustering the loop's sentences; matching an idea to an existing feature |
 | **Omnilingual ASR** (CTC 1B) | In the app | CPU | Voice notes in Messenger, shown back as "I heard: …" (we tested English) |
 | **Sapiens2** (pose 0.4B) | In the app | GPU 0 | Poses and the moment in a highlight; keypoint confidence in the exists check |
-| **SAM 2.1** (Hiera-L) | In the app; video tracker in the prototype | GPU 0 | Outlines for the reel; the cut-out and "is the player there" for orbits |
+| **SAM 2.1** (Hiera-L) | In the app; also the video tracker for orbits | GPU 0 | Outlines for the reel; the cut-out and "is the player there" for orbits |
 | **DETR** (ResNet-50) | In the app | GPU 0 | Finds the people in the player's video |
-| **MapAnything** (Apache 2.0 weights) | Prototype | GPU 0 | Metric depth and the camera for orbit replays |
+| **MapAnything** (Apache 2.0 weights) | In the app (optional camera effect) | GPU 0 | Metric depth and the camera for orbit replays |
 | **Messenger Platform** | In the app | Signed webhook, Send API, quick replies | The agent in the player's chats, including the loop's `/improve`, `/idea`, `/ideas` and `/beta` |
 | **Instagram, Facebook, WhatsApp, Threads** | In the app | Share sheet and share links, no API | Reels and club posts, shared by the player |
 | **CodeShield rules** (LlamaFirewall) | In the loop's policy | `agent/test/policy.mjs` | Its secret and JavaScript rules, rewritten as patterns on added lines |

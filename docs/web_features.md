@@ -118,11 +118,11 @@ effect was built on (your fastest swing). The video is recorded in the browser a
 
 How: `reel.js` runs `video/pose/orbit.py` after `reel.py`, on the uploaded clip and the reel's own reading, with the
 exists check (`exists.py`: SAM 2.1 tracking you, its presence head and mask area, Sapiens2's racket hand, with
-hysteresis) and the decision as the prototype measured them (`docs/orbit_highlights.md`). It runs on `REEL_GPU` (GPU 0),
+hysteresis) and the decision as measured in `docs/orbit_highlights.md` (`docs/orbit_highlights.md`). It runs on `REEL_GPU` (GPU 0),
 under `nice -n 19` with 8 CPU threads at most, and its clip comes back with the reel as a data URL; the working files are
 deleted with the upload. Set `REEL_EFFECTS_SCRIPT` (orbit.py) and `REEL_EFFECTS_PYTHON` (the reel's own environment
 with MapAnything added; on our server `~/serve/orbit/venv`, a venv over the reel's `isaac` environment), and
-optionally `ORBIT_MAPANYTHING` (a local copy of the weights); `ops/start.sh` sets all three to the prototype's folder
+optionally `ORBIT_MAPANYTHING` (a local copy of the weights); `ops/start.sh` sets all three to the orbit folder
 on the server (`orbit/`). `/api/status` says `reelEffects`. A failure is not the
 reel's: the reel comes back with "No camera effect this time" and the reason.
 
@@ -243,7 +243,7 @@ after its layout fix). `video/web_features_shots.mjs` takes them.
   "leave Tomás out", it may still suggest a game with Tomás (seen in the screenshots' run).
 - A check made by a timer (the daily "want a game?" in Messenger) has no chat to belong to, so it is not listed.
 - The camera effect takes about a minute more on the GPU and needs MapAnything in the reel's environment; the orbit is
-  rare on phone footage by design (4 of 14 test moments in the prototype).
+  rare on phone footage by design (4 of 14 test moments in the measurement).
 - Builds run the gates without the GPU suites by default; the maintainer runs those before merging.
 - Voice: the model needs no language code and hears any language the same way (`?lang=` is passed on and kept in the
   ledger), so a word can come back in another script; names are often wrong. The accuracy above is on six synthesized

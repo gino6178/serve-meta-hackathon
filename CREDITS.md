@@ -13,7 +13,7 @@ before the hackathon", and none of its code is in this repository.
 | Sapiens2 pose 0.4B (Meta), `facebook/sapiens2-pose-0.4b` | Both players' pose on the highlight frames, on our GPU server | Sapiens2 License |
 | SAM 2.1 Hiera-L (Meta), `facebook/sam2.1-hiera-large` | Both players' outlines on the highlight frames, on our GPU server | Apache 2.0 |
 | DETR ResNet-50 (Meta), `facebook/detr-resnet-50` | Finds the players in a video the player films, on our GPU server | Apache 2.0 |
-| MapAnything (Meta), `facebook/map-anything-apache`, with its code (`facebook/map-anything`'s weights are CC BY-NC 4.0 and are not used) | Metric depth and the camera for the orbit replay prototype (`video/pose/orbit.py`), on our GPU server | Apache 2.0 |
+| MapAnything (Meta), `facebook/map-anything-apache`, with its code (`facebook/map-anything`'s weights are CC BY-NC 4.0 and are not used) | Metric depth and the camera for orbit replays, the app's optional camera effect (`video/pose/orbit.py`), on our GPU server | Apache 2.0 |
 | SAM 2.1 Hiera-L as a video tracker (same weights) | Whether the player is in frame, frame by frame, for the highlight effects (`video/pose/exists.py`) | Apache 2.0 |
 | Llama Guard 3 1B (Meta), through Ollama `llama-guard3:1b` | Screens what players write to their agent and what the models write back, on our server's CPU | Llama 3.2 Community License |
 | Llama Prompt Guard 2 86M (Meta), `meta-llama/Llama-Prompt-Guard-2-86M` | Flags instructions hidden in text the agents read (reviews, the club's shared ideas), on our server's CPU | Llama 4 Community License |
@@ -57,7 +57,7 @@ before the hackathon", and none of its code is in this repository.
   - "Zmagovalna točka Kaje Stanković za tretji naslov slovenske prvakinje" by Badminton klub Ljubljana,
     [YouTube](https://www.youtube.com/watch?v=IoDl6OirN1A), also on
     [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Zmagovalna_to%C4%8Dka_Kaje_Stankovi%C4%87_za_tretji_naslov_slovenske_prvakinje.webm).
-- **Orbit prototype footage.** "Битва Корпораций (5-й сезон) - 2020-06-21 - Бадминтон - Нова Пошта - Бисквит-Шоколад
+- **Orbit measurement footage.** "Битва Корпораций (5-й сезон) - 2020-06-21 - Бадминтон - Нова Пошта - Бисквит-Шоколад
   (Мужчины)" by savinkins ([YouTube](https://www.youtube.com/watch?v=hVTV7AHIPu8), via
   [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Битва_Корпораций_(5-й_сезон)_-_2020-06-21_-_Бадминтон_-_Нова_Пошта_-_Бисквит-Шоколад_(Мужчины).webm)),
   CC BY 3.0. The images in `submission/shots/orbit/` are made from it (frames resized, drawn on, or rendered from

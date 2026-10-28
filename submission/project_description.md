@@ -148,7 +148,7 @@ agent then builds it on a branch, and only a person merges it.
 | **Sapiens2** (pose, 0.4B) | Our GPU server, Hugging Face Transformers | Every player's pose on every highlight frame; the reel's moment |
 | **SAM 2.1** (Hiera-L) | Our GPU server, Hugging Face Transformers | Each player's outline, for the spotlight and the drawn view |
 | **DETR** (ResNet-50) | Our GPU server, Hugging Face Transformers | Finds the player in their own video |
-| **MapAnything** (Apache 2.0 weights) | Our GPU server; a prototype, not yet in the app | Metric depth and the camera for orbit replays of the player's moment |
+| **MapAnything** (Apache 2.0 weights) | Our GPU server; in the app as an optional camera effect | Metric depth and the camera for orbit replays of the player's moment |
 | **Messenger Platform** | Signed webhook, Send API, quick replies | The agent in the player's chats |
 | **Instagram, Facebook** | The phone's share sheet (no API) | The reel and its caption, shared by the player |
 
@@ -182,7 +182,7 @@ How it goes beyond a basic integration:
 Full details: `submission/technical_report.md` (all of it in one document), `docs/methods.md` (each pattern and what it
 rests on), `docs/security.md` (the Rule of Two, the guards and the attacks), `docs/scale.md` (a simulated club of
 1,000), `docs/community_loop.md` (the community loop), `docs/decider.md` (the one-pass decider, measured and left off)
-and `docs/orbit_highlights.md` (the orbit prototype). The raw results behind the numbers are in `submission/results/`.
+and `docs/orbit_highlights.md` (orbit replays). The raw results behind the numbers are in `submission/results/`.
 
 Test results on the current code (2026-10-28). Runs on a cloud A100 use the same Muse Glimmer build (the same model
 digest) as our RTX 3090: `npm test` 239 of 240 with 1 skipped (seventeen offline suites, `submission/results/unit.log`); Messenger end
