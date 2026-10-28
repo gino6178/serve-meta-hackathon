@@ -1,0 +1,1277 @@
+{
+ "data": "jev/data/shared",
+ "glimmer": {
+  "cases": 209,
+  "answers": 456,
+  "intents": {
+   "counter": 386,
+   "none": 70
+  },
+  "self_agreement_pairs": 0.8983,
+  "self_agreement_ci95": [
+   0.845,
+   0.9347
+  ],
+  "pairs": 177,
+  "cases_all_answers_same": 159,
+  "seconds_p50": 279.89,
+  "seconds_p95": 601.58,
+  "prompt_tokens_mean": 409,
+  "output_tokens_mean": 383,
+  "output_tokens_p50": 442,
+  "reasoning_tokens_mean": 356,
+  "calls_mean": 0.846,
+  "empty": 0,
+  "works_shown_times": {
+   "precision": 1.0,
+   "recall": 1.0,
+   "exact_cases": 386,
+   "cases": 386,
+   "false_works": 0,
+   "missed_works": 0,
+   "precision_ci95": [
+    0.9971,
+    1.0
+   ],
+   "recall_ci95": [
+    0.9971,
+    1.0
+   ]
+  }
+ },
+ "rules": {
+  "first listed": {
+   "with_each_answer": 0.8212,
+   "with_each_answer_ci95": [
+    0.7799,
+    0.8562
+   ],
+   "answers": 386,
+   "with_majority": 0.8377,
+   "with_majority_ci95": [
+    0.7788,
+    0.8832
+   ],
+   "cases_with_majority": 191
+  },
+  "lowest t-number": {
+   "with_each_answer": 0.8212,
+   "with_each_answer_ci95": [
+    0.7799,
+    0.8562
+   ],
+   "answers": 386,
+   "with_majority": 0.8377,
+   "with_majority_ci95": [
+    0.7788,
+    0.8832
+   ],
+   "cases_with_majority": 191
+  },
+  "earliest": {
+   "with_each_answer": 0.8212,
+   "with_each_answer_ci95": [
+    0.7799,
+    0.8562
+   ],
+   "answers": 386,
+   "with_majority": 0.8377,
+   "with_majority_ci95": [
+    0.7788,
+    0.8832
+   ],
+   "cases_with_majority": 191
+  },
+  "shortest trip": {
+   "with_each_answer": 0.7176,
+   "with_each_answer_ci95": [
+    0.6707,
+    0.7602
+   ],
+   "answers": 386,
+   "with_majority": 0.7435,
+   "with_majority_ci95": [
+    0.6771,
+    0.8002
+   ],
+   "cases_with_majority": 191
+  },
+  "profile rule": {
+   "with_each_answer": 0.8212,
+   "with_each_answer_ci95": [
+    0.7799,
+    0.8562
+   ],
+   "answers": 386,
+   "with_majority": 0.8377,
+   "with_majority_ci95": [
+    0.7788,
+    0.8832
+   ],
+   "cases_with_majority": 191
+  }
+ },
+ "students": {
+  "3b_v3": {
+   "cases": 209,
+   "agreement": {
+    "with_each_answer": 0.9119,
+    "with_each_answer_ci95": [
+     0.8794,
+     0.9363
+    ],
+    "answers": 386,
+    "with_majority": 0.9476,
+    "with_majority_ci95": [
+     0.9063,
+     0.9713
+    ],
+    "cases_with_majority": 191
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_cases": 209,
+    "cases": 209,
+    "false_works": 0,
+    "missed_works": 0,
+    "precision_ci95": [
+     0.9947,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9947,
+     1.0
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.9119,
+     "with_majority": 0.9476,
+     "answers": 386
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 0.9904,
+     "answered": 207,
+     "with_each_answer": 0.9162,
+     "with_majority": 0.9524,
+     "answers": 382
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.9569,
+     "answered": 200,
+     "with_each_answer": 0.9243,
+     "with_majority": 0.9568,
+     "answers": 370
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.9043,
+     "answered": 189,
+     "with_each_answer": 0.9429,
+     "with_majority": 0.9716,
+     "answers": 350
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.8517,
+     "answered": 178,
+     "with_each_answer": 0.9422,
+     "with_majority": 0.9699,
+     "answers": 329
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.7847,
+     "answered": 164,
+     "with_each_answer": 0.9505,
+     "with_majority": 0.9804,
+     "answers": 303
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.6938,
+     "answered": 145,
+     "with_each_answer": 0.9586,
+     "with_majority": 0.9783,
+     "answers": 266
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.5981,
+     "answered": 125,
+     "with_each_answer": 0.9957,
+     "with_majority": 0.992,
+     "answers": 231
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.5311,
+     "answered": 111,
+     "with_each_answer": 1.0,
+     "with_majority": 1.0,
+     "answers": 212
+    }
+   ],
+   "picked_decline": 0,
+   "threshold": {
+    "value": 0.0,
+    "rule": "lowest at which agreement with each Glimmer answer on the validation club is at least Glimmer's self-agreement there",
+    "val": {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 300,
+     "with_each_answer": 0.885,
+     "with_majority": 0.9394,
+     "answers": 600
+    },
+    "test": {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.9119,
+     "with_majority": 0.9476,
+     "answers": 386
+    }
+   }
+  },
+  "3b_v3_full": {
+   "cases": 209,
+   "agreement": {
+    "with_each_answer": 0.9249,
+    "with_each_answer_ci95": [
+     0.8942,
+     0.9472
+    ],
+    "answers": 386,
+    "with_majority": 0.9581,
+    "with_majority_ci95": [
+     0.9195,
+     0.9786
+    ],
+    "cases_with_majority": 191
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_cases": 209,
+    "cases": 209,
+    "false_works": 0,
+    "missed_works": 0,
+    "precision_ci95": [
+     0.9947,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9947,
+     1.0
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.9249,
+     "with_majority": 0.9581,
+     "answers": 386
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.9249,
+     "with_majority": 0.9581,
+     "answers": 386
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.9474,
+     "answered": 198,
+     "with_each_answer": 0.9292,
+     "with_majority": 0.9615,
+     "answers": 367
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.9043,
+     "answered": 189,
+     "with_each_answer": 0.94,
+     "with_majority": 0.9659,
+     "answers": 350
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.8612,
+     "answered": 180,
+     "with_each_answer": 0.9433,
+     "with_majority": 0.9702,
+     "answers": 335
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.7464,
+     "answered": 156,
+     "with_each_answer": 0.9549,
+     "with_majority": 0.9796,
+     "answers": 288
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.7129,
+     "answered": 149,
+     "with_each_answer": 0.9599,
+     "with_majority": 0.9789,
+     "answers": 274
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.6029,
+     "answered": 126,
+     "with_each_answer": 0.9957,
+     "with_majority": 0.9921,
+     "answers": 233
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.5359,
+     "answered": 112,
+     "with_each_answer": 1.0,
+     "with_majority": 1.0,
+     "answers": 213
+    }
+   ],
+   "picked_decline": 0
+  },
+  "1b_v3": {
+   "cases": 209,
+   "agreement": {
+    "with_each_answer": 0.8912,
+    "with_each_answer_ci95": [
+     0.8562,
+     0.9185
+    ],
+    "answers": 386,
+    "with_majority": 0.9267,
+    "with_majority_ci95": [
+     0.8807,
+     0.9558
+    ],
+    "cases_with_majority": 191
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_cases": 209,
+    "cases": 209,
+    "false_works": 0,
+    "missed_works": 0,
+    "precision_ci95": [
+     0.9947,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9947,
+     1.0
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.8912,
+     "with_majority": 0.9267,
+     "answers": 386
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.8912,
+     "with_majority": 0.9267,
+     "answers": 386
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.8912,
+     "with_majority": 0.9267,
+     "answers": 386
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.9856,
+     "answered": 206,
+     "with_each_answer": 0.9,
+     "with_majority": 0.9316,
+     "answers": 380
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.9282,
+     "answered": 194,
+     "with_each_answer": 0.9134,
+     "with_majority": 0.9441,
+     "answers": 358
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.8325,
+     "answered": 174,
+     "with_each_answer": 0.941,
+     "with_majority": 0.9691,
+     "answers": 322
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.6842,
+     "answered": 143,
+     "with_each_answer": 0.9668,
+     "with_majority": 0.9854,
+     "answers": 271
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.5646,
+     "answered": 118,
+     "with_each_answer": 0.9955,
+     "with_majority": 0.9915,
+     "answers": 223
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.4689,
+     "answered": 98,
+     "with_each_answer": 1.0,
+     "with_majority": 1.0,
+     "answers": 187
+    }
+   ],
+   "picked_decline": 0,
+   "threshold": {
+    "value": 0.6,
+    "rule": "lowest at which agreement with each Glimmer answer on the validation club is at least Glimmer's self-agreement there",
+    "val": {
+     "threshold": 0.6,
+     "coverage": 0.96,
+     "answered": 288,
+     "with_each_answer": 0.8802,
+     "with_majority": 0.9297,
+     "answers": 576
+    },
+    "test": {
+     "threshold": 0.6,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.8912,
+     "with_majority": 0.9267,
+     "answers": 386
+    }
+   }
+  },
+  "1b_v3_full": {
+   "cases": 209,
+   "agreement": {
+    "with_each_answer": 0.8808,
+    "with_each_answer_ci95": [
+     0.8447,
+     0.9095
+    ],
+    "answers": 386,
+    "with_majority": 0.9162,
+    "with_majority_ci95": [
+     0.8683,
+     0.9478
+    ],
+    "cases_with_majority": 191
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_cases": 209,
+    "cases": 209,
+    "false_works": 0,
+    "missed_works": 0,
+    "precision_ci95": [
+     0.9947,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9947,
+     1.0
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.8808,
+     "with_majority": 0.9162,
+     "answers": 386
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 0.9904,
+     "answered": 207,
+     "with_each_answer": 0.8901,
+     "with_majority": 0.9259,
+     "answers": 382
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.9856,
+     "answered": 206,
+     "with_each_answer": 0.8921,
+     "with_majority": 0.9259,
+     "answers": 380
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.9617,
+     "answered": 201,
+     "with_each_answer": 0.8976,
+     "with_majority": 0.9297,
+     "answers": 371
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.9426,
+     "answered": 197,
+     "with_each_answer": 0.8959,
+     "with_majority": 0.9282,
+     "answers": 365
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.8421,
+     "answered": 176,
+     "with_each_answer": 0.9352,
+     "with_majority": 0.9576,
+     "answers": 324
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.7129,
+     "answered": 149,
+     "with_each_answer": 0.9679,
+     "with_majority": 0.986,
+     "answers": 280
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.5837,
+     "answered": 122,
+     "with_each_answer": 0.9956,
+     "with_majority": 0.9918,
+     "answers": 228
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.4833,
+     "answered": 101,
+     "with_each_answer": 1.0,
+     "with_majority": 1.0,
+     "answers": 192
+    }
+   ],
+   "picked_decline": 0
+  },
+  "3b_v2": {
+   "cases": 209,
+   "agreement": {
+    "with_each_answer": 0.9171,
+    "with_each_answer_ci95": [
+     0.8853,
+     0.9407
+    ],
+    "answers": 386,
+    "with_majority": 0.9529,
+    "with_majority_ci95": [
+     0.9129,
+     0.975
+    ],
+    "cases_with_majority": 191
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_cases": 209,
+    "cases": 209,
+    "false_works": 0,
+    "missed_works": 0,
+    "precision_ci95": [
+     0.9947,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9947,
+     1.0
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.9171,
+     "with_majority": 0.9529,
+     "answers": 386
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 0.9952,
+     "answered": 208,
+     "with_each_answer": 0.9219,
+     "with_majority": 0.9579,
+     "answers": 384
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.9713,
+     "answered": 203,
+     "with_each_answer": 0.9198,
+     "with_majority": 0.9568,
+     "answers": 374
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.9091,
+     "answered": 190,
+     "with_each_answer": 0.9312,
+     "with_majority": 0.9551,
+     "answers": 349
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.8804,
+     "answered": 184,
+     "with_each_answer": 0.9496,
+     "with_majority": 0.9711,
+     "answers": 337
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.8373,
+     "answered": 175,
+     "with_each_answer": 0.9595,
+     "with_majority": 0.976,
+     "answers": 321
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.7751,
+     "answered": 162,
+     "with_each_answer": 0.9631,
+     "with_majority": 0.9744,
+     "answers": 298
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.6603,
+     "answered": 138,
+     "with_each_answer": 0.9569,
+     "with_majority": 0.9697,
+     "answers": 255
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.5407,
+     "answered": 113,
+     "with_each_answer": 0.9953,
+     "with_majority": 0.9912,
+     "answers": 212
+    }
+   ],
+   "picked_decline": 0,
+   "threshold": {
+    "value": 0.53,
+    "rule": "lowest at which agreement with each Glimmer answer on the validation club is at least Glimmer's self-agreement there",
+    "val": {
+     "threshold": 0.53,
+     "coverage": 0.9833,
+     "answered": 295,
+     "with_each_answer": 0.8847,
+     "with_majority": 0.9385,
+     "answers": 590
+    },
+    "test": {
+     "threshold": 0.53,
+     "coverage": 0.9952,
+     "answered": 208,
+     "with_each_answer": 0.9219,
+     "with_majority": 0.9579,
+     "answers": 384
+    }
+   }
+  },
+  "3b_v2_full": {
+   "cases": 209,
+   "agreement": {
+    "with_each_answer": 0.9223,
+    "with_each_answer_ci95": [
+     0.8912,
+     0.945
+    ],
+    "answers": 386,
+    "with_majority": 0.9581,
+    "with_majority_ci95": [
+     0.9195,
+     0.9786
+    ],
+    "cases_with_majority": 191
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_cases": 209,
+    "cases": 209,
+    "false_works": 0,
+    "missed_works": 0,
+    "precision_ci95": [
+     0.9947,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9947,
+     1.0
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.9223,
+     "with_majority": 0.9581,
+     "answers": 386
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.9223,
+     "with_majority": 0.9581,
+     "answers": 386
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.9665,
+     "answered": 202,
+     "with_each_answer": 0.9301,
+     "with_majority": 0.9574,
+     "answers": 372
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.9091,
+     "answered": 190,
+     "with_each_answer": 0.9427,
+     "with_majority": 0.9663,
+     "answers": 349
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.8852,
+     "answered": 185,
+     "with_each_answer": 0.95,
+     "with_majority": 0.9713,
+     "answers": 340
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.8325,
+     "answered": 174,
+     "with_each_answer": 0.9564,
+     "with_majority": 0.9758,
+     "answers": 321
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.7703,
+     "answered": 161,
+     "with_each_answer": 0.963,
+     "with_majority": 0.9742,
+     "answers": 297
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.6364,
+     "answered": 133,
+     "with_each_answer": 0.9595,
+     "with_majority": 0.9764,
+     "answers": 247
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.5502,
+     "answered": 115,
+     "with_each_answer": 0.9954,
+     "with_majority": 0.9913,
+     "answers": 216
+    }
+   ],
+   "picked_decline": 0
+  },
+  "1b_v2": {
+   "cases": 209,
+   "agreement": {
+    "with_each_answer": 0.8601,
+    "with_each_answer_ci95": [
+     0.8219,
+     0.8912
+    ],
+    "answers": 386,
+    "with_majority": 0.8953,
+    "with_majority_ci95": [
+     0.8438,
+     0.9312
+    ],
+    "cases_with_majority": 191
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_cases": 209,
+    "cases": 209,
+    "false_works": 0,
+    "missed_works": 0,
+    "precision_ci95": [
+     0.9947,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9947,
+     1.0
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 209,
+     "with_each_answer": 0.8601,
+     "with_majority": 0.8953,
+     "answers": 386
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 0.9761,
+     "answered": 204,
+     "with_each_answer": 0.8651,
+     "with_majority": 0.8984,
+     "answers": 378
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.9139,
+     "answered": 191,
+     "with_each_answer": 0.9209,
+     "with_majority": 0.9545,
+     "answers": 354
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.8612,
+     "answered": 180,
+     "with_each_answer": 0.9337,
+     "with_majority": 0.9586,
+     "answers": 332
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.8086,
+     "answered": 169,
+     "with_each_answer": 0.9486,
+     "with_majority": 0.9688,
+     "answers": 311
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.7608,
+     "answered": 159,
+     "with_each_answer": 0.9761,
+     "with_majority": 0.9871,
+     "answers": 293
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.7033,
+     "answered": 147,
+     "with_each_answer": 0.9853,
+     "with_majority": 0.9863,
+     "answers": 272
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.5263,
+     "answered": 110,
+     "with_each_answer": 0.9952,
+     "with_majority": 0.9909,
+     "answers": 210
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.4498,
+     "answered": 94,
+     "with_each_answer": 0.9944,
+     "with_majority": 0.9894,
+     "answers": 180
+    }
+   ],
+   "picked_decline": 0,
+   "threshold": {
+    "value": 0.6,
+    "rule": "lowest at which agreement with each Glimmer answer on the validation club is at least Glimmer's self-agreement there",
+    "val": {
+     "threshold": 0.6,
+     "coverage": 0.95,
+     "answered": 285,
+     "with_each_answer": 0.8825,
+     "with_majority": 0.9328,
+     "answers": 570
+    },
+    "test": {
+     "threshold": 0.6,
+     "coverage": 0.9139,
+     "answered": 191,
+     "with_each_answer": 0.9209,
+     "with_majority": 0.9545,
+     "answers": 354
+    }
+   }
+  },
+  "1b_v2_full": {
+   "cases": 209,
+   "agreement": {
+    "with_each_answer": 0.8601,
+    "with_each_answer_ci95": [
+     0.8219,
+     0.8912
+    ],
+    "answers": 386,
+    "with_majority": 0.8953,
+    "with_majority_ci95": [
+     0.8438,
+     0.9312
+    ],
+    "cases_with_majority": 191
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 0.9986,
+    "exact_cases": 208,
+    "cases": 209,
+    "false_works": 0,
+    "missed_works": 1,
+    "precision_ci95": [
+     0.9947,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9922,
+     0.9998
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 0.9952,
+     "answered": 208,
+     "with_each_answer": 0.8594,
+     "with_majority": 0.8947,
+     "answers": 384
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 0.9426,
+     "answered": 197,
+     "with_each_answer": 0.9008,
+     "with_majority": 0.9286,
+     "answers": 363
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.9187,
+     "answered": 192,
+     "with_each_answer": 0.9183,
+     "with_majority": 0.9492,
+     "answers": 355
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.89,
+     "answered": 186,
+     "with_each_answer": 0.9271,
+     "with_majority": 0.9538,
+     "answers": 343
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.8373,
+     "answered": 175,
+     "with_each_answer": 0.9441,
+     "with_majority": 0.9695,
+     "answers": 322
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.7799,
+     "answered": 163,
+     "with_each_answer": 0.9633,
+     "with_majority": 0.9808,
+     "answers": 300
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.7081,
+     "answered": 148,
+     "with_each_answer": 0.9853,
+     "with_majority": 0.9864,
+     "answers": 273
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.5359,
+     "answered": 112,
+     "with_each_answer": 0.9953,
+     "with_majority": 0.9911,
+     "answers": 212
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.4354,
+     "answered": 91,
+     "with_each_answer": 0.9942,
+     "with_majority": 0.989,
+     "answers": 172
+    }
+   ],
+   "picked_decline": 0
+  },
+  "3b_sft": {
+   "cases": 203,
+   "agreement": {
+    "with_each_answer": 0.9286,
+    "with_each_answer_ci95": [
+     0.8981,
+     0.9504
+    ],
+    "answers": 378,
+    "with_majority": 0.9676,
+    "with_majority_ci95": [
+     0.9311,
+     0.9851
+    ],
+    "cases_with_majority": 185
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_cases": 203,
+    "cases": 203,
+    "false_works": 0,
+    "missed_works": 0,
+    "precision_ci95": [
+     0.9945,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9945,
+     1.0
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 203,
+     "with_each_answer": 0.9286,
+     "with_majority": 0.9676,
+     "answers": 378
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 1.0,
+     "answered": 203,
+     "with_each_answer": 0.9286,
+     "with_majority": 0.9676,
+     "answers": 378
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.9901,
+     "answered": 201,
+     "with_each_answer": 0.9333,
+     "with_majority": 0.9728,
+     "answers": 375
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.9704,
+     "answered": 197,
+     "with_each_answer": 0.9377,
+     "with_majority": 0.9779,
+     "answers": 369
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.8325,
+     "answered": 169,
+     "with_each_answer": 0.9525,
+     "with_majority": 0.9811,
+     "answers": 316
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.734,
+     "answered": 149,
+     "with_each_answer": 0.9928,
+     "with_majority": 0.9932,
+     "answers": 276
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.6552,
+     "answered": 133,
+     "with_each_answer": 0.9918,
+     "with_majority": 0.9924,
+     "answers": 245
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.5714,
+     "answered": 116,
+     "with_each_answer": 0.9953,
+     "with_majority": 0.9914,
+     "answers": 213
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.5222,
+     "answered": 106,
+     "with_each_answer": 0.9949,
+     "with_majority": 0.9906,
+     "answers": 195
+    }
+   ],
+   "picked_decline": 0
+  },
+  "3b_sft_full": {
+   "cases": 203,
+   "agreement": {
+    "with_each_answer": 0.9286,
+    "with_each_answer_ci95": [
+     0.8981,
+     0.9504
+    ],
+    "answers": 378,
+    "with_majority": 0.9676,
+    "with_majority_ci95": [
+     0.9311,
+     0.9851
+    ],
+    "cases_with_majority": 185
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_cases": 203,
+    "cases": 203,
+    "false_works": 0,
+    "missed_works": 0,
+    "precision_ci95": [
+     0.9945,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9945,
+     1.0
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 1.0,
+     "answered": 203,
+     "with_each_answer": 0.9286,
+     "with_majority": 0.9676,
+     "answers": 378
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 1.0,
+     "answered": 203,
+     "with_each_answer": 0.9286,
+     "with_majority": 0.9676,
+     "answers": 378
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.9754,
+     "answered": 198,
+     "with_each_answer": 0.935,
+     "with_majority": 0.9725,
+     "answers": 369
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.9212,
+     "answered": 187,
+     "with_each_answer": 0.9456,
+     "with_majority": 0.977,
+     "answers": 349
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.8424,
+     "answered": 171,
+     "with_each_answer": 0.9531,
+     "with_majority": 0.9814,
+     "answers": 320
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.7537,
+     "answered": 153,
+     "with_each_answer": 0.9859,
+     "with_majority": 0.9933,
+     "answers": 284
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.6601,
+     "answered": 134,
+     "with_each_answer": 0.9919,
+     "with_majority": 0.9925,
+     "answers": 246
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.5813,
+     "answered": 118,
+     "with_each_answer": 0.9908,
+     "with_majority": 0.9915,
+     "answers": 217
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.5468,
+     "answered": 111,
+     "with_each_answer": 0.9951,
+     "with_majority": 0.991,
+     "answers": 205
+    }
+   ],
+   "picked_decline": 0
+  }
+ },
+ "val_glimmer_self_agreement": 0.88
+}
