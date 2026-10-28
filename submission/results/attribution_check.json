@@ -1,0 +1,362 @@
+{
+ "at": "2026-10-28T12:54:27.769Z",
+ "runs": {
+  "labelled": 14,
+  "kind": 14,
+  "step": 14,
+  "both": 14
+ },
+ "talks": {
+  "labelled": 15,
+  "kind": 15
+ },
+ "byKind": {
+  "tool_error": {
+   "code": 0,
+   "hand": 0
+  },
+  "model_format": {
+   "code": 0,
+   "hand": 0
+  },
+  "rule_caught": {
+   "code": 2,
+   "hand": 2
+  },
+  "timeout": {
+   "code": 1,
+   "hand": 1
+  },
+  "agent_unreachable": {
+   "code": 0,
+   "hand": 0
+  },
+  "no_option": {
+   "code": 0,
+   "hand": 0
+  },
+  "rule_missed": {
+   "code": 11,
+   "hand": 11
+  }
+ },
+ "runsDetail": [
+  {
+   "key": "heldout#15",
+   "scenario": "H04 2 pickleball, Mon booked, Femi ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 4,
+    "line": "A game broke a rule at step 4 (negotiate): a game was agreed that breaks a rule code does not check (Thu 19:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 4
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#16",
+   "scenario": "H04 2 pickleball, Mon booked, Femi ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 4,
+    "line": "A game broke a rule at step 4 (negotiate): a game was agreed that breaks a rule code does not check (Thu 19:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 4
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#18",
+   "scenario": "H04 2 pickleball, Mon booked, Femi ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 4,
+    "line": "A game broke a rule at step 4 (negotiate): a game was agreed that breaks a rule code does not check (Thu 19:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 4
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#20",
+   "scenario": "H05 2 badminton, doubles (knee), Thu booked, Leo left out, Joel ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 5,
+    "line": "A game broke a rule at step 5 (negotiate): a game was agreed that breaks a rule code does not check (Sat 09:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 5
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#22",
+   "scenario": "H05 2 badminton, doubles (knee), Thu booked, Leo left out, Joel ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 5,
+    "line": "A game broke a rule at step 5 (negotiate): a game was agreed that breaks a rule code does not check (Sat 09:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 5
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#24",
+   "scenario": "H05 2 badminton, doubles (knee), Thu booked, Leo left out, Joel ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 5,
+    "line": "A game broke a rule at step 5 (negotiate): a game was agreed that breaks a rule code does not check (Sat 09:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 5
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#28",
+   "scenario": "H06 2 pickleball, Rina left out",
+   "code": {
+    "kind": "rule_caught",
+    "step": 13,
+    "line": "Rules finished the plan at step 13 (negotiate): negotiate: code refused it (rule break caught)."
+   },
+   "hand": {
+    "kind": "rule_caught",
+    "step": 13
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#30",
+   "scenario": "H07 2 badminton, doubles (knee), Thu booked, Dev ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 5,
+    "line": "A game broke a rule at step 5 (negotiate): a game was agreed that breaks a rule code does not check (Sat 09:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 5
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#31",
+   "scenario": "H07 2 badminton, doubles (knee), Thu booked, Dev ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 5,
+    "line": "A game broke a rule at step 5 (negotiate): a game was agreed that breaks a rule code does not check (Sat 09:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 5
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#33",
+   "scenario": "H07 2 badminton, doubles (knee), Thu booked, Dev ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 4,
+    "line": "A game broke a rule at step 4 (negotiate): a game was agreed that breaks a rule code does not check (Sat 09:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 4
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#34",
+   "scenario": "H07 2 badminton, doubles (knee), Thu booked, Dev ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 5,
+    "line": "A game broke a rule at step 5 (negotiate): a game was agreed that breaks a rule code does not check (Sat 09:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 5
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#44",
+   "scenario": "H09 1 pickleball, Rina ran long",
+   "code": {
+    "kind": "rule_missed",
+    "step": 6,
+    "line": "A game broke a rule at step 6 (negotiate): a game was agreed that breaks a rule code does not check (Sat 09:00) (rule break missed)."
+   },
+   "hand": {
+    "kind": "rule_missed",
+    "step": 6
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#45",
+   "scenario": "H10 2 badminton, Femi left out",
+   "code": {
+    "kind": "rule_caught",
+    "step": 8,
+    "line": "Rules finished the plan at step 8 (negotiate): negotiate: code refused it (rule break caught)."
+   },
+   "hand": {
+    "kind": "rule_caught",
+    "step": 8
+   },
+   "kindOk": true,
+   "stepOk": true
+  },
+  {
+   "key": "heldout#49",
+   "scenario": "H10 2 badminton, Femi left out",
+   "code": {
+    "kind": "timeout",
+    "step": null,
+    "line": "Rules finished the plan at a model turn: the model used the run's whole step budget before the plan was done (timeout)."
+   },
+   "hand": {
+    "kind": "timeout",
+    "step": null
+   },
+   "kindOk": true,
+   "stepOk": true
+  }
+ ],
+ "talksDetail": [
+  {
+   "id": "neg-ap-mvs2x0dp-d3y6-5",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs2za5j-wu4j-5",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs31obh-ue1b-5",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs33vde-byad-5",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3dym2-h2rb-5",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3febv-4mfu-5",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3hjg2-rt9x-5",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3mt0t-kiqz-3",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3nj8v-fe6u-3",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3nxjs-kxb1-3",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3och6-m05b-3",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3ordb-y9za-3",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3u657-6vrq-3",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3umy0-e618-3",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  },
+  {
+   "id": "neg-ap-mvs3vqw5-24rp-3",
+   "reason": "Sora can't play at any of the times",
+   "code": "no_option",
+   "hand": "no_option",
+   "ok": true
+  }
+ ]
+}
