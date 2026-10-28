@@ -1,0 +1,16 @@
+  [gateway 1] agent gateway on http://127.0.0.1:18791 · LLM http://127.0.0.1:11435/v1 · Messenger off (no page token) · API needs its token
+  [gateway 1] Messenger webhook only, on 127.0.0.1:0
+  PASS a member's Agent Card is served (A2A 1.0, JSON-RPC)
+  PASS the Match helper asks: Thursday 19:00: Leo is free, your games with Leo ran 29% past the booking. Want 
+  PASS the negotiation saved its round 1 before the crash
+  PASS the crash left the question in the middle of its talk
+  [gateway 2] agent gateway on http://127.0.0.1:18791 · LLM http://127.0.0.1:11435/v1 · Messenger off (no page token) · API needs its token
+  [gateway 2] Messenger webhook only, on 127.0.0.1:0
+  [gateway 2] resumed 1 talk cut off by the restart
+  PASS after the restart the talk was finished: booked
+  PASS the negotiation ended agreed in round 1
+  1 A2A messages answered, 1 member decisions made by the model
+  PASS no member agent decided the same message twice (at most one decision cut off by the crash)
+  PASS the member's tasks for this talk survived the restart (3 in its context)
+
+ALL PASSED
