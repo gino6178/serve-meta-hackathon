@@ -1,0 +1,4096 @@
+{
+ "about": "orbit.py on 14 moments of the CC BY 3.0 clip (see video/pose/labels/exists_labels.json), approach a (_v1, with probe frames) and b (_v6, 7 views). Code: this commit. RTX 3090 (GPU 0, shared), niced, 8 CPU threads.",
+ "runs": {
+  "s12_1p04_v1": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     141,
+     528
+    ],
+    "centre_m": [
+     -1.16,
+     -0.03,
+     2.05
+    ],
+    "cut": {
+     "in": 0.4,
+     "freeze": 1.04,
+     "out": 1.84
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_r",
+     "player_on": "37/37",
+     "hit_on": "34/37",
+     "centre_on": "34/37"
+    }
+   },
+   "features": {
+    "moment_s": 1.04,
+    "player_px": 883,
+    "frame_px": 1080,
+    "mask_iou": 0.965,
+    "mask_agree": 0.965,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.945,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.333,
+    "depth_conf": 0.988,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.05,
+    "player_relief_iqr_m": 0.19,
+    "depth_feet_agree": 0.012,
+    "background_depth_m": 4.49,
+    "player_height_m": 1.28,
+    "camera_height_m": 0.86,
+    "floor_inliers": 0.937,
+    "plate_cover": 0.931,
+    "plate_frames": 66,
+    "views": 1,
+    "depth_edge_share": 0.1228,
+    "facing": 0.46,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ],
+     [
+      1.01,
+      0,
+      0
+     ],
+     [
+      1.01,
+      0,
+      0
+     ],
+     [
+      1.02,
+      0,
+      0
+     ],
+     [
+      1.03,
+      0,
+      0
+     ],
+     [
+      1.04,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 108,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.942,
+    "exists": 5.782,
+    "read_frames": 0.773,
+    "sam": 0.123,
+    "mapanything": 0.416,
+    "geometry": 0.136,
+    "clean_plate": 9.289,
+    "depth_layers": 0.042,
+    "build_scene": 0.383,
+    "decide": 0.23,
+    "render": 1.391,
+    "total": 45.96
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.58
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.2651,
+     "invented_near": 0.1207,
+     "invented_any": 0.2877,
+     "target_visible": 0.994,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.1745,
+     "invented_near": 0.0984,
+     "invented_any": 0.1967,
+     "target_visible": 0.987,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": false,
+     "invented": 0.0947,
+     "invented_near": 0.116,
+     "invented_any": 0.1114,
+     "target_visible": 0.98,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.1446,
+     "invented_near": 0.2876,
+     "invented_any": 0.1584,
+     "target_visible": 0.972,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.1698,
+     "invented_near": 0.3318,
+     "invented_any": 0.1915,
+     "target_visible": 0.974,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.2112,
+     "invented_near": 0.4095,
+     "invented_any": 0.2378,
+     "target_visible": 0.977,
+     "points_seen": true
+    }
+   ]
+  },
+  "s12_1p04_v6": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     141,
+     528
+    ],
+    "centre_m": [
+     -1.29,
+     -0.03,
+     2.18
+    ],
+    "cut": {
+     "in": 0.4,
+     "freeze": 1.04,
+     "out": 1.84
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_r",
+     "player_on": "37/37",
+     "hit_on": "34/37",
+     "centre_on": "34/37"
+    }
+   },
+   "features": {
+    "moment_s": 1.04,
+    "player_px": 883,
+    "frame_px": 1080,
+    "mask_iou": 0.965,
+    "mask_agree": 0.965,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.945,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.333,
+    "depth_conf": 0.978,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.18,
+    "player_relief_iqr_m": 0.17,
+    "depth_feet_agree": 0.057,
+    "background_depth_m": 4.74,
+    "player_height_m": 1.41,
+    "camera_height_m": 0.95,
+    "floor_inliers": 0.933,
+    "plate_cover": 0.931,
+    "plate_frames": 66,
+    "views": 7,
+    "depth_edge_share": 0.1312,
+    "views_turn_deg": 1.9,
+    "views_move_m": 0.05,
+    "facing": 0.46,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ],
+     [
+      1.01,
+      0,
+      0
+     ],
+     [
+      1.01,
+      0,
+      0
+     ],
+     [
+      1.02,
+      0,
+      0
+     ],
+     [
+      1.03,
+      0,
+      0
+     ],
+     [
+      1.04,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 108,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.053,
+    "exists": 5.545,
+    "read_frames": 0.701,
+    "sam": 0.113,
+    "mapanything": 0.881,
+    "geometry": 0.137,
+    "clean_plate": 8.833,
+    "depth_layers": 0.03,
+    "build_scene": 1.046,
+    "decide": 0.247,
+    "render": 1.451,
+    "total": 44.92
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.03
+   }
+  },
+  "s12_2p44_v1": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     203,
+     560
+    ],
+    "centre_m": [
+     -0.94,
+     0.02,
+     1.81
+    ],
+    "cut": {
+     "in": 1.6,
+     "freeze": 2.44,
+     "out": 3.24
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_r",
+     "player_on": "42/42",
+     "hit_on": "42/42",
+     "centre_on": "42/42"
+    }
+   },
+   "features": {
+    "moment_s": 2.44,
+    "player_px": 901,
+    "frame_px": 1080,
+    "mask_iou": 0.969,
+    "mask_agree": 0.97,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.946,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.965,
+    "depth_conf": 1.02,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 1.81,
+    "player_relief_iqr_m": 0.13,
+    "depth_feet_agree": 0.046,
+    "background_depth_m": 3.85,
+    "player_height_m": 1.14,
+    "camera_height_m": 0.78,
+    "floor_inliers": 0.949,
+    "plate_cover": 0.776,
+    "plate_frames": 78,
+    "views": 1,
+    "depth_edge_share": 0.1254,
+    "facing": 0.61,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 115,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.19,
+    "exists": 5.541,
+    "read_frames": 0.899,
+    "sam": 0.123,
+    "mapanything": 0.412,
+    "geometry": 0.129,
+    "clean_plate": 10.603,
+    "depth_layers": 0.034,
+    "build_scene": 0.366,
+    "decide": 0.086,
+    "render": 1.391,
+    "total": 46.35
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.56
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.2708,
+     "invented_near": 0.0835,
+     "invented_any": 0.2949,
+     "target_visible": 0.986,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.1892,
+     "invented_near": 0.0769,
+     "invented_any": 0.2099,
+     "target_visible": 0.981,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": false,
+     "invented": 0.0972,
+     "invented_near": 0.0754,
+     "invented_any": 0.1133,
+     "target_visible": 0.976,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.1288,
+     "invented_near": 0.2492,
+     "invented_any": 0.1441,
+     "target_visible": 0.974,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.1629,
+     "invented_near": 0.3098,
+     "invented_any": 0.1847,
+     "target_visible": 0.977,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.1938,
+     "invented_near": 0.3676,
+     "invented_any": 0.2229,
+     "target_visible": 0.981,
+     "points_seen": true
+    }
+   ]
+  },
+  "s12_2p44_v6": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     203,
+     560
+    ],
+    "centre_m": [
+     -1.28,
+     0.02,
+     2.41
+    ],
+    "cut": {
+     "in": 1.6,
+     "freeze": 2.44,
+     "out": 3.24
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_r",
+     "player_on": "42/42",
+     "hit_on": "42/42",
+     "centre_on": "42/42"
+    }
+   },
+   "features": {
+    "moment_s": 2.44,
+    "player_px": 901,
+    "frame_px": 1080,
+    "mask_iou": 0.969,
+    "mask_agree": 0.97,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.946,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.965,
+    "depth_conf": 0.997,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.41,
+    "player_relief_iqr_m": 0.19,
+    "depth_feet_agree": 0.075,
+    "background_depth_m": 5.41,
+    "player_height_m": 1.55,
+    "camera_height_m": 1.05,
+    "floor_inliers": 0.943,
+    "plate_cover": 0.776,
+    "plate_frames": 78,
+    "views": 7,
+    "depth_edge_share": 0.1284,
+    "views_turn_deg": 12.8,
+    "views_move_m": 0.13,
+    "facing": 0.61,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 115,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.059,
+    "exists": 6.741,
+    "read_frames": 1.104,
+    "sam": 0.133,
+    "mapanything": 0.961,
+    "geometry": 0.167,
+    "clean_plate": 10.191,
+    "depth_layers": 0.037,
+    "build_scene": 1.018,
+    "decide": 0.088,
+    "render": 1.36,
+    "total": 48.43
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.03
+   }
+  },
+  "s12_3p56_v1": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "too little of the court behind the player was ever seen",
+     "the background has too little room to orbit (0\u00b0 left, 2\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     2
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     284,
+     541
+    ],
+    "centre_m": [
+     -0.91,
+     -0.0,
+     1.98
+    ],
+    "cut": {
+     "in": 2.64,
+     "freeze": 3.56,
+     "out": 3.96
+    },
+    "exists": {
+     "verdict": "cut",
+     "why": "the player leaves the frame or is hidden in part of the window",
+     "hit_point": "hit_r",
+     "player_on": "34/34",
+     "hit_on": "34/34",
+     "centre_on": "34/34"
+    }
+   },
+   "features": {
+    "moment_s": 3.56,
+    "player_px": 944,
+    "frame_px": 1080,
+    "mask_iou": 0.965,
+    "mask_agree": 0.969,
+    "mask_parts": 0.999,
+    "border": false,
+    "pose_conf": 0.933,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 1.133,
+    "depth_conf": 1.025,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 1.98,
+    "player_relief_iqr_m": 0.11,
+    "depth_feet_agree": 0.102,
+    "background_depth_m": 4.41,
+    "player_height_m": 1.3,
+    "camera_height_m": 0.84,
+    "floor_inliers": 0.939,
+    "plate_cover": 0.301,
+    "plate_frames": 61,
+    "views": 1,
+    "depth_edge_share": 0.1177,
+    "facing": 0.24,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 2,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 2,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 106,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 24.703,
+    "exists": 5.485,
+    "read_frames": 0.743,
+    "sam": 0.112,
+    "mapanything": 0.409,
+    "geometry": 0.13,
+    "clean_plate": 9.626,
+    "depth_layers": 0.03,
+    "build_scene": 0.326,
+    "decide": 0.093,
+    "render": 1.222,
+    "total": 44.37
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.56
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.3125,
+     "invented_near": 0.1061,
+     "invented_any": 0.3321,
+     "target_visible": 0.957,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.2388,
+     "invented_near": 0.1009,
+     "invented_any": 0.2577,
+     "target_visible": 0.952,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": false,
+     "invented": 0.153,
+     "invented_near": 0.0966,
+     "invented_any": 0.1668,
+     "target_visible": 0.942,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.0996,
+     "invented_near": 0.1821,
+     "invented_any": 0.1153,
+     "target_visible": 0.939,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.1497,
+     "invented_near": 0.271,
+     "invented_any": 0.1713,
+     "target_visible": 0.948,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.1806,
+     "invented_near": 0.3265,
+     "invented_any": 0.2107,
+     "target_visible": 0.959,
+     "points_seen": true
+    }
+   ]
+  },
+  "s12_3p56_v6": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "too little of the court behind the player was ever seen",
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     284,
+     541
+    ],
+    "centre_m": [
+     -1.38,
+     -0.01,
+     2.99
+    ],
+    "cut": {
+     "in": 2.64,
+     "freeze": 3.56,
+     "out": 3.96
+    },
+    "exists": {
+     "verdict": "cut",
+     "why": "the player leaves the frame or is hidden in part of the window",
+     "hit_point": "hit_r",
+     "player_on": "34/34",
+     "hit_on": "34/34",
+     "centre_on": "34/34"
+    }
+   },
+   "features": {
+    "moment_s": 3.56,
+    "player_px": 944,
+    "frame_px": 1080,
+    "mask_iou": 0.965,
+    "mask_agree": 0.969,
+    "mask_parts": 0.999,
+    "border": false,
+    "pose_conf": 0.933,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 1.133,
+    "depth_conf": 1.0,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.99,
+    "player_relief_iqr_m": 0.2,
+    "depth_feet_agree": 0.092,
+    "background_depth_m": 6.87,
+    "player_height_m": 1.96,
+    "camera_height_m": 1.24,
+    "floor_inliers": 0.929,
+    "plate_cover": 0.301,
+    "plate_frames": 61,
+    "views": 7,
+    "depth_edge_share": 0.1261,
+    "views_turn_deg": 38.6,
+    "views_move_m": 0.28,
+    "facing": 0.24,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 106,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.983,
+    "exists": 6.209,
+    "read_frames": 0.899,
+    "sam": 0.125,
+    "mapanything": 1.076,
+    "geometry": 0.157,
+    "clean_plate": 9.436,
+    "depth_layers": 0.036,
+    "build_scene": 1.089,
+    "decide": 0.088,
+    "render": 1.36,
+    "total": 47.49
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.05
+   }
+  },
+  "s21_0p88_v1": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "the background has too little room to orbit (2\u00b0 left, 2\u00b0 right)"
+    ],
+    "sweep_deg": [
+     -2,
+     2
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     543,
+     579
+    ],
+    "centre_m": [
+     -0.63,
+     0.05,
+     2.32
+    ],
+    "cut": {
+     "in": 0.48,
+     "freeze": 0.88,
+     "out": 1.68
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "31/31",
+     "hit_on": "31/31",
+     "centre_on": "31/31"
+    }
+   },
+   "features": {
+    "moment_s": 0.88,
+    "player_px": 905,
+    "frame_px": 1080,
+    "mask_iou": 0.965,
+    "mask_agree": 0.969,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.938,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.628,
+    "depth_conf": 1.011,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.32,
+    "player_relief_iqr_m": 0.14,
+    "depth_feet_agree": 0.038,
+    "background_depth_m": 5.58,
+    "player_height_m": 1.44,
+    "camera_height_m": 0.98,
+    "floor_inliers": 0.904,
+    "plate_cover": 0.956,
+    "plate_frames": 62,
+    "views": 1,
+    "depth_edge_share": 0.1087,
+    "facing": 0.24,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 2,
+     "left": 2
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 2,
+     "left": 2
+    }
+   },
+   "render": {
+    "frames": 113,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.632,
+    "exists": 4.268,
+    "read_frames": 0.545,
+    "sam": 0.109,
+    "mapanything": 0.426,
+    "geometry": 1.348,
+    "clean_plate": 9.111,
+    "depth_layers": 0.04,
+    "build_scene": 0.48,
+    "decide": 0.12,
+    "render": 1.373,
+    "total": 44.94
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.56
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.2526,
+     "invented_near": 0.0316,
+     "invented_any": 0.271,
+     "target_visible": 0.96,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.1813,
+     "invented_near": 0.0185,
+     "invented_any": 0.1967,
+     "target_visible": 0.953,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": false,
+     "invented": 0.1006,
+     "invented_near": 0.0111,
+     "invented_any": 0.113,
+     "target_visible": 0.946,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.0814,
+     "invented_near": 0.1261,
+     "invented_any": 0.0936,
+     "target_visible": 0.95,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.1388,
+     "invented_near": 0.2132,
+     "invented_any": 0.1552,
+     "target_visible": 0.956,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.1886,
+     "invented_near": 0.2903,
+     "invented_any": 0.2077,
+     "target_visible": 0.963,
+     "points_seen": true
+    }
+   ]
+  },
+  "s21_0p88_v6": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "the background has too little room to orbit (2\u00b0 left, 2\u00b0 right)"
+    ],
+    "sweep_deg": [
+     -2,
+     2
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     543,
+     579
+    ],
+    "centre_m": [
+     -0.71,
+     0.06,
+     2.58
+    ],
+    "cut": {
+     "in": 0.48,
+     "freeze": 0.88,
+     "out": 1.68
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "31/31",
+     "hit_on": "31/31",
+     "centre_on": "31/31"
+    }
+   },
+   "features": {
+    "moment_s": 0.88,
+    "player_px": 905,
+    "frame_px": 1080,
+    "mask_iou": 0.965,
+    "mask_agree": 0.969,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.938,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.628,
+    "depth_conf": 1.0,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.58,
+    "player_relief_iqr_m": 0.16,
+    "depth_feet_agree": 0.134,
+    "background_depth_m": 6.13,
+    "player_height_m": 1.6,
+    "camera_height_m": 1.08,
+    "floor_inliers": 0.9,
+    "plate_cover": 0.956,
+    "plate_frames": 62,
+    "views": 6,
+    "depth_edge_share": 0.1137,
+    "views_turn_deg": 16.7,
+    "views_move_m": 0.16,
+    "facing": 0.24,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 2,
+     "left": 2
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      8,
+      12
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 2,
+     "left": 2
+    }
+   },
+   "render": {
+    "frames": 113,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.219,
+    "exists": 4.311,
+    "read_frames": 0.536,
+    "sam": 0.116,
+    "mapanything": 0.792,
+    "geometry": 0.138,
+    "clean_plate": 8.54,
+    "depth_layers": 0.03,
+    "build_scene": 0.986,
+    "decide": 0.285,
+    "render": 1.332,
+    "total": 43.25
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.14,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 10.61
+   }
+  },
+  "s21_6p52_v1": {
+   "plan": {
+    "mode": "orbit",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     4,
+     -6
+    ],
+    "zoom": 1.56,
+    "centre_px": [
+     372,
+     478
+    ],
+    "centre_m": [
+     -1.16,
+     -0.14,
+     2.83
+    ],
+    "cut": {
+     "in": 5.68,
+     "freeze": 6.52,
+     "out": 7.32
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_r",
+     "player_on": "42/42",
+     "hit_on": "42/42",
+     "centre_on": "42/42"
+    }
+   },
+   "features": {
+    "moment_s": 6.52,
+    "player_px": 588,
+    "frame_px": 1080,
+    "mask_iou": 0.953,
+    "mask_agree": 0.956,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.946,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.731,
+    "depth_conf": 1.002,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.83,
+    "player_relief_iqr_m": 0.09,
+    "depth_feet_agree": 0.065,
+    "background_depth_m": 4.37,
+    "player_height_m": 1.19,
+    "camera_height_m": 0.82,
+    "floor_inliers": 0.932,
+    "plate_cover": 0.889,
+    "plate_frames": 80,
+    "views": 1,
+    "depth_edge_share": 0.117,
+    "facing": 0.24,
+    "zoom": 1.56,
+    "arc_room_deg": {
+     "right": 4,
+     "left": 6
+    },
+    "zooms_tried": [
+     [
+      1.01,
+      2,
+      2
+     ],
+     [
+      1.1,
+      6,
+      4
+     ],
+     [
+      1.2,
+      10,
+      4
+     ],
+     [
+      1.31,
+      14,
+      6
+     ],
+     [
+      1.43,
+      20,
+      6
+     ],
+     [
+      1.56,
+      24,
+      6
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 4,
+     "left": 6
+    }
+   },
+   "render": {
+    "frames_3d": 90,
+    "s_per_frame": 0.023,
+    "invented_max": {
+     "frame": 0.0588,
+     "near": 0.0674
+    },
+    "target_visible_min": 0.988,
+    "hit_and_centre_in_view": true
+   },
+   "time_s": {
+    "load_models": 24.775,
+    "exists": 5.299,
+    "read_frames": 1.075,
+    "sam": 0.165,
+    "mapanything": 0.554,
+    "geometry": 0.884,
+    "clean_plate": 9.391,
+    "depth_layers": 0.03,
+    "build_scene": 0.289,
+    "decide": 0.883,
+    "render": 2.852,
+    "total": 47.66
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.56
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.0413,
+     "invented_near": 0.0527,
+     "invented_any": 0.0863,
+     "target_visible": 0.997,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.035,
+     "invented_near": 0.0342,
+     "invented_any": 0.0799,
+     "target_visible": 0.995,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": true,
+     "invented": 0.0276,
+     "invented_near": 0.0269,
+     "invented_any": 0.0575,
+     "target_visible": 0.991,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.037,
+     "invented_near": 0.0477,
+     "invented_any": 0.0706,
+     "target_visible": 0.992,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.0799,
+     "invented_near": 0.1344,
+     "invented_any": 0.1218,
+     "target_visible": 0.991,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.1235,
+     "invented_near": 0.1927,
+     "invented_any": 0.1669,
+     "target_visible": 0.975,
+     "points_seen": true
+    }
+   ]
+  },
+  "s21_6p52_v6": {
+   "plan": {
+    "mode": "orbit",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     4,
+     -6
+    ],
+    "zoom": 1.56,
+    "centre_px": [
+     372,
+     478
+    ],
+    "centre_m": [
+     -1.28,
+     -0.15,
+     2.94
+    ],
+    "cut": {
+     "in": 5.68,
+     "freeze": 6.52,
+     "out": 7.32
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_r",
+     "player_on": "42/42",
+     "hit_on": "42/42",
+     "centre_on": "42/42"
+    }
+   },
+   "features": {
+    "moment_s": 6.52,
+    "player_px": 588,
+    "frame_px": 1080,
+    "mask_iou": 0.953,
+    "mask_agree": 0.956,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.946,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.731,
+    "depth_conf": 0.963,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.94,
+    "player_relief_iqr_m": 0.1,
+    "depth_feet_agree": 0.09,
+    "background_depth_m": 4.53,
+    "player_height_m": 1.3,
+    "camera_height_m": 0.9,
+    "floor_inliers": 0.931,
+    "plate_cover": 0.889,
+    "plate_frames": 80,
+    "views": 7,
+    "depth_edge_share": 0.1275,
+    "views_turn_deg": 1.0,
+    "views_move_m": 0.02,
+    "facing": 0.24,
+    "zoom": 1.56,
+    "arc_room_deg": {
+     "right": 4,
+     "left": 6
+    },
+    "zooms_tried": [
+     [
+      1.01,
+      2,
+      2
+     ],
+     [
+      1.1,
+      6,
+      4
+     ],
+     [
+      1.2,
+      12,
+      4
+     ],
+     [
+      1.31,
+      16,
+      6
+     ],
+     [
+      1.43,
+      20,
+      6
+     ],
+     [
+      1.56,
+      24,
+      6
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 4,
+     "left": 6
+    }
+   },
+   "render": {
+    "frames_3d": 90,
+    "s_per_frame": 0.0243,
+    "invented_max": {
+     "frame": 0.0616,
+     "near": 0.0685
+    },
+    "target_visible_min": 0.988,
+    "hit_and_centre_in_view": true
+   },
+   "time_s": {
+    "load_models": 25.103,
+    "exists": 5.253,
+    "read_frames": 1.067,
+    "sam": 0.119,
+    "mapanything": 0.885,
+    "geometry": 0.129,
+    "clean_plate": 9.698,
+    "depth_layers": 0.041,
+    "build_scene": 1.013,
+    "decide": 1.052,
+    "render": 2.971,
+    "total": 48.55
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.03
+   }
+  },
+  "s21_7p0_v1": {
+   "plan": {
+    "mode": "orbit",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     4,
+     -10
+    ],
+    "zoom": 1.56,
+    "centre_px": [
+     303,
+     473
+    ],
+    "centre_m": [
+     -1.31,
+     -0.15,
+     2.89
+    ],
+    "cut": {
+     "in": 5.68,
+     "freeze": 7.0,
+     "out": 7.8
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "54/54",
+     "hit_on": "54/54",
+     "centre_on": "54/54"
+    }
+   },
+   "features": {
+    "moment_s": 7.0,
+    "player_px": 590,
+    "frame_px": 1080,
+    "mask_iou": 0.961,
+    "mask_agree": 0.968,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.94,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 1.074,
+    "depth_conf": 0.975,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.89,
+    "player_relief_iqr_m": 0.15,
+    "depth_feet_agree": 0.003,
+    "background_depth_m": 4.62,
+    "player_height_m": 1.2,
+    "camera_height_m": 0.82,
+    "floor_inliers": 0.94,
+    "plate_cover": 0.94,
+    "plate_frames": 77,
+    "views": 1,
+    "depth_edge_share": 0.1195,
+    "facing": 0.27,
+    "zoom": 1.56,
+    "arc_room_deg": {
+     "right": 4,
+     "left": 10
+    },
+    "zooms_tried": [
+     [
+      1.01,
+      2,
+      2
+     ],
+     [
+      1.1,
+      4,
+      4
+     ],
+     [
+      1.2,
+      10,
+      4
+     ],
+     [
+      1.31,
+      14,
+      4
+     ],
+     [
+      1.43,
+      20,
+      6
+     ],
+     [
+      1.56,
+      24,
+      6
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 4,
+     "left": 10
+    }
+   },
+   "render": {
+    "frames_3d": 90,
+    "s_per_frame": 0.024,
+    "invented_max": {
+     "frame": 0.0605,
+     "near": 0.0688
+    },
+    "target_visible_min": 0.977,
+    "hit_and_centre_in_view": true
+   },
+   "time_s": {
+    "load_models": 25.523,
+    "exists": 6.555,
+    "read_frames": 0.858,
+    "sam": 0.145,
+    "mapanything": 0.439,
+    "geometry": 0.122,
+    "clean_plate": 9.255,
+    "depth_layers": 0.036,
+    "build_scene": 0.348,
+    "decide": 0.893,
+    "render": 3.019,
+    "total": 48.79
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.58
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.0325,
+     "invented_near": 0.0448,
+     "invented_any": 0.0725,
+     "target_visible": 0.993,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.03,
+     "invented_near": 0.0322,
+     "invented_any": 0.0692,
+     "target_visible": 0.989,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": true,
+     "invented": 0.0239,
+     "invented_near": 0.0231,
+     "invented_any": 0.0517,
+     "target_visible": 0.984,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.0386,
+     "invented_near": 0.0539,
+     "invented_any": 0.067,
+     "target_visible": 0.981,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.0678,
+     "invented_near": 0.1172,
+     "invented_any": 0.1025,
+     "target_visible": 0.986,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.1346,
+     "invented_near": 0.2357,
+     "invented_any": 0.1705,
+     "target_visible": 0.99,
+     "points_seen": true
+    }
+   ]
+  },
+  "s21_7p0_v6": {
+   "plan": {
+    "mode": "orbit",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     6,
+     -12
+    ],
+    "zoom": 1.31,
+    "centre_px": [
+     303,
+     473
+    ],
+    "centre_m": [
+     -1.67,
+     -0.19,
+     3.52
+    ],
+    "cut": {
+     "in": 5.68,
+     "freeze": 7.0,
+     "out": 7.8
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "54/54",
+     "hit_on": "54/54",
+     "centre_on": "54/54"
+    }
+   },
+   "features": {
+    "moment_s": 7.0,
+    "player_px": 590,
+    "frame_px": 1080,
+    "mask_iou": 0.961,
+    "mask_agree": 0.968,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.94,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 1.074,
+    "depth_conf": 0.985,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 3.52,
+    "player_relief_iqr_m": 0.11,
+    "depth_feet_agree": 0.09,
+    "background_depth_m": 5.7,
+    "player_height_m": 1.52,
+    "camera_height_m": 1.03,
+    "floor_inliers": 0.934,
+    "plate_cover": 0.94,
+    "plate_frames": 77,
+    "views": 7,
+    "depth_edge_share": 0.1231,
+    "views_turn_deg": 20.5,
+    "views_move_m": 0.22,
+    "facing": 0.27,
+    "zoom": 1.31,
+    "arc_room_deg": {
+     "right": 6,
+     "left": 12
+    },
+    "zooms_tried": [
+     [
+      1.01,
+      4,
+      2
+     ],
+     [
+      1.1,
+      12,
+      4
+     ],
+     [
+      1.2,
+      18,
+      4
+     ],
+     [
+      1.31,
+      24,
+      6
+     ],
+     [
+      1.43,
+      24,
+      6
+     ],
+     [
+      1.56,
+      24,
+      6
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 6,
+     "left": 12
+    }
+   },
+   "render": {
+    "frames_3d": 90,
+    "s_per_frame": 0.0244,
+    "invented_max": {
+     "frame": 0.0618,
+     "near": 0.0793
+    },
+    "target_visible_min": 0.978,
+    "hit_and_centre_in_view": true
+   },
+   "time_s": {
+    "load_models": 25.299,
+    "exists": 6.417,
+    "read_frames": 0.75,
+    "sam": 0.131,
+    "mapanything": 0.906,
+    "geometry": 0.124,
+    "clean_plate": 8.353,
+    "depth_layers": 0.037,
+    "build_scene": 1.05,
+    "decide": 1.261,
+    "render": 3.058,
+    "total": 48.57
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.08
+   }
+  },
+  "s21_8p0_v1": {
+   "plan": {
+    "mode": "orbit",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     2,
+     -6
+    ],
+    "zoom": 1.51,
+    "centre_px": [
+     242,
+     483
+    ],
+    "centre_m": [
+     -1.39,
+     -0.12,
+     2.8
+    ],
+    "cut": {
+     "in": 6.92,
+     "freeze": 8.0,
+     "out": 8.4
+    },
+    "exists": {
+     "verdict": "cut",
+     "why": "the player leaves the frame or is hidden in part of the window",
+     "hit_point": "hit_r",
+     "player_on": "38/38",
+     "hit_on": "38/38",
+     "centre_on": "37/38"
+    }
+   },
+   "features": {
+    "moment_s": 8.0,
+    "player_px": 607,
+    "frame_px": 1080,
+    "mask_iou": 0.965,
+    "mask_agree": 0.967,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.953,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.956,
+    "depth_conf": 0.976,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.8,
+    "player_relief_iqr_m": 0.13,
+    "depth_feet_agree": 0.043,
+    "background_depth_m": 4.42,
+    "player_height_m": 1.2,
+    "camera_height_m": 0.8,
+    "floor_inliers": 0.949,
+    "plate_cover": 0.814,
+    "plate_frames": 54,
+    "views": 1,
+    "depth_edge_share": 0.1269,
+    "facing": -0.06,
+    "zoom": 1.51,
+    "arc_room_deg": {
+     "right": 2,
+     "left": 6
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      2,
+      0
+     ],
+     [
+      1.09,
+      6,
+      0
+     ],
+     [
+      1.18,
+      10,
+      0
+     ],
+     [
+      1.28,
+      12,
+      0
+     ],
+     [
+      1.39,
+      16,
+      0
+     ],
+     [
+      1.51,
+      18,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 2,
+     "left": 6
+    }
+   },
+   "render": {
+    "frames_3d": 90,
+    "s_per_frame": 0.0227,
+    "invented_max": {
+     "frame": 0.06,
+     "near": 0.0771
+    },
+    "target_visible_min": 0.97,
+    "hit_and_centre_in_view": true
+   },
+   "time_s": {
+    "load_models": 24.599,
+    "exists": 5.732,
+    "read_frames": 0.727,
+    "sam": 0.122,
+    "mapanything": 0.517,
+    "geometry": 0.194,
+    "clean_plate": 6.39,
+    "depth_layers": 0.032,
+    "build_scene": 0.296,
+    "decide": 0.643,
+    "render": 2.775,
+    "total": 43.56
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.56
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.0419,
+     "invented_near": 0.0578,
+     "invented_any": 0.0872,
+     "target_visible": 0.983,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.0432,
+     "invented_near": 0.0544,
+     "invented_any": 0.0816,
+     "target_visible": 0.985,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": true,
+     "invented": 0.0273,
+     "invented_near": 0.0285,
+     "invented_any": 0.06,
+     "target_visible": 0.981,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.0724,
+     "invented_near": 0.1281,
+     "invented_any": 0.1033,
+     "target_visible": 0.979,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.1329,
+     "invented_near": 0.2424,
+     "invented_any": 0.1715,
+     "target_visible": 0.988,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.188,
+     "invented_near": 0.3332,
+     "invented_any": 0.2318,
+     "target_visible": 0.986,
+     "points_seen": true
+    }
+   ]
+  },
+  "s21_8p0_v6": {
+   "plan": {
+    "mode": "orbit",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     2,
+     -6
+    ],
+    "zoom": 1.39,
+    "centre_px": [
+     242,
+     483
+    ],
+    "centre_m": [
+     -2.05,
+     -0.19,
+     4.02
+    ],
+    "cut": {
+     "in": 6.92,
+     "freeze": 8.0,
+     "out": 8.4
+    },
+    "exists": {
+     "verdict": "cut",
+     "why": "the player leaves the frame or is hidden in part of the window",
+     "hit_point": "hit_r",
+     "player_on": "38/38",
+     "hit_on": "38/38",
+     "centre_on": "37/38"
+    }
+   },
+   "features": {
+    "moment_s": 8.0,
+    "player_px": 607,
+    "frame_px": 1080,
+    "mask_iou": 0.965,
+    "mask_agree": 0.967,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.953,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.956,
+    "depth_conf": 0.998,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 4.02,
+    "player_relief_iqr_m": 0.19,
+    "depth_feet_agree": 0.081,
+    "background_depth_m": 6.17,
+    "player_height_m": 1.76,
+    "camera_height_m": 1.14,
+    "floor_inliers": 0.94,
+    "plate_cover": 0.814,
+    "plate_frames": 54,
+    "views": 6,
+    "depth_edge_share": 0.1265,
+    "views_turn_deg": 40.6,
+    "views_move_m": 0.41,
+    "facing": -0.06,
+    "zoom": 1.39,
+    "arc_room_deg": {
+     "right": 2,
+     "left": 6
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      4,
+      0
+     ],
+     [
+      1.09,
+      8,
+      0
+     ],
+     [
+      1.18,
+      10,
+      0
+     ],
+     [
+      1.28,
+      10,
+      0
+     ],
+     [
+      1.39,
+      12,
+      0
+     ],
+     [
+      1.51,
+      12,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 2,
+     "left": 6
+    }
+   },
+   "render": {
+    "frames_3d": 90,
+    "s_per_frame": 0.0238,
+    "invented_max": {
+     "frame": 0.0559,
+     "near": 0.0813
+    },
+    "target_visible_min": 0.969,
+    "hit_and_centre_in_view": true
+   },
+   "time_s": {
+    "load_models": 25.211,
+    "exists": 6.262,
+    "read_frames": 0.909,
+    "sam": 0.117,
+    "mapanything": 0.809,
+    "geometry": 0.122,
+    "clean_plate": 6.163,
+    "depth_layers": 0.032,
+    "build_scene": 0.915,
+    "decide": 0.658,
+    "render": 2.953,
+    "total": 45.25
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.14,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 10.61
+   }
+  },
+  "s54_0p16_v1": {
+   "plan": {
+    "mode": "none",
+    "why_not_orbit": [
+     "the player is cut off by the frame's edge",
+     "too little of the court behind the player was ever seen",
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     65,
+     702
+    ],
+    "centre_m": [
+     -1.19,
+     0.21,
+     2.0
+    ],
+    "cut": {
+     "in": 0.0,
+     "freeze": 0.16,
+     "out": 0.96
+    },
+    "exists": {
+     "verdict": "hold",
+     "why": "the racket hand or the body is hidden or out of frame at the moment",
+     "hit_point": "hit_r",
+     "player_on": "20/25",
+     "hit_on": "22/25",
+     "centre_on": "19/25"
+    }
+   },
+   "features": {
+    "moment_s": 0.16,
+    "player_px": 777,
+    "frame_px": 1080,
+    "mask_iou": 0.961,
+    "mask_agree": 0.973,
+    "mask_parts": 1.0,
+    "border": true,
+    "pose_conf": 0.679,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.351,
+    "depth_conf": 1.0,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.0,
+    "player_relief_iqr_m": 0.14,
+    "depth_feet_agree": 0.082,
+    "background_depth_m": 4.74,
+    "player_height_m": 1.06,
+    "camera_height_m": 0.9,
+    "floor_inliers": 0.851,
+    "plate_cover": 0.368,
+    "plate_frames": 44,
+    "views": 1,
+    "depth_edge_share": 0.1343,
+    "facing": 0.13,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ],
+     [
+      1.03,
+      0,
+      0
+     ],
+     [
+      1.07,
+      0,
+      0
+     ],
+     [
+      1.11,
+      0,
+      0
+     ],
+     [
+      1.14,
+      0,
+      0
+     ],
+     [
+      1.18,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 28
+   },
+   "time_s": {
+    "load_models": 25.608,
+    "exists": 3.249,
+    "read_frames": 0.394,
+    "sam": 0.105,
+    "mapanything": 0.359,
+    "geometry": 0.123,
+    "clean_plate": 5.416,
+    "depth_layers": 0.032,
+    "build_scene": 0.302,
+    "decide": 0.216,
+    "render": 0.757,
+    "total": 37.75
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.56
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.2409,
+     "invented_near": 0.1082,
+     "invented_any": 0.2724,
+     "target_visible": 0.999,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.1641,
+     "invented_near": 0.118,
+     "invented_any": 0.1928,
+     "target_visible": 1.0,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": false,
+     "invented": 0.0983,
+     "invented_near": 0.1687,
+     "invented_any": 0.1192,
+     "target_visible": 0.997,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.1609,
+     "invented_near": 0.3478,
+     "invented_any": 0.1719,
+     "target_visible": 0.977,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.2104,
+     "invented_near": 0.4505,
+     "invented_any": 0.2264,
+     "target_visible": 0.969,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.2583,
+     "invented_near": 0.5522,
+     "invented_any": 0.2793,
+     "target_visible": 0.968,
+     "points_seen": true
+    }
+   ]
+  },
+  "s54_0p16_v6": {
+   "plan": {
+    "mode": "none",
+    "why_not_orbit": [
+     "the player is cut off by the frame's edge",
+     "too little of the court behind the player was ever seen",
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     65,
+     702
+    ],
+    "centre_m": [
+     -1.77,
+     0.32,
+     3.1
+    ],
+    "cut": {
+     "in": 0.0,
+     "freeze": 0.16,
+     "out": 0.96
+    },
+    "exists": {
+     "verdict": "hold",
+     "why": "the racket hand or the body is hidden or out of frame at the moment",
+     "hit_point": "hit_r",
+     "player_on": "20/25",
+     "hit_on": "22/25",
+     "centre_on": "19/25"
+    }
+   },
+   "features": {
+    "moment_s": 0.16,
+    "player_px": 777,
+    "frame_px": 1080,
+    "mask_iou": 0.961,
+    "mask_agree": 0.973,
+    "mask_parts": 1.0,
+    "border": true,
+    "pose_conf": 0.679,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.351,
+    "depth_conf": 1.0,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 3.1,
+    "player_relief_iqr_m": 0.47,
+    "depth_feet_agree": 0.138,
+    "background_depth_m": 7.34,
+    "player_height_m": 1.57,
+    "camera_height_m": 1.34,
+    "floor_inliers": 0.844,
+    "plate_cover": 0.368,
+    "plate_frames": 44,
+    "views": 5,
+    "depth_edge_share": 0.1303,
+    "views_turn_deg": 16.8,
+    "views_move_m": 0.17,
+    "facing": 0.13,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ],
+     [
+      1.03,
+      0,
+      0
+     ],
+     [
+      1.07,
+      0,
+      0
+     ],
+     [
+      1.11,
+      0,
+      0
+     ],
+     [
+      1.14,
+      0,
+      0
+     ],
+     [
+      1.18,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 28
+   },
+   "time_s": {
+    "load_models": 25.466,
+    "exists": 3.207,
+    "read_frames": 0.428,
+    "sam": 0.106,
+    "mapanything": 0.663,
+    "geometry": 0.126,
+    "clean_plate": 4.689,
+    "depth_layers": 0.03,
+    "build_scene": 0.766,
+    "decide": 0.218,
+    "render": 0.726,
+    "total": 37.16
+   },
+   "gpu": {
+    "peak_allocated_gb": 9.8,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 10.34
+   }
+  },
+  "s54_2p16_v1": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "the player is cut off by the frame's edge",
+     "the background has too little room to orbit (2\u00b0 left, 2\u00b0 right)"
+    ],
+    "sweep_deg": [
+     -2,
+     2
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     371,
+     608
+    ],
+    "centre_m": [
+     -0.52,
+     0.06,
+     1.35
+    ],
+    "cut": {
+     "in": 1.64,
+     "freeze": 2.16,
+     "out": 2.96
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "34/34",
+     "hit_on": "34/34",
+     "centre_on": "34/34"
+    }
+   },
+   "features": {
+    "moment_s": 2.16,
+    "player_px": 999,
+    "frame_px": 1080,
+    "mask_iou": 0.977,
+    "mask_agree": 0.972,
+    "mask_parts": 1.0,
+    "border": true,
+    "pose_conf": 0.865,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.905,
+    "depth_conf": 1.032,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 1.35,
+    "player_relief_iqr_m": 0.12,
+    "depth_feet_agree": 0.206,
+    "background_depth_m": 3.91,
+    "player_height_m": 0.91,
+    "camera_height_m": 0.84,
+    "floor_inliers": 0.931,
+    "plate_cover": 0.981,
+    "plate_frames": 80,
+    "views": 1,
+    "depth_edge_share": 0.1137,
+    "facing": 0.85,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 2,
+     "left": 2
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 2,
+     "left": 2
+    }
+   },
+   "render": {
+    "frames": 106,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 26.098,
+    "exists": 4.528,
+    "read_frames": 0.886,
+    "sam": 0.121,
+    "mapanything": 0.397,
+    "geometry": 0.133,
+    "clean_plate": 12.462,
+    "depth_layers": 0.034,
+    "build_scene": 0.376,
+    "decide": 0.119,
+    "render": 1.28,
+    "total": 47.86
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.54
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.2878,
+     "invented_near": 0.0373,
+     "invented_any": 0.3015,
+     "target_visible": 0.995,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.2057,
+     "invented_near": 0.0229,
+     "invented_any": 0.2193,
+     "target_visible": 0.994,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": false,
+     "invented": 0.1133,
+     "invented_near": 0.0114,
+     "invented_any": 0.1255,
+     "target_visible": 0.991,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.0865,
+     "invented_near": 0.1436,
+     "invented_any": 0.0962,
+     "target_visible": 0.987,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.1536,
+     "invented_near": 0.2531,
+     "invented_any": 0.1664,
+     "target_visible": 0.985,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.1906,
+     "invented_near": 0.3127,
+     "invented_any": 0.2073,
+     "target_visible": 0.984,
+     "points_seen": true
+    }
+   ]
+  },
+  "s54_2p16_v6": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "the player is cut off by the frame's edge"
+    ],
+    "sweep_deg": [
+     -4,
+     4
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     371,
+     608
+    ],
+    "centre_m": [
+     -0.76,
+     0.09,
+     1.98
+    ],
+    "cut": {
+     "in": 1.64,
+     "freeze": 2.16,
+     "out": 2.96
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "34/34",
+     "hit_on": "34/34",
+     "centre_on": "34/34"
+    }
+   },
+   "features": {
+    "moment_s": 2.16,
+    "player_px": 999,
+    "frame_px": 1080,
+    "mask_iou": 0.977,
+    "mask_agree": 0.972,
+    "mask_parts": 1.0,
+    "border": true,
+    "pose_conf": 0.865,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.905,
+    "depth_conf": 0.999,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 1.98,
+    "player_relief_iqr_m": 0.15,
+    "depth_feet_agree": 0.221,
+    "background_depth_m": 5.82,
+    "player_height_m": 1.33,
+    "camera_height_m": 1.23,
+    "floor_inliers": 0.931,
+    "plate_cover": 0.981,
+    "plate_frames": 80,
+    "views": 7,
+    "depth_edge_share": 0.1214,
+    "views_turn_deg": 11.7,
+    "views_move_m": 0.16,
+    "facing": 0.85,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 4,
+     "left": 4
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      10,
+      4
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 4,
+     "left": 4
+    }
+   },
+   "render": {
+    "frames": 106,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.806,
+    "exists": 4.579,
+    "read_frames": 0.741,
+    "sam": 0.118,
+    "mapanything": 0.854,
+    "geometry": 0.143,
+    "clean_plate": 11.62,
+    "depth_layers": 0.029,
+    "build_scene": 1.112,
+    "decide": 0.312,
+    "render": 1.458,
+    "total": 47.76
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.03
+   }
+  },
+  "s54_4p0_v1": {
+   "plan": {
+    "mode": "none",
+    "why_not_orbit": [
+     "the player is cut off by the frame's edge",
+     "too little of the court behind the player was ever seen",
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     94,
+     609
+    ],
+    "centre_m": [
+     -0.93,
+     0.07,
+     1.59
+    ],
+    "cut": {
+     "in": 3.4,
+     "freeze": 4.0,
+     "out": 4.8
+    },
+    "exists": {
+     "verdict": "hold",
+     "why": "the player is not in frame long enough around the moment",
+     "hit_point": "hit_r",
+     "player_on": "20/36",
+     "hit_on": "8/36",
+     "centre_on": "19/36"
+    }
+   },
+   "features": {
+    "moment_s": 4.0,
+    "player_px": 933,
+    "frame_px": 1080,
+    "mask_iou": 0.973,
+    "mask_agree": 0.942,
+    "mask_parts": 1.0,
+    "border": true,
+    "pose_conf": 0.916,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.722,
+    "depth_conf": 1.006,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 1.59,
+    "player_relief_iqr_m": 0.14,
+    "depth_feet_agree": 0.036,
+    "background_depth_m": 4.27,
+    "player_height_m": 1.02,
+    "camera_height_m": 0.75,
+    "floor_inliers": 0.936,
+    "plate_cover": 0.353,
+    "plate_frames": 55,
+    "views": 1,
+    "depth_edge_share": 0.1155,
+    "facing": 0.25,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 42
+   },
+   "time_s": {
+    "load_models": 25.336,
+    "exists": 4.904,
+    "read_frames": 0.909,
+    "sam": 0.128,
+    "mapanything": 0.414,
+    "geometry": 0.153,
+    "clean_plate": 9.536,
+    "depth_layers": 0.031,
+    "build_scene": 0.347,
+    "decide": 0.093,
+    "render": 0.911,
+    "total": 44.37
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.56
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.271,
+     "invented_near": 0.1245,
+     "invented_any": 0.2879,
+     "target_visible": 0.996,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.192,
+     "invented_near": 0.1376,
+     "invented_any": 0.2112,
+     "target_visible": 0.995,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": false,
+     "invented": 0.1138,
+     "invented_near": 0.1692,
+     "invented_any": 0.1268,
+     "target_visible": 0.993,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.146,
+     "invented_near": 0.2941,
+     "invented_any": 0.1605,
+     "target_visible": 0.991,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.1982,
+     "invented_near": 0.3916,
+     "invented_any": 0.2163,
+     "target_visible": 0.993,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.2484,
+     "invented_near": 0.4862,
+     "invented_any": 0.2694,
+     "target_visible": 0.994,
+     "points_seen": true
+    }
+   ]
+  },
+  "s54_4p0_v6": {
+   "plan": {
+    "mode": "none",
+    "why_not_orbit": [
+     "the player is cut off by the frame's edge",
+     "too little of the court behind the player was ever seen",
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     94,
+     609
+    ],
+    "centre_m": [
+     -1.56,
+     0.12,
+     2.71
+    ],
+    "cut": {
+     "in": 3.4,
+     "freeze": 4.0,
+     "out": 4.8
+    },
+    "exists": {
+     "verdict": "hold",
+     "why": "the player is not in frame long enough around the moment",
+     "hit_point": "hit_r",
+     "player_on": "20/36",
+     "hit_on": "8/36",
+     "centre_on": "19/36"
+    }
+   },
+   "features": {
+    "moment_s": 4.0,
+    "player_px": 933,
+    "frame_px": 1080,
+    "mask_iou": 0.973,
+    "mask_agree": 0.942,
+    "mask_parts": 1.0,
+    "border": true,
+    "pose_conf": 0.916,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.722,
+    "depth_conf": 0.999,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.71,
+    "player_relief_iqr_m": 0.25,
+    "depth_feet_agree": 0.121,
+    "background_depth_m": 7.34,
+    "player_height_m": 1.72,
+    "camera_height_m": 1.25,
+    "floor_inliers": 0.929,
+    "plate_cover": 0.353,
+    "plate_frames": 55,
+    "views": 7,
+    "depth_edge_share": 0.1235,
+    "views_turn_deg": 38.0,
+    "views_move_m": 0.25,
+    "facing": 0.25,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 42
+   },
+   "time_s": {
+    "load_models": 25.2,
+    "exists": 5.187,
+    "read_frames": 0.977,
+    "sam": 0.121,
+    "mapanything": 0.926,
+    "geometry": 0.137,
+    "clean_plate": 8.21,
+    "depth_layers": 0.032,
+    "build_scene": 1.016,
+    "decide": 0.089,
+    "render": 0.886,
+    "total": 43.87
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.03
+   }
+  },
+  "s76_0p04_v1": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "too little of the court behind the player was ever seen"
+    ],
+    "sweep_deg": [
+     -4,
+     4
+    ],
+    "zoom": 1.17,
+    "centre_px": [
+     793,
+     492
+    ],
+    "centre_m": [
+     -0.43,
+     -0.16,
+     4.09
+    ],
+    "cut": {
+     "in": 0.0,
+     "freeze": 0.04,
+     "out": 0.84
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "22/22",
+     "hit_on": "22/22",
+     "centre_on": "22/22"
+    }
+   },
+   "features": {
+    "moment_s": 0.04,
+    "player_px": 782,
+    "frame_px": 1080,
+    "mask_iou": 0.941,
+    "mask_agree": 0.967,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.934,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.395,
+    "depth_conf": 1.0,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 4.09,
+    "player_relief_iqr_m": 0.57,
+    "depth_feet_agree": 0.178,
+    "background_depth_m": 8.67,
+    "player_height_m": 2.27,
+    "camera_height_m": 1.57,
+    "floor_inliers": 0.888,
+    "plate_cover": 0.054,
+    "plate_frames": 8,
+    "views": 1,
+    "depth_edge_share": 0.0798,
+    "facing": -0.16,
+    "zoom": 1.17,
+    "arc_room_deg": {
+     "right": 4,
+     "left": 4
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ],
+     [
+      1.03,
+      0,
+      0
+     ],
+     [
+      1.07,
+      2,
+      2
+     ],
+     [
+      1.1,
+      2,
+      2
+     ],
+     [
+      1.14,
+      2,
+      2
+     ],
+     [
+      1.17,
+      4,
+      2
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 4,
+     "left": 4
+    }
+   },
+   "render": {
+    "frames": 86,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.568,
+    "exists": 3.365,
+    "read_frames": 0.479,
+    "sam": 0.113,
+    "mapanything": 0.413,
+    "geometry": 0.135,
+    "clean_plate": 4.462,
+    "depth_layers": 0.034,
+    "build_scene": 0.353,
+    "decide": 0.414,
+    "render": 1.17,
+    "total": 37.71
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.54
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.2253,
+     "invented_near": 0.1182,
+     "invented_any": 0.2516,
+     "target_visible": 0.994,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.1445,
+     "invented_near": 0.0912,
+     "invented_any": 0.1673,
+     "target_visible": 0.99,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": false,
+     "invented": 0.0547,
+     "invented_near": 0.0524,
+     "invented_any": 0.0719,
+     "target_visible": 0.986,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.063,
+     "invented_near": 0.072,
+     "invented_any": 0.0763,
+     "target_visible": 0.986,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.1581,
+     "invented_near": 0.1767,
+     "invented_any": 0.1724,
+     "target_visible": 0.989,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.2268,
+     "invented_near": 0.2669,
+     "invented_any": 0.245,
+     "target_visible": 0.993,
+     "points_seen": true
+    }
+   ]
+  },
+  "s76_0p04_v6": {
+   "plan": {
+    "mode": "zoom",
+    "why_not_orbit": [
+     "the depth at the player disagrees with the floor under the feet",
+     "too little of the court behind the player was ever seen",
+     "the background has too little room to orbit (0\u00b0 left, 0\u00b0 right)"
+    ],
+    "sweep_deg": [
+     0,
+     0
+    ],
+    "zoom": 1.0,
+    "centre_px": [
+     793,
+     492
+    ],
+    "centre_m": [
+     -0.43,
+     -0.17,
+     5.0
+    ],
+    "cut": {
+     "in": 0.0,
+     "freeze": 0.04,
+     "out": 0.84
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "22/22",
+     "hit_on": "22/22",
+     "centre_on": "22/22"
+    }
+   },
+   "features": {
+    "moment_s": 0.04,
+    "player_px": 782,
+    "frame_px": 1080,
+    "mask_iou": 0.941,
+    "mask_agree": 0.967,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.934,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 0.395,
+    "depth_conf": 1.0,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 5.0,
+    "player_relief_iqr_m": 0.97,
+    "depth_feet_agree": 0.309,
+    "background_depth_m": 11.4,
+    "player_height_m": 2.39,
+    "camera_height_m": 1.87,
+    "floor_inliers": 0.876,
+    "plate_cover": 0.054,
+    "plate_frames": 8,
+    "views": 5,
+    "depth_edge_share": 0.0858,
+    "views_turn_deg": 34.2,
+    "views_move_m": 0.18,
+    "facing": -0.16,
+    "zoom": 1.0,
+    "arc_room_deg": {
+     "right": 0,
+     "left": 0
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      4,
+      2
+     ],
+     [
+      1.03,
+      4,
+      2
+     ],
+     [
+      1.07,
+      4,
+      2
+     ],
+     [
+      1.1,
+      4,
+      2
+     ],
+     [
+      1.14,
+      4,
+      2
+     ],
+     [
+      1.17,
+      4,
+      2
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 0,
+     "left": 0
+    }
+   },
+   "render": {
+    "frames": 86,
+    "zoom": 1.0
+   },
+   "time_s": {
+    "load_models": 25.775,
+    "exists": 3.722,
+    "read_frames": 0.498,
+    "sam": 0.119,
+    "mapanything": 0.703,
+    "geometry": 0.12,
+    "clean_plate": 4.51,
+    "depth_layers": 0.035,
+    "build_scene": 0.853,
+    "decide": 0.502,
+    "render": 1.101,
+    "total": 38.79
+   },
+   "gpu": {
+    "peak_allocated_gb": 9.8,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 10.32
+   }
+  },
+  "s76_3p5_v1": {
+   "plan": {
+    "mode": "orbit",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     12,
+     -16
+    ],
+    "zoom": 1.47,
+    "centre_px": [
+     527,
+     546
+    ],
+    "centre_m": [
+     -0.67,
+     0.01,
+     2.4
+    ],
+    "cut": {
+     "in": 3.1,
+     "freeze": 3.5,
+     "out": 4.3
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "30/30",
+     "hit_on": "30/30",
+     "centre_on": "25/30"
+    }
+   },
+   "features": {
+    "moment_s": 3.5,
+    "player_px": 626,
+    "frame_px": 1080,
+    "mask_iou": 0.977,
+    "mask_agree": 0.977,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.741,
+    "joints_seen": 0.941,
+    "occlusion": 0.0,
+    "sharp": 0.31,
+    "depth_conf": 0.913,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.4,
+    "player_relief_iqr_m": 0.31,
+    "depth_feet_agree": 0.248,
+    "background_depth_m": 3.95,
+    "player_height_m": 0.99,
+    "camera_height_m": 1.15,
+    "floor_inliers": 0.982,
+    "plate_cover": 0.978,
+    "plate_frames": 123,
+    "views": 1,
+    "depth_edge_share": 0.0839,
+    "facing": -0.53,
+    "zoom": 1.47,
+    "arc_room_deg": {
+     "right": 12,
+     "left": 16
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ],
+     [
+      1.08,
+      4,
+      4
+     ],
+     [
+      1.17,
+      6,
+      8
+     ],
+     [
+      1.26,
+      8,
+      10
+     ],
+     [
+      1.36,
+      12,
+      10
+     ],
+     [
+      1.47,
+      16,
+      10
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 12,
+     "left": 16
+    }
+   },
+   "render": {
+    "frames_3d": 90,
+    "s_per_frame": 0.0225,
+    "invented_max": {
+     "frame": 0.0537,
+     "near": 0.0759
+    },
+    "target_visible_min": 0.995,
+    "hit_and_centre_in_view": true
+   },
+   "time_s": {
+    "load_models": 24.918,
+    "exists": 4.291,
+    "read_frames": 0.883,
+    "sam": 0.119,
+    "mapanything": 0.381,
+    "geometry": 0.123,
+    "clean_plate": 19.054,
+    "depth_layers": 0.034,
+    "build_scene": 0.429,
+    "decide": 1.006,
+    "render": 2.743,
+    "total": 55.57
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.61,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.86
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.0534,
+     "invented_near": 0.0186,
+     "invented_any": 0.0741,
+     "target_visible": 0.995,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": true,
+     "invented": 0.0111,
+     "invented_near": 0.0094,
+     "invented_any": 0.029,
+     "target_visible": 0.996,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": true,
+     "invented": 0.0057,
+     "invented_near": 0.0055,
+     "invented_any": 0.0185,
+     "target_visible": 0.998,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": true,
+     "invented": 0.0081,
+     "invented_near": 0.0075,
+     "invented_any": 0.0195,
+     "target_visible": 0.999,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": true,
+     "invented": 0.035,
+     "invented_near": 0.0579,
+     "invented_any": 0.0477,
+     "target_visible": 1.0,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.0877,
+     "invented_near": 0.1489,
+     "invented_any": 0.1039,
+     "target_visible": 1.0,
+     "points_seen": true
+    }
+   ]
+  },
+  "s76_3p5_v6": {
+   "plan": {
+    "mode": "orbit",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     -6,
+     8
+    ],
+    "zoom": 1.17,
+    "centre_px": [
+     527,
+     546
+    ],
+    "centre_m": [
+     -1.0,
+     0.02,
+     3.89
+    ],
+    "cut": {
+     "in": 3.1,
+     "freeze": 3.5,
+     "out": 4.3
+    },
+    "exists": {
+     "verdict": "play",
+     "why": "",
+     "hit_point": "hit_l",
+     "player_on": "30/30",
+     "hit_on": "30/30",
+     "centre_on": "25/30"
+    }
+   },
+   "features": {
+    "moment_s": 3.5,
+    "player_px": 626,
+    "frame_px": 1080,
+    "mask_iou": 0.977,
+    "mask_agree": 0.977,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.741,
+    "joints_seen": 0.941,
+    "occlusion": 0.0,
+    "sharp": 0.31,
+    "depth_conf": 0.923,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 3.89,
+    "player_relief_iqr_m": 0.48,
+    "depth_feet_agree": 0.277,
+    "background_depth_m": 6.53,
+    "player_height_m": 1.51,
+    "camera_height_m": 1.8,
+    "floor_inliers": 0.979,
+    "plate_cover": 0.978,
+    "plate_frames": 123,
+    "views": 7,
+    "depth_edge_share": 0.0816,
+    "views_turn_deg": 10.5,
+    "views_move_m": 0.1,
+    "facing": -0.53,
+    "zoom": 1.17,
+    "arc_room_deg": {
+     "right": 8,
+     "left": 6
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      8,
+      6
+     ],
+     [
+      1.08,
+      12,
+      10
+     ],
+     [
+      1.17,
+      16,
+      12
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 8,
+     "left": 6
+    }
+   },
+   "render": {
+    "frames_3d": 90,
+    "s_per_frame": 0.025,
+    "invented_max": {
+     "frame": 0.0502,
+     "near": 0.0693
+    },
+    "target_visible_min": 1.0,
+    "hit_and_centre_in_view": true
+   },
+   "time_s": {
+    "load_models": 25.155,
+    "exists": 4.304,
+    "read_frames": 0.925,
+    "sam": 0.12,
+    "mapanything": 0.87,
+    "geometry": 0.123,
+    "clean_plate": 13.706,
+    "depth_layers": 0.029,
+    "build_scene": 1.055,
+    "decide": 0.758,
+    "render": 3.0,
+    "total": 51.12
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.03
+   }
+  },
+  "s76_3p84_v1": {
+   "plan": {
+    "mode": "none",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     12,
+     -14
+    ],
+    "zoom": 1.47,
+    "centre_px": [
+     523,
+     531
+    ],
+    "centre_m": [
+     -0.78,
+     -0.02,
+     2.81
+    ],
+    "cut": {
+     "in": 3.2,
+     "freeze": 3.84,
+     "out": 4.64
+    },
+    "exists": {
+     "verdict": "hold",
+     "why": "the racket hand or the body is hidden or out of frame at the moment",
+     "hit_point": "hit_r",
+     "player_on": "36/36",
+     "hit_on": "23/36",
+     "centre_on": "31/36"
+    }
+   },
+   "features": {
+    "moment_s": 3.84,
+    "player_px": 626,
+    "frame_px": 1080,
+    "mask_iou": 0.973,
+    "mask_agree": 0.98,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.704,
+    "joints_seen": 0.824,
+    "occlusion": 0.0,
+    "sharp": 0.405,
+    "depth_conf": 0.873,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 2.81,
+    "player_relief_iqr_m": 0.23,
+    "depth_feet_agree": 0.287,
+    "background_depth_m": 4.52,
+    "player_height_m": 1.15,
+    "camera_height_m": 1.29,
+    "floor_inliers": 0.982,
+    "plate_cover": 0.977,
+    "plate_frames": 117,
+    "views": 1,
+    "depth_edge_share": 0.085,
+    "facing": -0.32,
+    "zoom": 1.47,
+    "arc_room_deg": {
+     "right": 12,
+     "left": 14
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      0,
+      0
+     ],
+     [
+      1.08,
+      4,
+      4
+     ],
+     [
+      1.17,
+      6,
+      8
+     ],
+     [
+      1.26,
+      8,
+      10
+     ],
+     [
+      1.36,
+      12,
+      10
+     ],
+     [
+      1.47,
+      16,
+      10
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 12,
+     "left": 14
+    }
+   },
+   "render": {
+    "frames": 43
+   },
+   "time_s": {
+    "load_models": 24.966,
+    "exists": 5.431,
+    "read_frames": 1.09,
+    "sam": 0.117,
+    "mapanything": 0.42,
+    "geometry": 0.114,
+    "clean_plate": 14.096,
+    "depth_layers": 0.05,
+    "build_scene": 0.403,
+    "decide": 0.941,
+    "render": 0.842,
+    "total": 50.02
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.56
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.06,
+     "invented_near": 0.0214,
+     "invented_any": 0.0861,
+     "target_visible": 0.981,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": true,
+     "invented": 0.0142,
+     "invented_near": 0.0111,
+     "invented_any": 0.0368,
+     "target_visible": 0.982,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": true,
+     "invented": 0.007,
+     "invented_near": 0.0051,
+     "invented_any": 0.0236,
+     "target_visible": 0.982,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": true,
+     "invented": 0.0103,
+     "invented_near": 0.0091,
+     "invented_any": 0.0224,
+     "target_visible": 0.986,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": true,
+     "invented": 0.0329,
+     "invented_near": 0.0538,
+     "invented_any": 0.0488,
+     "target_visible": 0.988,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.0848,
+     "invented_near": 0.1471,
+     "invented_any": 0.1045,
+     "target_visible": 0.991,
+     "points_seen": true
+    }
+   ]
+  },
+  "s76_3p84_v6": {
+   "plan": {
+    "mode": "none",
+    "why_not_orbit": [
+     "the depth at the player disagrees with the floor under the feet"
+    ],
+    "sweep_deg": [
+     -8,
+     8
+    ],
+    "zoom": 1.17,
+    "centre_px": [
+     523,
+     531
+    ],
+    "centre_m": [
+     -1.06,
+     -0.02,
+     4.05
+    ],
+    "cut": {
+     "in": 3.2,
+     "freeze": 3.84,
+     "out": 4.64
+    },
+    "exists": {
+     "verdict": "hold",
+     "why": "the racket hand or the body is hidden or out of frame at the moment",
+     "hit_point": "hit_r",
+     "player_on": "36/36",
+     "hit_on": "23/36",
+     "centre_on": "31/36"
+    }
+   },
+   "features": {
+    "moment_s": 3.84,
+    "player_px": 626,
+    "frame_px": 1080,
+    "mask_iou": 0.973,
+    "mask_agree": 0.98,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.704,
+    "joints_seen": 0.824,
+    "occlusion": 0.0,
+    "sharp": 0.405,
+    "depth_conf": 0.909,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 4.05,
+    "player_relief_iqr_m": 0.3,
+    "depth_feet_agree": 0.336,
+    "background_depth_m": 6.91,
+    "player_height_m": 1.58,
+    "camera_height_m": 1.85,
+    "floor_inliers": 0.979,
+    "plate_cover": 0.976,
+    "plate_frames": 117,
+    "views": 7,
+    "depth_edge_share": 0.0865,
+    "views_turn_deg": 12.2,
+    "views_move_m": 0.14,
+    "facing": -0.32,
+    "zoom": 1.17,
+    "arc_room_deg": {
+     "right": 8,
+     "left": 8
+    },
+    "zooms_tried": [
+     [
+      1.0,
+      8,
+      6
+     ],
+     [
+      1.08,
+      14,
+      10
+     ],
+     [
+      1.17,
+      16,
+      12
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 8,
+     "left": 8
+    }
+   },
+   "render": {
+    "frames": 43
+   },
+   "time_s": {
+    "load_models": 25.492,
+    "exists": 5.825,
+    "read_frames": 1.291,
+    "sam": 0.16,
+    "mapanything": 0.952,
+    "geometry": 0.117,
+    "clean_plate": 13.55,
+    "depth_layers": 0.032,
+    "build_scene": 1.117,
+    "decide": 0.781,
+    "render": 0.957,
+    "total": 51.39
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.03
+   }
+  },
+  "s76_8p68_v1": {
+   "plan": {
+    "mode": "none",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     -4,
+     4
+    ],
+    "zoom": 1.5,
+    "centre_px": [
+     793,
+     442
+    ],
+    "centre_m": [
+     -0.38,
+     -0.25,
+     3.7
+    ],
+    "cut": {
+     "in": 7.2,
+     "freeze": 8.68,
+     "out": 9.48
+    },
+    "exists": {
+     "verdict": "hold",
+     "why": "the player is not in frame long enough around the moment",
+     "hit_point": "hit_l",
+     "player_on": "38/58",
+     "hit_on": "38/58",
+     "centre_on": "38/58"
+    }
+   },
+   "features": {
+    "moment_s": 8.68,
+    "player_px": 559,
+    "frame_px": 1080,
+    "mask_iou": 0.953,
+    "mask_agree": 0.949,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.888,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 1.379,
+    "depth_conf": 0.966,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 3.7,
+    "player_relief_iqr_m": 0.17,
+    "depth_feet_agree": 0.067,
+    "background_depth_m": 5.96,
+    "player_height_m": 1.41,
+    "camera_height_m": 0.95,
+    "floor_inliers": 0.956,
+    "plate_cover": 0.797,
+    "plate_frames": 55,
+    "views": 1,
+    "depth_edge_share": 0.1156,
+    "facing": 0.31,
+    "zoom": 1.5,
+    "arc_room_deg": {
+     "right": 4,
+     "left": 4
+    },
+    "zooms_tried": [
+     [
+      1.06,
+      4,
+      2
+     ],
+     [
+      1.16,
+      6,
+      4
+     ],
+     [
+      1.26,
+      6,
+      6
+     ],
+     [
+      1.38,
+      6,
+      10
+     ],
+     [
+      1.5,
+      12,
+      10
+     ],
+     [
+      1.64,
+      6,
+      4
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 4,
+     "left": 4
+    }
+   },
+   "render": {
+    "frames": 68
+   },
+   "time_s": {
+    "load_models": 24.274,
+    "exists": 6.984,
+    "read_frames": 0.898,
+    "sam": 0.114,
+    "mapanything": 0.408,
+    "geometry": 0.122,
+    "clean_plate": 7.366,
+    "depth_layers": 0.031,
+    "build_scene": 0.301,
+    "decide": 0.703,
+    "render": 1.041,
+    "total": 43.99
+   },
+   "gpu": {
+    "peak_allocated_gb": 8.45,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 8.56
+   },
+   "probe": [
+    {
+     "angle": -18,
+     "in_room": false,
+     "invented": 0.0813,
+     "invented_near": 0.036,
+     "invented_any": 0.1385,
+     "target_visible": 0.982,
+     "points_seen": true
+    },
+    {
+     "angle": -12,
+     "in_room": false,
+     "invented": 0.0384,
+     "invented_near": 0.0355,
+     "invented_any": 0.0838,
+     "target_visible": 0.979,
+     "points_seen": true
+    },
+    {
+     "angle": -6,
+     "in_room": false,
+     "invented": 0.0384,
+     "invented_near": 0.0426,
+     "invented_any": 0.0727,
+     "target_visible": 0.975,
+     "points_seen": true
+    },
+    {
+     "angle": 6,
+     "in_room": false,
+     "invented": 0.035,
+     "invented_near": 0.0502,
+     "invented_any": 0.0652,
+     "target_visible": 0.977,
+     "points_seen": true
+    },
+    {
+     "angle": 12,
+     "in_room": false,
+     "invented": 0.0469,
+     "invented_near": 0.051,
+     "invented_any": 0.0893,
+     "target_visible": 0.983,
+     "points_seen": true
+    },
+    {
+     "angle": 18,
+     "in_room": false,
+     "invented": 0.1252,
+     "invented_near": 0.1145,
+     "invented_any": 0.1745,
+     "target_visible": 0.986,
+     "points_seen": true
+    }
+   ]
+  },
+  "s76_8p68_v6": {
+   "plan": {
+    "mode": "none",
+    "why_not_orbit": [],
+    "sweep_deg": [
+     -4,
+     4
+    ],
+    "zoom": 1.16,
+    "centre_px": [
+     793,
+     442
+    ],
+    "centre_m": [
+     -0.63,
+     -0.42,
+     6.41
+    ],
+    "cut": {
+     "in": 7.2,
+     "freeze": 8.68,
+     "out": 9.48
+    },
+    "exists": {
+     "verdict": "hold",
+     "why": "the player is not in frame long enough around the moment",
+     "hit_point": "hit_l",
+     "player_on": "38/58",
+     "hit_on": "38/58",
+     "centre_on": "38/58"
+    }
+   },
+   "features": {
+    "moment_s": 8.68,
+    "player_px": 559,
+    "frame_px": 1080,
+    "mask_iou": 0.953,
+    "mask_agree": 0.949,
+    "mask_parts": 1.0,
+    "border": false,
+    "pose_conf": 0.888,
+    "joints_seen": 1.0,
+    "occlusion": 0.0,
+    "sharp": 1.379,
+    "depth_conf": 0.999,
+    "depth_unambiguous": 1.0,
+    "player_depth_m": 6.41,
+    "player_relief_iqr_m": 0.49,
+    "depth_feet_agree": 0.072,
+    "background_depth_m": 10.28,
+    "player_height_m": 2.34,
+    "camera_height_m": 1.55,
+    "floor_inliers": 0.949,
+    "plate_cover": 0.797,
+    "plate_frames": 55,
+    "views": 7,
+    "depth_edge_share": 0.1083,
+    "views_turn_deg": 48.5,
+    "views_move_m": 0.22,
+    "facing": 0.31,
+    "zoom": 1.16,
+    "arc_room_deg": {
+     "right": 4,
+     "left": 4
+    },
+    "zooms_tried": [
+     [
+      1.06,
+      24,
+      8
+     ],
+     [
+      1.16,
+      24,
+      10
+     ],
+     [
+      1.26,
+      8,
+      10
+     ],
+     [
+      1.38,
+      6,
+      14
+     ],
+     [
+      1.5,
+      6,
+      12
+     ],
+     [
+      1.64,
+      6,
+      4
+     ]
+    ],
+    "arc_room_without_view_check_deg": {
+     "right": 4,
+     "left": 4
+    }
+   },
+   "render": {
+    "frames": 68
+   },
+   "time_s": {
+    "load_models": 25.417,
+    "exists": 6.899,
+    "read_frames": 0.737,
+    "sam": 0.132,
+    "mapanything": 0.891,
+    "geometry": 0.117,
+    "clean_plate": 6.79,
+    "depth_layers": 0.034,
+    "build_scene": 0.967,
+    "decide": 1.193,
+    "render": 1.022,
+    "total": 45.55
+   },
+   "gpu": {
+    "peak_allocated_gb": 10.48,
+    "models_gb": 5.8,
+    "peak_reserved_gb": 11.03
+   }
+  }
+ }
+}
