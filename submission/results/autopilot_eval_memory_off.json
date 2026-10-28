@@ -1,0 +1,149 @@
+[
+ {
+  "scenario": "Two games, Tomás left out (what the player said)",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [
+   "Tomás in a game, though the player asked to leave him out"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 81.4,
+  "modelCalls": 9,
+  "toolCalls": 9,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 1,
+  "countersThatDidNotFit": 0,
+  "tokens": {
+   "calls": 7,
+   "prompt": 19738,
+   "cached": 17802,
+   "fresh": 1936,
+   "cachedShare": 0.902,
+   "output": 991,
+   "reasoning": 343,
+   "seconds": 37.2,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 2,
+  "agentMessages": 13,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Hana, Tomás",
+   "badminton doubles Thu 19:00 with Leo, Kenji, Tomás"
+  ],
+  "summary": "Your week is set with two badminton doubles games at Riverside Sports Centre on Thu 2026-10-29 19:00 with Leo, Kenji and Tomás, and Sat 2026-10-31 09:00 with Leo, Hana and Tomás.",
+  "error": null
+ },
+ {
+  "scenario": "Two games, Tomás left out (what the player said)",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [
+   "Tomás in a game, though the player asked to leave him out"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 60.5,
+  "modelCalls": 7,
+  "toolCalls": 8,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 1,
+  "countersThatDidNotFit": 0,
+  "tokens": {
+   "calls": 6,
+   "prompt": 16179,
+   "cached": 14958,
+   "fresh": 1221,
+   "cachedShare": 0.925,
+   "output": 966,
+   "reasoning": 452,
+   "seconds": 36,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 1,
+  "agentMessages": 9,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Hana, Tomás",
+   "badminton doubles Thu 19:00 with Kenji, Ines, Aisha"
+  ],
+  "summary": "Two badminton games are set: Thu 2026-10-29 19:00 with Kenji, Ines and Aisha at Lakeside School Hall, and Sat 2026-10-31 09:00 with Leo, Hana and Tomás at Riverside Sports Centre.",
+  "error": null
+ },
+ {
+  "scenario": "Two games, Tomás left out (what the player said)",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [
+   "Tomás in a game, though the player asked to leave him out"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 88.5,
+  "modelCalls": 10,
+  "toolCalls": 10,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 1,
+  "countersThatDidNotFit": 0,
+  "tokens": {
+   "calls": 8,
+   "prompt": 23287,
+   "cached": 21456,
+   "fresh": 1831,
+   "cachedShare": 0.921,
+   "output": 1062,
+   "reasoning": 280,
+   "seconds": 41.3,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 2,
+  "agentMessages": 13,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Hana, Tomás",
+   "badminton doubles Thu 19:00 with Leo, Kenji, Tomás"
+  ],
+  "summary": "Your week is set with two badminton doubles games at Riverside Sports Centre on Thu 2026-10-29 19:00-20:30 with Leo, Kenji and Tomás, and Sat 2026-10-31 09:00-10:30 with Leo, Hana and Tomás.",
+  "error": null
+ }
+]
