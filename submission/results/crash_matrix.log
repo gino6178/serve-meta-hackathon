@@ -1,0 +1,37 @@
+
+crash at round-saved
+  [gateway] crash at round-saved
+  PASS the gateway died at round-saved
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages)
+
+crash at answer-saved
+  [gateway] crash at answer-saved
+  PASS the gateway died at answer-saved
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages, 1 answered before the crash)
+
+crash at talk-done
+  [gateway] crash at talk-done
+  PASS the gateway died at talk-done
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages, 1 answered before the crash)
+
+crash at settled
+  [gateway] crash at settled
+  PASS the gateway died at settled
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages, 1 answered before the crash)
+
+crash at booked
+  [gateway] crash at booked
+  PASS the gateway died at booked
+  PASS the question ends booked, with nothing left in its outbox (booked)
+  PASS the game is booked exactly once (1)
+  PASS every A2A message was decided once (1 model decisions, 1 messages, 1 answered before the crash)
+
+ALL PASSED
