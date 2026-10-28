@@ -1,0 +1,122 @@
+{
+ "serve-jev-1b-v2 Q4_0 decider": {
+  "cases": 196,
+  "same_pick_as_bf16": 164,
+  "ms_p50_vm_cpu_8_threads": 2258.5,
+  "tokens_p50": 336
+ },
+ "serve-jev-1b-v2 Q4_0 shared": {
+  "cases": 209,
+  "same_pick_as_bf16": 196,
+  "ms_p50_vm_cpu_8_threads": 1764.4,
+  "tokens_p50": 255
+ },
+ "serve-jev-1b-v2 Q4_0 test": {
+  "cases": 500,
+  "same_pick_as_bf16": 487,
+  "ms_p50_vm_cpu_8_threads": 1769.3,
+  "tokens_p50": 237
+ },
+ "serve-jev-1b-v2 Q4_K_M decider": {
+  "cases": 196,
+  "same_pick_as_bf16": 172,
+  "ms_p50_vm_cpu_8_threads": 1902.5,
+  "tokens_p50": 336
+ },
+ "serve-jev-1b-v2 Q4_K_M shared": {
+  "cases": 209,
+  "same_pick_as_bf16": 205,
+  "ms_p50_vm_cpu_8_threads": 1168.0,
+  "tokens_p50": 255
+ },
+ "serve-jev-1b-v2 Q4_K_M test": {
+  "cases": 500,
+  "same_pick_as_bf16": 498,
+  "ms_p50_vm_cpu_8_threads": 1593.6,
+  "tokens_p50": 237
+ },
+ "serve-jev-1b-v3 Q4_K_M decider": {
+  "cases": 196,
+  "same_pick_as_bf16": 183,
+  "ms_p50_vm_cpu_8_threads": 1349.6,
+  "tokens_p50": 336
+ },
+ "serve-jev-1b-v3 Q4_K_M test": {
+  "cases": 500,
+  "same_pick_as_bf16": 492,
+  "ms_p50_vm_cpu_8_threads": 909.8,
+  "tokens_p50": 237
+ },
+ "serve-jev-3b-v2 Q4_0 decider": {
+  "cases": 196,
+  "same_pick_as_bf16": 186,
+  "ms_p50_vm_cpu_8_threads": 4001.6,
+  "tokens_p50": 336
+ },
+ "serve-jev-3b-v2 Q4_0 shared": {
+  "cases": 209,
+  "same_pick_as_bf16": 206,
+  "ms_p50_vm_cpu_8_threads": 3041.0,
+  "tokens_p50": 255
+ },
+ "serve-jev-3b-v2 Q4_0 test": {
+  "cases": 500,
+  "same_pick_as_bf16": 491,
+  "ms_p50_vm_cpu_8_threads": 3077.2,
+  "tokens_p50": 237
+ },
+ "serve-jev-3b-v2 Q4_K_M decider": {
+  "cases": 196,
+  "same_pick_as_bf16": 190,
+  "ms_p50_vm_cpu_8_threads": 3636.9,
+  "tokens_p50": 336
+ },
+ "serve-jev-3b-v2 Q4_K_M shared": {
+  "cases": 209,
+  "same_pick_as_bf16": 207,
+  "ms_p50_vm_cpu_8_threads": 2762.5,
+  "tokens_p50": 255
+ },
+ "serve-jev-3b-v2 Q4_K_M test": {
+  "cases": 500,
+  "same_pick_as_bf16": 491,
+  "ms_p50_vm_cpu_8_threads": 2574.5,
+  "tokens_p50": 237
+ },
+ "serve-jev-3b-v3 Q4_0 decider": {
+  "cases": 196,
+  "same_pick_as_bf16": 189,
+  "ms_p50_vm_cpu_8_threads": 3992.7,
+  "tokens_p50": 336
+ },
+ "serve-jev-3b-v3 Q4_0 shared": {
+  "cases": 209,
+  "same_pick_as_bf16": 200,
+  "ms_p50_vm_cpu_8_threads": 3041.5,
+  "tokens_p50": 255
+ },
+ "serve-jev-3b-v3 Q4_0 test": {
+  "cases": 500,
+  "same_pick_as_bf16": 492,
+  "ms_p50_vm_cpu_8_threads": 2809.4,
+  "tokens_p50": 237
+ },
+ "serve-jev-3b-v3 Q4_K_M decider": {
+  "cases": 196,
+  "same_pick_as_bf16": 189,
+  "ms_p50_vm_cpu_8_threads": 3634.6,
+  "tokens_p50": 336
+ },
+ "serve-jev-3b-v3 Q4_K_M shared": {
+  "cases": 209,
+  "same_pick_as_bf16": 205,
+  "ms_p50_vm_cpu_8_threads": 2789.0,
+  "tokens_p50": 255
+ },
+ "serve-jev-3b-v3 Q4_K_M test": {
+  "cases": 500,
+  "same_pick_as_bf16": 495,
+  "ms_p50_vm_cpu_8_threads": 2568.1,
+  "tokens_p50": 237
+ }
+}
