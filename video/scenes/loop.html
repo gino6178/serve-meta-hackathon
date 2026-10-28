@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>The club evolves itself</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1920px; height: 1080px; background: #fff; color: #0a0a0b; font-family: system-ui, "Segoe UI", sans-serif; overflow: hidden; position: relative; }
+  .wash { position: absolute; inset: 0; background: radial-gradient(ellipse at 60% 45%, rgba(10, 127, 68, .08), transparent 60%); }
+  .k { position: absolute; left: 120px; top: 90px; font: 700 26px/1 system-ui, sans-serif; color: #0a7f44; letter-spacing: .02em; opacity: 0; animation: up .6s .1s forwards; }
+  h1 { position: absolute; left: 120px; top: 136px; font: 800 64px/1.05 system-ui, sans-serif; letter-spacing: -.04em; opacity: 0; animation: up .7s .3s forwards; }
+  .steps { position: absolute; left: 120px; top: 320px; width: 1680px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+  .s { border: 1px solid rgba(0, 0, 0, .12); border-radius: 22px; padding: 28px 30px; background: #fff; opacity: 0; animation: up .55s forwards; position: relative; min-height: 210px; }
+  .s small { display: block; font: 800 22px/1 system-ui, sans-serif; color: #0a7f44; }
+  .s b { display: block; font: 800 36px/1.12 system-ui, sans-serif; letter-spacing: -.025em; margin: 12px 0 10px; }
+  .s p { font-size: 23px; line-height: 1.35; color: #3b3b40; }
+  .s:nth-child(1) { animation-delay: .8s; } .s:nth-child(2) { animation-delay: 1.6s; } .s:nth-child(3) { animation-delay: 2.4s; } .s:nth-child(4) { animation-delay: 3.2s; }
+  .s:nth-child(5) { animation-delay: 4.2s; } .s:nth-child(6) { animation-delay: 5.0s; } .s:nth-child(7) { animation-delay: 5.8s; } .s:nth-child(8) { animation-delay: 6.8s; }
+  .s.gate { grid-column: span 2; }
+  .gates { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .gates span { font: 650 18px/1 system-ui, sans-serif; background: #e9f3ec; color: #0a7f44; border-radius: 999px; padding: 8px 12px; }
+  .s.back { border: 3px solid #d1352b; box-shadow: 0 0 0 8px rgba(209, 53, 43, .08); }
+  .s.back small { color: #d1352b; }
+  .never { position: absolute; left: 120px; top: 900px; display: flex; align-items: center; gap: 16px; font: 650 26px/1.3 system-ui, sans-serif; opacity: 0; animation: up .6s 7.6s forwards; }
+  .never i { font-style: normal; background: #0a0a0b; color: #fff; font: 800 22px/1 system-ui; padding: 10px 16px; border-radius: 10px; }
+  .sim { position: absolute; right: 120px; top: 100px; font: 700 20px/1 system-ui, sans-serif; color: #65656c; border: 1px solid rgba(0, 0, 0, .18); border-radius: 999px; padding: 10px 18px; opacity: 0; animation: fade .6s .8s forwards; }
+  @keyframes up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @keyframes fade { to { opacity: 1; } }
+</style></head>
+<body>
+  <div class="wash"></div>
+  <div class="k">THE COMMUNITY LOOP</div>
+  <h1>The club makes itself better, safely.</h1>
+  <span class="sim">Simulated club (seed 7) · the pipeline, gates and rollback are real</span>
+  <div class="steps">
+    <div class="s"><small>1 · ASK</small><b>Members' ideas</b><p>"/idea" in Messenger, or thumbs up and down</p></div>
+    <div class="s"><small>2 · GROUP</small><b>Meta's DRAMA</b><p>Groups ideas by meaning; an idea shows at 5 members</p></div>
+    <div class="s"><small>3 · VOTE</small><b>Quadratic votes</b><p>9 credits a month; n votes cost n²</p></div>
+    <div class="s"><small>4 · SPEC</small><b>Muse Glimmer drafts it</b><p>A person approves the spec</p></div>
+    <div class="s"><small>5 · BUILD</small><b>A coding agent</b><p>On its own branch; it never reads community text</p></div>
+    <div class="s gate"><small>6 · NINE GATES</small><b>Stops at the first failure</b>
+      <div class="gates"><span>policy</span><span>code scan</span><span>unit tests</span><span>crash matrix</span><span>red team</span><span>Messenger end to end</span><span>Autopilot pass^3</span><span>oracle</span><span>privacy canary</span></div></div>
+    <div class="s back"><small>7 · SHIP, OR ROLL BACK</small><b>A small canary</b><p>Turns itself off if thumbs down rise</p></div>
+  </div>
+  <div class="never"><i>NEVER-LIST</i>Booking without a yes, data off the server, a diagnosis or a dose, the guards, the tests, A2A, deployment</div>
+</body></html>

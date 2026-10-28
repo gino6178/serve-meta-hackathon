@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>The pain</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1920px; height: 1080px; background: #fff; color: #0a0a0b; font-family: system-ui, "Segoe UI", sans-serif; overflow: hidden; position: relative; }
+  .wash { position: absolute; inset: 0; background: radial-gradient(ellipse at 25% 50%, rgba(8, 102, 255, .07), transparent 55%), radial-gradient(ellipse at 78% 55%, rgba(209, 53, 43, .06), transparent 55%); }
+  /* the group chat */
+  .chat { position: absolute; left: 140px; top: 120px; width: 760px; display: flex; flex-direction: column; gap: 14px; }
+  .chat h2 { font: 700 26px/1 system-ui, sans-serif; color: #65656c; margin-bottom: 14px; opacity: 0; animation: up .5s .1s forwards; }
+  .m { display: flex; gap: 14px; align-items: flex-end; opacity: 0; animation: up .45s forwards; }
+  .m i { flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font: 700 18px/1 system-ui; font-style: normal; color: #fff; }
+  .m p { background: #f0f0f2; border-radius: 22px 22px 22px 6px; padding: 14px 20px; font-size: 28px; line-height: 1.3; }
+  .m small { display: block; font-size: 17px; color: #65656c; font-weight: 600; margin-bottom: 3px; }
+  .chat .m:nth-of-type(1) { animation-delay: .5s; } .chat .m:nth-of-type(2) { animation-delay: 1.4s; } .chat .m:nth-of-type(3) { animation-delay: 2.3s; }
+  .chat .m:nth-of-type(4) { animation-delay: 3.3s; } .chat .m:nth-of-type(5) { animation-delay: 4.4s; } .chat .m:nth-of-type(6) { animation-delay: 5.6s; }
+  .seen { font-size: 20px; color: #9b9ba3; margin-top: 6px; opacity: 0; animation: up .5s 7.2s forwards; }
+  /* the empty court */
+  .court { position: absolute; left: 1060px; top: 190px; width: 720px; height: 620px; opacity: 0; animation: up 1s 1.2s forwards; }
+  .court svg { width: 100%; height: 100%; }
+  .court .tag { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-6deg); background: #fff; border: 3px solid #d1352b; color: #d1352b; font: 800 46px/1 system-ui, sans-serif; letter-spacing: -.02em; padding: 18px 30px; border-radius: 16px; opacity: 0; animation: stamp .5s 6.6s forwards; white-space: nowrap; }
+  @keyframes up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes stamp { from { opacity: 0; transform: translate(-50%, -50%) rotate(-6deg) scale(1.4); } to { opacity: 1; transform: translate(-50%, -50%) rotate(-6deg) scale(1); } }
+</style></head>
+<body>
+  <div class="wash"></div>
+  <div class="chat">
+    <h2>Thursday badminton 🏸 · 4 members</h2>
+    <div class="m"><i style="background:#0866FF">ME</i><p><small>Me</small>Who's free Thursday at 7?</p></div>
+    <div class="m"><i style="background:#7a4cc2">LP</i><p><small>Leo</small>I can do 8, not 7</p></div>
+    <div class="m"><i style="background:#c2721c">HC</i><p><small>Hana</small>8 works but my knee's still bad, doubles only?</p></div>
+    <div class="m"><i style="background:#0866FF">ME</i><p><small>Me</small>Riverside is booked out at 8 😩</p></div>
+    <div class="m"><i style="background:#2b8a83">TR</i><p><small>Tomás</small>Sorry, just saw this. Next week?</p></div>
+    <div class="m"><i style="background:#7a4cc2">LP</i><p><small>Leo</small>👍</p></div>
+    <div class="seen">Seen by everyone · nobody booked</div>
+  </div>
+  <div class="court">
+    <svg viewBox="0 0 720 620"><rect x="10" y="10" width="700" height="600" rx="10" fill="#e9f3ec" stroke="#0a7f44" stroke-width="5"/>
+      <g fill="none" stroke="#0a7f44" stroke-width="4" opacity=".75"><line x1="60" y1="10" x2="60" y2="610"/><line x1="660" y1="10" x2="660" y2="610"/><line x1="10" y1="230" x2="710" y2="230"/><line x1="10" y1="390" x2="710" y2="390"/><line x1="360" y1="10" x2="360" y2="230"/><line x1="360" y1="390" x2="360" y2="610"/><line x1="10" y1="50" x2="710" y2="50"/><line x1="10" y1="570" x2="710" y2="570"/></g>
+      <line x1="0" y1="310" x2="720" y2="310" stroke="#0a0a0b" stroke-width="7"/></svg>
+    <div class="tag">No game this week</div>
+  </div>
+</body></html>

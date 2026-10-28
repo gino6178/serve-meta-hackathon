@@ -1,12 +1,13 @@
 [
- "Thirty-one percent of adults don't get enough exercise. {+0.6} Most of us don't stop liking our sport. We stop organizing it. Serve is built from verifiable agents: yours agrees the game with your friends' agents, on Meta's open Muse Glimmer model, and you just say yes.",
- "Ask it to line up your week. Muse Glimmer runs it as an agent, one tool at a time: it checks your week and your body, picks the times you usually play, and ranks the people you play best with. Then it negotiates with their agents, three at once for doubles. Every time, court and trip comes from code. And nothing is booked until you say yes.",
- "Tell it what hurts, and it becomes a limit on your schedule. Muse Glimmer files it: right knee, three out of five. Share your health app, and it links your watch to your games. This week's load is twice your usual, so it plans doubles, shorter games and one game fewer. It never gives medical advice. It only changes the plan.",
- "Any ball sport works. Ask for basketball courts tonight. It searches the map and the forecast, and Muse Glimmer judges every court at once, citing the map, a review or the weather for each reason.",
- "It lives in Messenger too. Approve the week with one tap, answer the check-in about your knee, or share your health export right into the chat.",
- "After the game, film a rally. On your own server, Meta's DETR finds you, Sapiens2 reads your pose and SAM 2.1 cuts you out. So your smash replays in slow motion. {+2.5} Muse Glimmer writes the caption. {+1} It's a clip for your friends, not a coaching tool: one tap, and it's on Instagram or Facebook.",
- "Your club becomes a game, with a leaderboard that every challenge moves. Your agent finds your best match. Then it talks to their agent until both agree a time and a court.",
- "Under the hood, every agent is Muse Glimmer, Meta's open-weights model, on our own GPU: four requests in parallel, with native tool calling. Meta's DETR, Sapiens2 and SAM 2.1 read the video, and Messenger, Instagram and Facebook connect your friends.",
- "One gateway runs every agent. Code computes every fact and keeps every rule; Muse Glimmer chooses only where a real choice is left, and every number, quote and tool call is checked before you see it. In eight different test weeks, the Autopilot reached the goal eight times.",
- "Serve. Built during the Meta hackathon. Play more, manage less."
+ "Most people don't quit sports because they stopped loving the game. They quit because matching four calendars, finding a court and working around a sore knee takes too much group chat.",
+ "So for this hackathon, I built Serve. Not an AI coach. A club where your agent sorts things out with your friends' agents, and only asks you for one yes.",
+ "Here's a live run of my week. Monday, I tell it my right knee is sore. Serve never gives medical advice. Muse Glimmer files it on my body, and turns it into a rule for my week: doubles first, and one game fewer.",
+ "Autopilot takes over. Muse Glimmer, on my own RTX 3090, calls one tool at a time. Then it negotiates with three friends' agents at once, over A2A. Agents only mark which times work; code picks from the overlap. Nothing is booked until I say yes.",
+ "Any ball sport works. Prompt Guard 2 screens the Google reviews, then Glimmer judges four courts at once. A reason that doesn't quote its source is dropped by code.",
+ "Thursday, game done. I upload a phone clip. DETR finds the players, Sapiens2 finds the fastest swing, and SAM 2.1 cuts me out. With MapAnything, time stops and the camera turns around the smash. {+2} Glimmer writes the caption, and it's one tap to Instagram.",
+ "After the game, Glimmer reads a photo of the scoreboard, code checks the score against the rules, and my club ranking moves.",
+ "Logging 2,755 calls, I found that 84% of Glimmer's tokens are reasoning. Even with thinking off, it reasoned in a hidden channel, and came back empty. So every call leaves room to think. And a local Llama 3.2 1B, distilled from Glimmer, now answers 54 to 67% of members' decisions in my simulated club, with no rule broken.",
+ "Every agent follows Meta's Agents Rule of Two. And a disclosure budget cuts how much of your week a snooping agent can pin down, from 97.6% to 32.4%.",
+ "And the club evolves itself. Members' ideas are grouped with DRAMA, voted on, built by a coding agent behind nine gates, and rolled back on their own if feedback drops.",
+ "That's Serve. Play more, manage less."
 ]

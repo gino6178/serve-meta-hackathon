@@ -2,7 +2,8 @@
 // 1920x1080 in the light theme. Each scene goes to build/<name>.webm, with the moments that matter in
 // build/marks.json (seconds from the start of that scene); assemble.mjs cuts, speeds up the model's waits,
 // captions and joins them.
-//   node record.mjs [scene ...]     scenes: impact autopilot body courts pocket highlight club meta tech end (default: all)
+//   node record.mjs [scene ...]     scenes: cover pain msgbook msgknee autopilot body courts highlight msgscore club glimmer
+//                                   rules loop end (default), and the first cut's impact pocket meta tech
 //   The highlight scene needs a clip of your own game: HIGHLIGHT_CLIP=<path to the video>.
 import { createRequire } from "node:module";
 import fs from "node:fs";
@@ -16,7 +17,7 @@ const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)
 const OUT = path.join(HERE, "build"), SCENES = path.join(HERE, "scenes"), MARKS = path.join(OUT, "marks.json");
 fs.mkdirSync(OUT, { recursive: true });
 const want = process.argv.slice(2);
-const DEFAULT = ["impact", "autopilot", "body", "courts", "pocket", "highlight", "club", "meta", "tech", "end"];
+const DEFAULT = ["cover", "pain", "msgbook", "msgknee", "autopilot", "body", "courts", "highlight", "msgscore", "club", "glimmer", "rules", "loop", "end"];
 const run = (n) => (want.length ? want.includes(n) : DEFAULT.includes(n));
 const BODY_SEED = JSON.parse(fs.readFileSync(path.join(HERE, "body_seed.json"), "utf8")) // the demo's body log and sample health import (made up);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -308,6 +309,16 @@ if (run("highlight") && process.env.HIGHLIGHT_CLIP) {
   await resetFx();
 }
 
-if (run("end")) { await page.goto("file:///" + path.join(SCENES, "endcard.html").replace(/\\/g, "/")); await page.mouse.move(-10, -10); await rec("end", () => wait(8500)); }
+// the v2 cut's motion pages: the cover, the group chat, three Messenger moments from the end-to-end test, and the
+// engineering cards (each loaded fresh from a blank page, so a page that differs only by its hash starts over)
+const PAGES = { cover: ["cover.html", 7000], pain: ["pain.html", 13000], msgbook: ["msg.html#book", 9000], msgknee: ["msg.html#knee", 8000],
+  msgscore: ["msg.html#score", 9000], glimmer: ["glimmer.html", 26000], rules: ["rules.html", 14000], loop: ["loop.html", 13000] };
+for (const [name, [file, ms]] of Object.entries(PAGES)) {
+  if (!run(name)) continue;
+  await page.goto("about:blank");
+  await page.goto("file:///" + path.join(SCENES, file).replace(/\\/g, "/")); await page.mouse.move(-10, -10); await rec(name, () => wait(ms));
+}
+
+if (run("end")) { await page.goto("file:///" + path.join(SCENES, "endcard.html").replace(/\\/g, "/")); await page.mouse.move(-10, -10); await rec("end", () => wait(9000)); }
 
 await browser.close();

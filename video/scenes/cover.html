@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Cover</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1920px; height: 1080px; background: #0b0d10; color: #fff; font-family: system-ui, "Segoe UI", sans-serif; overflow: hidden; position: relative; }
+  /* phase 1: the hackathon, on a dark field of dots */
+  .dots { position: absolute; inset: -40px; background-image: radial-gradient(rgba(255, 255, 255, .16) 1.6px, transparent 1.8px); background-size: 44px 44px; animation: drift 9s linear forwards; }
+  .glow { position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 60%, rgba(0, 129, 251, .22), transparent 55%); }
+  .hack { position: absolute; inset: 0; animation: away .7s 3.1s forwards; }
+  .meta { position: absolute; left: 120px; top: 96px; display: flex; align-items: center; gap: 14px; font: 700 34px/1 system-ui, sans-serif; opacity: 0; animation: up .8s .2s forwards; }
+  .meta img { width: 64px; }
+  .sub { position: absolute; left: 120px; top: 330px; font: 600 34px/1 system-ui, sans-serif; color: #8fc3ff; opacity: 0; animation: up .8s .5s forwards; }
+  h1 { position: absolute; left: 120px; top: 390px; font: 800 112px/1.02 system-ui, sans-serif; letter-spacing: -.045em; opacity: 0; animation: up .9s .7s forwards; }
+  .meta-line { position: absolute; left: 120px; top: 660px; display: flex; gap: 16px; opacity: 0; animation: up .8s 1.2s forwards; }
+  .meta-line span { border: 1px solid rgba(255, 255, 255, .28); border-radius: 999px; padding: 12px 24px; font: 600 28px/1 system-ui, sans-serif; color: #e6e8eb; }
+  .meta-line span.on { background: #0081fb; border-color: #0081fb; color: #fff; }
+  /* phase 2: Serve */
+  .serve { position: absolute; inset: 0; background: #fff; opacity: 0; animation: fade .7s 3.2s forwards; }
+  .serve img { position: absolute; inset: 0; width: 1920px; height: 1080px; transform: scale(1.04); animation: settle 3.2s 3.2s cubic-bezier(.2, .8, .2, 1) forwards; }
+  @keyframes up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+  @keyframes away { to { opacity: 0; transform: translateY(-20px); } }
+  @keyframes fade { to { opacity: 1; } }
+  @keyframes drift { to { transform: translate(-44px, -22px); } }
+  @keyframes settle { to { transform: none; } }
+</style></head>
+<body>
+  <div class="dots"></div><div class="glow"></div>
+  <div class="hack">
+    <div class="meta"><img src="meta.svg" alt="">Meta</div>
+    <div class="sub">Submitted to</div>
+    <h1>Meta Global AI<br>Developer Hackathon 2026</h1>
+    <div class="meta-line"><span class="on">Indie Developer</span><span>Build for Your World</span><span>Oct 27 – Nov 4</span></div>
+  </div>
+  <div class="serve"><img src="../../submission/cover.png" alt=""></div>
+</body></html>
