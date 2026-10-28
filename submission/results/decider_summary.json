@@ -1,0 +1,1379 @@
+{
+ "at": "2026-10-28T04:26:41.761Z",
+ "raw": "data/decider_raw.json,data/decider_raw_full2.json",
+ "decider": "raw:habits",
+ "cases": 196,
+ "members": 152,
+ "split": {
+  "calibration": 85,
+  "test": 67
+ },
+ "table": [
+  {
+   "system": "raw",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     0.981,
+     1
+    ]
+   },
+   "liked": {
+    "k": 7,
+    "n": 32,
+    "rate": 0.219,
+    "ci": [
+     0.063,
+     0.4
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 1.613,
+    "p50": 1.103,
+    "p95": 4.322,
+    "max": 12.65
+   },
+   "compute": {
+    "mean": 0.682,
+    "p50": 0.601,
+    "p95": 1.244
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 404,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "rawall",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 1,
+    "n": 196,
+    "rate": 0.005,
+    "ci": [
+     0,
+     0.016
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 144,
+    "n": 196,
+    "rate": 0.735,
+    "ci": [
+     0.665,
+     0.802
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 144,
+    "n": 195,
+    "rate": 0.738,
+    "ci": [
+     0.671,
+     0.799
+    ]
+   },
+   "liked": {
+    "k": 2,
+    "n": 32,
+    "rate": 0.063,
+    "ci": [
+     0,
+     0.167
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 3.317,
+    "p50": 1.508,
+    "p95": 10.118,
+    "max": 12.547
+   },
+   "compute": {
+    "mean": 0.521,
+    "p50": 0.483,
+    "p95": 0.863
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 416,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "raw:best",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     0.981,
+     1
+    ]
+   },
+   "liked": {
+    "k": 7,
+    "n": 32,
+    "rate": 0.219,
+    "ci": [
+     0.061,
+     0.394
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 2.727,
+    "p50": 1.189,
+    "p95": 8.804,
+    "max": 17.73
+   },
+   "compute": {
+    "mean": 0.606,
+    "p50": 0.485,
+    "p95": 0.782
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 411,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "rawall:best",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 171,
+    "n": 196,
+    "rate": 0.872,
+    "ci": [
+     0.821,
+     0.918
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 171,
+    "n": 196,
+    "rate": 0.872,
+    "ci": [
+     0.817,
+     0.916
+    ]
+   },
+   "liked": {
+    "k": 4,
+    "n": 32,
+    "rate": 0.125,
+    "ci": [
+     0.029,
+     0.267
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 5.844,
+    "p50": 1.328,
+    "p95": 25.63,
+    "max": 30.726
+   },
+   "compute": {
+    "mean": 0.589,
+    "p50": 0.524,
+    "p95": 1.08
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 423,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "raw:habits",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     0.981,
+     1
+    ]
+   },
+   "liked": {
+    "k": 12,
+    "n": 32,
+    "rate": 0.375,
+    "ci": [
+     0.194,
+     0.586
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 1.453,
+    "p50": 1.17,
+    "p95": 2.701,
+    "max": 3.122
+   },
+   "compute": {
+    "mean": 0.918,
+    "p50": 0.807,
+    "p95": 1.724
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 438,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "rawall:habits",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 193,
+    "n": 196,
+    "rate": 0.985,
+    "ci": [
+     0.964,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 193,
+    "n": 196,
+    "rate": 0.985,
+    "ci": [
+     0.956,
+     0.997
+    ]
+   },
+   "liked": {
+    "k": 11,
+    "n": 32,
+    "rate": 0.344,
+    "ci": [
+     0.156,
+     0.545
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 1.423,
+    "p50": 1.18,
+    "p95": 2.528,
+    "max": 8.808
+   },
+   "compute": {
+    "mean": 0.884,
+    "p50": 0.805,
+    "p95": 1.72
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 451,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "full",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     0.981,
+     1
+    ]
+   },
+   "liked": {
+    "k": 27,
+    "n": 32,
+    "rate": 0.844,
+    "ci": [
+     0.71,
+     0.946
+    ]
+   },
+   "fixedByCode": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "seconds": {
+    "mean": 50.482,
+    "p50": 48.732,
+    "p95": 77.251,
+    "max": 107.645
+   },
+   "compute": {
+    "mean": 45.732,
+    "p50": 44.859,
+    "p95": 68.144
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 640,
+    "output": 606,
+    "reasoning": 569,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "raw:cue2",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 1,
+    "n": 196,
+    "rate": 0.005,
+    "ci": [
+     0,
+     0.016
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 195,
+    "n": 196,
+    "rate": 0.995,
+    "ci": [
+     0.984,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 195,
+    "n": 195,
+    "rate": 1,
+    "ci": [
+     0.981,
+     1
+    ]
+   },
+   "liked": {
+    "k": 7,
+    "n": 32,
+    "rate": 0.219,
+    "ci": [
+     0.069,
+     0.394
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 1.727,
+    "p50": 1.726,
+    "p95": 1.961,
+    "max": 4.089
+   },
+   "compute": {
+    "mean": 2.253,
+    "p50": 2.229,
+    "p95": 3.121
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 808,
+    "output": 2,
+    "reasoning": 0,
+    "calls": 2,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "raw:best2",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 1,
+    "n": 196,
+    "rate": 0.005,
+    "ci": [
+     0,
+     0.016
+    ]
+   },
+   "pickWorks": {
+    "k": 195,
+    "n": 196,
+    "rate": 0.995,
+    "ci": [
+     0.984,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 195,
+    "n": 195,
+    "rate": 1,
+    "ci": [
+     0.981,
+     1
+    ]
+   },
+   "liked": {
+    "k": 9,
+    "n": 32,
+    "rate": 0.281,
+    "ci": [
+     0.118,
+     0.467
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 1.942,
+    "p50": 1.754,
+    "p95": 2.249,
+    "max": 19.953
+   },
+   "compute": {
+    "mean": 2.24,
+    "p50": 2.244,
+    "p95": 3.145
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 821,
+    "output": 2,
+    "reasoning": 0,
+    "calls": 2,
+    "empty": 1,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "full2",
+   "cases": 196,
+   "members": 152,
+   "decline": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 196,
+    "n": 196,
+    "rate": 1,
+    "ci": [
+     0.981,
+     1
+    ]
+   },
+   "liked": {
+    "k": 27,
+    "n": 32,
+    "rate": 0.844,
+    "ci": [
+     0.7,
+     0.946
+    ]
+   },
+   "fixedByCode": {
+    "k": 0,
+    "n": 196,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "seconds": {
+    "mean": 45.248,
+    "p50": 43.629,
+    "p95": 68.103,
+    "max": 137.055
+   },
+   "compute": {
+    "mean": 43.054,
+    "p50": 42.089,
+    "p95": 62.685
+   },
+   "hw": [
+    "A100 #2 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11446"
+   ],
+   "tokens": {
+    "prompt": 644,
+    "output": 605,
+    "reasoning": 568,
+    "calls": 1.005,
+    "empty": 0,
+    "invalid": 1
+   }
+  }
+ ],
+ "agreement": {
+  "raw:habits~full": {
+   "a": "raw:habits",
+   "b": "full",
+   "cases": 196,
+   "rate": 0.622,
+   "ci": [
+    0.545,
+    0.698
+   ]
+  },
+  "full2~full": {
+   "a": "full2",
+   "b": "full",
+   "cases": 196,
+   "rate": 0.735,
+   "ci": [
+    0.679,
+    0.793
+   ]
+  },
+  "raw:habits~full2": {
+   "a": "raw:habits",
+   "b": "full2",
+   "cases": 196,
+   "rate": 0.638,
+   "ci": [
+    0.561,
+    0.706
+   ]
+  },
+  "difference": {
+   "of": "agree(raw:habits, full) - agree(full2, full)",
+   "cases": 196,
+   "difference": -0.112,
+   "ci": [
+    -0.192,
+    -0.027
+   ]
+  },
+  "onSettled": {
+   "a": "raw:habits",
+   "b": "full",
+   "cases": 144,
+   "rate": 0.694,
+   "ci": [
+    0.605,
+    0.777
+   ]
+  }
+ },
+ "firstTimeShare": {
+  "raw": 0.99,
+  "raw:best": 0.903,
+  "raw:habits": 0.867,
+  "full": 0.582,
+  "raw:cue2": 0.872,
+  "raw:best2": 0.765,
+  "full2": 0.566
+ },
+ "calibration": {
+  "scored": 196,
+  "ece": 0.167,
+  "bins": [
+   {
+    "from": 0.2,
+    "n": 4,
+    "p": 0.286,
+    "agree": 0.5
+   },
+   {
+    "from": 0.3,
+    "n": 29,
+    "p": 0.364,
+    "agree": 0.448
+   },
+   {
+    "from": 0.4,
+    "n": 37,
+    "p": 0.45,
+    "agree": 0.676
+   },
+   {
+    "from": 0.5,
+    "n": 52,
+    "p": 0.551,
+    "agree": 0.731
+   },
+   {
+    "from": 0.6,
+    "n": 29,
+    "p": 0.648,
+    "agree": 0.552
+   },
+   {
+    "from": 0.7,
+    "n": 19,
+    "p": 0.751,
+    "agree": 0.684
+   },
+   {
+    "from": 0.8,
+    "n": 18,
+    "p": 0.852,
+    "agree": 0.611
+   },
+   {
+    "from": 0.9,
+    "n": 8,
+    "p": 0.926,
+    "agree": 0.5
+   }
+  ],
+  "riskCoverage": [
+   {
+    "threshold": 0.9801,
+    "coverage": 0.005,
+    "disagree": 0
+   },
+   {
+    "threshold": 0.8429,
+    "coverage": 0.092,
+    "disagree": 0.389
+   },
+   {
+    "threshold": 0.7596,
+    "coverage": 0.173,
+    "disagree": 0.353
+   },
+   {
+    "threshold": 0.676,
+    "coverage": 0.255,
+    "disagree": 0.38
+   },
+   {
+    "threshold": 0.6243,
+    "coverage": 0.337,
+    "disagree": 0.409
+   },
+   {
+    "threshold": 0.5825,
+    "coverage": 0.418,
+    "disagree": 0.39
+   },
+   {
+    "threshold": 0.5575,
+    "coverage": 0.505,
+    "disagree": 0.384
+   },
+   {
+    "threshold": 0.5222,
+    "coverage": 0.587,
+    "disagree": 0.374
+   },
+   {
+    "threshold": 0.4865,
+    "coverage": 0.668,
+    "disagree": 0.344
+   },
+   {
+    "threshold": 0.4483,
+    "coverage": 0.75,
+    "disagree": 0.347
+   },
+   {
+    "threshold": 0.4057,
+    "coverage": 0.832,
+    "disagree": 0.344
+   },
+   {
+    "threshold": 0.3664,
+    "coverage": 0.913,
+    "disagree": 0.358
+   },
+   {
+    "threshold": 0.284,
+    "coverage": 0.995,
+    "disagree": 0.374
+   },
+   {
+    "threshold": 0.2804,
+    "coverage": 1,
+    "disagree": 0.378
+   }
+  ]
+ },
+ "cascades": [
+  {
+   "eps": 0.05,
+   "threshold": 0.8429,
+   "calibration": {
+    "members": 85,
+    "cases": 107,
+    "answered": 11,
+    "steps": [
+     {
+      "threshold": 0.9557,
+      "answered": 1,
+      "disagree": 0,
+      "bound": 0.009
+     },
+     {
+      "threshold": 0.9183,
+      "answered": 3,
+      "disagree": 1,
+      "bound": 0.019
+     },
+     {
+      "threshold": 0.9143,
+      "answered": 4,
+      "disagree": 2,
+      "bound": 0.028
+     },
+     {
+      "threshold": 0.9134,
+      "answered": 5,
+      "disagree": 3,
+      "bound": 0.037
+     },
+     {
+      "threshold": 0.9009,
+      "answered": 6,
+      "disagree": 3,
+      "bound": 0.037
+     },
+     {
+      "threshold": 0.8972,
+      "answered": 7,
+      "disagree": 3,
+      "bound": 0.037
+     },
+     {
+      "threshold": 0.8937,
+      "answered": 8,
+      "disagree": 3,
+      "bound": 0.037
+     },
+     {
+      "threshold": 0.8909,
+      "answered": 9,
+      "disagree": 4,
+      "bound": 0.046
+     },
+     {
+      "threshold": 0.8742,
+      "answered": 10,
+      "disagree": 4,
+      "bound": 0.046
+     },
+     {
+      "threshold": 0.8429,
+      "answered": 11,
+      "disagree": 4,
+      "bound": 0.046
+     },
+     {
+      "threshold": 0.8363,
+      "answered": 12,
+      "disagree": 5,
+      "bound": 0.056
+     }
+    ]
+   },
+   "test": {
+    "members": 67,
+    "cases": 89,
+    "coverage": 0.079,
+    "deciderDisagree": 3,
+    "deciderDisagreeRate": 0.429,
+    "deciderDisagreeCI": [
+     0.099,
+     0.816
+    ],
+    "agree": 0.753,
+    "agreeCI": [
+     0.663,
+     0.835
+    ],
+    "decline": 0,
+    "pickWorks": 1,
+    "liked": {
+     "k": 15,
+     "n": 19
+    },
+    "seconds": {
+     "mean": 43.934,
+     "p50": 45.421,
+     "p95": 66.439
+    },
+    "compute": {
+     "mean": 41.259,
+     "p50": 43.394,
+     "p95": 61.264
+    },
+    "output": 563,
+    "prompt": 1061
+   },
+   "full2Alone": {
+    "agree": 0.787,
+    "agreeCI": [
+     0.7,
+     0.86
+    ],
+    "decline": 0,
+    "seconds": {
+     "mean": 45.188,
+     "p50": 44.214,
+     "p95": 65.313
+    },
+    "compute": {
+     "mean": 43.03,
+     "p50": 42.541,
+     "p95": 60.337
+    },
+    "output": 598
+   }
+  },
+  {
+   "eps": 0.1,
+   "threshold": 0.7292,
+   "calibration": {
+    "members": 85,
+    "cases": 107,
+    "answered": 23,
+    "steps": [
+     {
+      "threshold": 0.9557,
+      "answered": 1,
+      "disagree": 0,
+      "bound": 0.009
+     },
+     {
+      "threshold": 0.9143,
+      "answered": 4,
+      "disagree": 2,
+      "bound": 0.028
+     },
+     {
+      "threshold": 0.9009,
+      "answered": 6,
+      "disagree": 3,
+      "bound": 0.037
+     },
+     {
+      "threshold": 0.8937,
+      "answered": 8,
+      "disagree": 3,
+      "bound": 0.037
+     },
+     {
+      "threshold": 0.8742,
+      "answered": 10,
+      "disagree": 4,
+      "bound": 0.046
+     },
+     {
+      "threshold": 0.8363,
+      "answered": 12,
+      "disagree": 5,
+      "bound": 0.056
+     },
+     {
+      "threshold": 0.8163,
+      "answered": 14,
+      "disagree": 6,
+      "bound": 0.065
+     },
+     {
+      "threshold": 0.7924,
+      "answered": 16,
+      "disagree": 6,
+      "bound": 0.065
+     },
+     {
+      "threshold": 0.7816,
+      "answered": 18,
+      "disagree": 6,
+      "bound": 0.065
+     },
+     {
+      "threshold": 0.7568,
+      "answered": 20,
+      "disagree": 8,
+      "bound": 0.083
+     },
+     {
+      "threshold": 0.7423,
+      "answered": 22,
+      "disagree": 8,
+      "bound": 0.083
+     },
+     {
+      "threshold": 0.7292,
+      "answered": 23,
+      "disagree": 9,
+      "bound": 0.093
+     },
+     {
+      "threshold": 0.7277,
+      "answered": 24,
+      "disagree": 10,
+      "bound": 0.102
+     }
+    ]
+   },
+   "test": {
+    "members": 67,
+    "cases": 89,
+    "coverage": 0.191,
+    "deciderDisagree": 6,
+    "deciderDisagreeRate": 0.353,
+    "deciderDisagreeCI": [
+     0.142,
+     0.617
+    ],
+    "agree": 0.742,
+    "agreeCI": [
+     0.644,
+     0.835
+    ],
+    "decline": 0,
+    "pickWorks": 1,
+    "liked": {
+     "k": 14,
+     "n": 19
+    },
+    "seconds": {
+     "mean": 39.553,
+     "p50": 44.551,
+     "p95": 66.439
+    },
+    "compute": {
+     "mean": 37.005,
+     "p50": 42.767,
+     "p95": 61.264
+    },
+    "output": 504,
+    "prompt": 987
+   },
+   "full2Alone": {
+    "agree": 0.787,
+    "agreeCI": [
+     0.702,
+     0.865
+    ],
+    "decline": 0,
+    "seconds": {
+     "mean": 45.188,
+     "p50": 44.214,
+     "p95": 65.313
+    },
+    "compute": {
+     "mean": 43.03,
+     "p50": 42.541,
+     "p95": 60.337
+    },
+    "output": 598
+   }
+  },
+  {
+   "eps": 0.2,
+   "threshold": 0.5716,
+   "calibration": {
+    "members": 85,
+    "cases": 107,
+    "answered": 46,
+    "steps": [
+     {
+      "threshold": 0.9557,
+      "answered": 1,
+      "disagree": 0,
+      "bound": 0.009
+     },
+     {
+      "threshold": 0.8972,
+      "answered": 7,
+      "disagree": 3,
+      "bound": 0.037
+     },
+     {
+      "threshold": 0.8363,
+      "answered": 12,
+      "disagree": 5,
+      "bound": 0.056
+     },
+     {
+      "threshold": 0.7913,
+      "answered": 17,
+      "disagree": 6,
+      "bound": 0.065
+     },
+     {
+      "threshold": 0.7423,
+      "answered": 22,
+      "disagree": 8,
+      "bound": 0.083
+     },
+     {
+      "threshold": 0.6997,
+      "answered": 27,
+      "disagree": 11,
+      "bound": 0.111
+     },
+     {
+      "threshold": 0.6716,
+      "answered": 32,
+      "disagree": 14,
+      "bound": 0.139
+     },
+     {
+      "threshold": 0.628,
+      "answered": 37,
+      "disagree": 17,
+      "bound": 0.167
+     },
+     {
+      "threshold": 0.5965,
+      "answered": 42,
+      "disagree": 19,
+      "bound": 0.185
+     },
+     {
+      "threshold": 0.5716,
+      "answered": 46,
+      "disagree": 20,
+      "bound": 0.194
+     },
+     {
+      "threshold": 0.5712,
+      "answered": 47,
+      "disagree": 21,
+      "bound": 0.204
+     }
+    ]
+   },
+   "test": {
+    "members": 67,
+    "cases": 89,
+    "coverage": 0.472,
+    "deciderDisagree": 14,
+    "deciderDisagreeRate": 0.333,
+    "deciderDisagreeCI": [
+     0.196,
+     0.495
+    ],
+    "agree": 0.73,
+    "agreeCI": [
+     0.617,
+     0.83
+    ],
+    "decline": 0,
+    "pickWorks": 1,
+    "liked": {
+     "k": 14,
+     "n": 19
+    },
+    "seconds": {
+     "mean": 26.281,
+     "p50": 34.622,
+     "p95": 60.307
+    },
+    "compute": {
+     "mean": 24.274,
+     "p50": 33.492,
+     "p95": 57.468
+    },
+    "output": 327,
+    "prompt": 805
+   },
+   "full2Alone": {
+    "agree": 0.787,
+    "agreeCI": [
+     0.699,
+     0.867
+    ],
+    "decline": 0,
+    "seconds": {
+     "mean": 45.188,
+     "p50": 44.214,
+     "p95": 65.313
+    },
+    "compute": {
+     "mean": 43.03,
+     "p50": 42.541,
+     "p95": 60.337
+    },
+    "output": 598
+   }
+  }
+ ]
+}
