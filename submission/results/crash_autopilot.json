@@ -1,0 +1,36 @@
+{
+ "at": "2026-10-28T12:09:48.726Z",
+ "points": 18,
+ "passed": 18,
+ "reference": {
+  "games": [
+   "Thu 19:00 riverside court 4 with leo",
+   "Sat 09:00 riverside court 4 with tomas"
+  ],
+  "turns": 6,
+  "proposals": 2
+ },
+ "baseline": [
+  {
+   "point": "autopilot-negotiated@1",
+   "again": 1,
+   "leftOver": 1,
+   "approvals": 1,
+   "turns": 2
+  },
+  {
+   "point": "round-saved@2",
+   "again": 1,
+   "leftOver": 1,
+   "approvals": 1,
+   "turns": 4
+  },
+  {
+   "point": "autopilot-asked",
+   "again": 2,
+   "leftOver": 0,
+   "approvals": 1,
+   "turns": 5
+  }
+ ]
+}
