@@ -8,6 +8,11 @@
 matching up is enough hassle that people don't play, so your agent does that work and waits for your yes, and what
 the community asks for makes the platform better.**
 
+**Built during the hackathon.** Everything in this repository was written during the building period (October 27
+to November 4, 2026). The only earlier work is TrackNetV5, our published shuttle tracker, fetched at run time as a
+dependency; none of its code is here ([CREDITS.md](CREDITS.md#made-before-the-hackathon)). The repository was
+restructured into its current layout on October 28 and 29, one commit per file.
+
 **The core flow**
 1. **Say you want to play, or it asks first.** Write "I want to play" in Messenger, or let the Match helper notice your
    usual time is open: "Thursday 19:00: Leo is free. Want a game?"

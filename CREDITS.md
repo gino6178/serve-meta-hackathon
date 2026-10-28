@@ -1,7 +1,8 @@
 # Credits and licenses
 
 Serve is our own work, built on the open models, libraries and data below. Everything in this repository was built
-during the hackathon, except the work listed under "Made before the hackathon".
+during the hackathon (October 27 to November 4, 2026). The one thing made before it is TrackNetV5, listed under "Made
+before the hackathon", and none of its code is in this repository.
 
 ## Models
 
@@ -41,7 +42,7 @@ during the hackathon, except the work listed under "Made before the hackathon".
 
 - **Anatomy model.** BodyParts3D, © The Database Center for Life Science, CC BY 4.0, adapted for the 3D muscle view.
   The adaptations are listed in `web/public/body/ATTRIBUTION.md`, which ships with the model files.
-- **Portraits used in an earlier version of the app.** AI-generated images of fictional people, made with Gemini
+- **Portraits used in an earlier build of the app during the hackathon.** AI-generated images of fictional people, made with Gemini
   (Google). They do not show real people.
 - **Sample videos and the demo's match footage**, trimmed and edited, all licensed under
   [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). The licence was checked on each video's page; the players
@@ -82,8 +83,8 @@ during the hackathon, except the work listed under "Made before the hackathon".
 
 - **TrackNetV5**, our own earlier shuttle tracker (IEEE ICIP 2026), is used as a dependency for the shuttle in
   badminton highlights (see Perception). It is fetched from its public repository at run time; none of its code is in
-  this repository. It also prepared a sample match for match-analysis pages in an earlier version of the app; those
-  pages were removed on 2026-10-28.
+  this repository. It also prepared a sample match for match-analysis pages in an earlier build of the app during the
+  hackathon; those pages were removed on 2026-10-28.
 
 ## Meta products
 
