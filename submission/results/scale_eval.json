@@ -1,0 +1,254 @@
+{
+ "at": "2026-10-27T18:13:20.666Z",
+ "model": "muse-glimmer",
+ "context": 16384,
+ "sizes": [
+  {
+   "members": 11,
+   "simulated": 0,
+   "codeMs": 1.12,
+   "codeFound": 1,
+   "freeThatDay": 7,
+   "wholeClubTokens": 788,
+   "wholeClubCached": 1,
+   "wholeClubSeconds": 1.25,
+   "wholeClub": "measured"
+  },
+  {
+   "members": 51,
+   "simulated": 40,
+   "codeMs": 0.94,
+   "codeFound": 1,
+   "freeThatDay": 25,
+   "wholeClubTokens": 3139,
+   "wholeClubCached": 0,
+   "wholeClubSeconds": 3.1,
+   "wholeClub": "measured"
+  },
+  {
+   "members": 101,
+   "simulated": 90,
+   "codeMs": 1.28,
+   "codeFound": 1,
+   "freeThatDay": 41,
+   "wholeClubTokens": 6011,
+   "wholeClubCached": 0,
+   "wholeClubSeconds": 5.94,
+   "wholeClub": "measured"
+  },
+  {
+   "members": 201,
+   "simulated": 190,
+   "codeMs": 2.57,
+   "codeFound": 1,
+   "freeThatDay": 89,
+   "wholeClubTokens": 11807,
+   "wholeClubCached": 1,
+   "wholeClubSeconds": 11.65,
+   "wholeClub": "measured"
+  },
+  {
+   "members": 401,
+   "simulated": 390,
+   "codeMs": 1.6,
+   "codeFound": 1,
+   "freeThatDay": 154,
+   "wholeClubTokens": 23406,
+   "wholeClub": "does not fit",
+   "estimated": true
+  },
+  {
+   "members": 1001,
+   "simulated": 990,
+   "codeMs": 2.09,
+   "codeFound": 1,
+   "freeThatDay": 395,
+   "wholeClubTokens": 58203,
+   "wholeClub": "does not fit",
+   "estimated": true
+  }
+ ],
+ "autopilot": [
+  {
+   "members": 11,
+   "run": 1,
+   "agreed": 2,
+   "approval": true,
+   "seconds": 82.2,
+   "modelCalls": 12,
+   "toolCalls": 8,
+   "tokens": {
+    "calls": 12,
+    "prompt": 18082,
+    "cached": 12006,
+    "fresh": 6076,
+    "cachedShare": 0.664,
+    "output": 3044,
+    "reasoning": 2298,
+    "seconds": 153.4,
+    "empty": 0,
+    "invalid": 0
+   },
+   "traceTokens": {
+    "calls": 12,
+    "prompt": 18082,
+    "cached": 12006,
+    "fresh": 6076,
+    "cachedShare": 0.664,
+    "output": 3044,
+    "reasoning": 2298,
+    "seconds": 153.4,
+    "empty": 0,
+    "invalid": 0
+   },
+   "agentMessages": 9,
+   "simulatedPartners": 0,
+   "games": [
+    "doubles Sat 09:00 with Leo Park, Hana Chen, Tomás Ruiz",
+    "doubles Thu 19:00 with Leo Park, Hana Chen, Tomás Ruiz"
+   ],
+   "error": null
+  },
+  {
+   "members": 11,
+   "run": 2,
+   "agreed": 2,
+   "approval": true,
+   "seconds": 70.7,
+   "modelCalls": 12,
+   "toolCalls": 8,
+   "tokens": {
+    "calls": 12,
+    "prompt": 18043,
+    "cached": 16791,
+    "fresh": 1252,
+    "cachedShare": 0.931,
+    "output": 2968,
+    "reasoning": 2227,
+    "seconds": 139.4,
+    "empty": 0,
+    "invalid": 0
+   },
+   "traceTokens": {
+    "calls": 12,
+    "prompt": 18043,
+    "cached": 16791,
+    "fresh": 1252,
+    "cachedShare": 0.931,
+    "output": 2968,
+    "reasoning": 2227,
+    "seconds": 139.4,
+    "empty": 0,
+    "invalid": 0
+   },
+   "agentMessages": 9,
+   "simulatedPartners": 0,
+   "games": [
+    "doubles Sat 09:00 with Leo Park, Hana Chen, Tomás Ruiz",
+    "doubles Thu 19:00 with Leo Park, Hana Chen, Tomás Ruiz"
+   ],
+   "error": null
+  },
+  {
+   "members": 301,
+   "run": 1,
+   "agreed": 2,
+   "approval": true,
+   "seconds": 85.3,
+   "modelCalls": 13,
+   "toolCalls": 9,
+   "tokens": {
+    "calls": 13,
+    "prompt": 21044,
+    "cached": 19615,
+    "fresh": 1429,
+    "cachedShare": 0.932,
+    "output": 3222,
+    "reasoning": 2416,
+    "seconds": 150.6,
+    "empty": 0,
+    "invalid": 0
+   },
+   "traceTokens": {
+    "calls": 13,
+    "prompt": 21044,
+    "cached": 19615,
+    "fresh": 1429,
+    "cachedShare": 0.932,
+    "output": 3222,
+    "reasoning": 2416,
+    "seconds": 150.6,
+    "empty": 0,
+    "invalid": 0
+   },
+   "agentMessages": 9,
+   "simulatedPartners": 0,
+   "games": [
+    "doubles Sat 09:00 with Leo Park, Hana Chen, Tomás Ruiz",
+    "doubles Thu 19:00 with Leo Park, Hana Chen, Tomás Ruiz"
+   ],
+   "error": null
+  },
+  {
+   "members": 301,
+   "run": 2,
+   "agreed": 2,
+   "approval": true,
+   "seconds": 65.6,
+   "modelCalls": 12,
+   "toolCalls": 8,
+   "tokens": {
+    "calls": 12,
+    "prompt": 18042,
+    "cached": 15552,
+    "fresh": 2490,
+    "cachedShare": 0.862,
+    "output": 2651,
+    "reasoning": 1914,
+    "seconds": 132,
+    "empty": 0,
+    "invalid": 0
+   },
+   "traceTokens": {
+    "calls": 12,
+    "prompt": 18042,
+    "cached": 15552,
+    "fresh": 2490,
+    "cachedShare": 0.862,
+    "output": 2651,
+    "reasoning": 1914,
+    "seconds": 132,
+    "empty": 0,
+    "invalid": 0
+   },
+   "agentMessages": 8,
+   "simulatedPartners": 0,
+   "games": [
+    "doubles Thu 19:00 with Leo Park, Hana Chen, Tomás Ruiz",
+    "doubles Sat 09:00 with Leo Park, Hana Chen, Tomás Ruiz"
+   ],
+   "error": null
+  }
+ ],
+ "tokensPerMember": 58,
+ "summary": {
+  "11": {
+   "runs": 2,
+   "prompt": 18063,
+   "fresh": 3664,
+   "output": 3006,
+   "tracePrompt": 18063,
+   "seconds": 76,
+   "agreed": 2
+  },
+  "301": {
+   "runs": 2,
+   "prompt": 19543,
+   "fresh": 1960,
+   "output": 2937,
+   "tracePrompt": 19543,
+   "seconds": 75,
+   "agreed": 2
+  }
+ }
+}
