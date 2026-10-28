@@ -1,0 +1,229 @@
+{
+ "data": "jev/data/test",
+ "glimmer": {
+  "cases": 500,
+  "answers": 1500,
+  "intents": {
+   "counter": 1500
+  },
+  "self_agreement_pairs": 0.888,
+  "self_agreement_ci95": [
+   0.871,
+   0.903
+  ],
+  "pairs": 1500,
+  "cases_all_answers_same": 417,
+  "seconds_p50": 155.27,
+  "seconds_p95": 260.88,
+  "prompt_tokens_mean": 488,
+  "output_tokens_mean": 447,
+  "output_tokens_p50": 426,
+  "reasoning_tokens_mean": 416,
+  "calls_mean": 1,
+  "empty": 0,
+  "works_shown_times": {
+   "precision": 1.0,
+   "recall": 0.999,
+   "exact_cases": 1495,
+   "cases": 1500,
+   "false_works": 0,
+   "missed_works": 5,
+   "precision_ci95": [
+    0.9993,
+    1.0
+   ],
+   "recall_ci95": [
+    0.9978,
+    0.9996
+   ]
+  }
+ },
+ "rules": {
+  "first listed": {
+   "with_each_answer": 0.8267,
+   "with_each_answer_ci95": [
+    0.8067,
+    0.845
+   ],
+   "answers": 1500,
+   "with_majority": 0.8394,
+   "with_majority_ci95": [
+    0.8045,
+    0.869
+   ],
+   "cases_with_majority": 498
+  },
+  "lowest t-number": {
+   "with_each_answer": 0.8267,
+   "with_each_answer_ci95": [
+    0.8067,
+    0.845
+   ],
+   "answers": 1500,
+   "with_majority": 0.8394,
+   "with_majority_ci95": [
+    0.8045,
+    0.869
+   ],
+   "cases_with_majority": 498
+  },
+  "earliest": {
+   "with_each_answer": 0.834,
+   "with_each_answer_ci95": [
+    0.8143,
+    0.852
+   ],
+   "answers": 1500,
+   "with_majority": 0.8494,
+   "with_majority_ci95": [
+    0.8153,
+    0.8781
+   ],
+   "cases_with_majority": 498
+  },
+  "shortest trip": {
+   "with_each_answer": 0.7753,
+   "with_each_answer_ci95": [
+    0.7535,
+    0.7957
+   ],
+   "answers": 1500,
+   "with_majority": 0.7892,
+   "with_majority_ci95": [
+    0.7512,
+    0.8227
+   ],
+   "cases_with_majority": 498
+  },
+  "profile rule": {
+   "with_each_answer": 0.8587,
+   "with_each_answer_ci95": [
+    0.8401,
+    0.8754
+   ],
+   "answers": 1500,
+   "with_majority": 0.8735,
+   "with_majority_ci95": [
+    0.8414,
+    0.8999
+   ],
+   "cases_with_majority": 498
+  }
+ },
+ "students": {
+  "int4": {
+   "cases": 500,
+   "agreement": {
+    "with_each_answer": 0.874,
+    "with_each_answer_ci95": [
+     0.8562,
+     0.8898
+    ],
+    "answers": 1500,
+    "with_majority": 0.8876,
+    "with_majority_ci95": [
+     0.8568,
+     0.9124
+    ],
+    "cases_with_majority": 498
+   },
+   "works": {
+    "precision": 1.0,
+    "recall": 0.9977,
+    "exact_cases": 496,
+    "cases": 500,
+    "false_works": 0,
+    "missed_works": 4,
+    "precision_ci95": [
+     0.9978,
+     1.0
+    ],
+    "recall_ci95": [
+     0.9941,
+     0.9991
+    ]
+   },
+   "selective": [
+    {
+     "threshold": 0.0,
+     "coverage": 0.992,
+     "answered": 496,
+     "with_each_answer": 0.873,
+     "with_majority": 0.8866,
+     "answers": 1488
+    },
+    {
+     "threshold": 0.5,
+     "coverage": 0.978,
+     "answered": 489,
+     "with_each_answer": 0.8807,
+     "with_majority": 0.8953,
+     "answers": 1467
+    },
+    {
+     "threshold": 0.6,
+     "coverage": 0.942,
+     "answered": 471,
+     "with_each_answer": 0.8974,
+     "with_majority": 0.9106,
+     "answers": 1413
+    },
+    {
+     "threshold": 0.7,
+     "coverage": 0.894,
+     "answered": 447,
+     "with_each_answer": 0.9105,
+     "with_majority": 0.9215,
+     "answers": 1341
+    },
+    {
+     "threshold": 0.8,
+     "coverage": 0.832,
+     "answered": 416,
+     "with_each_answer": 0.9335,
+     "with_majority": 0.9422,
+     "answers": 1248
+    },
+    {
+     "threshold": 0.9,
+     "coverage": 0.77,
+     "answered": 385,
+     "with_each_answer": 0.9455,
+     "with_majority": 0.9532,
+     "answers": 1155
+    },
+    {
+     "threshold": 0.95,
+     "coverage": 0.698,
+     "answered": 349,
+     "with_each_answer": 0.958,
+     "with_majority": 0.9656,
+     "answers": 1047
+    },
+    {
+     "threshold": 0.98,
+     "coverage": 0.516,
+     "answered": 258,
+     "with_each_answer": 0.9677,
+     "with_majority": 0.9729,
+     "answers": 774
+    },
+    {
+     "threshold": 0.99,
+     "coverage": 0.378,
+     "answered": 189,
+     "with_each_answer": 0.9859,
+     "with_majority": 0.9841,
+     "answers": 567
+    }
+   ],
+   "picked_decline": 0,
+   "latency_ms": {
+    "p50": 1593.6,
+    "p95": 2395.7,
+    "mean": 1669.5,
+    "tokens_p50": 237
+   }
+  }
+ }
+}
