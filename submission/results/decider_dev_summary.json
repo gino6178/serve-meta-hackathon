@@ -1,0 +1,692 @@
+{
+ "at": "2026-10-28T04:26:42.364Z",
+ "raw": "data/decider_dev_raw.json",
+ "decider": "raw:habits",
+ "cases": 61,
+ "members": 45,
+ "split": {
+  "calibration": 24,
+  "test": 21
+ },
+ "table": [
+  {
+   "system": "raw",
+   "cases": 61,
+   "members": 45,
+   "decline": {
+    "k": 1,
+    "n": 61,
+    "rate": 0.016,
+    "ci": [
+     0,
+     0.052
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 60,
+    "n": 61,
+    "rate": 0.984,
+    "ci": [
+     0.946,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 60,
+    "n": 60,
+    "rate": 1,
+    "ci": [
+     0.94,
+     1
+    ]
+   },
+   "liked": {
+    "k": 0,
+    "n": 7,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 0.698,
+    "p50": 0.544,
+    "p95": 0.621,
+    "max": 7.879
+   },
+   "compute": {
+    "mean": 0.449,
+    "p50": 0.458,
+    "p95": 0.508
+   },
+   "hw": [
+    "RTX 3090 (GPU 1, locked)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11435"
+   ],
+   "tokens": {
+    "prompt": 431,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "rawall",
+   "cases": 61,
+   "members": 45,
+   "decline": {
+    "k": 1,
+    "n": 61,
+    "rate": 0.016,
+    "ci": [
+     0,
+     0.051
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 51,
+    "n": 61,
+    "rate": 0.836,
+    "ci": [
+     0.737,
+     0.923
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 51,
+    "n": 60,
+    "rate": 0.85,
+    "ci": [
+     0.734,
+     0.929
+    ]
+   },
+   "liked": {
+    "k": 0,
+    "n": 7,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 0.243,
+    "p50": 0.178,
+    "p95": 0.544,
+    "max": 0.59
+   },
+   "compute": {
+    "mean": 0.164,
+    "p50": 0.095,
+    "p95": 0.461
+   },
+   "hw": [
+    "RTX 3090 (GPU 1, locked)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11435"
+   ],
+   "tokens": {
+    "prompt": 440,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "raw:best",
+   "cases": 61,
+   "members": 45,
+   "decline": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 61,
+    "n": 61,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 61,
+    "n": 61,
+    "rate": 1,
+    "ci": [
+     0.941,
+     1
+    ]
+   },
+   "liked": {
+    "k": 0,
+    "n": 7,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 0.522,
+    "p50": 0.53,
+    "p95": 0.591,
+    "max": 0.618
+   },
+   "compute": {
+    "mean": 0.458,
+    "p50": 0.466,
+    "p95": 0.527
+   },
+   "hw": [
+    "RTX 3090 (GPU 1, locked)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11435"
+   ],
+   "tokens": {
+    "prompt": 437,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "raw:cue2",
+   "cases": 61,
+   "members": 45,
+   "decline": {
+    "k": 2,
+    "n": 61,
+    "rate": 0.033,
+    "ci": [
+     0,
+     0.082
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 59,
+    "n": 61,
+    "rate": 0.967,
+    "ci": [
+     0.918,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 59,
+    "n": 59,
+    "rate": 1,
+    "ci": [
+     0.939,
+     1
+    ]
+   },
+   "liked": {
+    "k": 0,
+    "n": 7,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 1.391,
+    "p50": 1.037,
+    "p95": 1.329,
+    "max": 10.089
+   },
+   "compute": {
+    "mean": 1.826,
+    "p50": 1.781,
+    "p95": 2.125
+   },
+   "hw": [
+    "RTX 3090 (GPU 1, locked)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11435"
+   ],
+   "tokens": {
+    "prompt": 862,
+    "output": 2,
+    "reasoning": 0,
+    "calls": 2,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "raw:best2",
+   "cases": 61,
+   "members": 45,
+   "decline": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 61,
+    "n": 61,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 61,
+    "n": 61,
+    "rate": 1,
+    "ci": [
+     0.941,
+     1
+    ]
+   },
+   "liked": {
+    "k": 1,
+    "n": 7,
+    "rate": 0.143,
+    "ci": [
+     0,
+     0.5
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 1.004,
+    "p50": 0.982,
+    "p95": 1.251,
+    "max": 1.262
+   },
+   "compute": {
+    "mean": 1.7,
+    "p50": 1.621,
+    "p95": 2.151
+   },
+   "hw": [
+    "RTX 3090 (GPU 1, locked)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11435"
+   ],
+   "tokens": {
+    "prompt": 875,
+    "output": 2,
+    "reasoning": 0,
+    "calls": 2,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "full",
+   "cases": 61,
+   "members": 45,
+   "decline": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 61,
+    "n": 61,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 61,
+    "n": 61,
+    "rate": 1,
+    "ci": [
+     0.941,
+     1
+    ]
+   },
+   "liked": {
+    "k": 7,
+    "n": 7,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "fixedByCode": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "seconds": {
+    "mean": 40.461,
+    "p50": 40.374,
+    "p95": 53.564,
+    "max": 58.184
+   },
+   "compute": {
+    "mean": 38.88,
+    "p50": 38.84,
+    "p95": 52.018
+   },
+   "hw": [
+    "RTX 3090 (GPU 1, locked)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11435"
+   ],
+   "tokens": {
+    "prompt": 676,
+    "output": 610,
+    "reasoning": 573,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  },
+  {
+   "system": "raw:habits",
+   "cases": 61,
+   "members": 45,
+   "decline": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 61,
+    "rate": 0,
+    "ci": [
+     0,
+     0
+    ]
+   },
+   "pickWorks": {
+    "k": 61,
+    "n": 61,
+    "rate": 1,
+    "ci": [
+     1,
+     1
+    ]
+   },
+   "pickWorksOfTimes": {
+    "k": 61,
+    "n": 61,
+    "rate": 1,
+    "ci": [
+     0.941,
+     1
+    ]
+   },
+   "liked": {
+    "k": 2,
+    "n": 7,
+    "rate": 0.286,
+    "ci": [
+     0,
+     0.714
+    ]
+   },
+   "fixedByCode": null,
+   "seconds": {
+    "mean": 8.438,
+    "p50": 2.359,
+    "p95": 26.87,
+    "max": 30.942
+   },
+   "compute": {
+    "mean": 0.691,
+    "p50": 0.572,
+    "p95": 1.142
+   },
+   "hw": [
+    "A100 (cloud, shared)"
+   ],
+   "endpoints": [
+    "http://127.0.0.1:11445"
+   ],
+   "tokens": {
+    "prompt": 465,
+    "output": 1,
+    "reasoning": 0,
+    "calls": 1,
+    "empty": 0,
+    "invalid": 0
+   }
+  }
+ ],
+ "agreement": {
+  "raw:habits~full": {
+   "a": "raw:habits",
+   "b": "full",
+   "cases": 61,
+   "rate": 0.607,
+   "ci": [
+    0.47,
+    0.73
+   ]
+  },
+  "full2~full": null,
+  "raw:habits~full2": null,
+  "difference": null
+ },
+ "firstTimeShare": {
+  "raw": 0.984,
+  "raw:best": 0.918,
+  "raw:cue2": 0.902,
+  "raw:best2": 0.852,
+  "full": 0.492,
+  "raw:habits": 0.852
+ },
+ "calibration": {
+  "scored": 61,
+  "ece": 0.21,
+  "bins": [
+   {
+    "from": 0.2,
+    "n": 1,
+    "p": 0.264,
+    "agree": 0
+   },
+   {
+    "from": 0.3,
+    "n": 13,
+    "p": 0.357,
+    "agree": 0.769
+   },
+   {
+    "from": 0.4,
+    "n": 13,
+    "p": 0.449,
+    "agree": 0.615
+   },
+   {
+    "from": 0.5,
+    "n": 16,
+    "p": 0.531,
+    "agree": 0.625
+   },
+   {
+    "from": 0.6,
+    "n": 11,
+    "p": 0.645,
+    "agree": 0.636
+   },
+   {
+    "from": 0.7,
+    "n": 4,
+    "p": 0.724,
+    "agree": 0.5
+   },
+   {
+    "from": 0.8,
+    "n": 3,
+    "p": 0.837,
+    "agree": 0
+   }
+  ],
+  "riskCoverage": [
+   {
+    "threshold": 0.8494,
+    "coverage": 0.016,
+    "disagree": 1
+   },
+   {
+    "threshold": 0.7077,
+    "coverage": 0.098,
+    "disagree": 0.667
+   },
+   {
+    "threshold": 0.6705,
+    "coverage": 0.18,
+    "disagree": 0.545
+   },
+   {
+    "threshold": 0.6208,
+    "coverage": 0.262,
+    "disagree": 0.563
+   },
+   {
+    "threshold": 0.5517,
+    "coverage": 0.344,
+    "disagree": 0.524
+   },
+   {
+    "threshold": 0.5287,
+    "coverage": 0.426,
+    "disagree": 0.5
+   },
+   {
+    "threshold": 0.5088,
+    "coverage": 0.508,
+    "disagree": 0.484
+   },
+   {
+    "threshold": 0.4861,
+    "coverage": 0.59,
+    "disagree": 0.444
+   },
+   {
+    "threshold": 0.4508,
+    "coverage": 0.672,
+    "disagree": 0.415
+   },
+   {
+    "threshold": 0.4177,
+    "coverage": 0.754,
+    "disagree": 0.413
+   },
+   {
+    "threshold": 0.3795,
+    "coverage": 0.836,
+    "disagree": 0.451
+   },
+   {
+    "threshold": 0.3447,
+    "coverage": 0.918,
+    "disagree": 0.411
+   },
+   {
+    "threshold": 0.2639,
+    "coverage": 1,
+    "disagree": 0.393
+   }
+  ]
+ },
+ "cascades": []
+}
