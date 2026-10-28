@@ -1,0 +1,14 @@
+{
+ "at": "2026-10-28T12:28:40.282Z",
+ "llm": "http://127.0.0.1:11445/v1",
+ "run": "ap-mvs39674-90f6",
+ "turnsFromJournal": 2,
+ "turnsAfter": 4,
+ "modelCallsAfter": 4,
+ "games": [
+  "Doubles Thursday 19:00 at Riverside Sports Centre with Leo, Tomás, Ines",
+  "Doubles Saturday 09:00 at Riverside Sports Centre with Tomás, Leo, Hana"
+ ],
+ "passed": true,
+ "fails": []
+}
