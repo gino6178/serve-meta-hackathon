@@ -1,0 +1,23 @@
+{
+ "at": "2026-10-28T01:05:38.137Z",
+ "transport": "a2a",
+ "runs": 3,
+ "ok": 3,
+ "byModel": {
+  "runs": 3,
+  "ok": 3
+ },
+ "oracleFailures": 0,
+ "passK": {
+  "k": 3,
+  "weeks": 1,
+  "passK": 1,
+  "pass1": 1
+ },
+ "seconds": 124.3,
+ "modelCalls": 12.7,
+ "toolCalls": 10.7,
+ "peak": 4,
+ "refused": 2,
+ "rules": 0
+}
