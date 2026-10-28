@@ -1,0 +1,205 @@
+{
+ "at": "2026-10-27T17:17:30.692Z",
+ "label": "stop-check",
+ "budgets": {},
+ "total": {
+  "calls": 101,
+  "prompt": 171284,
+  "cached": 140790,
+  "fresh": 30494,
+  "cachedShare": 0.822,
+  "output": 23669,
+  "reasoning": 17037,
+  "seconds": 1521.4,
+  "empty": 1,
+  "invalid": 1
+ },
+ "perWeek": [
+  {
+   "scenario": "Two games a week",
+   "success": true,
+   "seconds": 284.4,
+   "calls": 16,
+   "prompt": 22689,
+   "cached": 16573,
+   "fresh": 6116,
+   "cachedShare": 0.73,
+   "output": 4221,
+   "reasoning": 3282,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Two games, sore knee (doubles first)",
+   "success": true,
+   "seconds": 238.3,
+   "calls": 12,
+   "prompt": 18222,
+   "cached": 16303,
+   "fresh": 1919,
+   "cachedShare": 0.895,
+   "output": 2820,
+   "reasoning": 2090,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Three games a week",
+   "success": true,
+   "seconds": 272.6,
+   "calls": 19,
+   "prompt": 39568,
+   "cached": 34742,
+   "fresh": 4826,
+   "cachedShare": 0.878,
+   "output": 3886,
+   "reasoning": 2513,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Thursday already booked",
+   "success": true,
+   "seconds": 93.4,
+   "calls": 7,
+   "prompt": 10422,
+   "cached": 9213,
+   "fresh": 1209,
+   "cachedShare": 0.884,
+   "output": 1511,
+   "reasoning": 1122,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Tennis, one game",
+   "success": true,
+   "seconds": 57.6,
+   "calls": 9,
+   "prompt": 21223,
+   "cached": 18540,
+   "fresh": 2683,
+   "cachedShare": 0.874,
+   "output": 1453,
+   "reasoning": 705,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Two games, Kenji just played long",
+   "success": true,
+   "seconds": 243.2,
+   "calls": 13,
+   "prompt": 18822,
+   "cached": 13811,
+   "fresh": 5011,
+   "cachedShare": 0.734,
+   "output": 4003,
+   "reasoning": 3270,
+   "empty": 1,
+   "invalid": 1
+  },
+  {
+   "scenario": "Sore knee and a heavy week (body log + health app)",
+   "success": true,
+   "seconds": 119.7,
+   "calls": 7,
+   "prompt": 12544,
+   "cached": 9234,
+   "fresh": 3310,
+   "cachedShare": 0.736,
+   "output": 1784,
+   "reasoning": 1350,
+   "empty": 0,
+   "invalid": 0
+  },
+  {
+   "scenario": "Basketball, two on two (public courts)",
+   "success": true,
+   "seconds": 212.2,
+   "calls": 18,
+   "prompt": 27794,
+   "cached": 22374,
+   "fresh": 5420,
+   "cachedShare": 0.805,
+   "output": 3991,
+   "reasoning": 2705,
+   "empty": 0,
+   "invalid": 0
+  }
+ ],
+ "bySite": [
+  {
+   "site": "a2a.answer",
+   "calls": 40,
+   "prompt": 20538,
+   "cached": 7477,
+   "fresh": 13061,
+   "cachedShare": 0.364,
+   "output": 14807,
+   "reasoning": 13633,
+   "seconds": 1023.7,
+   "empty": 1,
+   "invalid": 1,
+   "perCall": {
+    "prompt": 513,
+    "output": 370,
+    "seconds": 25.6
+   }
+  },
+  {
+   "site": "autopilot.runWeek",
+   "calls": 56,
+   "prompt": 149671,
+   "cached": 133312,
+   "fresh": 16359,
+   "cachedShare": 0.891,
+   "output": 7287,
+   "reasoning": 2147,
+   "seconds": 407.7,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 2673,
+    "output": 130,
+    "seconds": 7.3
+   }
+  },
+  {
+   "site": "places.judge",
+   "calls": 4,
+   "prompt": 970,
+   "cached": 1,
+   "fresh": 969,
+   "cachedShare": 0.001,
+   "output": 1209,
+   "reasoning": 921,
+   "seconds": 76.5,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 243,
+    "output": 302,
+    "seconds": 19.1
+   }
+  },
+  {
+   "site": "places.english",
+   "calls": 1,
+   "prompt": 105,
+   "cached": 0,
+   "fresh": 105,
+   "cachedShare": 0,
+   "output": 366,
+   "reasoning": 336,
+   "seconds": 13.5,
+   "empty": 0,
+   "invalid": 0,
+   "perCall": {
+    "prompt": 105,
+    "output": 366,
+    "seconds": 13.5
+   }
+  }
+ ]
+}
