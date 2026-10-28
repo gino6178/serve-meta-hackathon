@@ -1,0 +1,3974 @@
+[
+ {
+  "scenario": "H01 3 badminton, doubles (knee)",
+  "needed": 3,
+  "agreed": 3,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 105.9,
+  "modelCalls": 9,
+  "toolCalls": 11,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs2x0dp-d3y6-5",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "tokens": {
+   "calls": 9,
+   "prompt": 27889,
+   "cached": 25261,
+   "fresh": 2628,
+   "cachedShare": 0.906,
+   "output": 1021,
+   "reasoning": 119,
+   "seconds": 87.9,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 16,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Joel, Dev",
+   "badminton doubles Sat 09:00 with Leo, Rami, Rosa",
+   "badminton doubles Tue 19:00 with Mira, Rosa, Dev"
+  ],
+  "summary": "Three badminton doubles games are agreed for Thu 2026-10-29 19:00, Sat 2026-10-31 09:00 and Tue 2026-11-03 19:00.",
+  "error": null
+ },
+ {
+  "scenario": "H01 3 badminton, doubles (knee)",
+  "needed": 3,
+  "agreed": 3,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 111.7,
+  "modelCalls": 9,
+  "toolCalls": 11,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs2za5j-wu4j-5",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "tokens": {
+   "calls": 9,
+   "prompt": 27889,
+   "cached": 25957,
+   "fresh": 1932,
+   "cachedShare": 0.931,
+   "output": 1232,
+   "reasoning": 333,
+   "seconds": 108.8,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 16,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Zara, Joel",
+   "badminton doubles Sat 09:00 with Leo, Rami, Rosa",
+   "badminton doubles Tue 19:30 with Mira, Zara, Dev"
+  ],
+  "summary": "Three badminton doubles games are agreed for Thu 2026-10-29 19:00, Sat 2026-10-31 09:00 and Tue 2026-11-03 19:30, all within the 90-minute limit and respecting the no jump landings health limit.",
+  "error": null
+ },
+ {
+  "scenario": "H01 3 badminton, doubles (knee)",
+  "needed": 3,
+  "agreed": 3,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 102.4,
+  "modelCalls": 9,
+  "toolCalls": 11,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs31obh-ue1b-5",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "tokens": {
+   "calls": 9,
+   "prompt": 27903,
+   "cached": 25962,
+   "fresh": 1941,
+   "cachedShare": 0.93,
+   "output": 1045,
+   "reasoning": 161,
+   "seconds": 99.3,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 16,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Joel, Zara",
+   "badminton doubles Sat 09:00 with Leo, Rami, Rosa",
+   "badminton doubles Tue 19:30 with Mira, Dev, Rosa"
+  ],
+  "summary": "Three doubles badminton games are agreed for Thu 19:00, Sat 09:00 and Tue 19:30, respecting the no jump landings limit.",
+  "error": null
+ },
+ {
+  "scenario": "H01 3 badminton, doubles (knee)",
+  "needed": 3,
+  "agreed": 3,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 104.1,
+  "modelCalls": 9,
+  "toolCalls": 11,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs33vde-byad-5",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "tokens": {
+   "calls": 9,
+   "prompt": 27896,
+   "cached": 25961,
+   "fresh": 1935,
+   "cachedShare": 0.931,
+   "output": 1107,
+   "reasoning": 185,
+   "seconds": 99.8,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 16,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Joel, Zara",
+   "badminton doubles Sat 09:00 with Leo, Rami, Joel",
+   "badminton doubles Tue 19:30 with Mira, Dev, Rosa"
+  ],
+  "summary": "Three badminton doubles games are agreed: Thu 2026-10-29 19:00 with Leo, Joel and Zara; Sat 2026-10-31 09:00 with Leo, Rami and Joel; Tue 2026-11-03 19:30 with Mira, Dev and Rosa, all within the 90-minute limit and respecting the no jump landings health limit.",
+  "error": null
+ },
+ {
+  "scenario": "H01 3 badminton, doubles (knee)",
+  "needed": 3,
+  "agreed": 3,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 78.7,
+  "modelCalls": 8,
+  "toolCalls": 10,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 8,
+   "prompt": 24033,
+   "cached": 22316,
+   "fresh": 1717,
+   "cachedShare": 0.929,
+   "output": 976,
+   "reasoning": 230,
+   "seconds": 73.3,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 12,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Zara, Joel",
+   "badminton doubles Sat 09:00 with Rami, Leo, Tomás",
+   "badminton doubles Tue 19:30 with Mira, Dev, Rosa"
+  ],
+  "summary": "All three badminton games are agreed for Thu 19:00, Sat 09:00 and Tue 19:30 with doubles partners.",
+  "error": null
+ },
+ {
+  "scenario": "H02 1 pickleball",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 59.3,
+  "modelCalls": 6,
+  "toolCalls": 8,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 6,
+   "prompt": 15850,
+   "cached": 14143,
+   "fresh": 1707,
+   "cachedShare": 0.892,
+   "output": 765,
+   "reasoning": 268,
+   "seconds": 58.5,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 2,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball singles Thu 19:00 with Rina"
+  ],
+  "summary": "Lined up 1 game: Pickleball 1 on 1 Thursday 19:00 at Riverside Sports Centre with Rina. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H02 1 pickleball",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 50.7,
+  "modelCalls": 4,
+  "toolCalls": 6,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 4,
+   "prompt": 9872,
+   "cached": 9364,
+   "fresh": 508,
+   "cachedShare": 0.949,
+   "output": 577,
+   "reasoning": 268,
+   "seconds": 50,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Thu 19:00 with Rina, Tomás, Leo"
+  ],
+  "summary": "Lined up 1 game: Pickleball 2 on 2 Thursday 19:00 at Riverside Sports Centre with Rina, Tomás, Leo. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H02 1 pickleball",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 83.8,
+  "modelCalls": 6,
+  "toolCalls": 8,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 6,
+   "prompt": 16025,
+   "cached": 14840,
+   "fresh": 1185,
+   "cachedShare": 0.926,
+   "output": 877,
+   "reasoning": 380,
+   "seconds": 82.2,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sat 09:00 with Rami, Femi, Sam"
+  ],
+  "summary": "Lined up 1 game: Pickleball 2 on 2 Saturday 09:00 at Riverside Sports Centre with Rami, Femi, Sam. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H02 1 pickleball",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 60.5,
+  "modelCalls": 6,
+  "toolCalls": 8,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 6,
+   "prompt": 16010,
+   "cached": 14825,
+   "fresh": 1185,
+   "cachedShare": 0.926,
+   "output": 877,
+   "reasoning": 389,
+   "seconds": 58.8,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sat 09:00 with Rami, Femi, Sam"
+  ],
+  "summary": "Your one pickleball game is set for Sat 2026-10-31 09:00 at Riverside Sports Centre with Rami, Femi and Sam.",
+  "error": null
+ },
+ {
+  "scenario": "H02 1 pickleball",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 33.5,
+  "modelCalls": 5,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 5,
+   "prompt": 12809,
+   "cached": 11938,
+   "fresh": 871,
+   "cachedShare": 0.932,
+   "output": 758,
+   "reasoning": 371,
+   "seconds": 32.5,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 2,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball singles Thu 19:00 with Rina"
+  ],
+  "summary": "Lined up 1 game: Pickleball 1 on 1 Thursday 19:00 at Riverside Sports Centre with Rina. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H03 2 badminton",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 67,
+  "modelCalls": 7,
+  "toolCalls": 9,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3dym2-h2rb-5",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "tokens": {
+   "calls": 7,
+   "prompt": 19926,
+   "cached": 17865,
+   "fresh": 2061,
+   "cachedShare": 0.897,
+   "output": 998,
+   "reasoning": 360,
+   "seconds": 63.7,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 12,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Zara, Joel",
+   "badminton doubles Sat 09:00 with Leo, Rami, Rosa"
+  ],
+  "summary": "Two badminton doubles games are set for Thu 19:00 and Sat 09:00 at Riverside Sports Centre.",
+  "error": null
+ },
+ {
+  "scenario": "H03 2 badminton",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 59.1,
+  "modelCalls": 7,
+  "toolCalls": 9,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3febv-4mfu-5",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "tokens": {
+   "calls": 7,
+   "prompt": 19891,
+   "cached": 18484,
+   "fresh": 1407,
+   "cachedShare": 0.929,
+   "output": 894,
+   "reasoning": 248,
+   "seconds": 48.2,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 12,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Dev, Zara",
+   "badminton doubles Sat 09:00 with Leo, Rami, Joel"
+  ],
+  "summary": "Two badminton games are set for Thu 19:00 with Leo, Dev and Zara and Sat 09:00 with Leo, Rami and Joel, both at Riverside Sports Centre.",
+  "error": null
+ },
+ {
+  "scenario": "H03 2 badminton",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 40.8,
+  "modelCalls": 6,
+  "toolCalls": 8,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 6,
+   "prompt": 16433,
+   "cached": 15242,
+   "fresh": 1191,
+   "cachedShare": 0.928,
+   "output": 719,
+   "reasoning": 207,
+   "seconds": 29.7,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Dev, Zara",
+   "badminton doubles Sat 09:00 with Leo, Rami, Tomás"
+  ],
+  "summary": "Two badminton games are set for Thu 19:00 and Sat 09:00 at Riverside Sports Centre.",
+  "error": null
+ },
+ {
+  "scenario": "H03 2 badminton",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 27.3,
+  "modelCalls": 7,
+  "toolCalls": 9,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3hjg2-rt9x-5",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "tokens": {
+   "calls": 7,
+   "prompt": 19931,
+   "cached": 18520,
+   "fresh": 1411,
+   "cachedShare": 0.929,
+   "output": 924,
+   "reasoning": 242,
+   "seconds": 22.8,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 12,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Joel, Dev",
+   "badminton doubles Sat 09:00 with Leo, Rami, Rosa"
+  ],
+  "summary": "Lined up 2 games: Doubles Thursday 19:00 at Riverside Sports Centre with Leo, Joel, Dev; Doubles Saturday 09:00 at Riverside Sports Centre with Leo, Rami, Rosa. They wait for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H03 2 badminton",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 52.5,
+  "modelCalls": 6,
+  "toolCalls": 8,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 6,
+   "prompt": 16475,
+   "cached": 15281,
+   "fresh": 1194,
+   "cachedShare": 0.928,
+   "output": 853,
+   "reasoning": 315,
+   "seconds": 47.8,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Zara, Joel",
+   "badminton doubles Sat 09:00 with Rami, Leo, Tomás"
+  ],
+  "summary": "Your week is set with two badminton doubles at Riverside Sports Centre on Thu 19:00 with Leo, Zara and Joel, and Sat 09:00 with Rami, Leo and Tomás.",
+  "error": null
+ },
+ {
+  "scenario": "H04 2 pickleball, Mon booked, Femi ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s007 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 28.9,
+  "modelCalls": 4,
+  "toolCalls": 6,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "most played habitual time to get the remaining pickleball game"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s009",
+      "tomas",
+      "leo"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "best habitual time with top ranked free partners and best play partner"
+    }
+   },
+   {
+    "k": 5,
+    "name": "request_approval",
+    "by": "model",
+    "args": {
+     "reason": "one game agreed for Thu 19:00, need player approval before booking"
+    }
+   },
+   {
+    "k": 6,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "Agreed one pickleball doubles game Thu 19:00 with Rina, Tomás and Leo at Riverside Sports Centre; awaiting your approval to book."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 4,
+   "prompt": 10015,
+   "cached": 8817,
+   "fresh": 1198,
+   "cachedShare": 0.88,
+   "output": 521,
+   "reasoning": 196,
+   "seconds": 26.9,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Thu 19:00 with Rina, Tomás, Leo"
+  ],
+  "summary": "Agreed one pickleball doubles game Thu 19:00 with Rina, Tomás and Leo at Riverside Sports Centre; awaiting your approval to book.",
+  "error": null
+ },
+ {
+  "scenario": "H04 2 pickleball, Mon booked, Femi ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s007 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 37.4,
+  "modelCalls": 4,
+  "toolCalls": 6,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "most played habitual time to fill remaining pickleball game"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s009",
+      "tomas",
+      "leo"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "best habitual time with top fit candidates and best partner Leo"
+    }
+   },
+   {
+    "k": 5,
+    "name": "request_approval",
+    "by": "model",
+    "args": {
+     "reason": "one agreed pickleball game for this week"
+    }
+   },
+   {
+    "k": 6,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "Booked Thu 19:00 doubles with Rina, Tomás and Leo at Riverside Sports Centre."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 4,
+   "prompt": 10003,
+   "cached": 9489,
+   "fresh": 514,
+   "cachedShare": 0.949,
+   "output": 698,
+   "reasoning": 397,
+   "seconds": 36.2,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Thu 19:00 with Rina, Tomás, Leo"
+  ],
+  "summary": "Lined up 1 game: Pickleball 2 on 2 Thursday 19:00 at Riverside Sports Centre with Rina, Tomás, Leo. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H04 2 pickleball, Mon booked, Femi ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 47.3,
+  "modelCalls": 7,
+  "toolCalls": 9,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 7,
+   "prompt": 19557,
+   "cached": 18098,
+   "fresh": 1459,
+   "cachedShare": 0.925,
+   "output": 1111,
+   "reasoning": 501,
+   "seconds": 44.7,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sat 09:00 with Rami, Femi, Sam"
+  ],
+  "summary": "One pickleball game is agreed for Sat 2026-10-31 09:00 at Riverside Sports Centre with Rami, Femi and Sam, awaiting your approval.",
+  "error": null
+ },
+ {
+  "scenario": "H04 2 pickleball, Mon booked, Femi ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s007 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 17.1,
+  "modelCalls": 4,
+  "toolCalls": 6,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "most played habitual time this week to fill remaining pickleball game"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s009",
+      "tomas",
+      "leo"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "best habitual time with top ranked free partners and best historical partner"
+    }
+   },
+   {
+    "k": 5,
+    "name": "request_approval",
+    "by": "model",
+    "args": {
+     "reason": "one agreed pickleball game for the week, still need approval to book"
+    }
+   },
+   {
+    "k": 6,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "Agreed one pickleball doubles game Thu 2026-10-29 19:00 at Riverside Sports Centre with Rina, Tomás and Leo; awaiting your approval to book."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 4,
+   "prompt": 10017,
+   "cached": 9500,
+   "fresh": 517,
+   "cachedShare": 0.948,
+   "output": 536,
+   "reasoning": 203,
+   "seconds": 15.6,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Thu 19:00 with Rina, Tomás, Leo"
+  ],
+  "summary": "Agreed one pickleball doubles game Thu 2026-10-29 19:00 at Riverside Sports Centre with Rina, Tomás and Leo; awaiting your approval to book.",
+  "error": null
+ },
+ {
+  "scenario": "H04 2 pickleball, Mon booked, Femi ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 35.2,
+  "modelCalls": 6,
+  "toolCalls": 8,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 6,
+   "prompt": 16193,
+   "cached": 15006,
+   "fresh": 1187,
+   "cachedShare": 0.927,
+   "output": 875,
+   "reasoning": 377,
+   "seconds": 26,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sat 09:00 with Rami, Femi, Sam"
+  ],
+  "summary": "Agreed one pickleball game Sat 2026-10-31 09:00 at Riverside Sports Centre with Rami, Femi and Sam; awaiting your approval.",
+  "error": null
+ },
+ {
+  "scenario": "H05 2 badminton, doubles (knee), Thu booked, Leo left out, Joel ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s008 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 34,
+  "modelCalls": 5,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3mt0t-kiqz-3",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "leaveOut": [
+      "leo"
+     ],
+     "reason": "most played habitual time after Thu already booked, need one more game"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s004",
+      "tomas",
+      "s011"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "top fit candidates for Sat 09:00 doubles, Leo left out per memory"
+    }
+   },
+   {
+    "k": 5,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s004",
+      "tomas",
+      "s014"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "next best combination after Sora declined"
+    }
+   },
+   {
+    "k": 6,
+    "name": "request_approval",
+    "by": "model",
+    "args": {}
+   },
+   {
+    "k": 7,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "Your week is set: Thu 19:00 already booked and Sat 09:00 doubles with Rami, Tomás and Rosa at Riverside Sports Centre is agreed, meeting your 2-game goal."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 5,
+   "prompt": 13410,
+   "cached": 11808,
+   "fresh": 1602,
+   "cachedShare": 0.881,
+   "output": 823,
+   "reasoning": 345,
+   "seconds": 20.6,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Rami, Tomás, Rosa"
+  ],
+  "summary": "Lined up 1 game: Doubles Saturday 09:00 at Riverside Sports Centre with Rami, Tomás, Rosa. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H05 2 badminton, doubles (knee), Thu booked, Leo left out, Joel ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 18.5,
+  "modelCalls": 5,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3nj8v-fe6u-3",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "tokens": {
+   "calls": 5,
+   "prompt": 13417,
+   "cached": 12490,
+   "fresh": 927,
+   "cachedShare": 0.931,
+   "output": 729,
+   "reasoning": 248,
+   "seconds": 17.5,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Rami, Tomás, Joel"
+  ],
+  "summary": "Lined up 1 game: Doubles Saturday 09:00 at Riverside Sports Centre with Rami, Tomás, Joel. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H05 2 badminton, doubles (knee), Thu booked, Leo left out, Joel ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s008 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 19.3,
+  "modelCalls": 5,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3nxjs-kxb1-3",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "leaveOut": [
+      "leo"
+     ],
+     "reason": "most played habitual time still free and doubles first due to health limit"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s004",
+      "s011",
+      "s014"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "top three candidates for Sat 09:00 doubles, Leo left out per memory"
+    }
+   },
+   {
+    "k": 5,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s004",
+      "s014",
+      "tomas"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "next best combination after Sora declined"
+    }
+   },
+   {
+    "k": 6,
+    "name": "request_approval",
+    "by": "model",
+    "args": {
+     "reason": "one agreed game for this week, need player approval before booking"
+    }
+   },
+   {
+    "k": 7,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "Booked Sat 09:00 doubles with Rami, Rosa and Tomás at Riverside Sports Centre; Thu 19:00 already booked, so 2 games this week are complete."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 5,
+   "prompt": 13397,
+   "cached": 12478,
+   "fresh": 919,
+   "cachedShare": 0.931,
+   "output": 768,
+   "reasoning": 302,
+   "seconds": 18.3,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Rami, Rosa, Tomás"
+  ],
+  "summary": "Lined up 1 game: Doubles Saturday 09:00 at Riverside Sports Centre with Rami, Rosa, Tomás. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H05 2 badminton, doubles (knee), Thu booked, Leo left out, Joel ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 19.3,
+  "modelCalls": 5,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3och6-m05b-3",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "tokens": {
+   "calls": 5,
+   "prompt": 13379,
+   "cached": 12465,
+   "fresh": 914,
+   "cachedShare": 0.932,
+   "output": 778,
+   "reasoning": 317,
+   "seconds": 18.5,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Rami, Tomás, Joel"
+  ],
+  "summary": "Lined up 1 game: Doubles Saturday 09:00 at Riverside Sports Centre with Rami, Tomás, Joel. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H05 2 badminton, doubles (knee), Thu booked, Leo left out, Joel ran long",
+  "needed": 1,
+  "agreed": 2,
+  "oracle": [
+   "s008 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 30.3,
+  "modelCalls": 8,
+  "toolCalls": 10,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3ordb-y9za-3",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "leaveOut": [
+      "leo"
+     ],
+     "reason": "most played habitual time still free and doubles first due to health limit"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s004",
+      "s011",
+      "s014"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "top three candidates for Sat 09:00 doubles, Leo left out per memory"
+    }
+   },
+   {
+    "k": 5,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s004",
+      "tomas",
+      "s014"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "replace Sora with Tomás after Sora declined"
+    }
+   },
+   {
+    "k": 6,
+    "name": "request_approval",
+    "by": "model",
+    "args": {
+     "reason": "one agreed badminton doubles game for Sat 09:00, still need one more game to reach goal of 2"
+    }
+   },
+   {
+    "k": 7,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Tue",
+     "start": "19:30",
+     "format": "doubles",
+     "leaveOut": [
+      "leo"
+     ],
+     "reason": "next habitual time after Sat, doubles first per health limit"
+    }
+   },
+   {
+    "k": 8,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s001",
+      "s015",
+      "s002"
+     ],
+     "day": "Tue",
+     "start": "19:30",
+     "format": "doubles",
+     "reason": "top three candidates for Tue 19:30 doubles, Leo left out"
+    }
+   },
+   {
+    "k": 9,
+    "name": "request_approval",
+    "by": "model",
+    "args": {
+     "reason": "second agreed badminton doubles game for Tue 19:30, completing goal of 2 games"
+    }
+   },
+   {
+    "k": 10,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "You have 2 badminton games agreed: Sat 09:00 doubles with Rami, Tomás and Rosa at Riverside Sports Centre, and Tue 19:30 doubles with Mira, Dev and Zara at Midtown Community Gym, both respecting no jump landings and leaving Leo out."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 8,
+   "prompt": 23596,
+   "cached": 22109,
+   "fresh": 1487,
+   "cachedShare": 0.937,
+   "output": 1145,
+   "reasoning": 336,
+   "seconds": 29,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 12,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Rami, Tomás, Rosa",
+   "badminton doubles Tue 19:30 with Mira, Dev, Zara"
+  ],
+  "summary": "You have 2 badminton games agreed: Sat 09:00 doubles with Rami, Tomás and Rosa at Riverside Sports Centre, and Tue 19:30 doubles with Mira, Dev and Zara at Midtown Community Gym, both respecting no jump landings and leaving Leo out.",
+  "error": null
+ },
+ {
+  "scenario": "H06 2 pickleball, Rina left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 33.4,
+  "modelCalls": 9,
+  "toolCalls": 11,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 9,
+   "prompt": 27741,
+   "cached": 24856,
+   "fresh": 2885,
+   "cachedShare": 0.896,
+   "output": 1194,
+   "reasoning": 326,
+   "seconds": 31.9,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sat 09:00 with Rami, Femi, Tomás",
+   "pickleball doubles Sun 10:00 with Rami, Femi, Priya"
+  ],
+  "summary": "Two pickleball games are agreed: Sat 2026-10-31 09:00 with Rami, Femi and Tomás, and Sun 2026-11-01 10:00 with Rami, Femi and Priya, both at Riverside Sports Centre.",
+  "error": null
+ },
+ {
+  "scenario": "H06 2 pickleball, Rina left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 42.1,
+  "modelCalls": 11,
+  "toolCalls": 13,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 11,
+   "prompt": 35954,
+   "cached": 32998,
+   "fresh": 2956,
+   "cachedShare": 0.918,
+   "output": 1606,
+   "reasoning": 570,
+   "seconds": 40.5,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sat 09:00 with Tomás, Rami, Sam",
+   "pickleball doubles Sun 10:00 with Rami, Priya, Sam"
+  ],
+  "summary": "Two pickleball games are set: Saturday 09:00 with Tomás, Rami and Sam, and Sunday 10:00 with Rami, Priya and Sam.",
+  "error": null
+ },
+ {
+  "scenario": "H06 2 pickleball, Rina left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 42.4,
+  "modelCalls": 11,
+  "toolCalls": 13,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 11,
+   "prompt": 34016,
+   "cached": 31885,
+   "fresh": 2131,
+   "cachedShare": 0.937,
+   "output": 1696,
+   "reasoning": 738,
+   "seconds": 41.5,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 6,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "recall",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball singles Thu 19:00 with Tomás",
+   "pickleball doubles Sat 09:00 with Rami, Sam, Tomás"
+  ],
+  "summary": "Your week is set with singles on Thu 19:00 with Tomás and doubles on Sat 09:00 with Rami, Sam and Tomás.",
+  "error": null
+ },
+ {
+  "scenario": "H06 2 pickleball, Rina left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "rules",
+  "success": true,
+  "seconds": 51.9,
+  "modelCalls": 12,
+  "toolCalls": 17,
+  "parallelPeak": 1,
+  "refused": 2,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": {
+   "kind": "timeout",
+   "step": null,
+   "tool": "model turn",
+   "line": "Rules finished the plan at a model turn: the model used the run's whole step budget before the plan was done (timeout).",
+   "recovered": true
+  },
+  "failedTalks": [],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "what is Rina's member id",
+     "reason": "need to leave Rina out of games per fromMemory"
+    }
+   },
+   {
+    "k": 4,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Rina member id",
+     "reason": "need id to leave out per fromMemory note"
+    }
+   },
+   {
+    "k": 5,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "most played habitual time for first pickleball game"
+    }
+   },
+   {
+    "k": 6,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Rina Petrov member id",
+     "reason": "need id to exclude from partners"
+    }
+   },
+   {
+    "k": 7,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "most played habitual time for first pickleball game"
+    }
+   },
+   {
+    "k": 8,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "leaveOut": [
+      "s009"
+     ],
+     "reason": "most played habitual time, exclude Rina per request"
+    }
+   },
+   {
+    "k": 9,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "leaveOut": [
+      "s009"
+     ],
+     "reason": "second most played habitual time for second game"
+    }
+   },
+   {
+    "k": 10,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "tomas",
+      "s004",
+      "s007"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "most played habitual time with best available partner"
+    }
+   },
+   {
+    "k": 11,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "tomas",
+      "s004",
+      "s007"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "second habitual time with best available partners"
+    }
+   },
+   {
+    "k": 12,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "leaveOut": [
+      "s009"
+     ],
+     "reason": "need partners for first game after Sat agreed"
+    }
+   },
+   {
+    "k": 13,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "tomas",
+      "s004",
+      "s007"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "most played habitual time with Tomás"
+    }
+   },
+   {
+    "k": 14,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sun",
+     "start": "10:00",
+     "format": "doubles",
+     "leaveOut": [
+      "s009"
+     ],
+     "reason": "Sunday before lunch suits player per fromMemory"
+    }
+   },
+   {
+    "k": 15,
+    "name": "find_partners",
+    "by": "rules",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "singles",
+     "reason": "you played Thu 19:00 6 of the last 8 weeks"
+    }
+   },
+   {
+    "k": 16,
+    "name": "negotiate",
+    "by": "rules",
+    "args": {
+     "members": [
+      "tomas"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "singles",
+     "reason": "best fit"
+    }
+   },
+   {
+    "k": 17,
+    "name": "request_approval",
+    "by": "rules",
+    "args": {
+     "reason": "games agreed"
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 12,
+   "prompt": 37978,
+   "cached": 35542,
+   "fresh": 2436,
+   "cachedShare": 0.936,
+   "output": 2127,
+   "reasoning": 1011,
+   "seconds": 50.8,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 6,
+  "rulesTookOver": true,
+  "tools": [
+   "get_week",
+   "check_body",
+   "recall",
+   "find_partners",
+   "negotiate",
+   "fallback",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sat 09:00 with Tomás, Rami, Femi",
+   "pickleball singles Thu 19:00 with Tomás"
+  ],
+  "summary": "Lined up 2 games for you; they wait for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H06 2 pickleball, Rina left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 52.4,
+  "modelCalls": 12,
+  "toolCalls": 14,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 12,
+   "prompt": 38291,
+   "cached": 35802,
+   "fresh": 2489,
+   "cachedShare": 0.935,
+   "output": 2156,
+   "reasoning": 1096,
+   "seconds": 51.1,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "recall",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sat 09:00 with Rami, Femi, Sam",
+   "pickleball doubles Sun 10:00 with Rami, Priya, Femi"
+  ],
+  "summary": "Lined up 2 games: Pickleball 2 on 2 Saturday 09:00 at Riverside Sports Centre with Rami, Femi, Sam; Pickleball 2 on 2 Sunday 10:00 at Riverside Sports Centre with Rami, Priya, Femi. They wait for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H07 2 badminton, doubles (knee), Thu booked, Dev ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s015 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 21.8,
+  "modelCalls": 5,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3u657-6vrq-3",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "most played habitual time still free for the remaining badminton game"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "s004",
+      "s011"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "top ranked free partners for the most played habitual slot"
+    }
+   },
+   {
+    "k": 5,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "s004",
+      "s014"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "next best combination after Sora declined"
+    }
+   },
+   {
+    "k": 6,
+    "name": "request_approval",
+    "by": "model",
+    "args": {}
+   },
+   {
+    "k": 7,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "Your week is set: Thu 19:00 is booked and Sat 09:00 with Leo, Rami and Rosa at Riverside Sports Centre is agreed, giving you 2 badminton games."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 5,
+   "prompt": 13442,
+   "cached": 11842,
+   "fresh": 1600,
+   "cachedShare": 0.881,
+   "output": 816,
+   "reasoning": 352,
+   "seconds": 20.9,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Rami, Rosa"
+  ],
+  "summary": "Lined up 1 game: Doubles Saturday 09:00 at Riverside Sports Centre with Leo, Rami, Rosa. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H07 2 badminton, doubles (knee), Thu booked, Dev ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s015 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 19.8,
+  "modelCalls": 5,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3umy0-e618-3",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "most played habitual time for remaining badminton game"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "s004",
+      "s011"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "top fit partners for most played habitual time"
+    }
+   },
+   {
+    "k": 5,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "s004",
+      "s014"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "next best fit combination after Sora declined"
+    }
+   },
+   {
+    "k": 6,
+    "name": "request_approval",
+    "by": "model",
+    "args": {
+     "reason": "one game agreed for the week"
+    }
+   },
+   {
+    "k": 7,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "One badminton game is agreed for Sat 2026-10-31 09:00 at Riverside Sports Centre with Leo, Rami and Rosa; approval requested."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 5,
+   "prompt": 13408,
+   "cached": 12520,
+   "fresh": 888,
+   "cachedShare": 0.934,
+   "output": 785,
+   "reasoning": 350,
+   "seconds": 19,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Rami, Rosa"
+  ],
+  "summary": "One badminton game is agreed for Sat 2026-10-31 09:00 at Riverside Sports Centre with Leo, Rami and Rosa; approval requested.",
+  "error": null
+ },
+ {
+  "scenario": "H07 2 badminton, doubles (knee), Thu booked, Dev ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 15.4,
+  "modelCalls": 4,
+  "toolCalls": 6,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 4,
+   "prompt": 10343,
+   "cached": 9660,
+   "fresh": 683,
+   "cachedShare": 0.934,
+   "output": 629,
+   "reasoning": 280,
+   "seconds": 14.8,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sun 10:00 with Dev, Rami, Aisha"
+  ],
+  "summary": "Lined up 1 game: Doubles Sunday 10:00 at Midtown Community Gym with Dev, Rami, Aisha. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H07 2 badminton, doubles (knee), Thu booked, Dev ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s015 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 16.5,
+  "modelCalls": 4,
+  "toolCalls": 6,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "most played habitual time still free for the remaining badminton game"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "s004",
+      "s008"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "top fit candidates for the most played free habitual slot"
+    }
+   },
+   {
+    "k": 5,
+    "name": "request_approval",
+    "by": "model",
+    "args": {}
+   },
+   {
+    "k": 6,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "Your week is set: Thu 19:00 is booked and Sat 09:00 with Leo, Rami and Joel is agreed at Riverside Sports Centre, giving you 2 badminton games."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 4,
+   "prompt": 10336,
+   "cached": 9662,
+   "fresh": 674,
+   "cachedShare": 0.935,
+   "output": 678,
+   "reasoning": 334,
+   "seconds": 15.8,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Rami, Joel"
+  ],
+  "summary": "Lined up 1 game: Doubles Saturday 09:00 at Riverside Sports Centre with Leo, Rami, Joel. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H07 2 badminton, doubles (knee), Thu booked, Dev ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s015 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 22.2,
+  "modelCalls": 5,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 1,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [
+   {
+    "talk": "neg-ap-mvs3vqw5-24rp-3",
+    "reason": "Sora can't play at any of the times",
+    "kind": "no_option",
+    "what": "the members' agents said no"
+   }
+  ],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "most played habitual time remaining for the second badminton game"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "s004",
+      "s011"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "best fit candidates for the most played habitual time"
+    }
+   },
+   {
+    "k": 5,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "s004",
+      "s014"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "next best fit candidates after Sora declined"
+    }
+   },
+   {
+    "k": 6,
+    "name": "request_approval",
+    "by": "model",
+    "args": {}
+   },
+   {
+    "k": 7,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "Your week is set: Thu 19:00 is booked and Sat 09:00 with Leo, Rami and Rosa at Riverside Sports Centre is agreed, giving you 2 badminton games."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 5,
+   "prompt": 13437,
+   "cached": 12546,
+   "fresh": 891,
+   "cachedShare": 0.934,
+   "output": 925,
+   "reasoning": 467,
+   "seconds": 21.4,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Rami, Rosa"
+  ],
+  "summary": "Lined up 1 game: Doubles Saturday 09:00 at Riverside Sports Centre with Leo, Rami, Rosa. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H08 1 badminton, Kenji left out",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 33.8,
+  "modelCalls": 6,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 5,
+   "prompt": 12968,
+   "cached": 11488,
+   "fresh": 1480,
+   "cachedShare": 0.886,
+   "output": 1026,
+   "reasoning": 702,
+   "seconds": 24.5,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 1,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "recall",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Hana, Ines"
+  ],
+  "summary": "Lined up 1 game: Doubles Thursday 19:00 at Lakeside School Hall with Leo, Hana, Ines. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H08 1 badminton, Kenji left out",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 40.8,
+  "modelCalls": 5,
+  "toolCalls": 6,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 1,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 4,
+   "prompt": 10225,
+   "cached": 9556,
+   "fresh": 669,
+   "cachedShare": 0.935,
+   "output": 989,
+   "reasoning": 730,
+   "seconds": 22.6,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 1,
+  "agentMessages": 5,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Hana, Rami"
+  ],
+  "summary": "Your one badminton game is set for Sat 2026-10-31 09:00 with Leo, Hana and Rami at Midtown Community Gym.",
+  "error": null
+ },
+ {
+  "scenario": "H08 1 badminton, Kenji left out",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 23.8,
+  "modelCalls": 4,
+  "toolCalls": 6,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 4,
+   "prompt": 10192,
+   "cached": 9541,
+   "fresh": 651,
+   "cachedShare": 0.936,
+   "output": 1021,
+   "reasoning": 776,
+   "seconds": 23.2,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Ines, Rami"
+  ],
+  "summary": "Your badminton week is set: Thu 2026-10-29 19:00 doubles with Leo Park, Ines and Rami at Lakeside School Hall.",
+  "error": null
+ },
+ {
+  "scenario": "H08 1 badminton, Kenji left out",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 44.3,
+  "modelCalls": 8,
+  "toolCalls": 9,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 7,
+   "prompt": 21031,
+   "cached": 18895,
+   "fresh": 2136,
+   "cachedShare": 0.898,
+   "output": 1483,
+   "reasoning": 989,
+   "seconds": 34.5,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 1,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Hana, Aisha"
+  ],
+  "summary": "Lined up 1 game: Doubles Thursday 19:00 at Lakeside School Hall with Leo, Hana, Aisha. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H08 1 badminton, Kenji left out",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 38.9,
+  "modelCalls": 7,
+  "toolCalls": 9,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 7,
+   "prompt": 19367,
+   "cached": 17922,
+   "fresh": 1445,
+   "cachedShare": 0.925,
+   "output": 1683,
+   "reasoning": 1218,
+   "seconds": 37.9,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "recall",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Ravi, Ines"
+  ],
+  "summary": "Lined up 1 game: Doubles Thursday 19:00 at Lakeside School Hall with Leo, Ravi, Ines. It waits for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H09 1 pickleball, Rina ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 16.1,
+  "modelCalls": 5,
+  "toolCalls": 7,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 5,
+   "prompt": 12789,
+   "cached": 11271,
+   "fresh": 1518,
+   "cachedShare": 0.881,
+   "output": 584,
+   "reasoning": 213,
+   "seconds": 15.7,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 2,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball singles Thu 19:00 with Rina"
+  ],
+  "summary": "Your pickleball week is set: Thu 2026-10-29 19:00 singles with Rina at Riverside Sports Centre.",
+  "error": null
+ },
+ {
+  "scenario": "H09 1 pickleball, Rina ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 21.5,
+  "modelCalls": 6,
+  "toolCalls": 8,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 6,
+   "prompt": 15846,
+   "cached": 14788,
+   "fresh": 1058,
+   "cachedShare": 0.933,
+   "output": 839,
+   "reasoning": 353,
+   "seconds": 21.1,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 2,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball singles Thu 19:00 with Rina"
+  ],
+  "summary": "Your pickleball week is set with a singles match with Rina on Thu 2026-10-29 at 19:00.",
+  "error": null
+ },
+ {
+  "scenario": "H09 1 pickleball, Rina ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 31.7,
+  "modelCalls": 9,
+  "toolCalls": 11,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 9,
+   "prompt": 26030,
+   "cached": 24079,
+   "fresh": 1951,
+   "cachedShare": 0.925,
+   "output": 1235,
+   "reasoning": 512,
+   "seconds": 31.1,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 2,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "recall",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball singles Thu 19:00 with Rina"
+  ],
+  "summary": "Your pickleball week is set with one singles game on Thu 2026-10-29 19:00 at Riverside Sports Centre with Rina.",
+  "error": null
+ },
+ {
+  "scenario": "H09 1 pickleball, Rina ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 34.2,
+  "modelCalls": 7,
+  "toolCalls": 9,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 7,
+   "prompt": 19953,
+   "cached": 18184,
+   "fresh": 1769,
+   "cachedShare": 0.911,
+   "output": 1412,
+   "reasoning": 900,
+   "seconds": 33.4,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sun 10:00 with Rina, Rami, Priya"
+  ],
+  "summary": "Your pickleball week is set with one doubles game on Sun 2026-11-01 10:00 at Riverside Sports Centre with Rina, Rami and Priya.",
+  "error": null
+ },
+ {
+  "scenario": "H09 1 pickleball, Rina ran long",
+  "needed": 1,
+  "agreed": 1,
+  "oracle": [
+   "s009 not in any game"
+  ],
+  "finishedBy": "model",
+  "success": false,
+  "seconds": 21.5,
+  "modelCalls": 6,
+  "toolCalls": 8,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "most played habitual time this week for pickleball"
+    }
+   },
+   {
+    "k": 4,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s009",
+      "tomas"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "best fit candidates for most played habitual time"
+    }
+   },
+   {
+    "k": 5,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "next most played habitual time after Thu"
+    }
+   },
+   {
+    "k": 6,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "s004",
+      "sam",
+      "s007"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles",
+     "reason": "top three free candidates for Sat 09:00 doubles"
+    }
+   },
+   {
+    "k": 7,
+    "name": "request_approval",
+    "by": "model",
+    "args": {
+     "reason": "one pickleball game agreed for this week"
+    }
+   },
+   {
+    "k": 8,
+    "name": "finish",
+    "by": "model",
+    "args": {
+     "summary": "Your one pickleball game is agreed for Sat 2026-10-31 09:00 at Riverside Sports Centre with Rami, Sam and Femi."
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 6,
+   "prompt": 16027,
+   "cached": 14837,
+   "fresh": 1190,
+   "cachedShare": 0.926,
+   "output": 806,
+   "reasoning": 309,
+   "seconds": 20.9,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "pickleball doubles Sat 09:00 with Rami, Sam, Femi"
+  ],
+  "summary": "Your one pickleball game is agreed for Sat 2026-10-31 09:00 at Riverside Sports Centre with Rami, Sam and Femi.",
+  "error": null
+ },
+ {
+  "scenario": "H10 2 badminton, Femi left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "rules",
+  "success": true,
+  "seconds": 59.2,
+  "modelCalls": 12,
+  "toolCalls": 17,
+  "parallelPeak": 1,
+  "refused": 8,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": {
+   "kind": "timeout",
+   "step": null,
+   "tool": "model turn",
+   "line": "Rules finished the plan at a model turn: the model used the run's whole step budget before the plan was done (timeout).",
+   "recovered": true
+  },
+  "failedTalks": [],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "What is the member id for Femi who the player asked to leave out",
+     "reason": "Need to exclude Femi from partner search per fromMemory note"
+    }
+   },
+   {
+    "k": 4,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "What is Femi's member id in the club",
+     "reason": "Need member id to leave out per player's request"
+    }
+   },
+   {
+    "k": 5,
+    "name": "find_partners",
+    "by": "model",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Most played habitual time this week for badminton"
+    }
+   },
+   {
+    "k": 6,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "priya",
+      "tomas"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Best habitual time with top plays-best-with partners"
+    }
+   },
+   {
+    "k": 7,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "kenji",
+      "tomas"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Leo is top candidate and Tomas plays best with player"
+    }
+   },
+   {
+    "k": 8,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "rami",
+      "aisha"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Leo top candidate with high win chance partners from find_partners"
+    }
+   },
+   {
+    "k": 9,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "rami",
+      "aisha"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Leo top candidate with high win chance partners from find_partners"
+    }
+   },
+   {
+    "k": 10,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "rami",
+      "aisha"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Leo top candidate with high win chance partners from find_partners"
+    }
+   },
+   {
+    "k": 11,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "rami",
+      "aisha"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Leo top candidate with high win chance partners from find_partners"
+    }
+   },
+   {
+    "k": 12,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "rami",
+      "aisha"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Leo top candidate with high win chance partners from find_partners"
+    }
+   },
+   {
+    "k": 13,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "rami",
+      "aisha"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Leo top candidate with high win chance partners from find_partners"
+    }
+   },
+   {
+    "k": 14,
+    "name": "negotiate",
+    "by": "model",
+    "args": {
+     "members": [
+      "leo",
+      "rami",
+      "aisha"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "doubles",
+     "reason": "Leo top candidate with high win chance partners from find_partners"
+    }
+   },
+   {
+    "k": 15,
+    "name": "find_partners",
+    "by": "rules",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "singles",
+     "reason": "you played Thu 19:00 6 of the last 8 weeks"
+    }
+   },
+   {
+    "k": 16,
+    "name": "negotiate",
+    "by": "rules",
+    "args": {
+     "members": [
+      "ines"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "singles",
+     "reason": "best fit"
+    }
+   },
+   {
+    "k": 17,
+    "name": "request_approval",
+    "by": "rules",
+    "args": {
+     "reason": "games agreed"
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 12,
+   "prompt": 38005,
+   "cached": 35784,
+   "fresh": 2221,
+   "cachedShare": 0.942,
+   "output": 2481,
+   "reasoning": 1214,
+   "seconds": 58.3,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 6,
+  "rulesTookOver": true,
+  "tools": [
+   "get_week",
+   "check_body",
+   "recall",
+   "find_partners",
+   "negotiate",
+   "fallback",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Kenji, Tomás",
+   "badminton singles Thu 19:00 with Ines"
+  ],
+  "summary": "Lined up 2 games for you; they wait for your yes.",
+  "error": null
+ },
+ {
+  "scenario": "H10 2 badminton, Femi left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 45.5,
+  "modelCalls": 9,
+  "toolCalls": 10,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 8,
+   "prompt": 22866,
+   "cached": 21441,
+   "fresh": 1425,
+   "cachedShare": 0.938,
+   "output": 1607,
+   "reasoning": 988,
+   "seconds": 37.8,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 1,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "recall",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Kenji, Ravi",
+   "badminton doubles Sat 09:00 with Hugo, Sam, Hana"
+  ],
+  "summary": "Your two badminton games are set: Thu 19:00 with Leo, Kenji and Ravi at Lakeside School Hall, and Sat 09:00 with Hugo, Sam and Hana at Midtown Community Gym.",
+  "error": null
+ },
+ {
+  "scenario": "H10 2 badminton, Femi left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 30.7,
+  "modelCalls": 7,
+  "toolCalls": 9,
+  "parallelPeak": 1,
+  "refused": 1,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 7,
+   "prompt": 20147,
+   "cached": 18676,
+   "fresh": 1471,
+   "cachedShare": 0.927,
+   "output": 1214,
+   "reasoning": 577,
+   "seconds": 29.5,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Sat 09:00 with Leo, Kenji, Tomás",
+   "badminton doubles Sun 10:00 with Kenji, Aisha, Joel"
+  ],
+  "summary": "Your week is set with two badminton games: Sat 2026-10-31 09:00 with Leo, Kenji and Tomás, and Sun 2026-11-01 10:00 with Kenji, Aisha and Joel.",
+  "error": null
+ },
+ {
+  "scenario": "H10 2 badminton, Femi left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "model",
+  "success": true,
+  "seconds": 45.3,
+  "modelCalls": 9,
+  "toolCalls": 11,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": null,
+  "failedTalks": [],
+  "tokens": {
+   "calls": 9,
+   "prompt": 27072,
+   "cached": 25044,
+   "fresh": 2028,
+   "cachedShare": 0.925,
+   "output": 1857,
+   "reasoning": 1122,
+   "seconds": 43.6,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 8,
+  "rulesTookOver": false,
+  "tools": [
+   "get_week",
+   "check_body",
+   "recall",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton doubles Thu 19:00 with Leo, Rami, Ravi",
+   "badminton doubles Sat 09:00 with Hugo, Rami, Sam"
+  ],
+  "summary": "Two badminton games are set for Thu 19:00 with Leo, Rami and Ravi at Lakeside School Hall and Sat 09:00 with Hugo, Rami and Sam at Midtown Community Gym, both approved.",
+  "error": null
+ },
+ {
+  "scenario": "H10 2 badminton, Femi left out",
+  "needed": 2,
+  "agreed": 2,
+  "oracle": [],
+  "finishedBy": "rules",
+  "success": true,
+  "seconds": 51.9,
+  "modelCalls": 12,
+  "toolCalls": 19,
+  "parallelPeak": 1,
+  "refused": 0,
+  "stopsRefused": 0,
+  "failedNegotiations": 0,
+  "counters": 0,
+  "countersThatDidNotFit": 0,
+  "attribution": {
+   "kind": "timeout",
+   "step": null,
+   "tool": "model turn",
+   "line": "Rules finished the plan at a model turn: the model used the run's whole step budget before the plan was done (timeout).",
+   "recovered": true
+  },
+  "failedTalks": [],
+  "trail": [
+   {
+    "k": 1,
+    "name": "get_week",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 2,
+    "name": "check_body",
+    "by": "code",
+    "args": {}
+   },
+   {
+    "k": 3,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "what is the member id for Femi",
+     "reason": "need to leave Femi out of games per player's request"
+    }
+   },
+   {
+    "k": 4,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "member id for Femi",
+     "reason": "need id to leave out per player's request"
+    }
+   },
+   {
+    "k": 5,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Femi member id",
+     "reason": "need to exclude Femi from partner search"
+    }
+   },
+   {
+    "k": 6,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Femi badminton member id",
+     "reason": "need member id to exclude from partner search"
+    }
+   },
+   {
+    "k": 7,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "who is Femi in the club member id",
+     "reason": "need member id to exclude from partner search"
+    }
+   },
+   {
+    "k": 8,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Femi member",
+     "reason": "need member id to exclude from partner search"
+    }
+   },
+   {
+    "k": 9,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Femi badminton player member id",
+     "reason": "need member id to exclude from partner search"
+    }
+   },
+   {
+    "k": 10,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Femi",
+     "reason": "need member id to exclude from partner search"
+    }
+   },
+   {
+    "k": 11,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Femi member id badminton",
+     "reason": "need member id to exclude from partner search"
+    }
+   },
+   {
+    "k": 12,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Femi member id",
+     "reason": "need member id to exclude from partner search"
+    }
+   },
+   {
+    "k": 13,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Femi member id",
+     "reason": "need member id to exclude from partner search"
+    }
+   },
+   {
+    "k": 14,
+    "name": "recall",
+    "by": "model",
+    "args": {
+     "question": "Femi member id",
+     "reason": "need member id to exclude from partner search"
+    }
+   },
+   {
+    "k": 15,
+    "name": "find_partners",
+    "by": "rules",
+    "args": {
+     "day": "Thu",
+     "start": "19:00",
+     "format": "singles",
+     "reason": "you played Thu 19:00 6 of the last 8 weeks"
+    }
+   },
+   {
+    "k": 16,
+    "name": "negotiate",
+    "by": "rules",
+    "args": {
+     "members": [
+      "ines"
+     ],
+     "day": "Thu",
+     "start": "19:00",
+     "format": "singles",
+     "reason": "best fit"
+    }
+   },
+   {
+    "k": 17,
+    "name": "find_partners",
+    "by": "rules",
+    "args": {
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles",
+     "reason": "you played Sat 09:00 4 of the last 8 weeks"
+    }
+   },
+   {
+    "k": 18,
+    "name": "negotiate",
+    "by": "rules",
+    "args": {
+     "members": [
+      "s006"
+     ],
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles",
+     "reason": "best fit"
+    }
+   },
+   {
+    "k": 19,
+    "name": "request_approval",
+    "by": "rules",
+    "args": {
+     "reason": "games agreed"
+    }
+   }
+  ],
+  "tokens": {
+   "calls": 12,
+   "prompt": 35155,
+   "cached": 33963,
+   "fresh": 1192,
+   "cachedShare": 0.966,
+   "output": 2218,
+   "reasoning": 1573,
+   "seconds": 51.2,
+   "empty": 0,
+   "invalid": 0
+  },
+  "agentsThatDidNotAnswer": 0,
+  "quickAnswers": 0,
+  "fullAnswers": 0,
+  "agentMessages": 4,
+  "rulesTookOver": true,
+  "tools": [
+   "get_week",
+   "check_body",
+   "recall",
+   "fallback",
+   "find_partners",
+   "negotiate",
+   "request_approval"
+  ],
+  "games": [
+   "badminton singles Thu 19:00 with Ines",
+   "badminton singles Sat 09:00 with Femi"
+  ],
+  "summary": "Lined up 2 games for you; they wait for your yes.",
+  "error": null
+ }
+]
