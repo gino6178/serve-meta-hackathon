@@ -126,7 +126,7 @@ function GameOn() {
   const [notes, setNotes] = useState([]);
   useEffect(() => {
     let live = true;
-    const ask = () => document.visibilityState === "visible" && agentFetch("/api/feed/notices").then((r) => r.json()).then((j) => live && j.notices?.length && setNotes((x) => [...x, ...j.notices])).catch(() => {});
+    const ask = () => document.visibilityState === "visible" && agentFetch("/api/feed/notices").then((r) => r.json()).then((j) => { if (live && j.notices?.length) { setNotes((x) => [...x, ...j.notices]); dispatchEvent(new Event("serve:notices")); } }).catch(() => {});
     ask(); const t = setInterval(ask, 30000); addEventListener("visibilitychange", ask);
     return () => { live = false; clearInterval(t); removeEventListener("visibilitychange", ask); };
   }, []);

@@ -28,3 +28,6 @@ video/*.mp4
 
 # agents' own worktrees (git worktree), not part of this repository
 .claude/worktrees/
+# the shotcraft film: renders and raw screencasts are rebuilt (npx remotion render; scripts/record_live.mjs)
+video/shotcraft/out/
+video/shotcraft/public/clips/*.webm

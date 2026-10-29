@@ -109,8 +109,9 @@ function Joined({ id }) {
   useEffect(() => {
     let live = true;
     const ask = () => feedApi.one(id).then((r) => live && setP(r.post || r)).catch(() => {});
-    ask(); const t = setInterval(ask, 30000);
-    return () => { live = false; clearInterval(t); };
+    // and at once when a notice arrives (a game that just filled)
+    ask(); const t = setInterval(ask, 30000); addEventListener("serve:notices", ask);
+    return () => { live = false; clearInterval(t); removeEventListener("serve:notices", ask); };
   }, [id]);
   const v = p?.invite;
   if (!v) return null;

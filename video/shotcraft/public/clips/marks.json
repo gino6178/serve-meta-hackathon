@@ -1,0 +1,31 @@
+{
+ "ask": {
+  "start": 2.26,
+  "typed": 7.59,
+  "draft": 23.47,
+  "posted": 39.2,
+  "end": 42.2
+ },
+ "link": {
+  "open": 1.78,
+  "in": 9.14,
+  "end": 12.35
+ },
+ "gameon": {
+  "toast": 4.54,
+  "end": 11.28
+ },
+ "club": {
+  "map": 4.04,
+  "started": 26.1,
+  "end": 29.61
+ },
+ "plan": {
+  "start": 5.99,
+  "planning": 7.71,
+  "agreed": 86.78,
+  "booked": 94.9,
+  "chats": 99.01,
+  "end": 104.05
+ }
+}
