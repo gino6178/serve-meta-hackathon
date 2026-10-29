@@ -124,7 +124,7 @@ async function chart(file) {
     T(s, "serve", 1.45, 0.72, 3, 0.6, { fontSize: 30, bold: true, valign: "middle" });
     T(s, [{ text: "Play more.\n", options: { color: INK } }, { text: "Manage less.", options: { color: GREEN } }], 0.8, 2.0, 5.6, 2.0, { fontSize: 54, bold: true, lineSpacingMultiple: 0.95 });
     T(s, "Your agent sets up your games with your friends' agents, plans around your week, and cuts your highlights. You just say yes.", 0.8, 4.15, 5.2, 1.0, { fontSize: 17, color: MUTED });
-    [["Agents agree your week", GREEN], ["Your agent in Messenger", BLUE], ["15 Meta models: 10 on my GPU, 5 on the Meta Model API", INK]].forEach(([t, c], i) => {
+    [["Agents agree your week", GREEN], ["Your agent in Messenger", BLUE], ["15 Meta models: 10 on my server, 5 on the Meta Model API", INK]].forEach(([t, c], i) => {
       s.addShape(pres.shapes.OVAL, { x: 0.8, y: 5.45 + i * 0.45, w: 0.14, h: 0.14, fill: { color: c }, line: { color: c } });
       T(s, t, 1.08, 5.35 + i * 0.45, 5, 0.34, { fontSize: 14, bold: true, valign: "middle" });
     });
@@ -261,17 +261,15 @@ async function chart(file) {
   {
     const s = content("Demo", "MONDAY · SCHEDULING CONTEXT WITH META'S DRAMA", "Say it once, and your games fit around it",
       "排程脈絡（agent 記憶）：拿掉了 3D 肌肉圖。你在 Messenger、語音或這裡說一句話，agent 把你的原話、比賽和健康 app 的紀錄都變成筆記。\n規劃這週時，用 Meta 的 DRAMA 依語意檢索，越新的筆記權重越高（身體筆記 7 天減半）。畫面上的分數是真實的 DRAMA 相似度乘上時間衰減。\n規則仍由程式從紀錄決定（不讓模型發明規則），每條規則都附上來源筆記，程式檢查引用是同一個部位。\n旁白：Monday, I tell it my right knee is sore. Meta's DRAMA finds what matters this week, and every rule shows where it came from.");
-    // the week's scheduling limits as the player sees them, each with where it came from (no scores, no trends)
-    box(s, 0.6, 1.85, 5.3, 4.75, { fill: WHITE, line: LINE });
-    T(s, "THIS WEEK'S LIMITS", 0.85, 2.0, 4.8, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
-    [["Doubles first", "You said, Sun 25 Oct"], ["No games after 22:00 on work nights", "You said, Thu 22 Oct"], ["Leave Tom\u00e1s out for now", "You said, Fri 23 Oct"], ["One game fewer this week", "Your games and health app"]].forEach(([h, src], i) => {
-      const yy = 2.4 + i * 1.02;
-      box(s, 0.85, yy, 4.8, 0.86, { fill: CARD, line: CARD });
-      T(s, h, 1.05, yy + 0.1, 4.4, 0.32, { fontSize: 14, bold: true });
-      T(s, src, 1.05, yy + 0.48, 4.4, 0.28, { fontSize: 10.5, color: GREEN });
-    });
-    const x = 6.2;
-    const step = (i, h, d) => { s.addShape(pres.shapes.OVAL, { x, y: 1.95 + i * 1.18, w: 0.42, h: 0.42, fill: { color: GREEN }, line: { color: GREEN } }); T(s, String(i + 1), x, 1.95 + i * 1.18, 0.42, 0.42, { fontSize: 14, bold: true, color: WHITE, align: "center", valign: "middle" }); T(s, h, x + 0.6, 1.92 + i * 1.18, 5.9, 0.32, { fontSize: 15, bold: true }); T(s, d, x + 0.6, 2.25 + i * 1.18, 5.9, 0.8, { fontSize: 12, color: MUTED }); };
+    // four steps, two by two (no example notes: dated examples could be read as work from before the hackathon)
+    const step = (i, h, d) => {
+      const x = 0.6 + (i % 2) * 6.15, y = 1.95 + Math.floor(i / 2) * 2.35;
+      box(s, x, y, 5.95, 2.1, { fill: i === 1 ? GREENBG : CARD, line: i === 1 ? GREENBG : CARD });
+      s.addShape(pres.shapes.OVAL, { x: x + 0.25, y: y + 0.25, w: 0.46, h: 0.46, fill: { color: GREEN }, line: { color: GREEN } });
+      T(s, String(i + 1), x + 0.25, y + 0.25, 0.46, 0.46, { fontSize: 15, bold: true, color: WHITE, align: "center", valign: "middle" });
+      T(s, h, x + 0.9, y + 0.22, 4.85, 0.5, { fontSize: 17, bold: true, valign: "middle" });
+      T(s, d, x + 0.9, y + 0.8, 4.85, 1.1, { fontSize: 13.5, color: MUTED, valign: "top" });
+    };
     step(0, "Notes from what you said and what was recorded", "Your words from Messenger, a voice note or the app; your games and your health app; what you told your agent before.");
     step(1, "Found by meaning with Meta's DRAMA", "The planner's question against every note, on the server's CPU. Recent notes count more, and a newer note replaces an older one.");
     step(2, "Rules decided by code, each citing its notes", "Doubles first, no late games, someone left out, one game fewer. Each limit must cite a real note, checked by code.");
@@ -313,9 +311,9 @@ async function chart(file) {
 
   // 9 · Highlights
   {
-    const s = content("Demo", "THURSDAY · AUTO-EDITED · FIVE META VISION MODELS", "Your phone video, cut automatically into a clip to share",
+    const s = content("Demo", "THURSDAY · AUTO-EDITED · FOUR META VISION MODELS", "Your phone video, cut automatically into a clip to share",
       "Highlight 管線（右邊都是同一記殺球：SAM 2.1 去背、MapAnything 深度、俯視環繞圖和沿弧線算繪出的三格）：DETR 找人 → Sapiens2 找出值得分享的片刻（自動剪輯，不做動作分析）→ SAM 2.1 把你切出來 → MapAnything 算深度和相機，時間暫停、鏡頭繞 20° → Muse Glimmer 寫說明，程式核對 → 一鍵分享到 Instagram。影片不離開伺服器。\n旁白：Thursday, game done. I upload a phone clip… With MapAnything, time stops and the camera turns around the smash.");
-    const flow = [["DETR", "finds the players"], ["Sapiens2", "finds the moment worth sharing"], ["SAM 2.1", "cuts you out; SAM 3.1 checked it once"], ["MapAnything", "depth and camera: time stops, the camera turns 20°"], ["Muse Glimmer", "writes the caption, checked by code"]];
+    const flow = [["DETR", "finds the players"], ["Sapiens2", "finds the moment worth sharing"], ["SAM 2.1", "cuts you out; SAM 3.1 checked it once"], ["MapAnything", "depth and camera: time stops, the camera turns up to 12°"], ["Muse Glimmer", "writes the caption, checked by code"]];
     flow.forEach(([h, d], i) => {
       const x = 0.6 + i * 2.45;
       box(s, x, 1.85, 2.2, 1.25, { fill: i === 4 ? GREENBG : BLUEBG, line: i === 4 ? GREENBG : BLUEBG });
@@ -372,7 +370,7 @@ async function chart(file) {
     const G = { Reasoning: [GREEN, GREENBG], Safety: [RED, REDBG], Memory: [MUTED, CARD], Voice: [MUTED, CARD], Vision: [BLUE, BLUEBG], "3D": [BLUE, BLUEBG], API: [AMBER, AMBERBG], Product: [BLUE, WHITE] };
     const items = [
       ["Reasoning", "Muse Glimmer", "Every agent: the tool loop, members' decisions, photos, courts, captions", "RTX 3090 · Ollama · 4 in parallel"],
-      ["Reasoning", "Llama 3.2 1B", "Distilled from Glimmer; answers alone when sure", "CPU · simulated club"],
+      ["Reasoning", "Llama 3.2 1B", "Distilled from Glimmer; answers alone when sure", "CPU · in the app"],
       ["Safety", "Llama Guard 3 1B", "What you write, what a model writes, every idea shared with the club", "CPU"],
       ["Safety", "Prompt Guard 2", "Google reviews before the court judge reads them; shared ideas", "CPU · 86M"],
       ["Memory", "DRAMA", "Agent memory: what matters for your week, by meaning", "CPU"],
@@ -399,7 +397,7 @@ async function chart(file) {
       T(s, job, x + 0.14, y + 0.68, w - 0.24, 0.52, { fontSize: 8.5, color: INK });
       T(s, where, x + 0.14, y + 1.2, w - 0.22, 0.22, { fontSize: 8, color: MUTED });
     });
-    T(s, "10 open weights on my GPU; 5 on the Meta Model API: Voice and Image at runtime, Spark, SAM 3.1 and Wonder for fallback and checks.", 0.6, 6.66, 12, 0.3, { fontSize: 12, bold: true, valign: "middle" });
+    T(s, "10 open weights on my server (GPU and CPU); 5 on the Meta Model API: Voice and Image at runtime, Spark, SAM 3.1 and Wonder for fallback and checks.", 0.6, 6.66, 12, 0.3, { fontSize: 12, bold: true, valign: "middle" });
   }
 
   // 12 · Agents
@@ -565,7 +563,7 @@ async function chart(file) {
     arrow(s, 5.22, 2.57, 0.3, 0);
     box(s, 5.55, 1.75, 2.45, 1.65, { fill: AMBERBG, line: AMBERBG });
     T(s, "Answers only if", 5.71, 1.85, 2.2, 0.3, { fontSize: 13, bold: true, color: AMBER });
-    T(s, [{ text: "sure: 0.6 or more", options: { bullet: { indent: 12 }, breakLine: true } }, { text: "its reading of which times work matches code's", options: { bullet: { indent: 12 }, breakLine: true } }, { text: "the student is up and answers within 8 to 20 s", options: { bullet: { indent: 12 } } }], 5.71, 2.17, 2.2, 1.2, { fontSize: 10.5 });
+    T(s, [{ text: "sure: 0.6 or more", options: { bullet: { indent: 12 }, breakLine: true } }, { text: "its reading of which times work matches code's", options: { bullet: { indent: 12 }, breakLine: true } }, { text: "the student is free within 8 s and answers within 20 s", options: { bullet: { indent: 12 } } }], 5.71, 2.17, 2.2, 1.2, { fontSize: 10.5 });
     // yes: the student's answer; no: Glimmer
     arrow(s, 6.77, 3.42, 0, 0.45, { color: GREEN });
     T(s, "yes", 6.85, 3.47, 0.5, 0.3, { fontSize: 10.5, bold: true, color: GREEN });
@@ -593,7 +591,7 @@ async function chart(file) {
     });
     box(s, 8.3, 5.5, 4.45, 1.25, { fill: GREENBG, line: GREENBG });
     T(s, "Served at 0.6", 8.5, 5.6, 4.1, 0.3, { fontSize: 13.5, bold: true, color: GREEN });
-    T(s, "The student answers 73% of the hardest choices and 96% of the test set; Muse Glimmer takes the rest, with its full reasoning.", 8.5, 5.92, 4.1, 0.8, { fontSize: 10.5, color: MUTED });
+    T(s, "The student answers 73% of the 196 hardest cases and 96% of the 500 test cases; Muse Glimmer takes the rest, with its full reasoning.", 8.5, 5.92, 4.1, 0.8, { fontSize: 10.5, color: MUTED });
   }
 
   // 18 · Agent memory: found by meaning with Meta's DRAMA, checked by code
@@ -785,11 +783,12 @@ async function chart(file) {
       ["Attacks (test/redteam.mjs)", "93 of 93 stopped", "A cloud A100, twice"],
       ["Community loop's attacks, within the 93", "29 of 29 stopped, 5 of 5 controls passed", "The server's CPU, with the real guards"],
       ["A2A between two gateways", "22 of 22 checks", "Taipei GPU server and a GCP A100"],
-      ["Crash matrix", "20 of 20 checks", "A stand-in model"],
+      ["Crash matrix", "20 of 20 checks (201 of 201 assertions)", "A stand-in model"],
+      ["Unsafe messages: Llama Guard, then code", "37 of 42 refused; 1 of 74 harmless ones refused", "The server's CPU"],
       ["A federation of three clubs (test/federation_unit.mjs)", "4 of 4: found, signed, rotated, forgery refused", "Real HTTP, one host"],
       ["\"I want to play\" in Messenger", "13 of 13 checks", "Muse Glimmer on a cloud A100"],
     ];
-    s.addTable(rows, { x: 0.6, y: 3.45, w: 12.1, colW: [5.0, 3.9, 3.2], fontSize: 12, fontFace: FONT, color: INK, rowH: 0.38, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
+    s.addTable(rows, { x: 0.6, y: 3.4, w: 12.1, colW: [5.0, 3.9, 3.2], fontSize: 11.5, fontFace: FONT, color: INK, rowH: 0.33, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
   }
 
   // 23 · Full technical architecture
