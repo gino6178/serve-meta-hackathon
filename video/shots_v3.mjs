@@ -33,7 +33,7 @@ await until(() => document.querySelector(".so-stories")); await wait(2500);
 await shot("social_feed");
 await clickText(".so-agent .btn", "Add my agent"); await until(() => [...document.querySelectorAll(".so-agent .btn")].some((b) => b.innerText.includes("Join a game for me")));
 await clickText(".so-agent .btn", "Join a game for me"); await until(() => document.querySelector(".so-said")?.innerText.includes("joined"), 60000); await wait(2500);
-await page.evaluate(() => document.querySelector(".so-agent")?.scrollIntoView({ block: "center" })); await wait(800); await shot("social_agent");
+await page.evaluate(() => { document.querySelector(".so-me")?.scrollIntoView({ block: "start" }); scrollBy(0, -72); }); await wait(800); await shot("social_agent");
 await page.evaluate(() => [...document.querySelectorAll(".fd-card")].find((c) => c.querySelector(".fd-invite"))?.scrollIntoView({ block: "start" })); await page.evaluate(() => scrollBy(0, -90)); await wait(800);
 await shot("social_invite");
 await page.evaluate(() => scrollTo(0, 0)); await wait(500);
@@ -61,7 +61,7 @@ if (!process.argv.includes("--no-plan")) {
   await until(() => document.querySelector(".ap-approve"), 600000); await wait(1500);
   await page.evaluate(() => document.querySelector(".ap-approve").scrollIntoView({ block: "center" })); await wait(800); await shot("plan_approve");
   await go("chats", 2000);
-  await page.evaluate(() => document.querySelector(".ch-thread")?.scrollIntoView({ block: "start" })); await wait(800); await shot("agent_chats");
+  await page.evaluate(() => { document.querySelector(".ch-head")?.scrollIntoView({ block: "start" }); scrollBy(0, -64); }); await wait(800); await shot("agent_chats");
 }
 
 // leave: the demo member, its agent and what they did
