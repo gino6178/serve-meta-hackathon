@@ -7,8 +7,11 @@ the same "is it there" signal as the players (`exists.py`), and the effects use 
 **Status (2026-10-28).**
 - **Badminton: measured.** TrackNetV5 ran on the server (GPU 0, nice 19) on the app's three CC BY sample clips.
   Results are below.
-- **Tennis and basketball: not run.** The WASB adapter is written (`ball.py --worker wasb`). The permission system
-  refused to run it ("Code from External"), so it is untested, and the commands are with the coordinator.
+- **Tennis and basketball: measured once (2026-10-29), not usable on this footage.** WASB ran through
+  `ball.py --sport tennis|basketball` on 20 s of three CC clips; twelve frames per clip where it said the ball was
+  there were checked by eye (`submission/results/ball_wasb.json`, `submission/shots/ball/`). Basketball: 12 of 12 were
+  the ball, but it was found in 17 of 600 frames. Tennis: 1 of 24 was a ball (the rest a microphone, floodlights,
+  leaves); neither tennis clip shows a rally. The effects keep the pose for both sports.
 - **The effects use the ball** only where it is "on", and only near the player (below).
 
 ## The trackers
@@ -105,4 +108,4 @@ The two bugs the first runs showed are fixed. A point dropped as a lone one coul
 (the TypeError). And a 2 s dropout early in a rally read as the rally's end (frame 9); the end is now the end of the
 last stretch of at least 0.3 s where the ball is there. On the three clips the rally ends at frames 699, 629 and 639.
 
-Tennis and basketball are not measured: their one run waits on permission to run WASB.
+Tennis and basketball: see the status at the top (measured once, not usable on these clips).

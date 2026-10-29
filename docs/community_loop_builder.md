@@ -331,7 +331,12 @@ in front of the judge on a later attempt. One second attempt also ran out of ste
 - C2: 9/9 within 3 attempts, but only 6/9 on the first.
   - P-B05 and P-B06: 6/6, all on the first attempt.
   - P-B04, the two-file C2: 3/3 within 3 attempts, 0/3 on the first, costing 274k–607k tokens per build.
-- C3: not attempted.
+- C3: one spec, P-B07 (a new module `club/streak.js` and a field in `get_week`), built with Muse Spark 1.3 on the Meta
+  Model API (`LLM_URL=https://api.meta.ai/v1`, the model family Muse Code runs on). The first run failed all three
+  attempts on our oracle, which accepted only a named import where the spec's words invited a default one; with the
+  oracle fixed, a fresh run passed on the first attempt: 19 steps, 202k tokens, 1.4 minutes
+  (`results/spark-c3-P-B07.json`, `results/spark-c3-P-B07-strict-oracle.json`). Muse Glimmer on an A100 built it on its
+  first attempt too: 14 steps, 111k tokens, 1.6 minutes (`results/a100-11448-c3-P-B07.json`).
 
 So C1 is reliable. One-file C2 was reliable on these specs. Two-file C2 needed the oracle's feedback and several times
 the tokens.

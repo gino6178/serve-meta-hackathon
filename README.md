@@ -51,7 +51,7 @@ restructured into its current layout on October 28 and 29, one commit per file.
 | What | Result | Source |
 |---|---|---|
 | The Autopilot planning 8 different weeks, 3 runs each, members' agents over A2A | 24 of 24 runs passed (pass^3 = 1.0) | `submission/results/autopilot_eval_final_summary.json` |
-| Attacks on the agents, the API and the community loop | 65 of 65 stopped <!-- COUNT --> | `submission/results/redteam.log` |
+| Attacks on the agents, the API and the community loop | 93 of 93 stopped <!-- COUNT --> | `submission/results/redteam_93.log` |
 | The gateway killed at each of five steps of a talk (with a stand-in model) | the game booked exactly once every time (20 of 20 checks) | `submission/results/crash_matrix.log` |
 | The community loop on a simulated club: 88 messages from 60 members, with hostile ones and a planted bad change | no hostile message reached a spec; the wanted change was promoted from its canary; the planted bad change rolled itself back | `submission/results/loop_eval.json` |
 | Matchmaking against the earlier ranking, 300 simulated requests through the real negotiation code | 28% fewer talks per game (4.05 against 5.61) | `docs/agent_matchmaking_plan.md`, section 12 (`match_eval_n300_defaults.json`) |
@@ -63,7 +63,7 @@ A100 with the same Muse Glimmer build as our RTX 3090, and the report says which
 - Watch the demo video: [VIDEO LINK].
 - Read the technical report: [submission/technical_report.md](submission/technical_report.md).
 - Code: https://github.com/gino6178/serve-meta-hackathon
-- Run it yourself: `cd agent && npm install && npm test` runs 258 offline tests with no model or GPU (257 pass on
+- Run it yourself: `cd agent && npm install && npm test` runs 265 offline tests with no model or GPU (264 pass on
   Linux and one is skipped without LlamaFirewall's own Python environment; one needs `flock`). <!-- COUNT --> The full app needs a Linux server with a 24 GB NVIDIA GPU for Muse Glimmer ([Running it](#running-it)).
 
 ### Measured, then switched off
@@ -222,10 +222,11 @@ and your health data are read there and nowhere else; what you share in Messenge
 | **SAM 2.1** (Hiera-L) | Our GPU server, Hugging Face Transformers | Each player's outline, for the reel's spotlight and its drawn view |
 | **DETR** (ResNet-50) | Our GPU server, Hugging Face Transformers | Finds the people in your own video, so the reel follows you |
 | **MapAnything** (Apache 2.0 weights) | Our GPU server; in the app as an optional camera effect | Metric depth and the camera for orbit replays of your moment ([docs/orbit_highlights.md](docs/orbit_highlights.md)) |
-| **Muse Spark 1.3** (Meta Model API) | The fallback, when switched on (`LLM_FALLBACK=on`) | When the GPU server can't answer, the same call goes once to Muse Spark; checked live (`submission/results/fallback_live.json`) |
+| **Muse Spark 1.3** (Meta Model API) | The fallback, when switched on (`LLM_FALLBACK=on`) | When the GPU server can't answer, the same call goes once to Muse Spark; checked live (`submission/results/fallback_live.json`); also the builder's model for new code (one C3 spec built on its first attempt) |
 | **SAM 3.1** (Meta Model API) | One call | Checked on the smash's frame against SAM 2.1: the same player, box IoU 0.97 (`submission/results/sam31_smash.json`) |
 | **Muse Image** (Meta Model API) | Made once | A face for each member's agent (`web/public/agents/`); the art of a rematch poster, made once per challenge, names drawn by the app |
 | **Muse Voice Transcribe** (Meta Model API) | Realtime, relayed by the gateway | Full-duplex talk with your agent: it hears where your turn ends, replies a sentence at a time (Kokoro), and stops when you cut in (`submission/results/voice_live.json`) |
+| **Muse Wonder** (Meta Model API) | An evaluation | Judged 84 labelled orbit frames for a doubled net or a smear; stricter than the labels, so the pixel rule stays (`submission/results/orbit/`) |
 | **Messenger Platform** | Signed webhook, Send API, quick replies | Your agent in your chats: plans, approvals with a tap, check-ins, files shared to the chat |
 | **Instagram, Facebook** | The phone's share sheet (no API) | Your reel and its caption, shared by you |
 
@@ -254,16 +255,18 @@ loop: [docs/community_loop.md](docs/community_loop.md). The one-pass decider, me
 [docs/decider.md](docs/decider.md). Orbit replays with Meta's MapAnything (an optional camera effect in the app, measured):
 [docs/orbit_highlights.md](docs/orbit_highlights.md). A federation of clubs over A2A: each club found by its card,
 keys pinned on first use and followed through signed rotations, forgeries refused (`agent/src/a2a/peer.js`,
-`test/federation_unit.mjs`; technical report 3.14).
+`test/federation_unit.mjs`; technical report 3.14). Private calendars all the way through the planner: each member's agent answers
+yes or no for one time, 24 asks a day (3.15). A learned intent router behind the regular expressions: game requests
+found 6 of 10 by the expressions, 10 of 10 with it (3.16). An Apache 2.0 embedder for commercial use (Granite, 5.15).
 
 Test results on the current code (2026-10-28). Runs on a cloud A100 use the same Muse Glimmer build (the same model
 digest) as our RTX 3090:
 
 | Suite | Result | Where it ran |
 |---|---|---|
-| `npm test` (21 offline suites) | 257 of 258, 1 skipped <!-- COUNT --> | no model, no GPU (`submission/results/unit.log`) |
-| Messenger end to end (`test/e2e.mjs`) | 52 of 52 checks <!-- COUNT -->; on the final code 46 passed, 0 failed, before the run was stopped (`e2e_final_partial.log`) | Muse Glimmer on a cloud A100 (`submission/results/e2e.log`) |
-| Attacks (`test/redteam.mjs`) | 65 of 65 stopped <!-- COUNT --> | a cloud A100 (`submission/results/redteam.log`) |
+| `npm test` (23 offline suites) | 264 of 265, 1 skipped <!-- COUNT --> | no model, no GPU (`submission/results/unit.log`) |
+| Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks in the nine-gate run (2026-10-29), 52 of 52 before <!-- COUNT -->; on the final code 46 passed, 0 failed, before the run was stopped (`e2e_final_partial.log`) | Muse Glimmer on a cloud A100 (`submission/results/e2e.log`) |
+| Attacks (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | a cloud A100 (`submission/results/redteam_93.log`; 93 of 93 again in the nine-gate run) |
 | The community loop's attacks, within those 65 <!-- COUNT --> | 29 of 29 stopped, 5 of 5 controls passed | the server's CPU, with the real guards (section 5 of `redteam.log`) |
 | Crash matrix (`test/crash_matrix.mjs`) | 20 of 20 checks | a stand-in model (`submission/results/crash_matrix.log`) |
 | "I want to play" in Messenger (`test/match_messenger.mjs`) | 13 of 13 checks | Muse Glimmer on a cloud A100 ([docs/agent_matchmaking_plan.md](docs/agent_matchmaking_plan.md); `submission/results/match_messenger.log` is the earlier run of the first 9) |
@@ -290,7 +293,7 @@ digest) as our RTX 3090:
     On the real model, `test/a2a_resume.mjs` kills the gateway once mid-talk and checks that the talk finishes, with
     no message decided again beyond the one the crash cut off.
 - **Facts between agents, and least power.** What crosses between agents is validated fields and code-made sentences.
-  No agent combines untrusted input, private data and the power to act (Meta's *Agents Rule of Two*). **65 of 65** <!-- COUNT -->
+  No agent combines untrusted input, private data and the power to act (Meta's *Agents Rule of Two*). **93 of 93** <!-- COUNT -->
   attacks stopped (`test/redteam.mjs`, on a cloud A100):
   - 35 against the agents and the API: injected instructions, replayed messages, a lied-about trip, holds meant to
     block a member's week, a changed or unsigned Agent Card, hostile agents answering yours, an agent that never
@@ -440,7 +443,7 @@ The guards and memory run on the server's CPU:
   until the guards it requires (`LOOP_GUARDS`) answer.
 
 The tests and evaluations run from `agent/`. Two need no model or GPU:
-- `npm test` runs 21 suites, 258 tests <!-- COUNT -->: `test/unit.mjs` (the schemas, the rule checks, the scoring
+- `npm test` runs 23 suites, 265 tests <!-- COUNT -->: `test/unit.mjs` (the schemas, the rule checks, the scoring
   rules, the token, file fetching, the stores, routing, holds, signed cards and the guards' parsing), the decision tiers'
   `decider_unit.mjs` and `student_unit.mjs`, the community loop's `loop_unit.mjs`, `loop_ship_unit.mjs`,
   `loop_anytime_unit.mjs`, `loop_signals_unit.mjs` and `loop_builder.mjs`, matchmaking's `match_unit.mjs`, and
@@ -473,7 +476,7 @@ These are not ours to publish: the Whisper model files (`web/public/models/`). D
 - The body log records what you say and plans games around it. It is not a medical assessment.
 - pass^3 = 1.0 counts a run whether the model or the rules finished the plan; in 1 of the 3 three-game runs the
   rules finished it. Counting only runs the model finished, 7 of 8 weeks passed every time.
-- Of the 65 attacks <!-- COUNT -->, two put an attack in front of Muse Glimmer and three pass through the guard models as well; the
+- Of the 93 attacks <!-- COUNT -->, two put an attack in front of Muse Glimmer and three pass through the guard models as well; the
   others test a layer in code.
 - Matchmaking is measured on simulated members only. Its bands come from demo and simulated members' records, and the
   model is trained on simulated logs; real players can opt in, but none has yet.

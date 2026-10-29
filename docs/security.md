@@ -273,8 +273,10 @@ Most cases test a layer (a schema, the token, a file check, the loop's policy), 
 layer is there; section 4 tests what Muse Glimmer does with an instruction in front of it. With Prompt Guard 2 on, 4 of
 its 10 reviews are left out before the judge reads them ([Guard models](#guard-models)).
 
-Latest run (2026-10-28, Muse Glimmer on a cloud A100 with the same model digest as the RTX 3090): **65 of 65
-stopped** <!-- COUNT --> (`submission/results/redteam.json` and `redteam.log`). The table lists them: the 35 earlier
+Latest run (2026-10-29, Muse Glimmer on a cloud A100): **93 of 93 stopped** <!-- COUNT --> (`submission/results/redteam_93.log`,
+and 93 of 93 again inside the nine-gate run, `full_nine_gates.json`); the 28 added since the run before cover the club feed
+(posts, photos, comments, a paper's abstract) and A2A between gateways (peers, mandates, replays). The run of 2026-10-28
+(the same model digest as the RTX 3090): 65 of 65 (`submission/results/redteam.json` and `redteam.log`). The table lists those 65: the 35 earlier
 cases (A to D), the loop's 29 (E1 to E29) and E0, the loop's five controls as one case. Two of them (D1, D2) put an
 attack in front of Muse Glimmer, and three (E1, E11, E12) pass through Llama Guard 3 and Prompt Guard 2 as well as
 code; the others test a layer in code, before any model reads anything. The loop's cases on their own

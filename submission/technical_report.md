@@ -317,6 +317,31 @@ re-pins only if every link verifies; a statement signed by any other key, or a p
 `test/federation_unit.mjs` runs three clubs over real HTTP: discovery, signed requests and a replay refused, a rotation
 followed two statements deep, and a forged rotation refused with the pin unchanged.
 
+### 3.15 Private calendars, all the way through
+
+The talk between agents could already keep calendars private (3.11). Now the code that plans for one player does too
+(`agent/src/agents/freebusy.js`): with private calendars on, the Match helper's daily ask, the planner's
+`find_partners` and its check before a talk, the play search and best match never read another member's free times.
+They ask that member's agent "free on this date at this time for 90 minutes?" and get a yes or a no. One asker may ask
+about one member at most 24 different times a day (`A2A_PROBE_BUDGET`), so a week cannot be read back hour by hour;
+past the budget the answer is no and the refusal is counted. The calendar the player sees shows the partners' rows as
+the one time their agents said yes to. Within one gateway this is a boundary in code and a budget, not cryptography.
+`test/freebusy_unit.mjs` seals each member's calendar so that any read outside its own agent throws: the play search
+and the daily ask find the same best time and partners as with shared calendars, and the shared mode is shown to read
+them directly.
+
+### 3.16 A learned intent router behind the expressions
+
+A game request in Messenger is recognised by regular expressions (`match/flow.js isPlayRequest`). A message they miss
+now goes to a small softmax head on DRAMA vectors (`agent/src/match/router.js`, trained on the CPU in numpy by
+`test/router_train.py`; five classes: play, played, body, question, chat). When "play" is the most likely class the
+message goes to matchmaking, whose game still waits for the player's yes. Trained on 132 messages: 111 the simulated
+users wrote in the three runs after the fixes and 21 phrasings written for the expressions' own tests; tested on the
+judge's held-out set, written separately in a person's style (32 messages in these classes). The expressions found 6
+of 10 game requests; the router 9 of 10; the two together 10 of 10, with one false alarm among the 22 other messages
+("還不錯 打了兩局雙打", how a game went, read as a request). Overall the head was right on 27 of 32; its misses were
+five short Chinese messages (four reports of a game, one request). Small sets, one judge's style (`submission/results/intent_router.json`).
+
 ## 4. Meta models and tools
 
 Only what is wired into the code.
@@ -337,7 +362,7 @@ Only what is wired into the code.
 | **CodeShield rules** (LlamaFirewall) | In the loop's policy | `agent/test/policy.mjs` | Its secret and JavaScript rules, rewritten as patterns on added lines |
 | **Agents Rule of Two** [23] | Design rule | Every agent and loop stage | No agent or stage holds untrusted input, private data and the power to act at once |
 
-**On the Meta Model API** (`META_API_KEY`, on the server only), five uses, each kept small:
+**On the Meta Model API** (`META_API_KEY`, on the server only), each use kept small:
 - **Muse Spark 1.3 as a fallback** (`agent/src/core/llm.js`, `LLM_FALLBACK=on`): a call the GPU server can't take (not
   reachable, or a server error) goes once to Muse Spark, in its protocol (`reasoning_effort` low, room for its reasoning,
   Ollama's tool calls given ids); never on a timeout. Checked live with the local model made unreachable: a chat in
@@ -356,9 +381,16 @@ Only what is wired into the code.
   When the transcriber hears the player start speaking, the app stops the voice and the gateway drops the stale reply
   (barge-in). One live session: line open in 1.2 s, turn heard 3.6 s after start, reply text at 12.3 s
   (`submission/results/voice_live.json`); `test/voice_unit.mjs` checks the relay and barge-in against a stand-in.
+- **Muse Wonder** as a judge of orbit frames (`video/pose/orbit_judge.py`): each of the 84 labelled probe frames, with
+  the question the labels answer. It does not beat the pixel rule (5.13). About $1.10 for the 84.
+- **Muse Spark 1.3 as the builder's model** for new code (`LLM_URL=https://api.meta.ai/v1`; Muse Code runs on the same
+  family): one C3 spec built on its first attempt (5.14).
 
 Not used: Llama 3.2 11B Vision as an orbit judge (Hugging Face refused the download for our account on 2026-10-28,
-`docs/orbit_highlights.md`). Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformers,
+`docs/orbit_highlights.md`). Muse Spark Open: 816B parameters (42B active), at least 700 GB of accelerator memory for
+its 4-bit weights, far past one RTX 3090; hosted on Baseten, which needs an account of its own. Muse Code itself: a
+terminal agent for macOS and Linux with its own sign-in; the builder calls its model family through the API instead.
+Muse Wonder makes text, not video, so it cannot animate the poster or fill an orbit's holes. Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformers,
 OpenStreetMap, Open-Meteo, the Google Places API.
 
 ## 5. Evaluations
@@ -367,11 +399,11 @@ OpenStreetMap, Open-Meteo, the Google Places API.
 
 | Suite | Result | Hardware | Source |
 |---|---|---|---|
-| `npm test`: 21 offline suites | 257 of 258, 1 skipped <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
+| `npm test`: 23 offline suites | 264 of 265, 1 skipped <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
 | `npm test` after the restructure (2026-10-29) | 237 of 240, 2 failed, 1 skipped, on the GPU server; the code from before the restructure gives the same result there (the same two tests fail: a dependency rule of the loop's policy and the two-at-once hold test) | No model, no GPU | `submission/results/unit_restructured_2026-10-29.log` |
 | The deployed gateway (2026-10-29) | Ready on Muse Glimmer; an answer passed both Llama Guard checks; a dosage question refused; one "I want to play" round over A2A (nothing booked); the Messenger webhook verified through the public tunnel; no errors in the log | RTX 3090 | `submission/results/deploy_smoke_2026-10-29.log` |
-| Messenger end to end (`test/e2e.mjs`) | 52 of 52 checks <!-- COUNT -->; on the final code 46 passed and 0 failed before the run was stopped | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
-| Adversarial (`test/redteam.mjs`) | 65 of 65 stopped <!-- COUNT --> | A100 | `submission/results/redteam.log` |
+| Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks in the nine-gate run (5.17), 52 of 52 before <!-- COUNT -->; on the final code 46 passed and 0 failed before the run was stopped | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
+| Adversarial (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | A100 | `submission/results/redteam_93.log`; 93 of 93 again in the nine-gate run (5.17) |
 | The loop's attacks (`test/loop_redteam.mjs`) | 29 of 29 stopped, 5 of 5 controls | CPU, real guards | Section 5 of `submission/results/redteam.log`; `docs/community_loop_review.md` |
 | Crash matrix (`test/crash_matrix.mjs`) | 20 of 20 checks | Stand-in model | `submission/results/crash_matrix.log` |
 | Crash and resume, real model (`test/a2a_resume.mjs`) | Passed, 2026-10-27 | RTX 3090 | `submission/results/a2a_resume.log` |
@@ -381,8 +413,9 @@ The end-to-end test drives the real gateway against a fake Graph API, from linki
 to the Autopilot booked with a tap, a voice note, a health export, a scoreboard photo, a violent threat refused, a
 self-harm message answered with the helpline, the loop's `/idea` and Share, and `/forget` deleting everything.
 
-The 65 attacks <!-- COUNT --> are the 35 earlier cases (A1 to A15 against a member's agent, B1 to B11 hostile agents, C1 to C7 the
-API and shared files, D1 and D2 poisoned reviews), the loop's E1 to E29, and E0, its five controls as one case, each
+The 93 attacks <!-- COUNT --> are the 35 earlier cases (A1 to A15 against a member's agent, B1 to B11 hostile agents, C1 to C7 the
+API and shared files, D1 and D2 poisoned reviews), the loop's E1 to E29, E0 (its five controls as one case), and 28 added
+with the club feed (posts, photos, comments, a paper's abstract) and A2A between gateways (peers, mandates, replays), each
 named for its OWASP LLM Top 10 risk [24] (`docs/security.md`). The crash matrix kills the gateway at each of five
 durable steps; each time it books the game exactly once and decides no message twice.
 
@@ -644,6 +677,68 @@ person who then does not come. A blinded judge (Muse Glimmer, 40 held-out messag
 tell the simulated users' messages from human-style ones: 11 of 20 pairs (0.55, 95% CI 0.34 to 0.74; chance is 0.5).
 Over the three seeds after the fixes there is no effect we can claim.
 
+### 5.13 A vision judge for orbits
+
+The 84 labelled probe frames (14 moments at -18 to +18 degrees, 5.9) shown to two vision models with the question
+the labels answer: would a viewer notice a defect in a 2-second sweep? (`video/pose/orbit_judge.py`,
+`submission/results/orbit/`). Precision and recall of "good", as for the threshold:
+
+| Judge | Precision | Recall | Accuracy |
+|---|---|---|---|
+| The learned share of invented pixels (6.26%), leave one moment out | **1.00** | **0.79** | **0.96** |
+| Muse Wonder 1.0 (Meta Model API, 768 px) | 0.80 | 0.29 | 0.87 |
+| Muse Glimmer (open weights, on an A100, JSON Schema) | none passed | 0.00 | 0.83 (every frame called broken) |
+
+Both models name real defects ("doubled ghost net outline above the net and a large blurred empty band"), but both are
+stricter than the labels: Muse Wonder passed 5 frames, 4 good and 1 broken, of the 14 good ones, and Glimmer called
+all 84 broken. So the pixel rule stays the judge. A vision model might
+still serve as a second opinion on an orbit the rule passes; that is not measured.
+
+### 5.14 The builder on a C3 change, with Muse Spark
+
+A new benchmark spec of class C3 (new code: a new module `club/streak.js`, weeks in a row with a game, and a field in
+the planner's `get_week`), with an oracle the builder cannot read (`agent/test/loop_builder_bench/`, P-B07). Built with
+Muse Spark 1.3 on the Meta Model API. The first run failed all three attempts on one line of our oracle: the spec said
+"import streak from ../club/streak.js", Spark did exactly that (a default import), and the oracle accepted only a named
+one; its module passed every other check. With the oracle fixed to accept either, a fresh run built it on the first
+attempt: 19 steps, 202k tokens (195k read), 1.4 minutes (`results/spark-c3-P-B07.json`; the first run,
+`spark-c3-P-B07-strict-oracle.json`). Muse Glimmer on an A100, with the fixed oracle from the start, also built it on
+its first attempt: 14 steps, 111k tokens, 1.6 minutes (`results/a100-11448-c3-P-B07.json`). One spec, one run each.
+
+### 5.15 A memory embedder for commercial use
+
+DRAMA's weights are CC BY-NC 4.0. `EMBED_MODEL` now switches the embedder (`memory/embed_worker.py`), and the 20
+memory questions (5.5) were run with two Apache 2.0 encoders on the server's CPU (`submission/results/memory_embedders.json`):
+
+| Encoder | Licence | Recall@1 | Recall@3 | MRR |
+|---|---|---|---|---|
+| DRAMA (`facebook/drama-base`, 768 dims) | CC BY-NC 4.0 | **0.60** | 0.75 | **0.70** |
+| IBM Granite Embedding 278M multilingual (CLS pooling) | Apache 2.0 | 0.40 | **0.80** | 0.59 |
+| paraphrase-multilingual-MiniLM-L12-v2 | Apache 2.0 | 0.35 | 0.50 | 0.47 |
+| BM25 (words) | | 0.35 | 0.45 | 0.42 |
+
+Granite is the commercial fallback: as good at the top three, weaker at the top one. DRAMA stays the default.
+
+### 5.16 The ball on tennis and basketball
+
+WASB with its tennis and basketball weights ran through `video/pose/ball.py` on 20 s of three CC clips (GPU 0, about
+15 s a clip). Twelve frames where it said the ball was there were checked by eye on each (`submission/results/ball_wasb.json`,
+`submission/shots/ball/`). Basketball: 12 of 12 were the ball, but it was found in 17 of 600 frames, though the ball is
+in view in most. Tennis: 1 of 24 was a ball; the others were a shirt microphone, floodlights and bright leaves, since
+neither clip shows a rally (an interview at public courts, a clinic). So the effects keep the pose for both sports.
+
+### 5.17 The nine gates, with the GPU suites
+
+One C0 change (`places.radius` to 3000) through all nine gates, Muse Glimmer on a cloud A100, after a baseline of the
+suites on the same endpoint (`submission/results/full_nine_gates.json` and `.log`, 31 minutes). Passed: policy, scan,
+unit (77 of 77), crash matrix (201 of 201), red team (93 of 93) and Messenger end to end (58 of 58). The planner eval
+did not: pass^3 0.889, 8 of 9 weeks the same three times out of three (0.778 on the baseline run), against the 1.0 the
+gate asks for. So the run stopped there, and the change would not ship. Run on their own (`gates_oracle_privacy.json`),
+the oracle passed; the privacy canary found no request carrying the marker but failed its own condition that some
+request went outside (the planner did not search public courts in that week), so it showed nothing either way. The
+baseline run also found a bug: under the gates the end-to-end test read the loop's secret from its own folder while the
+gates had set another; fixed (`test/e2e.mjs`).
+
 ## 6. Safety and privacy
 
 Meta's **Agents Rule of Two** [23]: within one session an agent holds at most two of untrusted input, private data and
@@ -700,33 +795,35 @@ inputs. They do not show how real people would talk, vote or react.
 
 - **Small samples, one model, one server.** 60 talks per arm, 8 Autopilot weeks, 20 memory questions, 14 orbit moments.
   pass^3 = 1.0 counts a run whichever finished it; rules finished 1 of 24.
-- **What the attacks test.** Two of the 65 <!-- COUNT --> (D1, D2) put an attack in front of Muse Glimmer and three (E1, E11, E12) go
+- **What the attacks test.** Two of the 93 <!-- COUNT --> (D1, D2) put an attack in front of Muse Glimmer and three (E1, E11, E12) go
   through the guard models; the rest test a layer in code and pass by construction once it is there.
-- **Private calendars are private in the talk only.** Match and the Autopilot's tools still read shared calendars.
+- **Private calendars inside one gateway are a boundary in code and a probe budget** (3.15), not cryptography: the
+  asking code and the member's agent share a process.
 - **Holds last 30 minutes.** A plan left longer is checked again at booking; the player may have to pick again.
 - **A federation tested on one machine.** Discovery by club cards and key rotation (3.14) are tested with three clubs
   over HTTP on one host; the full negotiation across two machines was the earlier two-gateway run (22 of 22). A card is
   trusted on first use, so the first fetch must reach the real club. Within one gateway, every member's agent shares it.
 - **The simulated users** (5.12): three seeds after the fixes, one better than the baseline, one equal and one worse
   (seed 4: 1 game against 4); agents agreeing for people who then don't come is not fixed.
-- **The ball tracker** finds the shuttle in under a third of the frames on footage from the stands.
+- **The ball tracker** finds the shuttle in under a third of the frames on footage from the stands; on our tennis and
+  basketball clips WASB was not usable (5.16).
 - **The guards are one layer.** Llama Guard 3 1B let 5 of 42 unsafe test messages through; Prompt Guard 2 missed 6 of
   10 poisoned reviews; the first message after Llama Guard restarts goes unchecked while it loads.
 - **The loop.** Short sentences cluster imperfectly ("look further ahead" split four ways). A canary needs about 100
-  beta members before the z-test stops costing catches. No full nine-gate run with the GPU suites is in a results file
-  yet.
-- **The builder.** Two-file C2 changes needed retries; an impossible spec spends its whole budget; the test sandbox is
-  a JavaScript preload, not an OS sandbox.
+  beta members before the z-test stops costing catches. The first full nine-gate run with the GPU suites (5.17) stopped
+  at the planner eval (pass^3 0.889), and the privacy canary has yet to run on a week that sends a request outside.
+- **The builder.** Two-file C2 changes needed retries; C3 is one spec, one run with Muse Spark (5.14); an impossible
+  spec spends its whole budget; the test sandbox is a JavaScript preload, not an OS sandbox.
 - **Orbits** look right only for short arcs, judged on one clip and labelled by the coding agent, not by viewers.
 - **The verifier checks numbers, not words.** Scoreboards are checked against the rules of badminton, tennis (sets and a match tiebreak), basketball, pickleball and table tennis; volleyball and soccer are read, not checked.
 - **Matchmaking** is measured on simulated members only, and a talk can still fail on courts after a good band (136
   of 667 talks in the first end-to-end run had no free court).
-- **DRAMA's weights are CC BY-NC 4.0** (`agent/src/memory/embed_worker.py`), so commercial use needs another embedder.
+- **DRAMA's weights are CC BY-NC 4.0** (`agent/src/memory/embed_worker.py`). An Apache 2.0 encoder switches in with
+  `EMBED_MODEL` (Granite: recall@3 0.80, recall@1 0.40; 5.15).
 
 ## 9. Not in this entry
 
 Built, and no results are claimed for them:
-- **The ball on tennis and basketball** (WASB): the adapter runs, nothing is measured.
 - **An informed arm** for the simulated users (`agent/test/sim_users/`): built, not run. (The blinded judge was run once, on seed 4: 5.12.)
 - **The per-hour disclosure check** (`A2A_BUDGET_CHECK=hour`): in the code, off, because it stopped every game in a
   20-member trial.
@@ -739,13 +836,13 @@ Prompt Guard 2, DRAMA and Omnilingual ASR need Python environments with Transfor
 its own (`docs/orbit_highlights.md`). Settings are in `agent/.env.example`. The web app: `cd web && npm install && npm
 run dev`. From `agent/`:
 
-<!-- COUNT: the block below says 240 tests and 65 attacks -->
+<!-- COUNT: the block below says 265 tests and 93 attacks -->
 
 ```bash
-npm test                                   # 21 offline suites, 258 tests, no model or GPU
+npm test                                   # 23 offline suites, 265 tests, no model or GPU
 npm run test:crash                         # the crash matrix, against a stand-in model
 node test/e2e.mjs                          # Messenger end to end
-node test/redteam.mjs                      # the 65 attacks
+node test/redteam.mjs                      # the 93 attacks
 node test/loop_redteam.mjs                 # the loop's 29 attacks and 5 controls
 EVAL_A2A=1 EVAL_REPEAT=3 node test/autopilot_eval.mjs data/autopilot_eval.json   # A2A_ROUTE=off to compare
 node test/persona_eval.mjs data/persona_eval.json

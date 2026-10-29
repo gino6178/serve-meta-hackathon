@@ -108,8 +108,13 @@ moments from one clip, labelled by the coding agent, not a viewer study.
 **A vision-language judge.** We planned Llama 3.2 11B Vision (4-bit, about 10 GB) as a final check of the rendered
 frames. Hugging Face refused the download: the account is "not in the authorized list" for
 `meta-llama/Llama-3.2-11B-Vision-Instruct` (2026-10-28). Either the request for that repository is still pending, or
-the licence was accepted for another Llama repository. Muse Glimmer has vision, but it runs the live agents on the
-other GPU, so we did not use it.
+the licence was accepted for another Llama repository.
+
+Later (2026-10-29) two vision models judged the same 84 labelled frames with the labels' own question
+(`video/pose/orbit_judge.py`, `submission/results/orbit/orbit_judge_*.json`): Muse Wonder on the Meta Model API reached
+precision 0.80 and recall 0.29 for "good" (accuracy 0.87; it passed 5 frames, 1 of them broken), and Muse Glimmer on
+an A100 called every frame broken (accuracy 0.83, recall 0). Both name real defects, both are stricter than the labels,
+and neither beats the threshold above, which stays the judge.
 
 ## Does the target exist?
 

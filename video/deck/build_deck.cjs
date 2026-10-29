@@ -126,7 +126,7 @@ async function chart(file) {
     T(s, "serve", 1.45, 0.72, 3, 0.6, { fontSize: 30, bold: true, valign: "middle" });
     T(s, [{ text: "Play more.\n", options: { color: INK } }, { text: "Manage less.", options: { color: GREEN } }], 0.8, 2.0, 5.6, 2.0, { fontSize: 54, bold: true, lineSpacingMultiple: 0.95 });
     T(s, "Your agent sets up your games with your friends' agents, plans around your body, and cuts your highlights. You just say yes.", 0.8, 4.15, 5.2, 1.0, { fontSize: 17, color: MUTED });
-    [["Agents agree your week", GREEN], ["Your agent in Messenger", BLUE], ["14 Meta models, 10 on hardware I own", INK]].forEach(([t, c], i) => {
+    [["Agents agree your week", GREEN], ["Your agent in Messenger", BLUE], ["15 Meta models, 10 on hardware I own", INK]].forEach(([t, c], i) => {
       s.addShape(pres.shapes.OVAL, { x: 0.8, y: 5.45 + i * 0.45, w: 0.14, h: 0.14, fill: { color: c }, line: { color: c } });
       T(s, t, 1.08, 5.35 + i * 0.45, 5, 0.34, { fontSize: 14, bold: true, valign: "middle" });
     });
@@ -310,8 +310,8 @@ async function chart(file) {
   // 11 · Meta stack
   pres.addSection({ title: "Use of Meta AI" });
   {
-    const s = content("Use of Meta AI", "USE OF META AI · 25%", "14 Meta models and Meta's apps, each with a job",
-      "這頁讓評審一眼看到用了哪些 Meta 的東西：14 個 Meta 模型（10 個開放權重在我自己的伺服器上跑，4 個走 Meta Model API）＋ Messenger、Instagram/Facebook，再加上 Meta 的 Agents Rule of Two 框架。\n說法：Muse Glimmer 是大腦；1B 學生模型分擔簡單決策；兩個 guard 把關進出；DRAMA 是記憶；四個視覺模型做 highlight；Messenger 是入口。");
+    const s = content("Use of Meta AI", "USE OF META AI · 25%", "15 Meta models and Meta's apps, each with a job",
+      "這頁讓評審一眼看到用了哪些 Meta 的東西：15 個 Meta 模型（10 個開放權重在我自己的伺服器上跑，5 個走 Meta Model API）＋ Messenger、Instagram/Facebook，再加上 Meta 的 Agents Rule of Two 框架。\n說法：Muse Glimmer 是大腦；1B 學生模型分擔簡單決策；兩個 guard 把關進出；DRAMA 是記憶；四個視覺模型做 highlight；Messenger 是入口。");
     const G = { Reasoning: [GREEN, GREENBG], Safety: [RED, REDBG], Memory: [MUTED, CARD], Voice: [MUTED, CARD], Vision: [BLUE, BLUEBG], "3D": [BLUE, BLUEBG], API: [AMBER, AMBERBG], Product: [BLUE, WHITE] };
     const items = [
       ["Reasoning", "Muse Glimmer", "Every agent: the tool loop, members' decisions, photos, courts, captions", "RTX 3090 · Ollama · 4 in parallel"],
@@ -324,25 +324,26 @@ async function chart(file) {
       ["Vision", "Sapiens2", "Every player's pose on every frame; finds the moment", "GPU · 0.4B"],
       ["Vision", "SAM 2.1", "Cuts each player out for the spotlight and the drawn view", "GPU · Hiera-L"],
       ["3D", "MapAnything", "Depth and the camera for the orbit camera effect", "GPU · optional effect"],
-      ["API", "Muse Spark 1.3", "The fallback when my GPU can't answer: the same call, once", "Meta Model API · tested live"],
+      ["API", "Muse Spark 1.3", "The fallback when my GPU can't answer; the builder's model for new code (Muse Code's family)", "Meta Model API · tested live"],
       ["API", "SAM 3.1", "Checked on the smash against SAM 2.1: same player, IoU 0.97", "Meta Model API · one call"],
       ["API", "Muse Image", "Rematch poster art; a face for every agent, made once", "Meta Model API · $0.01 an image"],
+      ["API", "Muse Wonder", "Judges orbit frames for a doubled net or a smear, beside the pixel rule", "Meta Model API · 84 frames"],
       ["API", "Muse Voice", "Transcribe, realtime: talk with your agent and cut in when you like", "Meta Model API · Transcribe"],
-      ["Product", "Messenger · FB · IG", "Your agent in your chats; join with Facebook or IG; share reels", "Webhook · Send API · Login"],
+      ["Product", "Meta apps", "Messenger: your agent in your chats; join with Facebook or IG; share reels", "Webhook · Send API · Login"],
     ];
     items.forEach(([cat, name, job, where], i) => {
-      const col = i % 5, row = Math.floor(i / 5);
-      const x = 0.6 + col * 2.44, y = 1.8 + row * 1.6, w = 2.32, h = 1.48;
+      const col = i % 6, row = Math.floor(i / 6);
+      const x = 0.6 + col * 2.03, y = 1.8 + row * 1.6, w = 1.93, h = 1.48;
       const [fg, bg] = G[cat];
       box(s, x, y, w, h, { fill: bg === WHITE ? WHITE : bg, line: bg === WHITE ? LINE : bg });
-      T(s, cat === "API" ? "META MODEL API" : cat.toUpperCase(), x + 0.16, y + 0.13, 1.7, 0.25, { fontSize: 9.5, bold: true, color: fg, charSpacing: 1 });
-      if (cat === "Product") s.addImage({ data: name.startsWith("Messenger") ? IMG.messenger : IMG.instagram, x: x + w - 0.45, y: y + 0.12, w: 0.28, h: 0.28 });
-      T(s, name, x + 0.16, y + 0.38, w - 0.5, 0.32, { fontSize: 14, bold: true });
-      T(s, job, x + 0.16, y + 0.7, w - 0.28, 0.5, { fontSize: 9.5, color: INK });
-      T(s, where, x + 0.16, y + 1.2, w - 0.26, 0.22, { fontSize: 9, color: MUTED });
+      T(s, cat === "API" ? "META MODEL API" : cat.toUpperCase(), x + 0.14, y + 0.13, 1.7, 0.25, { fontSize: 8.5, bold: true, color: fg, charSpacing: 1 });
+      if (cat === "Product") s.addImage({ data: name === "Meta apps" ? IMG.messenger : IMG.instagram, x: x + w - 0.45, y: y + 0.12, w: 0.28, h: 0.28 });
+      T(s, name, x + 0.14, y + 0.38, w - (cat === "Product" ? 0.5 : 0.24), 0.3, { fontSize: 12.5, bold: true });
+      T(s, job, x + 0.14, y + 0.68, w - 0.24, 0.52, { fontSize: 8.5, color: INK });
+      T(s, where, x + 0.14, y + 1.2, w - 0.22, 0.22, { fontSize: 8, color: MUTED });
     });
     s.addImage({ data: IMG.meta, x: 0.6, y: 6.66, w: 0.3, h: 0.3 });
-    T(s, "Ten open-weights models on hardware I own; four on the Meta Model API. Every agent follows Meta's Agents Rule of Two.", 1.0, 6.66, 11.5, 0.3, { fontSize: 12, bold: true, valign: "middle" });
+    T(s, "Ten open-weights models on hardware I own; five on the Meta Model API. Every agent follows Meta's Agents Rule of Two.", 1.0, 6.66, 11.5, 0.3, { fontSize: 12, bold: true, valign: "middle" });
   }
 
   // 12 · Agents
@@ -579,6 +580,30 @@ async function chart(file) {
     });
   }
 
+  // 19 · Seven more pieces, each measured: what held, and what didn't
+  {
+    const s = content("Technical depth", "TECHNICAL DEPTH · MEASURED THIS WEEK", "Seven more pieces, each measured, wins and misses",
+      "這週加的七件事，每一件都有量測，好的壞的都寫：\n1 私密行事曆貫穿 Match 和規劃：其他成員的空檔只能問「這個時間有空嗎」，每天最多問 24 次。\n2 學出來的意圖路由：正規表示式找到 6/10 約球請求，加上路由 10/10，22 則其他訊息誤報 1 則。\n3 Muse Spark（Muse Code 用的同一系列）蓋 C3 新功能：修正我們自己的 oracle 後第一次就過。\n4 商用授權的記憶 embedder：Granite（Apache 2.0）前三名召回 0.80。\n5 Orbit 視覺裁判：Muse Wonder 和 Glimmer 都比標註嚴格，像素規則留下。\n6 網球籃球的球：WASB 在這些影片上不能用，保留姿勢。\n7 九道閘門含 GPU 套件，在 A100 上完整跑一次。");
+    const rows = [
+      ["Private calendars, everywhere", "Match, the planner and the search ask each member's agent 'free then?'; a yes or a no, 24 asks a day", "4 tests: a calendar read by anyone but its agent throws", GREEN],
+      ["A learned intent router", "DRAMA vectors and a small head, behind the regular expressions", "Game requests found: 6 of 10 by the expressions, 10 of 10 with it; 1 false alarm in 22", GREEN],
+      ["New code, built by Muse Spark", "A C3 spec: a new module and a field in the planner (Muse Code's model family)", "First attempt after fixing our own oracle: Spark 202k tokens, 1.4 min; Glimmer 111k, 1.6 min", GREEN],
+      ["An embedder for commercial use", "IBM Granite (Apache 2.0) in place of DRAMA (non-commercial)", "Recall@3 0.80 against 0.75; recall@1 0.40 against 0.60", BLUE],
+      ["A vision judge for orbits", "Muse Wonder and Muse Glimmer on the 84 labelled frames", "Both stricter than the labels (Wonder recall 0.29); the pixel rule (1.00, 0.79) stays", AMBER],
+      ["The ball in tennis and basketball", "WASB on three CC clips, 12 marks a clip checked by eye", "Basketball 12 of 12 right but found in 3% of frames; tennis 1 of 24: pose kept", RED],
+      ["The nine gates, with the GPU suites", "One flag change through all nine, Muse Glimmer on an A100", "6 of 9 passed (93/93 attacks, 58/58 e2e); it stopped at the planner eval, 8 of 9 weeks", AMBER],
+    ];
+    rows.forEach(([h, what, res, c], i) => {
+      const y = 1.78 + i * 0.7;
+      s.addShape(pres.shapes.OVAL, { x: 0.6, y: y + 0.12, w: 0.38, h: 0.38, fill: { color: c }, line: { color: c } });
+      T(s, String(i + 1), 0.6, y + 0.12, 0.38, 0.38, { fontSize: 12, bold: true, color: WHITE, align: "center", valign: "middle" });
+      T(s, h, 1.15, y + 0.04, 3.6, 0.3, { fontSize: 13.5, bold: true });
+      T(s, what, 1.15, y + 0.34, 4.6, 0.32, { fontSize: 9.5, color: MUTED });
+      box(s, 6.0, y + 0.02, 6.7, 0.58, { fill: CARD, line: CARD });
+      T(s, res, 6.18, y + 0.02, 6.4, 0.58, { fontSize: 11, valign: "middle" });
+    });
+  }
+
   // 19 · Measured at scale: what one model call reads as the club grows
   {
     const s = content("Technical depth", "MEASURED", "It stays the same size as the club grows",
@@ -670,7 +695,7 @@ async function chart(file) {
   {
     const s = content("Technical depth", "MEASURED", "Every claim has a log behind it",
       "證據頁：每個數字都有 log。e2e、攻擊測試在雲端 A100 上用同一個 Muse Glimmer（同一個 model digest）跑。可以快速帶過，或只在影片片尾字卡出現。");
-    [["65/65", "attacks stopped"], ["52/52", "Messenger end-to-end checks"], ["22/22", "A2A checks across two machines"], ["20/20", "crash-matrix checks"]].forEach(([n, d], i) => {
+    [["93/93", "attacks stopped"], ["58/58", "Messenger end-to-end checks"], ["22/22", "A2A checks across two machines"], ["20/20", "crash-matrix checks"]].forEach(([n, d], i) => {
       const x = 0.6 + i * 3.06;
       box(s, x, 1.85, 2.92, 1.35, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
       T(s, n, x + 0.22, 1.95, 2.5, 0.72, { fontSize: 34, bold: true, color: i === 0 ? GREEN : INK });
@@ -679,10 +704,10 @@ async function chart(file) {
     const H = { bold: true, color: MUTED, fontSize: 11, fill: { color: WHITE } };
     const rows = [
       [{ text: "Suite", options: H }, { text: "Result", options: H }, { text: "Where it ran", options: H }],
-      ["npm test, 21 offline suites", "257 of 258, 1 skipped (no LlamaFirewall venv)", "No model, no GPU"],
-      ["Messenger end to end (test/e2e.mjs)", "52 of 52 checks", "Muse Glimmer on a cloud A100"],
-      ["Attacks (test/redteam.mjs)", "65 of 65 stopped", "A cloud A100"],
-      ["Community loop's attacks, within the 65", "29 of 29 stopped, 5 of 5 controls passed", "The server's CPU, with the real guards"],
+      ["npm test, 23 offline suites", "264 of 265, 1 skipped (no LlamaFirewall venv)", "No model, no GPU"],
+      ["Messenger end to end (test/e2e.mjs)", "58 of 58 checks", "Muse Glimmer on a cloud A100"],
+      ["Attacks (test/redteam.mjs)", "93 of 93 stopped", "A cloud A100, twice"],
+      ["Community loop's attacks, within the 93", "29 of 29 stopped, 5 of 5 controls passed", "The server's CPU, with the real guards"],
       ["A2A between two gateways", "22 of 22 checks", "Taipei GPU server and a GCP A100"],
       ["Crash matrix", "20 of 20 checks", "A stand-in model"],
       ["A federation of three clubs (test/federation_unit.mjs)", "4 of 4: found, signed, rotated, forgery refused", "Real HTTP, one host"],
