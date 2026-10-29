@@ -224,7 +224,8 @@ and your health data are read there and nowhere else; what you share in Messenge
 | **MapAnything** (Apache 2.0 weights) | Our GPU server; in the app as an optional camera effect | Metric depth and the camera for orbit replays of your moment ([docs/orbit_highlights.md](docs/orbit_highlights.md)) |
 | **Muse Spark 1.3** (Meta Model API) | The fallback, when switched on (`LLM_FALLBACK=on`) | When the GPU server can't answer, the same call goes once to Muse Spark; checked live (`submission/results/fallback_live.json`) |
 | **SAM 3.1** (Meta Model API) | One call | Checked on the smash's frame against SAM 2.1: the same player, box IoU 0.97 (`submission/results/sam31_smash.json`) |
-| **Muse Image** (Meta Model API) | Made once | A face for each member's agent (`web/public/agents/`) |
+| **Muse Image** (Meta Model API) | Made once | A face for each member's agent (`web/public/agents/`); the art of a rematch poster, made once per challenge, names drawn by the app |
+| **Muse Voice Transcribe** (Meta Model API) | Realtime, relayed by the gateway | Full-duplex talk with your agent: it hears where your turn ends, replies a sentence at a time (Kokoro), and stops when you cut in (`submission/results/voice_live.json`) |
 | **Messenger Platform** | Signed webhook, Send API, quick replies | Your agent in your chats: plans, approvals with a tap, check-ins, files shared to the chat |
 | **Instagram, Facebook** | The phone's share sheet (no API) | Your reel and its caption, shared by you |
 
@@ -251,7 +252,9 @@ and what it rests on: [docs/methods.md](docs/methods.md). Security, with the att
 [docs/security.md](docs/security.md). A club of a thousand, simulated: [docs/scale.md](docs/scale.md). The community
 loop: [docs/community_loop.md](docs/community_loop.md). The one-pass decider, measured and left off:
 [docs/decider.md](docs/decider.md). Orbit replays with Meta's MapAnything (an optional camera effect in the app, measured):
-[docs/orbit_highlights.md](docs/orbit_highlights.md).
+[docs/orbit_highlights.md](docs/orbit_highlights.md). A federation of clubs over A2A: each club found by its card,
+keys pinned on first use and followed through signed rotations, forgeries refused (`agent/src/a2a/peer.js`,
+`test/federation_unit.mjs`; technical report 3.14).
 
 Test results on the current code (2026-10-28). Runs on a cloud A100 use the same Muse Glimmer build (the same model
 digest) as our RTX 3090:

@@ -305,6 +305,18 @@ whole day certain to that asker is withheld. It brings the days known down to 32
 agrees every game (its best time drops from 88.9% to 81.5%). It cannot hide the hours a game needs: to agree a game the
 asker must learn that some hours are free.
 
+### 3.14 A federation of clubs
+
+The two-gateway A2A link (3.11) is generalized to any number of clubs (`agent/src/a2a/peer.js`). A club publishes a
+card, `/a2a/club.json`: its name, the members other clubs may ask (made-up demo members only, never a real player), a
+public profile each, and where its keys are. A gateway's `A2A_FEDERATION_FILE` lists only addresses; it reads each card
+at start and every ten minutes, and each club becomes a peer whose key is pinned on first use. Keys can be rotated: the
+old key signs a hand-over statement (`typ: serve-key-rotation+jwt`) naming the new key, published in the key set next to
+it. When a request arrives under a key it does not know, a gateway follows the statements from the key it pinned, and
+re-pins only if every link verifies; a statement signed by any other key, or a page that is not a card, is refused.
+`test/federation_unit.mjs` runs three clubs over real HTTP: discovery, signed requests and a replay refused, a rotation
+followed two statements deep, and a forged rotation refused with the pin unchanged.
+
 ## 4. Meta models and tools
 
 Only what is wired into the code.
@@ -325,7 +337,7 @@ Only what is wired into the code.
 | **CodeShield rules** (LlamaFirewall) | In the loop's policy | `agent/test/policy.mjs` | Its secret and JavaScript rules, rewritten as patterns on added lines |
 | **Agents Rule of Two** [23] | Design rule | Every agent and loop stage | No agent or stage holds untrusted input, private data and the power to act at once |
 
-**On the Meta Model API** (`META_API_KEY`, on the server only), three uses, each kept small:
+**On the Meta Model API** (`META_API_KEY`, on the server only), five uses, each kept small:
 - **Muse Spark 1.3 as a fallback** (`agent/src/core/llm.js`, `LLM_FALLBACK=on`): a call the GPU server can't take (not
   reachable, or a server error) goes once to Muse Spark, in its protocol (`reasoning_effort` low, room for its reasoning,
   Ollama's tool calls given ids); never on a timeout. Checked live with the local model made unreachable: a chat in
@@ -334,7 +346,16 @@ Only what is wired into the code.
 - **SAM 3.1**, once, on the smash's frame with the prompt "badminton player": one match, its box 0.974 IoU with SAM 2.1's
   outline (`submission/results/sam31_smash.json`). The local SAM 2.1 stays the one the reel uses.
 - **Muse Image**: a face for each demo club member's agent and for the player's own, made once (12 images,
-  `web/public/agents/`), shown in the feed and in Agent chats.
+  `web/public/agents/`), shown in the feed and in Agent chats; and the art of a rematch poster (`agent/src/media/poster.js`,
+  `web/src/club/Poster.jsx`): only the sport and the format go into the prompt (two mascots facing off, no words), made
+  once per challenge and cached; the app draws the names, time and stake over it and shares it from the phone.
+- **Muse Voice Transcribe** (realtime, `wss://api.meta.ai/v1/asr/realtime`, ENDPOINTING): full-duplex voice with the
+  agent (`agent/src/voice/live.js`, `web/src/voice/LiveTalk.jsx`). The phone streams 24 kHz PCM to the gateway, which
+  relays it, so the key never leaves the server. A finished turn goes to the same agent as a typed question (Llama Guard,
+  numbers checked); the reply is spoken a sentence at a time by Kokoro on the server (the API has no speech synthesis).
+  When the transcriber hears the player start speaking, the app stops the voice and the gateway drops the stale reply
+  (barge-in). One live session: line open in 1.2 s, turn heard 3.6 s after start, reply text at 12.3 s
+  (`submission/results/voice_live.json`); `test/voice_unit.mjs` checks the relay and barge-in against a stand-in.
 
 Not used: Llama 3.2 11B Vision as an orbit judge (Hugging Face refused the download for our account on 2026-10-28,
 `docs/orbit_highlights.md`). Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformers,
@@ -613,6 +634,15 @@ Over the two seeds, 0.25 player-games per user with Serve against 0.10 without. 
 now asks and partners are asked before anything is booked. What still loses games: people who do not turn up or did not
 know about a game (5 empty places over the two seeds, none without Serve), and in seed 3 partners said "Can't make it"
 10 times in 12, so the agent kept trying the next one at the cost of many more messages per game.
+
+**Seed 4, one more run (2026-10-29; `submission/results/sim_users_v3s4.json`):** with Serve, 1 game played against 4
+without; 2 users with a game against 8; player-games per user 0.1 against 0.4 (difference -0.3, 95% CI -0.5 to -0.1).
+Both arms booked 4 games, Serve at once (median 0 minutes from wanting to booked, against 100.5), but 3 of Serve's 8
+places stayed empty: people kept away from games their agent had agreed for them. The Match helper asked 9 times and
+partners were asked 3 times. On this seed Serve lost, and the reason is the same as before: an agent saying yes for a
+person who then does not come. A blinded judge (Muse Glimmer, 40 held-out messages, `sim_judge_v3s4.json`) could not
+tell the simulated users' messages from human-style ones: 11 of 20 pairs (0.55, 95% CI 0.34 to 0.74; chance is 0.5).
+Over the three seeds after the fixes there is no effect we can claim.
 
 ## 6. Safety and privacy
 
