@@ -195,6 +195,30 @@ async function chart(file) {
     T(s, "Counted 29 Oct, day 3. Spond, Playtomic and Meetup post events or book courts; on Serve each player's agent agrees the time, so nobody runs the poll.", 6.2, 6.62, 6.6, 0.4, { fontSize: 10, color: MUTED, italic: true });
   }
 
+  // C · Cold start: the first friend needs no account
+  {
+    const s = content(SEC, "IMPACT · COLD START", "The first friend needs no account",
+      "冷啟動：agent 對 agent 需要雙方都在 Serve 上；第二個人怎麼來？靠邀請連結。跟 agent 說一句 → 分享連結到 LINE、WhatsApp 群組 → 對方沒帳號也能打開，看到球局和剩幾個名額（看不到誰報名）→ 登入一次就自動加入 → 滿團時每個人都收到 Game on，之後他自己的 agent 就能替他回覆。");
+    const steps = [
+      ["1", "Tell your agent", "\"Saturday doubles, need 3\": it drafts the invite with the nearest court. You tap Post."],
+      ["2", "Share the link", "To any group chat. It opens with no account: the game, the place, the spots left, never who is going."],
+      ["3", "Tap Join", "Sign in once and the game is joined straight away, also after a Facebook or Instagram login."],
+      ["4", "Game on", "The last spot taken, everyone in it hears \"Game on\". From then on, their own agent answers for them."],
+    ];
+    steps.forEach(([n, h, d], i) => {
+      const x = 0.6 + i * 3.05;
+      box(s, x, 1.95, 2.85, 3.3, { fill: i === 3 ? GREENBG : CARD, line: i === 3 ? GREENBG : CARD });
+      s.addShape(pres.shapes.OVAL, { x: x + 0.25, y: 2.2, w: 0.5, h: 0.5, fill: { color: GREEN }, line: { color: GREEN } });
+      T(s, n, x + 0.25, 2.2, 0.5, 0.5, { fontSize: 16, bold: true, color: WHITE, align: "center", valign: "middle" });
+      T(s, h, x + 0.25, 2.9, 2.4, 0.4, { fontSize: 17, bold: true });
+      T(s, d, x + 0.25, 3.4, 2.4, 1.7, { fontSize: 12.5, color: MUTED, valign: "top" });
+      if (i < 3) arrow(s, x + 2.87, 3.6, 0.16, 0);
+    });
+    box(s, 0.6, 5.5, 12.1, 1.1, { fill: WHITE, line: LINE });
+    T(s, [{ text: "Why it matters. ", options: { bold: true } }, { text: "Agents agree games only between members, so the second player has to get in somehow: the link is that way in, and nobody has to install anything first. A private club's games never leave the club. Live on the public site since 29 Oct; the link page and the join are covered by tests." }],
+      0.85, 5.5, 11.6, 1.1, { fontSize: 13, valign: "middle" });
+  }
+
   // 3c · Clubs for groups with no organiser (agent members/programs.js)
   {
     const s = content("Impact", "IMPACT · WHO ELSE IT SERVES", "Games where no one has time to organise them",
@@ -246,7 +270,7 @@ async function chart(file) {
       "規劃與球場：\n左：中心點球場地圖（技術報告第 4 頁那張）——每個人的通勤時間、共同空檔，agent 一輪談好。\n右：手機版找球場——Prompt Guard 2 先過濾 Google 評論，Muse Glimmer 同時判斷四個球場，每個理由都引用來源，程式檢查。\n旁白：Then it plans my week, and agrees it with three friends' agents at once, over A2A. Any ball sport works.");
     s.addImage({ data: IMG.venue, x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406 });
     s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406, fill: { type: "none" }, line: { color: LINE, width: 1 } });
-    T(s, "Badminton: the venue in the middle (an earlier run than slide 8, on court 3)", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
+    T(s, "Badminton: the venue in the middle (an earlier run than slide 9, on court 3)", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
     phone(s, IMG.v3.courts_badges, 7.6, 1.85, 4.7, "Basketball: public courts, judged with sources");
     const x = 10.25;
     [["Muse Glimmer plans", "One tool at a time; a refused call comes back as a fact"], ["A2A, usually one round", "Agents mark the times that work; code picks; a counter-offer only if none fits"], ["Prompt Guard 2", "Screens reviews first; Google's are listed with a link, not stored"], ["Nothing booked", "until you say yes"]].forEach(([h, d], i) => {
@@ -298,6 +322,24 @@ async function chart(file) {
       0.8, 5.95, 11.7, 0.85, { fontSize: 12, valign: "middle" });
   }
 
+  // T · Take one model away
+  {
+    const s = content(SEC, "USE OF META AI · WHY EACH ONE", "Take one away, and this is what breaks",
+      "拿掉一個模型會怎樣：Glimmer（整個 agent 不能運作）、學生模型（每次決策從 0.9 秒變 40 秒，模擬中 Glimmer 回答多 54–67%）、DRAMA（第一個找到對的筆記從 0.60 掉到 0.35）、Llama Guard、Prompt Guard、Muse Voice。標明哪些是量測、哪些是設計上的。");
+    const H = { bold: true, color: MUTED, fontSize: 11, fill: { color: WHITE } };
+    const rows = [
+      [{ text: "Without", options: H }, { text: "What breaks", options: H }, { text: "", options: H }],
+      ["Muse Glimmer", "No planner and no agent answers: the product does not run", "by design"],
+      ["Llama 3.2 1B student", "Every member answer goes to Glimmer: about 40 s instead of 0.9 s, and 54–67% more Glimmer answers in simulated talks", "measured"],
+      ["DRAMA", "The right note comes first 0.35 of the time instead of 0.60 (word matching instead; 20 questions)", "measured, small"],
+      ["Llama Guard 3 1B", "Nothing reads every message in and out; code alone reads only plain words. With it: 37 of 42 unsafe refused, 1 of 74 harmless", "by design"],
+      ["Prompt Guard 2", "Google reviews and members' ideas reach the models unscreened; poisoned reviews are among the 93 attacks", "by design"],
+      ["Muse Voice Transcribe", "No talking hands-free and no cutting in while the agent speaks", "by design"],
+    ];
+    s.addTable(rows, { x: 0.6, y: 1.9, w: 12.1, colW: [2.8, 7.7, 1.6], fontSize: 13, fontFace: FONT, color: INK, rowH: 0.62, valign: "middle", border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.12, 0, 0.12] });
+    T(s, "\"Measured\": numbers from this entry's tests. \"By design\": what the code does without it.", 0.6, 6.55, 12.1, 0.3, { fontSize: 11, color: MUTED, italic: true });
+  }
+
   // 16 · The Glimmer bottleneck, and the student fine-tuned from it
   {
     const s = content("Technical depth", "TECHNICAL DEPTH · 20% · FINE-TUNING", "Muse Glimmer reasons a lot, so I trained a 1B student",
@@ -319,9 +361,9 @@ async function chart(file) {
       T(s, h, x + 0.18, y + 0.15, 3.25, 0.35, { fontSize: 15, bold: true });
       T(s, d, x + 0.18, y + 0.6, 3.25, 1.05, { fontSize: 12, color: INK, valign: "top" });
     });
-    s.addChart(pres.charts.BAR, [{ name: "Agrees with Glimmer's answer", labels: ["Glimmer vs itself (the ceiling)", "First time listed", "1B student (served)"], values: [88.8, 82.7, 89.5] }], {
+    s.addChart(pres.charts.BAR, [{ name: "Agrees with Glimmer's answer", labels: ["Glimmer vs itself [87.1–90.3]", "First time listed", "1B student [87.9–91.0]"], values: [88.8, 82.7, 89.5] }], {
       x: 5.3, y: 4.2, w: 4.6, h: 2.6, barDir: "bar", chartColors: [SOFT, LINE, GREEN], barGapWidthPct: 45,
-      showTitle: true, title: "Agrees with Glimmer, 500 held-out cases (within the noise of its 88.8%)", titleFontSize: 11, titleColor: INK, titleFontFace: "+mn-lt",
+      showTitle: true, title: "Agrees with Glimmer, 500 held-out cases, 95% intervals: the same within them", titleFontSize: 11, titleColor: INK, titleFontFace: "+mn-lt",
       showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.0\"%\"", dataLabelFontSize: 11, dataLabelFontBold: true, dataLabelFontFace: "+mn-lt", dataLabelColor: INK,
       catAxisLabelFontSize: 10, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisOrientation: "maxMin",
       valAxisHidden: true, valAxisMinVal: 60, valAxisMaxVal: 100, valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: false,
@@ -411,10 +453,10 @@ async function chart(file) {
     const s = content(SEC, "WHAT IS REAL, WHAT IS SIMULATED", "Real players, real models; simulated test clubs",
       "真實與模擬一頁看清楚：左邊是真的（真人、真模型、真程式），右邊是模擬（測試用的社團與成員，都有標示）。模擬證明 agent 守住成員說過的話，不代表真人的反應；那是真人社團在量的。");
     const col = (x, k, h, fill, line, items) => {
-      box(s, x, 1.85, 5.95, 4.55, { fill, line });
-      T(s, k, x + 0.3, 2.0, 5.4, 0.25, { fontSize: 10.5, bold: true, color: line, charSpacing: 1 });
-      T(s, h, x + 0.3, 2.28, 5.4, 0.4, { fontSize: 17, bold: true });
-      T(s, items.map((t, i) => ({ text: t, options: { bullet: { indent: 14 }, breakLine: i < items.length - 1, paraSpaceAfter: 6 } })), x + 0.3, 2.8, 5.4, 3.5, { fontSize: 12.5, valign: "top" });
+      box(s, x, 1.85, 5.95, 3.75, { fill, line });
+      T(s, k, x + 0.3, 1.98, 5.4, 0.25, { fontSize: 10.5, bold: true, color: line, charSpacing: 1 });
+      T(s, h, x + 0.3, 2.24, 5.4, 0.4, { fontSize: 16, bold: true });
+      T(s, items.map((t, i) => ({ text: t, options: { bullet: { indent: 14 }, breakLine: i < items.length - 1, paraSpaceAfter: 4 } })), x + 0.3, 2.7, 5.4, 2.85, { fontSize: 11.5, valign: "top" });
     };
     col(0.6, "REAL", "What a judge can trust as is", GREENBG, GREEN, [
       "8 players, 14 accounts, 2 clubs they started, 4 games, 7 joins on the live site (29 Oct)",
@@ -430,7 +472,10 @@ async function chart(file) {
       "The 20,000 requests in the asking test; the prober in the disclosure test",
       "The attacks and unsafe messages: labelled tests I wrote",
     ]);
-    T(s, "The simulations show the agents keep what members stated; they do not show how real people react. The live club measures that.", 0.6, 6.6, 12.1, 0.35, { fontSize: 12, color: MUTED, italic: true });
+    box(s, 0.6, 5.75, 12.1, 0.95, { fill: REDBG, line: REDBG });
+    T(s, "KNOWN FAILURES", 0.85, 5.85, 3, 0.25, { fontSize: 10.5, bold: true, color: RED, charSpacing: 1 });
+    T(s, "5 of 42 unsafe messages got past Llama Guard and code · 1 of 74 harmless ones refused · 9% of Glimmer calls came back empty (mostly a small budget: every call now has room to reason) · with a rule only in a member's words, Glimmer broke it in 1 of 60 talks", 0.85, 6.1, 11.6, 0.55, { fontSize: 11 });
+    T(s, "The simulations show the agents keep what members stated; they do not show how real people react. The live club measures that.", 0.6, 6.78, 12.1, 0.3, { fontSize: 10.5, color: MUTED, italic: true });
   }
 
   // B · What was built during the hackathon
@@ -473,7 +518,7 @@ async function chart(file) {
       pill(s, t, x, 4.35, 0.8, { fill: GREEN, line: GREEN, color: WHITE, size: 11 });
       T(s, d, x, 4.8, 3.9, 0.8, { fontSize: 12.5 });
     });
-    T(s, "Every speed-up is labelled on screen. The video shows only what this deck lists as built during the hackathon (slide 14).", 0.6, 6.3, 12.1, 0.4, { fontSize: 12, color: MUTED, italic: true });
+    T(s, "Every speed-up is labelled on screen. The video shows only what this deck lists as built during the hackathon (slide 16).", 0.6, 6.3, 12.1, 0.4, { fontSize: 12, color: MUTED, italic: true });
   }
 
   // 24 · End
@@ -486,7 +531,7 @@ async function chart(file) {
     pill(s, "Your week, agreed agent to agent", 1.45, 4.45, 3.3, { h: 0.5, size: 13 });
     pill(s, "Your agent in Messenger", 4.9, 4.45, 2.9, { h: 0.5, size: 13 });
     pill(s, "Auto-cut highlights to Instagram", 7.95, 4.45, 3.95, { h: 0.5, size: 13 });
-    T(s, "Built during the hackathon, Oct 27 – Nov 4, 2026 · demo video 2:42 · what is new and what is not: slide 14", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
+    T(s, "Built during the hackathon, Oct 27 – Nov 4, 2026 · demo video 2:42 · what is new and what is not: slide 16", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
     T(s, "github.com/gino6178/serve-meta-hackathon  ·  live: relay-orders-eliminate-associated.trycloudflare.com", 1, 5.78, 11.333, 0.35, { fontSize: 13, color: BLUE, align: "center" });
     T(s, "The product runs Muse Glimmer on an RTX 3090 I own; cloud A100s ran evaluations, including the A2A test's second gateway", 1, 6.6, 11.333, 0.36, { fontSize: 13, color: MUTED, align: "center", valign: "middle" });
     s.addNotes("片尾：Play more, manage less. 黑客松期間開發聲明（TrackNetV5 除外）、repo 連結、Built on Muse Glimmer。\n旁白：That's Serve. Play more, manage less.");
@@ -730,13 +775,13 @@ async function chart(file) {
     T(s, "A new note is checked against the old ones it may change: added, replacing them, or the same. A replaced note is kept but never recalled, so \"leave Tomás out\" gives way to \"Tomás is fine again\".", 0.8, 4.72, 5.6, 0.7, { fontSize: 10.5 });
     box(s, 0.6, 5.6, 6.0, 1.15, { fill: CARD, line: CARD });
     T(s, "End to end", 0.8, 5.7, 5.6, 0.3, { fontSize: 13, bold: true });
-    T(s, "Two weeks after the player said to leave Tomás out, the planner left him out in 3 of 3 weeks with memory on, and in 0 of 3 with it off.", 0.8, 6.02, 5.6, 0.7, { fontSize: 10.5, color: MUTED });
+    T(s, "Two weeks after the player said to leave Tomás out, the planner left him out in 3 of 3 weeks with memory on, and in 0 of 3 with it off (a small test).", 0.8, 6.02, 5.6, 0.7, { fontSize: 10.5, color: MUTED });
     s.addChart(pres.charts.BAR, [
       { name: "Meta's DRAMA", labels: ["Recall@1", "Recall@3", "MRR"], values: [0.60, 0.75, 0.696] },
       { name: "BM25 (words)", labels: ["Recall@1", "Recall@3", "MRR"], values: [0.35, 0.45, 0.422] },
     ], {
       x: 6.9, y: 1.75, w: 5.85, h: 3.0, barDir: "col", barGrouping: "clustered", chartColors: [BLUE, LINE], barGapWidthPct: 60,
-      showTitle: true, title: "Finding the right note: 20 planning questions, 41 notes each", titleFontSize: 12, titleColor: INK, titleFontFace: "+mn-lt",
+      showTitle: true, title: "Finding the right note: 20 planning questions, 41 notes each (a small test)", titleFontSize: 12, titleColor: INK, titleFontFace: "+mn-lt",
       showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00", dataLabelFontSize: 11, dataLabelFontBold: true, dataLabelFontFace: "+mn-lt", dataLabelColor: INK,
       catAxisLabelFontSize: 11, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, valAxisHidden: true, valAxisMinVal: 0, valAxisMaxVal: 1,
       valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: true, legendPos: "b", legendFontSize: 10, legendFontFace: "+mn-lt", legendColor: INK,
