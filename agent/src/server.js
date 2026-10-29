@@ -28,6 +28,7 @@ const { readJSON, writeJSON } = await import("./core/jsonfile.js");
 const bodylog = await import("./body/body.js");
 const bodyContext = await import("./body/context.js");
 const membersApi = await import("./members/api.js");
+const poster = await import("./media/poster.js");
 const feedPosts = await import("./feed/posts.js");
 const memory = await import("./memory/memory.js");
 const healthImport = await import("./body/health.js");
@@ -545,6 +546,13 @@ http.createServer(async (req, res) => {
       const b = await bodyOf(req), now = Date.now(), org = bodylog.organize({ log: b.log || [], games: b.games || [], workouts: b.workouts || [], days: b.days || [] });
       const said = memory.list("app", now).filter((n) => n.status === "live").slice(0, 40);
       return json(res, 200, await bodyContext.retrieve(org, b.log || [], { question: String(b.question || "").slice(0, 300) || undefined, said, now, k: 6 }), o);
+    }
+    // a matchup poster's art (media/poster.js): made once per challenge with Muse Image, then from the file
+    if (u.pathname === "/api/poster/art") {
+      try {
+        const r = await poster.art({ id: u.searchParams.get("id") || "", sport: u.searchParams.get("sport") || "badminton", format: u.searchParams.get("format") || "singles" });
+        res.writeHead(200, { "content-type": "image/png", "cache-control": "private, max-age=86400", ...cors(o) }); return fs.createReadStream(r.file).pipe(res);
+      } catch (e) { return json(res, e.code || 500, { error: e.message }, o); }
     }
     // a health app's export (the raw file is the body; ?name= its file name, ?tz= minutes east of UTC)
     if (u.pathname === "/api/health/import" && req.method === "POST")

@@ -325,8 +325,18 @@ Only what is wired into the code.
 | **CodeShield rules** (LlamaFirewall) | In the loop's policy | `agent/test/policy.mjs` | Its secret and JavaScript rules, rewritten as patterns on added lines |
 | **Agents Rule of Two** [23] | Design rule | Every agent and loop stage | No agent or stage holds untrusted input, private data and the power to act at once |
 
-Not used: Muse Spark and the Meta Model API (the gateway can point at it with `LLM_URL`; nothing here was measured
-there); Llama 3.2 11B Vision as an orbit judge (Hugging Face refused the download for our account on 2026-10-28,
+**On the Meta Model API** (`META_API_KEY`, on the server only), three uses, each kept small:
+- **Muse Spark 1.3 as a fallback** (`agent/src/core/llm.js`, `LLM_FALLBACK=on`): a call the GPU server can't take (not
+  reachable, or a server error) goes once to Muse Spark, in its protocol (`reasoning_effort` low, room for its reasoning,
+  Ollama's tool calls given ids); never on a timeout. Checked live with the local model made unreachable: a chat in
+  4.7 s and a tool call in 2.4 s, both right (`submission/results/fallback_live.json`). It sends the prompt to Meta's
+  cloud, so it is off unless switched on.
+- **SAM 3.1**, once, on the smash's frame with the prompt "badminton player": one match, its box 0.974 IoU with SAM 2.1's
+  outline (`submission/results/sam31_smash.json`). The local SAM 2.1 stays the one the reel uses.
+- **Muse Image**: a face for each demo club member's agent and for the player's own, made once (12 images,
+  `web/public/agents/`), shown in the feed and in Agent chats.
+
+Not used: Llama 3.2 11B Vision as an orbit judge (Hugging Face refused the download for our account on 2026-10-28,
 `docs/orbit_highlights.md`). Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformers,
 OpenStreetMap, Open-Meteo, the Google Places API.
 
@@ -677,7 +687,7 @@ inputs. They do not show how real people would talk, vote or react.
 - **The builder.** Two-file C2 changes needed retries; an impossible spec spends its whole budget; the test sandbox is
   a JavaScript preload, not an OS sandbox.
 - **Orbits** look right only for short arcs, judged on one clip and labelled by the coding agent, not by viewers.
-- **The verifier checks numbers, not words.** Scoreboards are checked against the rules for badminton only.
+- **The verifier checks numbers, not words.** Scoreboards are checked against the rules of badminton, tennis (sets and a match tiebreak), basketball, pickleball and table tennis; volleyball and soccer are read, not checked.
 - **Matchmaking** is measured on simulated members only, and a talk can still fail on courts after a good band (136
   of 667 talks in the first end-to-end run had no free court).
 - **DRAMA's weights are CC BY-NC 4.0** (`agent/src/memory/embed_worker.py`), so commercial use needs another embedder.

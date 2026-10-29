@@ -192,8 +192,9 @@ and your health data are read there and nowhere else; what you share in Messenge
   found by meaning with DRAMA, so "leave Tomás out for a while" still holds when the Autopilot plans a week two weeks
   later. `/forget` deletes it.
 - **A result from a photo** (`agent/src/media/vision.js`). Send a photo of the scoreboard or the score sheet. Muse Glimmer
-  reads each game's score into a JSON Schema (no tools; text in the photo is never followed). For badminton, code checks
-  it against the rules (21 by two clear points, 30 at most, best of three); other sports are not checked yet. You say
+  reads each game's score into a JSON Schema (no tools; text in the photo is never followed). Code checks
+  it against its sport's rules: badminton (21 by two clear points, 30 at most, best of three), tennis (sets of 6 by two, 7-5
+  or 7-6, a match tiebreak as the third set), basketball (no draw), pickleball and table tennis (11 by two). You say
   which side you were before anything is filed. In Messenger, or "Read it from a photo" on the result form.
 - **Voice notes** (`agent/src/media/asr.js`, `agent/src/media/asr_worker.py`). Say what hurts or what you played. Meta's Omnilingual
   ASR hears it on the server's CPU, shows you "I heard: …", then handles it as if you had typed it.
@@ -221,6 +222,9 @@ and your health data are read there and nowhere else; what you share in Messenge
 | **SAM 2.1** (Hiera-L) | Our GPU server, Hugging Face Transformers | Each player's outline, for the reel's spotlight and its drawn view |
 | **DETR** (ResNet-50) | Our GPU server, Hugging Face Transformers | Finds the people in your own video, so the reel follows you |
 | **MapAnything** (Apache 2.0 weights) | Our GPU server; in the app as an optional camera effect | Metric depth and the camera for orbit replays of your moment ([docs/orbit_highlights.md](docs/orbit_highlights.md)) |
+| **Muse Spark 1.3** (Meta Model API) | The fallback, when switched on (`LLM_FALLBACK=on`) | When the GPU server can't answer, the same call goes once to Muse Spark; checked live (`submission/results/fallback_live.json`) |
+| **SAM 3.1** (Meta Model API) | One call | Checked on the smash's frame against SAM 2.1: the same player, box IoU 0.97 (`submission/results/sam31_smash.json`) |
+| **Muse Image** (Meta Model API) | Made once | A face for each member's agent (`web/public/agents/`) |
 | **Messenger Platform** | Signed webhook, Send API, quick replies | Your agent in your chats: plans, approvals with a tap, check-ins, files shared to the chat |
 | **Instagram, Facebook** | The phone's share sheet (no API) | Your reel and its caption, shared by you |
 

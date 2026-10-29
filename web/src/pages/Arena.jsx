@@ -9,6 +9,7 @@ import { patchGame } from "../club/game.js";
 import { randomMatch, askFor, stakes, WHEN } from "../club/arena.js";
 import { go } from "../App.jsx";
 import { agentReadScore } from "../agent.js";
+import Poster from "../club/Poster.jsx";
 
 // The club's competitive side, in two tabs of the Club page.
 //   Rankings: the club rating (Elo from every challenge), games played in the club challenge and wins, with a podium
@@ -176,6 +177,7 @@ export function Challenges({ club, members, r, rec, g, you, me }) {
 
   // challenges sent to you
   const incoming = (club.incoming || []).filter((c) => !a.answered?.[c.id]);
+  const [poster, setPoster] = useState(null); // a matchup poster for one challenge (club/Poster.jsx)
   const answer = (c, yes) => {
     patch((x) => ({ ...x, answered: { ...x.answered, [c.id]: yes ? "accepted" : "declined" } }));
     if (yes) book(`Challenge ${first(byId[c.from].name)} to a ${c.format} match on ${whenText(c.when)}`, [c.from]);
@@ -322,12 +324,13 @@ export function Challenges({ club, members, r, rec, g, you, me }) {
                     <p><b>{m.name}</b> challenged you · {c.format} · {whenText(c.when)}</p>
                     <p className="ch-note">“{c.note}”</p>
                     <p className="tiny muted">+{s.win} if you win / −{s.loss}{c.stake ? ` · ${c.stake}` : ""}</p>
-                    <div className="cta-row"><button className="btn primary sm" onClick={() => answer(c, true)}>Accept</button><button className="btn ghost sm" onClick={() => answer(c, false)}>Decline</button></div>
+                    <div className="cta-row"><button className="btn primary sm" onClick={() => answer(c, true)}>Accept</button><button className="btn ghost sm" onClick={() => answer(c, false)}>Decline</button><button className="btn ghost sm" onClick={() => setPoster(c)}><Icon name="spark" size={14} />Poster</button></div>
                   </div>
                 </li>
               );
             })}
           </ul>
+          {poster && <Poster c={poster} from={byId[poster.from]} club={club} onClose={() => setPoster(null)} />}
         </section>
 
         <section className="panel" aria-labelledby="gm-h">
