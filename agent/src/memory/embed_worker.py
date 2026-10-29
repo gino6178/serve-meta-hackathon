@@ -6,6 +6,10 @@ passing a 4D padding-only mask, so no token is hidden from another. Matryoshka-t
 
 Reads one JSON line per request, {"queries": [...]} or {"documents": [...]}, optional "dim", and answers one line,
 {"vectors": [[...], ...]}. DRAMA_REVISION pins the model's commit; files come from the local Hugging Face cache.
+
+DRAMA's weights are CC BY-NC 4.0. For commercial use, EMBED_MODEL names another encoder read the plain way (mean pooling,
+normalized, no prefix; EMBED_POOL=cls for the first token instead), such as ibm-granite/granite-embedding-278m-multilingual
+(Apache 2.0, CLS pooling); EMBED_REVISION pins its commit. test/memory_eval.mjs compares them.
 """
 import json
 import os
@@ -13,25 +17,35 @@ import sys
 
 import torch
 import torch.nn.functional as F
-from transformers import AutoTokenizer, LlamaModel
+from transformers import AutoModel, AutoTokenizer, LlamaModel
 
-NAME = os.environ.get("DRAMA_MODEL", "facebook/drama-base")
-REV = os.environ.get("DRAMA_REVISION", "7ef3558878de60517678f955e6e290c138650fe8")
+OTHER = os.environ.get("EMBED_MODEL", "")
+DRAMA = not OTHER or OTHER == "drama"
+NAME = os.environ.get("DRAMA_MODEL", "facebook/drama-base") if DRAMA else OTHER
+REV = os.environ.get("DRAMA_REVISION", "7ef3558878de60517678f955e6e290c138650fe8") if DRAMA else os.environ.get("EMBED_REVISION") or None
 torch.set_num_threads(int(os.environ.get("EMBED_THREADS", "8")))
 try:
     tok = AutoTokenizer.from_pretrained(NAME, revision=REV, local_files_only=os.environ.get("HF_HUB_OFFLINE") == "1")
-    model = LlamaModel.from_pretrained(NAME, revision=REV, dtype=torch.float32).eval()
-    for layer in model.layers:
+    model = (LlamaModel if DRAMA else AutoModel).from_pretrained(NAME, revision=REV, dtype=torch.float32).eval()
+    for layer in model.layers if DRAMA else []:
         layer.self_attn.is_causal = False
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
 except Exception as e:
     for _ in sys.stdin:
-        print(json.dumps({"error": f"DRAMA is not available ({type(e).__name__}: {e})"[:200]}), flush=True)
+        print(json.dumps({"error": f"{NAME} is not available ({type(e).__name__}: {e})"[:200]}), flush=True)
     sys.exit(0)
 
 
 def encode(texts, dim=None, query=False):
+    if not DRAMA:
+        enc = tok(texts, padding=True, truncation=True, max_length=256, return_tensors="pt")
+        with torch.no_grad():
+            h = model(**enc).last_hidden_state
+        if os.environ.get("EMBED_POOL") == "cls":
+            return F.normalize(h[:, 0], p=2, dim=1)
+        pad = enc["attention_mask"][..., None].float()
+        return F.normalize((h * pad).sum(1) / pad.sum(1), p=2, dim=1)
     if query:
         texts = ["Query: " + t for t in texts]
     enc = tok(texts, padding=True, truncation=True, max_length=512, return_tensors="pt")

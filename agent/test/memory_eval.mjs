@@ -48,7 +48,8 @@ async function score(name, find) {
   return { name, questions: n, recallAt1: +(at(1) / n).toFixed(3), recallAt3: +(at(3) / n).toFixed(3), mrr: +(ranks.reduce((s, r) => s + (r ? 1 / r : 0), 0) / n).toFixed(3), ranks };
 }
 const t0 = Date.now();
-const drama = await score(`DRAMA (facebook/drama-base, ${process.env.MEMORY_DIM || 768} dims${process.env.MEMORY_RANK === "hybrid" ? ", fused with BM25" : ""})`, async (q) => (await memory.recallIn(notes, q, { k: notes.length, min: -1 })).notes);
+const other = process.env.EMBED_MODEL && process.env.EMBED_MODEL !== "drama" ? process.env.EMBED_MODEL : null;
+const drama = await score(`${other || `DRAMA (facebook/drama-base, ${process.env.MEMORY_DIM || 768} dims`}${process.env.MEMORY_RANK === "hybrid" ? ", fused with BM25" : ""}${other ? "" : ")"}`, async (q) => (await memory.recallIn(notes, q, { k: notes.length, min: -1 })).notes);
 const dramaSeconds = (Date.now() - t0) / 1000;
 const bm = await score("BM25 (words)", async (q) => memory.bm25(notes, q, notes.length));
 const out = { at: new Date().toISOString(), notes: notes.length, questions: PAIRS.length, drama: { ...drama, seconds: +dramaSeconds.toFixed(1), by: (await memory.recallIn(notes, PAIRS[0][0])).by }, bm25: bm };
