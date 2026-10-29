@@ -54,7 +54,7 @@ export default function Courts() {
         <div>
           <span className="tag">Courts near you · OpenStreetMap, Google Maps, the forecast</span>
           <h1 className="h1">Where can we play?</h1>
-          <p className="muted">Public courts, school fields and parks near you, for any ball sport. Your agent reads the map, the ratings and the weather for the hour you want, and says if you can play there, with the reason for every call.</p>
+          <p className="muted">Any ball sport. Judged for the hour you want.</p>
         </div>
       </header>
 

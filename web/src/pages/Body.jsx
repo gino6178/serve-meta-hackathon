@@ -63,7 +63,7 @@ export default function Body() {
         <div>
           <span className="tag">Your body · found by meaning with Meta's DRAMA</span>
           <h1 className="h1">What your agent knows about your body</h1>
-          <p className="muted">Say it once: here, in Messenger or as a voice note. Your agent keeps your words with your games and health app, finds what matters for this week, and plans around it: doubles while a knee is sore, shorter games, one game fewer in a heavy week. It records; it does not diagnose.</p>
+          <p className="muted">Say it once. Your agent plans around it.</p>
         </div>
         <div className="cta-row">
           <a className="btn" href="#bd-report"><Icon name="table" size={18} />Body report</a>
@@ -89,7 +89,6 @@ export default function Body() {
                   : <p className="bd-agent working"><span className="dots"><i /><i /><i /></span>Muse Glimmer is reading it</p>}
               </div>
             )}
-            <p className="tiny muted">Or just say it to your agent in Messenger.</p>
           </section>
 
           <section className="panel bd-ctx" aria-labelledby="ctx-h">
@@ -101,7 +100,7 @@ export default function Body() {
                   <span className="bd-sim" title={`Similarity to this week's plan: ${n.raw} (DRAMA), ${n.score} after its age`}>{n.score.toFixed(2)}</span></li>)}
               </ul>
             ) : <p className="muted small">{ctx ? "Nothing yet: tell your agent how you feel." : err ? "This shows once your agent is reachable." : "Loading…"}</p>}
-            {ctx && <p className="tiny muted">{ctx.by === "drama" ? "Found by meaning with Meta's DRAMA on your server" : "Found by words (the meaning model is not running)"}, out of {ctx.all.length} notes. Recent notes count more: a body note keeps half its weight after a week.</p>}
+            {ctx && <span className="bd-by"><Icon name="memory" size={13} />{ctx.by === "drama" ? "Meta DRAMA · by meaning" : "By words"} · {ctx.all.length} notes</span>}
           </section>
         </div>
 
@@ -116,7 +115,6 @@ export default function Body() {
             </ul>
           ) : <p className="muted small">{org ? "No rules this week: nothing is sore and your load is normal." : err ? "This shows once your agent is reachable." : "Loading…"}</p>}
           {org?.followUps?.filter((f) => !f.due).map((f) => <p key={f.key} className="bd-follow small"><Icon name="chat" size={14} />I'll ask about your {f.name} on {short(f.date)}.</p>)}
-          <p className="tiny muted">Every rule is decided by code from your records and cites the notes it comes from. Your agent keeps them when it plans your week. A record, not a diagnosis.</p>
         </section>
       </div>
 
@@ -312,7 +310,6 @@ function HealthData({ store }) {
             <label className="btn primary sm"><input type="file" accept=".zip,.xml,.gpx,.tcx,.csv" hidden onChange={(e) => run(e.target.files?.[0])} disabled={!!busy} /><Icon name="plus" size={16} />Choose a file</label>
             <button className="btn sm" onClick={sample} disabled={!!busy}>Try the sample export</button>
           </div>
-          <p className="tiny muted">The file goes to your own server only, is read there and deleted. Your agent links the workouts to your booked games and works out your load.</p>
         </div>
         <div className="panel" aria-live="polite">
           <h3 className="panel-h">{busy ? `Reading ${busy.name}` : "What your agent filed"}</h3>
@@ -354,7 +351,7 @@ function Report({ org, input }) {
         <div><h3>Body</h3>{org.parts.length ? <ul>{org.parts.map((p) => <li key={p.key}>{cap(p.name)}: {p.latest.kind === "fine" ? "fine" : `${p.latest.kind} ${p.latest.level}/5`}, {TREND[p.trend]} ({p.entries.length})</li>)}</ul> : <p>nothing logged</p>}</div>
         <div><h3>What the agent changed</h3>{org.actions.length ? <ul>{org.actions.map((a, i) => <li key={i}>{a.text}</li>)}</ul> : <p>nothing</p>}</div>
       </div>
-      <p className="tiny muted">A record of what you told your agent and what your devices measured. It is not a medical assessment.</p>
+      <p className="tiny muted">Not a medical assessment.</p>
     </section>
   );
 }

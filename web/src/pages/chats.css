@@ -1,0 +1,40 @@
+/* agent chats: your agent and theirs, the way Messenger shows a chat */
+.chats { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 0; border: 1px solid var(--rule); border-radius: 20px; overflow: hidden; background: var(--panel, var(--bg)); height: calc(100dvh - 120px); min-height: 520px; padding: 0; }
+.chats-empty { display: grid; justify-items: center; gap: var(--s3); text-align: center; padding-top: 12vh; }
+.ch-list { border-right: 1px solid var(--rule); overflow-y: auto; }
+.ch-title { font: 800 22px/1 var(--font); margin: 0; padding: 20px 18px 12px; }
+.ch-list ul { list-style: none; margin: 0; padding: 0 8px 12px; display: grid; gap: 2px; }
+.ch-list button { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border: 0; border-radius: 12px; background: none; color: inherit; text-align: left; cursor: pointer; }
+.ch-list button.on, .ch-list button:hover { background: color-mix(in srgb, var(--agent) 9%, transparent); }
+.ch-row { display: grid; gap: 2px; min-width: 0; }
+.ch-row b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-last { font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-time, .ch-sub { font-size: 12px; color: var(--ink-3); }
+.ch-stack { display: flex; }
+.ch-stack .ch-face + .ch-face { margin-left: -12px; }
+.ch-face { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; background: color-mix(in srgb, #0064e0 13%, var(--bg)); color: #0064e0; font: 700 13px/1 var(--font); border: 2px solid var(--bg); }
+.ch-face.sm { width: 30px; height: 30px; font-size: 11px; align-self: end; }
+.ch-face.me { background: color-mix(in srgb, var(--agent) 15%, var(--bg)); }
+.ch-face.lg { width: 72px; height: 72px; background: color-mix(in srgb, var(--agent) 12%, transparent); }
+.ch-thread { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; }
+.ch-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--rule); }
+.ch-badge { display: inline-flex; align-items: center; gap: 6px; font: 700 12px/1 var(--font); color: var(--agent); padding: 7px 11px; border-radius: 999px; background: color-mix(in srgb, var(--agent) 10%, transparent); }
+.ch-msgs { list-style: none; margin: 0; padding: 18px; overflow-y: auto; display: grid; gap: 12px; align-content: start; }
+.ch-msg { display: flex; gap: 8px; align-items: flex-end; max-width: 78%; }
+.ch-msg > div { display: grid; gap: 3px; }
+.ch-msg.mine { margin-left: auto; }
+.ch-msg.mine > div { justify-items: end; }
+.ch-name { font-size: 12px; color: var(--ink-3); padding-left: 12px; }
+.ch-bubble { margin: 0; padding: 10px 14px; border-radius: 20px; font-size: 15px; line-height: 1.4; background: var(--control, #f0f0f2); color: var(--ink); }
+.ch-msg.mine .ch-bubble { background: var(--agent); color: #fff; }
+.ch-intent { display: inline-flex; align-items: center; gap: 4px; font: 600 11px/1 var(--font); color: var(--ink-3); padding: 0 12px; }
+.ch-intent.accept { color: var(--agent); }
+.ch-intent.decline { color: #d1352b; }
+.ch-sep { justify-self: center; font: 600 12px/1 var(--font); color: var(--ink-3); padding: 6px 12px; border-radius: 999px; background: var(--control, #f0f0f2); }
+.ch-done { justify-self: center; display: inline-flex; align-items: center; gap: 8px; font: 700 14px/1.3 var(--font); color: var(--agent); padding: 10px 16px; border-radius: 14px; background: color-mix(in srgb, var(--agent) 10%, transparent); }
+@media (max-width: 760px) {
+  .chats { grid-template-columns: minmax(0, 1fr); height: auto; border: 0; border-radius: 0; }
+  .ch-list { border-right: 0; border-bottom: 1px solid var(--rule); max-height: 220px; }
+  .ch-msg { max-width: 88%; }
+}
+@media (max-width: 760px) { .ch-head { grid-template-columns: auto minmax(0, 1fr); } .ch-head .ch-badge { grid-column: 1 / -1; justify-self: start; } }

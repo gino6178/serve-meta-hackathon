@@ -45,7 +45,7 @@ async function chart(file) {
     serve: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M10 48 C 22 8, 42 8, 54 30" fill="none" stroke="#0a0a0b" stroke-width="5.5" stroke-linecap="round"/><circle cx="54" cy="30" r="5" fill="#0a7f44"/></svg>'),
     cover: await jpg(path.join(ROOT, "submission/cover.png"), 1920),
     // the app on a phone (video/shots_v3.mjs), the venue map, and two of the report's charts
-    v3: Object.fromEntries(await Promise.all(["join", "social_feed", "social_agent", "social_invite", "body_context", "body_rules", "courts_badges"].map(async (k) => [k, await jpg(path.join(SHOTS, "v3", k + ".png"), 780)]))),
+    v3: Object.fromEntries(await Promise.all(["join", "social_feed", "social_agent", "social_invite", "body_context", "body_rules", "courts_badges", "agent_chats", "plan_approve"].map(async (k) => [k, await jpg(path.join(SHOTS, "v3", k + ".png"), 780)]))),
     venue: await jpg(path.join(SHOTS, "venue_in_the_middle.png"), 1600),
     scale: await chart(path.join(ROOT, "docs/scale.svg")),
     tiers: await chart(path.join(ROOT, "docs/decision_tiers.svg")),
@@ -319,7 +319,26 @@ async function chart(file) {
     T(s, "Tested: a replayed request, a changed body, another path, an unknown key and a revoked key are all refused (test/members_unit.mjs).", 9.25, 4.85, 3.25, 1.6, { fontSize: 11, color: MUTED });
   }
 
-  // 11 · Highlights
+  // 11 · AI trust: every message between the agents, in the open
+  {
+    const s = content("Use of Meta AI", "AI TRUST", "See exactly what your agent said to theirs",
+      "AI Trust：像 Messenger 一樣的「Agent 對話」頁。你的 agent 在右邊（綠色），其他會員的 agent 在左邊，一輪一輪，每則訊息下面標示意思（提案、同意、反提案、拒絕），以及程式是否已經用大家的行事曆檢查過（fits everyone）。標題列顯示對方的 Agent Card 已驗證。談成後出現「Agreed」，但要你按 yes 才訂。
+這些就是 agent 之間透過 A2A 真的送出的訊息，不是摘要。");
+    phone(s, IMG.v3.agent_chats, 0.75, 1.85, 4.7, "Agent chats");
+    phone(s, IMG.v3.plan_approve, 3.35, 1.85, 4.7, "Then it asks you");
+    const x = 6.2;
+    [["Every message, word for word", "The messages the agents sent each other over A2A, round by round. Not a summary."],
+      ["What each one meant", "Proposes, agrees, a counter-offer or declines, under every bubble."],
+      ["Checked by code", "\"Fits everyone\" means code checked it against every calendar before your agent moved on."],
+      ["Whose agent, verified", "Each member's Agent Card is signed and checked before your agent talks to it."],
+      ["You decide", "Agreed by every agent, then it waits for your yes."]].forEach(([h, d], i) => {
+      s.addImage({ data: IMG.check, x, y: 1.95 + i * 0.97, w: 0.32, h: 0.32 });
+      T(s, h, x + 0.5, 1.9 + i * 0.97, 6.0, 0.32, { fontSize: 15, bold: true });
+      T(s, d, x + 0.5, 2.23 + i * 0.97, 6.0, 0.6, { fontSize: 12, color: MUTED });
+    });
+  }
+
+  // 12 · Highlights
   {
     const s = content("Use of Meta AI", "HIGHLIGHTS · FOUR META VISION MODELS", "Your phone clip becomes your moment, on my GPU",
       "Highlight 管線：DETR 找人 → Sapiens2 讀姿勢、找最快的揮拍 → SAM 2.1 把你切出來 → MapAnything 算深度和相機，時間暫停、鏡頭繞 20° → Muse Glimmer 寫說明，程式核對 → 一鍵分享到 Instagram。影片不離開伺服器。\n旁白：Thursday, game done. I upload a phone clip… With MapAnything, time stops and the camera turns around the smash.");
@@ -343,7 +362,7 @@ async function chart(file) {
     ], 6.95, 5.62, 5.6, 1.1, { fontSize: 12.5, paraSpaceAfter: 3 });
   }
 
-  // 12 · Muse Glimmer in practice
+  // 13 · Muse Glimmer in practice
   pres.addSection({ title: "Technical depth" });
   {
     const s = content("Technical depth", "TECHNICAL DEPTH · 20%", "What running Muse Glimmer taught me",
@@ -381,7 +400,7 @@ async function chart(file) {
     T(s, "submission/results/glimmer_in_practice.json · technical report 3.12, 5.10", 5.4, 6.7, 7.3, 0.25, { fontSize: 10, color: SOFT });
   }
 
-  // 13 · Measured: what each choice costs
+  // 14 · Measured: what each choice costs
   {
     const s = content("Technical depth", "MEASURED", "Two charts behind two design choices",
       "兩張實驗圖（技術報告裡的）：\n左：把整個社團塞進 prompt，token 隨人數線性成長；Serve 先用程式篩選候選人，每次呼叫的 token 幾乎不變。\n右：一個會員的決策，每一層的成本 vs. 和完整答案一致的比例：程式 → Llama 3.2 1B → Muse Glimmer（FrugalGPT 式分層）。\n這頁讓評審三秒看出工程上有量測。");
@@ -391,7 +410,7 @@ async function chart(file) {
     T(s, "One member's decision: what each tier costs, and how often it matches the full answer (code, then Llama 3.2 1B, then Muse Glimmer)", 6.85, 1.95 + 5.85 * 500 / 780, 5.85, 0.6, { fontSize: 11, color: MUTED });
   }
 
-  // 14 · Safe by design
+  // 15 · Safe by design
   {
     const s = content("Technical depth", "SAFE BY DESIGN", "No agent holds all three at once",
       "安全：每個 agent 都遵守 Meta 的 Agents Rule of Two（不可信輸入、私人資料、行動能力，最多同時兩個）。揭露預算：一直約球的 agent 能拼出你一週的行程，有預算時從 97.6% 降到 32.4%（模擬的探測者）。65 個攻擊全部擋下。\n旁白：Every agent follows Meta's Agents Rule of Two. And a disclosure budget cuts how much of your week a snooping agent can pin down, from 97.6% to 32.4%.");
@@ -420,7 +439,7 @@ async function chart(file) {
     T(s, "attacks stopped: injected instructions, poisoned reviews, forged Agent Cards, sock-puppet votes, diffs that book without a yes", 8.85, 5.55, 3.7, 1.25, { fontSize: 11.5, valign: "middle" });
   }
 
-  // 15 · Community loop
+  // 16 · Community loop
   {
     const s = content("Technical depth", "SELF-EVOLVING", "The club makes itself better, safely",
       "自我演化的社團：會員在 Messenger 打 /idea 或按讚 → DRAMA 依語意分群，5 人提到才出現 → 二次方投票 → Muse Glimmer 寫規格、人工核准 → coding agent 在自己的分支上實作（從不讀社群文字）→ 九道關卡，第一個失敗就停 → 小規模上線，倒讚變多就自己關掉。永遠不能改的清單。這段是模擬社團（seed 7），但管線、關卡和回滾是真的。\n旁白：And the club evolves itself…");
@@ -457,7 +476,7 @@ async function chart(file) {
     T(s, "Booking without a yes · data off the server · a diagnosis or a dose · the guards · the tests · A2A · deployment", 2.45, 6.1, 10.1, 0.72, { fontSize: 13, color: WHITE, valign: "middle" });
   }
 
-  // 16 · Proof
+  // 17 · Proof
   {
     const s = content("Technical depth", "MEASURED", "Every claim has a log behind it",
       "證據頁：每個數字都有 log。e2e、攻擊測試在雲端 A100 上用同一個 Muse Glimmer（同一個 model digest）跑。可以快速帶過，或只在影片片尾字卡出現。");
@@ -481,7 +500,7 @@ async function chart(file) {
     s.addTable(rows, { x: 0.6, y: 3.45, w: 12.1, colW: [4.6, 3.9, 3.6], fontSize: 12, fontFace: FONT, color: INK, rowH: 0.38, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
   }
 
-  // 17 · Full technical architecture
+  // 18 · Full technical architecture
   pres.addSection({ title: "Architecture" });
   {
     const s = content("Architecture", "FULL TECHNICAL ARCHITECTURE", "Everything runs on one GPU server I own",
@@ -547,7 +566,7 @@ async function chart(file) {
     arrow(s, 9.57, 5.95, 0.3, 0);
   }
 
-  // 18 · End
+  // 19 · End
   pres.addSection({ title: "Close" });
   {
     const s = pres.addSlide({ masterName: "BLANK", sectionTitle: "Close" });

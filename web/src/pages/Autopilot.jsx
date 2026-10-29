@@ -55,7 +55,7 @@ export default function Autopilot({ data }) {
         <div>
           <span className="tag">Plan my week · Muse Glimmer on your own GPU</span>
           <h1 className="h1">Your agent keeps you playing</h1>
-          <p className="muted">It learns when you usually play and who you play best with, then lines up the week and agrees every game with the other players' agents. You only say yes.</p>
+          <p className="muted">One tap. Your agent agrees the week with theirs. You say yes.</p>
         </div>
         <div className="cta-row">
           <button className="btn primary" onClick={runNow} disabled={!you || t?.state === "running"}><Icon name="spark" size={18} />{t?.state === "running" ? "Planning…" : "Plan my week"}</button>
@@ -70,23 +70,20 @@ export default function Autopilot({ data }) {
             <label>Sport<div className="seg sm" role="radiogroup" aria-label="Sport">{SPORTS.map((s) => <button key={s} role="radio" aria-checked={goal.sport === s} onClick={() => setG({ sport: s })}>{s[0].toUpperCase() + s.slice(1)}</button>)}</div></label>
             <label>Before booking<div className="seg sm" role="radiogroup" aria-label="Before booking">{[["ask", "Ask me first"], ["auto", "Book within my limits"]].map(([k, l]) => <button key={k} role="radio" aria-checked={goal.approval === k} onClick={() => setG({ approval: k })}>{l}</button>)}</div></label>
           </div>
-          <p className="tiny muted">{goal.approval === "auto" ? `It books on its own when every agent agrees, trips stay under ${goal.maxTrip} min and it is one of your usual times. You can cancel any game.` : "It agrees the games with the other agents, then waits for your yes. Nothing is booked before that."} On Monday mornings it runs by itself for players who switched it on in Messenger (/autopilot).</p>
         </section>
 
         <section className="panel" aria-labelledby="learn-h">
           <h2 id="learn-h" className="panel-h">What it learned</h2>
-          <p className="tiny muted">From your last {hist.length} games{input.history.length ? `, ${input.history.length} reported here` : ""}.</p>
           <ul className="ap-habits">
             {hab.map((h) => <li key={h.day + h.start}><b>{DAY[h.day]} {h.start}</b><span className="ap-bar" aria-hidden="true"><i style={{ transform: `scaleX(${h.count / h.weeks})` }} /></span><span className="tiny muted">{h.count} of the last {h.weeks} weeks · usually {h.minutes} min{h.sport !== "badminton" ? ` · ${h.sport}` : ""}</span></li>)}
           </ul>
           <ul className="ap-chem">
             {chem.map((c) => { const m = byId[c.id]; return m && <li key={c.id}><Av m={m} /><span><b>{m.name}</b><span className="tiny muted">{c.ext > 0 ? "you two often play past the booking" : "games end on time"} · {c.n} game{c.n > 1 ? "s" : ""}</span></span>{c.ext >= 15 && <span className="badge">You click</span>}</li>; })}
           </ul>
-          <p className="tiny muted">A game that runs past its booking means you two kept playing: those partners come first. Report a result with how long you played and it learns from that too.</p>
         </section>
       </div>
 
-      {!t && <section className="panel ap-empty"><Mark size={28} /><p>Run your week and watch the agent plan it: every step, every choice and why, and the agents agreeing the times. About two minutes on Muse Glimmer.</p></section>}
+      {!t && <section className="panel ap-empty"><Mark size={28} /><p>Tap Plan my week and watch your agent work.</p></section>}
 
       {t && (
         <section className="panel ap-run" aria-labelledby="run-h" aria-live="polite">
@@ -140,7 +137,6 @@ export default function Autopilot({ data }) {
                     <span><b>{first(x.name)}</b>{x.because ? <> · you said “{x.because}”{x.said ? <span className="tiny muted"> ({new Date(x.said).toLocaleDateString("en-GB", { day: "numeric", month: "short" })})</span> : null}</> : " · you asked your agent to leave them out"}</span></li>
                 ))}
               </ul>
-              <p className="tiny muted">Your agent found it among what you told it, by meaning, before it ranked partners. Change it on <a href="#/memory">Your memory</a>.</p>
             </div>
           )}
 
@@ -173,24 +169,14 @@ export default function Autopilot({ data }) {
                   <span className="tiny muted">Every other player's agent already said yes.</span>
                 </div>
               )}
-              {t.state === "done" && t.summary && <p className="tiny muted">{t.summary}. Follow the games on Club → Challenges.</p>}
+              {t.state === "done" && t.summary && <p className="tiny muted">{t.summary}.</p>}
             </div>
           )}
           {r?.summary && <p className="ap-summary"><Mark size={16} />{r.summary}</p>}
+          {t.messages?.length > 0 && <a className="btn sm" href="#/chats"><Icon name="chat" size={16} />See what the agents said</a>}
         </section>
       )}
 
-      <section className="panel ap-how" aria-labelledby="how-h">
-        <h2 id="how-h" className="panel-h">How it decides</h2>
-        <ol>
-          <li><b>Muse Glimmer chooses every step.</b> It works through tools (check the week, check your body log, rank partners, find public courts, negotiate, ask you) and gives a reason for each choice.</li>
-          <li><b>Your body comes first.</b> With something sore in your <a href="#/body">body log</a> it plays doubles and skips jump sports; in a week far over your usual load (from your health app) it lines up one game fewer.</li>
-          <li><b>It follows what you told it.</b> Before it ranks partners it looks up what you told your agent (<a href="#/memory">Your memory</a>), and leaves out a person, a time or a place you asked it to avoid.</li>
-          <li><b>Code does the exact work.</b> Calendars, courts, trips and ratings come from code, and a tool refuses a time nobody is free or a member who is busy, so the agent has to re-plan.</li>
-          <li><b>Agents agree with agents.</b> Every member's agent answers from what that member shares with it, all at the same time. A counter-offer is checked against everyone's calendar before your agent moves to it.</li>
-          <li><b>You stay in charge.</b> Nothing is booked without your yes, or within the limits you set. If the model stalls, rules finish the same plan, and the trail says so.</li>
-        </ol>
-      </section>
     </div>
   );
 }

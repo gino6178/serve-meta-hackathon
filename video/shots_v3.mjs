@@ -55,6 +55,15 @@ await until(() => document.querySelector(".ct-list"), 600000); await wait(1000);
 await page.evaluate(() => document.querySelector(".ct-head")?.scrollIntoView({ block: "start" })); await wait(800);
 await shot("courts_badges");
 
+// the planner, then what the agents said to each other (Agent chats): needs Muse Glimmer, about two minutes
+if (!process.argv.includes("--no-plan")) {
+  await go("autopilot?run=1", 2000);
+  await until(() => document.querySelector(".ap-approve"), 600000); await wait(1500);
+  await page.evaluate(() => document.querySelector(".ap-approve").scrollIntoView({ block: "center" })); await wait(800); await shot("plan_approve");
+  await go("chats", 2000);
+  await page.evaluate(() => document.querySelector(".ch-thread")?.scrollIntoView({ block: "start" })); await wait(800); await shot("agent_chats");
+}
+
 // leave: the demo member, its agent and what they did
 await go("social", 2000);
 await page.evaluate(async () => { const s = localStorage.getItem("serve.session"); const u = (await import("/src/agent.js")).AGENT_URL; await fetch(u + "/api/members/leave", { method: "POST", headers: { "x-serve-session": s } }); });

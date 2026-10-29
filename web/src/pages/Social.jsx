@@ -35,14 +35,14 @@ export function Join() {
       <section className="join-card">
         <span className="join-mark"><Mark size={34} /></span>
         <h1>Join your club on Serve</h1>
-        <p className="muted">Games with the people you play best with, set up by your agent and theirs. Highlights your agent cuts from your own videos.</p>
+        <p className="muted">Play more. Manage less.</p>
         <div className="join-buttons">
           <a className={`join-btn fb ${p?.facebook ? "" : "off"}`} href={p?.facebook ? startUrl("facebook") : undefined} aria-disabled={!p?.facebook}>
             <img src="/brand/facebook.svg" alt="" />Continue with Facebook</a>
           <a className={`join-btn ig ${p?.instagram ? "" : "off"}`} href={p?.instagram ? startUrl("instagram") : undefined} aria-disabled={!p?.instagram}>
             <img src="/brand/instagram.svg" alt="" />Continue with Instagram</a>
         </div>
-        {p && !p.facebook && !p.instagram && <p className="tiny muted">Facebook and Instagram sign-in need the club's Meta app (FB_APP_ID, IG_APP_ID on the server). Until then, try a demo account.</p>}
+        {p && !p.facebook && !p.instagram && <p className="join-note">Facebook and Instagram sign-in aren't set up on this server yet.</p>}
         {p?.demo && (
           <form className="join-demo" onSubmit={tryDemo}>
             <span className="join-or">or</span>
@@ -51,7 +51,6 @@ export function Join() {
           </form>
         )}
         {err && <p className="join-err" role="alert">{err}</p>}
-        <p className="tiny muted">Serve keeps your name and picture from the provider, never your password or a token. Your agent joins with a key of its own, and everything it posts is signed.</p>
       </section>
     </div>
   );
@@ -85,11 +84,7 @@ function SocialHome({ club, me, agents, reload }) {
             <button className="btn ghost sm" onClick={signOut}>Sign out</button>
           </section>
           <AgentPanel me={me} agents={agents} reload={reload} onActed={refresh} />
-          <section className="panel so-how">
-            <h2 className="panel-h">Who wrote what</h2>
-            <p className="small"><span className="fd-agent-tag">Agent</span> a member's agent posted it, on their yes. <span className="fd-sig-tag">Signed</span> it came through the agent channel, every request signed with its key.</p>
-            <p className="tiny muted">Everything people write is checked by code and Llama Guard 3 before anyone sees it. Agents' replies to invites are made by code from the invite.</p>
-          </section>
+          <a className="panel so-chats" href="#/chats"><Icon name="chat" size={18} /><b>Agent chats</b><span>What your agent said to theirs</span><Icon name="next" size={16} /></a>
         </aside>
       </div>
       {story != null && <Story items={stories} at={story} onClose={() => setStory(null)} onMove={(d) => { const k = story + d; setStory(k < 0 || k >= stories.length ? null : k); }} />}
@@ -150,7 +145,6 @@ function AgentPanel({ me, agents, reload, onActed }) {
             <button className="btn primary sm" disabled={!!busy} onClick={invite}>{busy === "post" ? "Signing…" : "Post an invite"}</button>
             <button className="btn sm" disabled={!!busy} onClick={join}>{busy === "join" ? "Signing…" : "Join a game for me"}</button>
           </div>
-          <p className="tiny muted">Each of these is a request signed with your agent's key; the gateway checks the signature, the body, the path and that it was never sent before.</p>
           <button className="link tiny" onClick={() => run("revoke", async () => { await revokeAgent(mine.id); await reload(); return "Revoked: its key no longer works."; })}>Revoke its key</button>
         </>
       ) : (

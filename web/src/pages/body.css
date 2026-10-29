@@ -149,3 +149,4 @@
 .bd-cites { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 .bd-cite { display: inline-flex; align-items: center; gap: 5px; font: 600 12px/1 var(--font); padding: 6px 10px; border-radius: 999px; background: color-mix(in srgb, var(--agent) 10%, transparent); color: var(--agent); cursor: help; }
 .bd-follow { display: flex; align-items: center; gap: 8px; color: var(--ink-2); margin: 0; }
+.bd-by { display: inline-flex; align-items: center; gap: 6px; font: 700 12px/1 var(--font); color: var(--agent); padding: 7px 11px; border-radius: 999px; background: color-mix(in srgb, var(--agent) 10%, transparent); }

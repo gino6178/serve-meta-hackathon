@@ -130,7 +130,7 @@ export default function Agent({ club }) {
           <section className="composer" aria-labelledby="ask-h">
             <div className="composer-head"><span className="agent-face" aria-hidden="true"><Mark size={22} /></span>
               <div><h1 id="ask-h" className="h1">{hello()}. What do you want to do?</h1>
-                <p className="muted">Say when or who you'd like to play. Your agent finds the court and the people, agrees the time with their agents and books it when you say yes.</p></div></div>
+                <p className="muted">Say when or who. Your agent does the rest.</p></div></div>
             <form className="composer-box" onSubmit={(e) => { e.preventDefault(); ask(); }}>
               <label htmlFor="agent-q" className="sr-only">Tell your agent</label>
               <textarea id="agent-q" ref={field} rows={2} value={text} onChange={(e) => setText(e.target.value)} placeholder="Doubles on Thursday evening"
@@ -166,7 +166,7 @@ export default function Agent({ club }) {
             const days = Array.from({ length: 7 }, (_, k) => { const d = new Date(today); d.setDate(d.getDate() + k); return d; });
             return (
               <section className="helpers" aria-labelledby="helpers-h">
-                <h2 id="helpers-h" className="sec-label">Your week</h2>
+                <h2 id="helpers-h" className="sec-label">Your week<a className="link" href="#/chats">Agent chats</a></h2>
                 <ol className="week-strip">
                   {days.map((d, k) => {
                     const dow = DOW[d.getDay()], b = booked.find((o) => o.day === dow), u = !b && h.find((x) => x.day === dow);
