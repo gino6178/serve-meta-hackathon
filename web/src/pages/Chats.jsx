@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "../components/Icon.jsx";
 import Mark from "../components/Mark.jsx";
 import { useTasks } from "../tasks.js";
+import { agentFace } from "../club/faces.js";
 import "./chats.css";
 
 // Agent chats: every conversation your agent had with other members' agents, the way Messenger shows a chat. Your agent
@@ -44,7 +45,7 @@ export default function Chats({ club }) {
           {chats.map((c) => (
             <li key={c.id}>
               <button className={c.id === cur?.id ? "on" : ""} onClick={() => setSel(c.id)}>
-                <span className="ch-stack">{c.who.slice(0, 3).map((m) => <span key={m.id} className="ch-face">{initials(m.name)}</span>)}</span>
+                <span className="ch-stack">{c.who.slice(0, 3).map((m) => (agentFace(m.id) ? <img key={m.id} className="ch-face pic" src={agentFace(m.id)} alt="" /> : <span key={m.id} className="ch-face">{initials(m.name)}</span>))}</span>
                 <span className="ch-row"><b>{c.who.map((m) => `${first(m.name)}'s`).join(", ")} agent{c.who.length > 1 ? "s" : ""}</b>
                   <span className="ch-last">{c.ms.at(-1).from === "you" ? "Your agent: " : ""}{c.ms.at(-1).text}</span></span>
                 <span className="ch-time">{when(c.at)}</span>
@@ -56,7 +57,7 @@ export default function Chats({ club }) {
       {cur && (
         <section className="ch-thread" aria-label="Conversation">
           <header className="ch-head">
-            <span className="ch-stack">{cur.who.slice(0, 3).map((m) => <span key={m.id} className="ch-face">{initials(m.name)}</span>)}</span>
+            <span className="ch-stack">{cur.who.slice(0, 3).map((m) => (agentFace(m.id) ? <img key={m.id} className="ch-face pic" src={agentFace(m.id)} alt="" /> : <span key={m.id} className="ch-face">{initials(m.name)}</span>))}</span>
             <span className="ch-row"><b>{cur.who.map((m) => first(m.name)).join(", ")}</b><span className="ch-sub">{JOB[cur.t.kind] || "Agent to agent"}</span></span>
             <span className="ch-badge"><Icon name="verify" size={14} />Agent Cards verified</span>
           </header>
@@ -66,13 +67,13 @@ export default function Chats({ club }) {
               return [
                 newRound && <li key={`r${i}`} className="ch-sep">Round {round}</li>,
                 <li key={i} className={`ch-msg ${mine ? "mine" : "theirs"}`}>
-                  {!mine && <span className="ch-face sm">{initials(who?.name || m.from)}</span>}
+                  {!mine && (agentFace(m.from) ? <img className="ch-face sm pic" src={agentFace(m.from)} alt="" /> : <span className="ch-face sm">{initials(who?.name || m.from)}</span>)}
                   <div>
                     {!mine && <span className="ch-name">{first(who?.name || m.from)}'s agent</span>}
                     <p className="ch-bubble">{m.text}</p>
                     <span className={`ch-intent ${m.intent}`}>{INTENT[m.intent] || m.intent}{m.intent === "counter" && m.when ? ` · ${m.when}` : ""}{m.checked === true ? <><Icon name="check" size={12} />fits everyone</> : m.checked === false ? " · doesn't fit" : ""}{m.tier === "quick" ? " · Llama 3.2 1B" : m.tier === "agent" ? " · Muse Glimmer" : ""}</span>
                   </div>
-                  {mine && <span className="ch-face sm me"><Mark size={14} /></span>}
+                  {mine && <img className="ch-face sm pic" src={agentFace("you")} alt="" />}
                 </li>,
               ];
             })}

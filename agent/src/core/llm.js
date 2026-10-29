@@ -7,6 +7,10 @@
 // empty reply; at "low" its reasoning is short and arrives apart from the reply, so the budget is left for the answer.
 // Every other server (llama.cpp, vLLM, SGLang, the Meta Model API) is asked for OpenAI-compatible chat completions
 // (LLM_API=openai, which a key also implies).
+// A fallback (LLM_FALLBACK=on, with META_API_KEY): when the model server cannot be reached or answers with a server
+// error, the same call goes once to Muse Spark on the Meta Model API (LLM_FALLBACK_URL, LLM_FALLBACK_MODEL; by default
+// https://api.meta.ai/v1 and muse-spark-1.3), and the ledger marks it. Off by default: it sends the prompt to Meta's cloud,
+// where nothing else in Serve goes. A timeout or a reply the caller does not like is not a reason to fall back.
 // Every call goes in the token ledger (ledger.js) under its call site: the caller's file and function ("a2a.answer"),
 // or the `site` a caller names. The reasoning budget is set per call site (BUDGETS, or LLM_BUDGETS as JSON to try
 // others). A caller can pass a JSON Schema as `format`: the server constrains the reply to it, and chatJSON checks it.
@@ -36,6 +40,42 @@ export const BUDGETS = { ...JSON.parse(process.env.LLM_BUDGETS || "{}") };
 const THINK = /<think>[\s\S]*?<\/think>\s*|<\|[a-z_]+\|>/g; // a reasoning block, or a special token that leaked into the reply
 const HEADERS = { "content-type": "application/json" };
 if (KEY) HEADERS.authorization = `Bearer ${KEY}`;
+
+// the fallback, read when the gateway starts: null unless it is switched on and has its key
+const FALLBACK = process.env.LLM_FALLBACK === "on" && process.env.META_API_KEY && process.env.LLM_URL !== process.env.LLM_FALLBACK_URL
+  ? { url: (process.env.LLM_FALLBACK_URL || "https://api.meta.ai/v1").replace(/\/$/, ""), model: process.env.LLM_FALLBACK_MODEL || "muse-spark-1.3", key: process.env.META_API_KEY } : null;
+export const fallbackOn = () => !!FALLBACK;
+// worth trying the fallback for: the server is not there, or it failed (5xx); never a 4xx (the request itself), never a timeout
+const unreachable = (e) => /fetch failed|ECONNREFUSED|ECONNRESET|EHOSTUNREACH|ENOTFOUND|socket hang up|LLM server 5\d\d/i.test(`${e?.message} ${e?.cause?.code || ""} ${e?.cause?.message || ""}`);
+// a conversation as the OpenAI protocol has it: Ollama's tool calls get ids, their arguments become JSON strings, and
+// each tool result takes the id of the call it answers, in order
+function toOpenAI(messages) {
+  const open = [];
+  return openaiMessages(messages).map((m, i) => {
+    if (m.role === "assistant" && m.tool_calls?.length) {
+      const tool_calls = m.tool_calls.map((c, k) => { const id = c.id || `call_${i}_${k}`; open.push(id); return { id, type: "function", function: { name: c.function?.name, arguments: typeof c.function?.arguments === "string" ? c.function.arguments : JSON.stringify(c.function?.arguments || {}) } }; });
+      return { role: "assistant", content: m.content || "", tool_calls };
+    }
+    if (m.role === "tool") { const { tool_name, name, ...rest } = m; return { ...rest, tool_call_id: m.tool_call_id || open.shift() || `call_${i}` }; }
+    return m;
+  });
+}
+// one call on the fallback, as the caller would have had it from the model server
+async function onFallback(site, messages, { maxTokens, temperature, format = null, tools = null, budget = 0, timeoutMs = TIMEOUT, why }) {
+  const t0 = Date.now();
+  const r = await fetch(`${FALLBACK.url}/chat/completions`, {
+    method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${FALLBACK.key}` }, signal: AbortSignal.timeout(timeoutMs),
+    // Muse Spark always reasons: the reply's room includes the reasoning budget, at the lowest effort it takes
+    body: JSON.stringify({ model: FALLBACK.model, messages: toOpenAI(messages), max_completion_tokens: maxTokens + Math.max(budget, 600), temperature, reasoning_effort: "low",
+      ...(tools ? { tools } : {}), ...(format ? { response_format: { type: "json_schema", json_schema: { name: "reply", schema: format } } } : {}) }),
+  });
+  if (!r.ok) throw new Error(`fallback ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  const j = await r.json(), m = j.choices?.[0]?.message || {}, secs = (Date.now() - t0) / 1000;
+  await debug(messages, j);
+  toSpan(record({ site, model: FALLBACK.model, prompt: j.usage?.prompt_tokens || 0, cached: j.usage?.prompt_tokens_details?.cached_tokens || 0, output: j.usage?.completion_tokens || 0,
+    reasoning: j.usage?.completion_tokens_details?.reasoning_tokens || 0, seconds: +secs.toFixed(2), empty: !(m.content || "").trim() && !m.tool_calls?.length, budget, fallback: why, trace: traceId() }), j.choices?.[0]?.finish_reason);
+  return { m, secs, n: j.usage?.completion_tokens };
+}
 
 // The hardware a reply names (and /api/status): LLM_DEVICE when it is set, else what the key or its absence implies.
 export function device() {
@@ -132,7 +172,14 @@ const marked = (fn) => async (...a) => { try { return await fn(...a); } catch (e
 
 export function chat(messages, opts = {}) {
   const site = opts.site || siteOf();
-  return callSpan(site, { "gen_ai.request.temperature": opts.temperature ?? 0.4, "gen_ai.request.max_tokens": opts.maxTokens ?? 420, "serve.format": !!opts.format, ...(opts.format ? { "gen_ai.output.type": "json" } : {}) }, marked(() => rawChat(messages, { ...opts, site })));
+  return callSpan(site, { "gen_ai.request.temperature": opts.temperature ?? 0.4, "gen_ai.request.max_tokens": opts.maxTokens ?? 420, "serve.format": !!opts.format, ...(opts.format ? { "gen_ai.output.type": "json" } : {}) }, marked(async () => {
+    try { return await rawChat(messages, { ...opts, site }); } catch (e) {
+      if (!FALLBACK || !unreachable(e)) throw e;
+      active()?.setAttributes({ "serve.fallback": FALLBACK.model });
+      const { m, secs, n } = await onFallback(site, messages, { maxTokens: opts.maxTokens ?? 420, temperature: opts.temperature ?? 0.4, format: opts.format || null, budget: budgetOf(site, opts.budget ?? null), timeoutMs: opts.timeoutMs, why: String(e.message || e).slice(0, 80) });
+      return { text: (m.content || "").replace(THINK, "").trim(), logprobs: null, timing: { ...timing(secs, n ? n / secs : null), device: `Meta Model API (${FALLBACK.model}, fallback)` }, fallback: true };
+    }
+  }));
 }
 // an image on a message: Ollama takes base64 in `images`; an OpenAI-compatible server takes image_url parts (data URIs)
 const mimeOf = (b64) => (b64.startsWith("iVBOR") ? "image/png" : b64.startsWith("UklGR") ? "image/webp" : "image/jpeg");
@@ -245,7 +292,14 @@ export function chatTools(messages, tools, opts = {}) {
   // (how the turn ended, for attribution.js: how many tool calls, how many did not fit, and whether the model wrote
   // words instead, a refusal among them; never the words)
   return callSpan(site, { "gen_ai.request.temperature": opts.temperature ?? 0.2, "gen_ai.request.max_tokens": opts.maxTokens ?? 500, "serve.tools": tools.length }, marked(async () => {
-    const out = await rawChatTools(messages, tools, { ...opts, site });
+    let out;
+    try { out = await rawChatTools(messages, tools, { ...opts, site }); } catch (e) {
+      if (!FALLBACK || !unreachable(e)) throw e;
+      active()?.setAttributes({ "serve.fallback": FALLBACK.model });
+      const { m, secs } = await onFallback(site, messages, { maxTokens: opts.maxTokens ?? 500, temperature: opts.temperature ?? 0.2, tools, budget: budgetOf(site, opts.budget ?? null), why: String(e.message || e).slice(0, 80) });
+      const calls = (m.tool_calls || []).map((c) => { const tool = tools.find((x) => x.function?.name === c.function?.name); const args = safeJSON(c.function?.arguments); const errors = tool ? validate(tool.function.parameters || {}, args) : [`no tool called ${c.function?.name}`]; return { id: c.id, name: c.function?.name, args, ...(errors.length ? { errors } : {}) }; });
+      out = { text: (m.content || "").replace(THINK, "").trim(), calls, message: { role: "assistant", content: m.content || "", tool_calls: m.tool_calls }, seconds: +secs.toFixed(2), fallback: true };
+    }
     active()?.setAttributes({ "serve.tool_calls": out.calls.length, "serve.invalid_calls": out.calls.filter((c) => c.errors).length, "serve.text_reply": !out.calls.length && !!out.text, ...(!out.calls.length && REFUSAL.test(out.text) ? { "serve.refusal": true } : {}) });
     return out;
   }));

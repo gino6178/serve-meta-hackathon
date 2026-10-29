@@ -38,3 +38,4 @@
   .ch-msg { max-width: 88%; }
 }
 @media (max-width: 760px) { .ch-head { grid-template-columns: auto minmax(0, 1fr); } .ch-head .ch-badge { grid-column: 1 / -1; justify-self: start; } }
+.ch-face.pic { padding: 0; object-fit: cover; background: #fff; }

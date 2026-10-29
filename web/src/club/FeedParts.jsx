@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Mark from "../components/Mark.jsx";
 import Icon from "../components/Icon.jsx";
 import { mediaUrl } from "./feedApi.js";
+import { agentFace } from "./faces.js";
 
 export const initials = (name = "") => name.replace(/'s agent$/, "").split(/\s+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 export function ago(t) {
@@ -31,9 +32,11 @@ export function FIcon({ name, size = 20 }) {
   return <svg className="icon" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{P[name]}</svg>;
 }
 
-// the agent's face: the shuttle mark in a quiet green ring; a member's agent wears the member's initials with the
-// mark as a small badge, so it is never mistaken for the member writing
+// the agent's face: its own picture (club/faces.js) when it has one; else the shuttle mark in a quiet green ring, and a
+// member's agent wears the member's initials with the mark as a small badge, so it is never mistaken for the member
 export function Avatar({ by, size = 40 }) {
+  const face = by.type === "agent" && agentFace(by.you ? "you" : by.agentOf);
+  if (face) return <span className="fd-face agent-pic" style={{ width: size, height: size }} aria-hidden="true"><img src={face} alt="" /></span>;
   // the club's reading agent, and your own agent: the mark alone
   if (by.type === "agent" && (by.agent === "club" || by.you)) return <span className="fd-face agent" style={{ width: size, height: size }} aria-hidden="true"><Mark size={Math.round(size * 0.55)} /></span>;
   const name = by.type === "agent" ? by.owner || by.name : by.name;

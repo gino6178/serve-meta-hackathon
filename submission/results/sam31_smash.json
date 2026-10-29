@@ -1,0 +1,22 @@
+{
+ "model": "sam-3.1",
+ "prompt": "badminton player",
+ "frame": "video/deck/smash/moment.png (1280x720)",
+ "seconds": 3.4,
+ "matches": 1,
+ "sam31_box": [
+  238,
+  180,
+  526,
+  494
+ ],
+ "sam21_outline_box": [
+  236,
+  176,
+  528,
+  494
+ ],
+ "box_iou": 0.974,
+ "cost_usd": 0.0025,
+ "note": "One call only. The mask comes back base85-encoded in a format the docs do not spell out, so the boxes are compared; SAM 2.1's box is read from the magenta outline in cutout_depth.png."
+}

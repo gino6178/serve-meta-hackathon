@@ -12,7 +12,7 @@ Object.assign(process.env, { A2A_STUDENT: "off", BOOKINGS_FILE: `${tmp}/bookings
   MESSENGER_FILE_RX: String.raw`^http://127\.0\.0\.1:\d+/(ok|r)$`, AGENT_TOKEN: "unit-token", A2A_SELF: "http://127.0.0.1:8790", LLM_URL: "http://127.0.0.1:9/v1" });
 const { validate, MEMBER_REPLY, DECISION, PROPOSAL } = await import("../src/core/schema.js");
 const { consistent, breaks, shared, inTalk, holdAnswer, fullAnswer } = await import("../src/a2a/talk.js");
-const { badmintonGame, badmintonMatch } = await import("../src/media/vision.js");
+const { badmintonGame, badmintonMatch, tennisSet, tennisMatch, basketballGame, elevenGame, elevenMatch } = await import("../src/media/vision.js");
 const { population } = await import("../src/club/population.js");
 const auth = await import("../src/core/auth.js");
 const { fetchFile } = await import("../src/core/files.js");
@@ -390,4 +390,25 @@ test("the body context: notes from the log and the load, recent ones first, and 
     assert.ok(!ctx.citationOk({ kind: "limit", text: "While your right knee settles" }, "calf", org, all), "a note about another part is not a citation");
     assert.ok(!ctx.citationOk({ kind: "limit", text: "While your right knee settles" }, "nope", org, all), "nor a note that does not exist");
   } finally { delete process.env.MEMORY_EMBED; }
+});
+
+test("a score checked against its sport's rules: tennis sets and match tiebreaks, basketball, games to 11", () => {
+  const S = (...p) => p.map(([first, second]) => ({ first, second }));
+  assert.ok(tennisSet(6, 4).ok); assert.ok(tennisSet(7, 5).ok); assert.ok(tennisSet(6, 7).ok);
+  assert.ok(!tennisSet(6, 5).ok, "6-5 goes on"); assert.ok(!tennisSet(5, 3).ok, "not finished"); assert.ok(!tennisSet(8, 6).ok, "tiebreak sets");
+  assert.equal(tennisMatch(S([6, 4], [3, 6], [10, 7])).winner, "first", "a match tiebreak as the third set");
+  assert.equal(tennisMatch(S([6, 4], [3, 6], [7, 6])).winner, "first");
+  assert.ok(!tennisMatch(S([6, 4], [6, 3], [6, 1])).valid, "a set after the match was won");
+  assert.ok(!tennisMatch(S([6, 4], [10, 8])).valid, "a match tiebreak only as the third set");
+  assert.ok(!tennisMatch(S([6, 4])).valid, "nobody has two sets");
+  assert.equal(basketballGame(S([78, 71])).winner, "first");
+  assert.equal(basketballGame(S([20, 18], [15, 22], [25, 19], [18, 17], [9, 6])).valid, false, "overtime though not level after four");
+  assert.equal(basketballGame(S([20, 18], [15, 22], [25, 19], [18, 17])).winner, "first");
+  assert.equal(basketballGame(S([20, 20], [15, 15], [20, 20], [18, 18], [9, 6])).winner, "first", "level after four, decided in overtime");
+  assert.ok(!basketballGame(S([70, 70])).valid, "no draws");
+  assert.ok(!basketballGame(S([20, 18], [15, 22])).valid, "two periods");
+  assert.ok(elevenGame(11, 9).ok); assert.ok(elevenGame(13, 11).ok); assert.ok(!elevenGame(11, 10).ok); assert.ok(!elevenGame(9, 7).ok);
+  assert.equal(elevenMatch(S([11, 7], [8, 11], [11, 9])).winner, "first", "best of three");
+  assert.equal(elevenMatch(S([11, 7], [8, 11], [11, 9], [11, 6])).winner, "first", "best of five");
+  assert.ok(!elevenMatch(S([11, 7], [11, 8], [11, 9])).valid, "a game after the match was won");
 });

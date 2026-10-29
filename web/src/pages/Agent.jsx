@@ -128,7 +128,7 @@ export default function Agent({ club }) {
           )}
 
           <section className="composer" aria-labelledby="ask-h">
-            <div className="composer-head"><span className="agent-face" aria-hidden="true"><Mark size={22} /></span>
+            <div className="composer-head"><img className="agent-face pic" src="/agents/you.png" alt="" />
               <div><h1 id="ask-h" className="h1">{hello()}. What do you want to do?</h1>
                 <p className="muted">Say when or who. Your agent does the rest.</p></div></div>
             <form className="composer-box" onSubmit={(e) => { e.preventDefault(); ask(); }}>

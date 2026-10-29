@@ -170,3 +170,4 @@
 .status-pills a span { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 42ch; }
 .status-pills a svg { color: var(--agent); flex: none; }
 @media (max-width: 700px) { .week-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.agent-face.pic { object-fit: cover; padding: 0; background: #fff; }

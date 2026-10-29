@@ -1,0 +1,9 @@
+{
+  "what": "One live check of the fallback to Muse Spark (agent/src/core/llm.js, LLM_FALLBACK=on): the model server was made unreachable (a closed port), so each call went once to the Meta Model API. Run on the GPU server, 2026-10-29.",
+  "model": "muse-spark-1.3",
+  "calls": [
+    { "site": "live.fallback", "kind": "chat", "reply": "Thursday 19:00 is sooner.", "seconds": 4.73, "prompt": 32, "output": 344, "reasoning": 327 },
+    { "site": "live.fallback.tools", "kind": "tool call", "tools_called": ["get_week"], "seconds": 2.41, "prompt": 528, "output": 71, "reasoning": 18 }
+  ],
+  "note": "Two calls only, to confirm the protocol (reasoning_effort low, tool call ids) works against the real API; no other Meta Model API calls were made for it."
+}

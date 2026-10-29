@@ -206,3 +206,5 @@
 .fd-inv-spots { display: flex; gap: 4px; }
 .fd-inv-spots i { width: 18px; height: 6px; border-radius: 3px; background: var(--rule-strong, #ccc); }
 .fd-inv-spots i.on { background: var(--agent); }
+.fd-face.agent-pic { padding: 0; overflow: hidden; background: transparent; }
+.fd-face.agent-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
