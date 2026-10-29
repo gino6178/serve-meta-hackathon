@@ -783,7 +783,7 @@ async function chart(file) {
     const H = { bold: true, color: MUTED, fontSize: 11, fill: { color: WHITE } };
     const rows = [
       [{ text: "Suite", options: H }, { text: "Result", options: H }, { text: "Where it ran", options: H }],
-      ["npm test, 24 offline suites", "269 of 270 (1 skipped: an optional tool)", "No model, no GPU"],
+      ["npm test, 25 offline suites", "275 tests, 270 pass (3 optional, 2 Linux-only)", "No model, no GPU"],
       ["Messenger end to end (test/e2e.mjs)", "58 of 58 checks", "Muse Glimmer on a cloud A100"],
       ["Attacks (test/redteam.mjs)", "93 of 93 stopped", "A cloud A100, twice"],
       ["Community loop's attacks, within the 93", "29 of 29 stopped, 5 of 5 controls passed", "The server's CPU, with the real guards"],

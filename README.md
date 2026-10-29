@@ -63,8 +63,8 @@ A100 with the same Muse Glimmer build as our RTX 3090, and the report says which
 - Watch the demo video: [VIDEO LINK].
 - Read the technical report: [submission/technical_report.md](submission/technical_report.md).
 - Code: https://github.com/gino6178/serve-meta-hackathon
-- Run it yourself: `cd agent && npm install && npm test` runs 270 offline tests with no model or GPU (269 pass on
-  Linux and one is skipped without LlamaFirewall's own Python environment; one needs `flock`). <!-- COUNT --> The full app needs a Linux server with a 24 GB NVIDIA GPU for Muse Glimmer ([Running it](#running-it)).
+- Run it yourself: `cd agent && npm install && npm test` runs 275 offline tests with no model or GPU (on a
+  Windows laptop 270 pass and 3 are skipped for optional tools; the reel and builder-sandbox tests need Linux). <!-- COUNT --> The full app needs a Linux server with a 24 GB NVIDIA GPU for Muse Glimmer ([Running it](#running-it)).
 
 ### Measured, then switched off
 
@@ -266,7 +266,7 @@ digest) as our RTX 3090:
 
 | Suite | Result | Where it ran |
 |---|---|---|
-| `npm test` (24 offline suites) | 269 of 270, 1 skipped <!-- COUNT --> | no model, no GPU (`submission/results/unit.log`) |
+| `npm test` (25 offline suites) | 275 tests: 270 pass, 3 skipped, 2 Linux-only <!-- COUNT --> | no model, no GPU (`submission/results/unit.log`) |
 | Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks in the nine-gate run (2026-10-29), 52 of 52 before <!-- COUNT -->; on the final code 46 passed, 0 failed, before the run was stopped (`e2e_final_partial.log`) | Muse Glimmer on a cloud A100 (`submission/results/e2e.log`) |
 | Attacks (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | a cloud A100 (`submission/results/redteam_93.log`; 93 of 93 again in the nine-gate run) |
 | The community loop's attacks, within those 65 <!-- COUNT --> | 29 of 29 stopped, 5 of 5 controls passed | the server's CPU, with the real guards (section 5 of `redteam.log`) |
@@ -445,7 +445,7 @@ The guards and memory run on the server's CPU:
   until the guards it requires (`LOOP_GUARDS`) answer.
 
 The tests and evaluations run from `agent/`. Two need no model or GPU:
-- `npm test` runs 24 suites, 270 tests <!-- COUNT -->: `test/unit.mjs` (the schemas, the rule checks, the scoring
+- `npm test` runs 25 suites, 275 tests <!-- COUNT -->: `test/unit.mjs` (the schemas, the rule checks, the scoring
   rules, the token, file fetching, the stores, routing, holds, signed cards and the guards' parsing), the decision tiers'
   `decider_unit.mjs` and `student_unit.mjs`, the community loop's `loop_unit.mjs`, `loop_ship_unit.mjs`,
   `loop_anytime_unit.mjs`, `loop_signals_unit.mjs` and `loop_builder.mjs`, matchmaking's `match_unit.mjs`, and

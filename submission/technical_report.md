@@ -405,8 +405,8 @@ is asked to book: a record changed after it was signed (another time or venue, a
 another agent's key is refused. Members on a peer gateway confirm through their own gateway's mandate (3.11).
 `CONSENT=require` also refuses a game that carries no signatures.
 
-The four are tested without a model in `test/agentic_unit.mjs`; the offline suites now hold 270 tests (269 pass, 1
-skipped).
+The four are tested without a model in `test/agentic_unit.mjs`; the offline suites now hold 275 tests
+(25 suites, with `test/programs_unit.mjs` and the invite tests in `test/feed_unit.mjs`).
 
 ### 3.19 Clubs for groups with no organiser
 
@@ -489,7 +489,7 @@ Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformer
 
 | Suite | Result | Hardware | Source |
 |---|---|---|---|
-| `npm test`: 24 offline suites | 269 of 270, 1 skipped <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
+| `npm test`: 25 offline suites | 275 tests: 270 pass, 3 skipped (optional tools) on a Windows laptop; the reel and builder-sandbox tests need Linux's ffmpeg and sandbox and passed there (269 of 270 before the last six tests) <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
 | The deployed gateway (2026-10-29) | Ready on Muse Glimmer; an answer passed both Llama Guard checks; a dosage question refused; one "I want to play" round over A2A (nothing booked); the Messenger webhook verified through the public tunnel; no errors in the log | RTX 3090 | `submission/results/deploy_smoke_2026-10-29.log` |
 | Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks, run inside the gates (5.13) <!-- COUNT --> | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
 | Adversarial (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | A100 | `submission/results/redteam_93.log`; 93 of 93 again inside the gates (5.13) |
@@ -852,7 +852,7 @@ run dev`. From `agent/`:
 <!-- COUNT: the block below says 265 tests and 93 attacks -->
 
 ```bash
-npm test                                   # 24 offline suites, 270 tests, no model or GPU
+npm test                                   # 25 offline suites, 275 tests, no model or GPU
 npm run test:crash                         # the crash matrix, against a stand-in model
 node test/e2e.mjs                          # Messenger end to end
 node test/redteam.mjs                      # the 93 attacks
