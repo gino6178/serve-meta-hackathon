@@ -25,7 +25,7 @@ has room to reason beyond its answer (900 tokens by default), and each cheaper t
 (`submission/results/glimmer_in_practice.json`; 5.9).
 
 **Built during the hackathon.** Everything in the repository was written during the building period (October 27 to
-November 4, 2026). The one earlier piece is TrackNetV5, my published shuttle tracker, fetched at run time and off
+November 4, 2026). The one earlier piece of mine is TrackNetV5, a published shuttle tracker, fetched at run time and off
 unless `BALL_TRACKING=1`; none of its code is in the repository. The code is at
 https://github.com/gino6178/serve-meta-hackathon, restructured into its current layout on October 28 and 29.
 
@@ -59,8 +59,8 @@ and pass a safety review. A safe setting ships behind a flag to a canary of memb
 harm; anything else waits for a person, and a coding agent builds it on a branch that only a person merges. This loop
 is measured on a simulated club (5.6), not yet on a real one.
 
-Around these sit a club (feed, Elo leaderboard, challenges, a random match, a best match), courts near you in any ball
-sport, highlight reels from the player's own video, voice notes, scoreboard photos, and the same agent in Messenger.
+Around these sit a club (feed, games anyone can join, challenges, a random match, a best match), courts near you in
+any ball sport, highlight clips from the player's own video, voice notes, and the same agent in Messenger.
 
 ## 2. Architecture
 
@@ -69,7 +69,7 @@ sport, highlight reels from the player's own video, voice notes, scoreboard phot
 - **One gateway.** A Node.js gateway (`agent/src/server.js`) runs every agent on my GPU server and streams each step
   to the React web app as NDJSON, so the player watches the agent work.
 - **Where the models run.** Muse Glimmer: GPU 1, an RTX 3090, under Ollama 0.40.11 with a 16,384-token context and 4
-  requests in parallel (`submission/results/manifest.json`). DETR, Sapiens2, SAM 2.1, TrackNetV5 and
+  requests in parallel (`submission/results/manifest.json`). DETR, Sapiens2, SAM 2.1 and
   MapAnything (for orbit replays): GPU 0. Llama Guard 3 1B, Prompt Guard 2 86M, DRAMA and Omnilingual ASR: the server's CPU, so they take no GPU memory
   from Glimmer.
 - **One client for every model call** (`agent/src/core/llm.js`). It keeps to the model server's 4 slots, puts calls a
@@ -140,7 +140,7 @@ player instead (3.3).
 
 What a player says about their body becomes a scheduling limit, never advice. Glimmer files it with one tool call (part, side, level, cause), checked by code (`agent/src/body/body.js`). A health
 export (Apple Health, Google Fit, GPX, TCX or CSV) is parsed on the server with Python's standard library and deleted
-(`health_import.py`). Code works out the load (minutes × effort, this week against the last four) and the plan rules.
+(`health_import.py`). Code turns them into scheduling limits (doubles first, a shorter game, one game fewer).
 It records and schedules; it gives no diagnosis, treatment or dosage.
 
 Courts (`agent/src/club/places.js`) come from OpenStreetMap, with Google Maps ratings and reviews when the server has a key
@@ -149,23 +149,16 @@ for word) or the forecast is dropped. Prompt Guard 2 reads the reviews first.
 
 ### 3.4 Highlights for sharing, and orbit replays
 
-A highlight is a clip to share; nothing in it scores technique or performance. In `video/pose/reel.py`, DETR [16] finds the people in the player's own video, Sapiens2 reads every pose and SAM 2.1
-[17] cuts each player out. The reel replays the moment (a racket's fastest swing, the top of a jump, a kick) in slow
-motion, with a caption Glimmer writes and code checks.
-
-The ball comes from published trackers used as libraries, each in its own process (`video/pose/ball.py`,
-`docs/ball_tracking.md`): TrackNetV5 (ICIP 2026, my own earlier published work) for badminton, and WASB (BMVC 2023)
-for tennis and basketball (wired in, not measured). On the app's three CC BY badminton clips, filmed from the stands, TrackNetV5's points are
-exact when they find the shuttle (median error 1.4 px) but find it rarely (precision 0.40, recall 0.31): from the
-stands the shuttle is 2 to 4 px. So the effects use the ball only near the player (the freeze moves to a ball turn
-only within one player-height of the racket hand) and otherwise fall back to the pose.
+A highlight is a clip to share with friends; nothing in it scores technique or performance. In `video/pose/reel.py`,
+DETR [16] finds the people in the player's own video, Sapiens2 finds the moment worth sharing and SAM 2.1 [17] cuts
+the player out. The clip replays that moment in slow motion, with a caption Glimmer writes and code checks.
 
 `video/pose/orbit.py` is the app's optional camera effect ("Add a camera effect"): time stops and the camera moves
 round the player.
 MapAnything [18] reads metric depth and the camera from the moment's frame, SAM 2.1 cuts the player out, the court
 behind them comes from neighbouring frames, and a learned threshold on invented pixels picks the widest arc that still
 looks right, or a zoom. `video/pose/exists.py` decides frame by frame whether the player and the racket hand are there,
-from SAM 2.1 as a video tracker, the DETR track and Sapiens2's keypoint confidence, with hysteresis.
+from SAM 2.1 as a video tracker, the DETR track and Sapiens2's confidence, with hysteresis.
 
 ![Time stopped, the camera 12 degrees to the left](shots/orbit/orbit_good.png)
 
@@ -228,8 +221,7 @@ CaMeL [22] (the model that reads untrusted text is not the code that acts).
 
 Numbers in a model's text must be in the facts it was given; a quoted review must be in that review; days and times in
 a summary must belong to an agreed game; no "he" or "she". Most failing texts go to a template; the body report is
-redrafted once, then replaced by rules. A scoreboard photo is read into a JSON Schema by a call with no tools, and for
-badminton code checks the score against the rules.
+redrafted once, then replaced by rules.
 
 ### 3.9 Matchmaking: whose agent to ask first
 
@@ -401,17 +393,19 @@ skipped).
 
 ## 4. Meta models and tools
 
-Only what is wired into the code.
+Only what is wired into the code. 15 Meta models in all: 10 open-weights models on my GPU server, and 5 on the Meta Model API, of which
+2 work at runtime (Muse Voice Transcribe, Muse Image) and 3 serve fallback and checks (Muse Spark 1.3, SAM 3.1, Muse
+Wonder).
 
 | Meta model or tool | Status | Runs on | What it does in Serve |
 |---|---|---|---|
-| **Muse Glimmer**, open weights (27.9B, Q4_K_M) | In the app | Ollama, RTX 3090; some evaluations on A100s, same digest | Every agent: the Autopilot's tool loop, Match's question, reading "I want to play" into an intent, each member's agent's decision (in parallel, JSON Schema), filing what hurts, judging courts, reading a scoreboard (vision), captions, the body report, the loop's paraphrases, summaries and specs, the builder |
+| **Muse Glimmer**, open weights (27.9B, Q4_K_M) | In the app | Ollama, RTX 3090; some evaluations on A100s, same digest | Every agent: the Autopilot's tool loop, Match's question, reading "I want to play" into an intent, each member's agent's decision (in parallel, JSON Schema), filing what hurts, judging courts, captions, the body report, the loop's paraphrases, summaries and specs, the builder |
 | **Llama 3.2 1B**, open weights, distilled from Glimmer (LoRA, int4) | In the app | CPU | A member's choice of time when it is sure; Glimmer answers otherwise (3.12) |
 | **Llama Guard 3 1B** (Q8_0) | In the app | Ollama, CPU | The player's Messenger messages; model text for the player; the loop's screen |
 | **Prompt Guard 2 86M** | In the app | Transformers, CPU | Reviews before the court judge; the loop's screen |
 | **DRAMA** (`facebook/drama-base`) | In the app | Transformers, CPU | Memory by meaning; clustering the loop's sentences; matching an idea to an existing feature |
 | **Omnilingual ASR** (CTC 1B) | In the app | CPU | Voice notes in Messenger, shown back as "I heard: …" (I tested English) |
-| **Sapiens2** (pose 0.4B) | In the app | GPU 0 | Poses and the moment in a highlight; keypoint confidence in the exists check |
+| **Sapiens2** (0.4B) | In the app | GPU 0 | The moment worth sharing in a highlight clip; whether the player is in view |
 | **SAM 2.1** (Hiera-L) | In the app; also the video tracker for orbits | GPU 0 | Outlines for the reel; the cut-out and "is the player there" for orbits |
 | **DETR** (ResNet-50) | In the app | GPU 0 | Finds the people in the player's video |
 | **MapAnything** (Apache 2.0 weights) | In the app (optional camera effect) | GPU 0 | Metric depth and the camera for orbit replays |
@@ -464,7 +458,7 @@ Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformer
 | "I want to play" in Messenger (`test/match_messenger.mjs`) | 13 of 13 checks | Glimmer on an A100 | `docs/agent_matchmaking_plan.md` (6.7); `submission/results/match_messenger.log` is the earlier run of the first 9, 9 of 9 |
 
 The end-to-end test drives the real gateway against a fake Graph API, from linking and "want a game?" agreed over A2A
-to the Autopilot booked with a tap, a voice note, a health export, a scoreboard photo, a violent threat refused, a
+to the Autopilot booked with a tap, a voice note, a health export, a violent threat refused, a
 self-harm message answered with the helpline, the loop's `/idea` and Share, and `/forget` deleting everything.
 
 The 93 attacks <!-- COUNT --> are the 35 earlier cases (A1 to A15 against a member's agent, B1 to B11 hostile agents, C1 to C7 the
@@ -713,12 +707,6 @@ the labels on 87% of the frames, about 9 s a frame and $1.10 for the 84, and it 
 outline above the net and a large blurred empty band on the right". Muse Glimmer ran the same judge on an A100 with a
 JSON Schema, with no cloud. It sits beside the pixel rule as a second opinion that says why.
 
-### 5.17 The ball on tennis and basketball
-
-WASB's tennis and basketball trackers run through `video/pose/ball.py` (`--sport tennis|basketball`), on GPU 0, about
-15 s for 20 s of video. On a CC BY 3.0 basketball clip every mark checked by eye was on the ball, 12 of 12
-(`submission/results/ball_wasb.json`, `submission/shots/ball/`).
-
 ## 6. Safety and privacy
 
 Meta's **Agents Rule of Two** [23]: within one session an agent holds at most two of untrusted input, private data and
@@ -772,6 +760,25 @@ data and every loop record, and the end-to-end test checks it. Google reviews ar
 
 The simulations show that the agents keep what members stated and that the loop does what it was built to do with these
 inputs. They do not show how real people would talk, vote or react.
+
+### 7.1 What was built here, and what was not
+
+**Built during the hackathon (October 27 to November 4, 2026).** All the code in the repository: the gateway and every
+agent, A2A and its signing, the matchmaking, the memory and its beliefs, the guards' use, the community loop and its
+builder, the highlight pipeline's code, the web app, the members, clubs and the per-player gateways, the tests and
+evaluations. The repository's history starts on October 28, when the work was restructured into it, with 921 commits
+since.
+
+**Mine, from before.** TrackNetV5, a published shuttle tracker (ICIP 2026): fetched at run time, off unless
+`BALL_TRACKING=1`, and not used in this entry.
+
+**Third party, used as published.**
+- Models: Muse Glimmer, Llama 3.2 1B (fine-tuned here), Llama Guard 3 1B, Prompt Guard 2, DRAMA, Omnilingual ASR, DETR,
+  Sapiens2, SAM 2.1, MapAnything; on the Meta Model API, Muse Spark 1.3, Muse Voice Transcribe, Muse Image, Muse
+  Wonder and SAM 3.1; Kokoro for speech; IBM Granite Embedding as an optional embedder; WASB (BMVC 2023), wired in for
+  tennis and basketball and off in this entry.
+- Software: the A2A SDK, Ollama, Hugging Face Transformers, OpenTelemetry, React and Vite, Leaflet, Cloudflare's tunnel.
+- Data and services: OpenStreetMap, Open-Meteo, Google Places, and CC BY clips credited where shown.
 
 ## 8. How to reproduce
 
