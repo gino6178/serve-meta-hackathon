@@ -71,7 +71,8 @@ export default function Agent({ club }) {
     if (!q || !you) return;
     setText("");
     const kind = intentOf(q);
-    if (kind === "play") return go(`play?task=${startPlay(q, you)}`);
+    // a game you want: your agent drafts the invite in its chat, posts it on your yes and finds people
+    if (kind === "play") return go(`messages?say=${encodeURIComponent(q)}`);
     if (kind === "goals") return go("goals");
     if (kind === "highlight") return go("highlights");
     if (kind === "autopilot") return go("autopilot?run=1");

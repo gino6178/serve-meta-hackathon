@@ -106,6 +106,30 @@ function ruleIntent(text, members, now) {
   return { days: [...new Set(dates)], from: part ? PARTS[part][0] : null, to: part ? PARTS[part][1] : null, minutes, format, with: withIds, focus: null, challenge, note: "", sport: sportIn(text) || "badminton" };
 }
 
+// an invite drafted from what the player said (the app's agent chat): the sport, the day and time, how many more
+// players, and where (the nearest court to the player when the app sent where they are, places.js nearby). Nothing is
+// posted here: the player says yes in the app, and the app posts it (feed/posts.js inviteOf checks it again).
+const WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, 一: 1, 兩: 2, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6 };
+export function spotsIn(text, format) {
+  const t = String(text || "");
+  const m = /(?:need|looking for|want|find|缺|找|要)\s*(\d{1,2}|one|two|three|four|five|six|[一兩二三四五六])\s*(?:more\s*)?(?:people|players|person|player|個人|個|人|位)?/i.exec(t)
+    || /(\d{1,2}|[一兩二三四五六])\s*(?:個人|人|位|people|players)/i.exec(t);
+  const n = m ? (/^\d+$/.test(m[1]) ? +m[1] : WORDS[m[1].toLowerCase()]) : null;
+  return n >= 1 && n <= 12 ? n : format === "singles" ? 1 : 3;
+}
+export async function inviteDraft(text, { near = null, now = new Date() } = {}) {
+  const it = await readIntent(String(text).slice(0, 300), [], now), i = it.intent;
+  // the day from the words by code first (the next Saturday, tomorrow, 週六), the model's reading only when code finds none
+  const day = ruleIntent(text, [], now).days[0] || i.days[0] || (() => { const d = new Date(now); d.setDate(d.getDate() + 1); return ymd(d); })();
+  const start = i.from || "19:00";
+  let where = null, at = null;
+  if (near && isFinite(+near.lat) && isFinite(+near.lon)) {
+    at = { lat: +(+near.lat).toFixed(4), lon: +(+near.lon).toFixed(4) };
+    const ps = await (await import("./places.js")).nearby({ lat: near.lat, lon: near.lon, sport: i.sport }).catch(() => []);
+    if (ps[0]) { where = ps[0].name; at = { lat: +ps[0].lat.toFixed(4), lon: +ps[0].lon.toFixed(4) }; }
+  }
+  return { draft: { sport: i.sport, day, start, minutes: i.minutes, format: i.format, spots: spotsIn(text, i.format), where: where || "Near me", ...(at ? { at } : {}), text: i.note || "" }, by: it.by };
+}
 export async function readIntent(text, members, now) {
   const sys = `Turn a player's request to play a sport into JSON. Now: ${DAYS[now.getDay()]} ${ymd(now)} ${hm(now.getHours() * 60 + now.getMinutes())}.
 Club members (id: name): ${members.map((m) => `${m.id}: ${m.name}`).join("; ")}.

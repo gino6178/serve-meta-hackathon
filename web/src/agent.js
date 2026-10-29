@@ -98,6 +98,8 @@ export const agentStatus = () => read("/api/status");
 export const agentPlayers = () => read("/api/players");
 export const agentRemind = () => post("/api/remind");
 export const agentAnswer = (text, you) => post("/api/agent/answer", { text, you });
+// an invite drafted from what you told your agent ({ draft }); nothing is posted until you say yes in the app
+export const agentInviteDraft = (text, near) => post("/api/agent/invite-draft", { text, near });
 // your settings on the server: private calendars (your choice, or the server's default with null)
 export const agentPrefs = () => read("/api/prefs");
 export const agentSetPrefs = (prefs) => post("/api/prefs", prefs);

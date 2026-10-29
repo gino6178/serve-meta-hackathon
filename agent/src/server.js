@@ -562,6 +562,8 @@ const gateway = http.createServer(async (req, res) => {
     // courts and parks near a point, judged playable or not (body: { lat, lon, sport, date, start, radius })
     // the courts on the app's map around a point (body-less: ?lat&lon&sport), from OpenStreetMap only
     if (u.pathname === "/api/places/near" && req.method === "GET") { try { return json(res, 200, { places: await places.nearby({ lat: u.searchParams.get("lat"), lon: u.searchParams.get("lon"), sport: u.searchParams.get("sport") || "basketball", radius: u.searchParams.get("radius") }) }, o); } catch (e) { return json(res, 400, { error: String(e.message || e).slice(0, 200) }, o); } }
+    // an invite drafted from what the player told their agent (body: { text, near }); the app posts it on their yes
+    if (u.pathname === "/api/agent/invite-draft" && req.method === "POST") { const b = await bodyOf(req); return json(res, 200, await play.inviteDraft(b.text || "", { near: b.near || null }), o); }
     if (u.pathname === "/api/places" && req.method === "POST") { const b = await bodyOf(req); return stream(res, o, (send) => places.search({ ...b, onStep: send })); }
     if (u.pathname === "/api/places/where") return json(res, 200, await places.where(u.searchParams.get("q") || "").catch((e) => ({ error: e.message })), o);
     // the map under a GPS route: roads, rivers and parks in an area (?s=&w=&n=&e=), drawn by the app
