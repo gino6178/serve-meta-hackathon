@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import Icon from "../components/Icon.jsx";
 import { agentAnswer } from "../agent.js";
 import { agentFace } from "../club/faces.js";
+import ClubSuggest from "../components/ClubSuggest.jsx";
+import "./clubs.css";
 import "./messages.css";
 
 // Your agent, as a chat: write to it and it answers from what it knows about you (agent answers.js, past Llama Guard on
@@ -38,6 +40,7 @@ export default function Messages() {
         {ms.length > 0 && <button className="link" onClick={() => setMs([])}>Clear</button>}
       </header>
       <ol className="mc-list">
+        <li className="mc-suggest"><ClubSuggest /></li>
         {shown.map((m, i) => <li key={i} className={`mc-msg ${m.from}${m.failed ? " failed" : ""}`}><p>{m.text}</p></li>)}
         {busy && <li className="mc-msg agent"><p className="mc-dots"><span className="dots"><i /><i /><i /></span></p></li>}
         <li ref={end} aria-hidden="true" />

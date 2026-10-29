@@ -12,6 +12,8 @@ import { useReducedMotion } from "../hooks.js";
 import { go } from "../App.jsx";
 import VoiceAsk from "../voice/VoiceAsk.jsx";
 import LiveTalk from "../voice/LiveTalk.jsx";
+import ClubSuggest from "../components/ClubSuggest.jsx";
+import "./clubs.css";
 import "./agent.css";
 
 // The agent home, the way Muse is laid out: say what you want, and every job the agent takes on shows up as a card
@@ -171,6 +173,7 @@ export default function Agent({ club }) {
             );
           })()}
 
+          <ClubSuggest />
           {(needs.length > 0 || asked.length > 0 || game.ask) && (
             <section className="task-sec" aria-labelledby="needs-h">
               <h2 id="needs-h" className="sec-label">Needs you</h2>

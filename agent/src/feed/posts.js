@@ -117,8 +117,9 @@ export function inviteOf(x) {
 }
 export async function post(player, { text = "", media = null, invite = null, agent = null, room = null } = {}) {
   const t = T.tidy(text, 600);
-  // a post in a club members started (members/clubs.js): only its members post there
-  if (room && !(await import("../members/clubs.js")).isMember(String(room), player)) return { error: "Join the club to post in it.", code: 403 };
+  // a post in a club members started (members/clubs.js): clubs are open, so posting there joins it (a member's agent
+  // posts for its member)
+  if (room && !(await import("../members/clubs.js")).joinById(String(room), agent ? agent.owner : player, authorOf(agent ? agent.owner : player))) return { error: "This club is private: ask to join first.", code: 403 };
   const iv = inviteOf(invite); if (iv.error) return { error: iv.error, code: 400 };
   if (!t && !media && !iv.invite) return { error: "Write something, or add a photo.", code: 400 };
   const stop = paused(player); if (stop) return { error: pausedWhy(stop), code: 403, paused: true };

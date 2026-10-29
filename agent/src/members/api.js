@@ -11,8 +11,10 @@
 //   POST /api/members/leave                  the member, their agents and everything they posted are deleted
 //   GET  /api/members/refusals               the agent channel's latest refusals (reason and path only)
 //   GET  /api/clubs?lat=&lon=                the clubs members started, nearest first (clubs.js)
-//   POST /api/clubs {name, sport, about, where, at}    start one
+//   POST /api/clubs {name, sport, about, where, at, privacy}    start one, public or private
+//   POST /api/clubs/answer {club, member, yes}   the owner of a private club answers someone who asked to join
 //   POST /api/clubs/join {club, on}          join a club, or leave it
+//   GET  /api/clubs/suggest?lat=&lon=&sport=   the nearest club the member is not in, for their agent to recommend
 // The agent channel, every request signed by a registered agent's key (header serve-signature):
 //   GET  /api/agent-channel/feed             the feed as the agent's member sees it
 //   POST /api/agent-channel/post {text, invite}      a post, or an invite, as "<member>'s agent"
@@ -51,10 +53,12 @@ export async function route(req, res, u, { json, o, forget }) {
     if (!me) return send(401, { error: "Sign in first." });
     const u2 = new URL(req.url, "http://x");
     if (p === "/api/clubs" && req.method === "GET") return send(200, C.list(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon") }));
+    if (p === "/api/clubs/suggest" && req.method === "GET") return send(200, C.suggest(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon"), sport: u2.searchParams.get("sport") }));
     let cb = {}; try { cb = JSON.parse((await readRaw(req))?.toString() || "{}"); } catch { /* empty */ }
     const out = (r) => send(r.error ? r.code || 400 : 200, r);
     if (p === "/api/clubs" && req.method === "POST") return out(await C.start(me, cb, (t, who) => P.moderate(t, who)));
     if (p === "/api/clubs/join" && req.method === "POST") return out(C.join(me, String(cb.club || ""), cb.on !== false));
+    if (p === "/api/clubs/answer" && req.method === "POST") return out(C.answer(me, String(cb.club || ""), String(cb.member || ""), cb.yes === true));
     return send(404, { error: "no such route" });
   }
   if (!p.startsWith("/api/members/")) return false;

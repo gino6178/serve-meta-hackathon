@@ -50,6 +50,8 @@ export async function handle(req, res, u, { cors = {}, maintainer = false, as = 
     const out = (r) => send(r?.code || (r?.error ? 400 : 200), r);
 
     if (p === "/api/feed" && !post) {
+      // a private club's posts are for its members only (members/clubs.js)
+      if (q("room") && !(await import("../members/clubs.js")).canSee(q("room"), player)) return send(200, { posts: [], more: false, notices: [], private: true });
       const f = P.feed(player, { before: +(q("before") || Infinity) || Infinity, n: +(q("n") || 30), room: q("room") || null });
       const club = deps.club(), w = papers.weekCap();
       return send(200, { ...f, drafts: H.drafts(player), recaps: R.pendingFor(player), paused: P.paused(player), club: { name: club.name || "Your club" }, papers: { perWeek: papers.perWeekFor(player), club: w.club }, simulated: S.data().posts.some((x) => x.simulated) });

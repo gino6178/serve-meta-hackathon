@@ -60,7 +60,7 @@ async function tenant(id) {
   fs.mkdirSync(path.join(dir, "data"), { recursive: true });
   const env = { ...process.env, PORT: String(port), AGENT_TOKEN: TOKEN, ALLOW_ORIGINS: INTERNAL, MEMBERS_APP_URL: INTERNAL,
     EMBED_PYTHON: process.env.EMBED_PYTHON || path.join(AGENT, "..", "asr", "env", "bin", "python"), GUARD_PYTHON: process.env.GUARD_PYTHON || path.join(AGENT, "..", "asr", "env", "bin", "python"),
-    TENANT_OF: String(id) };
+    TENANT_OF: String(id), WEBHOOK_PORT: "0" };
   // no Messenger page, no federation, no fallback to the cloud model for a player's own gateway
   for (const k of ["MESSENGER_PAGE_TOKEN", "MESSENGER_APP_SECRET", "MESSENGER_VERIFY_TOKEN", "A2A_FEDERATION_FILE", "TENANT_PORT"]) delete env[k];
   const proc = spawn(process.execPath, ["--unhandled-rejections=warn", path.join(AGENT, "src", "server.js")], { cwd: dir, env, detached: true, stdio: ["ignore", fs.openSync(path.join(dir, "gateway.log"), "a"), fs.openSync(path.join(dir, "gateway.log"), "a")] });
@@ -78,8 +78,24 @@ async function tenant(id) {
   console.log(`${new Date().toISOString()} started a gateway on :${port} for ${dir}`);
   return t.ready;
 }
+// players' gateways outlive a restart of this proxy: the ones already running are taken up again, by the member id and
+// the port each was started with (Linux /proc)
+function adopt() {
+  if (!fs.existsSync("/proc")) return;
+  for (const pid of fs.readdirSync("/proc").filter((x) => /^\d+$/.test(x))) {
+    let env; try { env = fs.readFileSync(`/proc/${pid}/environ`, "utf8").split("\0"); } catch { continue; }
+    const of = env.find((x) => x.startsWith("TENANT_OF="))?.slice(10), port = +(env.find((x) => x.startsWith("PORT="))?.slice(5) || 0);
+    if (!of || !port || running.has(of)) continue;
+    const proc = { pid: +pid, kill: () => process.kill(+pid) }, t = { port, proc, last: Date.now() };
+    t.ready = Promise.resolve(t);
+    running.set(of, t);
+    console.log(`${new Date().toISOString()} took up the gateway on :${port} again`);
+  }
+}
+adopt();
 setInterval(() => { for (const [id, t] of running) if (Date.now() - t.last > IDLE) { stop(id); console.log(`${new Date().toISOString()} stopped an idle gateway`); } }, 60000).unref();
-process.on("SIGTERM", () => { for (const id of [...running.keys()]) stop(id); process.exit(0); });
+// (a restart of the proxy leaves the players' gateways running: adopt() takes them up again)
+process.on("SIGTERM", () => process.exit(0));
 
 // the browser's own origin must be this address's (a page elsewhere is refused), then the gateways hear INTERNAL
 const sameOrigin = (req) => { const o = req.headers.origin; if (!o) return true; try { return new URL(o).host === req.headers.host; } catch { return false; } };

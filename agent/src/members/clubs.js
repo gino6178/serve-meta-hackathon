@@ -2,7 +2,10 @@
 // it, where it plays), others find it on the map near them and join; games and posts can belong to a club (the feed's
 // posts carry its id, feed/posts.js). The name and the line are checked like any post (the feed's moderation).
 //   data/clubs.json (CLUBS_FILE): { clubs: [{ id, name, sport, about, where, at: {lat, lon}, owner, members: [{id, name, at}], created }] }
-// A member who leaves Serve leaves every club; a club left with nobody in it is deleted.
+// A club is public or private. Public: anyone signed in sees its games and posts, and posting in one joins it. Private:
+// it is on the map, but its games and posts are for its members; a member asks to join and the club's owner says yes
+// or no, and agents do not recommend it. A member who leaves Serve leaves every club; a club left with nobody in it is
+// deleted.
 import path from "node:path";
 import crypto from "node:crypto";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
@@ -20,10 +23,14 @@ const pointOf = (x) => { if (x?.lat == null || x?.lon == null || x.lat === "" ||
 
 export const find = (id) => data().clubs.find((c) => c.id === id) || null;
 export const isMember = (id, player) => !!find(id)?.members.some((m) => m.id === player);
+// may this member see the club's games and posts
+export const canSee = (id, player) => { const c = find(id); return !!c && (c.privacy !== "private" || c.members.some((m) => m.id === player)); };
 
 // a club as a member sees it
 export function view(c, viewer, from = null) {
-  return { id: c.id, name: c.name, sport: c.sport, about: c.about, where: c.where, at: c.at, members: c.members.length,
+  const inIt = c.members.some((m) => m.id === viewer), mine = c.owner === viewer;
+  return { id: c.id, name: c.name, sport: c.sport, about: c.about, where: c.where, at: c.at, members: c.members.length, privacy: c.privacy || "public",
+    asked: !inIt && (c.requests || []).some((r) => r.id === viewer), ...(mine ? { requests: (c.requests || []).map((r) => ({ id: r.id, name: r.name })) } : {}),
     names: c.members.slice(0, 8).map((m) => (m.id === viewer ? "You" : m.name.split(" ")[0])), joined: c.members.some((m) => m.id === viewer), mine: c.owner === viewer,
     ...(from ? { km: +km(from, c.at).toFixed(1) } : {}) };
 }
@@ -44,7 +51,8 @@ export async function start(member, b, moderate) {
   if (data().clubs.some((c) => c.name.toLowerCase() === name.toLowerCase())) return { error: "A club has that name already.", code: 409 };
   const m = await moderate([name, about, where].filter(Boolean).join("\n"), member.id);
   if (m?.refused || m?.helpline) return { refused: true, why: m.why || "The club's name or line was not allowed." };
-  const c = { id: `c-${crypto.randomUUID().slice(0, 8)}`, name, sport, about, where: where || name, at, owner: member.id, members: [{ id: member.id, name: member.name, at: Date.now() }], created: Date.now() };
+  const privacy = b.privacy === "private" ? "private" : "public";
+  const c = { id: `c-${crypto.randomUUID().slice(0, 8)}`, name, sport, about, where: where || name, at, privacy, owner: member.id, members: [{ id: member.id, name: member.name, at: Date.now() }], requests: [], created: Date.now() };
   data().clubs.push(c); save();
   return { club: view(c, member.id) };
 }
@@ -52,6 +60,12 @@ export function join(member, id, on = true) {
   const c = find(id);
   if (!c) return { error: "No such club.", code: 404 };
   const inIt = c.members.some((m) => m.id === member.id);
+  // a private club: asking, and the owner answers (answer below); asking again, or leaving, takes the ask back
+  if (c.privacy === "private" && on && !inIt) {
+    if (!(c.requests ||= []).some((r) => r.id === member.id)) c.requests.push({ id: member.id, name: member.name, at: Date.now() });
+    save(); return { club: view(c, member.id), asked: true };
+  }
+  if (!on) c.requests = (c.requests || []).filter((r) => r.id !== member.id);
   if (on && !inIt) c.members.push({ id: member.id, name: member.name, at: Date.now() });
   if (!on && inIt) c.members = c.members.filter((m) => m.id !== member.id);
   if (!c.members.length) data().clubs = data().clubs.filter((x) => x !== c);
@@ -59,11 +73,41 @@ export function join(member, id, on = true) {
   save();
   return { club: c.members.length ? view(c, member.id) : null };
 }
+// a member's agent recommends the nearest club they are not in yet (within 15 km), their sport first; null if none
+export function suggest(viewer, { lat, lon, sport = null } = {}) {
+  const from = pointOf({ lat, lon });
+  if (!from) return { club: null };
+  const near = data().clubs.filter((c) => c.privacy !== "private" && !c.members.some((m) => m.id === viewer)).map((c) => ({ c, d: km(from, c.at) })).filter((x) => x.d <= 15)
+    .sort((a, b) => ((b.c.sport === sport) - (a.c.sport === sport)) || a.d - b.d)[0];
+  if (!near) return { club: null };
+  const v = view(near.c, viewer, from);
+  return { club: v, why: `${v.km < 1 ? `${Math.round(v.km * 1000)} m` : `${v.km} km`} from you, ${v.sport}, ${v.members} member${v.members === 1 ? "" : "s"}` };
+}
+// someone who posts in a club joins it (clubs are open); false for a club that is not there
+export function joinById(id, player, name) {
+  const c = find(id);
+  if (!c) return false;
+  if (c.privacy === "private") return c.members.some((m) => m.id === player);
+  if (!c.members.some((m) => m.id === player)) { c.members.push({ id: player, name: name || "A member", at: Date.now() }); save(); }
+  return true;
+}
+// the owner of a private club says yes or no to someone who asked
+export function answer(owner, id, who, yes) {
+  const c = find(id);
+  if (!c) return { error: "No such club.", code: 404 };
+  if (c.owner !== owner.id) return { error: "Only the club's owner answers.", code: 403 };
+  const r = (c.requests || []).find((x) => x.id === who);
+  if (!r) return { error: "Nobody by that name asked.", code: 404 };
+  c.requests = c.requests.filter((x) => x !== r);
+  if (yes && !c.members.some((m) => m.id === who)) c.members.push({ id: r.id, name: r.name, at: Date.now() });
+  save();
+  return { club: view(c, owner.id) };
+}
 export function forget(player) {
   let changed = false;
   for (const c of data().clubs) {
-    if (!c.members.some((m) => m.id === player)) continue;
-    c.members = c.members.filter((m) => m.id !== player); changed = true;
+    if (!c.members.some((m) => m.id === player) && !(c.requests || []).some((r) => r.id === player)) continue;
+    c.members = c.members.filter((m) => m.id !== player); c.requests = (c.requests || []).filter((r) => r.id !== player); changed = true;
     if (c.owner === player && c.members.length) c.owner = c.members[0].id;
   }
   data().clubs = data().clubs.filter((c) => c.members.length);
