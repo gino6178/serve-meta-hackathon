@@ -23,7 +23,7 @@ export function autopilotTurn(messages) {
   const call = (name, args = {}) => [{ function: { name, arguments: { ...args, reason: args.reason || `the plan's next step: ${name}` } } }];
   if (h.some((x) => x.name === "request_approval" && x.res.sent) || h.some((x) => x.name === "nudge" && x.res.sent)) return call("finish", { summary: "Your week is lined up and waits for your yes." });
   const week = h.find((x) => x.name === "get_week")?.res;
-  if (!week) return [...call("get_week"), ...call("check_body")];
+  if (!week) return [...call("get_week"), ...call("check_limits")];
   const wins = h.filter((x) => x.name === "negotiate" && x.res.agreed), used = new Set(wins.map((x) => x.args.day));
   const asked = (n) => h.filter((x) => x.name === n && !x.res.error).length;
   if ((week.stillNeeded || 0) - wins.length <= 0) return asked("request_approval") ? call("finish") : call("request_approval");

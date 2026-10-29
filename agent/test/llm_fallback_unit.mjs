@@ -46,8 +46,8 @@ test("a chat the model server can't take goes to Muse Spark, in its protocol, an
 test("a tool turn mid-run: Ollama's tool calls get ids and each result the id of its call", async () => {
   const tools = [{ type: "function", function: { name: "get_week", parameters: { type: "object", properties: {} } } }];
   const history = [{ role: "user", content: "Plan my week" },
-    { role: "assistant", content: "", tool_calls: [{ function: { name: "get_week", arguments: {} } }, { function: { name: "check_body", arguments: { why: "x" } } }] },
-    { role: "tool", content: "{\"week\":1}", tool_name: "get_week" }, { role: "tool", content: "{\"sore\":[]}", tool_name: "check_body" }];
+    { role: "assistant", content: "", tool_calls: [{ function: { name: "get_week", arguments: {} } }, { function: { name: "check_limits", arguments: { why: "x" } } }] },
+    { role: "tool", content: "{\"week\":1}", tool_name: "get_week" }, { role: "tool", content: "{\"sore\":[]}", tool_name: "check_limits" }];
   const out = await llm.chatTools(history, tools, { site: "unit.fallback.tools" });
   assert.ok(out.fallback);
   assert.deepEqual(out.calls.map((c) => c.name), ["get_week"]);

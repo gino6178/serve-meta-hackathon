@@ -44,13 +44,13 @@ const save = () => { writeJSON(FILE, db); };
 const expect = (a, b) => 1 / (1 + 10 ** ((b - a) / 400));
 // lean (the default; AUTOPILOT_LEAN=0 for the earlier loop, to compare): the system prompt is the same in every run, so
 // the server reuses it and the tool definitions from cache, and the week's details go in the first message; get_week
-// and check_body, which every run starts with, are run by code before the model's first turn; and once a game is agreed,
+// and check_limits, which every run starts with, are run by code before the model's first turn; and once a game is agreed,
 // the partner and court searches that led to it shrink to one line each
 const LEAN = process.env.AUTOPILOT_LEAN !== "0";
 const SYS = `You are the player's Serve agent, on Autopilot. You get the player the games in their goal this week, at the times they usually play, with the partners they play best with. The goal, today's date and any limit from the body log are in the first message.
 Work only through the tools, one step at a time:
-1. get_week and check_body first (both in one turn), unless their results are already there.
-2. For each game still needed: take an open habitual time (most played first), find_partners for it, then negotiate with the best candidates (singles: 1 member id; doubles: 3 member ids). With a limit from the body log: doubles first, and follow check_body's limits. For a sport often played outdoors (basketball, soccer, volleyball): call find_places for that time and pass the best place id (verdict good) to negotiate, unless a club court is clearly better. For other sports, if negotiate fails because no court is free, try find_places for that time.
+1. get_week and check_limits first (both in one turn), unless their results are already there.
+2. For each game still needed: take an open habitual time (most played first), find_partners for it, then negotiate with the best candidates (singles: 1 member id; doubles: 3 member ids). With a limit from the body log: doubles first, and follow check_limits's limits. For a sport often played outdoors (basketball, soccer, volleyball): call find_places for that time and pass the best place id (verdict good) to negotiate, unless a club court is clearly better. For other sports, if negotiate fails because no court is free, try find_places for that time.
 3. If a negotiation fails, try the next candidate or the next habitual time. When the habitual times run out, use get_week's otherFreeTimes. Never repeat a failed negotiation, and never put two games on one day.
 4. When games are agreed, request_approval once. If nothing could be agreed, nudge the player instead.
 5. Then finish with one sentence for the player.
@@ -91,7 +91,7 @@ const freeAt = (free, day, start, minutes) => windows(free).some((w) => DAYS[w.d
 // ---- the tools Muse Glimmer can call ------------------------------------------------------------------------------
 const TOOLS = [
   { name: "get_week", description: "This week so far: the goal, games already booked, how many are still needed, your habitual play times and the partners you play best with.", parameters: { type: "object", properties: {} } },
-  { name: "check_body", description: "What the player's body log and health app say: anything sore, this week's training load against their usual week, and the limits that follow (format, game length, sports to skip, one game fewer).", parameters: { type: "object", properties: {} } },
+  { name: "check_limits", description: "What the player's body log and health app say: anything sore, this week's training load against their usual week, and the limits that follow (format, game length, sports to skip, one game fewer).", parameters: { type: "object", properties: {} } },
   { name: "find_places", description: "Free public courts and parks near the player for the goal sport at one time, each judged playable or not from the map, Google Maps reviews and the forecast. Use for basketball, soccer or volleyball, or when club courts are full or far. Pass a place id to negotiate.", parameters: { type: "object", properties: { day: { type: "string" }, start: { type: "string", description: "HH:MM" }, reason: { type: "string" } }, required: ["day", "start", "reason"] } },
   { name: "find_partners", description: "Rank the club members who are free at one of your times this week, for singles (one opponent) or doubles (three players).", parameters: { type: "object", properties: { day: { type: "string", description: "Mon..Sun" }, start: { type: "string", description: "HH:MM" }, format: { type: "string", enum: ["singles", "doubles"] }, leaveOut: { type: "array", items: { type: "string" }, description: "ids of members the player asked you to leave out (fromMemory, recall); they stay out for the rest of the run" }, reason: { type: "string", description: "one sentence: why this time" } }, required: ["day", "start", "format", "reason"] } },
   { name: "negotiate", description: "Your agent agrees the game with these members' agents (in parallel). Returns the agreed time, court and trips, or why it failed.", parameters: { type: "object", properties: { members: { type: "array", items: { type: "string" }, description: "member ids: 1 for singles, 3 for doubles" }, day: { type: "string" }, start: { type: "string" }, format: { type: "string", enum: ["singles", "doubles"] }, place: { type: "string", description: "optional: a place id from find_places, for a public court instead of a club venue" }, reason: { type: "string", description: "one sentence: why these people" } }, required: ["members", "day", "start", "format", "reason"] } },
@@ -176,7 +176,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       const r = await findNotes(String(question).slice(0, 300));
       return { notes: r.notes.map(({ note, on }) => ({ note, said: on })), ...(r.notes.length ? {} : { note: "nothing close to that in what the player said" }) };
     },
-    async check_body() {
+    async check_limits() {
       const sore = org.parts.filter((p) => p.active);
       // what the player said about their body and what their games and health app recorded, found by meaning (Meta's
       // DRAMA, recent notes weighted more: body/context.js); every limit cites the notes it comes from, checked by code
@@ -217,7 +217,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       return { today: `${DAYS[now.getDay()]} ${ymd(now)}`, goal: `${perWeek} ${g.sport} games this week${perWeek !== g.perWeek ? ` (one fewer than usual: your load is ${org.load.acwr} times your usual week)` : ""}`, gameMinutes: minutes, booked: booked.map((b) => `${DAYS[dateOf(b.date).getDay()]} ${b.start}`), agreed: agreed.map((a) => `${a.day} ${a.start}`), stillNeeded: need,
         habitualTimes: open.map((h) => ({ day: h.day, start: h.start, date: h.date, played: `${h.count} of the last ${h.weeks} weeks`, usualMinutes: h.minutes, alreadyTaken: h.taken })),
         ...(other.length ? { otherFreeTimes: other, otherNote: "your usual times are not enough this week: these are other times you are free" } : {}),
-        playsBestWith: best, healthLimit: limit || null, ...(kept.length ? { playerRules: kept.map(ruleText), playerRulesNote: "kept by code: these people and days are already left out" } : {}), ...(standing.length ? { standingBeliefs: standing, standingNote: "what holds about the player, each from several of their notes: plan by these first" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? "with a health limit, doubles first; call check_body" : body?.log?.length || body?.workouts?.length ? "call check_body before choosing" : undefined };
+        playsBestWith: best, healthLimit: limit || null, ...(kept.length ? { playerRules: kept.map(ruleText), playerRulesNote: "kept by code: these people and days are already left out" } : {}), ...(standing.length ? { standingBeliefs: standing, standingNote: "what holds about the player, each from several of their notes: plan by these first" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? "with a health limit, doubles first; call check_limits" : body?.log?.length || body?.workouts?.length ? "call check_limits before choosing" : undefined };
     },
     find_partners({ day, start, format = "singles", leaveOut = [] }, quiet = false) {
       // someone the player asked to leave out stays out of this run: these candidates, the stop check's, the rules'
@@ -348,12 +348,12 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
     return r;
   };
   const label = {
-    get_week: () => "Checked your week", check_body: () => "Checked your body log", recall: (a) => `Recalled what you said${a.question ? `: ${String(a.question).slice(0, 60)}` : ""}`, find_places: (a) => `Looked for public courts ${a.day} ${a.start}`, find_partners: (a) => `Looked for ${a.format} partners ${a.day} ${a.start}`,
+    get_week: () => "Checked your week", check_limits: () => "Checked your scheduling limits", recall: (a) => `Recalled what you said${a.question ? `: ${String(a.question).slice(0, 60)}` : ""}`, find_places: (a) => `Looked for public courts ${a.day} ${a.start}`, find_partners: (a) => `Looked for ${a.format} partners ${a.day} ${a.start}`,
     negotiate: (a) => `Negotiated with ${(a.members || []).map((x) => first(club.members.find((m) => m.id === x)?.name || x)).join(", ")}'s agent${(a.members || []).length > 1 ? "s" : ""}`,
     request_approval: () => "Asked you to approve", nudge: () => "Sent you a nudge", finish: () => "Finished",
   };
   const detailOf = (name, res) => res.error ? `refused: ${res.error}` : name === "get_week" ? `${res.stillNeeded} game${res.stillNeeded === 1 ? "" : "s"} still needed; usual times ${res.habitualTimes.filter((h) => !h.alreadyTaken).map((h) => `${h.day} ${h.start} (${h.played})`).join(", ") || "none open"}`
-    : name === "check_body" ? (res.allClear ? "nothing sore" : `sore: ${res.sore.join(", ")}`) + (typeof res.load === "object" ? ` · load ${res.load.ratio} times your usual week` : "") + ` · ${res.limits.format === "any" ? "any format" : res.limits.format + " first"}, ${res.limits.gameMinutes}-minute games${res.limits.skipSports.length ? `, no ${res.limits.skipSports.join(", ")}` : ""}`
+    : name === "check_limits" ? (res.allClear ? "nothing sore" : `sore: ${res.sore.join(", ")}`) + (typeof res.load === "object" ? ` · load ${res.load.ratio} times your usual week` : "") + ` · ${res.limits.format === "any" ? "any format" : res.limits.format + " first"}, ${res.limits.gameMinutes}-minute games${res.limits.skipSports.length ? `, no ${res.limits.skipSports.join(", ")}` : ""}`
     : name === "find_places" ? res.places.map((p) => `${p.name} (${p.metersAway} m): ${p.verdict}`).join(" · ")
     : name === "find_partners" ? res.candidates.map((c) => `${first(c.name)}: ${c.why.slice(0, 2).join(", ")}`).join(" · ")
     : name === "negotiate" ? (res.agreed ? `agreed ${res.when} at ${res.venue}, court ${res.court}, in ${res.rounds} round${res.rounds > 1 ? "s" : ""}` : `no deal: ${res.reason}`)
@@ -434,8 +434,8 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
   const outdoorSport = ["basketball", "soccer", "football", "volleyball"].includes(g.sport);
   const sys = `You are the player's Serve agent, on Autopilot. Goal: get the player ${perWeek} ${g.sport} games this week, at the times they usually play, with the partners they play best with. Today is ${DAYS[now.getDay()]} ${ymd(now)}.
 Work only through the tools, one step at a time:
-1. get_week and check_body first (both in one turn).
-2. For each game still needed: take an open habitual time (most played first), find_partners for it, then negotiate with the best candidates (singles: 1 member id; doubles: 3 member ids).${limit ? ` The player has a limit from their body log (${limit}): doubles first, and follow check_body's limits.` : ""}${outdoorSport ? ` ${g.sport} is often played outdoors: call find_places for that time and pass the best place id (verdict good) to negotiate, unless a club court is clearly better.` : " If negotiate fails because no court is free, try find_places for that time."}
+1. get_week and check_limits first (both in one turn).
+2. For each game still needed: take an open habitual time (most played first), find_partners for it, then negotiate with the best candidates (singles: 1 member id; doubles: 3 member ids).${limit ? ` The player has a limit from their body log (${limit}): doubles first, and follow check_limits's limits.` : ""}${outdoorSport ? ` ${g.sport} is often played outdoors: call find_places for that time and pass the best place id (verdict good) to negotiate, unless a club court is clearly better.` : " If negotiate fails because no court is free, try find_places for that time."}
 3. If a negotiation fails, try the next candidate or the next habitual time. When the habitual times run out, use get_week's otherFreeTimes. Never repeat a failed negotiation, and never put two games on one day.
 4. When games are agreed, request_approval once. If nothing could be agreed, nudge the player instead.
 5. Then finish with one sentence for the player.
@@ -446,7 +446,7 @@ Use only member ids and times that tools returned. Give a one-sentence "reason" 
   const digest = (name, res) => JSON.stringify(!LEAN || res.error ? res : name === "find_partners" ? { ...res, candidates: res.candidates.map(({ rating, why, ...c }) => ({ ...c, why: why.slice(0, 2) })) } : res);
   if (LEAN) {
     // every run starts with the week and the body: code runs both and hands the model the results as its first turn
-    const pre = [["get_week", await call("get_week", {}, "code")], ["check_body", await call("check_body", {}, "code")]];
+    const pre = [["get_week", await call("get_week", {}, "code")], ["check_limits", await call("check_limits", {}, "code")]];
     msgs.push({ role: "assistant", content: "", tool_calls: pre.map(([name], k) => ({ id: `pre${k}`, type: "function", function: { name, arguments: {} } })) },
       ...pre.map(([name, res], k) => ({ role: "tool", content: digest(name, res), tool_name: name, tool_call_id: `pre${k}` })));
   }
@@ -480,7 +480,7 @@ Use only member ids and times that tools returned. Give a one-sentence "reason" 
     ruleTook = true;
     tell({ step: "Rules finished the plan", tool: "fallback", detail: "Muse Glimmer stopped calling tools; the same steps were completed by code" });
     const wk = tools.get_week();
-    if (!trail.some((t) => t.name === "check_body")) await call("check_body", {}, "rules");
+    if (!trail.some((t) => t.name === "check_limits")) await call("check_limits", {}, "rules");
     for (const h of [...wk.habitualTimes.filter((x) => !x.alreadyTaken), ...(wk.otherFreeTimes || []).map((x) => ({ ...x, played: "when you are free" }))]) {
       if (agreed.length + booked.length >= perWeek) break;
       const format = limit || outdoorSport ? "doubles" : "singles", fp = await call("find_partners", { day: h.day, start: h.start, format, reason: `you played ${h.day} ${h.start} ${h.played}` }, "rules");

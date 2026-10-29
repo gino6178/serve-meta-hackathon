@@ -130,7 +130,7 @@ and your health data are read there and nowhere else; what you share in Messenge
   - **Another time:** the next opening.
   - **Not this week:** it stays quiet until Monday.
 - **Autopilot** (`agent/src/agents/autopilot.js`, `#/autopilot`). Against a weekly goal, Muse Glimmer runs the week as a
-  tool-using agent: `get_week`, `check_body`, `find_partners`, `find_places`, `negotiate`, `request_approval`,
+  tool-using agent: `get_week`, `check_limits`, `find_partners`, `find_places`, `negotiate`, `request_approval`,
   `nudge`, `finish`. Code runs every tool with checked arguments and returns the facts; the model picks the next step
   and says why. A step budget, and rules finish the plan if the model stalls. Nothing is booked without your yes.
 - **Agent to agent** (`agent/src/a2a/talk.js`, `a2a/server.js`): the **A2A protocol v1.0**, on the official SDK.

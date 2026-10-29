@@ -17,7 +17,7 @@ import "./autopilot.css";
 const initials = (n) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 const first = (n) => n.split(" ")[0];
 const DAY = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday" };
-const TOOL = { goal: "goal", get_week: "check week", check_body: "body log", find_places: "courts nearby", find_partners: "rank partners", negotiate: "negotiate", a2a: "agents", memory: "memory", recall: "recall", verify: "verified", request_approval: "ask you", align: "goal check", nudge: "nudge", fallback: "rules", report: "report" };
+const TOOL = { goal: "goal", get_week: "check week", check_limits: "your limits", find_places: "courts nearby", find_partners: "rank partners", negotiate: "negotiate", a2a: "agents", memory: "memory", recall: "recall", verify: "verified", request_approval: "ask you", align: "goal check", nudge: "nudge", fallback: "rules", report: "report" };
 const SPORTS = ["badminton", "tennis", "pickleball", "basketball", "soccer"];
 
 function Av({ m, size = 30 }) { return <span className="mav" style={{ width: size, height: size, fontSize: Math.round(size / 2.8) }} aria-hidden="true">{m ? initials(m.name) : "?"}</span>; }

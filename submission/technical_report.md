@@ -107,8 +107,8 @@ facts can settle. Muse Glimmer chooses where a real choice remains and writes sh
 ran past their booking, and finds a free court. Glimmer words the question from those facts.
 
 **The Autopilot** (`agent/src/agents/autopilot.js`) is Glimmer in a tool loop with native tool calling, in the ReAct pattern
-[1]: `get_week`, `check_body`, `find_partners`, `find_places`, `negotiate`, `request_approval`, `nudge`, `recall`,
-`finish`. Code runs each tool with checked arguments and returns facts; a refused call comes back as a fact and the
+[1]: `get_week`, `check_limits`, `find_partners`, `find_places`, `negotiate`, `request_approval`, `nudge`, `recall`,
+`finish` (`check_limits` was `check_body` in the earlier logs). Code runs each tool with checked arguments and returns facts; a refused call comes back as a fact and the
 model re-plans. After a step budget (12), rules finish the plan with the same limits. A stop check (`notYet`) refuses
 an early finish, at most twice a run, while an open time still has players free who were not asked. It came from an
 earlier run that stopped a three-game week at two (`submission/agent_eval.md`).

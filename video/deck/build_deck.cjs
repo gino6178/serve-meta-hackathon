@@ -55,6 +55,7 @@ async function chart(file) {
     heart: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 54 C 8 38, 6 22, 18 14 C 25 10, 30 14, 32 19 C 34 14, 39 10, 46 14 C 58 22, 56 38, 32 54 Z" fill="#d1352b"/></svg>'),
     check: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#0a7f44"/><path d="M19 33 l9 9 l17 -19" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'),
     smash: await jpg(path.join(__dirname, "smash_loop.jpg"), 1280),
+    frames: await Promise.all([20, 55, 68].map((t) => jpg(path.join(__dirname, `vframe_${t}.png`), 1280))),
     faces: await Promise.all(["you", "hana", "ravi", "tomas", "yuki", "aisha", "leo", "noor", "sam", "ines", "kenji", "priya"].map((k) => png(path.join(ROOT, "web/public/agents", k + ".png")))),
     smashDepth: await jpg(path.join(__dirname, "smash/cutout_depth.png"), 1280),
     orbit1: await jpg(path.join(__dirname, "smash/orbit_start.png"), 640),
@@ -139,7 +140,7 @@ async function chart(file) {
   // 3 · Impact
   {
     const s = content("Impact", "IMPACT · 30%", "People don't quit the game. They quit organizing it",
-      "痛點：不是不愛打球，是約不成。\n旁白：Most people don't quit sports because they stopped loving the game. They quit because matching four calendars, finding a court and working around a sore knee takes too much group chat.\n影片：pain.html，群組約球失敗，蓋上 No game this week。");
+      "痛點：不是不愛打球，是約不成。\n旁白：Most people don't quit sports because they stopped loving the game. They quit because matching four calendars, finding a court and fitting it around work takes too much group chat.\n影片：pain.html，群組約球失敗，蓋上 No game this week。");
     box(s, 0.6, 1.85, 3.6, 4.85, { fill: GREENBG, line: GREENBG });
     T(s, "40% \u2192 26%", 0.9, 2.1, 3.25, 0.8, { fontSize: 38, bold: true, color: GREEN });
     T(s, "of US adults play a sport at ages 18 to 21, then at 26 to 49", 0.9, 2.95, 3.0, 0.65, { fontSize: 15, color: INK });
@@ -153,7 +154,7 @@ async function chart(file) {
     const rows = [
       ["Playing takes organizing", "\"Who's free this week?\" \"Is the court taken?\" \"We're one short.\" The group chat wears the fun out.", "Your agent agrees the time and the court with the other players' agents. You approve once; your phone says \"Game on: Thu 19:00, 4 in.\""],
       ["Nobody pushes you", "One missed week becomes a month. Apps count steps; none books your next game.", "When your usual time is open and your partner is free, it asks: \"Thursday 19:00: Leo is free. Want a game?\""],
-      ["Life gets in the way", "A sore knee, a heavy week, rain on an outdoor court.", "It plans doubles or one game fewer, checks in two days later, and checks the map, reviews and forecast."],
+      ["Life gets in the way", "A late meeting, a heavy week, rain on an outdoor court.", "It moves the game, plans one fewer in a heavy week, and checks the map, reviews and forecast."],
     ];
     T(s, "THE PAIN", 4.6, 1.85, 3.6, 0.3, { fontSize: 11, bold: true, color: RED, charSpacing: 1 });
     T(s, "WHAT SERVE DOES", 8.75, 1.85, 3.9, 0.3, { fontSize: 11, bold: true, color: GREEN, charSpacing: 1 });
@@ -176,7 +177,7 @@ async function chart(file) {
     phone(s, IMG.v3.live_clubs, 0.75, 1.85, 4.7, "Clubs on a real map, one recommended");
     phone(s, IMG.v3.live_draft, 3.35, 1.85, 4.7, "Say it; your agent drafts the invite");
     T(s, "LIVE SINCE 29 OCT · relay-orders-eliminate-associated.trycloudflare.com", 6.2, 1.85, 6.6, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
-    [["8", "players, 14 accounts"], ["2", "clubs they started"], ["4", "games posted"], ["7", "joins; 2 games filled"]].forEach(([n, d], i) => {
+    [["8", "players (14 demo sign-ins)"], ["2", "clubs they started"], ["4", "games posted"], ["7", "joins; 2 games filled"]].forEach(([n, d], i) => {
       const x = 6.2 + i * 1.6;
       box(s, x, 2.15, 1.48, 1.05, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
       T(s, n, x + 0.14, 2.2, 1.2, 0.55, { fontSize: 26, bold: true, color: i === 0 ? GREEN : INK });
@@ -191,7 +192,7 @@ async function chart(file) {
       T(s, h, 6.7, y, 6, 0.3, { fontSize: 14, bold: true });
       T(s, d, 6.7, y + 0.33, 6, 0.6, { fontSize: 11, color: MUTED });
     });
-    T(s, "Counted on 29 Oct, day 3. In the three games someone joined, the first player was in 1, 6 and 46 minutes after posting.", 6.2, 6.62, 6.6, 0.4, { fontSize: 10, color: MUTED, italic: true });
+    T(s, "Counted 29 Oct, day 3. Spond, Playtomic and Meetup post events or book courts; on Serve each player's agent agrees the time, so nobody runs the poll.", 6.2, 6.62, 6.6, 0.4, { fontSize: 10, color: MUTED, italic: true });
   }
 
   // 3c · Clubs for groups with no organiser (agent members/programs.js)
@@ -200,7 +201,7 @@ async function chart(file) {
       "同一套引擎服務沒有人組織的群體，三種社團都已實作、有單元測試：\n1 孩童社團（老師或志工）：一定是私密社團，只有帶隊的人能發活動；孩子不用帳號，只存名字（只有帶隊的人看得到）；勾選今天誰來，程式排輪替，每個孩子上場時間最多差一輪；產生家長接送通知。\n2 樂齡社團：社團裡每個揪團由程式把關：08:00–16:00 開始、60 分鐘、最多 8 人、球拍類雙打；不符合就拒絕並說明原因。\n3 慈善賽：發起人寫公益對象，參賽者自評等級與認捐（只記錄，Serve 不經手錢）；一鍵抽籤：實力平均的雙打組合、循環賽、場地與時段，同一時段沒有隊伍撞場，貼到社團動態。");
     const cards = [
       ["Children", "A teacher or volunteer", "Private, organiser-led. Children have no accounts: first names only, seen by the organiser. Tap who came; code shares out the courts in turns.", "11 children, 2 courts: everyone plays within one turn of the others. A pick-up note for parents.", GREEN, GREENBG],
-      ["Older adults", "Gentle games", "Every game posted in the club is held by code: starts 08:00 to 16:00, 60 minutes, 8 players at most, doubles for racket sports.", "A 19:00 game is refused, with the reason. The card says \"Gentle game · doubles, 60 min\".", BLUE, BLUEBG],
+      ["Older adults", "Gentle games", "Every game posted in a gentle-games club is held by code: starts 08:00 to 16:00, 60 minutes, 8 players at most, doubles for racket sports.", "A 19:00 game is refused, with the reason. The card says \"Gentle game · doubles, 60 min\".", BLUE, BLUEBG],
       ["A cause", "Charity cup", "Players enter with a level and a pledge to the cause, only recorded: Serve handles no money. The organiser makes the draw in one tap.", "Balanced doubles, a round robin on courts and times, no team twice in a slot; posted in the club.", AMBER, AMBERBG],
     ];
     cards.forEach(([k, h, d, r, c, bg], i) => {
@@ -236,7 +237,7 @@ async function chart(file) {
     row(9.35, 3.85, 3.15, IMG.dot, "Your highlight, auto-cut", "DETR · Sapiens2 · SAM 2.1 · MapAnything");
     row(9.35, 4.75, 3.15, IMG.instagram, "The club and your stories", "Invites, stories, one tap to Instagram");
     box(s, 0.6, 6.33, 12.1, 0.52, { fill: AMBERBG, line: AMBERBG });
-    T(s, "Checked by code before anyone sees it  ·  nothing is booked without your yes  ·  video and health data stay on my server", 0.85, 6.33, 11.6, 0.52, { fontSize: 13, bold: true, color: AMBER, valign: "middle" });
+    T(s, "Checked by code before anyone sees it  ·  nothing is booked without your yes  ·  health data only sets scheduling limits, on my server", 0.85, 6.33, 11.6, 0.52, { fontSize: 13, bold: true, color: AMBER, valign: "middle" });
   }
 
   // 7 · Tuesday to Wednesday: the planner, the venue in the middle, courts
@@ -272,77 +273,29 @@ async function chart(file) {
     });
   }
 
-  // 12 · Agents
+  // M · Meta models, the six that carry the product
   {
-    const s = content("Use of Meta AI", "AN AGENT, NOT A CHATBOT", "Glimmer plans, agents agree, code decides",
-      "規劃 agent：Muse Glimmer 用原生 tool calling 一步一步叫工具，被拒絕的呼叫會變成事實回來，它重新規劃。A2A：每個會員一個 agent、簽章的 Agent Card、一輪就談完、談好的時間先鎖 30 分鐘、每輪存檔可續跑。兩台機器（台北的 GPU 伺服器 + GCP A100）跨網路 22/22 項檢查通過。\n旁白：Then it plans my week… Then it negotiates with three friends' agents at once, over A2A.");
-    box(s, 0.6, 1.85, 5.85, 4.95, { fill: WHITE });
-    T(s, "The planner agent · a tool loop", 0.85, 2.05, 5.3, 0.4, { fontSize: 18, bold: true });
-    T(s, "Muse Glimmer picks the next tool; code runs it with checked arguments and hands back the facts.", 0.85, 2.5, 5.4, 0.6, { fontSize: 12.5, color: MUTED });
-    ["get_week", "check_body", "recall", "find_partners", "find_places", "negotiate", "request_approval", "nudge", "finish"].forEach((t, i) => {
-      const x = 0.85 + (i % 3) * 1.8, y = 3.2 + Math.floor(i / 3) * 0.42;
-      pill(s, t, x, y, 1.7, { fill: GREENBG, line: GREENBG, color: GREEN, size: 10, h: 0.34 });
-    });
-    T(s, [
-      { text: "12 steps at most; rules finish the week if it stalls", options: { bullet: { indent: 14 }, breakLine: true } },
-      { text: "A refused call (a day outside the week, a member who isn't free) comes back as a fact, and it re-plans", options: { bullet: { indent: 14 }, breakLine: true } },
-      { text: "Replies in JSON Schemas, checked again in code; a reply that never fits is no answer, never a yes", options: { bullet: { indent: 14 } } },
-    ], 0.85, 4.45, 5.4, 2.2, { fontSize: 12.5, paraSpaceAfter: 6 });
-
-    box(s, 6.75, 1.85, 5.95, 4.95, { fill: BLUEBG, line: BLUEBG });
-    T(s, "Agent to agent · A2A v1.0", 7.0, 2.05, 5.4, 0.4, { fontSize: 18, bold: true });
-    T(s, "On the official SDK. One negotiation is one A2A context, and one trace.", 7.0, 2.5, 5.5, 0.6, { fontSize: 12.5, color: MUTED });
-    const facts = [
-      ["Signed Agent Cards", "Ed25519, checked before your agent talks to it"],
-      ["One round", "Each agent marks the times that work; code picks from the overlap"],
-      ["Held, all or nothing", "A 30-minute hold, so two talks never agree the same member twice"],
-      ["Survives a crash", "Killed at each of five steps: booked exactly once every time"],
+    const s = content(SEC, "USE OF META AI · 25%", "15 Meta models; six carry the product",
+      "Meta 模型精簡版：六個撐起產品的模型（Muse Glimmer、Llama 3.2 1B 學生、Llama Guard 3、Prompt Guard 2、DRAMA、Muse Voice Transcribe），其他九個一行帶過，完整 15 格在附錄。");
+    const cards = [
+      ["REASONING", "Muse Glimmer", "Every agent's decisions: the tool loop, A2A answers, the court judge", "RTX 3090 · Ollama · open weights", GREEN, GREENBG],
+      ["REASONING", "Llama 3.2 1B student", "Distilled from Glimmer; answers alone when sure, in about 0.9 s", "CPU · fine-tuned here", GREEN, GREENBG],
+      ["SAFETY", "Llama Guard 3 1B", "Every message in and out, a person's or an agent's", "CPU · open weights", RED, REDBG],
+      ["SAFETY", "Prompt Guard 2", "Google reviews and members' ideas, before any model reads them", "CPU · 86M", RED, REDBG],
+      ["MEMORY", "DRAMA", "Agent memory: what matters for your week, found by meaning", "CPU · open weights", BLUE, BLUEBG],
+      ["VOICE", "Muse Voice Transcribe", "Talk to your agent hands-free, and cut in while it speaks", "Meta Model API · realtime", AMBER, AMBERBG],
     ];
-    facts.forEach(([h, d], i) => {
-      const y = 3.2 + i * 0.62;
-      T(s, h, 7.0, y, 2.1, 0.55, { fontSize: 12.5, bold: true });
-      T(s, d, 9.1, y, 3.45, 0.55, { fontSize: 12 });
+    cards.forEach(([k, h, d, w, c, bg], i) => {
+      const x = 0.6 + (i % 3) * 4.1, y = 1.85 + Math.floor(i / 3) * 2.0;
+      box(s, x, y, 3.9, 1.8, { fill: bg, line: bg });
+      T(s, k, x + 0.22, y + 0.17, 3.4, 0.25, { fontSize: 10, bold: true, color: c, charSpacing: 1 });
+      T(s, h, x + 0.22, y + 0.45, 3.5, 0.4, { fontSize: 17, bold: true });
+      T(s, d, x + 0.22, y + 0.88, 3.5, 0.55, { fontSize: 12, color: INK });
+      T(s, w, x + 0.22, y + 1.43, 3.5, 0.25, { fontSize: 10, color: MUTED });
     });
-    box(s, 7.0, 5.75, 5.45, 0.85, { fill: WHITE, line: WHITE });
-    T(s, "22 / 22", 7.2, 5.75, 1.6, 0.85, { fontSize: 28, bold: true, color: BLUE, valign: "middle" });
-    T(s, "checks across two machines: my GPU server in Taipei and a gateway on a cloud A100", 8.85, 5.75, 3.5, 0.85, { fontSize: 11.5, valign: "middle" });
-  }
-
-  // 11 · Meta stack
-  {
-    const s = content("Use of Meta AI", "USE OF META AI · 25%", "15 Meta models: 12 in the product, 3 for checks",
-      "這頁讓評審一眼看到用了哪些 Meta 的東西：15 個 Meta 模型（10 個開放權重在我自己的伺服器上跑，5 個走 Meta Model API）＋ Messenger、Instagram/Facebook，再加上 Meta 的 Agents Rule of Two 框架。\n說法：Muse Glimmer 是大腦；1B 學生模型分擔簡單決策；兩個 guard 把關進出；DRAMA 是記憶；四個視覺模型做 highlight；Messenger 是入口。");
-    const G = { Reasoning: [GREEN, GREENBG], Safety: [RED, REDBG], Memory: [MUTED, CARD], Voice: [MUTED, CARD], Vision: [BLUE, BLUEBG], "3D": [BLUE, BLUEBG], API: [AMBER, AMBERBG], Product: [BLUE, WHITE] };
-    const items = [
-      ["Reasoning", "Muse Glimmer", "Every agent: the tool loop, members' decisions, photos, courts, captions", "RTX 3090 · Ollama · 4 in parallel"],
-      ["Reasoning", "Llama 3.2 1B", "Distilled from Glimmer; answers alone when sure", "CPU · in the app"],
-      ["Safety", "Llama Guard 3 1B", "What you write, what a model writes, every idea shared with the club", "CPU"],
-      ["Safety", "Prompt Guard 2", "Google reviews before the court judge reads them; shared ideas", "CPU · 86M"],
-      ["Memory", "DRAMA", "Agent memory: what matters for your week, by meaning", "CPU"],
-      ["Voice", "Omnilingual ASR", "Voice notes in Messenger to text", "CPU · CTC 1B"],
-      ["Vision", "DETR", "Finds the people in your video, so the reel follows you", "GPU"],
-      ["Vision", "Sapiens2", "Finds the moment worth sharing in your clip", "GPU · 0.4B"],
-      ["Vision", "SAM 2.1", "Cuts each player out for the spotlight and the drawn view", "GPU · Hiera-L"],
-      ["3D", "MapAnything", "Depth and the camera for the orbit camera effect", "GPU · optional effect"],
-      ["API", "Muse Spark 1.3", "The fallback when my GPU can't answer; the builder's model for new code (Muse Code's family)", "Meta Model API · tested live"],
-      ["API", "SAM 3.1", "Checked on the smash against SAM 2.1: same player, IoU 0.97", "Meta Model API · one call"],
-      ["API", "Muse Image", "Rematch poster art; a face for every agent, made once", "Meta Model API · $0.01 an image"],
-      ["API", "Muse Wonder", "Judges orbit frames for a doubled net or a smear, beside the pixel rule", "Meta Model API · 84 frames"],
-      ["API", "Muse Voice", "Transcribe, realtime: talk with your agent and cut in when you like", "Meta Model API · Transcribe"],
-      ["Product", "Meta apps", "Not in the 15. Messenger: your agent in your chats; Facebook or IG login; share reels", "Webhook · Send API · Login"],
-    ];
-    items.forEach(([cat, name, job, where], i) => {
-      const col = i % 6, row = Math.floor(i / 6);
-      const x = 0.6 + col * 2.03, y = 1.8 + row * 1.6, w = 1.93, h = 1.48;
-      const [fg, bg] = G[cat];
-      box(s, x, y, w, h, { fill: bg === WHITE ? WHITE : bg, line: bg === WHITE ? LINE : bg });
-      T(s, cat === "API" ? "META MODEL API" : cat.toUpperCase(), x + 0.14, y + 0.13, 1.7, 0.25, { fontSize: 8.5, bold: true, color: fg, charSpacing: 1 });
-      if (cat === "Product") s.addImage({ data: name === "Meta apps" ? IMG.messenger : IMG.instagram, x: x + w - 0.45, y: y + 0.12, w: 0.28, h: 0.28 });
-      T(s, name, x + 0.14, y + 0.38, w - (cat === "Product" ? 0.5 : 0.24), 0.3, { fontSize: 12.5, bold: true });
-      T(s, job, x + 0.14, y + 0.68, w - 0.24, 0.52, { fontSize: 8.5, color: INK });
-      T(s, where, x + 0.14, y + 1.2, w - 0.22, 0.22, { fontSize: 8, color: MUTED });
-    });
-    T(s, "10 open weights on my server (GPU and CPU); 5 on the Meta Model API. Spark, SAM 3.1 and Wonder: fallback and checks.", 0.6, 6.66, 12, 0.3, { fontSize: 12, bold: true, valign: "middle" });
+    box(s, 0.6, 5.95, 12.1, 0.85, { fill: CARD, line: CARD });
+    T(s, [{ text: "Also: ", options: { bold: true } }, { text: "DETR, Sapiens2, SAM 2.1, MapAnything (auto-cut highlights) · Omnilingual ASR (voice notes) · Muse Image (posters, agent faces) · Muse Spark (fallback) · Muse Wonder and SAM 3.1 (checks). 10 open weights on my server, 5 on the Meta Model API; all 15 in the appendix." }],
+      0.8, 5.95, 11.7, 0.85, { fontSize: 12, valign: "middle" });
   }
 
   // 16 · The Glimmer bottleneck, and the student fine-tuned from it
@@ -368,7 +321,7 @@ async function chart(file) {
     });
     s.addChart(pres.charts.BAR, [{ name: "Agrees with Glimmer's answer", labels: ["Glimmer vs itself (the ceiling)", "First time listed", "1B student (served)"], values: [88.8, 82.7, 89.5] }], {
       x: 5.3, y: 4.2, w: 4.6, h: 2.6, barDir: "bar", chartColors: [SOFT, LINE, GREEN], barGapWidthPct: 45,
-      showTitle: true, title: "Agrees with Glimmer, 500 held-out cases", titleFontSize: 11, titleColor: INK, titleFontFace: "+mn-lt",
+      showTitle: true, title: "Agrees with Glimmer, 500 held-out cases (within the noise of its 88.8%)", titleFontSize: 11, titleColor: INK, titleFontFace: "+mn-lt",
       showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.0\"%\"", dataLabelFontSize: 11, dataLabelFontBold: true, dataLabelFontFace: "+mn-lt", dataLabelColor: INK,
       catAxisLabelFontSize: 10, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisOrientation: "maxMin",
       valAxisHidden: true, valAxisMinVal: 60, valAxisMaxVal: 100, valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: false,
@@ -421,12 +374,12 @@ async function chart(file) {
     });
     box(s, 8.3, 5.5, 4.45, 1.25, { fill: GREENBG, line: GREENBG });
     T(s, "Served at 0.6", 8.5, 5.6, 4.1, 0.3, { fontSize: 13.5, bold: true, color: GREEN });
-    T(s, "The student answers 73% of the 196 hardest cases and 96% of the 500 test cases; Muse Glimmer takes the rest, with its full reasoning.", 8.5, 5.92, 4.1, 0.8, { fontSize: 10.5, color: MUTED });
+    T(s, "At 0.6 the student answers 96% of the 500 test cases and still agrees with Glimmer 89.9%; at 0.7 it agrees more on the hardest cases but sends more to Glimmer.", 8.5, 5.92, 4.1, 0.8, { fontSize: 10.5, color: MUTED });
   }
 
   // 20 · Safe by design
   {
-    const s = content("Technical depth", "SAFE BY DESIGN", "No agent holds all three at once",
+    const s = content("Technical depth", "SAFETY, MEASURED", "No agent holds all three at once",
       "安全：每個 agent 都遵守 Meta 的 Agents Rule of Two（不可信輸入、私人資料、行動能力，最多同時兩個）。揭露預算：一直約球的 agent 能拼出你一週的行程，有預算時從 97.6% 降到 32.4%（模擬的探測者）。65 個攻擊全部擋下。\n旁白：Every agent follows Meta's Agents Rule of Two. And a disclosure budget cuts how much of your week a snooping agent can pin down, from 97.6% to 32.4%.");
     const circ = (x, y, label, line, fill) => {
       s.addShape(pres.shapes.OVAL, { x, y, w: 2.5, h: 2.5, fill: { color: fill, transparency: 35 }, line: { color: line, width: 2 } });
@@ -447,7 +400,7 @@ async function chart(file) {
       catAxisLabelFontSize: 12, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisOrientation: "maxMin",
       valAxisHidden: true, valAxisMaxVal: 115, valAxisMinVal: 0, valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: false,
     });
-    pill(s, "A simulated prober; details in the technical report", 6.75, 4.98, 4.4, { size: 10.5, color: MUTED });
+    pill(s, "Measured with a simulated prober", 6.75, 4.98, 3.4, { size: 10.5, color: MUTED });
     box(s, 6.75, 5.55, 5.95, 1.25, { fill: CARD, line: CARD });
     T(s, "93 / 93", 6.95, 5.55, 1.9, 1.25, { fontSize: 30, bold: true, color: GREEN, valign: "middle" });
     T(s, "scripted attacks stopped: injected instructions, poisoned reviews, forged Agent Cards, sock-puppet votes. Unsafe messages: 37 of 42 refused, 1 of 74 harmless ones refused.", 8.85, 5.55, 3.75, 1.25, { fontSize: 10.5, valign: "middle" });
@@ -467,7 +420,7 @@ async function chart(file) {
       "8 players, 14 accounts, 2 clubs they started, 4 games, 7 joins on the live site (29 Oct)",
       "Every agent's code: A2A over JSON-RPC, signed Agent Cards, holds, crash recovery",
       "Muse Glimmer making every decision in the evaluations; the guards, DRAMA, speech recognition",
-      "Courts from OpenStreetMap, real forecasts; Messenger on a real Page",
+      "Courts from OpenStreetMap, real forecasts; Messenger's webhook on a real Page (Facebook and Instagram login wait for Meta's app review: players use a demo sign-in)",
       "Highlights cut from real footage (a CC BY clip)",
     ]);
     col(6.75, "SIMULATED, AND LABELLED SO", "Clubs built for the tests", AMBERBG, AMBER, [
@@ -499,7 +452,7 @@ async function chart(file) {
       "Repository history from Oct 28 (day 2), over 900 commits",
     ], 12);
     col(5.35, 2.6, "MINE, FROM BEFORE", "Off in this entry", CARD, MUTED, [
-      "TrackNetV5, my published shuttle tracker (ICIP 2026): fetched at run time, off, not used",
+      "TrackNetV5, my published shuttle tracker (ICIP 2026): off by default, not loaded in this entry",
     ], 12);
     col(8.1, 4.6, "THIRD PARTY, AS PUBLISHED", "Models, software, data", BLUEBG, BLUE, [
       "Meta: Muse Glimmer, Llama 3.2 1B, Llama Guard 3, Prompt Guard 2, DRAMA, Omnilingual ASR, DETR, Sapiens2, SAM 2.1, MapAnything; API: Muse Spark, Voice Transcribe, Image, Wonder, SAM 3.1",
@@ -507,6 +460,20 @@ async function chart(file) {
       "Software: A2A SDK, Ollama, Transformers, OpenTelemetry, React, Vite, Leaflet, Cloudflare tunnel",
       "Data: OpenStreetMap, Open-Meteo, Google Places, CC BY clips (credited)",
     ], 11);
+  }
+
+  // V · The demo video
+  {
+    const s = content(SEC, "DEMO · 25% · THE VIDEO, 2:42", "What the video shows, in the running app",
+      "Demo 影片 2:42 的三個畫面：Messenger 裡一個 yes 就訂好（端對端測試的真實回覆）、agent 在 Muse Glimmer 上協商（8 倍速，有標示）、找球場並由 Glimmer 判斷（15 倍速）。");
+    [["0:20", "One yes in Messenger, and the game is booked (real replies from the end-to-end test)"], ["0:55", "Your agent and three players' agents negotiate on Muse Glimmer (shown at 8×, labelled)"], ["1:08", "Courts found and judged with Prompt Guard 2 and Glimmer (shown at 15×, labelled)"]].forEach(([t, d], i) => {
+      const x = 0.6 + i * 4.1;
+      s.addImage({ data: IMG.frames[i], x, y: 1.95, w: 3.9, h: 3.9 * 9 / 16 });
+      s.addShape(pres.shapes.RECTANGLE, { x, y: 1.95, w: 3.9, h: 3.9 * 9 / 16, fill: { type: "none" }, line: { color: LINE, width: 1 } });
+      pill(s, t, x, 4.35, 0.8, { fill: GREEN, line: GREEN, color: WHITE, size: 11 });
+      T(s, d, x, 4.8, 3.9, 0.8, { fontSize: 12.5 });
+    });
+    T(s, "Every speed-up is labelled on screen. The video shows only what this deck lists as built during the hackathon (slide 14).", 0.6, 6.3, 12.1, 0.4, { fontSize: 12, color: MUTED, italic: true });
   }
 
   // 24 · End
@@ -519,7 +486,7 @@ async function chart(file) {
     pill(s, "Your week, agreed agent to agent", 1.45, 4.45, 3.3, { h: 0.5, size: 13 });
     pill(s, "Your agent in Messenger", 4.9, 4.45, 2.9, { h: 0.5, size: 13 });
     pill(s, "Auto-cut highlights to Instagram", 7.95, 4.45, 3.95, { h: 0.5, size: 13 });
-    T(s, "Built during the hackathon, Oct 27 – Nov 4, 2026 · demo video 2:42 · what is new and what is not: slide 15", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
+    T(s, "Built during the hackathon, Oct 27 – Nov 4, 2026 · demo video 2:42 · what is new and what is not: slide 14", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
     T(s, "github.com/gino6178/serve-meta-hackathon  ·  live: relay-orders-eliminate-associated.trycloudflare.com", 1, 5.78, 11.333, 0.35, { fontSize: 13, color: BLUE, align: "center" });
     T(s, "The product runs Muse Glimmer on an RTX 3090 I own; cloud A100s ran evaluations, including the A2A test's second gateway", 1, 6.6, 11.333, 0.36, { fontSize: 13, color: MUTED, align: "center", valign: "middle" });
     s.addNotes("片尾：Play more, manage less. 黑客松期間開發聲明（TrackNetV5 除外）、repo 連結、Built on Muse Glimmer。\n旁白：That's Serve. Play more, manage less.");
@@ -532,7 +499,80 @@ async function chart(file) {
     const s = pres.addSlide({ masterName: "BLANK", sectionTitle: SEC });
     T(s, "APPENDIX", 0.8, 2.4, 11, 0.4, { fontSize: 14, bold: true, color: GREEN, charSpacing: 2 });
     T(s, "The details behind the main slides", 0.8, 2.85, 11.5, 0.9, { fontSize: 40, bold: true });
-    T(s, "The social app · auto-cut highlights · posters · agents as members · voice · federated clubs · memory · agent architecture · more measurements · scale · the self-evolving club · every number and its source · the full architecture", 0.8, 3.95, 11.5, 1.2, { fontSize: 16, color: MUTED });
+    T(s, "The agent and A2A · all 15 Meta models · the social app · auto-cut highlights · posters · agents as members · voice · federated clubs · memory · agent architecture · more measurements · scale · the self-evolving club · every number and its source · the full architecture", 0.8, 3.95, 11.5, 1.2, { fontSize: 16, color: MUTED });
+  }
+
+  // 12 · Agents
+  {
+    const s = content("Use of Meta AI", "AN AGENT, NOT A CHATBOT", "Glimmer plans, agents agree, code decides",
+      "規劃 agent：Muse Glimmer 用原生 tool calling 一步一步叫工具，被拒絕的呼叫會變成事實回來，它重新規劃。A2A：每個會員一個 agent、簽章的 Agent Card、一輪就談完、談好的時間先鎖 30 分鐘、每輪存檔可續跑。兩台機器（台北的 GPU 伺服器 + GCP A100）跨網路 22/22 項檢查通過。\n旁白：Then it plans my week… Then it negotiates with three friends' agents at once, over A2A.");
+    box(s, 0.6, 1.85, 5.85, 4.95, { fill: WHITE });
+    T(s, "The planner agent · a tool loop", 0.85, 2.05, 5.3, 0.4, { fontSize: 18, bold: true });
+    T(s, "Muse Glimmer picks the next tool; code runs it with checked arguments and hands back the facts.", 0.85, 2.5, 5.4, 0.6, { fontSize: 12.5, color: MUTED });
+    ["get_week", "check_limits", "recall", "find_partners", "find_places", "negotiate", "request_approval", "nudge", "finish"].forEach((t, i) => {
+      const x = 0.85 + (i % 3) * 1.8, y = 3.2 + Math.floor(i / 3) * 0.42;
+      pill(s, t, x, y, 1.7, { fill: GREENBG, line: GREENBG, color: GREEN, size: 10, h: 0.34 });
+    });
+    T(s, [
+      { text: "12 steps at most; rules finish the week if it stalls", options: { bullet: { indent: 14 }, breakLine: true } },
+      { text: "A refused call (a day outside the week, a member who isn't free) comes back as a fact, and it re-plans", options: { bullet: { indent: 14 }, breakLine: true } },
+      { text: "Replies in JSON Schemas, checked again in code; a reply that never fits is no answer, never a yes", options: { bullet: { indent: 14 } } },
+    ], 0.85, 4.45, 5.4, 2.2, { fontSize: 12.5, paraSpaceAfter: 6 });
+
+    box(s, 6.75, 1.85, 5.95, 4.95, { fill: BLUEBG, line: BLUEBG });
+    T(s, "Agent to agent · A2A v1.0", 7.0, 2.05, 5.4, 0.4, { fontSize: 18, bold: true });
+    T(s, "On the official SDK. One negotiation is one A2A context, and one trace.", 7.0, 2.5, 5.5, 0.6, { fontSize: 12.5, color: MUTED });
+    const facts = [
+      ["Signed Agent Cards", "Ed25519, checked before your agent talks to it"],
+      ["One round", "Each agent marks the times that work; code picks from the overlap"],
+      ["Held, all or nothing", "A 30-minute hold, so two talks never agree the same member twice"],
+      ["Survives a crash", "Killed at each of five steps: booked exactly once every time"],
+    ];
+    facts.forEach(([h, d], i) => {
+      const y = 3.2 + i * 0.62;
+      T(s, h, 7.0, y, 2.1, 0.55, { fontSize: 12.5, bold: true });
+      T(s, d, 9.1, y, 3.45, 0.55, { fontSize: 12 });
+    });
+    box(s, 7.0, 5.75, 5.45, 0.85, { fill: WHITE, line: WHITE });
+    T(s, "22 / 22", 7.2, 5.75, 1.6, 0.85, { fontSize: 28, bold: true, color: BLUE, valign: "middle" });
+    T(s, "checks across two machines: my GPU server in Taipei and a gateway on a cloud A100", 8.85, 5.75, 3.5, 0.85, { fontSize: 11.5, valign: "middle" });
+  }
+
+  // 11 · Meta stack
+  {
+    const s = content("Use of Meta AI", "ALL 15 META MODELS", "15 Meta models: 12 in the product, 3 for checks",
+      "這頁讓評審一眼看到用了哪些 Meta 的東西：15 個 Meta 模型（10 個開放權重在我自己的伺服器上跑，5 個走 Meta Model API）＋ Messenger、Instagram/Facebook，再加上 Meta 的 Agents Rule of Two 框架。\n說法：Muse Glimmer 是大腦；1B 學生模型分擔簡單決策；兩個 guard 把關進出；DRAMA 是記憶；四個視覺模型做 highlight；Messenger 是入口。");
+    const G = { Reasoning: [GREEN, GREENBG], Safety: [RED, REDBG], Memory: [MUTED, CARD], Voice: [MUTED, CARD], Vision: [BLUE, BLUEBG], "3D": [BLUE, BLUEBG], API: [AMBER, AMBERBG], Product: [BLUE, WHITE] };
+    const items = [
+      ["Reasoning", "Muse Glimmer", "Every agent: the tool loop, members' decisions, photos, courts, captions", "RTX 3090 · Ollama · 4 in parallel"],
+      ["Reasoning", "Llama 3.2 1B", "Distilled from Glimmer; answers alone when sure", "CPU · in the app"],
+      ["Safety", "Llama Guard 3 1B", "What you write, what a model writes, every idea shared with the club", "CPU"],
+      ["Safety", "Prompt Guard 2", "Google reviews before the court judge reads them; shared ideas", "CPU · 86M"],
+      ["Memory", "DRAMA", "Agent memory: what matters for your week, by meaning", "CPU"],
+      ["Voice", "Omnilingual ASR", "Voice notes in Messenger to text", "CPU · CTC 1B"],
+      ["Vision", "DETR", "Finds the people in your video, so the reel follows you", "GPU"],
+      ["Vision", "Sapiens2", "Finds the moment worth sharing in your clip", "GPU · 0.4B"],
+      ["Vision", "SAM 2.1", "Cuts each player out for the spotlight and the drawn view", "GPU · Hiera-L"],
+      ["3D", "MapAnything", "Depth and the camera for the orbit camera effect", "GPU · optional effect"],
+      ["API", "Muse Spark 1.3", "The fallback when my GPU can't answer; the builder's model for new code (Muse Code's family)", "Meta Model API · tested live"],
+      ["API", "SAM 3.1", "Checked on the smash against SAM 2.1: same player, IoU 0.97", "Meta Model API · one call"],
+      ["API", "Muse Image", "Rematch poster art; a face for every agent, made once", "Meta Model API · $0.01 an image"],
+      ["API", "Muse Wonder", "Judges orbit frames for a doubled net or a smear, beside the pixel rule", "Meta Model API · 84 frames"],
+      ["API", "Muse Voice", "Transcribe, realtime: talk with your agent and cut in when you like", "Meta Model API · Transcribe"],
+      ["Product", "Meta apps", "Not in the 15. Messenger: your agent in your chats; Facebook or IG login; share reels", "Webhook · Send API · Login"],
+    ];
+    items.forEach(([cat, name, job, where], i) => {
+      const col = i % 6, row = Math.floor(i / 6);
+      const x = 0.6 + col * 2.03, y = 1.8 + row * 1.6, w = 1.93, h = 1.48;
+      const [fg, bg] = G[cat];
+      box(s, x, y, w, h, { fill: bg === WHITE ? WHITE : bg, line: bg === WHITE ? LINE : bg });
+      T(s, cat === "API" ? "META MODEL API" : cat.toUpperCase(), x + 0.14, y + 0.13, 1.7, 0.25, { fontSize: 8.5, bold: true, color: fg, charSpacing: 1 });
+      if (cat === "Product") s.addImage({ data: name === "Meta apps" ? IMG.messenger : IMG.instagram, x: x + w - 0.45, y: y + 0.12, w: 0.28, h: 0.28 });
+      T(s, name, x + 0.14, y + 0.38, w - (cat === "Product" ? 0.5 : 0.24), 0.3, { fontSize: 12.5, bold: true });
+      T(s, job, x + 0.14, y + 0.68, w - 0.24, 0.52, { fontSize: 8.5, color: INK });
+      T(s, where, x + 0.14, y + 1.2, w - 0.22, 0.22, { fontSize: 8, color: MUTED });
+    });
+    T(s, "10 open weights on my server (GPU and CPU); 5 on the Meta Model API. Spark, SAM 3.1 and Wonder: fallback and checks.", 0.6, 6.66, 12, 0.3, { fontSize: 12, bold: true, valign: "middle" });
   }
 
   // 5 · The social app
@@ -726,7 +766,7 @@ async function chart(file) {
 
   // 19b · Four pieces of agent architecture
   {
-    const s = content("Technical depth", "TECHNICAL DEPTH · AGENT ARCHITECTURE", "An agent that asks, doubts, abstracts and proves",
+    const s = content("Technical depth", "AGENT ARCHITECTURE · TESTED IN CODE AND SIMULATION", "An agent that asks, doubts, abstracts and proves",
       "四個代理架構：\n1 主動資訊探詢（VoI）：談判失敗時不放棄、不把問題丟回給使用者，用 Beta 後驗（只來自它看過的 yes/no，不看別人的行事曆）× 對方 agent 的意願，算出「問哪一題最能提高成局機率」，只問一個是非題，答是才再談。模擬 20,000 次：一題 + 一次談判成局 51.9%，不問 40.7%、隨便問 44.4%、問最可能的那組 48.2%。\n2 談判中的批評者：對方 agent 的每個反提案先經過程式審查——一場談判問超過兩個不同時間＝在探測你的行程，不再接受；你最近三場有兩場路最遠，又要你跑最遠就拒絕。\n3 從片段到信念：每週把零散筆記抽象成幾條長期信念，每條必須引用筆記、概括要兩條以上、數字必須出現在引用裡，不合格就丟。Glimmer 實測 10 條筆記 → 3 條信念，0 條被丟。\n4 預約前的同意證明：談妥的比賽每位球員的 agent 用自己的 Ed25519 金鑰簽同一份比賽紀錄，預約時逐一驗證，改過時間、加人、用別人的金鑰都會被拒絕。");
     const cards = [
       ["Asks", "Active epistemic querying", "When talks fail, a Beta posterior per member and hour (from yes/no it has seen, never a calendar) times their chance of a yes picks the one question that most raises the chance of a game.", "One question, then a talk: 51.9% games, against 40.7% asking nothing, 44.4% a random question (20,000 simulated requests)", GREEN, GREENBG],
@@ -747,18 +787,15 @@ async function chart(file) {
 
   // 19 · Seven more pieces, each measured
   {
-    const s = content("Technical depth", "TECHNICAL DEPTH · MEASURED THIS WEEK", "Six more pieces, each one measured",
+    const s = content("Technical depth", "TECHNICAL DEPTH · MEASURED THIS WEEK", "Three more pieces, each one measured",
       "這週加的六件事，每一件都有量測：\n1 私密行事曆貫穿 Match 和規劃：其他成員的空檔只能問「這個時間有空嗎」，每天最多問 24 次。\n2 學出來的意圖路由：正規表示式找到 6/10 約球請求，加上路由 10/10，22 則其他訊息誤報 1 則。\n3 Muse Spark（Muse Code 用的同一系列）蓋 C3 新功能：修正我們自己的 oracle 後第一次就過。\n4 商用授權的記憶 embedder：Granite（Apache 2.0）前三名召回 0.80。\n5 Orbit 視覺裁判：Muse Wonder 看 84 張標註畫面，會說出它看到的瑕疵。\n6 GPU 套件在 A100 上跑過閘門：攻擊 93/93、e2e 58/58、crash matrix 201/201。");
     const rows = [
       ["Private calendars, everywhere", "Match, the planner and the search ask each member's agent 'free then?'; a yes or a no, 24 asks a day", "4 tests: a calendar read by anyone but its agent throws", GREEN],
       ["A learned intent router", "DRAMA vectors and a small head, behind the regular expressions", "Game requests found: 6 of 10 by the expressions alone, 10 of 10 with the router added", GREEN],
       ["New code, built by Muse Spark", "A C3 spec: a new module and a field in the planner (Muse Code's model family)", "Built on the first attempt: Spark 202k tokens, 1.4 min; Glimmer 111k, 1.6 min", GREEN],
-      ["An embedder for commercial use", "IBM Granite (Apache 2.0) in place of DRAMA (non-commercial)", "Recall@3 0.80 vs DRAMA 0.75; Recall@1 0.40 vs 0.60: DRAMA stays default", BLUE],
-      ["A vision judge for orbits", "Muse Wonder looks at each rendered orbit frame, beside the pixel rule", "84 labelled frames judged; it names the defect it rejects: 'a doubled net outline, a blurred band'", AMBER],
-      ["The GPU suites, through the gates", "One flag change, Muse Glimmer on a cloud A100", "Attacks 93 of 93 and end to end 58 of 58 on Glimmer; crash matrix 20 of 20 on a stand-in model; oracle passed", GREEN],
     ];
     rows.forEach(([h, what, res, c], i) => {
-      const y = 1.78 + i * 0.7;
+      const y = 2.0 + i * 1.25;
       s.addShape(pres.shapes.OVAL, { x: 0.6, y: y + 0.12, w: 0.38, h: 0.38, fill: { color: c }, line: { color: c } });
       T(s, String(i + 1), 0.6, y + 0.12, 0.38, 0.38, { fontSize: 12, bold: true, color: WHITE, align: "center", valign: "middle" });
       T(s, h, 1.15, y + 0.04, 3.6, 0.3, { fontSize: 13.5, bold: true });
@@ -849,6 +886,7 @@ async function chart(file) {
       ["A federation of three clubs (test/federation_unit.mjs)", "4 of 4: found, signed, rotated, forgery refused", "Real HTTP, one host"],
       ["\"I want to play\" in Messenger", "13 of 13 checks", "Muse Glimmer on a cloud A100"],
     ];
+    T(s, "\"A cloud A100\": the same Muse Glimmer build that runs the product on the RTX 3090.", 0.6, 6.8, 12.1, 0.25, { fontSize: 10, color: MUTED, italic: true });
     s.addTable(rows, { x: 0.6, y: 3.4, w: 12.1, colW: [5.0, 3.9, 3.2], fontSize: 11.5, fontFace: FONT, color: INK, rowH: 0.33, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
   }
 

@@ -44,7 +44,7 @@ export default function Architecture({ className = "" }) {
       {/* the gateway */}
       <text x={ZONE} y={30} className="ar-col">Serve gateway · Node.js on your GPU server</text>
       <rect x={ZONE} y={40} width={580} height={676} rx="18" className="ar-zone" />
-      <Box x={L} y={56} w={BW} h={170} title="Autopilot" tag="tool loop" kind="agent" lines={["Muse Glimmer picks each step:", "get_week · check_body", "find_partners · find_places", "negotiate · request_approval", "nudge · finish (12 steps max)", "rules finish if it stalls"]} />
+      <Box x={L} y={56} w={BW} h={170} title="Autopilot" tag="tool loop" kind="agent" lines={["Muse Glimmer picks each step:", "get_week · check_limits", "find_partners · find_places", "negotiate · request_approval", "nudge · finish (12 steps max)", "rules finish if it stalls"]} />
       <Box x={R} y={56} w={BW} h={170} title="Agent to agent" tag="A2A v1.0" kind="agent" lines={["an A2A agent per member,", "each with its Agent Card", "all answer at once, and say", "which times work: one round", "facts only, saved each round", "the agreed time is held"]} />
       <Box x={L} y={240} w={BW} h={150} title="Body log" tag="body" kind="agent" lines={["what hurts, read by a tool call", "health app linked to games", "load: this week vs usual", "limits, check-ins, physio flag"]} />
       <Box x={R} y={240} w={BW} h={150} title="Courts near you" tag="places" kind="agent" lines={["courts and parks on the map", "Google Maps reviews", "the forecast at that hour", "4 judged at once, reasons cited"]} />

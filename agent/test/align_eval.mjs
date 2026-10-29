@@ -21,7 +21,7 @@ const GOAL = "Get me one doubles badminton game on Thursday evening, near home, 
 const PLAN = "badminton doubles Thursday 2026-11-05 19:00-20:30 at Riverside Sports Hall with Leo Chen, Hana Sato, Kenji Mori; longest trip 12 min";
 const base = [
   { action: "get_week", input: {}, thought: "(run by code)", result: "1 game still needed; usual times Thu 19:00 (6 of the last 8 weeks), Sat 10:00 (3 of the last 8 weeks)" },
-  { action: "check_body", input: {}, thought: "(run by code)", result: "nothing sore · any format, 90-minute games" },
+  { action: "check_limits", input: {}, thought: "(run by code)", result: "nothing sore · any format, 90-minute games" },
   { action: "find_partners", input: { day: "Thu", start: "19:00", format: "doubles" }, thought: "Thursday 19:00 is the player's most played time", result: "Leo: win chance 52%, your games ran 20% over the booking (5 games) · Hana: win chance 48%, played together 4 times · Kenji: win chance 50%, played together 3 times" },
   { action: "negotiate", input: { members: ["leo", "hana", "kenji"], day: "Thu", start: "19:00", format: "doubles" }, thought: "Leo, Hana and Kenji are the players the player plays best with", result: "agreed Thu 2026-11-05 19:00-20:30 at Riverside Sports Hall, court 2, in 1 round" },
 ];
