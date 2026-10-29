@@ -250,6 +250,37 @@ export async function basemap({ s, w, n, e }) {
 
 // a place name -> a point (OpenStreetMap's geocoder, one request at a time)
 let lastGeo = 0;
+// the courts for a sport around a point, for the app's map: courts and sports centres only (no parks), every Overpass
+// mirror asked at once and the first answer taken, kept a month (no model)
+const near = new Map();
+export async function nearby({ lat, lon, sport = "basketball", radius = 2000 } = {}) {
+  const at = { lat: +(+lat).toFixed(3), lon: +(+lon).toFixed(3) };
+  if (!isFinite(at.lat) || !isFinite(at.lon) || Math.abs(at.lat) > 90 || Math.abs(at.lon) > 180) throw new Error("No location to search around.");
+  const r = Math.min(5000, Math.max(500, +radius || 2000)), sp = String(sport).toLowerCase(), key = `${at.lat},${at.lon},${r},${sp}`;
+  const hit = near.get(key) || cache[`near:${key}`];
+  if (hit && Date.now() - hit.at < 30 * 864e5) return hit.places;
+  const tag = OSM[sp] || sp.replace(/\s+/g, "_");
+  const q = `[out:json][timeout:15];(nwr[leisure=pitch][sport~"(^|;)(${tag}|multi)(;|$)"](around:${r},${at.lat},${at.lon});nwr[leisure=sports_centre][sport~"(^|;)(${tag}|multi)(;|$)"](around:${r},${at.lat},${at.lon}););out center 60;`;
+  const ask = (url) => fetch(url, { method: "POST", headers: { "user-agent": UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q), signal: AbortSignal.timeout(8000) })
+    .then((x) => (x.ok ? x.json() : Promise.reject(new Error(`OpenStreetMap is busy (${x.status})`))));
+  const j = await Promise.any(OVERPASS.map(ask)).catch(() => null);
+  // OpenStreetMap's public servers are often at capacity: then Google Places, when this server has a key
+  if (!j) {
+    if (!KEY) throw new Error("OpenStreetMap did not answer");
+    const g = await google({ textQuery: GOOGLE_Q[sp] || `${sp} court`, languageCode: "en", maxResultCount: 20, locationBias: { circle: { center: { latitude: at.lat, longitude: at.lon }, radius: r } } });
+    const places = g.filter((x) => x.location).map((x) => ({ id: `g:${x.id}`, name: x.displayName?.text || `${sp} court`, lat: x.location.latitude, lon: x.location.longitude, kind: "google", m: Math.round(meters(at, { lat: x.location.latitude, lon: x.location.longitude })) }))
+      .filter((x) => x.m <= r * 1.5).sort((a, b) => a.m - b.m);
+    const v = { at: Date.now(), places }; near.set(key, v); cache[`near:${key}`] = v; save();
+    return places;
+  }
+  const places = (j.elements || []).map((e) => {
+    const t = e.tags || {}, p = e.center ? { lat: e.center.lat, lon: e.center.lon } : { lat: e.lat, lon: e.lon };
+    return p.lat == null ? null : { id: `osm:${e.type}/${e.id}`, name: t["name:en"] || t.name || (t.leisure === "sports_centre" ? "Sports centre" : `${sp[0].toUpperCase() + sp.slice(1)} court`), ...p, kind: t.leisure, m: Math.round(meters(at, p)) };
+  }).filter(Boolean).sort((a, b) => a.m - b.m).slice(0, 40);
+  const v = { at: Date.now(), places };
+  near.set(key, v); cache[`near:${key}`] = v; save();
+  return places;
+}
 export async function where(q) {
   const wait = Math.max(0, lastGeo + 1100 - Date.now()); if (wait) await new Promise((ok) => setTimeout(ok, wait)); lastGeo = Date.now();
   const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(String(q).slice(0, 120))}`, { headers: { "user-agent": UA, "accept-language": "en" }, signal: AbortSignal.timeout(15000) });

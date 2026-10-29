@@ -19,6 +19,7 @@ import { AskOutLoud } from "./voice/VoiceAsk.jsx";
 import { loadClub } from "./club/data.js";
 import { useTasks, plain } from "./tasks.js";
 import Icon from "./components/Icon.jsx";
+import MessengerSetup from "./pages/MessengerSetup.jsx";
 import Mark from "./components/Mark.jsx";
 
 // Serve's shell: a sidebar on a computer and a tab bar on a phone, the way a social app has them. Five tabs (the
@@ -147,7 +148,7 @@ function CheckBack() {
 const PAGES = {
   home: (c) => <Agent club={c} />, about: () => <Landing />, club: (c) => <Club club={c} />, goals: (c) => <Goals club={c} />,
   play: (c) => <Play data={c} />, you: (c) => <You club={c} />, autopilot: (c) => <Autopilot data={c} />, body: () => <Body />,
-  courts: () => <Courts />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, maintain: () => <Maintain />, social: (c) => <Social club={c} />, chats: (c) => <Chats club={c} />, join: () => <Join />,
+  courts: () => <Courts />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, "messenger-setup": () => <MessengerSetup />, maintain: () => <Maintain />, social: (c) => <Social club={c} />, chats: (c) => <Chats club={c} />, join: () => <Join />,
 };
 
 export default function App() {

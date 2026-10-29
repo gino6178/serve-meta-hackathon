@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "../components/Icon.jsx";
 import Mark from "../components/Mark.jsx";
 import PlayMap from "../components/PlayMap.jsx";
+import RealMap from "../components/RealMap.jsx";
 import WeekCal from "../components/WeekCal.jsx";
 import { ago } from "../components/TaskCard.jsx";
 import { useTasks, startPlay, bookFor, rebookFor, cancelFor, playerOf } from "../tasks.js";
@@ -207,7 +208,7 @@ export default function Play({ data }) {
         </section>
       ) : (
         <section className="play-job idle" aria-label="The club's town">
-          <div className="job-map"><PlayMap geo={geo} /></div>
+          <div className="job-map"><RealMap sport="badminton" height={300} /></div>
         </section>
       )}
 

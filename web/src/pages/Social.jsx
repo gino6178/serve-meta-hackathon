@@ -5,6 +5,7 @@ import Feed from "../club/Feed.jsx";
 import { feedApi, mediaUrl } from "../club/feedApi.js";
 import { useMember, providers, startUrl, demo, signOut, registerAgent, revokeAgent, asAgent, agentKid, canSign } from "../members.js";
 import { useReducedMotion } from "../hooks.js";
+import RealMap from "../components/RealMap.jsx";
 import "./social.css";
 
 // Serve's social app: members join with Facebook or Instagram (or a demo account), and land in the club's feed made
@@ -99,7 +100,7 @@ function InviteComposer({ onPosted }) {
   const set = (k) => (e) => setV({ ...v, [k]: e.target.value });
   const send = async (e) => {
     e.preventDefault(); setBusy(true); setErr("");
-    try { await feedApi.post(v.text, null, { sport: v.sport, day: v.day, start: v.start, where: v.where, spots: +v.spots }); setOpen(false); setV({ ...v, where: "", text: "" }); onPosted(); }
+    try { await feedApi.post(v.text, null, { sport: v.sport, day: v.day, start: v.start, where: v.where, spots: +v.spots, ...(v.at ? { at: v.at } : {}) }); setOpen(false); setV({ ...v, where: "", text: "" }); onPosted(); }
     catch (x) { setErr(x.message); }
     setBusy(false);
   };
@@ -117,7 +118,11 @@ function InviteComposer({ onPosted }) {
         <label>Day<select value={v.day} onChange={set("day")}>{DAYS.map((d) => <option key={d}>{d}</option>)}</select></label>
         <label>Time<input type="time" value={v.start} onChange={set("start")} required /></label>
         <label>Spots<input type="number" min={1} max={12} value={v.spots} onChange={set("spots")} /></label>
-        <label className="wide">Where<input value={v.where} onChange={set("where")} placeholder="Riverside Sports Centre" required maxLength={60} /></label>
+        <div className="wide so-where">
+          <span className="so-where-l">Where: tap a court or a spot</span>
+          <RealMap sport={v.sport} pick height={220} onPick={(p) => setV((x) => ({ ...x, at: { lat: p.lat, lon: p.lon }, where: p.name || x.where }))} />
+          <input value={v.where} onChange={set("where")} placeholder="Name the place" required maxLength={60} aria-label="The place's name" />
+        </div>
         <label className="wide">A note (optional)<input value={v.text} onChange={set("text")} placeholder="All levels welcome" maxLength={200} /></label>
       </div>
       {err && <p className="join-err" role="alert">{err}</p>}

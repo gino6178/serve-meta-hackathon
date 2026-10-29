@@ -1,0 +1,6 @@
+/* the real map (RealMap.jsx) */
+.rm { position: relative; }
+.rm-map { width: 100%; border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); z-index: 0; }
+.rm-note { margin: 6px 2px 0; font-size: 13px; color: var(--ink-2); }
+.rm-pin span { display: block; width: 26px; height: 26px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--agent, #0a7f44); border: 3px solid #fff; box-shadow: 0 2px 6px rgb(0 0 0 / .35); }
+.leaflet-container { font: inherit; }

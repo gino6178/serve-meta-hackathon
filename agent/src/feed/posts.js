@@ -111,7 +111,9 @@ export function inviteOf(x) {
   if (!/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun|\d{4}-\d{2}-\d{2})$/.test(day) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(start)) return { error: "Say the day (Mon to Sun, or a date) and the time (HH:MM)." };
   if (!where) return { error: "Say where you'll play." };
   if (!(spots >= 1 && spots <= 12)) return { error: "Between 1 and 12 spots." };
-  return { invite: { sport, day, start, where, spots, going: [] } };
+  // the place on the map, when it was picked there (rounded to about 10 m)
+  const lat = +x.at?.lat, lon = +x.at?.lon, at = isFinite(lat) && isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat: +lat.toFixed(4), lon: +lon.toFixed(4) } : null;
+  return { invite: { sport, day, start, where, spots, ...(at ? { at } : {}), going: [] } };
 }
 export async function post(player, { text = "", media = null, invite = null, agent = null } = {}) {
   const t = T.tidy(text, 600);
