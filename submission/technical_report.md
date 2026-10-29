@@ -367,7 +367,7 @@ OpenStreetMap, Open-Meteo, the Google Places API.
 
 | Suite | Result | Hardware | Source |
 |---|---|---|---|
-| `npm test`: seventeen offline suites | 239 of 240, 1 skipped <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
+| `npm test`: 21 offline suites | 257 of 258, 1 skipped <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
 | `npm test` after the restructure (2026-10-29) | 237 of 240, 2 failed, 1 skipped, on the GPU server; the code from before the restructure gives the same result there (the same two tests fail: a dependency rule of the loop's policy and the two-at-once hold test) | No model, no GPU | `submission/results/unit_restructured_2026-10-29.log` |
 | The deployed gateway (2026-10-29) | Ready on Muse Glimmer; an answer passed both Llama Guard checks; a dosage question refused; one "I want to play" round over A2A (nothing booked); the Messenger webhook verified through the public tunnel; no errors in the log | RTX 3090 | `submission/results/deploy_smoke_2026-10-29.log` |
 | Messenger end to end (`test/e2e.mjs`) | 52 of 52 checks <!-- COUNT -->; on the final code 46 passed and 0 failed before the run was stopped | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
@@ -704,10 +704,11 @@ inputs. They do not show how real people would talk, vote or react.
   through the guard models; the rest test a layer in code and pass by construction once it is there.
 - **Private calendars are private in the talk only.** Match and the Autopilot's tools still read shared calendars.
 - **Holds last 30 minutes.** A plan left longer is checked again at booking; the player may have to pick again.
-- **Two gateways, not a federation.** The second gateway (3.11) is trusted by a pinned key and an allow-list; a club of
-  many gateways would need key discovery and rotation. Within one gateway, every member's agent shares it.
-- **The simulated users** (5.12): two seeds after the fixes, one better than the baseline and one equal; no-shows and
-  partners backing out are not fixed.
+- **A federation tested on one machine.** Discovery by club cards and key rotation (3.14) are tested with three clubs
+  over HTTP on one host; the full negotiation across two machines was the earlier two-gateway run (22 of 22). A card is
+  trusted on first use, so the first fetch must reach the real club. Within one gateway, every member's agent shares it.
+- **The simulated users** (5.12): three seeds after the fixes, one better than the baseline, one equal and one worse
+  (seed 4: 1 game against 4); agents agreeing for people who then don't come is not fixed.
 - **The ball tracker** finds the shuttle in under a third of the frames on footage from the stands.
 - **The guards are one layer.** Llama Guard 3 1B let 5 of 42 unsafe test messages through; Prompt Guard 2 missed 6 of
   10 poisoned reviews; the first message after Llama Guard restarts goes unchecked while it loads.
@@ -726,7 +727,7 @@ inputs. They do not show how real people would talk, vote or react.
 
 Built, and no results are claimed for them:
 - **The ball on tennis and basketball** (WASB): the adapter runs, nothing is measured.
-- **A blinded judge and an informed arm** for the simulated users (`agent/test/sim_users/`): built, not run.
+- **An informed arm** for the simulated users (`agent/test/sim_users/`): built, not run. (The blinded judge was run once, on seed 4: 5.12.)
 - **The per-hour disclosure check** (`A2A_BUDGET_CHECK=hour`): in the code, off, because it stopped every game in a
   20-member trial.
 
@@ -741,7 +742,7 @@ run dev`. From `agent/`:
 <!-- COUNT: the block below says 240 tests and 65 attacks -->
 
 ```bash
-npm test                                   # seventeen offline suites, 240 tests, no model or GPU
+npm test                                   # 21 offline suites, 258 tests, no model or GPU
 npm run test:crash                         # the crash matrix, against a stand-in model
 node test/e2e.mjs                          # Messenger end to end
 node test/redteam.mjs                      # the 65 attacks
