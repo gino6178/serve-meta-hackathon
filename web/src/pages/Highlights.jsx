@@ -287,10 +287,18 @@ export default function Highlights() {
       mine((x) => ({ ...x, state: "ready", working: null, data: { ...data, sample: sample ? { credit: creditOf(sample) } : null } }));
     } catch (e) { mine((x) => ({ ...x, state: "failed", working: null, error: e.message })); }
   };
-  // a sample clip goes the same way as a video of your own
+  // a sample clip opens the reel our GPU made from it earlier with the same pipeline (samples.json "reel": the steps it
+  // took and its result), so it shows at once; without one, it goes the same way as a video of your own
   const trySample = async (s) => {
-    try { const b = await (await fetch(`/media/samples/${s.file}`)).blob(); await choose(new File([b], s.file, { type: "video/mp4" }), s); }
-    catch (e) { setMsg(`The sample could not be loaded (${e.message}).`); }
+    try {
+      const b = await (await fetch(`/media/samples/${s.file}`)).blob();
+      const made = s.reel ? await fetch(`/media/samples/${s.reel}`).then((r) => (r.ok ? r.json() : null)).catch(() => null) : null;
+      if (!made?.result) return await choose(new File([b], s.file, { type: "video/mp4" }), s);
+      if (clip?.url) URL.revokeObjectURL(clip.url);
+      const steps = [...made.steps, { step: "Made earlier on our GPU", detail: `the same pipeline took ${Math.round(made.seconds / 60) || 1} min on ${made.made}; a video of your own runs live` }];
+      setClip({ url: URL.createObjectURL(b), state: "ready", steps, working: null, data: { ...made.result, sample: { credit: creditOf(s) } } });
+      setFile(null); setCap(null); setMsg("");
+    } catch (e) { setMsg(`The sample could not be loaded (${e.message}).`); }
   };
   const clear = () => { if (clip?.url) URL.revokeObjectURL(clip.url); setClip(null); setFile(null); setCap(null); setMsg(""); };
 
@@ -392,7 +400,7 @@ export default function Highlights() {
                   </button></li>
                 ))}
               </ul>
-              {pick && <button className="btn primary sm" onClick={() => trySample(pick)}><Icon name="spark" size={16} />Make a reel from this clip</button>}
+              {pick && <button className="btn primary sm" onClick={() => trySample(pick)}><Icon name="spark" size={16} />{pick.reel ? "See the reel from this clip" : "Make a reel from this clip"}</button>}
             </div>
           )}
           <div className="seg" role="radiogroup" aria-label="Format">

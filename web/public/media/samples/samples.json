@@ -1,5 +1,5 @@
 {
- "note": "Sample clips for the highlight reel: 720p H.264, no sound, trimmed from CC BY 3.0 videos (full attribution in CREDITS.md). The players are not named in the app.",
+ "note": "Sample clips for the highlight reel: 720p H.264, no sound, trimmed from CC BY 3.0 videos (full attribution in CREDITS.md). The players are not named in the app. Each clip's reel (<name>.reel.json and its effect videos) was made once by the gateway's own pipeline on our GPU, so the sample opens at once.",
  "clips": [
   {
    "file": "singles_point_01.mp4",
@@ -8,7 +8,8 @@
    "seconds": 24,
    "author": "Badminton klub Ljubljana",
    "source": "https://www.youtube.com/watch?v=IoDl6OirN1A",
-   "license": "https://creativecommons.org/licenses/by/3.0/"
+   "license": "https://creativecommons.org/licenses/by/3.0/",
+   "reel": "singles_point_01.reel.json"
   },
   {
    "file": "doubles_rally_01.mp4",
@@ -17,7 +18,8 @@
    "seconds": 22,
    "author": "Roy Huang",
    "source": "https://www.youtube.com/watch?v=z_uUFuw7n2Q",
-   "license": "https://creativecommons.org/licenses/by/3.0/"
+   "license": "https://creativecommons.org/licenses/by/3.0/",
+   "reel": "doubles_rally_01.reel.json"
   },
   {
    "file": "singles_rally_01.mp4",
@@ -26,7 +28,8 @@
    "seconds": 22,
    "author": "Roy Huang",
    "source": "https://www.youtube.com/watch?v=eMfNpjUpx8k",
-   "license": "https://creativecommons.org/licenses/by/3.0/"
+   "license": "https://creativecommons.org/licenses/by/3.0/",
+   "reel": "singles_rally_01.reel.json"
   }
  ]
 }
