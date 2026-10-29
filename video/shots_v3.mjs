@@ -14,7 +14,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const BODY_SEED = JSON.parse(fs.readFileSync(path.join(HERE, "body_seed.json"), "utf8"));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const browser = await puppeteer.launch({ executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", headless: "new", args: ["--lang=en-US", "--autoplay-policy=no-user-gesture-required"] });
+const browser = await puppeteer.launch({ executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", headless: "new", args: ["--lang=en-US", "--autoplay-policy=no-user-gesture-required", "--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
 const page = await browser.newPage();
 await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
 await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: "light" }]);
@@ -54,6 +54,18 @@ await clickText(".ct-ask .btn.primary", "Find courts");
 await until(() => document.querySelector(".ct-list"), 600000); await wait(1000);
 await page.evaluate(() => document.querySelector(".ct-head")?.scrollIntoView({ block: "start" })); await wait(800);
 await shot("courts_badges");
+
+// a matchup poster (its art is kept on the server after the first time), and the live voice line, listening
+if (!process.argv.includes("--no-extra")) {
+  await go("club?tab=challenges", 2500);
+  await clickText(".challenge .btn", "Poster");
+  await until(() => document.querySelector(".poster-sheet canvas.ready"), 240000); await wait(800); await shot("poster");
+  await page.keyboard.press("Escape"); await go("", 2500);
+  await page.evaluate(() => document.querySelector(".talk-live")?.click());
+  await until(() => /Listening/.test(document.querySelector(".lt-state")?.innerText || ""), 60000).catch(() => {}); await wait(1500);
+  await page.evaluate(() => { const s = document.querySelector(".lt-scrim"); if (s) { s.style.bottom = "auto"; s.style.height = `${visualViewport.height}px`; s.style.width = `${visualViewport.width}px`; s.style.left = `${visualViewport.offsetLeft}px`; s.style.top = `${visualViewport.offsetTop}px`; } }); await wait(300); await shot("live_talk"); // (mobile emulation: the layout viewport is taller than the screen)
+  await page.evaluate(() => document.querySelector(".lt-end")?.click()); await wait(800);
+}
 
 // the planner, then what the agents said to each other (Agent chats): needs Muse Glimmer, about two minutes
 if (!process.argv.includes("--no-plan")) {
