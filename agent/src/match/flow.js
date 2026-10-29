@@ -9,7 +9,9 @@
 //   6. The first game agreed is the option. Nothing is booked: it waits for the player's yes (ask.js request).
 import { readClub } from "../club/club.js";
 import { helpers, readIntent, partnerScore, playing } from "../club/play.js";
-import { negotiate, court, first, releaseHolds, negotiation, resumeNegotiation } from "../a2a/talk.js";
+import { negotiate, court, first, releaseHolds, negotiation, resumeNegotiation, memoryOf } from "../a2a/talk.js";
+import * as voi from "./voi.js";
+import * as fb from "../agents/freebusy.js";
 import { crashPoint } from "../core/crash.js";
 import { state as estimates } from "./likely.js";
 import { store as records } from "./records.js";
@@ -113,7 +115,7 @@ export async function findGame({ who = "app", text = "", it = null, par = 1, now
     likely: probed.slice(0, 8).map((c) => ({ id: c.m.id, name: first(c.m.name), band: c.band })) });
   const prefer = { day: times[0].day, start: times[0].start }, exclude = [...new Set([...upcoming.map((u) => u.date), ...(intent.days.length ? Array.from({ length: 7 }, (_, i) => { const d = new Date(now); d.setDate(d.getDate() + i); return ymd(d); }).filter((d) => !intent.days.includes(d)) : [])])];
   // the first checkpoint: the order the agents' estimates gave, before any talk
-  const start = { ordered: ordered.map((c) => ({ id: c.m.id, prior: c.prior, band: c.band, p: c.p ?? null, probed: c.probed })), prefer, exclude, times: times.length, k: 0, talks: [], log: [], away: [] };
+  const start = { ordered: ordered.map((c) => ({ id: c.m.id, prior: c.prior, band: c.band, p: c.p ?? null, probed: c.probed })), prefer, exclude, times: times.length, slots: times.map(({ date, day, start: st }) => ({ date, day, start: st })), who, k: 0, talks: [], log: [], away: [] };
   // (the estimates' audit and cache, and the members' records, are on disk before the checkpoint that says they happened)
   estimates().flush(); records().flush();
   checkpoint(start); crashPoint("request-ranked");
@@ -144,6 +146,20 @@ async function talkThrough({ cp, club, intent, format, need, par, maxTalks, talk
       }
       if (away.length) tell({ step: `${yes.length} agents said yes at once`, tool: "a2a", detail: `${first(yes[0][0].m.name)} gets the game; ${away.map((id) => first(club.members.find((m) => m.id === id)?.name || id)).join(" and ")}'s agent heard it went to another player, and nothing is booked for them` });
       return done(annotate(yes[0][1].agreed, [yes[0][0]]), null);
+    }
+    // the talks did not land: the one question whose answer most raises the chance of a game (voi.js), asked as a
+    // single yes or no of that member's agent (freebusy.js, under its budget), and one more talk only on a yes
+    const q = process.env.MATCH_VOI === "off" ? null : voi.bestQuestion({ members: ordered.slice(0, 12).map((c) => ({ id: c.m.id, chance: voi.chanceOf(c), mem: memoryOf(c.m.id) })), slots: cp.slots || [],
+      tried: new Set(talks.flatMap((x) => x.with.flatMap((id) => (cp.slots || []).map((sl) => `${id}|${sl.date}|${sl.start}`)))) });
+    if (q) {
+      const c = ordered.find((x) => x.m.id === q.id), toMin = (t) => +t.slice(0, 2) * 60 + +t.slice(3, 5);
+      const yes = fb.free(c.m, { date: q.slot.date, start: toMin(q.slot.start), minutes: intent.minutes || 90, asker: cp.who || "you", priv: process.env.A2A_PRIVATE === "1" });
+      tell({ step: "Asked the one question that helps most", tool: "voi", detail: `${first(c.m.name)}'s agent, about ${q.slot.day} ${q.slot.start}: the chance of a game goes from ${Math.round(q.before * 100)}% to ${Math.round(q.after * 100)}% expected (a ${Math.round(q.p * 100)}% chance they are free, from what your agent has seen). The answer: ${yes ? "yes" : "no"}.`, voi: { id: q.id, slot: q.slot, before: q.before, after: q.after, p: q.p, answer: yes } });
+      if (yes) {
+        const r = await talkOnce([c.m], talks.length, { day: q.slot.day, start: q.slot.start }, exclude);
+        talks.push({ with: [c.m.id], agreed: !!r.agreed, reason: r.reason || null, rounds: r.rounds || 0, voi: true }); log.push(...(r.log || []));
+        if (r.agreed) return done(annotate(r.agreed, [c]), null);
+      }
     }
     return done(null, `${talks.length} talk${talks.length > 1 ? "s" : ""} didn't land (${talks.map((x) => x.reason).filter(Boolean).slice(-1)[0] || "no time worked"})`);
   }
