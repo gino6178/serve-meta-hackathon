@@ -126,7 +126,7 @@ async function chart(file) {
     T(s, "serve", 1.45, 0.72, 3, 0.6, { fontSize: 30, bold: true, valign: "middle" });
     T(s, [{ text: "Play more.\n", options: { color: INK } }, { text: "Manage less.", options: { color: GREEN } }], 0.8, 2.0, 5.6, 2.0, { fontSize: 54, bold: true, lineSpacingMultiple: 0.95 });
     T(s, "Your agent sets up your games with your friends' agents, plans around your body, and cuts your highlights. You just say yes.", 0.8, 4.15, 5.2, 1.0, { fontSize: 17, color: MUTED });
-    [["Agents agree your week", GREEN], ["Your agent in Messenger", BLUE], ["Ten Meta models on hardware I own", INK]].forEach(([t, c], i) => {
+    [["Agents agree your week", GREEN], ["Your agent in Messenger", BLUE], ["14 Meta models, 10 on hardware I own", INK]].forEach(([t, c], i) => {
       s.addShape(pres.shapes.OVAL, { x: 0.8, y: 5.45 + i * 0.45, w: 0.14, h: 0.14, fill: { color: c }, line: { color: c } });
       T(s, t, 1.08, 5.35 + i * 0.45, 5, 0.34, { fontSize: 14, bold: true, valign: "middle" });
     });
@@ -256,9 +256,9 @@ async function chart(file) {
 
   // 9 · Highlights
   {
-    const s = content("Demo", "THURSDAY · FOUR META VISION MODELS", "Your phone clip becomes your moment, on my GPU",
+    const s = content("Demo", "THURSDAY · FIVE META VISION MODELS", "Your phone clip becomes your moment, on my GPU",
       "Highlight 管線（右邊都是同一記殺球：SAM 2.1 去背、MapAnything 深度、俯視環繞圖和沿弧線算繪出的三格）：DETR 找人 → Sapiens2 讀姿勢、找最快的揮拍 → SAM 2.1 把你切出來 → MapAnything 算深度和相機，時間暫停、鏡頭繞 20° → Muse Glimmer 寫說明，程式核對 → 一鍵分享到 Instagram。影片不離開伺服器。\n旁白：Thursday, game done. I upload a phone clip… With MapAnything, time stops and the camera turns around the smash.");
-    const flow = [["DETR", "finds the players"], ["Sapiens2", "reads the pose, finds the fastest swing"], ["SAM 2.1", "cuts you out"], ["MapAnything", "depth and camera: time stops, the camera turns 20°"], ["Muse Glimmer", "writes the caption, checked by code"]];
+    const flow = [["DETR", "finds the players"], ["Sapiens2", "reads the pose, finds the fastest swing"], ["SAM 2.1", "cuts you out; SAM 3.1 checked it once"], ["MapAnything", "depth and camera: time stops, the camera turns 20°"], ["Muse Glimmer", "writes the caption, checked by code"]];
     flow.forEach(([h, d], i) => {
       const x = 0.6 + i * 2.45;
       box(s, x, 1.85, 2.2, 1.25, { fill: i === 4 ? GREENBG : BLUEBG, line: i === 4 ? GREENBG : BLUEBG });
@@ -270,7 +270,7 @@ async function chart(file) {
     s.addMedia({ type: "video", path: path.join(__dirname, "smash_loop.mp4"), cover: IMG.smash, x: 0.6, y: 3.4, w: 5.9, h: 3.32 });
     T(s, "The smash on a loop: the camera swings round it · CC BY 3.0, Badminton klub Ljubljana", 0.6, 6.76, 5.9, 0.25, { fontSize: 10, color: MUTED });
     s.addImage({ data: IMG.smashDepth, x: 6.75, y: 3.4, w: 5.95, h: 1.67 });
-    T(s, "SAM 2.1 cuts her out (magenta); MapAnything reads the depth. SAM 3.1 found her too: box IoU 0.97", 6.75, 5.1, 5.95, 0.25, { fontSize: 10, color: MUTED });
+    T(s, "SAM 2.1 cuts her out; MapAnything reads depth · SAM 3.1 agrees: box IoU 0.97", 6.75, 5.1, 5.95, 0.25, { fontSize: 10, color: MUTED });
     // the orbit seen from above: her at the centre, the phone where it filmed from, the arc the server chose (drawn at
     // four times its angle so 20 degrees reads), and the three frames rendered along it
     const D = { x: 6.75, y: 5.4, w: 1.75, h: 1.5 }, cx = D.x + 0.875, cy = D.y + 0.5, R = 0.55, K = 4;
@@ -310,8 +310,8 @@ async function chart(file) {
   // 11 · Meta stack
   pres.addSection({ title: "Use of Meta AI" });
   {
-    const s = content("Use of Meta AI", "USE OF META AI · 25%", "13 Meta models and 2 Meta products, each with a job",
-      "這頁讓評審一眼看到用了哪些 Meta 的東西：10 個 Meta 模型（全部開放權重、在我自己的伺服器上跑）＋ Messenger、Instagram/Facebook，再加上 Meta 的 Agents Rule of Two 框架。\n說法：Muse Glimmer 是大腦；1B 學生模型分擔簡單決策；兩個 guard 把關進出；DRAMA 是記憶；四個視覺模型做 highlight；Messenger 是入口。");
+    const s = content("Use of Meta AI", "USE OF META AI · 25%", "14 Meta models and Meta's apps, each with a job",
+      "這頁讓評審一眼看到用了哪些 Meta 的東西：14 個 Meta 模型（10 個開放權重在我自己的伺服器上跑，4 個走 Meta Model API）＋ Messenger、Instagram/Facebook，再加上 Meta 的 Agents Rule of Two 框架。\n說法：Muse Glimmer 是大腦；1B 學生模型分擔簡單決策；兩個 guard 把關進出；DRAMA 是記憶；四個視覺模型做 highlight；Messenger 是入口。");
     const G = { Reasoning: [GREEN, GREENBG], Safety: [RED, REDBG], Memory: [MUTED, CARD], Voice: [MUTED, CARD], Vision: [BLUE, BLUEBG], "3D": [BLUE, BLUEBG], API: [AMBER, AMBERBG], Product: [BLUE, WHITE] };
     const items = [
       ["Reasoning", "Muse Glimmer", "Every agent: the tool loop, members' decisions, photos, courts, captions", "RTX 3090 · Ollama · 4 in parallel"],
@@ -326,9 +326,9 @@ async function chart(file) {
       ["3D", "MapAnything", "Depth and the camera for the orbit camera effect", "GPU · optional effect"],
       ["API", "Muse Spark 1.3", "The fallback when my GPU can't answer: the same call, once", "Meta Model API · tested live"],
       ["API", "SAM 3.1", "Checked on the smash against SAM 2.1: same player, IoU 0.97", "Meta Model API · one call"],
-      ["API", "Muse Image", "A face for every member's agent, made once", "Meta Model API · 12 images"],
-      ["Product", "Messenger", "Your agent in your chats: plans, a tap to approve, check-ins", "Signed webhook · Send API"],
-      ["Product", "Facebook · IG", "Join the club with your account; share your reel", "Facebook Login · Instagram Login"],
+      ["API", "Muse Image", "Rematch poster art; a face for every agent, made once", "Meta Model API · $0.01 an image"],
+      ["API", "Muse Voice", "Transcribe, realtime: talk with your agent and cut in when you like", "Meta Model API · Transcribe"],
+      ["Product", "Messenger · FB · IG", "Your agent in your chats; join with Facebook or IG; share reels", "Webhook · Send API · Login"],
     ];
     items.forEach(([cat, name, job, where], i) => {
       const col = i % 5, row = Math.floor(i / 5);
@@ -342,7 +342,7 @@ async function chart(file) {
       T(s, where, x + 0.16, y + 1.2, w - 0.26, 0.22, { fontSize: 9, color: MUTED });
     });
     s.addImage({ data: IMG.meta, x: 0.6, y: 6.66, w: 0.3, h: 0.3 });
-    T(s, "Ten open-weights models on hardware I own; three on the Meta Model API. Every agent follows Meta's Agents Rule of Two.", 1.0, 6.66, 11.5, 0.3, { fontSize: 12, bold: true, valign: "middle" });
+    T(s, "Ten open-weights models on hardware I own; four on the Meta Model API. Every agent follows Meta's Agents Rule of Two.", 1.0, 6.66, 11.5, 0.3, { fontSize: 12, bold: true, valign: "middle" });
   }
 
   // 12 · Agents
@@ -410,7 +410,7 @@ async function chart(file) {
 
   // 14 · Talk to your agent, both ways at once
   {
-    const s = content("Use of Meta AI", "FULL-DUPLEX VOICE · MUSE VOICE TRANSCRIBE", "Talk to your agent, and cut in when you like",
+    const s = content("Use of Meta AI", "ON THE COURT · HANDS-FREE VOICE", "Sweaty hands after a game? Just ask, and cut in",
       "全雙工語音代理：手機麥克風串流到你的伺服器，伺服器轉接到 Meta 的 Muse Voice Transcribe（即時、ENDPOINTING 模式，自動判斷你講完了，支援中英夾雜），key 只放在伺服器。你講完一句就交給 agent（Muse Glimmer，跟打字問一樣過 Llama Guard、數字核對），回答一句一句用 Kokoro 念出來。你一開口它就停下來聽，還沒念的回答直接丟掉。\n實測一次（voice_live.json）：1.2 秒接通，2.0 秒開始說話，3.6 秒轉寫完成，12.3 秒回答文字出來（本地 Glimmer + 守門）；之後改成一句一句念，第一句不用等整段。");
     phone(s, IMG.v3.live_talk, 0.75, 1.85, 4.7, "Talk, on the agent home");
     const node = (x, y, w, h, k, t, d, fill, c) => { box(s, x, y, w, h, { fill, line: fill }); T(s, k, x + 0.15, y + 0.1, w - 0.3, 0.22, { fontSize: 9.5, bold: true, color: c, charSpacing: 1 }); T(s, t, x + 0.15, y + 0.34, w - 0.3, 0.32, { fontSize: 13, bold: true }); T(s, d, x + 0.15, y + 0.68, w - 0.3, h - 0.72, { fontSize: 10, color: MUTED }); };
@@ -435,7 +435,7 @@ async function chart(file) {
   pres.addSection({ title: "Technical depth" });
   // 15 · A federation of clubs: found by their cards, keys that can be rotated
   {
-    const s = content("Technical depth", "FEDERATED A2A", "Clubs find each other, and keys can change",
+    const s = content("Technical depth", "INTER-CLUB CHALLENGES · FEDERATED A2A", "Challenge the club next door, nothing merged",
       "去中心化的跨社團聯邦：設定檔只寫其他社團的網址。每個社團公開一張名片（/a2a/club.json：名稱、可被邀約的成員公開資料、金鑰位置），gateway 讀名片後就把對方當成 peer，第一次連線釘選對方金鑰。\n換鑰匙：舊鑰匙簽一張交接聲明跟新金鑰一起公開；對方發現釘選的鑰匙不見了，就從釘選的那把沿著聲明鏈驗證，驗過才改釘新的，偽造的聲明一律拒絕。\n測試（test/federation_unit.mjs，真的 HTTP）：三個社團互相發現、互相簽章驗證；B 連續換兩次鑰匙，A 沿兩張聲明跟上；C 用別人簽的假聲明，被拒絕、釘選不變；不是名片的網頁不採用。兩台機器之間的完整約球談判之前已測過 22/22。");
     const cx = [1.6, 4.3, 2.95], cy = [2.3, 2.3, 4.6], nm = ["Club A", "Club B", "Club C"], col = [GREEN, BLUE, AMBER];
     [[0, 1], [0, 2], [1, 2]].forEach(([a, b]) => s.addShape(pres.shapes.LINE, { x: Math.min(cx[a], cx[b]) + 0.6, y: Math.min(cy[a], cy[b]) + 0.5, w: Math.abs(cx[a] - cx[b]) || 0.001, h: Math.abs(cy[a] - cy[b]) || 0.001, flipH: cx[a] > cx[b] !== cy[a] > cy[b], line: { color: LINE, width: 2, dashType: "dash" } }));
@@ -444,7 +444,7 @@ async function chart(file) {
       T(s, nm[i], x, cy[i] + 0.22, 1.2, 0.3, { fontSize: 12.5, bold: true, align: "center" });
       T(s, "card · key", x, cy[i] + 0.52, 1.2, 0.25, { fontSize: 9, color: MUTED, align: "center" });
     });
-    T(s, "Only addresses in the config: names, members and keys come from each club's own card", 0.6, 6.1, 5.4, 0.6, { fontSize: 11, color: MUTED });
+    T(s, "Bored of the same faces? Your club's agents can ask the university club's. Each club keeps its own server; the config holds only addresses, and names, members and keys come from each club's card", 0.6, 6.1, 5.4, 0.6, { fontSize: 11, color: MUTED });
     const x = 6.3;
     [["1", "Found by its card", "/a2a/club.json: the club's name, the members others may ask (a public profile each), where its keys are."],
       ["2", "Pinned on first use", "Every request between clubs is signed; the key is pinned the first time, as between our two gateways."],
@@ -679,21 +679,22 @@ async function chart(file) {
     const H = { bold: true, color: MUTED, fontSize: 11, fill: { color: WHITE } };
     const rows = [
       [{ text: "Suite", options: H }, { text: "Result", options: H }, { text: "Where it ran", options: H }],
-      ["npm test, seventeen offline suites", "239 of 240, 1 skipped", "No model, no GPU"],
+      ["npm test, 21 offline suites", "257 of 258, 1 skipped (no LlamaFirewall venv)", "No model, no GPU"],
       ["Messenger end to end (test/e2e.mjs)", "52 of 52 checks", "Muse Glimmer on a cloud A100"],
       ["Attacks (test/redteam.mjs)", "65 of 65 stopped", "A cloud A100"],
       ["Community loop's attacks, within the 65", "29 of 29 stopped, 5 of 5 controls passed", "The server's CPU, with the real guards"],
       ["A2A between two gateways", "22 of 22 checks", "Taipei GPU server and a GCP A100"],
       ["Crash matrix", "20 of 20 checks", "A stand-in model"],
+      ["A federation of three clubs (test/federation_unit.mjs)", "4 of 4: found, signed, rotated, forgery refused", "Real HTTP, one host"],
       ["\"I want to play\" in Messenger", "13 of 13 checks", "Muse Glimmer on a cloud A100"],
     ];
-    s.addTable(rows, { x: 0.6, y: 3.45, w: 12.1, colW: [4.6, 3.9, 3.6], fontSize: 12, fontFace: FONT, color: INK, rowH: 0.38, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
+    s.addTable(rows, { x: 0.6, y: 3.45, w: 12.1, colW: [5.0, 3.9, 3.2], fontSize: 12, fontFace: FONT, color: INK, rowH: 0.38, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
   }
 
   // 23 · Full technical architecture
   pres.addSection({ title: "Architecture" });
   {
-    const s = content("Architecture", "FULL TECHNICAL ARCHITECTURE", "Everything runs on one GPU server I own",
+    const s = content("Architecture", "FULL TECHNICAL ARCHITECTURE", "One GPU server I own, the Meta Model API where it helps",
       "完整技術架構（放最後給想深入的評審）：左邊是使用者的入口；中間是 Node.js gateway 上的各個模組；右邊是 Meta 模型實際跑在哪（GPU 1 Muse Glimmer、GPU 0 視覺、CPU 上的小模型），以及外部開放資料。底下是「給人看之前先由程式檢查」與帳本/追蹤。");
     // Left: you
     T(s, "YOU", 0.45, 1.62, 2.2, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
@@ -711,32 +712,36 @@ async function chart(file) {
     T(s, "SERVE GATEWAY · NODE.JS · STREAMS EACH STEP TO THE APP", 3.28, 1.68, 6.1, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
     const mods = [
       ["Planner agent", "tool loop · native tool calling · 12 steps max · rules finish if it stalls"],
-      ["Agent to agent", "A2A v1.0 · signed Agent Cards · one round · held times · checkpoints"],
+      ["Agent to agent", "A2A v1.0 · signed requests · held times · a federation of clubs, keys rotated"],
       ["Body context", "your words, games, health app · found by DRAMA · rules cite notes"],
       ["Courts near you", "map, reviews, forecast · 4 judged at once · reasons cited"],
       ["Social feed and members", "Facebook / Instagram login · invites · stories · signed agent channel"],
       ["Highlights", "find you, read your pose, cut you out · orbit effect · caption"],
       ["Community loop", "ideas · DRAMA · votes · spec · coding agent · 9 gates · canary"],
       ["Decision tiers", "code first · Llama 3.2 1B when sure · Muse Glimmer if needed"],
+      ["Live voice", "mic relayed to Muse Voice Transcribe · barge-in · Kokoro speaks"],
+      ["Posters and faces", "Muse Image art, made once and cached · names drawn by the app"],
     ];
     mods.forEach(([h, d], i) => {
-      const x = 3.28 + (i % 2) * 3.1, y = 2.0 + Math.floor(i / 2) * 0.9;
-      box(s, x, y, 2.98, 0.8, { fill: CARD, line: CARD });
-      T(s, h, x + 0.14, y + 0.07, 2.7, 0.27, { fontSize: 11.5, bold: true });
-      T(s, d, x + 0.14, y + 0.35, 2.75, 0.42, { fontSize: 9.5, color: MUTED });
+      const x = 3.28 + (i % 2) * 3.1, y = 1.98 + Math.floor(i / 2) * 0.72;
+      box(s, x, y, 2.98, 0.66, { fill: CARD, line: CARD });
+      T(s, h, x + 0.14, y + 0.04, 2.7, 0.26, { fontSize: 11, bold: true });
+      T(s, d, x + 0.14, y + 0.28, 2.75, 0.36, { fontSize: 9, color: MUTED });
     });
     box(s, 3.28, 5.62, 6.08, 0.82, { fill: AMBERBG, line: AMBERBG });
     T(s, "Checked by code before anyone sees it", 3.42, 5.68, 5.8, 0.27, { fontSize: 11.5, bold: true, color: AMBER });
     T(s, "Llama Guard 3 in and out · Prompt Guard 2 on reviews and ideas · numbers must be in the facts · JSON Schemas · facts, not prose, between agents · nothing booked without a yes", 3.42, 5.96, 5.85, 0.46, { fontSize: 9.5 });
     T(s, "Token ledger per call site · OpenTelemetry GenAI traces across agents · disclosure budget · tokens on every API call", 3.28, 6.52, 6.1, 0.38, { fontSize: 9.5, color: MUTED });
     // Right: models and data
-    arrow(s, 9.57, 2.7, 0.3, 0, { color: GREEN });
-    arrow(s, 9.57, 4.15, 0.3, 0, { color: BLUE });
+    arrow(s, 9.57, 2.3, 0.3, 0, { color: GREEN });
+    arrow(s, 9.57, 3.2, 0.3, 0, { color: BLUE });
+    arrow(s, 9.57, 5.0, 0.3, 0, { color: AMBER });
     T(s, "META MODELS ON MY SERVER", 9.92, 1.62, 3.0, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
     const right = [
-      ["Muse Glimmer", "GPU 1 · RTX 3090 · 4 in parallel · tools, JSON Schemas, vision · fallback: Muse Spark 1.3 (Meta Model API)", GREENBG, GREEN, 1.0],
-      ["Vision · GPU 0", "DETR · Sapiens2 · SAM 2.1 (batched, bf16) · MapAnything", BLUEBG, BLUE, 0.85],
-      ["On the CPU", "Llama 3.2 1B student · Llama Guard 3 1B · Prompt Guard 2 86M · DRAMA · Omnilingual ASR", BLUEBG, BLUE, 1.0],
+      ["Muse Glimmer", "GPU 1 · RTX 3090 · 4 in parallel · tools, JSON Schemas, vision", GREENBG, GREEN, 0.78],
+      ["Vision · GPU 0", "DETR · Sapiens2 · SAM 2.1 (batched, bf16) · MapAnything", BLUEBG, BLUE, 0.78],
+      ["On the CPU", "Llama 3.2 1B student · Llama Guard 3 1B · Prompt Guard 2 86M · DRAMA · Omnilingual ASR · Kokoro (speech)", BLUEBG, BLUE, 1.0],
+      ["Meta Model API · key on the server", "Muse Spark 1.3 (fallback) · Muse Voice Transcribe · Muse Image · SAM 3.1 (checked once)", AMBERBG, AMBER, 0.95],
     ];
     let y = 1.92;
     right.forEach(([h, d, fill, c, hh]) => {
@@ -746,14 +751,9 @@ async function chart(file) {
       y += hh + 0.12;
     });
     T(s, "OPEN DATA", 9.92, y + 0.06, 3.0, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
-    y += 0.36;
-    [["OpenStreetMap", "courts, maps"], ["Open-Meteo", "the forecast"], ["Google Places", "reviews, keyed"]].forEach(([h, d]) => {
-      box(s, 9.92, y, 2.95, 0.42, { fill: WHITE });
-      T(s, h, 10.06, y, 1.6, 0.42, { fontSize: 11, bold: true, valign: "middle" });
-      T(s, d, 11.5, y, 1.25, 0.42, { fontSize: 9.5, color: MUTED, align: "right", valign: "middle" });
-      y += 0.5;
-    });
-    arrow(s, 9.57, 5.95, 0.3, 0);
+    y += 0.34;
+    box(s, 9.92, y, 2.95, 0.5, { fill: WHITE });
+    T(s, "OpenStreetMap · Open-Meteo · Google Places (reviews)", 10.06, y, 2.75, 0.5, { fontSize: 9.5, valign: "middle" });
   }
 
   // 24 · End
