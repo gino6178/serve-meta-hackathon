@@ -145,7 +145,7 @@ async function chart(file) {
     T(s, "40% \u2192 26%", 0.9, 2.1, 3.25, 0.8, { fontSize: 38, bold: true, color: GREEN });
     T(s, "of US adults play a sport at ages 18 to 21, then at 26 to 49", 0.9, 2.95, 3.0, 0.65, { fontSize: 15, color: INK });
     T(s, "NPR, RWJF and Harvard Chan poll of 2,506 adults, 2015", 0.9, 3.6, 3.0, 0.45, { fontSize: 10.5, color: MUTED });
-    T(s, "WHAT STOPS ADULTS", 0.9, 4.25, 3.0, 0.25, { fontSize: 10, bold: true, color: GREEN, charSpacing: 1 });
+    T(s, "WHAT STOPS ADULTS (NZ)", 0.9, 4.25, 3.0, 0.25, { fontSize: 10, bold: true, color: GREEN, charSpacing: 1 });
     [["64%", "other commitments come first"], ["21%", "got out of the habit"], ["10%", "no one to do it with"]].forEach(([n, d], i) => {
       T(s, n, 0.9, 4.55 + i * 0.45, 0.8, 0.4, { fontSize: 18, bold: true, color: INK });
       T(s, d, 1.7, 4.55 + i * 0.45, 2.4, 0.4, { fontSize: 12, color: INK, valign: "middle" });
@@ -200,7 +200,7 @@ async function chart(file) {
     const s = content("Impact", "IMPACT · WHO ELSE IT SERVES", "Games where no one has time to organise them",
       "同一套引擎服務沒有人組織的群體，三種社團都已實作、有單元測試：\n1 孩童社團（老師或志工）：一定是私密社團，只有帶隊的人能發活動；孩子不用帳號，只存名字（只有帶隊的人看得到）；勾選今天誰來，程式排輪替，每個孩子上場時間最多差一輪；產生家長接送通知。\n2 樂齡社團：社團裡每個揪團由程式把關：08:00–16:00 開始、60 分鐘、最多 8 人、球拍類雙打；不符合就拒絕並說明原因。\n3 慈善賽：發起人寫公益對象，參賽者自評等級與認捐（只記錄，Serve 不經手錢）；一鍵抽籤：實力平均的雙打組合、循環賽、場地與時段，同一時段沒有隊伍撞場，貼到社團動態。");
     const cards = [
-      ["Children", "A teacher or volunteer", "Private, organiser-led. Children have no accounts: first names only, seen by the organiser. Tap who came; code shares out the courts in turns.", "11 children, 2 courts: everyone plays within one turn of the others. A pick-up note for parents.", GREEN, GREENBG],
+      ["Children", "A teacher or volunteer", "Private: parents and helpers join only when the organiser lets them in. Children have no accounts: first names only, seen by the organiser. Code shares out the courts in turns.", "11 children, 2 courts: everyone plays within one turn of the others. A pick-up note for parents.", GREEN, GREENBG],
       ["Older adults", "Gentle games", "Every game posted in a gentle-games club is held by code: starts 08:00 to 16:00, 60 minutes, 8 players at most, doubles for racket sports.", "A 19:00 game is refused, with the reason. The card says \"Gentle game · doubles, 60 min\".", BLUE, BLUEBG],
       ["A cause", "Charity cup", "Players enter with a level and a pledge to the cause, only recorded: Serve handles no money. The organiser makes the draw in one tap.", "Balanced doubles, a round robin on courts and times, no team twice in a slot; posted in the club.", AMBER, AMBERBG],
     ];
@@ -230,7 +230,7 @@ async function chart(file) {
     col(4.85, 3.75, "YOUR SERVE AGENT", "Plans your week", GREENBG, GREEN);
     row(5.1, 2.95, 3.3, IMG.serve, "Muse Glimmer", "Picks one tool at a time on my RTX 3090; code runs it");
     row(5.1, 3.85, 3.3, IMG.dot, "Llama 3.2 1B", "Distilled from Glimmer: the easy calls, on the CPU");
-    row(5.1, 4.75, 3.3, IMG.dot, "A2A with friends' agents", "One round: they mark times, code picks the overlap");
+    row(5.1, 4.75, 3.3, IMG.dot, "A2A with friends' agents", "Usually one round: they mark times, code picks; a counter-offer if none fits");
     arrow(s, 8.65, 3.97, 0.4, 0);
     col(9.1, 3.6, "ON AND OFF THE COURT", "You just play", BLUEBG, BLUEBG);
     row(9.35, 2.95, 3.15, IMG.check, "One yes", "In the app or with a tap in Messenger");
@@ -246,10 +246,10 @@ async function chart(file) {
       "規劃與球場：\n左：中心點球場地圖（技術報告第 4 頁那張）——每個人的通勤時間、共同空檔，agent 一輪談好。\n右：手機版找球場——Prompt Guard 2 先過濾 Google 評論，Muse Glimmer 同時判斷四個球場，每個理由都引用來源，程式檢查。\n旁白：Then it plans my week, and agrees it with three friends' agents at once, over A2A. Any ball sport works.");
     s.addImage({ data: IMG.venue, x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406 });
     s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406, fill: { type: "none" }, line: { color: LINE, width: 1 } });
-    T(s, "Badminton: the venue in the middle, each player's trip agreed in one round", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
+    T(s, "Badminton: the venue in the middle (an earlier run than slide 8, on court 3)", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
     phone(s, IMG.v3.courts_badges, 7.6, 1.85, 4.7, "Basketball: public courts, judged with sources");
     const x = 10.25;
-    [["Muse Glimmer plans", "One tool at a time; a refused call comes back as a fact"], ["A2A, one round", "Agents mark the times that work; code picks"], ["Prompt Guard 2", "Screens Google reviews before the judge reads them"], ["Nothing booked", "until you say yes"]].forEach(([h, d], i) => {
+    [["Muse Glimmer plans", "One tool at a time; a refused call comes back as a fact"], ["A2A, usually one round", "Agents mark the times that work; code picks; a counter-offer only if none fits"], ["Prompt Guard 2", "Screens Google reviews before the judge reads them"], ["Nothing booked", "until you say yes"]].forEach(([h, d], i) => {
       T(s, h, x, 1.95 + i * 1.18, 2.5, 0.3, { fontSize: 13.5, bold: true });
       T(s, d, x, 2.27 + i * 1.18, 2.5, 0.8, { fontSize: 11.5, color: MUTED });
     });
@@ -294,7 +294,7 @@ async function chart(file) {
       T(s, w, x + 0.22, y + 1.43, 3.5, 0.25, { fontSize: 10, color: MUTED });
     });
     box(s, 0.6, 5.95, 12.1, 0.85, { fill: CARD, line: CARD });
-    T(s, [{ text: "Also: ", options: { bold: true } }, { text: "DETR, Sapiens2, SAM 2.1, MapAnything (auto-cut highlights) · Omnilingual ASR (voice notes) · Muse Image (posters, agent faces) · Muse Spark (fallback) · Muse Wonder and SAM 3.1 (checks). 10 open weights on my server, 5 on the Meta Model API; all 15 in the appendix." }],
+    T(s, [{ text: "Also: ", options: { bold: true } }, { text: "DETR, Sapiens2, SAM 2.1, MapAnything (auto-cut highlights) · Omnilingual ASR (voice notes) · Muse Image (posters, agent faces) · Muse Spark (fallback) · Muse Wonder and SAM 3.1 (checks). Of the 15, 12 run in the product and 3 are checks; all 15 in the appendix." }],
       0.8, 5.95, 11.7, 0.85, { fontSize: 12, valign: "middle" });
   }
 
@@ -313,11 +313,11 @@ async function chart(file) {
     T(s, [{ text: "So every call asks for think: \"low\" and leaves room to reason. ", options: { bold: true } }, { text: "And the most common choice, which time a member's agent picks, goes to a student that writes nothing.", options: {} }], 0.8, 5.28, 3.85, 1.4, { fontSize: 12 });
     arrow(s, 4.9, 3.6, 0.3, 0, { color: GREEN, width: 2.5 });
     T(s, "THE STUDENT · META'S LLAMA 3.2 1B, FINE-TUNED", 5.35, 1.8, 7.3, 0.25, { fontSize: 10.5, bold: true, color: GREEN, charSpacing: 1 });
-    [["Teacher data", "4,868 choices Muse Glimmer made through the real agent call, a separate run on a cloud A100"], ["LoRA", "Rank 16 on every projection, 3 epochs: 20 min for the 1B"], ["A decision head", "One pass: a probability per option, and its own yes or no for every time"], ["int4 on the CPU", "0.8 GB, about 0.9 s a decision, 0 tokens written"]].forEach(([h, d], i) => {
-      const x = 5.35 + (i % 2) * 3.7, y = 2.15 + Math.floor(i / 2) * 0.98;
-      box(s, x, y, 3.58, 0.86, { fill: GREENBG, line: GREENBG });
-      T(s, h, x + 0.15, y + 0.07, 3.3, 0.28, { fontSize: 12.5, bold: true });
-      T(s, d, x + 0.15, y + 0.36, 3.35, 0.48, { fontSize: 10, color: MUTED });
+    [["Teacher data", "4,868 choices Glimmer made through the real agent call (a separate A100 run); LoRA, 3 epochs, 20 minutes"], ["int4 on the CPU", "0.8 GB; one pass gives a probability per option, about 0.9 s a decision, no text written"]].forEach(([h, d], i) => {
+      const x = 5.35 + i * 3.7, y = 2.15;
+      box(s, x, y, 3.58, 1.8, { fill: GREENBG, line: GREENBG });
+      T(s, h, x + 0.18, y + 0.15, 3.25, 0.35, { fontSize: 15, bold: true });
+      T(s, d, x + 0.18, y + 0.6, 3.25, 1.05, { fontSize: 12, color: INK, valign: "top" });
     });
     s.addChart(pres.charts.BAR, [{ name: "Agrees with Glimmer's answer", labels: ["Glimmer vs itself (the ceiling)", "First time listed", "1B student (served)"], values: [88.8, 82.7, 89.5] }], {
       x: 5.3, y: 4.2, w: 4.6, h: 2.6, barDir: "bar", chartColors: [SOFT, LINE, GREEN], barGapWidthPct: 45,
@@ -326,7 +326,7 @@ async function chart(file) {
       catAxisLabelFontSize: 10, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisOrientation: "maxMin",
       valAxisHidden: true, valAxisMinVal: 60, valAxisMaxVal: 100, valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: false,
     });
-    [["54–67%", "of members' answers taken off Glimmer in simulated talks, no rule broken", GREEN], ["29 / 32", "stated preferences kept (Glimmer 27)", INK]].forEach(([n, d, c], i) => {
+    [["54–67%", "fewer Glimmer answers in simulated talks, where some members need Glimmer (96% is the test set)", GREEN], ["29 / 32", "stated preferences kept (Glimmer 27)", INK]].forEach(([n, d, c], i) => {
       const y = 4.3 + i * 1.25;
       box(s, 10.1, y, 2.6, 1.12, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
       T(s, n, 10.25, y + 0.06, 2.35, 0.5, { fontSize: 22, bold: true, color: c });
@@ -449,7 +449,7 @@ async function chart(file) {
       "The web app, members, clubs, the per-player gateways",
       "The Llama 3.2 1B student, fine-tuned from Glimmer's choices",
       "Every test and evaluation; the demo video (2:42)",
-      "Repository history from Oct 28 (day 2), over 900 commits",
+      "Day 1's work moved into this repository on Oct 28 (day 2); over 900 commits since",
     ], 12);
     col(5.35, 2.6, "MINE, FROM BEFORE", "Off in this entry", CARD, MUTED, [
       "TrackNetV5, my published shuttle tracker (ICIP 2026): off by default, not loaded in this entry",
@@ -499,7 +499,7 @@ async function chart(file) {
     const s = pres.addSlide({ masterName: "BLANK", sectionTitle: SEC });
     T(s, "APPENDIX", 0.8, 2.4, 11, 0.4, { fontSize: 14, bold: true, color: GREEN, charSpacing: 2 });
     T(s, "The details behind the main slides", 0.8, 2.85, 11.5, 0.9, { fontSize: 40, bold: true });
-    T(s, "The agent and A2A · all 15 Meta models · the social app · auto-cut highlights · posters · agents as members · voice · federated clubs · memory · agent architecture · more measurements · scale · the self-evolving club · every number and its source · the full architecture", 0.8, 3.95, 11.5, 1.2, { fontSize: 16, color: MUTED });
+    T(s, "The agent and A2A · all 15 Meta models · the social app · auto-cut highlights · agents as members · voice · federated clubs · memory · agent architecture · scale · the self-evolving club · every number and its source · the full architecture", 0.8, 3.95, 11.5, 1.2, { fontSize: 16, color: MUTED });
   }
 
   // 12 · Agents
@@ -524,7 +524,7 @@ async function chart(file) {
     T(s, "On the official SDK. One negotiation is one A2A context, and one trace.", 7.0, 2.5, 5.5, 0.6, { fontSize: 12.5, color: MUTED });
     const facts = [
       ["Signed Agent Cards", "Ed25519, checked before your agent talks to it"],
-      ["One round", "Each agent marks the times that work; code picks from the overlap"],
+      ["Usually one round", "Each agent marks the times that work; code picks from the overlap; a counter-offer if none fits"],
       ["Held, all or nothing", "A 30-minute hold, so two talks never agree the same member twice"],
       ["Survives a crash", "Killed at each of five steps: booked exactly once every time"],
     ];
@@ -629,21 +629,6 @@ async function chart(file) {
       T(s, l, x, 6.18, 1.31, 0.22, { fontSize: 10, bold: true, align: "center" });
     });
     T(s, "Three frames rendered along the arc, time stopped", 8.67, 6.45, 4.03, 0.4, { fontSize: 10, color: MUTED });
-  }
-
-  // 10 · Saturday: the rematch, a poster made with Muse Image, and every agent's face
-  {
-    const s = content("Demo", "SATURDAY · MADE WITH MUSE IMAGE", "A poster for the rematch, a face for every agent",
-      "對戰海報與 agent 大頭貼（Meta Model API 的 Muse Image，每張 $0.01）：\n海報：Muse Image 只畫背景插畫（兩隻吉祥物在球場對峙，不放文字），名字、時間、賭注由 app 用程式疊上去，所以不會出現亂碼字；每場挑戰只產生一次，存在伺服器上。只有球種和單雙打會進 prompt，名字和留言從不送出。一鍵從手機分享到 Instagram / Facebook。\n大頭貼：demo 社團每位成員的 agent 和你自己的 agent 各一張，只產生一次，出現在社群動態、Agent 對話和首頁。");
-    phone(s, IMG.v3.poster, 0.75, 1.85, 4.7, "A rematch poster, shared from the phone");
-    const x = 3.6;
-    T(s, "The poster", x, 1.9, 4.4, 0.32, { fontSize: 15, bold: true });
-    T(s, "Muse Image draws only the art: two of the club's mascots facing off, no words in it. The app writes who, when and the stake on top, so nothing reads wrong. Made once per challenge; only the sport and the format go into the prompt, never a name or a note.", x, 2.25, 4.4, 1.6, { fontSize: 11.5, color: MUTED });
-    T(s, "Every agent's face", x, 3.95, 4.4, 0.32, { fontSize: 15, bold: true });
-    T(s, "One for each member's agent and one for yours, made once (12 images), so you can tell at a glance whose agent is talking: in the feed, in Agent chats and on the home page.", x, 4.3, 4.4, 1.2, { fontSize: 11.5, color: MUTED });
-    pill(s, "Muse Image · $0.01 an image · made once", x, 5.65, 3.6, { size: 11, color: AMBER, fill: AMBERBG, line: AMBERBG });
-    IMG.faces.forEach((f, i) => { const col = i % 4, row = Math.floor(i / 4); s.addImage({ data: f, x: 8.45 + col * 1.08, y: 1.95 + row * 1.12, w: 0.95, h: 0.95 }); });
-    T(s, "The demo club's agents and yours", 8.45, 5.35, 4.3, 0.28, { fontSize: 10.5, color: MUTED });
   }
 
   // 13 · Your agent is a member too: the signed agent channel
@@ -785,26 +770,6 @@ async function chart(file) {
     });
   }
 
-  // 19 · Seven more pieces, each measured
-  {
-    const s = content("Technical depth", "TECHNICAL DEPTH · MEASURED THIS WEEK", "Three more pieces, each one measured",
-      "這週加的六件事，每一件都有量測：\n1 私密行事曆貫穿 Match 和規劃：其他成員的空檔只能問「這個時間有空嗎」，每天最多問 24 次。\n2 學出來的意圖路由：正規表示式找到 6/10 約球請求，加上路由 10/10，22 則其他訊息誤報 1 則。\n3 Muse Spark（Muse Code 用的同一系列）蓋 C3 新功能：修正我們自己的 oracle 後第一次就過。\n4 商用授權的記憶 embedder：Granite（Apache 2.0）前三名召回 0.80。\n5 Orbit 視覺裁判：Muse Wonder 看 84 張標註畫面，會說出它看到的瑕疵。\n6 GPU 套件在 A100 上跑過閘門：攻擊 93/93、e2e 58/58、crash matrix 201/201。");
-    const rows = [
-      ["Private calendars, everywhere", "Match, the planner and the search ask each member's agent 'free then?'; a yes or a no, 24 asks a day", "4 tests: a calendar read by anyone but its agent throws", GREEN],
-      ["A learned intent router", "DRAMA vectors and a small head, behind the regular expressions", "Game requests found: 6 of 10 by the expressions alone, 10 of 10 with the router added", GREEN],
-      ["New code, built by Muse Spark", "A C3 spec: a new module and a field in the planner (Muse Code's model family)", "Built on the first attempt: Spark 202k tokens, 1.4 min; Glimmer 111k, 1.6 min", GREEN],
-    ];
-    rows.forEach(([h, what, res, c], i) => {
-      const y = 2.0 + i * 1.25;
-      s.addShape(pres.shapes.OVAL, { x: 0.6, y: y + 0.12, w: 0.38, h: 0.38, fill: { color: c }, line: { color: c } });
-      T(s, String(i + 1), 0.6, y + 0.12, 0.38, 0.38, { fontSize: 12, bold: true, color: WHITE, align: "center", valign: "middle" });
-      T(s, h, 1.15, y + 0.04, 3.6, 0.3, { fontSize: 13.5, bold: true });
-      T(s, what, 1.15, y + 0.34, 4.6, 0.32, { fontSize: 9.5, color: MUTED });
-      box(s, 6.0, y + 0.02, 6.7, 0.58, { fill: CARD, line: CARD });
-      T(s, res, 6.18, y + 0.02, 6.4, 0.58, { fontSize: 11, valign: "middle" });
-    });
-  }
-
   // 19 · Measured at scale: what one model call reads as the club grows
   {
     const s = content("Technical depth", "MEASURED", "It stays the same size as the club grows",
@@ -886,7 +851,8 @@ async function chart(file) {
       ["A federation of three clubs (test/federation_unit.mjs)", "4 of 4: found, signed, rotated, forgery refused", "Real HTTP, one host"],
       ["\"I want to play\" in Messenger", "13 of 13 checks", "Muse Glimmer on a cloud A100"],
     ];
-    T(s, "\"A cloud A100\": the same Muse Glimmer build that runs the product on the RTX 3090.", 0.6, 6.8, 12.1, 0.25, { fontSize: 10, color: MUTED, italic: true });
+    rows.forEach((r, i) => { if (i && typeof r[2] === "string" && /Muse Glimmer|A cloud A100/.test(r[2])) rows[i] = r.map((t) => ({ text: t, options: { bold: true } })); });
+    T(s, "Bold: run with the real model. \"A cloud A100\": the same Muse Glimmer build that runs the product on the RTX 3090.", 0.6, 6.8, 12.1, 0.25, { fontSize: 10, color: MUTED, italic: true });
     s.addTable(rows, { x: 0.6, y: 3.4, w: 12.1, colW: [5.0, 3.9, 3.2], fontSize: 11.5, fontFace: FONT, color: INK, rowH: 0.33, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
   }
 
