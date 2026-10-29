@@ -3,6 +3,7 @@ import Icon from "../components/Icon.jsx";
 import { agentPlaces, agentWhere } from "../agent.js";
 import { patchGame } from "../club/game.js";
 import { go } from "../App.jsx";
+import { myPlace } from "../where.js";
 import "./courts.css";
 
 // Courts near you, in any ball sport: public courts, school fields, sports centres and parks from OpenStreetMap, each
@@ -32,10 +33,13 @@ export default function Courts() {
   useEffect(() => {
     Promise.all([fetch("/data/venues.json").then((r) => r.json()), fetch("/data/club.json").then((r) => r.json())]).then(([v, c]) => {
       const g = v.map?.geo; if (!g) return;
-      const h = { ...toGeo(g, c.you.area), name: `your area (${c.you.area.name}, ${g.place})` }; setHome(h); setNear(h);
+      const h = { ...toGeo(g, c.you.area), name: `your area (${c.you.area.name}, ${g.place})` }; setHome(h);
+      setNear((x) => x || h);
     }).catch(() => setErr("The club map could not be loaded."));
+    // where you are, if the browser allows it: courts near you, not near the demo club
+    myPlace().then((p) => p && setNear(p));
   }, []);
-  const mine = () => navigator.geolocation?.getCurrentPosition((p) => setNear({ lat: p.coords.latitude, lon: p.coords.longitude, name: "where you are" }), () => setErr("Location is off for this site."));
+  const mine = () => myPlace().then((p) => (p ? setNear(p) : setErr("Location is off for this site.")));
   const find = async () => { setErr(""); try { const w = await agentWhere(q); if (w.error) throw new Error(w.error); setNear(w); } catch (e) { setErr(e.message); } };
   const search = async () => {
     if (!near) return;

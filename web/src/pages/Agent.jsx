@@ -168,7 +168,7 @@ export default function Agent({ club }) {
             const days = Array.from({ length: 7 }, (_, k) => { const d = new Date(today); d.setDate(d.getDate() + k); return d; });
             return (
               <section className="helpers" aria-labelledby="helpers-h">
-                <h2 id="helpers-h" className="sec-label">Your week<a className="link" href="#/chats">Agent chats</a></h2>
+                <h2 id="helpers-h" className="sec-label">Your week<span className="sec-links"><a className="link" href="#/highlights">Auto highlight</a><a className="link" href="#/chats">Agent chats</a></span></h2>
                 <ol className="week-strip">
                   {days.map((d, k) => {
                     const dow = DOW[d.getDay()], b = booked.find((o) => o.day === dow), u = !b && h.find((x) => x.day === dow);

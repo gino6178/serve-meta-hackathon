@@ -108,8 +108,18 @@ const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", "
 function file(req, res, p) {
   let f = path.join(WEB, decodeURIComponent(p));
   if (!f.startsWith(WEB) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) f = path.join(WEB, "index.html");
-  const type = TYPES[path.extname(f).toLowerCase()] || "application/octet-stream";
-  res.writeHead(200, { "content-type": type, "cache-control": f.endsWith("index.html") ? "no-cache" : "public, max-age=3600" });
+  const type = TYPES[path.extname(f).toLowerCase()] || "application/octet-stream", size = fs.statSync(f).size;
+  const head = { "content-type": type, "accept-ranges": "bytes", "cache-control": f.endsWith("index.html") ? "no-cache" : "public, max-age=3600" };
+  // a byte range (Safari asks for one before it plays any video, and will not play without it)
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+  if (m && (m[1] || m[2])) {
+    let from = m[1] ? +m[1] : Math.max(0, size - +m[2]), to = m[1] && m[2] ? Math.min(+m[2], size - 1) : size - 1;
+    if (from >= size || from > to) { res.writeHead(416, { "content-range": `bytes */${size}` }); return res.end(); }
+    res.writeHead(206, { ...head, "content-range": `bytes ${from}-${to}/${size}`, "content-length": to - from + 1 });
+    return req.method === "HEAD" ? res.end() : fs.createReadStream(f, { start: from, end: to }).pipe(res);
+  }
+  res.writeHead(200, { ...head, "content-length": size });
+  if (req.method === "HEAD") return res.end();
   fs.createReadStream(f).pipe(res);
 }
 

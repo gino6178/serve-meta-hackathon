@@ -103,7 +103,12 @@ function InviteComposer({ onPosted }) {
     catch (x) { setErr(x.message); }
     setBusy(false);
   };
-  if (!open) return <button className="so-start" onClick={() => setOpen(true)}><Icon name="plus" size={18} />Start a game anyone can join</button>;
+  if (!open) return (
+    <div className="so-starts">
+      <button className="so-start" onClick={() => setOpen(true)}><Icon name="plus" size={18} />Start a game anyone can join</button>
+      <a className="so-start hl" href="#/highlights"><Icon name="play" size={18} />Auto highlight: your video, cut by your agent</a>
+    </div>
+  );
   return (
     <form className="panel so-invite" onSubmit={send}>
       <h2 className="panel-h">Start a game</h2>

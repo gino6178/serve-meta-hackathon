@@ -4,6 +4,7 @@ import { memory } from "./memory.js";
 import { readGame, patchGame, isoWeek } from "./club/game.js";
 import { postToClub } from "./club/share.js";
 import { prefersReducedMotion } from "./hooks.js";
+import { myPlace, knownPlace } from "./where.js";
 import { sayCheck } from "./components/Safety.jsx";
 
 // The agent's jobs. Everything the agent does for the player is a task: what was asked, the trail of steps as each one
@@ -161,11 +162,11 @@ export function autopilotInput() {
   const upcoming = list.filter((t) => ["play", "game"].includes(t.kind) && t.booking && t.booking.state !== "cancelled").map((t) => t.booking.option)
     .filter((o) => { const d = new Date(`${o.date}T${o.start}`); return d >= new Date(wk.toDateString()) && d < soon; }).map((o) => ({ date: o.date, start: o.start, with: o.partners.map((p) => p.id) }));
   const history = (g.arena?.results || []).filter((x) => x.played).map((x) => ({ date: new Date(x.at).toISOString().slice(0, 10), start: x.start || "19:00", sport: x.sport || "badminton", format: x.vs.length > 1 ? "doubles" : "singles", with: [...x.vs, ...(x.partner ? [x.partner] : [])], booked: x.booked || 90, played: x.played }));
-  return { upcoming, history, goal: g.autopilot?.goal || {} };
+  return { upcoming, history, goal: g.autopilot?.goal || {}, near: knownPlace() };
 }
 export function startAutopilot(body) {
   const id = create("autopilot", () => ({ title: `Line up ${body.goal?.perWeek || 2} games this week`, href: "autopilot" }));
-  run(id, (on) => agentAutopilot(body, on), (r) => ({ result: r, state: r.agreed.length ? "needs" : "done",
+  run(id, async (on) => agentAutopilot({ ...body, near: body.near || await myPlace() }, on), (r) => ({ result: r, state: r.agreed.length ? "needs" : "done",
     // a draft (the goal check held the plan back): the agent's plain words on why it needs a look
     summary: r.approval?.draft ? r.summary : r.agreed.length ? `${r.agreed.length} game${r.agreed.length > 1 ? "s" : ""} agreed with everyone's agent. Book ${r.agreed.length > 1 ? "them" : "it"}?` : r.summary }));
   return id;

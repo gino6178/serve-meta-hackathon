@@ -120,7 +120,7 @@ export const run = (args = {}, { resume = null } = {}) => {
 };
 // what a run's start record keeps of its arguments: everything but the callbacks (and dates as text)
 const startOf = ({ notify, notifyNone, onStep, now, ...rest }, steps) => ({ ...JSON.parse(JSON.stringify(rest)), now: (now || new Date()).toISOString(), steps });
-async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcoming = [], body = null, messenger = null, notify = null, notifyNone = null, onStep, now = new Date(), player = null, notes = null, runId = null, resume = null } = {}) {
+async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcoming = [], body = null, messenger = null, notify = null, notifyNone = null, onStep, now = new Date(), player = null, notes = null, runId = null, resume = null, near = null } = {}) {
   stats.peak = stats.inflight; // this run's peak of model calls at the same time
   const t0 = Date.now(), s0 = { ...stats };
   const tell = (s) => onStep?.({ type: "step", ...s }), work = (step) => onStep?.({ type: "working", step });
@@ -185,8 +185,12 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
     async find_places({ day, start = "19:00" }) {
       const d = days.find((x) => x.day === day);
       if (!d) return { error: `${day} is not in the next seven days` };
-      if (!geo) return { error: "the club map has no real-world location (venues.json map.geo)" };
-      const here = places.toGeo(geo, club.you.area);
+      // where the player is when the app sent it (rounded, not kept), else the club's own area; the members a game is
+      // agreed with live around the club, so a place more than 25 km from it keeps the club's area
+      const area = geo && places.toGeo(geo, club.you.area);
+      const at = near && isFinite(+near.lat) && isFinite(+near.lon) && Math.abs(+near.lat) <= 90 && Math.abs(+near.lon) <= 180 ? { lat: +near.lat, lon: +near.lon } : null;
+      if (!at && !geo) return { error: "the club map has no real-world location (venues.json map.geo)" };
+      const here = at && (!area || places.meters(at, area) <= 25000) ? at : area;
       const res = await places.search({ ...here, sport: g.sport, date: d.date, start, limit: 4, radius: flags.get("places.radius", player || messenger), onStep: (e) => e.type === "working" && work(e.step) });
       const ok = res.places.filter((p) => p.verdict !== "no").slice(0, 3);
       ok.forEach((p) => { found[p.id] = p; places.note(p); });
