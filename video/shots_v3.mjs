@@ -72,8 +72,9 @@ if (!process.argv.includes("--no-plan")) {
   await go("autopilot?run=1", 2000);
   await until(() => document.querySelector(".ap-approve"), 600000); await wait(1500);
   await page.evaluate(() => document.querySelector(".ap-approve").scrollIntoView({ block: "center" })); await wait(800); await shot("plan_approve");
-  await go("chats", 2000);
-  await page.evaluate(() => { document.querySelector(".ch-head")?.scrollIntoView({ block: "start" }); scrollBy(0, -64); }); await wait(800); await shot("agent_chats");
+  await go("chats", 2000); await shot("agent_chats_list");
+  await page.evaluate(() => document.querySelector(".ch-list button")?.click()); await wait(800);
+  await page.evaluate(() => scrollTo(0, 0)); await wait(500); await shot("agent_chats");
 }
 
 // leave: the demo member, its agent and what they did
