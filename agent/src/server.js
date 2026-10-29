@@ -29,6 +29,7 @@ const bodylog = await import("./body/body.js");
 const bodyContext = await import("./body/context.js");
 const membersApi = await import("./members/api.js");
 const poster = await import("./media/poster.js");
+const liveVoice = await import("./voice/live.js");
 const feedPosts = await import("./feed/posts.js");
 const memory = await import("./memory/memory.js");
 const healthImport = await import("./body/health.js");
@@ -445,7 +446,7 @@ if (process.env.WEBHOOK_PORT) http.createServer((req, res) => {
 }).on("error", (e) => { msn.state.error = `webhook port ${process.env.WEBHOOK_PORT}: ${e.code || e.message}`; console.error(msn.state.error); }) // a taken port must not take the gateway down
   .listen(+process.env.WEBHOOK_PORT, "127.0.0.1", () => console.log(`Messenger webhook only, on 127.0.0.1:${process.env.WEBHOOK_PORT}`));
 
-http.createServer(async (req, res) => {
+const gateway = http.createServer(async (req, res) => {
   const o = req.headers.origin, u = new URL(req.url, "http://x");
   let signedIn = null;
   if (req.method === "OPTIONS") return json(res, 204, {}, o);
@@ -617,4 +618,17 @@ http.createServer(async (req, res) => {
     const ap = await autopilot.resumeRuns((start) => (start.messenger ? apMessages(start.messenger) : {}));
     if (ap.length) console.log(`resumed ${ap.length} Autopilot run${ap.length > 1 ? "s" : ""} cut off by the restart`);
   })().catch((e) => console.error("resume", e.message));
+});
+
+// the live voice agent (voice/live.js): a WebSocket on /api/voice/live. A browser can't set headers on one, so the
+// gateway's token comes as ?auth= and a member's session as ?session=; and only from the app's own origins.
+liveVoice.attach(gateway, {
+  authorize: (req, u) => {
+    if (req.headers.origin && !ORIGINS.includes(req.headers.origin)) return false;
+    const t = u.searchParams.get("auth"), sess = u.searchParams.get("session");
+    if (t) return auth.authorized({ headers: { authorization: `Bearer ${t}` } });
+    return !!(sess && membersApi.member({ headers: { "x-serve-session": sess } }));
+  },
+  // the same answer as the app's typed questions: Llama Guard on what was said and on the reply, every number checked
+  answer: async (text, ctx) => { const r = await webapi.answer({ text, you: ctx.app || {} }, agentAnswer.answer); return { text: r.text, checked: !!r.verified?.ok }; },
 });

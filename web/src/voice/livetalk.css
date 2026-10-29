@@ -1,0 +1,23 @@
+/* talking with your agent, both ways at once (voice/LiveTalk.jsx) */
+.lt-scrim { position: fixed; inset: 0; z-index: var(--z-modal, 1000); background: #07120d; color: #fff; display: grid; place-items: center; }
+.lt { width: min(460px, 100%); height: 100dvh; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto auto auto; justify-items: center; gap: 12px; padding: 48px 20px 28px; }
+.lt-orb { width: 140px; height: 140px; border-radius: 50%; padding: 6px; background: radial-gradient(circle, #5fd39a55, transparent 70%); transition: transform .3s; }
+.lt-orb img { width: 100%; height: 100%; border-radius: 50%; display: block; }
+.lt-orb.listening, .lt-orb.hearing { animation: lt-breathe 2.4s ease-in-out infinite; }
+.lt-orb.hearing { box-shadow: 0 0 0 6px #5fd39a55; }
+.lt-orb.thinking { animation: lt-spin 1.2s linear infinite; background: conic-gradient(#5fd39a, transparent 60%); }
+.lt-orb.speaking { animation: lt-talk .5s ease-in-out infinite alternate; }
+@keyframes lt-breathe { 50% { transform: scale(1.05); } }
+@keyframes lt-spin { to { transform: rotate(360deg); } }
+@keyframes lt-talk { to { transform: scale(1.08); } }
+.lt-state { margin: 0; font: 700 15px/1 var(--font); letter-spacing: .08em; text-transform: uppercase; color: #5fd39a; }
+.lt-log { list-style: none; margin: 0; padding: 0; width: 100%; overflow-y: auto; display: grid; gap: 10px; align-content: end; }
+.lt-log li { display: flex; }
+.lt-log li p { margin: 0; padding: 10px 14px; border-radius: 18px; max-width: 85%; font-size: 16px; line-height: 1.4; }
+.lt-log li.you { justify-content: flex-end; }
+.lt-log li.you p { background: #0a7f44; }
+.lt-log li.agent p { background: rgb(255 255 255 / .1); }
+.lt-log li.partial p { opacity: .6; font-style: italic; }
+.lt-err { margin: 0; color: #ff8a80; }
+.lt-by { margin: 0; font-size: 12px; color: rgb(255 255 255 / .55); text-align: center; }
+.lt-end { width: 64px; height: 64px; border-radius: 50%; border: 0; background: #e5484d; color: #fff; display: grid; place-items: center; cursor: pointer; }

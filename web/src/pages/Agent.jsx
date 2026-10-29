@@ -13,6 +13,7 @@ import { go } from "../App.jsx";
 import { agentSafety } from "../agent.js";
 import SafetyList from "../components/Safety.jsx";
 import VoiceAsk from "../voice/VoiceAsk.jsx";
+import LiveTalk from "../voice/LiveTalk.jsx";
 import "./agent.css";
 
 // The agent home, the way Muse is laid out: say what you want, and every job the agent takes on shows up as a card
@@ -69,7 +70,7 @@ function Story({ items, at, onClose, onMove }) {
 export default function Agent({ club }) {
   const tasks = useTasks();
   const [text, setText] = useState("");
-  const [story, setStory] = useState(null);
+  const [story, setStory] = useState(null), [talk, setTalk] = useState(false); // talk: the live voice line (voice/LiveTalk.jsx)
   const [seen, setSeen] = useState(() => { try { return JSON.parse(localStorage.getItem("serve.stories.v1")) || []; } catch { return []; } });
   const field = useRef(null);
   useEffect(() => { if (club) seedBody(club); }, [club]);
@@ -136,6 +137,7 @@ export default function Agent({ club }) {
               <textarea id="agent-q" ref={field} rows={2} value={text} onChange={(e) => setText(e.target.value)} placeholder="Doubles on Thursday evening"
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } }} />
               <VoiceAsk field={field} onText={(words) => setText((t) => (t.trim() ? `${t.trim()} ${words}` : words))} />
+              <button type="button" className="talk-live" onClick={() => setTalk(true)} aria-label="Talk with your agent"><Icon name="live" size={18} />Talk</button>
               <button className="send" aria-label="Send to your agent" disabled={!text.trim() || !you}><Icon name="up" size={20} /></button>
             </form>
           </section>
@@ -262,6 +264,7 @@ export default function Agent({ club }) {
         </aside>
       </div>
       {story != null && <Story items={stories} at={story} onClose={() => setStory(null)} onMove={move} />}
+      {talk && club && <LiveTalk facts={input(club)} onClose={() => setTalk(false)} />}
     </div>
   );
 }

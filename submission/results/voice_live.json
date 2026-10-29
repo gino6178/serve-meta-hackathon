@@ -1,0 +1,7 @@
+{
+  "what": "One live check of the voice line (agent/src/voice/live.js): a spoken question, made with Kokoro, streamed to /api/voice/live in real time as a microphone would, relayed to Muse Voice Transcribe (realtime, ENDPOINTING), answered by the agent on Muse Glimmer through the app's own guarded answer, and spoken back with Kokoro. GPU server, 2026-10-29.",
+  "timeline_s": { "ready": 1.2, "speechStart": 2.0, "first partial": 2.5, "turn complete": 3.6, "reply text": 12.3, "reply audio (whole reply at once, before sentence-by-sentence)": 20.3 },
+  "heard": "When is my next game?",
+  "reply": "No game is booked in the next 7 days. Today is Thu 2026-10-29 and you have 0 games played so far this week. Want me to line up a game at your usual times?",
+  "note": "One session, about 5 s of audio ($0.18 an hour). After it, replies are spoken a sentence at a time, so the first sentence is heard before the rest is made; that change is covered by test/voice_unit.mjs, not re-run live."
+}

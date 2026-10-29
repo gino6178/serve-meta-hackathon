@@ -171,3 +171,4 @@
 .status-pills a svg { color: var(--agent); flex: none; }
 @media (max-width: 700px) { .week-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .agent-face.pic { object-fit: cover; padding: 0; background: #fff; }
+.talk-live { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: #0a7f44; color: #fff; font: 700 14px/1 var(--font); cursor: pointer; flex: none; }
