@@ -18,7 +18,7 @@ cloud A100s serving the same Muse Glimmer build (the same model digest), reached
 runs on the RTX 3090 I own; the cloud A100s ran evaluations only.
 
 **What running Muse Glimmer taught me first.** It reasons before it answers, even when told not to. Over the 2,755
-calls in the evaluations' ledgers, 84% of the tokens it wrote were reasoning and 9% of calls came back empty; 222 of
+calls in the evaluations' ledgers (the student's 4,868 training choices were a separate run, 3.12), 84% of the tokens it wrote were reasoning and 9% of calls came back empty; 222 of
 those 248 empty replies were the quick pick, whose small budget ran out while it was still reasoning. With thinking
 switched off it still reasoned in a hidden channel and returned nothing. So every call asks for `think: "low"` and
 has room to reason beyond its answer (900 tokens by default), and each cheaper tier was measured against that
@@ -158,9 +158,10 @@ Courts (`agent/src/club/places.js`) come from OpenStreetMap, with Google Maps ra
 and the Open-Meteo forecast. Glimmer judges four places at once; a reason that does not cite the map, a review (word
 for word) or the forecast is dropped. Prompt Guard 2 reads the reviews first.
 
-### 3.4 Highlights for sharing, and orbit replays
+### 3.4 Automatic highlight editing, and orbit replays
 
-A highlight is a clip to share with friends; nothing in it scores technique or performance. In `video/pose/reel.py`,
+A highlight is cut automatically from the player's own video: a clip to share with friends, made with no editing by
+the player. Nothing in it scores technique or performance. In `video/pose/reel.py`,
 DETR [16] finds the people in the player's own video, Sapiens2 finds the moment worth sharing and SAM 2.1 [17] cuts
 the player out. The clip replays that moment in slow motion, with a caption Glimmer writes and code checks.
 
@@ -282,7 +283,7 @@ machine (`agent/src/a2a/peer.js`, `docs/a2a_two_gateways.md`), with ten simulate
 negotiates with them over the network: proposals, holds, bookings and "how likely is a yes" all cross between the
 machines. Each gateway trusts the other only as far as its signed requests, its pinned key and its allow-list go. No
 port is open to the internet. Both listen on loopback, and an SSH tunnel with a pinned host key is the only way between
-them. In the measured run (12 concurrent talks across the two machines, 22 of 22 checks), the hop to us-central1 added
+them. In the measured run (12 concurrent talks across the two machines, 22 of 22 checks), the hop to the second gateway, on a GCP A100 in us-central1, added
 about 185 ms per request. Every time B's agents agreed to was inside their own calendars and rules, no member was
 booked twice, and a booking whose time another talk had taken in the meantime was refused by B's agent and left
 nothing behind on either side.
@@ -296,8 +297,10 @@ quantized to int4 and served on the CPU, and it returns a probability for each d
 it is sure (0.6) and its reading of the facts matches code's, and only for members whose limits are all in code.
 Otherwise Glimmer answers, also when the worker is down or slow. Its options are only times that keep every hard rule,
 so it can pick a time the member likes less, but never one that breaks a rule. In talks with the simulated club it
-cut Glimmer's member answers by 54 to 67% with no rule broken. On held-out members it agrees with Glimmer 89.5% of the
-time, against Glimmer's 88.8% agreement with itself. As served, it keeps the member's stated preference in 29 of 32 cases (Glimmer alone 27).
+cut Glimmer's member answers by 54 to 67% with no rule broken. On 500 held-out cases it agrees with Glimmer 89.5% of the
+time, against Glimmer's 88.8% agreement with itself. It was trained on 4,868 choices Glimmer made through the real
+agent call, a separate run on a cloud A100 (`docs/decision_model.md`). On an idle 8-thread CPU the 1B answers in about 0.9 s (about 2 s on the
+server at low load), against about 40 s for Glimmer's full answer. As served, it keeps the member's stated preference in 29 of 32 cases (Glimmer alone 27).
 
 ### 3.13 What talks reveal, and a disclosure budget
 
@@ -319,7 +322,7 @@ at start and every ten minutes, and each club becomes a peer whose key is pinned
 old key signs a hand-over statement (`typ: serve-key-rotation+jwt`) naming the new key, published in the key set next to
 it. When a request arrives under a key it does not know, a gateway follows the statements from the key it pinned, and
 re-pins only if every link verifies; a statement signed by any other key, or a page that is not a card, is refused.
-`test/federation_unit.mjs` runs three clubs over real HTTP: discovery, signed requests and a replay refused, a rotation
+`test/federation_unit.mjs` (4 of 4) runs three clubs over real HTTP: discovery, signed requests and a replay refused, a rotation
 followed two statements deep, and a forged rotation refused with the pin unchanged.
 
 ### 3.15 Private calendars, all the way through
@@ -487,15 +490,17 @@ Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformer
 
 ### 5.1 The test suites (2026-10-28, and after the restructure on 2026-10-29)
 
+"Glimmer on an A100" below is the same Muse Glimmer build (the same model digest) the product runs on the RTX 3090.
+
 | Suite | Result | Hardware | Source |
 |---|---|---|---|
-| `npm test`: 25 offline suites | 275 tests: 270 pass, 3 skipped (optional tools) on a Windows laptop; the reel and builder-sandbox tests need Linux's ffmpeg and sandbox and passed there (269 of 270 before the last six tests) <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
+| `npm test`: 25 offline suites | 275 tests = 270 pass + 3 skipped (optional tools) + 2 that need Linux (ffmpeg, the builder's sandbox), run on a Windows laptop; on Linux 269 of 270 passed before the last five tests were added <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
 | The deployed gateway (2026-10-29) | Ready on Muse Glimmer; an answer passed both Llama Guard checks; a dosage question refused; one "I want to play" round over A2A (nothing booked); the Messenger webhook verified through the public tunnel; no errors in the log | RTX 3090 | `submission/results/deploy_smoke_2026-10-29.log` |
 | Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks, run inside the gates (5.13) <!-- COUNT --> | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
 | Adversarial (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | A100 | `submission/results/redteam_93.log`; 93 of 93 again inside the gates (5.13) |
 | The loop's attacks (`test/loop_redteam.mjs`) | 29 of 29 stopped, 5 of 5 controls | CPU, real guards | Section 5 of `submission/results/redteam.log`; `docs/community_loop_review.md` |
 | Crash matrix (`test/crash_matrix.mjs`) | 20 of 20 checks | Stand-in model | `submission/results/crash_matrix.log` |
-| Crash and resume, real model (`test/a2a_resume.mjs`) | Passed, 2026-10-27 | RTX 3090 | `submission/results/a2a_resume.log` |
+| Crash and resume, real model (`test/a2a_resume.mjs`) | Passed | RTX 3090 | `submission/results/a2a_resume.log` |
 | "I want to play" in Messenger (`test/match_messenger.mjs`) | 13 of 13 checks | Glimmer on an A100 | `docs/agent_matchmaking_plan.md` (6.7); `submission/results/match_messenger.log` is the earlier run of the first 9, 9 of 9 |
 
 The end-to-end test drives the real gateway against a fake Graph API, from linking and "want a game?" agreed over A2A
@@ -759,8 +764,8 @@ How a pick-up game is usually set up today, a poll in a group chat, against Serv
 | Someone not in the group | Has to be added to the chat first | Opens the link and joins (the link in 3.17) |
 | Who is in | Read back from the votes and the replies | On the card, and the agent posts each join in the thread |
 
-On the live site, York's first two invites each had a player in 6 and 2 minutes after posting. That is two games,
-and the week-long trial below is how the comparison gets numbers.
+On the live site (29 October), the first player was in 1, 6 and 46 minutes after a game was posted, and two games
+filled: badminton 3 of 3 within 76 minutes, basketball 2 of 2 within 46.
 
 ## 6. Safety and privacy
 
@@ -816,19 +821,18 @@ data and every loop record, and the end-to-end test checks it. Google reviews ar
 The simulations show that the agents keep what members stated and that the loop does what it was built to do with these
 inputs. They do not show how real people would talk, vote or react.
 
-**Real players.** The public site went live on 29 October, in the last days of the nine-day hackathon: three players
-(five accounts), a club one of them started, three games posted and two joins, 2 and 6 minutes after posting. A
-longer trial did not fit the time. The next step is a week with 10 to 20 players who play now, measuring the games
-booked, the time from the first message to an agreed game, how many invited players join, and the same group's
-group-chat polls for comparison.
+**Real players.** The public site went live on 29 October, day 3 of the hackathon. By that afternoon 8 people had
+joined (14 accounts, with the demo sign-in while the Meta app waits for review), started 2 clubs, posted 4 games and
+made 7 joins; 2 games filled. Measured from here on: games booked, the time from the first message to an agreed game,
+how many invited players join, and the same group's group-chat polls for comparison.
 
 ### 7.1 What was built here, and what was not
 
-**Built during the hackathon (October 27 to November 4, 2026).** All the code in the repository: the gateway and every
+**Built during the hackathon (which runs October 27 to November 4, 2026).** All the code in the repository: the gateway and every
 agent, A2A and its signing, the matchmaking, the memory and its beliefs, the guards' use, the community loop and its
 builder, the highlight pipeline's code, the web app, the members, clubs and the per-player gateways, the tests and
-evaluations. The repository's history starts on October 28, when the work was restructured into it, with 921 commits
-since.
+evaluations. The repository's history starts on October 28, the hackathon's second day, when the work so far was
+restructured into it, with over 900 commits since. The demo video (2:42) was recorded from this code.
 
 **Mine, from before.** TrackNetV5, a published shuttle tracker (ICIP 2026): fetched at run time, off unless
 `BALL_TRACKING=1`, and not used in this entry.
@@ -840,6 +844,11 @@ since.
   tennis and basketball and off in this entry.
 - Software: the A2A SDK, Ollama, Hugging Face Transformers, OpenTelemetry, React and Vite, Leaflet, Cloudflare's tunnel.
 - Data and services: OpenStreetMap, Open-Meteo, Google Places, and CC BY clips credited where shown.
+
+**Licences and terms.** Sapiens2 is used under Meta's Sapiens2 License and DRAMA under CC BY-NC 4.0 (5.12 measures a
+commercial-use alternative). Google Places reviews follow Google's terms: read at request time and not stored, shown
+with their author and a link to the place on Google Maps and never on another map; Glimmer reads them only to judge
+the court, behind Prompt Guard, and a review it quotes must match the review word for word.
 
 ## 8. How to reproduce
 

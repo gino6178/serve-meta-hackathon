@@ -108,8 +108,6 @@ async function chart(file) {
   pres.addSection({ title: "Opening" });
   {
     const s = pres.addSlide({ masterName: "BLANK", sectionTitle: "Opening" });
-    s.addImage({ data: IMG.meta, x: 0.8, y: 0.7, w: 0.6, h: 0.6 });
-    T(s, "Meta", 1.5, 0.78, 2, 0.45, { fontSize: 22, bold: true, valign: "middle" });
     T(s, "Submitted to", 0.8, 2.35, 6, 0.4, { fontSize: 22, bold: true, color: BLUE });
     T(s, "Meta Global AI\nDeveloper Hackathon 2026", 0.8, 2.85, 12, 2.2, { fontSize: 58, bold: true, lineSpacingMultiple: 0.92 });
     pill(s, "Indie Developer", 0.8, 5.35, 2.3, { fill: BLUE, line: BLUE, color: WHITE, h: 0.5, size: 15 });
@@ -177,7 +175,7 @@ async function chart(file) {
     phone(s, IMG.v3.live_clubs, 0.75, 1.85, 4.7, "Clubs on a real map, one recommended");
     phone(s, IMG.v3.live_draft, 3.35, 1.85, 4.7, "Say it; your agent drafts the invite");
     T(s, "LIVE SINCE 29 OCT · relay-orders-eliminate-associated.trycloudflare.com", 6.2, 1.85, 6.6, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
-    [["3", "players"], ["1", "club they started"], ["3", "games posted"], ["2", "joins, 2 and 6 min after posting"]].forEach(([n, d], i) => {
+    [["8", "players, 14 accounts"], ["2", "clubs they started"], ["4", "games posted"], ["7", "joins; 2 games filled"]].forEach(([n, d], i) => {
       const x = 6.2 + i * 1.6;
       box(s, x, 2.15, 1.48, 1.05, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
       T(s, n, x + 0.14, 2.2, 1.2, 0.55, { fontSize: 26, bold: true, color: i === 0 ? GREEN : INK });
@@ -192,7 +190,7 @@ async function chart(file) {
       T(s, h, 6.7, y, 6, 0.3, { fontSize: 14, bold: true });
       T(s, d, 6.7, y + 0.33, 6, 0.6, { fontSize: 11, color: MUTED });
     });
-    T(s, "Live for the last days of a nine-day hackathon: a week-long trial with 10\u201320 players is next (games booked, time to agree, invitees who join).", 6.2, 6.62, 6.6, 0.4, { fontSize: 10, color: MUTED, italic: true });
+    T(s, "Counted on 29 Oct, day 3 of the hackathon. The first player was in 1, 6 and 46 minutes after a game was posted.", 6.2, 6.62, 6.6, 0.4, { fontSize: 10, color: MUTED, italic: true });
   }
 
   // 3c · Clubs for groups with no organiser (agent members/programs.js)
@@ -234,7 +232,7 @@ async function chart(file) {
     arrow(s, 8.65, 3.97, 0.4, 0);
     col(9.1, 3.6, "ON AND OFF THE COURT", "You just play", BLUEBG, BLUEBG);
     row(9.35, 2.95, 3.15, IMG.check, "One yes", "In the app or with a tap in Messenger");
-    row(9.35, 3.85, 3.15, IMG.dot, "Your highlight", "DETR · Sapiens2 · SAM 2.1 · MapAnything");
+    row(9.35, 3.85, 3.15, IMG.dot, "Your highlight, auto-cut", "DETR · Sapiens2 · SAM 2.1 · MapAnything");
     row(9.35, 4.75, 3.15, IMG.instagram, "The club and your stories", "Invites, stories, one tap to Instagram");
     box(s, 0.6, 6.33, 12.1, 0.52, { fill: AMBERBG, line: AMBERBG });
     T(s, "Checked by code before anyone sees it  ·  nothing is booked without your yes  ·  video and health data stay on my server", 0.85, 6.33, 11.6, 0.52, { fontSize: 13, bold: true, color: AMBER, valign: "middle" });
@@ -315,8 +313,8 @@ async function chart(file) {
 
   // 9 · Highlights
   {
-    const s = content("Demo", "THURSDAY · A CLIP TO SHARE · FIVE META VISION MODELS", "Your phone video becomes a clip for your friends",
-      "Highlight 管線（右邊都是同一記殺球：SAM 2.1 去背、MapAnything 深度、俯視環繞圖和沿弧線算繪出的三格）：DETR 找人 → Sapiens2 讀姿勢、找最快的揮拍 → SAM 2.1 把你切出來 → MapAnything 算深度和相機，時間暫停、鏡頭繞 20° → Muse Glimmer 寫說明，程式核對 → 一鍵分享到 Instagram。影片不離開伺服器。\n旁白：Thursday, game done. I upload a phone clip… With MapAnything, time stops and the camera turns around the smash.");
+    const s = content("Demo", "THURSDAY · AUTO-EDITED · FIVE META VISION MODELS", "Your phone video, cut automatically into a clip to share",
+      "Highlight 管線（右邊都是同一記殺球：SAM 2.1 去背、MapAnything 深度、俯視環繞圖和沿弧線算繪出的三格）：DETR 找人 → Sapiens2 找出值得分享的片刻（自動剪輯，不做動作分析）→ SAM 2.1 把你切出來 → MapAnything 算深度和相機，時間暫停、鏡頭繞 20° → Muse Glimmer 寫說明，程式核對 → 一鍵分享到 Instagram。影片不離開伺服器。\n旁白：Thursday, game done. I upload a phone clip… With MapAnything, time stops and the camera turns around the smash.");
     const flow = [["DETR", "finds the players"], ["Sapiens2", "finds the moment worth sharing"], ["SAM 2.1", "cuts you out; SAM 3.1 checked it once"], ["MapAnything", "depth and camera: time stops, the camera turns 20°"], ["Muse Glimmer", "writes the caption, checked by code"]];
     flow.forEach(([h, d], i) => {
       const x = 0.6 + i * 2.45;
@@ -401,8 +399,7 @@ async function chart(file) {
       T(s, job, x + 0.14, y + 0.68, w - 0.24, 0.52, { fontSize: 8.5, color: INK });
       T(s, where, x + 0.14, y + 1.2, w - 0.22, 0.22, { fontSize: 8, color: MUTED });
     });
-    s.addImage({ data: IMG.meta, x: 0.6, y: 6.66, w: 0.3, h: 0.3 });
-    T(s, "10 open weights on my GPU; 5 on the Meta Model API: Voice and Image at runtime, Spark, SAM 3.1 and Wonder for fallback and checks.", 1.0, 6.66, 11.5, 0.3, { fontSize: 12, bold: true, valign: "middle" });
+    T(s, "10 open weights on my GPU; 5 on the Meta Model API: Voice and Image at runtime, Spark, SAM 3.1 and Wonder for fallback and checks.", 0.6, 6.66, 12, 0.3, { fontSize: 12, bold: true, valign: "middle" });
   }
 
   // 12 · Agents
@@ -525,7 +522,7 @@ async function chart(file) {
     const s = content("Technical depth", "TECHNICAL DEPTH · 20% · FINE-TUNING", "Muse Glimmer reasons a lot, so I trained a 1B student",
       "痛點與解法同一頁：\n左：記錄了 2,755 次 Muse Glimmer 呼叫，84% 的 token 是推理；關掉 thinking 它還是在隱藏通道推理，預算不夠時 9% 回空白。所以每次呼叫用 think: low 並留推理空間。\n右：把最常見的判斷（會員選哪個時段）交給微調出來的 Llama 3.2 1B（Jev 式決策模型）：用真正的 agent 呼叫讓 Glimmer 標註 4,868 題，LoRA 微調，不生成文字、直接對選項給機率，int4 在 CPU 上約 0.9 秒。留出會員上和 Glimmer 一致 89.5%（Glimmer 跟自己 88.8%），在模擬社團少用 54–67% 的 Glimmer 呼叫。");
     T(s, "WHAT THE LEDGER SHOWED", 0.6, 1.8, 4.2, 0.25, { fontSize: 10.5, bold: true, color: RED, charSpacing: 1 });
-    [["2,755", "Muse Glimmer calls logged", INK], ["84%", "of its tokens were reasoning", RED], ["9%", "came back empty: thinking off, it still reasoned in a hidden channel", RED]].forEach(([n, d, c], i) => {
+    [["2,755", "Muse Glimmer calls in the evaluations' ledgers", INK], ["84%", "of its tokens were reasoning", RED], ["9%", "came back empty: thinking off, it still reasoned in a hidden channel", RED]].forEach(([n, d, c], i) => {
       const y = 2.15 + i * 0.98;
       box(s, 0.6, y, 4.2, 0.86, { fill: WHITE });
       T(s, n, 0.8, y, 1.6, 0.86, { fontSize: 28, bold: true, color: c, valign: "middle" });
@@ -535,7 +532,7 @@ async function chart(file) {
     T(s, [{ text: "So every call asks for think: \"low\" and leaves room to reason. ", options: { bold: true } }, { text: "And the most common choice, which time a member's agent picks, goes to a student that writes nothing.", options: {} }], 0.8, 5.28, 3.85, 1.4, { fontSize: 12 });
     arrow(s, 4.9, 3.6, 0.3, 0, { color: GREEN, width: 2.5 });
     T(s, "THE STUDENT · META'S LLAMA 3.2 1B, FINE-TUNED", 5.35, 1.8, 7.3, 0.25, { fontSize: 10.5, bold: true, color: GREEN, charSpacing: 1 });
-    [["Teacher data", "4,868 choices Muse Glimmer made through the real agent call, on a cloud A100"], ["LoRA", "Rank 16 on every projection, 3 epochs: 20 min for the 1B"], ["A decision head", "One pass: a probability per option, and its own yes or no for every time"], ["int4 on the CPU", "0.8 GB, about 0.9 s a decision, 0 tokens written"]].forEach(([h, d], i) => {
+    [["Teacher data", "4,868 choices Muse Glimmer made through the real agent call, a separate run on a cloud A100"], ["LoRA", "Rank 16 on every projection, 3 epochs: 20 min for the 1B"], ["A decision head", "One pass: a probability per option, and its own yes or no for every time"], ["int4 on the CPU", "0.8 GB, about 0.9 s a decision, 0 tokens written"]].forEach(([h, d], i) => {
       const x = 5.35 + (i % 2) * 3.7, y = 2.15 + Math.floor(i / 2) * 0.98;
       box(s, x, y, 3.58, 0.86, { fill: GREENBG, line: GREENBG });
       T(s, h, x + 0.15, y + 0.07, 3.3, 0.28, { fontSize: 12.5, bold: true });
@@ -572,10 +569,10 @@ async function chart(file) {
     // yes: the student's answer; no: Glimmer
     arrow(s, 6.77, 3.42, 0, 0.45, { color: GREEN });
     T(s, "yes", 6.85, 3.47, 0.5, 0.3, { fontSize: 10.5, bold: true, color: GREEN });
-    node(5.55, 3.9, 2.45, 1.05, "The student answers", "a Muse Glimmer call saved", GREENBG, GREENBG, GREEN);
+    node(5.55, 3.9, 2.45, 1.05, "The student answers", "about 0.9 s on the CPU, a Glimmer call saved", GREENBG, GREENBG, GREEN);
     arrow(s, 3.57, 2.95, 1.96, 0.93, { color: BLUE, flipH: true });
     T(s, "no", 4.05, 3.3, 0.5, 0.3, { fontSize: 10.5, bold: true, color: BLUE });
-    node(2.1, 3.9, 2.95, 1.05, "Muse Glimmer reasons", "the full answer, about 450 tokens, 24 to 40 s", BLUEBG, BLUE, BLUE);
+    node(2.1, 3.9, 2.95, 1.05, "Muse Glimmer reasons", "the full answer: about 600 tokens, 40 s at p50", BLUEBG, BLUE, BLUE);
     // both: checked by code, then over A2A
     arrow(s, 3.57, 4.97, 0, 0.35); arrow(s, 6.77, 4.97, 0, 0.35);
     box(s, 0.6, 5.35, 7.4, 1.4, { fill: CARD, line: CARD });
@@ -783,7 +780,7 @@ async function chart(file) {
     const H = { bold: true, color: MUTED, fontSize: 11, fill: { color: WHITE } };
     const rows = [
       [{ text: "Suite", options: H }, { text: "Result", options: H }, { text: "Where it ran", options: H }],
-      ["npm test, 25 offline suites", "275 tests, 270 pass (3 optional, 2 Linux-only)", "No model, no GPU"],
+      ["npm test, 25 offline suites", "275 = 270 pass + 3 optional + 2 Linux-only", "No model, no GPU"],
       ["Messenger end to end (test/e2e.mjs)", "58 of 58 checks", "Muse Glimmer on a cloud A100"],
       ["Attacks (test/redteam.mjs)", "93 of 93 stopped", "A cloud A100, twice"],
       ["Community loop's attacks, within the 93", "29 of 29 stopped, 5 of 5 controls passed", "The server's CPU, with the real guards"],
@@ -820,7 +817,7 @@ async function chart(file) {
       ["Body context", "your words, games, health app · found by DRAMA · rules cite notes"],
       ["Courts near you", "map, reviews, forecast · 4 judged at once · reasons cited"],
       ["Social feed and members", "Facebook / Instagram login · invites · stories · signed agent channel"],
-      ["Highlights", "find you, the moment to share, cut you out · orbit effect · caption"],
+      ["Auto highlights", "cut automatically: find you, the moment to share · orbit effect · caption"],
       ["Community loop", "ideas · DRAMA · votes · spec · coding agent · 9 gates · canary"],
       ["Decision tiers", "code first · Llama 3.2 1B when sure · Muse Glimmer if needed"],
       ["Live voice", "mic relayed to Muse Voice Transcribe · barge-in · Kokoro speaks"],
@@ -870,11 +867,10 @@ async function chart(file) {
     T(s, "The agent that gets you playing, in any ball sport.", 1, 3.6, 11.333, 0.5, { fontSize: 20, color: MUTED, align: "center" });
     pill(s, "Your week, agreed agent to agent", 1.45, 4.45, 3.3, { h: 0.5, size: 13 });
     pill(s, "Your agent in Messenger", 4.9, 4.45, 2.9, { h: 0.5, size: 13 });
-    pill(s, "Highlights to Instagram and Facebook", 7.95, 4.45, 3.95, { h: 0.5, size: 13 });
-    T(s, "Built during the Meta Global AI Developer Hackathon, Oct 27 – Nov 4, 2026 (921 commits); third-party models and tools in the report, 7.1", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
+    pill(s, "Auto-cut highlights to Instagram", 7.95, 4.45, 3.95, { h: 0.5, size: 13 });
+    T(s, "Built during the hackathon, Oct 27 – Nov 4, 2026 · demo video 2:42 · third-party models and tools: report 7.1", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
     T(s, "github.com/gino6178/serve-meta-hackathon  ·  live: relay-orders-eliminate-associated.trycloudflare.com", 1, 5.78, 11.333, 0.35, { fontSize: 13, color: BLUE, align: "center" });
-    s.addImage({ data: IMG.meta, x: 2.3, y: 6.6, w: 0.36, h: 0.36 });
-    T(s, "The product runs Muse Glimmer on an RTX 3090 I own; cloud A100s ran evaluations only", 2.76, 6.6, 9, 0.36, { fontSize: 13, color: MUTED, valign: "middle" });
+    T(s, "The product runs Muse Glimmer on an RTX 3090 I own; cloud A100s ran evaluations only, with the same model", 1, 6.6, 11.333, 0.36, { fontSize: 13, color: MUTED, align: "center", valign: "middle" });
     s.addNotes("片尾：Play more, manage less. 黑客松期間開發聲明（TrackNetV5 除外）、repo 連結、Built on Muse Glimmer。\n旁白：That's Serve. Play more, manage less.");
   }
 
