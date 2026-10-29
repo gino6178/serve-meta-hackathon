@@ -4,11 +4,11 @@
   "text": "People don't quit the game. They quit organizing it. Six messages, and still no game."
  },
  {
-  "at": 6.4,
-  "text": "This is Serve. Your agent agrees your week with your friends' agents, and you say yes once. It runs on Muse Glimmer, on my own RTX 3090."
+  "at": 6.3,
+  "text": "This is Serve, built during this hackathon. Your agent works out your week with your friends' agents; you say yes once. It runs on Muse Glimmer, on my own RTX 3090."
  },
  {
-  "at": 16.0,
+  "at": 17.1,
   "text": "Act one: cold start. I ask my agent for one more player on Saturday. Muse Glimmer drafts the invite with the nearest court, and Llama Guard checks it before anyone sees it. I post it, and share the link to any group chat."
  },
  {
@@ -17,7 +17,7 @@
  },
  {
   "at": 48.3,
-  "text": "Act two: agents negotiate. One tap plans my week. Each friend's agent answers over A2A, with signed Agent Cards. A small model I fine-tuned answers when it's sure, and Glimmer when it's not. Everyone agreed, and nothing is booked until I say yes."
+  "text": "Act two: agents negotiate. One tap plans my week. My agent talks to each member's agent over A2A, with signed Agent Cards; in this demo club, the members are simulated. The plan took 78 seconds, in the background. Everyone agreed, and nothing is booked until I say yes."
  },
  {
   "at": 69.9,
@@ -32,31 +32,31 @@
   "text": "Act three: courts and clubs. Real courts from OpenStreetMap. Prompt Guard screens the reviews first, then Glimmer judges every court, and each reason cites the map, a review or the forecast. Clubs sit on a real map too, and anyone can start one."
  },
  {
-  "at": 109.0,
-  "text": "Beyond text: your own video, auto-cut into a clip to share with your club."
+  "at": 104.3,
+  "text": "Beyond text: send a video, like this sample clip, and it's auto-cut into a clip to share with your club."
  },
  {
-  "at": 114.3,
-  "text": "Fifteen Meta models. Six carry Serve, with Muse Glimmer at the centre."
+  "at": 110.4,
+  "text": "Six Meta models carry Serve, with Muse Glimmer at the center."
  },
  {
-  "at": 119.4,
-  "text": "Glimmer needs forty seconds. The 1B model I fine-tuned on its choices needs under one, and agrees 89.5 percent of the time."
+  "at": 114.7,
+  "text": "Glimmer needs forty seconds. The 1B model I fine-tuned on its choices needs under one, and agrees with it 89.5 percent of the time."
  },
  {
-  "at": 128.4,
-  "text": "Ninety-three attacks, all stopped, under Meta's Agents Rule of Two."
+  "at": 124.0,
+  "text": "Ninety-three scripted attacks, all stopped, and 37 of 42 unsafe messages refused."
  },
  {
-  "at": 132.9,
-  "text": "It's live, with real players and two real clubs."
+  "at": 130.4,
+  "text": "It's live: eight people so far, me included, and three games filled."
  },
  {
-  "at": 137.7,
+  "at": 135.8,
   "text": "And it works for school clubs, older adults, a charity cup: any ball sport."
  },
  {
-  "at": 144.0,
+  "at": 142.0,
   "text": "Serve. Play more. Manage less."
  }
 ]

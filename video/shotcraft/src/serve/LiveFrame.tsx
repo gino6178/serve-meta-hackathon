@@ -24,7 +24,7 @@ type Box = { x: number; y: number; w: number; h: number };
 type Side = { src: string; from: number; crop: Box; tint: string; who: string };
 export type Seg = {
   src: string; from: number; to: number; rate?: number; caption: string; who?: 'you' | 'friend'; label?: string;
-  zoom?: { x: number; y: number; s: number }; mark?: Box; model?: string;
+  zoom?: { x: number; y: number; s: number; now?: boolean }; mark?: Box; model?: string;
   kind?: 'clip' | 'bumper' | 'split'; num?: string; title?: string; sub?: string; left?: Side; right?: Side;
 };
 const lenOf = (s: Seg) => Math.round(((s.to - s.from) * 30) / (s.rate ?? 1));
@@ -34,7 +34,7 @@ export const liveDuration = (segs: Seg[]) => segs.reduce((n, s) => n + lenOf(s),
 // point (window px) when what the slice is about is small on screen
 const Clip: React.FC<{ s: Seg }> = ({ s }) => {
   const f = useCurrentFrame();
-  const z = s.zoom ? ramp(f, 10, 16, EASE.smooth) : 0;
+  const z = s.zoom ? (s.zoom.now ? 1 : ramp(f, 10, 16, EASE.smooth)) : 0; // `now`: already in, carried on from the slice before
   const sc = s.zoom ? 1 + (s.zoom.s - 1) * z : 1;
   return (
     <div style={{ position: 'absolute', inset: 0, transform: `scale(${sc.toFixed(4)})`, transformOrigin: s.zoom ? `${s.zoom.x}px ${s.zoom.y}px` : '50% 50%' }}>
@@ -236,7 +236,7 @@ export const LiveFrame: React.FC<{ segs: Seg[] }> = ({ segs }) => {
         opacity: labelIn, transform: `translateY(${((1 - labelIn) * 16).toFixed(2)}px)`,
       }}>
         <span style={{ width: 14, height: 14, borderRadius: 7, background: '#fff', boxShadow: '0 0 0 5px rgba(255,255,255,0.25)' }} />
-        {who === 'friend' ? "LIVE · LEO'S PHONE, NO ACCOUNT" : 'LIVE · THE REAL APP'}
+        {who === 'friend' ? "LIVE · LEO'S PHONE, NO ACCOUNT" : 'LIVE · BUILT OCT 28 – NOV 4'}
       </div>
       <div style={{
         position: 'absolute', right: 66, top: 0, height: inner, display: 'flex', alignItems: 'center', gap: 10,

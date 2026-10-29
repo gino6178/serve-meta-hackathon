@@ -1,7 +1,7 @@
-# Serve Demo 影片分鏡稿（目前版本，2:29，英文旁白＋字幕）
+# Serve Demo 影片分鏡稿（目前版本，2:27，英文旁白＋字幕）
 
 畫面上的字都是英文（評審看的）。「改哪裡」欄寫的是要改這一鏡時動哪個檔案。
-時間是成片時間（mm:ss），30 fps，共 4,475 格。
+時間是成片時間（mm:ss），30 fps，共 4,423 格。
 
 ## 總覽
 
@@ -10,14 +10,14 @@
 | 1 | 0:00–0:07 | 6.8 s | 開場：群組訊息＋數據 | 約球的痛點，40% → 26% |
 | 2 | 0:07–0:10 | 3.2 s | serve 字標 | 品牌與標語 |
 | 3 | 0:10–0:15 | 5.2 s | 手機 | Your week, agreed agent to agent. One yes from you. |
-| 4 | 0:15–1:49 | 93.5 s | 真實 app 錄影，三幕（22 段） | 冷啟動 → A2A 協商 → 球場與社團 |
-| 5 | 1:49–1:54 | 5.0 s | 自動剪輯 | 影片自動剪成分享片段（不是教練、不是運動分析） |
-| 6 | 1:54–1:59 | 5.5 s | Meta 模型卡 | 六個模型撐起產品，另外九個一行帶過 |
-| 7 | 1:59–2:07 | 7.5 s | 蒸餾與 cascade | Glimmer 40 s → 1B 學生 0.9 s，89.5% 一致 |
-| 8 | 2:07–2:12 | 5.5 s | 安全 | 93/93、Rule of Two、揭露預算 97.6% → 32.4% |
-| 9 | 2:12–2:17 | 5.0 s | 真人數據 | 8 人、2 社團、7 人加入 |
-| 10 | 2:17–2:23 | 6.0 s | Built for… | 還能服務誰 |
-| 11 | 2:23–2:29 | 5.9 s | 結尾 | 標誌、標語、開發期間與 commit 數、repo |
+| 4 | 0:15–1:44 | 88.8 s | 真實 app 錄影，三幕（22 段） | 冷啟動 → A2A 協商 → 球場與社團 |
+| 5 | 1:44–1:49 | 5.0 s | 自動剪輯 | 影片自動剪成分享片段（不是教練、不是運動分析） |
+| 6 | 1:49–1:55 | 5.5 s | Meta 模型卡 | Six Meta models carry Serve，另外九個一行帶過 |
+| 7 | 1:55–2:04 | 9.0 s | 蒸餾與 cascade | Glimmer 40 s → 1B 學生 0.9 s（89.5%）→ cascade 89.9% |
+| 8 | 2:04–2:10 | 6.0 s | 安全 | 93/93（自己寫的攻擊）、37/42、Rule of Two、揭露預算 |
+| 9 | 2:10–2:16 | 6.0 s | 真人數據 | 8 人、2 社團、8 次加入、4 場滿 3 場（10/30 統計） |
+| 10 | 2:16–2:22 | 6.0 s | Built for… | 還能服務誰 |
+| 11 | 2:22–2:27 | 5.9 s | 結尾 | 標誌、標語、開發期間、repo、play.theminimallab.com |
 
 ## 逐鏡
 
@@ -90,7 +90,7 @@
 - **畫面**：your club → a school club → older adults → a charity cup → any ball sport。
 - **改哪裡**：`src/serve/WhoElse.tsx`
 
-### 11　結尾（2:23–2:29）
+### 11　結尾（2:22–2:27）
 - **畫面**：serve 標誌、「PLAY MORE. MANAGE LESS.」、「Built Oct 28 – Nov 4, 2026, 900+ commits · github.com/gino6178/serve-meta-hackathon」，定格 1.5 秒。
 - **改哪裡**：`src/serve/Outro.tsx`
 
@@ -101,6 +101,15 @@
 - **字幕**：燒進畫面，跟旁白逐句同步；冒號後半句併在同一行。錄影段落在綠色字幕帶上方，其他鏡頭貼近畫面底部。上傳用的字幕檔 `narration/serve-promo.en.srt`（`python scripts/srt.py` 產生）。
 - **配樂**：講話時自動降低（0.24 → 0.09），句子之間回來。
 - **開關**：`ServePromo` 的 props `voice`、`subs`、`bgm`；`props-nobgm.json` 是有旁白字幕、沒有配樂。
+
+## 第二次獨立評審後的修改（10/30）
+
+- **旁白對齊畫面**：協商那句說明 demo 社團的會員是模擬的；自動剪輯說「like this sample clip」；安全說「93 scripted attacks… 37 of 42 unsafe messages refused」；真人數據改成「eight people so far, me included, and three games filled」；加上「built during this hackathon」和「The plan took 78 seconds, in the background」。
+- **數字**：cascade 卡改成 89.9%（學生自己 89.5%），拿掉「no rule broken」；模型卡標題改成「Six Meta models carry Serve.」；結尾拿掉「900+ commits」。
+- **看得清楚**：錄影段落放大（ask、Leo 的連結、規劃頁、找球場、社團），連續同一支錄影的段落直接延續放大，不會一縮一放；左上角標籤改成「LIVE · BUILT OCT 28 – NOV 4」。
+- **節奏**：建立社團那段 4× 改 8×，最後一段縮短，整支片 2:27。
+- **拼字**：統一美式（organize、center）。
+- **沒改**：數據來源（美國、紐西蘭）維持，因為是全球比賽。
 
 ## 調整順序、改完怎麼出片
 

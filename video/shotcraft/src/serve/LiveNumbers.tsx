@@ -8,7 +8,7 @@ import { EASE, FONT, bezier, mix, ramp } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, TextReveal, alpha, springAt, type } from '../demos/_fixtures/Look';
 import { BRAND } from '../demos/_fixtures/Brand';
 
-export const LIVE_NUMBERS_DURATION = 150;
+export const LIVE_NUMBERS_DURATION = 180;
 
 const L = LOOKS.graphite; // the fronts stay dark, so each flip turns a question into a white answer
 const GOLD = '#3fbf7f'; // Serve green, lifted for the dark fronts
@@ -37,7 +37,7 @@ const angleAt = (f: number, i: number) => {
 const FEATURES = [
   { name: 'Players', desc: 'People who joined the live site', value: '8', label: 'people, me included', icon: 'people' },
   { name: 'Clubs', desc: 'Clubs players started themselves', value: '2', label: 'clubs on the map', icon: 'map' },
-  { name: 'Games', desc: 'Games posted, people who joined', value: '7', label: 'joins, 2 games filled', icon: 'ball' },
+  { name: 'Games', desc: 'Games posted, people who joined', value: '8', label: 'joins, 3 of 4 games filled', icon: 'ball' },
 ];
 
 // ───────────── 正面 UI（暗色、大字） ─────────────

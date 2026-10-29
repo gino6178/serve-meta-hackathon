@@ -9,7 +9,7 @@ import { EASE, FONT, bezier, mix, ramp } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, TextReveal, alpha, springAt } from '../demos/_fixtures/Look';
 import { BRAND, ShotcraftMark } from '../demos/_fixtures/Brand';
 
-export const SAFETY_DURATION = 165;
+export const SAFETY_DURATION = 180;
 
 const L = LOOKS.serve;
 const GOLD = L.accent; // the ring and the underline: Serve green

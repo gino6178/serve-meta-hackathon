@@ -21,28 +21,33 @@
   ]
  },
  {
-  "at": 6.4,
-  "dur": 9.197,
+  "at": 6.3,
+  "dur": 10.522,
   "subs": [
    {
-    "text": "This is Serve.",
+    "text": "This is Serve, built during this hackathon.",
     "start": 0.0,
-    "end": 0.88
+    "end": 2.19
    },
    {
-    "text": "Your agent agrees your week with your friends' agents, and you say yes once.",
-    "start": 1.2,
-    "end": 5.253
+    "text": "Your agent works out your week with your friends' agents;",
+    "start": 2.51,
+    "end": 5.194
+   },
+   {
+    "text": "you say yes once.",
+    "start": 5.414,
+    "end": 6.577
    },
    {
     "text": "It runs on Muse Glimmer, on my own RTX 3090.",
-    "start": 5.573,
-    "end": 9.197
+    "start": 6.897,
+    "end": 10.522
    }
   ]
  },
  {
-  "at": 16.0,
+  "at": 17.1,
   "dur": 13.674,
   "subs": [
    {
@@ -100,7 +105,7 @@
  },
  {
   "at": 48.3,
-  "dur": 16.131,
+  "dur": 18.285,
   "subs": [
    {
     "text": "Act two:",
@@ -118,19 +123,24 @@
     "end": 3.968
    },
    {
-    "text": "Each friend's agent answers over A2A, with signed Agent Cards.",
+    "text": "My agent talks to each member's agent over A2A, with signed Agent Cards;",
     "start": 4.287,
-    "end": 8.299
+    "end": 9.095
    },
    {
-    "text": "A small model I fine-tuned answers when it's sure, and Glimmer when it's not.",
-    "start": 8.619,
-    "end": 12.751
+    "text": "in this demo club, the members are simulated.",
+    "start": 9.315,
+    "end": 11.885
+   },
+   {
+    "text": "The plan took 78 seconds, in the background.",
+    "start": 12.205,
+    "end": 14.905
    },
    {
     "text": "Everyone agreed, and nothing is booked until I say yes.",
-    "start": 13.071,
-    "end": 16.131
+    "start": 15.226,
+    "end": 18.285
    }
   ]
  },
@@ -198,8 +208,8 @@
   ]
  },
  {
-  "at": 109.0,
-  "dur": 4.329,
+  "at": 104.3,
+  "dur": 5.935,
   "subs": [
    {
     "text": "Beyond text:",
@@ -207,31 +217,26 @@
     "end": 0.91
    },
    {
-    "text": "your own video, auto-cut into a clip to share with your club.",
+    "text": "send a video, like this sample clip, and it's auto-cut into a clip to share with your club.",
     "start": 1.13,
-    "end": 4.329
+    "end": 5.935
    }
   ]
  },
  {
-  "at": 114.3,
-  "dur": 4.412,
+  "at": 110.4,
+  "dur": 3.555,
   "subs": [
    {
-    "text": "Fifteen Meta models.",
+    "text": "Six Meta models carry Serve, with Muse Glimmer at the center.",
     "start": 0.0,
-    "end": 1.333
-   },
-   {
-    "text": "Six carry Serve, with Muse Glimmer at the centre.",
-    "start": 1.653,
-    "end": 4.412
+    "end": 3.555
    }
   ]
  },
  {
-  "at": 119.4,
-  "dur": 8.711,
+  "at": 114.7,
+  "dur": 9.111,
   "subs": [
    {
     "text": "Glimmer needs forty seconds.",
@@ -239,36 +244,41 @@
     "end": 1.509
    },
    {
-    "text": "The 1B model I fine-tuned on its choices needs under one, and agrees 89.5 percent of the time.",
+    "text": "The 1B model I fine-tuned on its choices needs under one, and agrees with it 89.5 percent of the time.",
     "start": 1.829,
-    "end": 8.711
+    "end": 9.111
    }
   ]
  },
  {
-  "at": 128.4,
-  "dur": 4.026,
+  "at": 124.0,
+  "dur": 6.22,
   "subs": [
    {
-    "text": "Ninety-three attacks, all stopped, under Meta's Agents Rule of Two.",
+    "text": "Ninety-three scripted attacks, all stopped, and 37 of 42 unsafe messages refused.",
     "start": 0.0,
-    "end": 4.026
+    "end": 6.22
    }
   ]
  },
  {
-  "at": 132.9,
-  "dur": 2.728,
+  "at": 130.4,
+  "dur": 4.084,
   "subs": [
    {
-    "text": "It's live, with real players and two real clubs.",
+    "text": "It's live:",
     "start": 0.0,
-    "end": 2.728
+    "end": 0.746
+   },
+   {
+    "text": "eight people so far, me included, and three games filled.",
+    "start": 0.966,
+    "end": 4.084
    }
   ]
  },
  {
-  "at": 137.7,
+  "at": 135.8,
   "dur": 4.465,
   "subs": [
    {
@@ -284,7 +294,7 @@
   ]
  },
  {
-  "at": 144.0,
+  "at": 142.0,
   "dur": 2.768,
   "subs": [
    {

@@ -211,7 +211,7 @@ export const Outro: React.FC = () => {
           {PITCH.en.motto.toUpperCase()}
         </div>
         <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(50% + 60px)', textAlign: 'center', color: '#5c5f66', font: `600 10px/1 ${FONT.sans}`, letterSpacing: 0.2, opacity: seg(t, 0.82, 0.94, E.outQuad) }}>
-          Built Oct 28 – Nov 4, 2026, 900+ commits · {BRAND.repo}
+          Built Oct 28 – Nov 4, 2026 · {BRAND.repo}
         </div>
         <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(50% + 76px)', textAlign: 'center', color: '#0a7f44', font: `700 11px/1 ${FONT.sans}`, letterSpacing: 0.2, opacity: seg(t, 0.86, 0.98, E.outQuad) }}>
           Try it: play.theminimallab.com

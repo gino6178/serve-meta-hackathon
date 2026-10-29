@@ -73,7 +73,7 @@ export const Models: React.FC = () => {
       {/* 标题：中心卡抽出时升起 */}
       <div style={{ position: 'absolute', left: 0, right: 0, top: 150, textAlign: 'center' }}>
         <div style={{ ...type(88, 700), color: L.ink }}>
-          <TextReveal text="15 Meta models. Six carry Serve." by="word" variant="rise" start={106} each={18} gap={3} />
+          <TextReveal text="Six Meta models carry Serve." by="word" variant="rise" start={106} each={18} gap={3} />
         </div>
       </div>
 
@@ -137,7 +137,7 @@ export const Models: React.FC = () => {
         position: 'absolute', left: 0, right: 0, top: 268, textAlign: 'center', ...type(34, 450), color: L.ink2,
         opacity: ramp(f, 116, 14, EASE.out), transform: `translateY(${(1 - ramp(f, 116, 18, EASE.snappy)) * 16}px)`,
       }}>
-        Muse Glimmer at the centre, on my RTX 3090.
+        Muse Glimmer at the center, on my RTX 3090.
       </div>
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 70, textAlign: 'center', fontFamily: FONT.sans, fontSize: 26, fontWeight: 550, color: L.ink2, opacity: ramp(f, 120, 16, EASE.out) }}>
         And nine more: Omnilingual ASR · DETR · Sapiens2 · SAM 2.1 · MapAnything · Muse Image · Muse Spark · Muse Wonder · SAM 3.1

@@ -127,7 +127,7 @@ async function chart(file) {
     T(s, "serve", 1.45, 0.72, 3, 0.6, { fontSize: 30, bold: true, valign: "middle" });
     T(s, [{ text: "Play more.\n", options: { color: INK } }, { text: "Manage less.", options: { color: GREEN } }], 0.8, 2.0, 5.6, 2.0, { fontSize: 54, bold: true, lineSpacingMultiple: 0.95 });
     T(s, "Your agent sets up your games with your friends' agents, plans around your week, and cuts your highlights. You just say yes.", 0.8, 4.15, 5.2, 1.0, { fontSize: 17, color: MUTED });
-    [["Agents agree your week", GREEN], ["Your agent in Messenger", BLUE], ["15 Meta models: 10 on my server, 5 on the Meta Model API", INK]].forEach(([t, c], i) => {
+    [["Agents agree your week", GREEN], ["Your agent in Messenger", BLUE], ["Six Meta models carry it; 15 used in all", INK]].forEach(([t, c], i) => {
       s.addShape(pres.shapes.OVAL, { x: 0.8, y: 5.45 + i * 0.45, w: 0.14, h: 0.14, fill: { color: c }, line: { color: c } });
       T(s, t, 1.08, 5.35 + i * 0.45, 5, 0.34, { fontSize: 14, bold: true, valign: "middle" });
     });
@@ -177,7 +177,7 @@ async function chart(file) {
     phone(s, IMG.v3.live_clubs, 0.75, 1.85, 4.7, "Clubs on a real map, one recommended");
     phone(s, IMG.v3.live_draft, 3.35, 1.85, 4.7, "Say it; your agent drafts the invite");
     T(s, "LIVE SINCE 29 OCT · play.theminimallab.com", 6.2, 1.85, 6.6, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
-    [["8", "players (14 demo sign-ins)"], ["2", "clubs they started"], ["4", "games posted"], ["7", "joins; 2 games filled"]].forEach(([n, d], i) => {
+    [["8", "people, me included (15 demo sign-ins)"], ["2", "clubs they started"], ["4", "games posted"], ["8", "joins; 3 of 4 games filled"]].forEach(([n, d], i) => {
       const x = 6.2 + i * 1.6;
       box(s, x, 2.15, 1.48, 1.05, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
       T(s, n, x + 0.14, 2.2, 1.2, 0.55, { fontSize: 26, bold: true, color: i === 0 ? GREEN : INK });
@@ -192,7 +192,7 @@ async function chart(file) {
       T(s, h, 6.7, y, 6, 0.3, { fontSize: 14, bold: true });
       T(s, d, 6.7, y + 0.33, 6, 0.6, { fontSize: 11, color: MUTED });
     });
-    T(s, "Counted 29 Oct, day 3. Spond, Playtomic and Meetup post events or book courts; on Serve each player's agent agrees the time, so nobody runs the poll.", 6.2, 6.62, 6.6, 0.4, { fontSize: 10, color: MUTED, italic: true });
+    T(s, "Counted 30 Oct, day 4. Spond, Playtomic and Meetup post events or book courts; on Serve each player's agent agrees the time, so nobody runs the poll.", 6.2, 6.62, 6.6, 0.4, { fontSize: 10, color: MUTED, italic: true });
   }
 
   // C · Cold start: the first friend needs no account
@@ -202,7 +202,7 @@ async function chart(file) {
     const steps = [
       ["1", "Tell your agent", "\"Saturday doubles, need 3\": it drafts the invite with the nearest court. You tap Post."],
       ["2", "Share the link", "To any group chat. It opens with no account: the game, the place, the spots left, never who is going."],
-      ["3", "Tap Join", "Sign in once and the game is joined straight away, also after a Facebook or Instagram login."],
+      ["3", "Tap Join", "Sign in once (a demo sign-in for now: Facebook and Instagram login wait for Meta's app review) and the game is joined straight away."],
       ["4", "Game on", "The last spot taken, everyone in it hears \"Game on\". From then on, their own agent answers for them."],
     ];
     steps.forEach(([n, h, d], i) => {
@@ -219,14 +219,14 @@ async function chart(file) {
       0.85, 5.5, 11.6, 1.1, { fontSize: 13, valign: "middle" });
   }
 
-  // 3c · Clubs for groups with no organiser (agent members/programs.js)
+  // 3c · Clubs for groups with no organizer (agent members/programs.js)
   {
-    const s = content("Impact", "IMPACT · WHO ELSE IT SERVES", "Games where no one has time to organise them",
+    const s = content("Impact", "IMPACT · WHO ELSE IT SERVES", "Games where no one has time to organize them",
       "同一套引擎服務沒有人組織的群體，三種社團都已實作、有單元測試：\n1 孩童社團（老師或志工）：一定是私密社團，只有帶隊的人能發活動；孩子不用帳號，只存名字（只有帶隊的人看得到）；勾選今天誰來，程式排輪替，每個孩子上場時間最多差一輪；產生家長接送通知。\n2 樂齡社團：社團裡每個揪團由程式把關：08:00–16:00 開始、60 分鐘、最多 8 人、球拍類雙打；不符合就拒絕並說明原因。\n3 慈善賽：發起人寫公益對象，參賽者自評等級與認捐（只記錄，Serve 不經手錢）；一鍵抽籤：實力平均的雙打組合、循環賽、場地與時段，同一時段沒有隊伍撞場，貼到社團動態。");
     const cards = [
-      ["Children", "A teacher or volunteer", "Private: parents and helpers join only when the organiser lets them in. Children have no accounts: first names only, seen by the organiser. Code shares out the courts in turns.", "11 children, 2 courts: everyone plays within one turn of the others. A pick-up note for parents.", GREEN, GREENBG],
+      ["Children", "A teacher or volunteer", "Private: parents and helpers join only when the organizer lets them in. Children have no accounts: first names only, seen by the organizer. Code shares out the courts in turns.", "11 children, 2 courts: everyone plays within one turn of the others. A pick-up note for parents.", GREEN, GREENBG],
       ["Older adults", "Gentle games", "Every game posted in a gentle-games club is held by code: starts 08:00 to 16:00, 60 minutes, 8 players at most, doubles for racket sports.", "A 19:00 game is refused, with the reason. The card says \"Gentle game · doubles, 60 min\".", BLUE, BLUEBG],
-      ["A cause", "Charity cup", "Players enter with a level and a pledge to the cause, only recorded: Serve handles no money. The organiser makes the draw in one tap.", "Balanced doubles, a round robin on courts and times, no team twice in a slot; posted in the club.", AMBER, AMBERBG],
+      ["A cause", "Charity cup", "Players enter with a level and a pledge to the cause, only recorded: Serve handles no money. The organizer makes the draw in one tap.", "Balanced doubles, a round robin on courts and times, no team twice in a slot; posted in the club.", AMBER, AMBERBG],
     ];
     cards.forEach(([k, h, d, r, c, bg], i) => {
       const x = 0.6 + i * 4.1, y = 1.85, w = 3.9, hh = 4.75;
@@ -299,7 +299,7 @@ async function chart(file) {
 
   // M · Meta models, the six that carry the product
   {
-    const s = content(SEC, "USE OF META AI · 25%", "15 Meta models; six carry the product",
+    const s = content(SEC, "USE OF META AI · 25%", "Six Meta models carry the product (15 used in all)",
       "Meta 模型精簡版：六個撐起產品的模型（Muse Glimmer、Llama 3.2 1B 學生、Llama Guard 3、Prompt Guard 2、DRAMA、Muse Voice Transcribe），其他九個一行帶過，完整 15 格在附錄。");
     const cards = [
       ["REASONING", "Muse Glimmer", "Every agent's decisions: the tool loop, A2A answers, the court judge", "RTX 3090 · Ollama · open weights", GREEN, GREENBG],
@@ -328,7 +328,7 @@ async function chart(file) {
       "拿掉一個模型會怎樣：Glimmer（整個 agent 不能運作）、學生模型（每次決策從 0.9 秒變 40 秒，模擬中 Glimmer 回答多 54–67%）、DRAMA（第一個找到對的筆記從 0.60 掉到 0.35）、Llama Guard、Prompt Guard、Muse Voice。標明哪些是量測、哪些是設計上的。");
     const H = { bold: true, color: MUTED, fontSize: 11, fill: { color: WHITE } };
     const rows = [
-      [{ text: "Without", options: H }, { text: "What breaks", options: H }, { text: "", options: H }],
+      [{ text: "Without", options: H }, { text: "What breaks", options: H }, { text: "Evidence", options: H }],
       ["Muse Glimmer", "No planner and no agent answers: the product does not run", "by design"],
       ["Llama 3.2 1B student", "Every member answer goes to Glimmer: about 40 s instead of 0.9 s, and 54–67% more Glimmer answers in simulated talks", "measured"],
       ["DRAMA", "The right note comes first 0.35 of the time instead of 0.60 (word matching instead; 20 questions)", "measured, small"],
@@ -368,7 +368,7 @@ async function chart(file) {
       catAxisLabelFontSize: 10, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisOrientation: "maxMin",
       valAxisHidden: true, valAxisMinVal: 60, valAxisMaxVal: 100, valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: false,
     });
-    [["54–67%", "fewer Glimmer answers in simulated talks, where some members need Glimmer (96% is the test set)", GREEN], ["29 / 32", "stated preferences kept (Glimmer 27)", INK]].forEach(([n, d, c], i) => {
+    [["54–67%", "fewer Glimmer answers in simulated talks; on the 500 test cases the student answers 96%", GREEN], ["29 / 32", "stated preferences kept (Glimmer 27)", INK]].forEach(([n, d, c], i) => {
       const y = 4.3 + i * 1.25;
       box(s, 10.1, y, 2.6, 1.12, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
       T(s, n, 10.25, y + 0.06, 2.35, 0.5, { fontSize: 22, bold: true, color: c });
@@ -400,7 +400,7 @@ async function chart(file) {
     arrow(s, 3.57, 4.97, 0, 0.35); arrow(s, 6.77, 4.97, 0, 0.35);
     box(s, 0.6, 5.35, 7.4, 1.4, { fill: CARD, line: CARD });
     T(s, "Checked by code, then sent over A2A", 0.8, 5.47, 7.0, 0.3, { fontSize: 13.5, bold: true });
-    T(s, "Whoever answered, code checks the member's hard rules again before the decision goes to the other agent, labelled with the tier that made it. Agent chats shows it under every message.", 0.8, 5.8, 7.0, 0.9, { fontSize: 11, color: MUTED });
+    T(s, "Whoever answered, code checks the member's hard rules again before the decision goes to the other agent, labelled with the tier that made it. Agent chats shows it under every message. The week planned in the video took 78 s (13 Glimmer calls), in the background.", 0.8, 5.8, 7.0, 0.9, { fontSize: 11, color: MUTED });
     // the threshold: how much the student answers, and how the cascade agrees
     const th = ["0", "0.5", "0.6", "0.7", "0.8", "0.9"];
     s.addChart(pres.charts.LINE, [
@@ -493,7 +493,7 @@ async function chart(file) {
       "The community loop and its builder; the highlight pipeline's code",
       "The web app, members, clubs, the per-player gateways",
       "The Llama 3.2 1B student, fine-tuned from Glimmer's choices",
-      "Every test and evaluation; the demo video (2:29)",
+      "Every test and evaluation; the demo video (2:27)",
       "Started Oct 28 (day 2 of the hackathon); over 900 commits since",
     ], 12);
     col(5.35, 2.6, "MINE, FROM BEFORE", "Off in this entry", CARD, MUTED, [
@@ -509,8 +509,8 @@ async function chart(file) {
 
   // V · The demo video
   {
-    const s = content(SEC, "DEMO · 25% · THE VIDEO, 2:29", "Three acts, all in the running app",
-      "Demo 影片 2:29，三幕：一、冷啟動：Leo 沒有帳號，點連結就加入，Mia 同時收到 Game on（並排）；二、agent 透過 A2A 協商，Hana 的 agent 提出反提案（Messenger 裡一個 yes 就訂好也在這一幕）；三、找球場：Prompt Guard 2 先過濾評論，再由 Muse Glimmer 判斷（14 倍速，有標示），然後是社團。");
+    const s = content(SEC, "DEMO · 25% · THE VIDEO, 2:27", "Three acts, all in the running app",
+      "Demo 影片 2:27，三幕：一、冷啟動：Leo 沒有帳號，點連結就加入，Mia 同時收到 Game on（並排）；二、agent 透過 A2A 協商，Hana 的 agent 提出反提案（Messenger 裡一個 yes 就訂好也在這一幕）；三、找球場：Prompt Guard 2 先過濾評論，再由 Muse Glimmer 判斷（14 倍速，有標示），然後是社團。");
     [["0:41", "Act 1 · cold start: Leo has no account, the link joins him, and Mia hears \"Game on\" at once"], ["1:15", "Act 2 · A2A: Hana's agent makes a real counter-offer; one yes in Messenger books it (end-to-end test)"], ["1:25", "Act 3 · courts: Prompt Guard 2 screens reviews, then Muse Glimmer judges (shown at 14×, labelled)"]].forEach(([t, d], i) => {
       const x = 0.6 + i * 4.1;
       s.addImage({ data: IMG.frames[i], x, y: 1.95, w: 3.9, h: 3.9 * 9 / 16 });
@@ -531,7 +531,7 @@ async function chart(file) {
     pill(s, "Your week, agreed agent to agent", 1.45, 4.45, 3.3, { h: 0.5, size: 13 });
     pill(s, "Your agent in Messenger", 4.9, 4.45, 2.9, { h: 0.5, size: 13 });
     pill(s, "Auto-cut highlights to Instagram", 7.95, 4.45, 3.95, { h: 0.5, size: 13 });
-    T(s, "Built Oct 28 – Nov 4, 2026, during the hackathon · demo video 2:29 · what is new and what is not: slide 16", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
+    T(s, "Built Oct 28 – Nov 4, 2026, during the hackathon · demo video 2:27 · what is new and what is not: slide 16", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
     T(s, "github.com/gino6178/serve-meta-hackathon  ·  live: https://play.theminimallab.com", 1, 5.78, 11.333, 0.35, { fontSize: 13, color: BLUE, align: "center" });
     T(s, "The product runs Muse Glimmer on an RTX 3090 I own; cloud A100s ran evaluations, including the A2A test's second gateway", 1, 6.6, 11.333, 0.36, { fontSize: 13, color: MUTED, align: "center", valign: "middle" });
     s.addNotes("片尾：Play more, manage less. 黑客松期間開發聲明（TrackNetV5 除外）、repo 連結、Built on Muse Glimmer。\n旁白：That's Serve. Play more, manage less.");

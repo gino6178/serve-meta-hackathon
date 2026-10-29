@@ -18,7 +18,7 @@
 
 | Requirement | Decision |
 |---|---|
-| ≤ 3 min | About 2:29 (4,475 frames at 30 fps, the close held 45 frames) |
+| ≤ 3 min | About 2:27 (4,423 frames at 30 fps, the close held 45 frames) |
 | Real product, not mock-ups | The live segment is screen recordings of the running app (record_live.mjs) against the real gateway code, Muse Glimmer and Llama Guard on the GPU server |
 | Speed-ups visible | Every slice faster than 1× carries a "N× speed" pill in the frame's bottom band |
 | No sports analysis | The one video shot is an auto-cut clip to share, labelled "not a coach, not a sports analyzer"; the planner's tool is shown as check_limits |
@@ -51,7 +51,7 @@ weights, tight tracking (−0.02 to −0.045em); radii 18–34. Motion personali
 
 Cut on purpose: gauge-readout (the cascade shot carries the numbers). The 40% → 26% stat now sits in the cold open.
 
-## 3. Storyboard and frame timeline (30 fps, 4,475 frames, 2:29)
+## 3. Storyboard and frame timeline (30 fps, 4,423 frames, 2:27; the table below predates the second review, see STORYBOARD_zh.md for current timings)
 
 | # | From | Frames | Shot | Main motion | Sound |
 |---|---|---|---|---|---|
