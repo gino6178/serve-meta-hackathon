@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Icon from "../components/Icon.jsx";
 import { liveVoiceUrl } from "../agent.js";
 import "./livetalk.css";
@@ -62,7 +63,8 @@ export default function LiveTalk({ facts, onClose }) {
   }, []);
   useEffect(() => { end.current?.scrollIntoView({ block: "end" }); }, [log, partial]);
   const label = { connecting: "Connecting…", listening: "Listening", hearing: "Listening", thinking: "Thinking", speaking: "Speaking", ended: "Ended", failed: "Couldn't start" }[state];
-  return (
+  // (on the page itself, above everything: a transformed ancestor would otherwise hold the full-screen line)
+  return createPortal(
     <div className="lt-scrim" role="dialog" aria-modal="true" aria-label="Talk with your agent">
       <div className="lt">
         <div className={`lt-orb ${state}`}><img src="/agents/you.png" alt="" /></div>
@@ -76,6 +78,7 @@ export default function LiveTalk({ facts, onClose }) {
         <p className="lt-by">Muse Voice Transcribe · Muse Glimmer on your server · start speaking to interrupt</p>
         <button className="lt-end" onClick={onClose} aria-label="End"><Icon name="close" size={24} /></button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

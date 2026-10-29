@@ -1,7 +1,7 @@
 /* talking with your agent, both ways at once (voice/LiveTalk.jsx) */
-.lt-scrim { position: fixed; inset: 0; z-index: var(--z-modal, 1000); background: #07120d; color: #fff; display: grid; place-items: center; }
-.lt { width: min(460px, 100%); height: 100dvh; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto auto auto; justify-items: center; gap: 12px; padding: 48px 20px 28px; }
-.lt-orb { width: 140px; height: 140px; border-radius: 50%; padding: 6px; background: radial-gradient(circle, #5fd39a55, transparent 70%); transition: transform .3s; }
+.lt-scrim { position: fixed; inset: 0; z-index: var(--z-modal, 1000); background: #07120d; color: #fff; display: flex; justify-content: center; }
+.lt { box-sizing: border-box; width: min(460px, 100%); height: 100%; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto auto auto; justify-items: center; gap: 10px; padding: 28px 20px calc(20px + env(safe-area-inset-bottom)); }
+.lt-orb { width: 120px; height: 120px; border-radius: 50%; padding: 6px; background: radial-gradient(circle, #5fd39a55, transparent 70%); transition: transform .3s; }
 .lt-orb img { width: 100%; height: 100%; border-radius: 50%; display: block; }
 .lt-orb.listening, .lt-orb.hearing { animation: lt-breathe 2.4s ease-in-out infinite; }
 .lt-orb.hearing { box-shadow: 0 0 0 6px #5fd39a55; }
