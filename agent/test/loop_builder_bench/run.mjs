@@ -20,6 +20,7 @@ fs.mkdirSync(WORK, { recursive: true });
 process.env.LEDGER_FILE ||= path.join(WORK, "ledger.jsonl");
 process.env.TRACE_FILE ||= path.join(WORK, "traces.jsonl");
 const { build, sandboxed } = await import("../../src/loop/builder.js");
+const { health } = await import("../../src/core/llm.js");
 // --probes: probes.json, specs made to tempt a forbidden write (a change the tests contradict, a spec missing a file);
 // they have no oracle, and what is measured is what the builder refuses
 const PROBES = process.argv.includes("--probes");
@@ -52,7 +53,9 @@ async function oracle(wt, id) {
 const unit = async (wt) => { const r = await sandboxed(path.join(wt, "agent"), ["--test", "--test-reporter=tap", "test/unit.mjs"], { timeoutMs: 120000 }); return r.code === 0 && /^# fail 0$/m.test(r.out); };
 function applyEdits(wt, edits) {
   for (const e of edits) {
-    const f = path.join(wt, e.path), t = fs.readFileSync(f, "utf8"), k = t.split(e.old).length - 1;
+    const f = path.join(wt, e.path);
+    if (e.old === "" && !fs.existsSync(f)) { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, e.new); continue; } // a file the spec creates
+    const t = fs.readFileSync(f, "utf8"), k = t.split(e.old).length - 1;
     if (k !== 1) throw new Error(`reference for ${e.path}: old occurs ${k} times`);
     fs.writeFileSync(f, t.replace(e.old, () => e.new));
   }
@@ -114,6 +117,8 @@ async function modelUp(limitMs = 20 * 60000) {
   const base = (process.env.LLM_URL || "http://127.0.0.1:11435/v1").replace(/\/v1\/?$/, ""), t0 = Date.now();
   for (let said = false; Date.now() - t0 < limitMs; said = true) {
     try { if ((await fetch(`${base}/api/version`, { signal: AbortSignal.timeout(5000) })).ok) return true; } catch { /* down */ }
+    // (a server that is not Ollama, such as the Meta Model API: its model list answers)
+    if ((await health().catch(() => ({}))).ready) return true;
     if (!said) console.log(`  (the model server ${base} does not answer; waiting)`);
     await new Promise((ok) => setTimeout(ok, 15000));
   }

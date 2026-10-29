@@ -20,4 +20,20 @@ export default {
     { path: "agent/src/agents/autopilot.js", old: "(g[k] ||= { day, start: h.start, count: 0, played: [], sports: {} }).count++;", new: "(g[k] ||= { day, start: h.start, count: 0, played: [], sports: {}, last: h.date }).count++;\n    if (h.date > g[k].last) g[k].last = h.date;" },
     { path: "agent/src/agents/autopilot.js", old: "usualMinutes: h.minutes, alreadyTaken: h.taken }))", new: "usualMinutes: h.minutes, alreadyTaken: h.taken, lastPlayed: h.last }))" },
   ],
+  "P-B07": [
+    { path: "agent/src/club/streak.js", old: "", new: `// weeks in a row with at least one game, Monday to Sunday, counting back from this week (or last, if this week has none yet)
+const monday = (d) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x.getTime(); };
+export function streak(history = [], now = new Date()) {
+  const weeks = new Set();
+  for (const h of history) { const [y, m, d] = String(h.date).split("-").map(Number), at = new Date(y, m - 1, d); if (at <= now) weeks.add(Math.round(monday(at) / 864e5)); }
+  let w = Math.round(monday(now) / 864e5);
+  if (!weeks.has(w)) w -= 7;
+  let n = 0;
+  while (weeks.has(w)) { n++; w -= 7; }
+  return n;
+}
+` },
+    { path: "agent/src/agents/autopilot.js", old: 'import * as align from "../safety/align.js";', new: 'import * as align from "../safety/align.js";\nimport { streak } from "../club/streak.js";' },
+    { path: "agent/src/agents/autopilot.js", old: "return { today: `${DAYS[now.getDay()]} ${ymd(now)}`,", new: "return { today: `${DAYS[now.getDay()]} ${ymd(now)}`, playStreak: streak(hist, now)," },
+  ],
 };

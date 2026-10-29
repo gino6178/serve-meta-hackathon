@@ -195,7 +195,7 @@ async function rawChat(messages, { maxTokens = 420, temperature = 0.4, site = si
       // OpenAI's protocol: images go as image_url parts, a schema as response_format, and the usage block has the counts
       const r = await send(`${BASE}/chat/completions`, {
         signal: ctl.signal,
-        body: JSON.stringify({ model: MODEL, messages: openaiMessages(messages), max_tokens: maxTokens, temperature, ...(format ? { response_format: { type: "json_schema", json_schema: { name: "reply", schema: format } } } : {}) }),
+        body: JSON.stringify({ model: MODEL, messages: META_API() ? toOpenAI(messages) : openaiMessages(messages), ...limits(maxTokens, budget), temperature, ...(format ? { response_format: { type: "json_schema", json_schema: { name: "reply", schema: format } } } : {}) }),
       });
       const j = await r.json();
       const secs = (Date.now() - t0) / 1000, n = j.usage?.completion_tokens;
@@ -315,7 +315,7 @@ async function rawChatTools(messages, tools, { maxTokens = 500, temperature = 0.
       // function calling the OpenAI way: the arguments arrive as a JSON string, and the call keeps its id for the result
       const r = await send(`${BASE}/chat/completions`, {
         signal: ctl.signal,
-        body: JSON.stringify({ model: MODEL, messages, tools, max_tokens: maxTokens, temperature }),
+        body: JSON.stringify({ model: MODEL, messages: META_API() ? toOpenAI(messages) : messages, tools, ...limits(maxTokens, budget), temperature }),
       });
       const j = await r.json(), m = j.choices[0].message;
       await debug(messages, j);
@@ -337,6 +337,10 @@ async function rawChatTools(messages, tools, { maxTokens = 500, temperature = 0.
     return { text: (m.content || "").replace(THINK, "").trim(), calls, message: { role: "assistant", content: m.content || "", tool_calls: m.tool_calls }, seconds: +((Date.now() - t0) / 1000).toFixed(2) };
   } finally { clearTimeout(t); end(t0); release(); }
 }
+// the reply budget the OpenAI way: a reasoning model on the Meta Model API (Muse Spark) takes max_completion_tokens,
+// with room for its reasoning, and a reasoning_effort (LLM_REASONING_EFFORT, "low" by default; it refuses "none")
+const META_API = () => /api\.meta\.ai/.test(BASE) || /^muse-(spark|wonder)/.test(MODEL);
+const limits = (maxTokens, budget) => (META_API() ? { max_completion_tokens: maxTokens + Math.max(budget, 600), reasoning_effort: process.env.LLM_REASONING_EFFORT || "low" } : { max_tokens: maxTokens });
 const safeJSON = (s) => { try { return JSON.parse(s || "{}"); } catch { return {}; } };
 const REFUSAL = /\b(I can(?:no|')t|I am unable|I'm unable|I won't|I will not|sorry)\b/i;
 

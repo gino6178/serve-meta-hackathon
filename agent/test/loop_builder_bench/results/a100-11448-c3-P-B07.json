@@ -1,0 +1,402 @@
+{
+ "summary": {
+  "started": "2026-10-29T04:34:05.701Z",
+  "minutes": 1.7,
+  "model": "muse-glimmer",
+  "endpoint": "http://127.0.0.1:11448/v1",
+  "parallel": 1,
+  "runs": 1,
+  "pass": "1/1",
+  "C1": "0/0",
+  "C2": "0/0",
+  "firstAttempt": "1/1",
+  "infraStopped": 0,
+  "firstAttemptBySpec": {
+   "P-B07": "1/1"
+  },
+  "perSpec": {
+   "P-B07": "1/1"
+  },
+  "steps": 14,
+  "tokens": 111353,
+  "buildMinutes": 1.6,
+  "medianPerBuild": {
+   "steps": 14,
+   "tokens": 111353,
+   "minutes": 1.6
+  },
+  "refusedWrites": 0,
+  "refusedKinds": {},
+  "triedTestsOrNever": [],
+  "cannots": 0,
+  "falseCannots": [],
+  "cannotsRefused": 0,
+  "planFirstRefusals": 0
+ },
+ "rows": [
+  {
+   "run": 1,
+   "id": "P-B07",
+   "class": "C3",
+   "files": [
+    "agent/src/club/streak.js",
+    "agent/src/agents/autopilot.js"
+   ],
+   "ok": true,
+   "built": true,
+   "infra": false,
+   "cannot": null,
+   "falseCannot": false,
+   "planned": [
+    2
+   ],
+   "reviews": 1,
+   "planFirst": 0,
+   "cannotRefused": 0,
+   "oracle": {
+    "ok": true,
+    "pass": 5,
+    "fail": 0,
+    "output": "passed"
+   },
+   "attemptsUsed": 1,
+   "wonAt": 1,
+   "steps": 14,
+   "toolCalls": 14,
+   "tokens": {
+    "prompt": 108310,
+    "cached": 84529,
+    "output": 3043,
+    "reasoning": 194,
+    "calls": 14
+   },
+   "seconds": 100.5,
+   "lockWaitS": 0,
+   "lock": null,
+   "endpoint": "http://127.0.0.1:11448/v1",
+   "lane": 0,
+   "buildSeconds": 95.8,
+   "refused": [],
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "end": "done",
+     "steps": 14,
+     "toolCalls": 14,
+     "refused": [],
+     "compactions": 2,
+     "modelErrors": 0,
+     "planFirst": 0,
+     "cannotRefused": 0,
+     "plan": [
+      {
+       "file": "agent/src/club/streak.js",
+       "where": "new file",
+       "change": "Create file exporting function streak(history, now = new Date()) that computes consecutive weeks with at least one game, weeks Monday-Sunday local time, counting back from week containing now, if that week has no game yet start from week before, return 0 if neither week has game, ignore games after now, history dates YYYY-MM-DD unsorted."
+      },
+      {
+       "file": "agent/src/agents/autopilot.js",
+       "where": "import section and get_week tool, lines 201-214",
+       "change": "Import streak from ../club/streak.js and add playStreak field to result of get_week tool as streak(hist, now), where hist is history built in runWeek."
+      }
+     ],
+     "cannot": null,
+     "reviews": 1,
+     "checks": [
+      {
+       "id": "R1",
+       "met": true,
+       "where": "agent/src/club/streak.js:1"
+      },
+      {
+       "id": "R2",
+       "met": true,
+       "where": "agent/src/club/streak.js:15-23"
+      },
+      {
+       "id": "R3",
+       "met": true,
+       "where": "agent/src/club/streak.js:36-40"
+      },
+      {
+       "id": "R4",
+       "met": true,
+       "where": "agent/src/club/streak.js:38-40"
+      },
+      {
+       "id": "R5",
+       "met": true,
+       "where": "agent/src/club/streak.js:10"
+      },
+      {
+       "id": "R6",
+       "met": true,
+       "where": "agent/src/agents/autopilot.js:38"
+      },
+      {
+       "id": "R7",
+       "met": true,
+       "where": "agent/src/agents/autopilot.js:215"
+      },
+      {
+       "id": "R8",
+       "met": true,
+       "where": "agent/src/agents/autopilot.js:38,215"
+      }
+     ],
+     "verify": {
+      "ok": true,
+      "output": "passed"
+     },
+     "changed": [
+      "agent/src/agents/autopilot.js",
+      "agent/src/club/streak.js"
+     ],
+     "unit": {
+      "ok": true,
+      "pass": 25,
+      "fail": 0
+     },
+     "tokens": {
+      "calls": 14,
+      "prompt": 108310,
+      "cached": 84529,
+      "fresh": 23781,
+      "cachedShare": 0.78,
+      "output": 3043,
+      "reasoning": 194,
+      "seconds": 91.3,
+      "empty": 0,
+      "invalid": 0
+     },
+     "seconds": 95.8,
+     "summary": "Created agent/src/club/streak.js exporting streak(history, now) that computes consecutive weeks with at least one game using Monday-Sunday weeks, handles Monday start rule, ignores future games, and added import and playStreak field to get_week result in agent/src/agents/autopilot.js.",
+     "diffChars": 4268
+    }
+   ],
+   "diff": "diff --git a/agent/src/agents/autopilot.js b/agent/src/agents/autopilot.js\nindex 7831db9..8070ba4 100644\n--- a/agent/src/agents/autopilot.js\n+++ b/agent/src/agents/autopilot.js\n@@ -35,6 +35,7 @@ import { noteOwn } from \"../match/records.js\";\n import * as align from \"../safety/align.js\";\n import * as fb from \"./freebusy.js\";\n import { privateFor } from \"../safety/privacy.js\";\n+import { streak } from \"../club/streak.js\";\n \n const { windows, travelMin, ymd, hm, toMin, dateOf, readVenues, DAYS } = helpers;\n const FILE = path.resolve(process.env.AUTOPILOT_FILE || \"data/autopilot.json\");\n@@ -210,7 +211,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi\n       return { today: `${DAYS[now.getDay()]} ${ymd(now)}`, goal: `${perWeek} ${g.sport} games this week${perWeek !== g.perWeek ? ` (one fewer than usual: your load is ${org.load.acwr} times your usual week)` : \"\"}`, gameMinutes: minutes, booked: booked.map((b) => `${DAYS[dateOf(b.date).getDay()]} ${b.start}`), agreed: agreed.map((a) => `${a.day} ${a.start}`), stillNeeded: need,\n         habitualTimes: open.map((h) => ({ day: h.day, start: h.start, date: h.date, played: `${h.count} of the last ${h.weeks} weeks`, usualMinutes: h.minutes, alreadyTaken: h.taken })),\n         ...(other.length ? { otherFreeTimes: other, otherNote: \"your usual times are not enough this week: these are other times you are free\" } : {}),\n-        playsBestWith: best, healthLimit: limit || null, ...(kept.length ? { playerRules: kept.map(ruleText), playerRulesNote: \"kept by code: these people and days are already left out\" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? \"with a health limit, doubles first; call check_body\" : body?.log?.length || body?.workouts?.length ? \"call check_body before choosing\" : undefined };\n+        playsBestWith: best, healthLimit: limit || null, ...(kept.length ? { playerRules: kept.map(ruleText), playerRulesNote: \"kept by code: these people and days are already left out\" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? \"with a health limit, doubles first; call check_body\" : body?.log?.length || body?.workouts?.length ? \"call check_body before choosing\" : undefined, playStreak: streak(hist, now) };\n     },\n     find_partners({ day, start, format = \"singles\", leaveOut = [] }, quiet = false) {\n       // someone the player asked to leave out stays out of this run: these candidates, the stop check's, the rules'\ndiff --git a/agent/src/club/streak.js b/agent/src/club/streak.js\nnew file mode 100644\nindex 0000000..5db66ac\n--- /dev/null\n+++ b/agent/src/club/streak.js\n@@ -0,0 +1,53 @@\n+export function streak(history, now = new Date()) {\n+  if (!Array.isArray(history) || history.length === 0) return 0;\n+  const nowDate = new Date(now);\n+  const nowTime = nowDate.getTime();\n+  const dates = [];\n+  for (const h of history) {\n+    if (!h || typeof h.date !== 'string') continue;\n+    const d = new Date(h.date + 'T00:00:00');\n+    if (isNaN(d)) continue;\n+    if (d.getTime() > nowTime) continue;\n+    dates.push(d);\n+  }\n+  if (dates.length === 0) return 0;\n+\n+  const getWeekStart = (date) => {\n+    const d = new Date(date);\n+    const day = d.getDay();\n+    const diff = (day === 0 ? -6 : 1 - day);\n+    const monday = new Date(d);\n+    monday.setDate(d.getDate() + diff);\n+    monday.setHours(0,0,0,0);\n+    return monday.getTime();\n+  };\n+\n+  const weekStartNow = getWeekStart(nowDate);\n+  const weekStartPrev = weekStartNow - 7 * 24 * 60 * 60 * 1000;\n+\n+  const weekHasGame = (weekStart) => {\n+    const weekEnd = weekStart + 7 * 24 * 60 * 60 * 1000 - 1;\n+    return dates.some(d => {\n+      const t = d.getTime();\n+      return t >= weekStart && t < weekStart + 7 * 24 * 60 * 60 * 1000;\n+    });\n+  };\n+\n+  let currentWeekStart = weekStartNow;\n+  if (!weekHasGame(currentWeekStart)) {\n+    currentWeekStart = weekStartPrev;\n+    if (!weekHasGame(currentWeekStart)) return 0;\n+  }\n+\n+  let count = 0;\n+  let ws = currentWeekStart;\n+  while (true) {\n+    if (weekHasGame(ws)) {\n+      count++;\n+      ws -= 7 * 24 * 60 * 60 * 1000;\n+    } else {\n+      break;\n+    }\n+  }\n+  return count;\n+}\n",
+   "attemptDiffs": [
+    "diff --git a/agent/src/agents/autopilot.js b/agent/src/agents/autopilot.js\nindex 7831db9..8070ba4 100644\n--- a/agent/src/agents/autopilot.js\n+++ b/agent/src/agents/autopilot.js\n@@ -35,6 +35,7 @@ import { noteOwn } from \"../match/records.js\";\n import * as align from \"../safety/align.js\";\n import * as fb from \"./freebusy.js\";\n import { privateFor } from \"../safety/privacy.js\";\n+import { streak } from \"../club/streak.js\";\n \n const { windows, travelMin, ymd, hm, toMin, dateOf, readVenues, DAYS } = helpers;\n const FILE = path.resolve(process.env.AUTOPILOT_FILE || \"data/autopilot.json\");\n@@ -210,7 +211,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi\n       return { today: `${DAYS[now.getDay()]} ${ymd(now)}`, goal: `${perWeek} ${g.sport} games this week${perWeek !== g.perWeek ? ` (one fewer than usual: your load is ${org.load.acwr} times your usual week)` : \"\"}`, gameMinutes: minutes, booked: booked.map((b) => `${DAYS[dateOf(b.date).getDay()]} ${b.start}`), agreed: agreed.map((a) => `${a.day} ${a.start}`), stillNeeded: need,\n         habitualTimes: open.map((h) => ({ day: h.day, start: h.start, date: h.date, played: `${h.count} of the last ${h.weeks} weeks`, usualMinutes: h.minutes, alreadyTaken: h.taken })),\n         ...(other.length ? { otherFreeTimes: other, otherNote: \"your usual times are not enough this week: these are other times you are free\" } : {}),\n-        playsBestWith: best, healthLimit: limit || null, ...(kept.length ? { playerRules: kept.map(ruleText), playerRulesNote: \"kept by code: these people and days are already left out\" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? \"with a health limit, doubles first; call check_body\" : body?.log?.length || body?.workouts?.length ? \"call check_body before choosing\" : undefined };\n+        playsBestWith: best, healthLimit: limit || null, ...(kept.length ? { playerRules: kept.map(ruleText), playerRulesNote: \"kept by code: these people and days are already left out\" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? \"with a health limit, doubles first; call check_body\" : body?.log?.length || body?.workouts?.length ? \"call check_body before choosing\" : undefined, playStreak: streak(hist, now) };\n     },\n     find_partners({ day, start, format = \"singles\", leaveOut = [] }, quiet = false) {\n       // someone the player asked to leave out stays out of this run: these candidates, the stop check's, the rules'\ndiff --git a/agent/src/club/streak.js b/agent/src/club/streak.js\nnew file mode 100644\nindex 0000000..5db66ac\n--- /dev/null\n+++ b/agent/src/club/streak.js\n@@ -0,0 +1,53 @@\n+export function streak(history, now = new Date()) {\n+  if (!Array.isArray(history) || history.length === 0) return 0;\n+  const nowDate = new Date(now);\n+  const nowTime = nowDate.getTime();\n+  const dates = [];\n+  for (const h of history) {\n+    if (!h || typeof h.date !== 'string') continue;\n+    const d = new Date(h.date + 'T00:00:00');\n+    if (isNaN(d)) continue;\n+    if (d.getTime() > nowTime) continue;\n+    dates.push(d);\n+  }\n+  if (dates.length === 0) return 0;\n+\n+  const getWeekStart = (date) => {\n+    const d = new Date(date);\n+    const day = d.getDay();\n+    const diff = (day === 0 ? -6 : 1 - day);\n+    const monday = new Date(d);\n+    monday.setDate(d.getDate() + diff);\n+    monday.setHours(0,0,0,0);\n+    return monday.getTime();\n+  };\n+\n+  const weekStartNow = getWeekStart(nowDate);\n+  const weekStartPrev = weekStartNow - 7 * 24 * 60 * 60 * 1000;\n+\n+  const weekHasGame = (weekStart) => {\n+    const weekEnd = weekStart + 7 * 24 * 60 * 60 * 1000 - 1;\n+    return dates.some(d => {\n+      const t = d.getTime();\n+      return t >= weekStart && t < weekStart + 7 * 24 * 60 * 60 * 1000;\n+    });\n+  };\n+\n+  let currentWeekStart = weekStartNow;\n+  if (!weekHasGame(currentWeekStart)) {\n+    currentWeekStart = weekStartPrev;\n+    if (!weekHasGame(currentWeekStart)) return 0;\n+  }\n+\n+  let count = 0;\n+  let ws = currentWeekStart;\n+  while (true) {\n+    if (weekHasGame(ws)) {\n+      count++;\n+      ws -= 7 * 24 * 60 * 60 * 1000;\n+    } else {\n+      break;\n+    }\n+  }\n+  return count;\n+}\n"
+   ],
+   "reasons": [],
+   "branch": "loop/P-B07",
+   "commit": "d37d2d408147b87889f929ad9961fd6794b237c1",
+   "stat": "2 files changed, 55 insertions(+), 1 deletion(-)",
+   "baseUnit": {
+    "ok": true,
+    "pass": 25,
+    "fail": 0,
+    "seconds": 3.6
+   },
+   "reviewStub": false,
+   "log": [
+    {
+     "attempt": 1,
+     "step": 1,
+     "tool": "list_files",
+     "args": {
+      "dir": "agent/src"
+     },
+     "ok": true,
+     "result": "agent/src/a2a/\nagent/src/agents/\nagent/src/body/\nagent/src/channels/\nagent/src/club/\nagent/src/core/\nagent/src/feed/\nagent/src/loop/\nagent/src/match/\nagent/src/media/\nagent/src/members/\nagent/src/memory/\nagent/src/safety/\nagent/src/server.j…[30 more chars]",
+     "ms": 32
+    },
+    {
+     "attempt": 1,
+     "step": 2,
+     "tool": "list_files",
+     "args": {
+      "dir": "agent/src/club"
+     },
+     "ok": true,
+     "result": "agent/src/club/club.js (47 lines)\nagent/src/club/life.js (158 lines)\nagent/src/club/pairing.js (123 lines)\nagent/src/club/places.js (273 lines)\nagent/src/club/play.js (465 lines)\nagent/src/club/pocket.js (370 lines)\nagent/src/club/populatio…[51 more chars]",
+     "ms": 3
+    },
+    {
+     "attempt": 1,
+     "step": 3,
+     "tool": "read_file",
+     "args": {
+      "path": "agent/src/agents/autopilot.js",
+      "from": 200,
+      "to": 220
+     },
+     "ok": true,
+     "result": "agent/src/agents/autopilot.js, lines 200-220 of 578:\n200\t    },\n201\t    get_week() {\n202\t      const need = Math.max(0, perWeek - booked.length - agreed.length);\n203\t      const open = habit.map((h) => { const d = days.find((x) => x.day ===…[3018 more chars]",
+     "ms": 2
+    },
+    {
+     "attempt": 1,
+     "step": 4,
+     "tool": "read_file",
+     "args": {
+      "path": "agent/src/agents/autopilot.js",
+      "from": 123,
+      "to": 170
+     },
+     "ok": true,
+     "result": "agent/src/agents/autopilot.js, lines 123-170 of 578:\n123\tasync function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcoming = [], body = null, messenger = null, notify = null, notifyNone = null, onStep, now = new Date(), pla…[5105 more chars]",
+     "ms": 2
+    },
+    {
+     "attempt": 1,
+     "step": 5,
+     "tool": "plan",
+     "args": {
+      "steps": [
+       {
+        "change": "Create file exporting function streak(history, now = new Date()) that computes consecutive weeks with at least one game, weeks Monday-Sunday local time, counting back from week containing now, if that week has no game yet start from week before, return 0 if neither week has game, ignore games after now, history dates YYYY-MM-DD unsorted.",
+        "file": "agent/src/club/streak.js",
+        "where": "new file"
+       },
+       {
+        "change": "Import streak from ../club/streak.js and add playStreak field to result of get_week tool as streak(hist, now), where hist is history built in runWeek.",
+        "file": "agent/src/agents/autopilot.js",
+        "where": "import section and get_week tool, lines 201-214"
+       }
+      ]
+     },
+     "ok": true,
+     "result": "Plan accepted. Your checklist (it stays in view):\n1. agent/src/club/streak.js, new file: Create file exporting function streak(history, now = new Date()) that computes consecutive weeks with at least one game, weeks Monday-Sunday local time…[463 more chars]",
+     "ms": 1
+    },
+    {
+     "attempt": 1,
+     "step": 6,
+     "tool": "write_patch",
+     "args": {
+      "path": "agent/src/club/streak.js",
+      "old": "",
+      "new": "export function streak(history, now = new Date()) {\n  if (!Array.isArray(history) || history.length === 0) return 0;\n  c…[1341 more chars]",
+      "oldChars": 0,
+      "newChars": 1461
+     },
+     "ok": true,
+     "result": "Created agent/src/club/streak.js. Lines 1-54 now:\n1\texport function streak(history, now = new Date()) {\n2\t  if (!Array.isArray(history) || history.length === 0) return 0;\n3\t  const nowDate = new Date(now);\n4\t  const nowTime = nowDate.getTim…[1441 more chars]",
+     "ms": 124
+    },
+    {
+     "attempt": 1,
+     "step": 7,
+     "tool": "read_file",
+     "args": {
+      "path": "agent/src/agents/autopilot.js",
+      "from": 1,
+      "to": 50
+     },
+     "ok": true,
+     "result": "agent/src/agents/autopilot.js, lines 1-50 of 578:\n1\t// Autopilot: your agent keeps you playing, without being asked.\n2\t//   It learns your habits from your games (the days and times you keep coming back to, and how long you play) and who\n3\t…[3785 more chars]",
+     "ms": 1
+    },
+    {
+     "attempt": 1,
+     "step": 8,
+     "tool": "read_file",
+     "args": {
+      "path": "agent/src/agents/autopilot.js",
+      "from": 35,
+      "to": 40
+     },
+     "ok": true,
+     "result": "agent/src/agents/autopilot.js, lines 35-40 of 578:\n35\timport * as align from \"../safety/align.js\";\n36\timport * as fb from \"./freebusy.js\";\n37\timport { privateFor } from \"../safety/privacy.js\";\n38\t\n39\tconst { windows, travelMin, ymd, hm, toM…[153 more chars]",
+     "ms": 2
+    },
+    {
+     "attempt": 1,
+     "step": 9,
+     "tool": "write_patch",
+     "args": {
+      "path": "agent/src/agents/autopilot.js",
+      "old": "import * as align from \"../safety/align.js\";\nimport * as fb from \"./freebusy.js\";\nimport { privateFor } from \"../safety/…[95 more chars]",
+      "new": "import * as align from \"../safety/align.js\";\nimport * as fb from \"./freebusy.js\";\nimport { privateFor } from \"../safety/…[139 more chars]",
+      "oldChars": 215,
+      "newChars": 259
+     },
+     "ok": true,
+     "result": "Changed agent/src/agents/autopilot.js. Lines 36-45 now:\n36\timport * as fb from \"./freebusy.js\";\n37\timport { privateFor } from \"../safety/privacy.js\";\n38\timport { streak } from \"../club/streak.js\";\n39\t\n40\tconst { windows, travelMin, ymd, hm,…[433 more chars]",
+     "ms": 80
+    },
+    {
+     "attempt": 1,
+     "step": 10,
+     "tool": "read_file",
+     "args": {
+      "path": "agent/src/agents/autopilot.js",
+      "from": 201,
+      "to": 214
+     },
+     "ok": true,
+     "result": "agent/src/agents/autopilot.js, lines 201-214 of 579:\n201\t    },\n202\t    get_week() {\n203\t      const need = Math.max(0, perWeek - booked.length - agreed.length);\n204\t      const open = habit.map((h) => { const d = days.find((x) => x.day ===…[2440 more chars]",
+     "ms": 1
+    },
+    {
+     "attempt": 1,
+     "step": 11,
+     "tool": "write_patch",
+     "args": {
+      "path": "agent/src/agents/autopilot.js",
+      "old": "      return { today: `${DAYS[now.getDay()]} ${ymd(now)}`, goal: `${perWeek} ${g.sport} games this week${perWeek !== g.p…[1061 more chars]",
+      "new": "      return { today: `${DAYS[now.getDay()]} ${ymd(now)}`, goal: `${perWeek} ${g.sport} games this week${perWeek !== g.p…[1092 more chars]",
+      "oldChars": 1181,
+      "newChars": 1212
+     },
+     "ok": true,
+     "result": "Changed agent/src/agents/autopilot.js. Lines 212-219 now:\n212\t        habitualTimes: open.map((h) => ({ day: h.day, start: h.start, date: h.date, played: `${h.count} of the last ${h.weeks} weeks`, usualMinutes: h.minutes, alreadyTaken: h.ta…[906 more chars]",
+     "ms": 86
+    },
+    {
+     "attempt": 1,
+     "step": 12,
+     "tool": "run_unit",
+     "args": {},
+     "ok": true,
+     "result": "unit tests: 25 pass, 0 fail (3.5 s)",
+     "ms": 3490
+    },
+    {
+     "attempt": 1,
+     "step": 13,
+     "tool": "done",
+     "args": {
+      "summary": "Created agent/src/club/streak.js exporting streak(history, now) that computes consecutive weeks with at least one game using Monday-Sunday weeks, handles Monday start rule, ignores future games, and a…[85 more chars]",
+      "checks": [
+       "R1:met: agent/src/club/streak.js:1-53",
+       "R2:met: agent/src/club/streak.js:15-23,25-34",
+       "R3:met: agent/src/club/streak.js:36-40",
+       "R4:met: agent/src/club/streak.js:37-40",
+       "R5:met: agent/src/club/streak.js:10",
+       "R6:met: agent/src/agents/autopilot.js:38 and 215",
+       "R7:met: agent/src/agents/autopilot.js:215",
+       "R8:met: agent/src/agents/autopilot.js:38,215"
+      ]
+     },
+     "ok": true,
+     "result": "Not yet: check your change against the spec first.\nYour diff:\ndiff --git a/agent/src/agents/autopilot.js b/agent/src/agents/autopilot.js\nindex 7831db9..8070ba4 100644\n--- a/agent/src/agents/autopilot.js\n+++ b/agent/src/agents/autopilot.js\n@…[4442 more chars]",
+     "ms": 59
+    },
+    {
+     "attempt": 1,
+     "step": 14,
+     "tool": "done",
+     "args": {
+      "summary": "Created agent/src/club/streak.js exporting streak(history, now) that computes consecutive weeks with at least one game using Monday-Sunday weeks, handles Monday start rule, ignores future games, and a…[85 more chars]",
+      "checks": [
+       "R1:met: agent/src/club/streak.js:1",
+       "R2:met: agent/src/club/streak.js:15-23",
+       "R3:met: agent/src/club/streak.js:36-40",
+       "R4:met: agent/src/club/streak.js:38-40",
+       "R5:met: agent/src/club/streak.js:10",
+       "R6:met: agent/src/agents/autopilot.js:38",
+       "R7:met: agent/src/agents/autopilot.js:215",
+       "R8:met: agent/src/agents/autopilot.js:38,215"
+      ]
+     },
+     "ok": true,
+     "result": "accepted",
+     "ms": 60
+    }
+   ]
+  }
+ ]
+}
