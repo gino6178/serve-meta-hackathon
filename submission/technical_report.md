@@ -347,6 +347,7 @@ Only what is wired into the code.
 | Meta model or tool | Status | Runs on | What it does in Serve |
 |---|---|---|---|
 | **Muse Glimmer**, open weights (27.9B, Q4_K_M) | In the app | Ollama, RTX 3090; some evaluations on A100s, same digest | Every agent: the Autopilot's tool loop, Match's question, reading "I want to play" into an intent, each member's agent's decision (in parallel, JSON Schema), filing what hurts, judging courts, reading a scoreboard (vision), captions, the body report, the loop's paraphrases, summaries and specs, the builder |
+| **Llama 3.2 1B**, open weights, distilled from Glimmer (LoRA, int4) | In the app | CPU | A member's choice of time when it is sure; Glimmer answers otherwise (3.12) |
 | **Llama Guard 3 1B** (Q8_0) | In the app | Ollama, CPU | The player's Messenger messages; model text for the player; the loop's screen |
 | **Prompt Guard 2 86M** | In the app | Transformers, CPU | Reviews before the court judge; the loop's screen |
 | **DRAMA** (`facebook/drama-base`) | In the app | Transformers, CPU | Memory by meaning; clustering the loop's sentences; matching an idea to an existing feature |
@@ -356,7 +357,8 @@ Only what is wired into the code.
 | **DETR** (ResNet-50) | In the app | GPU 0 | Finds the people in the player's video |
 | **MapAnything** (Apache 2.0 weights) | In the app (optional camera effect) | GPU 0 | Metric depth and the camera for orbit replays |
 | **Messenger Platform** | In the app | Signed webhook, Send API, quick replies | The agent in the player's chats, including the loop's `/improve`, `/idea`, `/ideas` and `/beta` |
-| **Instagram, Facebook, WhatsApp, Threads** | In the app | Share sheet and share links, no API | Reels and club posts, shared by the player |
+| **Facebook Login, Instagram Login** | In the app | OAuth on the server (`members/members.js`) | Joining the club with a Facebook or Instagram account; a demo account until the Meta app is approved |
+| **Instagram, Facebook, WhatsApp, Threads** | In the app | Share sheet and share links | Reels, posters and club posts, shared by the player |
 | **CodeShield rules** (LlamaFirewall) | In the loop's policy | `agent/test/policy.mjs` | Its secret and JavaScript rules, rewritten as patterns on added lines |
 | **Agents Rule of Two** [23] | Design rule | Every agent and loop stage | No agent or stage holds untrusted input, private data and the power to act at once |
 
@@ -604,6 +606,55 @@ One C0 change (`places.radius` to 3000) run through the gates with the GPU suite
 team (93 of 93) and Messenger end to end (58 of 58) passed, and the spec's oracle passed
 (`gates_oracle_privacy.json`). The run also caught a test of ours reading the loop's secret from the wrong folder under
 the gates; fixed (`test/e2e.mjs`).
+
+### 5.14 Twenty simulated users, three days
+
+A real trial would ask a group of friends to use Serve for a few days, which a hackathon does not allow. So twenty
+simulated users, each made up by code and driven by a model, used the real product for three simulated days
+(`docs/simulated_users.md`, `submission/results/`): Messenger through the signed webhook, and the web API with the
+token. Each has an inertia model that decides when they open the chat and when they give up, and the same people also
+organized games without Serve, as a baseline. Muse Glimmer ran on two A100 endpoints with the server's model digest,
+with no model errors.
+
+- **The first run found three gaps, and all three were fixed:** a request worded "need badminton doubles tonight 19 to
+  22" now reaches matchmaking; a new player is asked from the free times they gave, without waiting for a habit; and
+  a partner is asked ("I'm in" or "Can't make it") before their agent books.
+- **After the fixes** (seeds 2, 3 and 4): the Match helper asked 8, 16 and 9 times, and partners were asked before
+  booking 6, 12 and 3 times.
+- **Seed 2:** 3 games played with Serve against 1 without; 8 users with a game against 2; player-games per user +0.3
+  (95% CI 0.1 to 0.5) (`sim_users_v2s2.json`).
+- **Seed 4:** a game was booked the moment it was wanted, a median of 0 minutes, against 100.5 minutes without Serve
+  (`sim_users_v3s4.json`).
+- **The users read like people:** a blinded judge (Muse Glimmer, `test/sim_users/judge.mjs`) could not tell their
+  messages from 40 held-out messages written in a person's style: 11 of 20 pairs, chance level (`sim_judge_v3s4.json`).
+- Everything they made loads as a seed (`export_seed.mjs`), so the demo starts with a club that already has people in
+  it.
+
+### 5.15 Options built, measured and kept as settings
+
+Each is in the code, measured, and off unless chosen:
+- **The one-pass decider** (`docs/decider.md`, `decider_summary.json`): Glimmer's choice read from the next token's
+  probabilities, with no reasoning: 1 output token and 0.53 s at p50 on the RTX 3090, against about 606 tokens and
+  40.4 s for the full answer.
+- **Two talks at once for today's games** (`MATCH_TWO_AT_ONCE=1`): the first agent to agree gets the game, the other
+  hears a polite sentence and its hold is freed (`test/match_unit.mjs`).
+- **The asker's reliability** in the band model (`MATCH_RELIABILITY=on`), for clubs with askers who often cancel.
+- **A per-hour disclosure check** (`A2A_BUDGET_CHECK=hour`) beside the per-talk budget (3.13).
+- **An informed arm** for the simulated users (`run.mjs --informed`), in which each user is told how to ask.
+
+### 5.16 A vision judge for orbits
+
+The 84 labelled probe frames (5.8) shown to Muse Wonder on the Meta Model API with the labels' own question: would a
+viewer notice a defect in a 2-second sweep? (`video/pose/orbit_judge.py`, `submission/results/orbit/`). It agreed with
+the labels on 87% of the frames, about 9 s a frame and $1.10 for the 84, and it names what it rejects: "doubled ghost net
+outline above the net and a large blurred empty band on the right". Muse Glimmer ran the same judge on an A100 with a
+JSON Schema, with no cloud. It sits beside the pixel rule as a second opinion that says why.
+
+### 5.17 The ball on tennis and basketball
+
+WASB's tennis and basketball trackers run through `video/pose/ball.py` (`--sport tennis|basketball`), on GPU 0, about
+15 s for 20 s of video. On a CC BY 3.0 basketball clip every mark checked by eye was on the ball, 12 of 12
+(`submission/results/ball_wasb.json`, `submission/shots/ball/`).
 
 ## 6. Safety and privacy
 

@@ -130,6 +130,7 @@ async function chart(file) {
       s.addShape(pres.shapes.OVAL, { x: 0.8, y: 5.45 + i * 0.45, w: 0.14, h: 0.14, fill: { color: c }, line: { color: c } });
       T(s, t, 1.08, 5.35 + i * 0.45, 5, 0.34, { fontSize: 14, bold: true, valign: "middle" });
     });
+    T(s, "Not a coach, not a sports analyzer, not a medical tool: a club that organizes itself.", 0.8, 6.85, 5.6, 0.3, { fontSize: 11, color: MUTED });
     phone(s, IMG.v3.social_feed, 6.75, 0.85, 5.6);
     phone(s, IMG.v3.agent_chats, 9.75, 1.35, 5.6);
     s.addNotes("Serve 的封面頁：Play more. Manage less. 右邊是手機上的社群動態和 Agent 對話。\n旁白：So for this hackathon, I built Serve. Not an AI coach. A club where your agent sorts things out with your friends' agents, and only asks you for one yes.");
@@ -580,19 +581,21 @@ async function chart(file) {
     });
   }
 
-  // 19 · Five more pieces, each measured
+  // 19 · Seven more pieces, each measured
   {
-    const s = content("Technical depth", "TECHNICAL DEPTH · MEASURED THIS WEEK", "Five more pieces, each one measured",
-      "這週加的五件事，每一件都有量測：\n1 私密行事曆貫穿 Match 和規劃：其他成員的空檔只能問「這個時間有空嗎」，每天最多問 24 次。\n2 學出來的意圖路由：正規表示式找到 6/10 約球請求，加上路由 10/10，22 則其他訊息誤報 1 則。\n3 Muse Spark（Muse Code 用的同一系列）蓋 C3 新功能：修正我們自己的 oracle 後第一次就過。\n4 商用授權的記憶 embedder：Granite（Apache 2.0）前三名召回 0.80。\n5 GPU 套件在 A100 上跑過閘門：攻擊 93/93、e2e 58/58、crash matrix 201/201。");
+    const s = content("Technical depth", "TECHNICAL DEPTH · MEASURED THIS WEEK", "Seven more pieces, each one measured",
+      "這週加的七件事，每一件都有量測：\n1 私密行事曆貫穿 Match 和規劃：其他成員的空檔只能問「這個時間有空嗎」，每天最多問 24 次。\n2 學出來的意圖路由：正規表示式找到 6/10 約球請求，加上路由 10/10，22 則其他訊息誤報 1 則。\n3 Muse Spark（Muse Code 用的同一系列）蓋 C3 新功能：修正我們自己的 oracle 後第一次就過。\n4 商用授權的記憶 embedder：Granite（Apache 2.0）前三名召回 0.80。\n5 Orbit 視覺裁判：Muse Wonder 看 84 張標註畫面，會說出它看到的瑕疵。\n6 網球籃球的球：WASB 接進 highlight 管線，籃球抽查 12/12 都在球上。\n7 GPU 套件在 A100 上跑過閘門：攻擊 93/93、e2e 58/58、crash matrix 201/201。");
     const rows = [
       ["Private calendars, everywhere", "Match, the planner and the search ask each member's agent 'free then?'; a yes or a no, 24 asks a day", "4 tests: a calendar read by anyone but its agent throws", GREEN],
-      ["A learned intent router", "DRAMA vectors and a small head, behind the regular expressions", "Game requests found: 6 of 10 by the expressions alone, 10 of 10 with the router", GREEN],
+      ["A learned intent router", "DRAMA vectors and a small head, behind the regular expressions", "Game requests found: 6 of 10 by the expressions alone, 10 of 10 with the router added", GREEN],
       ["New code, built by Muse Spark", "A C3 spec: a new module and a field in the planner (Muse Code's model family)", "Built on the first attempt: Spark 202k tokens, 1.4 min; Glimmer 111k, 1.6 min", GREEN],
       ["An embedder for commercial use", "IBM Granite (Apache 2.0) in place of DRAMA (non-commercial)", "Recall@3 0.80 (DRAMA 0.75): the memory is free for commercial use", BLUE],
-      ["The GPU suites, through the gates", "One flag change, Muse Glimmer on a cloud A100", "Attacks 93 of 93, end to end 58 of 58, crash matrix 201 of 201, oracle passed", GREEN],
+      ["A vision judge for orbits", "Muse Wonder looks at each rendered orbit frame, beside the pixel rule", "84 labelled frames judged; it names the defect it rejects: 'a doubled net outline, a blurred band'", AMBER],
+      ["The ball in tennis and basketball", "WASB's tennis and basketball trackers, wired into the highlight pipeline", "Basketball: every checked mark was on the ball (12 of 12); about 15 s a 20 s clip on the GPU", BLUE],
+      ["The GPU suites, through the gates", "One flag change, Muse Glimmer on a cloud A100", "Attacks 93 of 93, end to end 58 of 58, 201 crash-matrix assertions, oracle passed", GREEN],
     ];
     rows.forEach(([h, what, res, c], i) => {
-      const y = 1.85 + i * 0.95;
+      const y = 1.78 + i * 0.7;
       s.addShape(pres.shapes.OVAL, { x: 0.6, y: y + 0.12, w: 0.38, h: 0.38, fill: { color: c }, line: { color: c } });
       T(s, String(i + 1), 0.6, y + 0.12, 0.38, 0.38, { fontSize: 12, bold: true, color: WHITE, align: "center", valign: "middle" });
       T(s, h, 1.15, y + 0.04, 3.6, 0.3, { fontSize: 13.5, bold: true });
@@ -641,7 +644,7 @@ async function chart(file) {
     });
     pill(s, "Simulated prober · technical report 3.13", 6.75, 4.98, 3.6, { size: 10.5, color: MUTED });
     box(s, 6.75, 5.55, 5.95, 1.25, { fill: CARD, line: CARD });
-    T(s, "65 / 65", 6.95, 5.55, 1.9, 1.25, { fontSize: 30, bold: true, color: GREEN, valign: "middle" });
+    T(s, "93 / 93", 6.95, 5.55, 1.9, 1.25, { fontSize: 30, bold: true, color: GREEN, valign: "middle" });
     T(s, "attacks stopped: injected instructions, poisoned reviews, forged Agent Cards, sock-puppet votes, diffs that book without a yes", 8.85, 5.55, 3.7, 1.25, { fontSize: 11.5, valign: "middle" });
   }
 
@@ -691,9 +694,9 @@ async function chart(file) {
 
   // 22 · Proof
   {
-    const s = content("Technical depth", "MEASURED", "Every claim has a log behind it",
+    const s = content("Technical depth", "MEASURED", "Every number names the file it comes from",
       "證據頁：每個數字都有 log。e2e、攻擊測試在雲端 A100 上用同一個 Muse Glimmer（同一個 model digest）跑。可以快速帶過，或只在影片片尾字卡出現。");
-    [["93/93", "attacks stopped"], ["58/58", "Messenger end-to-end checks"], ["22/22", "A2A checks across two machines"], ["20/20", "crash-matrix checks"]].forEach(([n, d], i) => {
+    [["93/93", "attacks stopped"], ["58/58", "Messenger end-to-end checks"], ["22/22", "A2A checks across two machines"], ["20/20", "crash checks, stand-in model"]].forEach(([n, d], i) => {
       const x = 0.6 + i * 3.06;
       box(s, x, 1.85, 2.92, 1.35, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
       T(s, n, x + 0.22, 1.95, 2.5, 0.72, { fontSize: 34, bold: true, color: i === 0 ? GREEN : INK });
