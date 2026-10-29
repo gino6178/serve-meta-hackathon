@@ -2,7 +2,7 @@
 can't carry it, a plain zoom. Runs on the GPU server after reel.py, reusing its Sapiens2 keypoints and
 SAM 2.1 outlines.
   python orbit.py <clip.mp4> <reel.json> <out.mp4> [--t seconds] [--who 0] [--mode auto|orbit|zoom] [--views 1]
-                  [--src clip_hi.mp4] [--size 1280x720] [--shots dir] [--probe dir] [--plan plan.json]
+                  [--src clip_hi.mp4] [--size 1280x720] [--shots dir] [--probe dir] [--plan plan.json] [--loop 4]
 --src: the same clip at a higher resolution (the reel's pixels are scaled to it); --views N > 1: the court from N
 frames around the moment in one metric frame (approach b), else the moment's frame alone (approach a). --probe:
 also render frames at fixed angles, for labelling (orbit_fit.py learns the threshold from them).
@@ -27,6 +27,8 @@ also render frames at fixed angles, for labelling (orbit_fit.py learns the thres
   whose frame invents no more than a threshold learned from labelled frames and keeps the player and the hit point in
   view. After the full render every frame is checked again; an orbit that fails is shortened once, then replaced by
   the zoom (slow motion into the moment, pushing in on the player, a held frame).
+With an orbit it also writes <out>_loop.mp4 (--loop seconds, 0 for none): the frozen moment, the camera swinging across
+the same checked arc and back on a sine, a loop that never jumps, for the app to play on the page.
 Writes the mp4 and a plan JSON: the decision, every feature it rests on, the stage timings and peak GPU memory."""
 import argparse, json, math, os, subprocess, sys, time
 
@@ -54,6 +56,7 @@ ap.add_argument("--arc", type=float, help="force the arc on each side, degrees")
 ap.add_argument("--zoom", type=float, help="force the zoom")
 ap.add_argument("--shots"); ap.add_argument("--plan")
 ap.add_argument("--no-render", action="store_true", help="decide only")
+ap.add_argument("--loop", type=float, default=4.0, help="also render a seamless loop of the frozen moment, the camera swinging across the arc and back, this many seconds (0: none)")
 ap.add_argument("--probe", help="also render frames at fixed orbit angles into this folder (for labelling), with their features")
 ap.add_argument("--ball", help="ball.py's output for the clip (default: the reel's own, if it has one)")
 A = ap.parse_args()
@@ -981,6 +984,20 @@ def render_orbit(scene, plan, path, shots=None):
             "target_visible_min": round(vis_min, 3), "hit_and_centre_in_view": pts_ok}
 
 
+def render_loop(scene, plan, path):
+    """the frozen moment as a loop that never jumps: the camera swings across the orbit's arc and back on a sine,
+    centred and zoomed on the player, so the last frame runs into the first"""
+    a0, a1 = [math.radians(a) for a in plan["sweep_deg"]]
+    mid, amp, n = (a0 + a1) / 2, (a1 - a0) / 2, max(2, int(A.loop * A.fps))
+    w = writer(path, OW, OH, A.fps)
+    for q in range(n):
+        th = mid + amp * math.sin(2 * math.pi * q / n)
+        fr, _, _, _ = scene.render(*camera(th, 1.0), OW, OH)
+        w.stdin.write(fr.tobytes())
+    w.stdin.close(); w.wait()
+    return {"frames": n, "seconds": round(n / A.fps, 2), "arc_deg": [round(math.degrees(a0), 1), round(math.degrees(a1), 1)]}
+
+
 def orbit_ok(r):
     return r["invented_max"]["frame"] <= 1.1 * THRESH["invented"] and r["target_visible_min"] >= VIS_MIN - 0.05 and r["hit_and_centre_in_view"]
 
@@ -1086,6 +1103,8 @@ if not A.no_render:
                 plan["mode"], plan["why_not_orbit"] = "zoom", plan["why_not_orbit"] + ["the rendered orbit invented too much or lost the player"]
                 r = {"orbit_tried": r, **render_zoom(plan, A.out, A.shots)}
         result["render"] = r
+        if plan["mode"] == "orbit" and A.loop > 0:  # the loop the app shows on the page, from the same checked arc
+            result["loop"] = render_loop(scene, plan, os.path.splitext(A.out)[0] + "_loop.mp4")
     elif plan["mode"] == "zoom":
         result["render"] = render_zoom(plan, A.out, A.shots)
     else:

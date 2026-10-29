@@ -11,3 +11,10 @@
 .fx-note-h .icon { flex: none; color: var(--agent); }
 .fx-note.none .fx-note-h .icon { color: var(--ink-3); }
 .fx-note ul { margin: 0; padding-left: 22px; font-size: 14px; color: var(--ink-2); }
+
+/* the orbit's loop: the frozen moment, the camera swinging round you without end */
+.fx-loop { position: relative; margin: 0; border-radius: 18px; overflow: hidden; background: #000; aspect-ratio: 16 / 9; }
+.fx-loop video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fx-loop figcaption { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 2px; padding: 28px 14px 12px; color: #fff; background: linear-gradient(transparent, rgb(0 0 0 / .65)); font-size: 15px; }
+.fx-live { font: 700 11px/1 var(--font); letter-spacing: .08em; text-transform: uppercase; color: #5fd39a; }
+.fx-credit { font-size: 11px; opacity: .8; }

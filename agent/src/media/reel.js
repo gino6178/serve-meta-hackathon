@@ -86,7 +86,7 @@ const PLAIN = [
 ];
 export const plainWhy = (t) => { const s = String(t || ""); for (const [rx, say] of PLAIN) if (rx.test(s)) return say; return s.replace(/\bthe player\b/g, "you").replace(/\bSAM 2\.1\b|\bMapAnything\b|\bSapiens2\b/g, "the model"); };
 // what orbit.py's plan means for the player: which effect, why, and how long the cut is
-export function summarize(res, { video = null } = {}) {
+export function summarize(res, { video = null, loop = null } = {}) {
   const p = res?.plan || {}, ex = p.exists || {}, mode = p.mode || "none";
   const sweep = Array.isArray(p.sweep_deg) ? p.sweep_deg : [0, 0], arc = Math.abs(sweep[0]) + Math.abs(sweep[1]);
   const chose = mode === "orbit" ? `A short orbit: time stops and the camera turns ${arc}° round you`
@@ -97,7 +97,7 @@ export function summarize(res, { video = null } = {}) {
   if (mode === "zoom" && ex.verdict === "cut") why.push(plainWhy(ex.why));
   if (mode === "zoom" && !why.length) why.push("the zoom is the default; an orbit is added only when the footage allows it");
   return { mode, chose, why: why.filter(Boolean), exists: { verdict: ex.verdict || null, why: ex.why ? plainWhy(ex.why) : null, player: ex.player_on || null, hand: ex.hit_on || null },
-    cut: p.cut || null, sweep: mode === "orbit" ? sweep : null, zoom: p.zoom ?? null, shortened: !!p.shortened, seconds: res?.time_s?.total ?? null, ...(video ? { video } : {}) };
+    cut: p.cut || null, sweep: mode === "orbit" ? sweep : null, zoom: p.zoom ?? null, shortened: !!p.shortened, seconds: res?.time_s?.total ?? null, ...(video ? { video } : {}), ...(loop ? { loop } : {}) };
 }
 function effect(src, reelJson, dir, send) {
   send({ type: "working", step: "Choosing a camera effect for your moment" });
@@ -125,7 +125,11 @@ function effect(src, reelJson, dir, send) {
       done = true; clearTimeout(stop);
       let video = null;
       try { if (res.plan.mode !== "none" && fs.existsSync(fx) && fs.statSync(fx).size < 40e6) video = `data:video/mp4;base64,${fs.readFileSync(fx).toString("base64")}`; } catch { /* the plan alone */ }
-      const s = summarize(res, { video });
+      // with an orbit, the loop of the frozen moment the app plays on the page (orbit.py --loop)
+      let loop = null;
+      const lf = fx.replace(/\.mp4$/, "_loop.mp4");
+      try { if (res.plan.mode === "orbit" && res.loop && fs.existsSync(lf) && fs.statSync(lf).size < 20e6) loop = `data:video/mp4;base64,${fs.readFileSync(lf).toString("base64")}`; } catch { /* the effect alone */ }
+      const s = summarize(res, { video, loop });
       send({ type: "step", step: `Chose the effect: ${s.mode === "orbit" ? "a short orbit" : s.mode === "zoom" ? "zoom and cut" : "none"}`, tool: "effect", detail: `${s.why[0] || ""}${s.why[0] ? " · " : ""}${((Date.now() - t0) / 1000).toFixed(0)} s on your GPU` });
       ok(s);
     });

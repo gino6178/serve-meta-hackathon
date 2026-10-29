@@ -48,7 +48,8 @@ before the hackathon", and none of its code is in this repository.
 - **Sample videos and the demo's match footage**, trimmed and edited, all licensed under
   [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). The licence was checked on each video's page; the players
   are not named in the app. Clips made from them (`web/public/media/samples/`, and the demo feed's
-  `web/public/feed/demo_md.mp4` and `demo_ws.mp4`) are marked as such where they appear. The highlight screenshots in
+  `web/public/feed/demo_md.mp4` and `demo_ws.mp4`, and `smash_loop.mp4`: the singles sample's smash rendered by the orbit
+  effect, the camera swinging across its arc and back) are marked as such where they appear. The highlight screenshots in
   `submission/shots/web_features/` (`highlights_*`) are made from the singles sample clip, with the camera effect the
   server chose for it.
   - "2012 US Badminton Adult National Championships Men's Doubles Finals HD 1080P" by Roy Huang,

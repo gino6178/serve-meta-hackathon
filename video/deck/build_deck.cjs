@@ -31,8 +31,10 @@ async function jpg(file, width = 1600) {
 }
 
 // a chart from an SVG figure, on white, wide enough to stay sharp on a slide
+// (the figures' "Autopilot" is the planner, as the app now calls it)
 async function chart(file) {
-  const buf = await sharp(fs.readFileSync(file), { density: 220 }).flatten({ background: "#ffffff" }).png().toBuffer();
+  const svg = fs.readFileSync(file, "utf8").replace(/an Autopilot week/g, "a planned week").replace(/the Autopilot's/g, "the planner's").replace(/Autopilot/g, "planner");
+  const buf = await sharp(Buffer.from(svg), { density: 220 }).flatten({ background: "#ffffff" }).png().toBuffer();
   return "image/png;base64," + buf.toString("base64");
 }
 
@@ -52,7 +54,7 @@ async function chart(file) {
     dot: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="14" fill="#0a7f44"/><circle cx="32" cy="32" r="24" fill="none" stroke="#0a7f44" stroke-opacity=".25" stroke-width="6"/></svg>'),
     heart: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 54 C 8 38, 6 22, 18 14 C 25 10, 30 14, 32 19 C 34 14, 39 10, 46 14 C 58 22, 56 38, 32 54 Z" fill="#d1352b"/></svg>'),
     check: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#0a7f44"/><path d="M19 33 l9 9 l17 -19" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'),
-    moment: await jpg(path.join(SHOTS, "orbit/moment.png")),
+    smash: await jpg(path.join(ROOT, "web/public/feed/smash_loop.jpg"), 1280),
     depth: await jpg(path.join(SHOTS, "orbit/cutout_depth.png")),
   };
 
@@ -131,7 +133,7 @@ async function chart(file) {
     T(s, "World Health Organization, 2024", 0.9, 4.6, 3.0, 0.3, { fontSize: 11, color: MUTED });
     T(s, "For anyone who plays a ball sport for fun: badminton, tennis, pickleball, table tennis, basketball, volleyball, soccer.", 0.9, 5.15, 3.0, 1.3, { fontSize: 13, color: MUTED });
     const rows = [
-      ["Playing takes organizing", "A time that suits four people, a free court, somewhere everyone can reach. The group chat goes quiet.", "Autopilot lines up the week and agrees every game with the other players' agents. You approve once."],
+      ["Playing takes organizing", "A time that suits four people, a free court, somewhere everyone can reach. The group chat goes quiet.", "Your agent lines up the week and agrees every game with the other players' agents. You approve once."],
       ["Nobody pushes you", "One missed week becomes a month. Apps count steps; none books your next game.", "When your usual time is open and your partner is free, it asks: \"Thursday 19:00: Leo is free. Want a game?\""],
       ["Life gets in the way", "A sore knee, a heavy week, rain on an outdoor court.", "It plans doubles or one game fewer, checks in two days later, and checks the map, reviews and forecast."],
     ];
@@ -259,7 +261,7 @@ async function chart(file) {
   // 9 · Agents
   {
     const s = content("Use of Meta AI", "AN AGENT, NOT A CHATBOT", "Glimmer plans, agents agree, code decides",
-      "Autopilot：Muse Glimmer 用原生 tool calling 一步一步叫工具，被拒絕的呼叫會變成事實回來，它重新規劃。A2A：每個會員一個 agent、簽章的 Agent Card、一輪就談完、談好的時間先鎖 30 分鐘、每輪存檔可續跑。兩台機器（台北的 GPU 伺服器 + GCP A100）跨網路 22/22 項檢查通過。\n旁白：Autopilot takes over… Then it negotiates with three friends' agents at once, over A2A.");
+      "規劃 agent：Muse Glimmer 用原生 tool calling 一步一步叫工具，被拒絕的呼叫會變成事實回來，它重新規劃。A2A：每個會員一個 agent、簽章的 Agent Card、一輪就談完、談好的時間先鎖 30 分鐘、每輪存檔可續跑。兩台機器（台北的 GPU 伺服器 + GCP A100）跨網路 22/22 項檢查通過。\n旁白：Then it plans my week… Then it negotiates with three friends' agents at once, over A2A.");
     box(s, 0.6, 1.85, 5.85, 4.95, { fill: WHITE });
     T(s, "The planner agent · a tool loop", 0.85, 2.05, 5.3, 0.4, { fontSize: 18, bold: true });
     T(s, "Muse Glimmer picks the next tool; code runs it with checked arguments and hands back the facts.", 0.85, 2.5, 5.4, 0.6, { fontSize: 12.5, color: MUTED });
@@ -349,8 +351,9 @@ async function chart(file) {
       T(s, d, x + 0.18, 2.35, 1.9, 0.7, { fontSize: 11.5 });
       if (i < 4) arrow(s, x + 2.22, 2.47, 0.21, 0);
     });
-    s.addImage({ data: IMG.moment, x: 0.6, y: 3.4, w: 5.9, h: 3.32 });
-    T(s, "A CC BY 3.0 clip from Wikimedia Commons, as filmed", 0.6, 6.76, 5.9, 0.25, { fontSize: 10, color: MUTED });
+    // the smash, frozen, the camera swinging round it on a loop (plays in PowerPoint; the PDF shows its first frame)
+    s.addMedia({ type: "video", path: path.join(ROOT, "web/public/feed/smash_loop.mp4"), cover: IMG.smash, x: 0.6, y: 3.4, w: 5.9, h: 3.32 });
+    T(s, "The smash on a loop: the camera swings round it · CC BY 3.0, Badminton klub Ljubljana", 0.6, 6.76, 5.9, 0.25, { fontSize: 10, color: MUTED });
     s.addImage({ data: IMG.depth, x: 6.75, y: 3.4, w: 5.95, h: 1.67 });
     T(s, "SAM 2.1 cut-out and MapAnything depth", 6.75, 5.1, 5.95, 0.25, { fontSize: 10, color: MUTED });
     box(s, 6.75, 5.5, 5.95, 1.25, { fill: CARD, line: CARD });
@@ -399,7 +402,80 @@ async function chart(file) {
     T(s, "submission/results/glimmer_in_practice.json · technical report 3.12, 5.10", 5.4, 6.7, 7.3, 0.25, { fontSize: 10, color: SOFT });
   }
 
-  // 14 · Measured: what each choice costs
+  // 14 · Fine-tuned: the decision model (Jev-style) distilled from Muse Glimmer
+  {
+    const s = content("Technical depth", "TECHNICAL DEPTH · FINE-TUNING", "A 1B decision model, distilled from Muse Glimmer",
+      "Jev 式決策模型的微調（docs/decision_model.md）：\n1. 教師資料：用真正的 fullAnswer（同一個 prompt、JSON Schema、think low）讓 Muse Glimmer 在 GCP A100 上標註，三個訓練集共 4,868 題，另有測試、驗證、demo 社團等留出集。\n2. LoRA 微調 Meta 的 Llama 3.2 1B 和 3B（rank 16、3 個 epoch，1B 20 分鐘、3B 44 分鐘）。不生成任何文字：在答案位置對宣告的選項（B、C…、Z）做 softmax，並在每個時段的 works? 標記上判斷可不可行，這是它自己讀行事曆的檢查。\n3. 量化成 int4 GGUF，在伺服器 CPU 上跑：1B 0.8 GB、每次決策約 0.9 秒、寫出 0 個 token（Glimmer 每次約 450 個）。\n結果：留出會員上和 Glimmer 一致 89.5%，Glimmer 跟自己一致 88.8%；會員明說的偏好保住 29/32（Glimmer 27）；可行時段判讀 precision 100%；在模擬社團少用 54–67% 的 Glimmer 呼叫，沒有破壞任何規則。");
+    const step = (i, h, d) => {
+      const y = 1.9 + i * 1.22;
+      s.addShape(pres.shapes.OVAL, { x: 0.6, y, w: 0.42, h: 0.42, fill: { color: GREEN }, line: { color: GREEN } });
+      T(s, String(i + 1), 0.6, y, 0.42, 0.42, { fontSize: 14, bold: true, color: WHITE, align: "center", valign: "middle" });
+      T(s, h, 1.2, y - 0.03, 5.0, 0.32, { fontSize: 15, bold: true });
+      T(s, d, 1.2, y + 0.3, 5.0, 0.85, { fontSize: 11.5, color: MUTED });
+    };
+    step(0, "Teacher data from the real agent", "Muse Glimmer answers 4,868 members' choices through the agent's own call (same prompt, JSON Schema, think: \"low\"), on a cloud A100.");
+    step(1, "LoRA on Meta's Llama 3.2 1B and 3B", "Rank 16, every attention and MLP projection, 3 epochs: 20 minutes for the 1B, 44 for the 3B.");
+    step(2, "A decision head, no text", "One pass gives a probability for each declared option, and a yes or no for every time: its own reading of the calendar.");
+    step(3, "int4 on the CPU, behind a threshold", "0.8 GB GGUF, about 0.9 s a decision, 0 tokens written. It answers only when sure; otherwise Glimmer does.");
+    s.addChart(pres.charts.BAR, [{ name: "Agrees with Glimmer's answer, held-out members", labels: ["Glimmer with itself", "First time listed", "3B student", "1B student (served)"], values: [88.8, 82.7, 88.6, 89.5] }], {
+      x: 6.55, y: 1.8, w: 6.2, h: 2.75, barDir: "bar", chartColors: [SOFT, LINE, BLUE, GREEN], barGapWidthPct: 40,
+      showTitle: true, title: "Agrees with Glimmer, 500 held-out cases", titleFontSize: 12, titleColor: INK, titleFontFace: "+mn-lt",
+      showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.0\"%\"", dataLabelFontSize: 12, dataLabelFontBold: true, dataLabelFontFace: "+mn-lt", dataLabelColor: INK,
+      catAxisLabelFontSize: 11, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisOrientation: "maxMin",
+      valAxisHidden: true, valAxisMinVal: 60, valAxisMaxVal: 100, valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: false,
+    });
+    [["54–67%", "fewer Muse Glimmer calls in the simulated club, no rule broken", GREEN], ["29 / 32", "members' stated preferences kept (Glimmer: 27)", INK], ["100%", "precision reading which times work", INK], ["0", "tokens written per decision (Glimmer: about 450)", INK]].forEach(([n, d, c], i) => {
+      const x = 6.55 + (i % 2) * 3.15, y = 4.75 + Math.floor(i / 2) * 1.05;
+      box(s, x, y, 3.0, 0.92, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
+      T(s, n, x + 0.18, y, 1.25, 0.92, { fontSize: 24, bold: true, color: c, valign: "middle" });
+      T(s, d, x + 1.45, y, 1.45, 0.92, { fontSize: 10.5, color: MUTED, valign: "middle" });
+    });
+  }
+
+  // 15 · The student and Muse Glimmer: when the small model isn't enough, the big one answers
+  {
+    const s = content("Technical depth", "TECHNICAL DEPTH · THE CASCADE", "When the student isn't sure, Muse Glimmer answers",
+      "Jev 學生模型和 Muse Glimmer 的交接（agent/src/agents/student.js、a2a.js fullAnswer）：\n1. 先由程式處理事實能決定的：行事曆、硬規則；只剩一個可行時段就直接回答，不叫任何模型。\n2. 真正需要判斷時，先問 Llama 3.2 1B 學生模型。它只有在三個條件都成立時才回答：選項機率 ≥ 0.6；它自己對「哪些時段可行」的判讀和程式算的一致；worker 有空且夠快（排隊超過 8 秒或超過 20 秒就放棄）。\n3. 任何一個不成立，就交給 Muse Glimmer 完整推理。\n4. 不管誰回答，程式都再檢查一次硬規則，結果才透過 A2A 送出，並標示是哪一層回答的（Agent 對話頁上看得到）。\n右圖：門檻越高，學生回答得越少、整體越準；我們選 0.6：在最難的 196 題裡學生回答 73%，其餘交給 Glimmer。");
+    // the flow, left to right
+    const node = (x, y, w, h, title, sub, fill, line, c = INK) => { box(s, x, y, w, h, { fill, line, lw: line === GREEN || line === BLUE ? 2 : 1 }); T(s, title, x + 0.16, y + 0.12, w - 0.3, 0.3, { fontSize: 13.5, bold: true, color: c }); T(s, sub, x + 0.16, y + 0.44, w - 0.3, h - 0.5, { fontSize: 10.5, color: MUTED }); };
+    node(0.6, 1.95, 2.0, 1.25, "Code first", "Calendars and hard rules; one time left: answered, no model", WHITE, LINE);
+    arrow(s, 2.62, 2.57, 0.3, 0);
+    node(2.95, 1.95, 2.25, 1.25, "Llama 3.2 1B student", "int4 on the CPU, about 0.9 s, no text written", GREENBG, GREEN, GREEN);
+    arrow(s, 5.22, 2.57, 0.3, 0);
+    box(s, 5.55, 1.75, 2.45, 1.65, { fill: AMBERBG, line: AMBERBG });
+    T(s, "Answers only if", 5.71, 1.85, 2.2, 0.3, { fontSize: 13, bold: true, color: AMBER });
+    T(s, [{ text: "sure: 0.6 or more", options: { bullet: { indent: 12 }, breakLine: true } }, { text: "its reading of which times work matches code's", options: { bullet: { indent: 12 }, breakLine: true } }, { text: "up, and answering within 8 to 20 s", options: { bullet: { indent: 12 } } }], 5.71, 2.17, 2.2, 1.2, { fontSize: 10.5 });
+    // yes: the student's answer; no: Glimmer
+    arrow(s, 6.77, 3.42, 0, 0.45, { color: GREEN });
+    T(s, "yes", 6.85, 3.47, 0.5, 0.3, { fontSize: 10.5, bold: true, color: GREEN });
+    node(5.55, 3.9, 2.45, 1.05, "The student answers", "a Muse Glimmer call saved", GREENBG, GREENBG, GREEN);
+    arrow(s, 3.57, 2.95, 1.96, 0.93, { color: BLUE, flipH: true });
+    T(s, "no", 4.05, 3.3, 0.5, 0.3, { fontSize: 10.5, bold: true, color: BLUE });
+    node(2.1, 3.9, 2.95, 1.05, "Muse Glimmer reasons", "the full answer, about 450 tokens, 24 to 40 s", BLUEBG, BLUE, BLUE);
+    // both: checked by code, then over A2A
+    arrow(s, 3.57, 4.97, 0, 0.35); arrow(s, 6.77, 4.97, 0, 0.35);
+    box(s, 0.6, 5.35, 7.4, 1.4, { fill: CARD, line: CARD });
+    T(s, "Checked by code, then sent over A2A", 0.8, 5.47, 7.0, 0.3, { fontSize: 13.5, bold: true });
+    T(s, "Whoever answered, code checks the member's hard rules again before the decision goes to the other agent, labelled with the tier that made it. Agent chats shows it under every message.", 0.8, 5.8, 7.0, 0.9, { fontSize: 11, color: MUTED });
+    // the threshold: how much the student answers, and how the cascade agrees
+    const th = ["0", "0.5", "0.6", "0.7", "0.8", "0.9"];
+    s.addChart(pres.charts.LINE, [
+      { name: "Answered by the student", labels: th, values: [100, 96.9, 73.0, 50.0, 34.2, 27.6] },
+      { name: "Cascade agrees with Glimmer", labels: th, values: [60.7, 61.2, 68.4, 75.5, 75.0, 75.5] },
+    ], {
+      x: 8.3, y: 1.75, w: 4.45, h: 3.6, chartColors: [GREEN, BLUE], lineSize: 2.5, lineDataSymbol: "circle", lineDataSymbolSize: 7,
+      showTitle: true, title: "The hardest 196 cases, by threshold", titleFontSize: 12, titleColor: INK, titleFontFace: "+mn-lt",
+      showLegend: true, legendPos: "b", legendFontSize: 10, legendFontFace: "+mn-lt", legendColor: INK,
+      catAxisLabelFontSize: 10, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: MUTED, catAxisTitle: "Sure at", showCatAxisTitle: true, catAxisTitleFontSize: 10, catAxisTitleColor: MUTED,
+      valAxisMinVal: 0, valAxisMaxVal: 100, valAxisLabelFontSize: 10, valAxisLabelFontFace: "+mn-lt", valAxisLabelColor: MUTED, valAxisLabelFormatCode: "0\"%\"",
+      valGridLine: { color: LINE, size: 0.5 }, catGridLine: { style: "none" },
+    });
+    box(s, 8.3, 5.5, 4.45, 1.25, { fill: GREENBG, line: GREENBG });
+    T(s, "Served at 0.6", 8.5, 5.6, 4.1, 0.3, { fontSize: 13.5, bold: true, color: GREEN });
+    T(s, "The student answers 73% of the hardest choices and 96% of the test set; Glimmer takes the rest. Glimmer alone agrees with itself 73.5% on these.", 8.5, 5.92, 4.1, 0.8, { fontSize: 10.5, color: MUTED });
+  }
+
+  // 16 · Measured: what each choice costs
   {
     const s = content("Technical depth", "MEASURED", "Two charts behind two design choices",
       "兩張實驗圖（技術報告裡的）：\n左：把整個社團塞進 prompt，token 隨人數線性成長；Serve 先用程式篩選候選人，每次呼叫的 token 幾乎不變。\n右：一個會員的決策，每一層的成本 vs. 和完整答案一致的比例：程式 → Llama 3.2 1B → Muse Glimmer（FrugalGPT 式分層）。\n這頁讓評審三秒看出工程上有量測。");
@@ -409,7 +485,7 @@ async function chart(file) {
     T(s, "One member's decision: what each tier costs, and how often it matches the full answer (code, then Llama 3.2 1B, then Muse Glimmer)", 6.85, 1.95 + 5.85 * 500 / 780, 5.85, 0.6, { fontSize: 11, color: MUTED });
   }
 
-  // 15 · Safe by design
+  // 17 · Safe by design
   {
     const s = content("Technical depth", "SAFE BY DESIGN", "No agent holds all three at once",
       "安全：每個 agent 都遵守 Meta 的 Agents Rule of Two（不可信輸入、私人資料、行動能力，最多同時兩個）。揭露預算：一直約球的 agent 能拼出你一週的行程，有預算時從 97.6% 降到 32.4%（模擬的探測者）。65 個攻擊全部擋下。\n旁白：Every agent follows Meta's Agents Rule of Two. And a disclosure budget cuts how much of your week a snooping agent can pin down, from 97.6% to 32.4%.");
@@ -422,7 +498,7 @@ async function chart(file) {
     T(s, "The power\nto act", 2.43, 5.05, 1.4, 0.8, { fontSize: 15, bold: true, align: "center" });
     s.addShape(pres.shapes.OVAL, { x: 2.78, y: 3.25, w: 0.72, h: 0.72, fill: { color: WHITE }, line: { color: RED, width: 3 } });
     T(s, "×", 2.78, 3.25, 0.72, 0.72, { fontSize: 30, bold: true, color: RED, align: "center", valign: "middle" });
-    T(s, "Meta's Agents Rule of Two, on every agent: the Autopilot, members' agents, the photo reader and the community loop.", 0.6, 6.25, 5.4, 0.6, { fontSize: 12, color: MUTED });
+    T(s, "Meta's Agents Rule of Two, on every agent: the planner, members' agents, the photo reader and the community loop.", 0.6, 6.25, 5.4, 0.6, { fontSize: 12, color: MUTED });
 
     T(s, "A disclosure budget", 6.75, 1.85, 6, 0.45, { fontSize: 20, bold: true });
     T(s, "An agent that keeps asking for games can map out your week. How many of your weekdays it pins down exactly:", 6.75, 2.3, 5.9, 0.6, { fontSize: 12.5, color: MUTED });
@@ -438,7 +514,7 @@ async function chart(file) {
     T(s, "attacks stopped: injected instructions, poisoned reviews, forged Agent Cards, sock-puppet votes, diffs that book without a yes", 8.85, 5.55, 3.7, 1.25, { fontSize: 11.5, valign: "middle" });
   }
 
-  // 16 · Community loop
+  // 18 · Community loop
   {
     const s = content("Technical depth", "SELF-EVOLVING", "The club makes itself better, safely",
       "自我演化的社團：會員在 Messenger 打 /idea 或按讚 → DRAMA 依語意分群，5 人提到才出現 → 二次方投票 → Muse Glimmer 寫規格、人工核准 → coding agent 在自己的分支上實作（從不讀社群文字）→ 九道關卡，第一個失敗就停 → 小規模上線，倒讚變多就自己關掉。永遠不能改的清單。這段是模擬社團（seed 7），但管線、關卡和回滾是真的。\n旁白：And the club evolves itself…");
@@ -461,7 +537,7 @@ async function chart(file) {
     box(s, 0.6, 3.9, 7.6, 1.95, { fill: GREENBG, line: GREENBG });
     T(s, "6 · NINE GATES", 0.82, 4.05, 3, 0.25, { fontSize: 10.5, bold: true, color: GREEN });
     T(s, "Stops at the first failure", 0.82, 4.32, 5, 0.38, { fontSize: 16, bold: true });
-    ["policy", "code scan", "unit tests", "crash matrix", "red team", "Messenger end to end", "Autopilot pass^3", "oracle", "privacy canary"].forEach((g, i) => {
+    ["policy", "code scan", "unit tests", "crash matrix", "red team", "Messenger end to end", "planner pass^3", "oracle", "privacy canary"].forEach((g, i) => {
       const per = 5, x = 0.82 + (i % per) * 1.47, y = 4.85 + Math.floor(i / per) * 0.46;
       pill(s, g, x, y, 1.42, { size: 9.5, color: GREEN, line: WHITE, h: 0.34 });
     });
@@ -475,7 +551,7 @@ async function chart(file) {
     T(s, "Booking without a yes · data off the server · a diagnosis or a dose · the guards · the tests · A2A · deployment", 2.45, 6.1, 10.1, 0.72, { fontSize: 13, color: WHITE, valign: "middle" });
   }
 
-  // 17 · Proof
+  // 19 · Proof
   {
     const s = content("Technical depth", "MEASURED", "Every claim has a log behind it",
       "證據頁：每個數字都有 log。e2e、攻擊測試在雲端 A100 上用同一個 Muse Glimmer（同一個 model digest）跑。可以快速帶過，或只在影片片尾字卡出現。");
@@ -499,7 +575,7 @@ async function chart(file) {
     s.addTable(rows, { x: 0.6, y: 3.45, w: 12.1, colW: [4.6, 3.9, 3.6], fontSize: 12, fontFace: FONT, color: INK, rowH: 0.38, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
   }
 
-  // 18 · Full technical architecture
+  // 20 · Full technical architecture
   pres.addSection({ title: "Architecture" });
   {
     const s = content("Architecture", "FULL TECHNICAL ARCHITECTURE", "Everything runs on one GPU server I own",
@@ -565,7 +641,7 @@ async function chart(file) {
     arrow(s, 9.57, 5.95, 0.3, 0);
   }
 
-  // 19 · End
+  // 21 · End
   pres.addSection({ title: "Close" });
   {
     const s = pres.addSlide({ masterName: "BLANK", sectionTitle: "Close" });
