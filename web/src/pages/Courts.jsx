@@ -58,7 +58,6 @@ export default function Courts() {
         <div>
           <span className="tag">Courts near you · OpenStreetMap, Google Maps, the forecast</span>
           <h1 className="h1">Where can we play?</h1>
-          <p className="muted">Any ball sport. Judged for the hour you want.</p>
         </div>
       </header>
 

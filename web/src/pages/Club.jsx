@@ -73,7 +73,6 @@ export default function Club({ club }) {
         <div>
           <span className="tag">{members.length} members · demo club</span>
           <h1 className="h1">{club.name}</h1>
-          <p className="muted">Post a game or join one, challenge anyone and climb the club table; your agent does the organizing. Members make Serve better too: share an idea under Ideas. {club.note}</p>
         </div>
         <div className="cta-row">
           <a className="btn primary" href="#/play"><Icon name="book" size={18} />Find a game</a>

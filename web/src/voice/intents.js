@@ -9,7 +9,7 @@ const DAY = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", 
 
 export function answer(raw, { club, tasks = [], results = [], goal = 2 }) {
   const t = raw.toLowerCase().replace(/[.,!?]/g, " "), has = (re) => re.test(t);
-  if (has(/highlight|reel|instagram|slow ?mo/)) return { say: "Opening Film a highlight: choose a video of your game and it comes back as a reel.", go: "highlights" };
+  if (has(/highlight|reel|instagram|slow ?mo/)) return { say: "Opening Auto highlight: choose a video of your game and it comes back as a reel.", go: "highlights" };
   if (has(/autopilot|plan my week|line up/)) return { say: "Starting the Autopilot: it lines up your week with the people you play best with.", go: "autopilot?run=1" };
   if (has(/\b(hurts?|sore|pain|knee|ankle|back|shoulder|body log)\b/)) return { say: "Opening your body log: tell me what hurts and I'll plan around it.", go: `body?say=${encodeURIComponent(raw)}` };
   if (has(/courts? near|where can (i|we) play/)) return { say: "Looking for courts near you.", go: "courts" };

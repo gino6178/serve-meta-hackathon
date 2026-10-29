@@ -185,12 +185,10 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
     async find_places({ day, start = "19:00" }) {
       const d = days.find((x) => x.day === day);
       if (!d) return { error: `${day} is not in the next seven days` };
-      // where the player is when the app sent it (rounded, not kept), else the club's own area; the members a game is
-      // agreed with live around the club, so a place more than 25 km from it keeps the club's area
-      const area = geo && places.toGeo(geo, club.you.area);
+      // where the player is when the app sent it (rounded, not kept), else the club's own area
       const at = near && isFinite(+near.lat) && isFinite(+near.lon) && Math.abs(+near.lat) <= 90 && Math.abs(+near.lon) <= 180 ? { lat: +near.lat, lon: +near.lon } : null;
       if (!at && !geo) return { error: "the club map has no real-world location (venues.json map.geo)" };
-      const here = at && (!area || places.meters(at, area) <= 25000) ? at : area;
+      const here = at || places.toGeo(geo, club.you.area);
       const res = await places.search({ ...here, sport: g.sport, date: d.date, start, limit: 4, radius: flags.get("places.radius", player || messenger), onStep: (e) => e.type === "working" && work(e.step) });
       const ok = res.places.filter((p) => p.verdict !== "no").slice(0, 3);
       ok.forEach((p) => { found[p.id] = p; places.note(p); });
@@ -261,7 +259,12 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       if (busy.length) return { error: `${busy.map((m) => first(m.name)).join(" and ")} ${busy.length > 1 ? "are" : "is"} not free ${day} ${start}` };
       const game = agreed.length + tried.length;
       // a public court from find_places: one court, free, first come, its place on the club map from its real position
-      const pv = place && found[place], at = pv && places.toTown(geo, pv);
+      const pv = place && found[place];
+      // (a court near a player far from the club's own map is placed around the player's home there, at its real
+      // distance and direction from where the player is)
+      const far = pv && near && isFinite(+near.lat) && isFinite(+near.lon) && places.meters({ lat: +near.lat, lon: +near.lon }, places.toGeo(geo, club.you.area)) > 25000;
+      const rel = far && places.toTown({ ...geo, lat: +near.lat, lon: +near.lon }, pv);
+      const at = pv && (far ? { x: +(club.you.area.x + rel.x).toFixed(2), y: +(club.you.area.y + rel.y).toFixed(2) } : places.toTown(geo, pv));
       const where = pv ? { ...venues, venues: [{ id: place.replace(/[^\w]+/g, "-"), name: pv.name, area: pv.inPark || "public", x: at.x, y: at.y, courts: 1, price: 0, open: ["06:00", "22:00"], peakBusy: /crowd/i.test(pv.reasons.map((x) => x.text).join(" ")) ? 0.6 : 0.35, offBusy: 0.2, sports: { [g.sport]: { courts: 1, price: 0 } } }] } : venues;
       // the talk's id was put in the journal before it started (talkId): a talk a restart cut off is picked up from its
       // last round, with the same messages and the same holds; one that finished gives back its result

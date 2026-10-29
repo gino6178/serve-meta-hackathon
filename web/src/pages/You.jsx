@@ -24,7 +24,7 @@ export default function You({ club }) {
             <div><dd>{notes}</dd><dt>{notes === 1 ? "note to your agent" : "notes to your agent"}</dt></div>
           </dl>
         </div>
-        <a className="btn primary" href="#/highlights"><Icon name="play" size={18} />Film a highlight</a>
+        <a className="btn primary" href="#/highlights"><Icon name="play" size={18} />Auto highlight</a>
       </header>
 
       {booked.length > 0 && (
@@ -50,9 +50,9 @@ export default function You({ club }) {
       <section aria-labelledby="o-h" className="you-sec">
         <h2 id="o-h" className="sec-label">Your data</h2>
         <ul className="view-grid plain">
-          <li><a href="#/body"><Icon name="heart" size={22} /><span><b>Body log</b><span className="tiny muted">What hurts, your health app, your trail and report</span></span></a></li>
-          <li><a href="#/memory"><Icon name="memory" size={22} /><span><b>Your memory</b><span className="tiny muted">What your agent remembers, and what to forget</span></span></a></li>
-          <li><a href="#/about"><Icon name="info" size={22} /><span><b>About Serve</b><span className="tiny muted">How it works and what stays private</span></span></a></li>
+          <li><a href="#/body"><Icon name="heart" size={22} /><span><b>Body log</b></span></a></li>
+          <li><a href="#/memory"><Icon name="memory" size={22} /><span><b>Your memory</b></span></a></li>
+          <li><a href="#/about"><Icon name="info" size={22} /><span><b>About Serve</b></span></a></li>
         </ul>
       </section>
       <MatchSettings />

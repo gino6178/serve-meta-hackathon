@@ -355,9 +355,7 @@ export default function Highlights() {
     <div className="page highlights">
       <header className="report-head">
         <div>
-          <span className="tag">Your own video</span>
-          <h1 className="h1">Film a highlight</h1>
-          <p className="muted">Film your game on your phone, in any ball sport. Your own server finds you, reads your pose and cuts you out, then your best moment comes back as a slow-motion reel to post. The video goes nowhere else.</p>
+          <h1 className="h1">Auto highlight</h1>
         </div>
       </header>
       <section className={`hl-grid ${fmt} ${ready || file ? "has-clip" : ""}`}>
@@ -365,7 +363,6 @@ export default function Highlights() {
           <div className={`own-card ${clip ? clip.state : ""}`}>
             <div className="own-h"><b>{ready ? `Your ${kind}, from your video` : "Choose a video"}</b>
               {clip && state === "idle" && <button className="link" onClick={clear}>{ready ? "Use another video" : "Cancel"}</button>}</div>
-            {!clip && <p className="tiny muted">A rally or two with you in the picture is enough. On your GPU server, Meta's DETR finds you, Sapiens2 reads your pose and SAM 2.1 cuts you out; then the reel replays your best moment (a smash, a swing, a jump shot, a spike, a kick).</p>}
             {!clip && (
               <div className="own-row">
                 <label className="tiny">Sport <select value={sport} onChange={(e) => setSport(e.target.value)}>{SPORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>

@@ -41,7 +41,6 @@ export default function Feed({ club, members = [], local = [], joined = {}, onJo
   return (
     <div className="club-feed fd">
       <p className="sr-only" aria-live="polite">{said}</p>
-      {d?.simulated && <p className="fd-sim"><Icon name="info" size={18} />Demo club: the other members and their posts are simulated. Paper posts are real papers, found and summarized by the club's reading agent.</p>}
       {(d?.notices || []).map((n, i) => <p key={i} className="fd-notice" role="status"><Icon name="info" size={18} />{n}</p>)}
       {d?.paused && <p className="fd-held" role="status">The club's maintainer has paused your posts and comments until {new Date(d.paused.until).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}{d.paused.reason ? `: ${d.paused.reason}` : ""}.</p>}
       {compose && <Composer onPosted={(p) => { setSt((s) => ({ ...s, data: { ...s.data, posts: [p, ...(s.data?.posts || [])] } })); setSaid("Posted."); }}
@@ -177,7 +176,6 @@ function RecapCard({ r, onDone, say }) {
           <button className="btn ghost" onClick={() => answer(false)} disabled={!!busy} aria-busy={busy === "no"}>Not now</button>
         </div>
       ) : <p className="tiny muted fd-pad">You said yes. It goes up once everyone has.</p>}
-      <p className="tiny muted fd-pad">It goes up only if everyone in it says yes. One no, or no answer within {Math.round((state.deadline - state.at) / 36e5)} hours, and it is never posted.</p>
       {err && <p className="fd-refused" role="alert">{err}</p>}
     </section>
   );

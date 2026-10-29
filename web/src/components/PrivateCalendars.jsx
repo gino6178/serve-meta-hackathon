@@ -18,11 +18,9 @@ export default function PrivateCalendars() {
     <div className="setting">
       <div className="setting-txt">
         <b id="priv-l">Private calendars</b>
-        <p id="priv-d" className="small muted">Members' agents check their own calendars, so the talk takes a little longer.</p>
-        {p && <p className="tiny muted">{p.choice == null ? `Your server's default: ${p.serverDefault ? "on" : "off"}.` : <>Your choice. Your server's default is {p.serverDefault ? "on" : "off"}. <button className="link" disabled={busy} onClick={() => set(null)}>Use the default</button></>}</p>}
         {err && <p className="err" role="alert">Your server did not answer ({err}).</p>}
       </div>
-      <button type="button" role="switch" className="switch" aria-checked={on} aria-labelledby="priv-l" aria-describedby="priv-d" disabled={!p || busy} onClick={() => set(!on)}><i aria-hidden="true" /></button>
+      <button type="button" role="switch" className="switch" aria-checked={on} aria-labelledby="priv-l" disabled={!p || busy} onClick={() => set(!on)}><i aria-hidden="true" /></button>
     </div>
   );
 }

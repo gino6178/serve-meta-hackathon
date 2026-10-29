@@ -41,7 +41,7 @@ const MORE = [
   { k: "goals", label: "Goals", note: "Your games this week and your streak", icon: "goals" },
   { k: "body", label: "Body log", note: "Tell your agent what hurts; your health app", icon: "heart" },
   { k: "courts", label: "Courts near you", note: "Any sport, judged from reviews and weather", icon: "pin" },
-  { k: "highlights", label: "Film a highlight", note: "Your own video, as a reel to post", icon: "play" },
+  { k: "highlights", label: "Auto highlight", note: "Your video, cut by your agent", icon: "play" },
   { k: "memory", label: "Your memory", note: "What your agent remembers", icon: "memory" },
   { k: "messages", label: "Serve in Messenger", note: "Your agent, in your chats", icon: "chat" },
   { k: "about", label: "About Serve", note: "Why it exists, how it works", icon: "info" },

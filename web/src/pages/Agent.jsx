@@ -10,8 +10,6 @@ import { readGame } from "../club/game.js";
 import { week } from "../club/week.js";
 import { useReducedMotion } from "../hooks.js";
 import { go } from "../App.jsx";
-import { agentSafety } from "../agent.js";
-import SafetyList from "../components/Safety.jsx";
 import VoiceAsk from "../voice/VoiceAsk.jsx";
 import LiveTalk from "../voice/LiveTalk.jsx";
 import "./agent.css";
@@ -27,18 +25,6 @@ const hello = () => { const h = new Date().getHours(); return h < 12 ? "Good mor
 
 // the safety checks your agent made here (your questions, its answers and sentences, court reviews): read again when
 // a job finishes. Only the verdict and what happened are kept, never the words.
-function SafetySide({ tasks }) {
-  const [checks, setChecks] = useState(null);
-  const done = tasks.filter((t) => t.state !== "running").length;
-  useEffect(() => { agentSafety("app", 4).then((r) => setChecks(r.checks)).catch(() => setChecks(null)); }, [done]);
-  if (!checks) return null;
-  return (
-    <section className="panel side-card safety-side" aria-labelledby="sf-h">
-      <h2 id="sf-h" className="panel-h">Safety checks</h2>
-      <SafetyList checks={checks} limit={3} empty="Nothing checked yet. Your questions and your agent's answers go past Llama Guard 3 on your server." />
-    </section>
-  );
-}
 
 function Story({ items, at, onClose, onMove }) {
   const still = useReducedMotion(), it = items[at], box = useRef(null);
@@ -130,8 +116,7 @@ export default function Agent({ club }) {
 
           <section className="composer" aria-labelledby="ask-h">
             <div className="composer-head"><img className="agent-face pic" src="/agents/you.png" alt="" />
-              <div><h1 id="ask-h" className="h1">{hello()}. What do you want to do?</h1>
-                <p className="muted">Say when or who. Your agent does the rest.</p></div></div>
+              <div><h1 id="ask-h" className="h1">{hello()}. What do you want to do?</h1></div></div>
             <form className="composer-box" onSubmit={(e) => { e.preventDefault(); ask(); }}>
               <label htmlFor="agent-q" className="sr-only">Tell your agent</label>
               <textarea id="agent-q" ref={field} rows={2} value={text} onChange={(e) => setText(e.target.value)} placeholder="Doubles on Thursday evening"
@@ -176,15 +161,12 @@ export default function Agent({ club }) {
                       <li key={k} className={b ? "game" : u ? "open" : ""}>
                         <span className="ws-day">{k === 0 ? "Today" : dow}<span className="tiny muted">{d.getDate()}</span></span>
                         {b ? <span className="ws-slot"><b>{b.start}</b><span className="tiny">{b.format}</span></span>
-                          : u ? <a className="ws-slot" href="#/autopilot?run=1"><b>{u.start}</b><span className="tiny">your usual time, open</span></a>
+                          : u ? <a className="ws-slot" href="#/autopilot?run=1"><b>{u.start}</b><span className="tiny">open</span></a>
                           : <span className="ws-slot empty" aria-label="nothing planned" />}
                       </li>
                     );
                   })}
                 </ol>
-                <ul className="status-pills">
-                  {rows.map((r) => <li key={r.k} title={r.role}><a href={r.go[1]}><Icon name={r.ic} size={16} /><b>{r.name}</b><span>{r.now}</span></a></li>)}
-                </ul>
               </section>
             );
           })()}
@@ -228,7 +210,7 @@ export default function Agent({ club }) {
           {done.length > 0 && (
             <section className="task-sec" aria-labelledby="done-h">
               <h2 id="done-h" className="sec-label">Done<button className="link" onClick={() => done.forEach((t) => dismiss(t.id))}>Clear</button></h2>
-              {done.map((t) => <TaskCard key={t.id} t={t} steps={2} />)}
+              {done.slice(0, 2).map((t) => <TaskCard key={t.id} t={t} steps={2} />)}
             </section>
           )}
           {!tasks.length && (
@@ -259,8 +241,6 @@ export default function Agent({ club }) {
             </dl>
             <a className="btn ghost sm" href="#/goals">Open goals</a>
           </section>
-          <SafetySide tasks={tasks} />
-          <p className="tiny muted side-foot"><span className="agent-dot" aria-hidden="true" />Muse Glimmer on your own server. Your videos, your body log and your memory never leave it.</p>
         </aside>
       </div>
       {story != null && <Story items={stories} at={story} onClose={() => setStory(null)} onMove={move} />}

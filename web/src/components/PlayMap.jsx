@@ -77,7 +77,6 @@ export default function PlayMap({ geo, steps = [], option = null }) {
           </g>
         ))}
       </svg>
-      {!map && <p className="pmap-hint tiny">The agent opens the map when it starts looking.</p>}
     </div>
   );
 }

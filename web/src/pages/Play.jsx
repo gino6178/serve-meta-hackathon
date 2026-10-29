@@ -151,7 +151,6 @@ export default function Play({ data }) {
     <div className={`page play ${t ? "has-job" : ""}`}>
       <header className="play-top">
         <h1 className="h1">Play</h1>
-        <p className="muted">Say when, who or how. Your agent finds a time that suits everyone, a court in the middle, and the people.</p>
       </header>
       <form className="composer-box play-ask" onSubmit={ask}>
         <label htmlFor="play-q" className="sr-only">What do you feel like playing?</label>

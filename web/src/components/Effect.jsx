@@ -13,7 +13,7 @@ export const effectOf = (d) => (d?.effects && !d.effects.failed && !d.effects.sk
 export function EffectChoice({ on, onChange, disabled }) {
   return (
     <label className="fx-choice"><input type="checkbox" checked={on} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
-      <span><b>Add a camera effect</b><em>Zoom and cut into your moment, or a short orbit round you when your video allows it. Only while you are in the picture. About a minute more on your server.</em></span></label>
+      <span><b>Add a camera effect</b><em>Zoom, or a short orbit round you</em></span></label>
   );
 }
 

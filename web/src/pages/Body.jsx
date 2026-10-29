@@ -63,7 +63,6 @@ export default function Body() {
         <div>
           <span className="tag">Your body · found by meaning with Meta's DRAMA</span>
           <h1 className="h1">What your agent knows about your body</h1>
-          <p className="muted">Say it once. Your agent plans around it.</p>
         </div>
         <div className="cta-row">
           <a className="btn" href="#bd-report"><Icon name="table" size={18} />Body report</a>
