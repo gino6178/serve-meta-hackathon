@@ -1,27 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import Body3D from "../components/Body3D.jsx";
 import Icon from "../components/Icon.jsx";
-import { agentBodyRead, agentBodyReport, agentHealthImport, agentBasemap } from "../agent.js";
+import { agentBodyRead, agentBodyReport, agentBodyContext, agentHealthImport, agentBasemap } from "../agent.js";
 import { useBody, seedBody, addEntries, mergeImport, bodyInput } from "../club/body.js";
 import { autopilotInput } from "../tasks.js";
 import { go } from "../App.jsx";
 import "./body.css";
 
-// Body: you tell your agent what hurts and it keeps the record, on the 3D body, on the side it hurts. Your health app's
+// Body: you tell your agent what hurts or how you feel (here, in Messenger or as a voice note) and it keeps your words. Your health app's
 // export (Apple Health, Google Fit, or a GPX, TCX or CSV from any app) fills in your workouts, routes, heart rate and
 // sleep; the agent links them to your booked games and works out your load. From all of it the agent decides, by
 // code with the reasons shown: doubles first while a knee is sore, shorter games for a sore back, one game fewer in
-// a week far over your usual load, a check-in two days later, and when it is worth seeing a physio. It records; it
-// does not diagnose.
-const PARTS = {
-  neck: ["traps", "top", false], shoulder: ["deltoid", "center", true], elbow: ["forearm", "top", true], wrist: ["forearm", "bottom", true],
-  upperback: ["traps", "center", false], lowerback: ["lowback", "center", false], chest: ["pecs", "center", false], core: ["obliques", "center", false],
-  hip: ["hipflex", "center", true], glute: ["glutes", "center", true], thigh: ["quads", "center", true], hamstring: ["hams", "center", true],
-  knee: ["quads", "bottom", true], shin: ["shin", "center", true], calf: ["calves", "center", true], achilles: ["calves", "bottom", true],
-  ankle: ["shin", "bottom", true], foot: ["shin", "bottom", true],
-};
-const BACKSIDE = new Set(["traps", "lowback", "glutes", "hams", "calves"]);
-const JOINTS = new Set(["knee", "ankle", "wrist", "elbow", "achilles", "foot", "neck"]);
+// a week far over your usual load, a check-in two days later, and when it is worth seeing a physio. What it knows is
+// found by meaning for this week's plan (Meta's DRAMA on your server, recent notes weighted more: agent body/context.js),
+// and every rule shows the notes it comes from. It records; it does not diagnose.
+const SRC = { body: ["chat", "You said"], health: ["heart", "Games and health app"], game: ["clock", "From your watch"], said: ["memory", "You told your agent"] };
 const ACT = { limit: ["verify", "Limit"], cap: ["clock", "Game length"], physio: ["warn", "See a physio"], load: ["goals", "Load"], learned: ["heart", "From your watch"], follow: ["chat", "Check-in"] };
 const SPORTS = ["badminton", "running", "tennis", "pickleball", "basketball"]; // fixed colour slots, by sport
 const colorOf = (s) => (SPORTS.includes(s) ? `var(--vz-${SPORTS.indexOf(s) + 1})` : "var(--vz-other)");
@@ -36,13 +28,14 @@ export default function Body() {
   const [club, setClub] = useState(null);
   const [org, setOrg] = useState(null), [err, setErr] = useState("");
   const [text, setText] = useState(""), [sending, setSending] = useState(false), [said, setSaid] = useState(null);
-  const [sel, setSel] = useState(null), [view, setView] = useState("front");
+  const [sel, setSel] = useState(null), [ctx, setCtx] = useState(null);
   useEffect(() => { fetch("/data/club.json").then((r) => r.json()).then((c) => { seedBody(c); setClub(c); }).catch(() => setErr("The club data could not be loaded.")); }, []);
   const input = useMemo(() => club && bodyInput(club, autopilotInput().history), [club, store]);
   useEffect(() => {
     if (!input) return;
     let live = true;
     agentBodyReport({ ...input, summary: false }).then((r) => { if (live) { setOrg(r.org); setErr(""); } }).catch((e) => live && setErr(`Your agent is offline (${e.message}).`));
+    agentBodyContext(input).then((r) => live && setCtx(r)).catch(() => live && setCtx(null));
     return () => { live = false; };
   }, [input]);
 
@@ -54,7 +47,7 @@ export default function Body() {
       if (r.entries.length) addEntries(r.entries);
       setSaid({ text: t, reply: r.reply, by: r.by, n: r.entries.length });
       setText("");
-      const k = r.entries[0]; if (k) { setSel(`${k.part}${k.side ? ":" + k.side : ""}`); setView(BACKSIDE.has(PARTS[k.part]?.[0]) ? "back" : "front"); }
+      const k = r.entries[0]; if (k) setSel(`${k.part}${k.side ? ":" + k.side : ""}`);
     } catch (e) { setSaid({ text: t, reply: `Your agent is offline (${e.message}).`, by: "error" }); }
     setSending(false);
   };
@@ -62,27 +55,15 @@ export default function Body() {
   useEffect(() => { const m = /[?&]say=([^&]+)/.exec(location.hash); if (input && m && !asked.current) { asked.current = true; send(decodeURIComponent(m[1])); } }, [input]);
 
   const parts = org?.parts || [];
-  const marks = useMemo(() => parts.filter((p) => p.active || p.ageDays <= 3).map((p) => ({ key: p.key, region: PARTS[p.part]?.[0], at: PARTS[p.part]?.[1], sided: PARTS[p.part]?.[2], side: p.side, level: p.latest.kind === "fine" ? 0 : p.latest.level })).filter((m) => m.region), [org]);
-  const scores = useMemo(() => {
-    const s = {};
-    // a sore muscle is coloured; a joint (knee, ankle, wrist, elbow, Achilles, foot, neck) only gets its marker
-    for (const p of parts.filter((x) => x.active && !JOINTS.has(x.part))) {
-      const [region, , sided] = PARTS[p.part] || [];
-      if (!region) continue;
-      const st = { v: p.latest.level / 5, level: p.latest.level >= 3 ? "high" : "medium", kind: "s" };
-      if (sided && (p.side === "left" || p.side === "right")) s[`${region}:${p.side}`] = st; else s[region] = st;
-    }
-    return s;
-  }, [org]);
   const cur = parts.find((p) => p.key === sel) || parts.find((p) => p.active) || parts[0];
 
   return (
     <div className="page body-page">
       <header className="report-head">
         <div>
-          <span className="tag">Body log · Muse Glimmer on your own GPU</span>
-          <h1 className="h1">Tell your agent what hurts</h1>
-          <p className="muted">It keeps the record on your body, reads your health app, and plans your games around it: doubles while a knee is sore, shorter games for a sore back, one game fewer in a heavy week. Two days later it asks how it is.</p>
+          <span className="tag">Your body · found by meaning with Meta's DRAMA</span>
+          <h1 className="h1">What your agent knows about your body</h1>
+          <p className="muted">Say it once: here, in Messenger or as a voice note. Your agent keeps your words with your games and health app, finds what matters for this week, and plans around it: doubles while a knee is sore, shorter games, one game fewer in a heavy week. It records; it does not diagnose.</p>
         </div>
         <div className="cta-row">
           <a className="btn" href="#bd-report"><Icon name="table" size={18} />Body report</a>
@@ -92,29 +73,11 @@ export default function Body() {
       {err && <p className="bd-err" role="alert"><Icon name="warn" size={16} />{err}</p>}
 
       <div className="bd-top">
-        <section className="bd-figure panel" aria-label="Your body">
-          <div className="bd-figure-tools">
-            <div className="seg sm" role="radiogroup" aria-label="Camera">
-              {[["front", "Front"], ["back", "Back"], ["side", "Side"]].map(([k, l]) => <button key={k} role="radio" aria-checked={view === k} onClick={() => setView(k)}>{l}</button>)}
-            </div>
-            <span className="bd-key tiny"><i className="k4" />bad (4 to 5)<i className="k3" />hurts (3)<i className="k2" />a bit (1 to 2)<i className="k0" />fine</span>
-          </div>
-          <Body3D scores={scores} sel={null} onSel={(r) => { const p = parts.find((x) => PARTS[x.part]?.[0] === r); if (p) setSel(p.key); }} view={view} marks={marks} height={540} />
-          {cur && (
-            <div className="bd-cur">
-              <b>{cap(cur.name)}</b>
-              <span className={`bd-lv l${cur.latest.kind === "fine" ? 0 : cur.latest.level}`}>{cur.latest.kind === "fine" ? "fine" : `${cur.latest.kind} ${cur.latest.level}/5`}</span>
-              <span className="tiny muted">{TREND[cur.trend]} · {cur.entries.length} entr{cur.entries.length > 1 ? "ies" : "y"} · last {short(cur.latest.at)}</span>
-              {cur.latest.trigger && <span className="tiny muted">“{cur.latest.trigger}”</span>}
-            </div>
-          )}
-        </section>
-
         <div className="bd-side">
           <section className="panel bd-tell" aria-labelledby="tell-h">
             <h2 id="tell-h" className="panel-h">Tell your agent</h2>
             <form onSubmit={(e) => { e.preventDefault(); send(); }}>
-              <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="Where it hurts, how much, and when it started" aria-label="What hurts"
+              <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="How you feel, where it hurts, since when" aria-label="What hurts"
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }} />
               <button className="btn primary sm" disabled={sending || !text.trim()}>{sending ? "Filing…" : "Tell"}</button>
             </form>
@@ -122,27 +85,44 @@ export default function Body() {
               <div className="bd-said" aria-live="polite">
                 <p className="bd-you">{said.text}</p>
                 {said.reply ? <div className="bd-agent">{said.reply.split("\n").map((l, i) => <p key={i}>{l}</p>)}
-                  {said.by !== "error" && <span className="tiny muted">{said.by === "model" ? "Read by Muse Glimmer (one tool call, checked by code)" : "Read by the word list"} · {said.n} entr{said.n === 1 ? "y" : "ies"} filed</span>}</div>
+                  {said.by !== "error" && <span className="tiny muted">{said.by === "model" ? "Read by Muse Glimmer, checked by code" : "Read by the word list"}</span>}</div>
                   : <p className="bd-agent working"><span className="dots"><i /><i /><i /></span>Muse Glimmer is reading it</p>}
               </div>
             )}
+            <p className="tiny muted">Or just say it to your agent in Messenger.</p>
           </section>
 
-          <section className="panel" aria-labelledby="do-h">
-            <h2 id="do-h" className="panel-h">What your agent is doing about it</h2>
-            {org?.actions.length ? (
-              <ul className="bd-acts">
-                {org.actions.map((a, i) => <li key={i} className={a.kind}><span className="bd-act-ic"><Icon name={ACT[a.kind]?.[0] || "info"} size={16} /></span><span><b>{ACT[a.kind]?.[1]}</b><span>{a.text}</span><span className="tiny muted">Why: {a.why}</span></span></li>)}
+          <section className="panel bd-ctx" aria-labelledby="ctx-h">
+            <h2 id="ctx-h" className="panel-h">What matters this week</h2>
+            {ctx?.top?.length ? (
+              <ul className="bd-notes">
+                {ctx.top.map((n) => <li key={n.id}><span className={`bd-src ${n.kind}`}><Icon name={SRC[n.kind]?.[0] || "info"} size={15} /></span>
+                  <span><span>{n.text}</span><span className="tiny muted">{SRC[n.kind]?.[1]} · {short(n.on)}</span></span>
+                  <span className="bd-sim" title={`Similarity to this week's plan: ${n.raw} (DRAMA), ${n.score} after its age`}>{n.score.toFixed(2)}</span></li>)}
               </ul>
-            ) : <p className="muted small">{org ? "Nothing to change: nothing is sore and your load is normal." : err ? "This shows once your agent is reachable." : "Loading…"}</p>}
-            <p className="tiny muted">Every action is decided by code from your log and your sessions, with its reason. The Autopilot follows them when it lines up your games. This is a record, not a diagnosis.</p>
+            ) : <p className="muted small">{ctx ? "Nothing yet: tell your agent how you feel." : err ? "This shows once your agent is reachable." : "Loading…"}</p>}
+            {ctx && <p className="tiny muted">{ctx.by === "drama" ? "Found by meaning with Meta's DRAMA on your server" : "Found by words (the meaning model is not running)"}, out of {ctx.all.length} notes. Recent notes count more: a body note keeps half its weight after a week.</p>}
           </section>
         </div>
+
+        <section className="panel bd-rules" aria-labelledby="do-h">
+          <h2 id="do-h" className="panel-h">This week's rules</h2>
+          {(ctx?.rules || org?.actions?.filter((a) => a.kind !== "follow"))?.length ? (
+            <ul className="bd-acts">
+              {(ctx?.rules || org.actions.filter((a) => a.kind !== "follow")).map((a, i) => <li key={i} className={a.kind}><span className="bd-act-ic"><Icon name={ACT[a.kind]?.[0] || "info"} size={16} /></span>
+                <span><b>{ACT[a.kind]?.[1]}</b><span>{a.text}</span>
+                  {a.cites?.length ? <span className="bd-cites">{a.cites.map((c) => <span key={c.id} className="bd-cite" title={c.text}><Icon name={SRC[c.kind]?.[0] || "info"} size={12} />{SRC[c.kind]?.[1]}, {short(c.on)}</span>)}</span>
+                    : <span className="tiny muted">Why: {a.why}</span>}</span></li>)}
+            </ul>
+          ) : <p className="muted small">{org ? "No rules this week: nothing is sore and your load is normal." : err ? "This shows once your agent is reachable." : "Loading…"}</p>}
+          {org?.followUps?.filter((f) => !f.due).map((f) => <p key={f.key} className="bd-follow small"><Icon name="chat" size={14} />I'll ask about your {f.name} on {short(f.date)}.</p>)}
+          <p className="tiny muted">Every rule is decided by code from your records and cites the notes it comes from. Your agent keeps them when it plans your week. A record, not a diagnosis.</p>
+        </section>
       </div>
 
       <section className="panel bd-log" aria-labelledby="log-h">
         <h2 id="log-h" className="panel-h">Your body log, the last two weeks</h2>
-        {parts.length ? <ul className="bd-parts">{parts.map((p) => <PartRow key={p.key} p={p} today={org.today} on={cur?.key === p.key} pick={() => { setSel(p.key); setView(BACKSIDE.has(PARTS[p.part]?.[0]) ? "back" : "front"); }} />)}</ul>
+        {parts.length ? <ul className="bd-parts">{parts.map((p) => <PartRow key={p.key} p={p} today={org.today} on={cur?.key === p.key} pick={() => setSel(p.key)} />)}</ul>
           : <p className="muted small">Nothing logged yet.</p>}
       </section>
 
@@ -158,7 +138,7 @@ function PartRow({ p, today, on, pick }) {
   const days = Array.from({ length: 14 }, (_, i) => { const d = day(today); d.setDate(d.getDate() - 13 + i); return d.toISOString().slice(0, 10); });
   return (
     <li className={on ? "on" : ""}>
-      <button onClick={pick} aria-label={`${p.name}: show on the body`}>
+      <button onClick={pick} aria-label={`${p.name}: select`}>
         <span className="bd-pn"><b>{cap(p.name)}</b><span className="tiny muted">{TREND[p.trend]}{p.physio ? " · worth seeing a physio" : ""}</span></span>
         <span className="bd-dots" aria-hidden="true">
           {days.map((d) => { const e = [...p.entries].reverse().find((x) => x.at.slice(0, 10) === d); return <i key={d} className={e ? `l${e.kind === "fine" ? 0 : e.level}` : ""} title={e ? `${short(d)}: ${e.kind === "fine" ? "fine" : `${e.kind} ${e.level}/5`}` : short(d)}>{e ? (e.kind === "fine" ? "✓" : e.level) : ""}</i>; })}

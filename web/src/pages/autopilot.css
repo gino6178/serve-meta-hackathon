@@ -82,3 +82,5 @@
 .trace-why { margin: 0; color: var(--bad); }
 .trace-row.ended .trace-name { color: var(--bad); font-weight: 600; }
 @media (max-width: 640px) { .trace-row { grid-template-columns: minmax(120px, 45%) minmax(0, 1fr) 48px; } }
+.ap-work > summary { cursor: pointer; font: 600 14px/1.4 var(--font); color: var(--ink-2); margin: var(--s2) 0; }
+.ap-work[open] > summary { margin-bottom: var(--s3); }

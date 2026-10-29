@@ -26,6 +26,10 @@ const a2aMod = await import("./a2a/talk.js"), { court } = a2aMod;
 const matchSettings = await import("./match/settings.js");
 const { readJSON, writeJSON } = await import("./core/jsonfile.js");
 const bodylog = await import("./body/body.js");
+const bodyContext = await import("./body/context.js");
+const membersApi = await import("./members/api.js");
+const feedPosts = await import("./feed/posts.js");
+const memory = await import("./memory/memory.js");
 const healthImport = await import("./body/health.js");
 const places = await import("./club/places.js");
 const pocketMod = await import("./club/pocket.js");
@@ -64,7 +68,7 @@ const a2aServer = await import("./a2a/server.js");
 const ORIGINS = (process.env.ALLOW_ORIGINS || "http://127.0.0.1:5190,http://localhost:5190").split(",");
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const cors = (origin) => (ORIGINS.includes(origin) ? { "access-control-allow-origin": origin, "access-control-allow-headers": "content-type, authorization", vary: "origin" } : {});
+const cors = (origin) => (ORIGINS.includes(origin) ? { "access-control-allow-origin": origin, "access-control-allow-headers": "content-type, authorization, x-serve-session, serve-signature", vary: "origin" } : {});
 const json = (res, code, body, origin) => {
   res.writeHead(code, { "content-type": "application/json", ...cors(origin) });
   res.end(JSON.stringify(body));
@@ -442,6 +446,7 @@ if (process.env.WEBHOOK_PORT) http.createServer((req, res) => {
 
 http.createServer(async (req, res) => {
   const o = req.headers.origin, u = new URL(req.url, "http://x");
+  let signedIn = null;
   if (req.method === "OPTIONS") return json(res, 204, {}, o);
   // Facebook Messenger: GET once to verify the webhook, then a signed POST for every message
   if (u.pathname === "/webhook/messenger") return webhook(req, res, u);
@@ -454,11 +459,15 @@ http.createServer(async (req, res) => {
     if (x) return json(res, 403, { error: x }, o);
     if (!auth.openTo(req)) return json(res, 403, { error: "this gateway has no AGENT_TOKEN, so it answers its own machine only" }, o);
     // the maintainer's routes (deciding a proposal, rolling a flag back) take the maintainer's own token instead
+    // a signed-in member (members.js) may use their own routes without the token: themself in the feed, their agents;
+    // sign-in and the agent channel check their own way (the provider's state, each request's signature)
+    signedIn = membersApi.memberRoute(u.pathname) ? membersApi.member(req) : null;
     if (MAINTAINER.includes(u.pathname)) { if (!maintainer(req)) return json(res, 401, { error: "this route needs the maintainer's token: Authorization: Bearer <MAINTAINER_TOKEN>" }, o); }
-    else if (u.pathname !== "/api/status" && !auth.authorized(req)) return json(res, 401, { error: "this gateway needs its token: Authorization: Bearer <AGENT_TOKEN>" }, o);
+    else if (u.pathname !== "/api/status" && !membersApi.publicRoute(u.pathname) && !signedIn && !auth.authorized(req)) return json(res, 401, { error: "this gateway needs its token: Authorization: Bearer <AGENT_TOKEN>" }, o);
     safety.enter("app");
   }
   try {
+    if (u.pathname.startsWith("/api/") && await membersApi.route(req, res, u, { json, o, forget: (id) => feedPosts.forget(id) })) return;
     if (u.pathname.startsWith("/api/") && await webapi.route(req, res, u, { json, bodyOf, o })) return;
     if (u.pathname === "/api/status") {
       return json(res, 200, { llm: await health(), messenger: { enabled: msn.state.enabled, page: msn.state.page, error: msn.state.error, lastEvent: msn.state.lastEvent }, reel: reel.ready(), reelEffects: reel.effectsReady(), places: places.ready(), health: true,
@@ -514,7 +523,7 @@ http.createServer(async (req, res) => {
     if (u.pathname === "/api/match/find" && req.method === "POST") { const b = await bodyOf(req); return stream(res, o, (send) => asks.request({ who: "app", text: String(b.text || "").slice(0, 300), upcoming: b.upcoming || [], par: 1, say: (x) => send({ type: "a2a", ...x, to: Array.isArray(x.to) ? x.to[0] : x.to }), tell: (x) => send({ type: "step", ...x }), work: (step) => send({ type: "working", step }) }).then((r) => { if (r.id) asks.outbox(r.id, null); return r; })); } // (streamed: its outbox is done)
     { const r = u.pathname.startsWith("/api/match/") ? await matchmaking.api(u, req, bodyOf) : null; if (r) return json(res, r.code || 200, r.body, o); } // the audit, settings, models (match/api.js)
     // the club feed: posts, likes, comments, reports, drafts, media, the reading agent (feed/api.js)
-    if (u.pathname === "/api/feed" || u.pathname.startsWith("/api/feed/")) return feed.handle(req, res, u, { cors: cors(o), maintainer: maintainer(req) });
+    if (u.pathname === "/api/feed" || u.pathname.startsWith("/api/feed/")) return feed.handle(req, res, u, { cors: cors(o), maintainer: maintainer(req), as: signedIn?.id || null });
     // best match: your agent ranks the members for a game (body: { you, ratings, played, format })
     if (u.pathname === "/api/match/best" && req.method === "POST") { const b = await bodyOf(req); return stream(res, o, (send) => match.best({ ...b, onStep: send })); }
     // agent to agent: your agent and the member's agent agree a time and a court (body: { with, format, you })
@@ -529,6 +538,13 @@ http.createServer(async (req, res) => {
     if (u.pathname === "/api/body/report" && req.method === "POST") {
       const b = await bodyOf(req), org = bodylog.organize({ log: b.log || [], games: b.games || [], workouts: b.workouts || [], days: b.days || [] });
       return json(res, 200, { org, summary: b.summary === false ? null : await bodylog.summary(org) }, o);
+    }
+    // the body context: every note the agent has on your body, scored by meaning against the planner's question (Meta's
+    // DRAMA, recent notes weighted more), the top ones, and each limit with the notes it cites (body/context.js)
+    if (u.pathname === "/api/body/context" && req.method === "POST") {
+      const b = await bodyOf(req), now = Date.now(), org = bodylog.organize({ log: b.log || [], games: b.games || [], workouts: b.workouts || [], days: b.days || [] });
+      const said = memory.list("app", now).filter((n) => n.status === "live").slice(0, 40);
+      return json(res, 200, await bodyContext.retrieve(org, b.log || [], { question: String(b.question || "").slice(0, 300) || undefined, said, now, k: 6 }), o);
     }
     // a health app's export (the raw file is the body; ?name= its file name, ?tz= minutes east of UTC)
     if (u.pathname === "/api/health/import" && req.method === "POST")

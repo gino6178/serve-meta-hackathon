@@ -5,7 +5,7 @@ import TalkFacts from "./TalkFacts.jsx";
 
 // One job the agent did or is doing: what was asked, where it stands, and the trail of steps behind it. A game the
 // Match helper set up also shows the agents' last messages, and, when they moved the time, asks to book it.
-const JOB = { play: "Play", ask: "Your agent", match: "Best match", talk: "Agent to agent", autopilot: "Autopilot", game: "Match · Talk" };
+const JOB = { play: "Play", ask: "Your agent", match: "Best match", talk: "Agent to agent", autopilot: "Plan my week", game: "Match · Talk" };
 const who = (from, names) => (from === "you" ? "Your agent" : `${names?.[from] || from}'s agent`);
 // the messages worth showing: the counters and noes, and your agent's last word, in the order they were said
 const talkShown = (ms) => { const keep = new Set([...ms.filter((x) => ["counter", "decline"].includes(x.intent)).slice(-2), ms.filter((x) => x.from === "you").at(-1)]); const out = ms.filter((x) => keep.has(x)); return out.length > 1 ? out : ms.slice(-2); };

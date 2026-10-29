@@ -40,8 +40,9 @@ before the hackathon", and none of its code is in this repository.
 
 ## Assets and data
 
-- **Anatomy model.** BodyParts3D, © The Database Center for Life Science, CC BY 4.0, adapted for the 3D muscle view.
-  The adaptations are listed in `web/public/body/ATTRIBUTION.md`, which ships with the model files.
+- **Anatomy model (an earlier build only).** BodyParts3D, © The Database Center for Life Science, CC BY 4.0, adapted for a
+  3D muscle view the body page had during the hackathon. The page now shows what the agent knows in words, and the model
+  files are no longer used.
 - **Portraits used in an earlier build of the app during the hackathon.** AI-generated images of fictional people, made with Gemini
   (Google). They do not show real people.
 - **Sample videos and the demo's match footage**, trimmed and edited, all licensed under

@@ -16,7 +16,11 @@ const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const rad = (d) => (d * Math.PI) / 180;
 const toGeo = (geo, a) => ({ lat: geo.lat - (a.y * geo.unitKm) / 110.57, lon: geo.lon + (a.x * geo.unitKm) / (111.32 * Math.cos(rad(geo.lat))) });
 const ymd = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
-const TAGS = (p) => [p.tags.lit === "yes" && "Lights", p.tags.lit === "no" && "No lights", p.tags.hoops && `${p.tags.hoops} hoops`, p.count > 1 && `${p.count} courts`, p.tags.surface && p.tags.surface.replace(/_/g, " "), !p.outdoor && "Indoor or covered", p.tags.access && p.tags.access !== "yes" && `Access: ${p.tags.access}`, p.tags.fee === "yes" && "Fee", p.kind === "park" && "Park"].filter(Boolean);
+// what the map says, as icon badges: [icon, label]
+const TAGS = (p) => [p.tags.lit === "yes" && ["sun", "Lights"], p.tags.lit === "no" && ["warn", "No lights"], p.tags.hoops && ["play", `${p.tags.hoops} hoops`], p.count > 1 && ["table", `${p.count} courts`], p.tags.surface && ["route", p.tags.surface.replace(/_/g, " ")], !p.outdoor && ["home", "Indoor or covered"], p.tags.access && p.tags.access !== "yes" && ["lock", `Access: ${p.tags.access}`], p.tags.fee === "yes" && ["book", "Fee"], p.kind === "park" && ["pin", "Park"]].filter(Boolean);
+// the reasons worth reading: a review quote first, then what the badges do not already say
+const SAID = /(lights?|lit|forecast|rain)/i;
+const pickReasons = (p) => [...p.reasons.filter((x) => x.quote), ...p.reasons.filter((x) => !x.quote && !SAID.test(x.text))].slice(0, 2);
 
 export default function Courts() {
   const [home, setHome] = useState(null);
@@ -91,25 +95,29 @@ export default function Courts() {
         <section aria-labelledby="ct-h">
           <div className="ct-head">
             <h2 id="ct-h" className="sec-label">{r.places.length} places for {sport}, {days.find((d) => d.date === r.date)?.label.toLowerCase() || r.date} at {r.start}{r.weather ? ` · rain ${r.weather.rain}%, ${r.weather.temp} °C` : ""}</h2>
-            <button className="btn sm primary" onClick={plan}><Icon name="spark" size={16} />Line up a {sport} game with Autopilot</button>
+            <button className="btn sm primary" onClick={plan}><Icon name="spark" size={16} />Line up a {sport} game</button>
           </div>
           <ul className="ct-list">
             {r.places.map((p) => (
               <li key={p.id} className={`panel ct-place ${p.verdict}`}>
                 <div className="ct-top">
                   <span className={`ct-v ${p.verdict}`}><Icon name={VERDICT[p.verdict][0]} size={14} />{VERDICT[p.verdict][1]}</span>
-                  <span className="tiny muted">{p.dist < 1000 ? `${p.dist} m` : `${(p.dist / 1000).toFixed(1)} km`} {p.dir}{p.rating != null ? ` · ${p.rating} ★ (${p.ratings})` : ""}</span>
+                  {p.rating != null && <span className="tiny muted">{p.rating} ★ ({p.ratings})</span>}
                 </div>
                 <h3>{p.name}</h3>
-                <div className="ct-tags">{TAGS(p).map((t) => <span key={t}>{t}</span>)}</div>
+                <div className="ct-tags">
+                  <span><Icon name="pin" size={13} />{p.dist < 1000 ? `${p.dist} m` : `${(p.dist / 1000).toFixed(1)} km`} {p.dir}</span>
+                  {r.weather && p.outdoor && <span><Icon name="sun" size={13} />{r.weather.rain}% rain · {r.weather.temp} °C</span>}
+                  {TAGS(p).map(([ic, t]) => <span key={t}><Icon name={ic} size={13} />{t}</span>)}
+                </div>
                 <ul className="ct-why">
-                  {p.reasons.map((x, i) => (
+                  {pickReasons(p).map((x, i) => (
                     <li key={i}><span className={`ct-cite ${x.cite}`} title={CITE[x.cite]?.[1]}><Icon name={CITE[x.cite]?.[0] || "info"} size={13} /></span>
                       <span>{x.text}{x.quote && <q className="ct-quote">{x.quote}</q>}{x.review && p.reviews.find((v) => v.n === x.review) && <span className="tiny muted"> · {p.reviews.find((v) => v.n === x.review).author}, {p.reviews.find((v) => v.n === x.review).when}, Google Maps</span>}</span></li>
                   ))}
                 </ul>
                 <div className="ct-foot">
-                  <span className="tiny muted">{p.by === "model" ? "Judged by Muse Glimmer; every reason checked against its source" : "Judged by rules from the map and the forecast"}</span>
+                  <span className="ct-by">{p.by === "model" ? <><Icon name="verify" size={13} />Muse Glimmer · sources checked</> : <><Icon name="table" size={13} />Rules · map and forecast</>}{p.reviews?.length ? <> · <Icon name="lock" size={13} />reviews screened by Prompt Guard 2</> : null}</span>
                   <a className="btn sm" href={p.url || `https://www.openstreetmap.org/${p.id.replace("osm:", "")}`} target="_blank" rel="noreferrer">{p.url ? "Google Maps" : "OpenStreetMap"}</a>
                 </div>
               </li>

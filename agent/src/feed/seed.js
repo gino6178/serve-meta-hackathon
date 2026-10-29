@@ -6,7 +6,7 @@
 import { deps } from "./deps.js";
 import * as S from "./store.js";
 
-const MIN = 6e4;
+const MIN = 6e4, VERSION = 2; // 2: with invites from members' agents
 const agoMs = (s) => { const m = /^(\d+)\s*(min|h|d)/.exec(String(s || "")); return m ? +m[1] * { min: MIN, h: 60 * MIN, d: 1440 * MIN }[m[2]] : 3 * 60 * MIN; };
 export const DEMO_CLIPS = {
   singles: { src: "/feed/demo_ws.mp4", poster: "/feed/demo_ws.jpg", w: 960, h: 540, credit: "Demo clip · CC BY 3.0, Badminton klub Ljubljana, trimmed · not a club member" },
@@ -16,7 +16,7 @@ const clip = (c) => ({ static: true, src: c.src, poster: c.poster, type: "video/
 
 export function seed({ force = false } = {}) {
   const db = S.data();
-  if (process.env.FEED_DEMO === "off" || (db.seeded && !force) || db.posts.some((p) => !p.simulated)) return 0;
+  if (process.env.FEED_DEMO === "off" || (db.seeded === VERSION && !force) || (!db.seeded && db.posts.some((p) => !p.simulated))) return 0;
   const club = deps.club(), now = deps.now(), ids = new Set((club.members || []).map((m) => m.id)), posts = [];
   const who = (id) => (ids.has(id) ? id : null);
   for (const f of club.feed || []) {
@@ -35,6 +35,10 @@ export function seed({ force = false } = {}) {
     comments: [c("sim-c3", "hana", "Rematch next week, I want revenge.", 400)] });
   if (who("leo") && who("hana")) posts.push({ id: "sim-r1", kind: "recap", at: at(300), by: { type: "agent", agentOf: "leo" }, approved: { by: "leo", at: at(300) },
     text: "Leo and Hana played doubles on Thursday at Riverside: two hours, booked by their agents in four messages.", likes: ["hana", "sim-fan-4"], comments: [], reports: [], simulated: true });
-  S.change((d) => { d.posts = [...d.posts.filter((p) => !p.simulated), ...posts]; d.seeded = true; });
+  // invites members' agents posted for them: anyone can join, and the agent answers in the comments
+  const inv = (id, owner, min, invite, text) => ({ id, kind: "invite", at: at(min), by: { type: "agent", agentOf: owner }, text, invite, likes: [], comments: [], reports: [], simulated: true });
+  if (who("leo") && who("hana")) posts.push(inv("sim-i1", "leo", 40, { sport: "badminton", day: "Thu", start: "19:00", where: "Riverside Sports Centre", spots: 3, going: ["hana"] }, "Doubles at Leo's usual time. All levels."));
+  if (who("priya")) posts.push(inv("sim-i2", "priya", 150, { sport: "pickleball", day: "Sat", start: "09:00", where: "Daan Park courts", spots: 4, going: [] }, "Saturday morning pickleball, paddles to lend."));
+  S.change((d) => { d.posts = [...d.posts.filter((p) => !p.simulated), ...posts]; d.seeded = VERSION; });
   return posts.length;
 }

@@ -178,6 +178,16 @@ export async function recallIn(notes, query, { k = 4, min = +(process.env.MEMORY
   const { by, hits } = await rank(notes.map((n) => ({ ...n, v: vecCache.get(n.text) })), query, k, min);
   return { by, notes: hits.map(shown) };
 }
+// notes handed in with their days (the body context's: body/context.js), every one scored against the query: DRAMA's
+// cosine (raw), or BM25's score when there is no embedder, and that times weight(n), how much a note keeps by its age
+export async function scoreIn(notes, query, { weight = () => 1 } = {}) {
+  if (!notes?.length) return { by: null, hits: [] };
+  const missing = notes.filter((n) => !vecCache.has(n.text)), vs = missing.length ? await embed(missing.map((n) => n.text)) : [];
+  if (vs) missing.forEach((n, i) => vecCache.set(n.text, vs[i]));
+  const qv = notes.every((n) => vecCache.has(n.text)) ? await embed([query], { query: true }) : null;
+  if (!qv) { const b = bm25(notes, query, notes.length); return { by: "bm25", hits: notes.map((n) => { const raw = b.find((x) => x.text === n.text)?.score || 0; return { ...n, raw, score: raw * weight(n) }; }).sort((a, b2) => b2.score - a.score) }; }
+  return { by: "drama", hits: notes.map((n) => { const raw = dot(qv[0], vecCache.get(n.text)); return { ...n, raw, score: raw * weight(n) }; }).sort((a, b) => b.score - a.score) };
+}
 // the embedder's process ends with this one (a run that is done must not be kept alive by it)
 export function close() { if (worker) { try { worker.stdin.end(); worker.kill(); } catch { /* gone */ } worker = null; } }
 export function forget(player) { generation.set(player, (generation.get(player) || 0) + 1); if (db.players[player]) { delete db.players[player]; save(); } }

@@ -24,6 +24,7 @@ import * as journal from "./autopilot_journal.js";
 import { crashPoint } from "../core/crash.js";
 import { agentAttrs, toolAttrs, errorType } from "../core/trace.js";
 import { organize } from "../body/body.js";
+import * as bodyContext from "../body/context.js";
 import * as places from "../club/places.js";
 import * as memory from "../memory/memory.js";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
@@ -166,9 +167,13 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       const r = await findNotes(String(question).slice(0, 300));
       return { notes: r.notes.map(({ note, on }) => ({ note, said: on })), ...(r.notes.length ? {} : { note: "nothing close to that in what the player said" }) };
     },
-    check_body() {
+    async check_body() {
       const sore = org.parts.filter((p) => p.active);
-      return { sore: sore.map((p) => `${p.name} ${p.latest.level}/5, ${p.trend === "new" ? "first logged" : p.trend}${p.physio ? ", worth seeing a physio" : ""}`), allClear: !sore.length,
+      // what the player said about their body and what their games and health app recorded, found by meaning (Meta's
+      // DRAMA, recent notes weighted more: body/context.js); every limit cites the notes it comes from, checked by code
+      const ctx = await bodyContext.retrieve(org, body?.log || [], { said: notes ? [] : memory.list(player || messenger || "app", now.getTime()).filter((n) => n.status === "live"), now: now.getTime() }).catch(() => null);
+      return { ...(ctx ? { context: ctx.top.map((n) => ({ id: n.id, note: n.text, said: n.on, from: n.src })), limitsFrom: ctx.rules.filter((r) => r.cites.length).map((r) => ({ limit: r.text, notes: r.cites.map((c) => c.id) })), contextBy: ctx.by === "drama" ? "Meta DRAMA, by meaning" : ctx.by } : {}),
+        sore: sore.map((p) => `${p.name} ${p.latest.level}/5, ${p.trend === "new" ? "first logged" : p.trend}${p.physio ? ", worth seeing a physio" : ""}`), allClear: !sore.length,
         load: org.load.acwr != null ? { thisWeek: org.load.acute, usualWeek: org.load.chronic, ratio: org.load.acwr } : "no load data yet",
         limits: { format: bp.format || "any", gameMinutes: minutes, skipSports: [...new Set([...bp.avoid, ...bp.pause])], gamesThisWeek: perWeek !== g.perWeek ? `${perWeek} instead of ${g.perWeek}` : g.perWeek },
         agentActions: org.actions.filter((a) => a.kind !== "follow").map((a) => a.text), fromHealthApp: org.linked.length ? org.linked.map((l) => `${l.date} game ran ${l.minutes} min (booked ${l.booked || "?"})`) : undefined };
@@ -216,7 +221,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       const rows = free.map((m) => {
         const p = expect(r("you"), r(m.id)), fair = 1 - Math.abs(0.5 - p) * 2, c = chem[m.id];
         const cv = court({ date: d.date, day }, st, minutes, [me, m], venues, g.sport);
-        const why = [`win chance ${Math.round(p * 100)}%`, c && c.ext > 5 ? `your games ran ${c.ext}% over the booking (${c.n} games)` : c ? `played together ${c.n} times` : "a new partner for you", cv ? `trip ${cv.travel.find((x) => x.id === m.id)?.min} min for ${first(m.name)}` : null].filter(Boolean);
+        const why = [fair >= 0.8 ? "an even match" : p > 0.5 ? "you usually win" : "a tougher opponent", c && c.ext > 5 ? `you two often play past the booking (${c.n} games)` : c ? `played together ${c.n} times` : "a new partner for you", cv ? `trip ${cv.travel.find((x) => x.id === m.id)?.min} min for ${first(m.name)}` : null].filter(Boolean);
         const score = 3 * fair + (c ? 2 * c.score : 0.2) - (cv ? 0.03 * cv.longest : 1);
         return { id: m.id, name: m.name, rating: r(m.id), fit: score, why };
       }).sort((a, b) => b.fit - a.fit);

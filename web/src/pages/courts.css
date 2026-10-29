@@ -37,3 +37,5 @@
 .ct-foot { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); padding-top: var(--s2); border-top: 1px solid var(--rule); }
 @media (max-width: 640px) { .ct-list { grid-template-columns: minmax(0, 1fr); } .ct-steps li { grid-template-columns: minmax(0, 1fr); gap: 4px; } .ct-l { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .ct-steps li { animation: none; } }
+.ct-tags span { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; }
+.ct-by { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; font: 600 12px/1.3 var(--font); color: var(--ink-3); }

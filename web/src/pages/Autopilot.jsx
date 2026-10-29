@@ -53,12 +53,12 @@ export default function Autopilot({ data }) {
     <div className="page autopilot">
       <header className="report-head">
         <div>
-          <span className="tag">Autopilot · Muse Glimmer on your own GPU</span>
+          <span className="tag">Plan my week · Muse Glimmer on your own GPU</span>
           <h1 className="h1">Your agent keeps you playing</h1>
           <p className="muted">It learns when you usually play and who you play best with, then lines up the week and agrees every game with the other players' agents. You only say yes.</p>
         </div>
         <div className="cta-row">
-          <button className="btn primary" onClick={runNow} disabled={!you || t?.state === "running"}><Icon name="spark" size={18} />{t?.state === "running" ? "Running…" : "Run my week now"}</button>
+          <button className="btn primary" onClick={runNow} disabled={!you || t?.state === "running"}><Icon name="spark" size={18} />{t?.state === "running" ? "Planning…" : "Plan my week"}</button>
         </div>
       </header>
 
@@ -80,7 +80,7 @@ export default function Autopilot({ data }) {
             {hab.map((h) => <li key={h.day + h.start}><b>{DAY[h.day]} {h.start}</b><span className="ap-bar" aria-hidden="true"><i style={{ transform: `scaleX(${h.count / h.weeks})` }} /></span><span className="tiny muted">{h.count} of the last {h.weeks} weeks · usually {h.minutes} min{h.sport !== "badminton" ? ` · ${h.sport}` : ""}</span></li>)}
           </ul>
           <ul className="ap-chem">
-            {chem.map((c) => { const m = byId[c.id]; return m && <li key={c.id}><Av m={m} /><span><b>{m.name}</b><span className="tiny muted">{c.ext > 0 ? `your games ran ${c.ext}% past the booking` : "games end on time"} · {c.n} game{c.n > 1 ? "s" : ""}</span></span>{c.ext >= 15 && <span className="badge">You click</span>}</li>; })}
+            {chem.map((c) => { const m = byId[c.id]; return m && <li key={c.id}><Av m={m} /><span><b>{m.name}</b><span className="tiny muted">{c.ext > 0 ? "you two often play past the booking" : "games end on time"} · {c.n} game{c.n > 1 ? "s" : ""}</span></span>{c.ext >= 15 && <span className="badge">You click</span>}</li>; })}
           </ul>
           <p className="tiny muted">A game that runs past its booking means you two kept playing: those partners come first. Report a result with how long you played and it learns from that too.</p>
         </section>
@@ -91,16 +91,17 @@ export default function Autopilot({ data }) {
       {t && (
         <section className="panel ap-run" aria-labelledby="run-h" aria-live="polite">
           <header className="club-h">
-            <h2 id="run-h" className="panel-h">{t.state === "running" ? "Running your week" : "The last run"}</h2>
-            {r?.report && <span className="tiny muted mono">{r.report.seconds} s · {r.report.toolCalls} tool calls · {r.report.modelCalls} Muse Glimmer calls, up to {r.report.parallelPeak} at once{r.report.rules ? " · rules finished" : ""}</span>}
+            <h2 id="run-h" className="panel-h">{t.state === "running" ? "Planning your week" : "Your week"}</h2>
           </header>
+          <details className="ap-work" open={t.state === "running"}>
+          <summary>How your agent worked it out{t.steps.length ? ` · ${t.steps.length} steps` : ""}{r?.report ? <span className="tiny muted mono"> · {r.report.seconds} s · {r.report.toolCalls} tool calls · {r.report.modelCalls} Muse Glimmer calls{r.report.rules ? " · rules finished" : ""}</span> : null}</summary>
           <div className="ap-grid">
             <ol className="ap-steps">
               {t.steps.map((s, i) => (
                 <li key={i} className={`${s.error ? "refused" : ""} t-${s.tool || "step"}`}>
                   <span className="ap-tool">{TOOL[s.tool] || s.tool}</span>
                   <div><b>{s.step}</b>{s.by === "model" && <span className="ap-by">Muse Glimmer decided</span>}{s.by === "rules" && <span className="ap-by rules">rules</span>}{s.by === "code" && <span className="ap-by rules">run by code, every week starts here</span>}
-                    {s.detail && <p className="tiny">{s.detail}</p>}
+                    {s.detail && (t.state !== "running" || s.error) && <p className="tiny">{s.detail}</p>}
                     {s.reason && <p className="ap-why">“{s.reason}”</p>}</div>
                 </li>
               ))}
@@ -119,7 +120,7 @@ export default function Autopilot({ data }) {
                         <li key={i} className={x.from === "you" ? "mine" : "theirs"}>
                           <span className="a2a-who">{x.from === "you" ? <><Mark size={14} />Your agent{x.round > 1 ? ` · round ${x.round}` : ""}</> : <><Av m={byId[x.from]} size={20} />{first(byId[x.from]?.name || x.from)}'s agent</>}</span>
                           <p>{x.text}</p>
-                          <span className={`a2a-intent ${x.intent}`}>{{ propose: "Proposes", counter: "Counter-offer", accept: "Agrees", decline: "Declines", none: "No answer" }[x.intent]}{x.intent !== "accept" && x.when ? ` · ${x.when}` : ""}{x.checked === false ? " · ✗ does not fit" : x.intent === "counter" && x.checked ? " · ✓ fits everyone" : ""}{x.tier === "quick" ? ` · quick pick, ${Math.round(x.confidence * 100)}% sure` : x.tier === "agent" ? " · full agent" : ""}</span>
+                          <span className={`a2a-intent ${x.intent}`}>{{ propose: "Proposes", counter: "Counter-offer", accept: "Agrees", decline: "Declines", none: "No answer" }[x.intent]}{x.intent !== "accept" && x.when ? ` · ${x.when}` : ""}{x.checked === false ? " · ✗ does not fit" : x.intent === "counter" && x.checked ? " · ✓ fits everyone" : ""}{x.tier === "quick" ? " · quick pick (Llama 3.2 1B)" : x.tier === "agent" ? " · Muse Glimmer" : ""}</span>
                         </li>
                       ))}
                     </ol>
@@ -128,6 +129,7 @@ export default function Autopilot({ data }) {
               })}
             </div>
           </div>
+          </details>
 
           {r?.leftOut?.length > 0 && (
             <div className="ap-leftout" aria-labelledby="lo-h">

@@ -7,7 +7,7 @@
 .body-page { --l0: var(--good); --l2: #c98a00; --l3: #e0662a; --l4: var(--bad); }
 
 .bd-err { display: flex; align-items: center; gap: var(--s2); color: var(--bad); margin: 0 0 var(--s3); }
-.bd-top { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: var(--s4); align-items: start; margin-bottom: var(--s4); }
+.bd-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s4); align-items: start; margin-bottom: var(--s4); }
 .bd-figure { padding: var(--s3); position: relative; }
 .bd-figure-tools { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s2); margin-bottom: var(--s2); }
 .bd-figure-tools .seg { margin: 0; }
@@ -135,3 +135,17 @@
   body.print-report .bd-report { position: absolute; left: 0; top: 0; width: 100%; border: 0; }
   body.print-report .noprint { display: none; }
 }
+
+/* what matters this week: the notes DRAMA found, and the rules that cite them */
+.bd-notes { list-style: none; margin: 0 0 var(--s2); padding: 0; display: grid; gap: var(--s2); }
+.bd-notes li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: var(--s3); align-items: center; padding: var(--s2) var(--s3); border-radius: var(--r-md); background: var(--bg-2, color-mix(in srgb, var(--ink) 4%, transparent)); }
+.bd-notes li > span:nth-child(2) { display: grid; gap: 2px; }
+.bd-src { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--agent) 14%, transparent); color: var(--agent); }
+.bd-src.health, .bd-src.game { background: color-mix(in srgb, #e5484d 13%, transparent); color: #d1352b; }
+.bd-src.said { background: color-mix(in srgb, #0064e0 12%, transparent); color: #0064e0; }
+.bd-sim { font: 700 13px/1 var(--mono, ui-monospace, monospace); color: var(--ink-2); padding: 6px 8px; border-radius: 999px; border: 1px solid var(--rule); }
+.bd-rules { display: grid; gap: var(--s2); align-content: start; }
+.bd-rules .btn { justify-self: start; }
+.bd-cites { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.bd-cite { display: inline-flex; align-items: center; gap: 5px; font: 600 12px/1 var(--font); padding: 6px 10px; border-radius: 999px; background: color-mix(in srgb, var(--agent) 10%, transparent); color: var(--agent); cursor: help; }
+.bd-follow { display: flex; align-items: center; gap: 8px; color: var(--ink-2); margin: 0; }

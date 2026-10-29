@@ -456,8 +456,7 @@ for its safety checks, and Python 3 for the health export:
 
 ## Not in this repository
 
-These are not ours to publish: the 3D anatomy model files (`web/public/body/`) and the Whisper model files
-(`web/public/models/`). Download them from the sources under Credits.
+These are not ours to publish: the Whisper model files (`web/public/models/`). Download them from the sources under Credits.
 
 ## Where the prototype stands
 

@@ -6,6 +6,8 @@
 //   POST /api/feed/media?player=                a photo (JPEG, 6 MB at most), kept an hour until it is posted
 //   POST /api/feed/post     {player, text, media}
 //   POST /api/feed/comment  {player, post, text}
+//   POST /api/feed/post     {player, text, invite: {sport, day, start, where, spots}}   an invite anyone can join
+//   POST /api/feed/join     {player, post, on}          join an invite, or leave it
 //   POST /api/feed/like     {player, post, on}
 //   POST /api/feed/notforme {player, post}
 //   POST /api/feed/report   {player, post, comment, reason}
@@ -37,13 +39,13 @@ const PLAYER = /^[\w:.-]{1,64}$/;
 const readRaw = (req, max) => new Promise((ok) => { const parts = []; let n = 0, over = false; req.on("data", (c) => { n += c.length; if (n > max) over = true; else parts.push(c); }); req.on("end", () => ok(over ? null : Buffer.concat(parts))); req.on("error", () => ok(null)); });
 const readJson = async (req) => { const b = await readRaw(req, 64e3); try { return b ? JSON.parse(b.toString("utf8") || "{}") : null; } catch { return {}; } };
 
-export async function handle(req, res, u, { cors = {}, maintainer = false } = {}) {
+export async function handle(req, res, u, { cors = {}, maintainer = false, as = null } = {}) {
   const send = (code, body) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store", ...cors }); res.end(JSON.stringify(body)); };
   const p = u.pathname, post = req.method === "POST", q = (k) => u.searchParams.get(k);
   try {
     const body = post && !["/api/feed/media", "/api/feed/draft", "/api/feed/reel"].includes(p) ? await readJson(req) : {};
     if (body == null) return send(413, { error: "That is too long." });
-    const player = String(body.player || q("player") || "app");
+    const player = as || String(body.player || q("player") || "app"); // a signed-in member is always themself
     if (!PLAYER.test(player)) return send(400, { error: "player is a member's id" });
     const out = (r) => send(r?.code || (r?.error ? 400 : 200), r);
 
@@ -67,7 +69,8 @@ export async function handle(req, res, u, { cors = {}, maintainer = false } = {}
       S.change((d) => { const r = (d.rate[player] ||= {}); r.upload = [...(r.upload || []), deps.now()].slice(-50); });
       return send(200, { media: { id: m.id, w: c.w, h: c.h } });
     }
-    if (p === "/api/feed/post" && post) return out(await P.post(player, { text: body.text, media: body.media || null }));
+    if (p === "/api/feed/post" && post) return out(await P.post(player, { text: body.text, media: body.media || null, invite: body.invite || null }));
+    if (p === "/api/feed/join" && post) return out(P.join(player, String(body.post || ""), body.on !== false));
     if (p === "/api/feed/comment" && post) return out(await P.comment(player, String(body.post || ""), body.text));
     if (p === "/api/feed/like" && post) return out(P.like(player, String(body.post || ""), body.on !== false));
     if (p === "/api/feed/notforme" && post) return out(P.notForMe(player, String(body.post || "")));

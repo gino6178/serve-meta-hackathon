@@ -155,3 +155,18 @@
 .task-talk { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 4px; width: 100%; }
 .task-talk li { font-size: 13px; color: var(--ink-2); line-height: 1.4; }
 .task-talk b { color: var(--ink); font-weight: 600; }
+
+/* your week: seven days, a booked game or your usual time still open */
+.week-strip { list-style: none; margin: 0 0 var(--s3); padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.week-strip li { display: grid; gap: 6px; padding: 10px; border-radius: var(--r-md); border: 1px solid var(--rule); background: var(--panel, var(--bg)); min-height: 104px; align-content: start; }
+.ws-day { display: flex; justify-content: space-between; font: 700 13px/1 var(--font); color: var(--ink-2); }
+.ws-slot { display: grid; gap: 2px; border-radius: 10px; padding: 8px; text-decoration: none; color: inherit; }
+.ws-slot b { font: 700 16px/1.1 var(--font); }
+.week-strip li.game .ws-slot { background: var(--agent); color: #fff; }
+.week-strip li.open .ws-slot { border: 2px dashed var(--agent); color: var(--agent); background: color-mix(in srgb, var(--agent) 7%, transparent); }
+.ws-slot.empty { min-height: 40px; }
+.status-pills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.status-pills a { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-size: 13px; max-width: 100%; }
+.status-pills a span { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 42ch; }
+.status-pills a svg { color: var(--agent); flex: none; }
+@media (max-width: 700px) { .week-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

@@ -28,7 +28,7 @@ export default function ServerMemory() {
       if (!r.kept) return setSaid(r.reply || "Not kept.");
       setText("");
       const mine = r.notes.find((n) => n.text === t), replaced = mine ? r.notes.filter((n) => n.status === "replaced" && n.replacedBy === t) : [];
-      setSaid(replaced.length ? `Noted, and it replaces ${replaced.length === 1 ? "an older note" : `${replaced.length} older notes`}. The Autopilot follows the new one from its next run.` : "Noted. The Autopilot follows it from its next run.");
+      setSaid(replaced.length ? `Noted, and it replaces ${replaced.length === 1 ? "an older note" : `${replaced.length} older notes`}. Your agent follows the new one when it next plans your week.` : "Noted. Your agent follows it when it next plans your week.");
     });
   };
   const forgetAbout = (e) => {

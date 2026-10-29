@@ -1,0 +1,53 @@
+/* Serve's social app: joining, stories, the feed, your agent in the club */
+.join { min-height: calc(100dvh - 80px); display: grid; place-items: center; }
+.join-card { width: min(440px, 100%); display: grid; gap: var(--s3); justify-items: center; text-align: center; padding: var(--s6, 40px) var(--s5, 28px); border-radius: 24px; border: 1px solid var(--rule); background: var(--panel, var(--bg)); box-shadow: 0 20px 60px rgb(0 0 0 / .06); }
+.join-card h1 { margin: 0; font: 800 28px/1.15 var(--font); letter-spacing: -.02em; }
+.join-mark { width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; background: color-mix(in srgb, var(--agent) 12%, transparent); }
+.join-buttons { display: grid; gap: 10px; width: 100%; margin-top: var(--s2); }
+.join-btn { display: flex; align-items: center; justify-content: center; gap: 10px; height: 48px; border-radius: 12px; font: 700 15px/1 var(--font); text-decoration: none; color: #fff; }
+.join-btn img { width: 22px; height: 22px; }
+.join-btn.fb { background: #1877f2; }
+.join-btn.fb img { filter: brightness(0) invert(1); }
+.join-btn.ig { background: linear-gradient(90deg, #f58529, #dd2a7b 45%, #8134af 75%, #515bd4); }
+.join-btn.ig img { filter: brightness(0) invert(1); }
+.join-btn.off { opacity: .45; pointer-events: none; }
+.join-demo { display: grid; gap: 10px; width: 100%; }
+.join-demo input { height: 44px; border-radius: 12px; border: 1px solid var(--rule-strong); padding: 0 14px; font: 15px var(--font); background: var(--bg); color: var(--ink); }
+.join-or { font: 600 12px/1 var(--font); color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
+.join-err { color: #d1352b; font-size: 14px; margin: 0; }
+
+.so-grid { display: grid; grid-template-columns: minmax(0, 640px) 320px; gap: var(--s5, 28px); justify-content: center; align-items: start; }
+.so-main { display: grid; gap: var(--s3); min-width: 0; }
+.so-side { display: grid; gap: var(--s3); position: sticky; top: var(--s4); }
+.so-stories { list-style: none; margin: 0; padding: 4px 2px 8px; display: flex; gap: 16px; overflow-x: auto; }
+.so-stories li { display: grid; justify-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+.so-ring { position: relative; padding: 3px; border-radius: 50%; border: 0; cursor: pointer; background: conic-gradient(from 200deg, #0a7f44, #29c27a, #0064e0, #0a7f44); }
+.so-face { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: var(--bg); border: 3px solid var(--bg); font: 700 16px/1 var(--font); color: var(--ink); }
+.so-face img { width: 100%; height: 100%; object-fit: cover; }
+.so-face.lg { width: 48px; height: 48px; border: 0; background: color-mix(in srgb, var(--agent) 14%, transparent); }
+.so-badge { position: absolute; right: 0; bottom: 0; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: #fff; box-shadow: 0 1px 4px rgb(0 0 0 / .2); }
+.so-start { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 16px; border: 1px dashed color-mix(in srgb, var(--agent) 55%, transparent); background: color-mix(in srgb, var(--agent) 6%, transparent); color: var(--agent); font: 700 15px/1 var(--font); cursor: pointer; text-align: left; }
+.so-invite { display: grid; gap: var(--s3); }
+.so-inv-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.so-inv-grid label { display: grid; gap: 4px; font: 600 12px/1.2 var(--font); color: var(--ink-2); }
+.so-inv-grid label.wide { grid-column: span 2; }
+.so-inv-grid input, .so-inv-grid select { height: 40px; border-radius: 10px; border: 1px solid var(--rule-strong); padding: 0 10px; font: 14px var(--font); background: var(--bg); color: var(--ink); text-transform: none; }
+.so-tabs { justify-self: start; }
+.so-me { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.so-me > span:nth-child(2) { display: grid; gap: 2px; }
+.so-agent { display: grid; gap: var(--s2); }
+.so-agent .panel-h { display: flex; align-items: center; gap: 8px; }
+.so-said { color: var(--agent); margin: 0; }
+.so-how p { margin: 0 0 8px; }
+.so-story { position: relative; width: min(420px, 100%); aspect-ratio: 9 / 16; max-height: 90dvh; border-radius: 20px; overflow: hidden; background: #000; color: #fff; display: grid; outline: none; }
+.so-story video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.so-story .story-bars { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 2; }
+.so-story header { position: absolute; top: 22px; left: 12px; right: 12px; z-index: 2; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; text-shadow: 0 1px 3px rgb(0 0 0 / .6); }
+.so-story header > span:nth-child(2) { display: grid; gap: 2px; }
+.so-story header .so-face { width: 36px; height: 36px; font-size: 12px; border-width: 2px; }
+.so-story .icon-btn { color: #fff; }
+.so-story-text { position: absolute; left: 16px; right: 16px; bottom: 44px; z-index: 2; margin: 0; font: 600 16px/1.35 var(--font); text-shadow: 0 1px 4px rgb(0 0 0 / .7); }
+.so-story-credit { position: absolute; left: 16px; right: 16px; bottom: 14px; z-index: 2; margin: 0; font-size: 11px; opacity: .8; }
+.so-story .story-nav { position: absolute; top: 0; bottom: 0; width: 35%; z-index: 1; background: none; border: 0; cursor: pointer; }
+.so-story .story-nav.prev { left: 0; } .so-story .story-nav.next { right: 0; }
+@media (max-width: 1000px) { .so-grid { grid-template-columns: minmax(0, 1fr); } .so-side { position: static; } .so-inv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

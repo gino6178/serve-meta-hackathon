@@ -92,8 +92,14 @@ ${sheet.facts.map((f) => `[${f.id}] ${f.text}`).join("\n")}
 WHAT THEY TOLD YOU BEFORE:
 ${sheet.notes.slice(-10).map((t) => `- ${t}`).join("\n") || "- (nothing yet)"}
 WHAT YOU CAN DO FOR THEM (offer the right one when the facts don't answer it): ${CAN}
+If they ask how they played, what they did wrong or how to get better, say you don't analyse play or give training tips, and offer what you can do instead (a game, a highlight of their best moment).
 Never diagnose; for pain that lasts, suggest seeing a physio. Never give medical, diet or betting advice. Plain text, no markdown, no fact ids.`;
 }
+
+// a coaching tip: a drill, a technique cue or a training plan. Serve is not a coach, so an answer with one is redrafted,
+// then replaced by the facts (as an answer with a number not in the facts is)
+const COACHING = /\b(drills?|footwork|technique|grip|wrist snap|follow[- ]through|warm[- ]?ups?|stretch(es|ing)?|reps|sets of|practi[cs]e (your|the|a|some|more)|work on (your|the)|focus on (your|the)|try (to )?(hit|keep|aim|move|stay|serve|return|bend)|you (should|could) (hit|aim|move|stay|serve|return|keep)|tap-and-lift|before (club )?practice)\b/i;
+export const coaching = (t) => COACHING.test(String(t));
 
 // the facts that fit the question best, when the model's answer cannot be used
 const PICK = [[/next|when|booked|tomorrow|tonight|game/i, ["next", "booked"]], [/how many|this week|goal|streak|in a row/i, ["week", "goal", "streak"]], [/who|with|partner|most/i, ["played"]],
@@ -116,8 +122,9 @@ export async function answer({ text, playerId = null, app = null, history = [], 
     for (; tries < 2; tries++) {
       const r = await chat(msgs, { temperature: tries ? 0.1 : 0.3, maxTokens: 220, site: "answer" });
       out = String(r.text || "").replace(/\s*\[F\d+(?:,\s*F?\d+)*\]/g, "").trim(); timing = r.timing; verdict = check(out, sheet, extra);
+      if (out && coaching(out)) verdict = { ...verdict, ok: false, coaching: true };
       if (out && verdict.ok) break;
-      msgs.push({ role: "assistant", content: r.text || "" }, { role: "user", content: `${out ? `These numbers are not in the facts: ${verdict.bad.join(", ")}.` : "That was empty."} Answer again, using only numbers, dates and times from the facts.` });
+      msgs.push({ role: "assistant", content: r.text || "" }, { role: "user", content: verdict?.coaching ? "That gives a training tip. You are not a coach: answer again without any drill, technique or training advice, and offer what you can do instead." : `${out ? `These numbers are not in the facts: ${verdict.bad.join(", ")}.` : "That was empty."} Answer again, using only numbers, dates and times from the facts.` });
     }
     if (!out || !verdict.ok) { const draft = out, bad = verdict?.bad || []; out = fallback(sheet, text); verdict = { ...check(out, sheet), rejected: bad, draft }; }
   } catch (e) {

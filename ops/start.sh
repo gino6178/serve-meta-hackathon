@@ -43,7 +43,7 @@ fi
 (
   cd "$ROOT/agent" || exit 1
   export PORT=8790 LLM_URL=http://127.0.0.1:11435/v1 LLM_MODEL=muse-glimmer LLM_DEVICE="RTX 3090 (CUDA)"
-  export EMBED_URL=http://127.0.0.1:11434 ALLOW_ORIGINS=http://127.0.0.1:5191,http://localhost:5191
+  export EMBED_URL=http://127.0.0.1:11434 ALLOW_ORIGINS=http://127.0.0.1:5191,http://localhost:5191 MEMBERS_APP_URL="${MEMBERS_APP_URL:-http://127.0.0.1:5191}"
   export REEL_PYTHON="${REEL_PYTHON:-}" REEL_SCRIPT="$ROOT/pose/reel.py" REEL_GPU=0 REEL_HF_CACHE="${REEL_HF_CACHE:-}"
   # the highlight's camera effect (zoom and cut, a short orbit): docs/web_features.md
   export REEL_EFFECTS_SCRIPT="${REEL_EFFECTS_SCRIPT:-$ROOT/orbit/orbit.py}" REEL_EFFECTS_PYTHON="${REEL_EFFECTS_PYTHON:-$ROOT/orbit/venv/bin/python}"

@@ -11,7 +11,7 @@ import { ShareSheet, ReportSheet } from "./FeedSheets.jsx";
 import "./feed.css";
 
 const first = (n = "") => n.split(" ")[0];
-export default function Feed({ club, members = [], local = [], joined = {}, onJoin, onChallenge }) {
+export default function Feed({ club, members = [], local = [], joined = {}, onJoin, onChallenge, only = null, onData = null, compose = true }) {
   const [st, setSt] = useState({ phase: "loading", data: null, error: null });
   const [more, setMore] = useState(false);
   const [sheet, setSheet] = useState(null); // { kind: "share" | "report", p, comment }
@@ -34,15 +34,18 @@ export default function Feed({ club, members = [], local = [], joined = {}, onJo
   const d = st.data;
   // what this browser posted before the feed was on the server (joined games, finished quests): shown as yours, here only
   const mine = (local || []).map((x) => ({ id: `local-${x.id}`, kind: "local", at: x.at || 0, text: x.text, by: { type: "person", name: "You", you: true } }));
-  const posts = d ? [...d.posts, ...mine.filter((x) => !d.posts.length || x.at > d.posts.at(-1).at)].sort((a, b) => b.at - a.at) : [];
+  const all = d ? [...d.posts, ...mine.filter((x) => !d.posts.length || x.at > d.posts.at(-1).at)].sort((a, b) => b.at - a.at) : [];
+  // (only: the kinds a filter shows, as the social app's tabs pick them)
+  const posts = only ? all.filter((p) => only.includes(p.kind)) : all;
+  useEffect(() => { if (d && onData) onData(d); }, [d]);
   return (
     <div className="club-feed fd">
       <p className="sr-only" aria-live="polite">{said}</p>
       {d?.simulated && <p className="fd-sim"><Icon name="info" size={18} />Demo club: the other members and their posts are simulated. Paper posts are real papers, found and summarized by the club's reading agent.</p>}
       {(d?.notices || []).map((n, i) => <p key={i} className="fd-notice" role="status"><Icon name="info" size={18} />{n}</p>)}
       {d?.paused && <p className="fd-held" role="status">The club's maintainer has paused your posts and comments until {new Date(d.paused.until).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}{d.paused.reason ? `: ${d.paused.reason}` : ""}.</p>}
-      <Composer onPosted={(p) => { setSt((s) => ({ ...s, data: { ...s.data, posts: [p, ...(s.data?.posts || [])] } })); setSaid("Posted."); }}
-        onDraft={(x) => { setSt((s) => ({ ...s, data: { ...s.data, drafts: [x, ...(s.data?.drafts || [])] } })); setSaid("Your agent drafted a post from your video. It waits for your yes."); }} />
+      {compose && <Composer onPosted={(p) => { setSt((s) => ({ ...s, data: { ...s.data, posts: [p, ...(s.data?.posts || [])] } })); setSaid("Posted."); }}
+        onDraft={(x) => { setSt((s) => ({ ...s, data: { ...s.data, drafts: [x, ...(s.data?.drafts || [])] } })); setSaid("Your agent drafted a post from your video. It waits for your yes."); }} />}
       {(d?.drafts || []).map((x) => <DraftCard key={x.id} d={x} onDone={(post) => setSt((s) => ({ ...s, data: { ...s.data, drafts: s.data.drafts.filter((y) => y.id !== x.id), posts: post ? [post, ...s.data.posts] : s.data.posts } }))} say={setSaid} />)}
       {(d?.recaps || []).map((x) => <RecapCard key={x.id} r={x} say={setSaid} onDone={(post) => setSt((s) => ({ ...s, data: { ...s.data, recaps: s.data.recaps.filter((y) => y.id !== x.id), posts: post ? [post, ...s.data.posts] : s.data.posts } }))} />)}
       {!d && st.phase === "loading" && <Skeleton />}
@@ -212,6 +215,22 @@ function DraftCard({ d, onDone, say }) {
 }
 
 // ---- one post ----
+// an invite anyone can join: the game, who is in, and the spots left (the poster's agent says so in the comments)
+function InviteBox({ p, patch, say }) {
+  const v = p.invite, [busy, setBusy] = useState(false);
+  const join = async (on) => { setBusy(true); try { const r = await feedApi.join(p.id, on); patch(() => r.post); } catch (e) { say(e.message); } setBusy(false); };
+  return (
+    <div className="fd-invite">
+      <span className="fd-inv-when"><b>{v.day}</b>{v.start}</span>
+      <span className="fd-inv-what"><b>{cap(v.sport)}</b><span className="tiny muted"><Icon name="pin" size={12} />{v.where}</span>
+        <span className="fd-inv-spots" aria-label={`${v.going} of ${v.spots} spots taken`}>{Array.from({ length: v.spots }, (_, i) => <i key={i} className={i < v.going ? "on" : ""} />)}</span>
+        <span className="tiny muted">{v.names.length ? `${v.names.join(", ")} ${v.names.length > 1 ? "are" : "is"} in` : "Nobody yet"} · {v.full ? "full" : `${v.spots - v.going} left`}</span></span>
+      {p.mine ? <span className="task-state running">Your invite</span> : v.joined ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button>
+        : <button className="btn primary sm" disabled={busy || v.full} onClick={() => join(true)}>{v.full ? "Full" : "Join"}</button>}
+    </div>
+  );
+}
+
 function PostCard({ p, club, member, joined, perWeek, onJoin, onChallenge, patch, drop, say, onShare, onReport }) {
   const [menu, setMenu] = useState(false);
   const box = useRef(null), input = useRef(null);
@@ -243,7 +262,7 @@ function PostCard({ p, club, member, joined, perWeek, onJoin, onChallenge, patch
       <header className="fd-head">
         <Avatar by={by} />
         <div className="fd-who">
-          <span className="fd-name"><b>{by.name}</b>{by.type === "agent" && <span className="fd-agent-tag">Agent</span>}{(by.simulated || p.simulated) && <span className="fd-sim-tag" title="A made-up member of the demo club">Simulated</span>}</span>
+          <span className="fd-name"><b>{by.name}</b>{by.type === "agent" && <span className="fd-agent-tag">Agent</span>}{by.channel === "signed" && <span className="fd-sig-tag" title="Every request this agent made was signed with the key its member registered">Signed · {by.agentName}</span>}{(by.simulated || p.simulated) && <span className="fd-sim-tag" title="A made-up member of the demo club">Simulated</span>}</span>
           <span className="tiny muted">{role(by, { perWeek: perWeek ?? 3 })}{meta ? ` · ${meta}` : ""}</span>
         </div>
         {!local && (
@@ -273,6 +292,7 @@ function PostCard({ p, club, member, joined, perWeek, onJoin, onChallenge, patch
             : joined ? <span className="task-state done">You're in</span> : member && onJoin ? <button className="btn primary sm" onClick={() => onJoin({ id: p.id, who: member.id, open: p.open })}>Join</button> : null}
         </div>
       )}
+      {p.invite && <InviteBox p={p} patch={patch} say={say} />}
       {local ? <p className="tiny muted">Saved on this device only.</p> : (
         <>
           <div className="fd-actions">

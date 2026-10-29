@@ -27,7 +27,8 @@ async function call(path, body) {
 export const feedApi = {
   list: (before = null) => call(`/api/feed?n=30${before ? `&before=${before}` : ""}`),
   one: (id) => call(`/api/feed/post?id=${encodeURIComponent(id)}`),
-  post: (text, media = null) => call("/api/feed/post", { text, media }),
+  post: (text, media = null, invite = null) => call("/api/feed/post", { text, media, ...(invite ? { invite } : {}) }),
+  join: (post, on = true) => call("/api/feed/join", { post, on }),
   like: (post, on) => call("/api/feed/like", { post, on }),
   comment: (post, text) => call("/api/feed/comment", { post, text }),
   report: (post, reason, comment = null) => call("/api/feed/report", { post, reason, comment }),

@@ -160,17 +160,28 @@ export default function Agent({ club }) {
                 })() : "Nothing to agree yet. It starts when you say yes.",
                 go: ["Challenges", "#/club?tab=challenges"] },
             ];
+            // the next seven days: a booked game, your usual time still open, or nothing
+            const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], today = new Date();
+            const booked = tasks.filter((t) => t.booking && t.booking.state !== "cancelled").map((t) => t.booking.option);
+            const days = Array.from({ length: 7 }, (_, k) => { const d = new Date(today); d.setDate(d.getDate() + k); return d; });
             return (
               <section className="helpers" aria-labelledby="helpers-h">
-                <h2 id="helpers-h" className="sec-label">Your agent's helpers</h2>
-                <ul>
-                  {rows.map((r) => (
-                    <li key={r.k} className={`helper ${r.k}`}>
-                      <span className="helper-ic" aria-hidden="true"><Icon name={r.ic} size={20} /></span>
-                      <span className="helper-txt"><b>{r.name}</b><span className="helper-role">{r.role}</span><span className="helper-now">{r.now}</span></span>
-                      <a className="btn ghost sm" href={r.go[1]}>{r.go[0]}</a>
-                    </li>
-                  ))}
+                <h2 id="helpers-h" className="sec-label">Your week</h2>
+                <ol className="week-strip">
+                  {days.map((d, k) => {
+                    const dow = DOW[d.getDay()], b = booked.find((o) => o.day === dow), u = !b && h.find((x) => x.day === dow);
+                    return (
+                      <li key={k} className={b ? "game" : u ? "open" : ""}>
+                        <span className="ws-day">{k === 0 ? "Today" : dow}<span className="tiny muted">{d.getDate()}</span></span>
+                        {b ? <span className="ws-slot"><b>{b.start}</b><span className="tiny">{b.format}</span></span>
+                          : u ? <a className="ws-slot" href="#/autopilot?run=1"><b>{u.start}</b><span className="tiny">your usual time, open</span></a>
+                          : <span className="ws-slot empty" aria-label="nothing planned" />}
+                      </li>
+                    );
+                  })}
+                </ol>
+                <ul className="status-pills">
+                  {rows.map((r) => <li key={r.k} className={`helper ${r.k}`} title={r.role}><a href={r.go[1]}><Icon name={r.ic} size={16} /><b>{r.name}</b><span>{r.now}</span></a></li>)}
                 </ul>
               </section>
             );

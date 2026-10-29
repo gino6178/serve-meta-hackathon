@@ -12,6 +12,7 @@ import Highlights from "./pages/Highlights.jsx";
 import Memory from "./pages/Memory.jsx";
 import Messages from "./pages/Messages.jsx";
 import Maintain from "./pages/Maintain.jsx";
+import Social, { Join } from "./pages/Social.jsx";
 import { AskOutLoud } from "./voice/VoiceAsk.jsx";
 import { loadClub } from "./club/data.js";
 import { useTasks, plain } from "./tasks.js";
@@ -25,6 +26,7 @@ const route = () => location.hash.replace(/^#\/?/, "").split("?")[0] || "home";
 export function go(path) { location.hash = "/" + path; window.scrollTo(0, 0); }
 
 const TABS = [
+  { k: "social", label: "Feed", icon: "live", on: ["social", "join"] },
   { k: "home", label: "Agent", icon: "spark", on: ["home", "autopilot"] },
   { k: "club", label: "Club", icon: "coaches", on: ["club"] },
   { k: "play", label: "Play", icon: "book", on: ["play", "courts"] },
@@ -33,7 +35,7 @@ const TABS = [
 ];
 const INBOX = { k: "messages", label: "Messenger", icon: "send", on: ["messages"] };
 const MORE = [
-  { k: "autopilot", label: "Autopilot", note: "Your agent lines up your week", icon: "spark" },
+  { k: "autopilot", label: "Plan my week", note: "Your agent lines up your week", icon: "spark" },
   { k: "body", label: "Body log", note: "Tell your agent what hurts; your health app", icon: "heart" },
   { k: "courts", label: "Courts near you", note: "Any sport, judged from reviews and weather", icon: "pin" },
   { k: "highlights", label: "Film a highlight", note: "Your own video, as a reel to post", icon: "play" },
@@ -142,7 +144,7 @@ function CheckBack() {
 const PAGES = {
   home: (c) => <Agent club={c} />, about: () => <Landing />, club: (c) => <Club club={c} />, goals: (c) => <Goals club={c} />,
   play: (c) => <Play data={c} />, you: (c) => <You club={c} />, autopilot: (c) => <Autopilot data={c} />, body: () => <Body />,
-  courts: () => <Courts />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, maintain: () => <Maintain />,
+  courts: () => <Courts />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, maintain: () => <Maintain />, social: (c) => <Social club={c} />, join: () => <Join />,
 };
 
 export default function App() {

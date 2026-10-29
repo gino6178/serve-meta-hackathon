@@ -100,9 +100,23 @@ export function paused(player) {
 const pausedWhy = (l) => `Your posts and comments are paused by the club's maintainer until ${new Date(l.until).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}${l.reason ? `: ${l.reason}` : ""}.`;
 
 // ---- posting ----
-export async function post(player, { text = "", media = null } = {}) {
+// An invite (a game anyone in the club can join): the sport, the day and time, where, how many spots. A member's agent
+// may post one for its member through the agent channel (members.js): agent is { id, owner }, and the post says it is
+// that member's agent. The place is checked with the text, as anything a person writes is.
+export const SPORTS = ["badminton", "tennis", "pickleball", "table tennis", "basketball", "volleyball", "soccer", "squash", "running"];
+export function inviteOf(x) {
+  if (!x) return { invite: null };
+  const sport = String(x.sport || "").toLowerCase(), day = String(x.day || ""), start = String(x.start || ""), where = T.tidy(x.where, 60), spots = Math.round(+x.spots);
+  if (!SPORTS.includes(sport)) return { error: `The sport must be one of: ${SPORTS.join(", ")}.` };
+  if (!/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun|\d{4}-\d{2}-\d{2})$/.test(day) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(start)) return { error: "Say the day (Mon to Sun, or a date) and the time (HH:MM)." };
+  if (!where) return { error: "Say where you'll play." };
+  if (!(spots >= 1 && spots <= 12)) return { error: "Between 1 and 12 spots." };
+  return { invite: { sport, day, start, where, spots, going: [] } };
+}
+export async function post(player, { text = "", media = null, invite = null, agent = null } = {}) {
   const t = T.tidy(text, 600);
-  if (!t && !media) return { error: "Write something, or add a photo.", code: 400 };
+  const iv = inviteOf(invite); if (iv.error) return { error: iv.error, code: 400 };
+  if (!t && !media && !iv.invite) return { error: "Write something, or add a photo.", code: 400 };
   const stop = paused(player); if (stop) return { error: pausedWhy(stop), code: 403, paused: true };
   const lim = limited(player, "post"); if (lim) return lim;
   let photo = null;
@@ -112,10 +126,10 @@ export async function post(player, { text = "", media = null } = {}) {
     photo = { id: up.id, type: up.type, w: up.w, h: up.h };
   }
   count(player, "post");
-  const m = await screenPost(t, photo, player);
+  const m = await screenPost([t, iv.invite?.where].filter(Boolean).join("\n"), photo, player);
   if (m.refused || m.helpline) { if (photo) dropUpload(player, photo.id); return { refused: true, why: m.why, check: m.helpline ? "helpline" : m.check, ...(m.helpline ? { helpline: true } : {}) }; }
   const x = S.change((d) => {
-    const p = { id: S.newId("p"), kind: photo ? "photo" : "note", at: deps.now(), by: { type: "person", player }, text: t, media: photo, likes: [], comments: [], reports: [], ...(m.down ? { held: true } : {}),
+    const p = { id: S.newId("p"), kind: iv.invite ? "invite" : photo ? "photo" : "note", at: deps.now(), by: agent ? { type: "agent", agentOf: agent.owner, agentId: agent.id } : { type: "person", player }, text: t, media: photo, ...(iv.invite ? { invite: iv.invite } : {}), likes: [], comments: [], reports: [], ...(m.down ? { held: true } : {}),
       checks: { llamaGuard: m.verdict ?? null, standard: m.standard ?? null, ...(m.photo ? { photo: m.photo } : {}) } };
     d.posts.push(p);
     if (photo) d.uploads = d.uploads.filter((u) => u.id !== photo.id);
@@ -135,7 +149,7 @@ export function upload(player, { id, type, w = null, h = null }) {
   });
 }
 
-export async function comment(player, postId, text) {
+export async function comment(player, postId, text, { agent = null } = {}) {
   const t = T.tidy(text, 400);
   if (!t) return { error: "Write a comment first.", code: 400 };
   const p = find(postId);
@@ -147,13 +161,33 @@ export async function comment(player, postId, text) {
   if (m.refused || m.helpline) return { refused: true, why: m.why.replace(/^Not posted/, "Not sent"), check: m.helpline ? "helpline" : m.check, ...(m.helpline ? { helpline: true } : {}) };
   const asks = p.kind === "paper" && !m.down && isQuestion(t) && !limited(player, "ask");
   const c = S.change(() => {
-    const x = { id: S.newId("c"), at: deps.now(), by: { type: "person", player }, text: t, ...(m.down ? { held: true } : {}), ...(asks ? { asking: true } : {}), reports: [], checks: { llamaGuard: m.verdict ?? null, standard: m.standard ?? null } };
+    const x = { id: S.newId("c"), at: deps.now(), by: agent ? { type: "agent", agentOf: agent.owner, agentId: agent.id } : { type: "person", player }, text: t, ...(m.down ? { held: true } : {}), ...(asks ? { asking: true } : {}), reports: [], checks: { llamaGuard: m.verdict ?? null, standard: m.standard ?? null } };
     p.comments.push(x);
     return x;
   });
   // a question on a paper: the member's own agent answers from the paper's abstract, in the background
   if (asks) { count(player, "ask"); answerLater(p.id, c.id, player, t); }
+  if (p.kind === "invite" && p.invite && !m.down && isQuestion(t)) inviteReply(p, `${spotsLine(p)} ${p.invite.going.includes(player) ? "You're in." : "Tap Join and you're in."}`);
   return { comment: commentView(c, player), answering: asks, ...(m.down ? { held: true, why: "The safety check isn't answering right now. Your comment shows once it is checked." } : {}) };
+}
+// the poster's agent, in the comments of an invite: sentences made by code from the invite, never a model's
+const first = (n = "") => String(n).split(" ")[0];
+const spotsLine = (p) => { const v = p.invite, left = v.spots - v.going.length; return `${left > 0 ? `${left} of ${v.spots} spot${v.spots > 1 ? "s" : ""} left` : "Full"} for ${v.sport} ${v.day} ${v.start} at ${v.where}.`; };
+function inviteReply(p, text) {
+  const owner = p.by.agentOf || p.by.player;
+  S.change(() => { p.comments.push({ id: S.newId("c"), at: deps.now(), by: { type: "agent", agentOf: owner }, text, reply: true, reports: [], checks: { made: "code" } }); });
+}
+// joining an invite (or leaving it): the poster's agent says who is in and how many spots are left
+export function join(player, postId, on = true) {
+  const p = find(postId);
+  if (!p || !visible(p, player) || p.kind !== "invite" || !p.invite) return { error: "That invite is not in the feed any more.", code: 404 };
+  if ((p.by.player || p.by.agentOf) === player) return { error: "It's your own invite.", code: 400 };
+  const v = p.invite, was = v.going.includes(player);
+  if (on && !was && v.going.length >= v.spots) return { error: "That game is full.", code: 409 };
+  if (on === was) return { post: view(p, player) };
+  S.change(() => { v.going = on ? [...v.going, player] : v.going.filter((x) => x !== player); });
+  inviteReply(p, `${on ? `${first(authorOf(player) || "A member")} is in.` : `${first(authorOf(player) || "A member")} can't make it.`} ${spotsLine(p)}`);
+  return { post: view(p, player) };
 }
 export const pendingAnswers = new Set();
 function answerLater(postId, commentId, player, question) {
@@ -261,10 +295,12 @@ function visible(p, viewer) {
 }
 const whoView = (by, viewer, simulated = false) => {
   if (by.type === "agent" && by.agent === "club") return { type: "agent", agent: "club", name: "The club's reading agent" };
+  // a member's own agent, on the agent channel (members.js): its name, and that every request it made was signed
+  const signed = by.agentId ? { channel: "signed", agentName: deps.nameOf(by.agentId) || "Agent" } : {};
   const id = by.player || by.agentOf, you = id === viewer, name = you ? "You" : authorOf(id) || "A member";
   const sim = simulated && (deps.club().members || []).some((m) => m.id === id);
   return by.type === "agent"
-    ? { type: "agent", agentOf: you ? "you" : id, name: you ? "Your agent" : name === "A member" ? "A member's agent" : `${name.split(" ")[0]}'s agent`, owner: name, you, ...(sim ? { simulated: true } : {}) }
+    ? { type: "agent", agentOf: you ? "you" : id, name: you ? "Your agent" : name === "A member" ? "A member's agent" : `${name.split(" ")[0]}'s agent`, owner: name, you, ...signed, ...(sim ? { simulated: true } : {}) }
     : { type: "person", member: you ? "you" : id, name, you, ...(sim ? { simulated: true } : {}) };
 };
 function commentView(c, viewer) {
@@ -281,6 +317,7 @@ export function view(p, viewer) {
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),
+    ...(p.invite ? { invite: { ...p.invite, going: p.invite.going.length, names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots } } : {}),
     ...(p.simulated ? { simulated: true } : {}), ...(p.held ? { held: true } : {}), ...(p.hidden ? { hidden: true } : {}),
     likes: p.likes.length, liked: p.likes.includes(viewer),
     comments: p.comments.filter((c) => (!c.held && !c.hidden) || c.by.player === viewer).map((c) => commentView(c, viewer)),

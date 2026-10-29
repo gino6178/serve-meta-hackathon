@@ -1,6 +1,7 @@
 // What the feed calls outside itself, in one place so the tests can stand in for each: the guard models (Llama Guard 3
 // for what people and models write, Prompt Guard 2 for text from outside), Muse Glimmer, the network, the clock, the
 // community loop's count-only signals, and the club's data.
+import * as members from "../members/members.js";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -50,7 +51,7 @@ const defaults = {
     try { const st = fs.statSync(f); if (clubCache?.m !== st.mtimeMs) clubCache = { m: st.mtimeMs, v: JSON.parse(fs.readFileSync(f, "utf8")) }; return clubCache.v; } catch { return { name: "Your club", members: [], sports: [] }; }
   },
   // the name a player goes by in the feed (a Messenger player who never said their name is "a member")
-  nameOf: (player) => { const p = store.get(player); return p?.name && p.name !== "there" ? p.name : null; },
+  nameOf: (player) => { const p = store.get(player); return p?.name && p.name !== "there" ? p.name : members.nameOf(player); },
   linked: (player) => !!store.get(player),
   // every real player's name, for the privacy check on what people post (another member's health or contact details)
   names: () => store.players().map((p) => p.name).filter((n) => n && n !== "there"),

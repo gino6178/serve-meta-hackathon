@@ -6,7 +6,7 @@ import TalkFacts from "../components/TalkFacts.jsx";
 import { useTasks, startPlay, startBest, startTalk, bookAgreed } from "../tasks.js";
 import { postToClub } from "../club/share.js";
 import { patchGame } from "../club/game.js";
-import { randomMatch, askFor, stakes, chance, WHEN } from "../club/arena.js";
+import { randomMatch, askFor, stakes, WHEN } from "../club/arena.js";
 import { go } from "../App.jsx";
 import { agentReadScore } from "../agent.js";
 
@@ -109,7 +109,7 @@ export function Rankings({ club, members, r, rec, onChallenge }) {
               <Av m={m} size={34} />
               <span className="lg-who"><b>{m.id === "you" ? "You" : m.name}</b>
                 <span className="tiny muted">level {m.level} · {rec[m.id].w}–{rec[m.id].l} <Form f={rec[m.id].form} /></span>
-                {s && board === "rating" && <span className="tiny muted">win chance {chance(r.you, r[m.id])}% · +{s.win} / −{s.loss}</span>}
+                {s && board === "rating" && <span className="tiny muted">+{s.win} if you win / −{s.loss}</span>}
               </span>
               <span className="lg-num">{shown(m)}</span>
               {m.id !== "you" && <button className="btn ghost sm" onClick={() => onChallenge(m)}>Challenge</button>}
@@ -256,7 +256,7 @@ export function Challenges({ club, members, r, rec, g, you, me }) {
                 <li key={x.id} className={i === 0 ? "top" : ""}>
                   <Av m={mm} size={48} />
                   <div className="best-body">
-                    <p><b>{x.name}</b> <span className="tiny muted">rated {r[x.id]} · level {x.level} · win chance {chance(r.you, r[x.id])}%</span></p>
+                    <p><b>{x.name}</b> <span className="tiny muted">level {x.level}</span></p>
                     <div className="fit-row"><span className="fit" aria-hidden="true"><i style={{ transform: `scaleX(${x.fit / 100})` }} /></span><span className="tiny"><b>{x.fit}%</b> fit</span></div>
                     <ul className="best-parts">{x.parts.slice(0, 5).map((p) => <li key={p.k} className={p.good ? "good" : ""}>{p.text}</li>)}</ul>
                     <button className="btn ghost sm" disabled={talkT?.state === "running"} onClick={() => talk(x)}><Icon name="chat" size={16} />Talk to {first(x.name)}'s agent</button>
@@ -289,7 +289,7 @@ export function Challenges({ club, members, r, rec, g, you, me }) {
               </div>
               <ul className="match-facts">
                 <li><Icon name="clock" size={16} />All free {DAY[match.slot.d]} {match.slot.start}</li>
-                <li><Icon name="goals" size={16} />Win chance {match.chance}% · +{match.stakes.win} if you win, −{match.stakes.loss} if not</li>
+                <li><Icon name="goals" size={16} />+{match.stakes.win} if you win, −{match.stakes.loss} if not</li>
                 <li><Icon name="spark" size={16} />Drawn at random from {match.pool} member{match.pool > 1 ? "s" : ""} free then{close ? ", within 150 points" : ""}{match.partner ? `; the two sides are ${Math.abs(Math.round((r.you + r[match.partner.id]) / 2) - Math.round(match.vs.reduce((s, m) => s + r[m.id], 0) / match.vs.length))} points apart on average` : ""}</li>
               </ul>
               <div className="cta-row">
@@ -321,7 +321,7 @@ export function Challenges({ club, members, r, rec, g, you, me }) {
                   <div className="ch-body">
                     <p><b>{m.name}</b> challenged you · {c.format} · {whenText(c.when)}</p>
                     <p className="ch-note">“{c.note}”</p>
-                    <p className="tiny muted">Rated {r[m.id]} · win chance {chance(r.you, r[m.id])}% · +{s.win} / −{s.loss}{c.stake ? ` · ${c.stake}` : ""}</p>
+                    <p className="tiny muted">+{s.win} if you win / −{s.loss}{c.stake ? ` · ${c.stake}` : ""}</p>
                     <div className="cta-row"><button className="btn primary sm" onClick={() => answer(c, true)}>Accept</button><button className="btn ghost sm" onClick={() => answer(c, false)}>Decline</button></div>
                   </div>
                 </li>

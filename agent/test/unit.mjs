@@ -357,3 +357,37 @@ test("Prompt Guard's worker: no Python, or one that can't start, is skipped and 
     assert.equal(r[0].injected, null); assert.match(r[0].error, /did not start|stopped/);
   } finally { delete process.env.GUARD_PYTHON; delete process.env.GUARD_PAUSE_MS; }
 });
+
+test("an answer with a training tip is not sent: Serve is not a coach", async () => {
+  const { coaching } = await import("../src/agents/answer.js");
+  assert.ok(coaching("You made 6 net errors. Try 5 min of tap-and-lift feeds before club practice."));
+  assert.ok(coaching("Work on your footwork with a few drills."));
+  assert.ok(!coaching("Your next game is Thursday at 19:00 with Leo."));
+  assert.ok(!coaching("I don't analyse play, but I can line up a game or cut your best moment."));
+});
+
+test("the body context: notes from the log and the load, recent ones first, and every limit citing notes about the same part", async () => {
+  process.env.MEMORY_EMBED = "bm25"; // no embedder here: BM25 scores the same notes
+  try {
+    const { organize } = await import("../src/body/body.js");
+    const ctx = await import("../src/body/context.js");
+    const now = new Date("2026-10-28T12:00:00+08:00");
+    const log = [
+      { id: "old", at: "2026-10-01T09:00:00+08:00", part: "knee", side: "right", kind: "sore", level: 2, note: "Right knee sore after the long game" },
+      { id: "new", at: "2026-10-27T09:00:00+08:00", part: "knee", side: "right", kind: "pain", level: 3, note: "Right knee sore after jumping, 3 out of 5" },
+      { id: "calf", at: "2026-10-26T09:00:00+08:00", part: "calf", side: "left", kind: "tight", level: 2, note: "Left calf is tight" },
+    ];
+    const org = organize({ log, games: [], workouts: [], now });
+    const r = await ctx.retrieve(org, log, { question: "my right knee is sore", now: now.getTime() });
+    assert.equal(r.by, "bm25");
+    const i = (id) => r.all.findIndex((n) => n.id === id);
+    assert.ok(i("new") < i("old"), "the same words, the newer note first: the older one has faded");
+    const knee = r.rules.find((x) => x.text.includes("right knee"));
+    assert.ok(knee && knee.cites.length, "the knee limit cites notes");
+    assert.ok(knee.cites.some((c) => c.part === "knee:right"), "the right knee's notes among them");
+    assert.ok(knee.cites.every((c) => knee.text.includes(org.parts.find((p) => p.key === c.part).name)), "and only notes about parts the limit names");
+    const all = ctx.notes(org, log, { now: now.getTime() });
+    assert.ok(!ctx.citationOk({ kind: "limit", text: "While your right knee settles" }, "calf", org, all), "a note about another part is not a citation");
+    assert.ok(!ctx.citationOk({ kind: "limit", text: "While your right knee settles" }, "nope", org, all), "nor a note that does not exist");
+  } finally { delete process.env.MEMORY_EMBED; }
+});

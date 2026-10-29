@@ -5,8 +5,11 @@ const LOCAL_GATEWAY = "http://127.0.0.1:8787";
 export const AGENT_URL = (import.meta.env.VITE_AGENT_URL || LOCAL_GATEWAY).replace(/\/$/, "");
 // the gateway's token (its AGENT_TOKEN), from web/.env.local: this build is for the club's own machine, not the web
 const AUTH = import.meta.env.VITE_AGENT_TOKEN ? { authorization: `Bearer ${import.meta.env.VITE_AGENT_TOKEN}` } : {};
-// fetch from the gateway, with its token
-export const agentFetch = (path, init = {}) => fetch(AGENT_URL + path, { ...init, headers: { ...(init.headers || {}), ...AUTH } });
+// a signed-in member's session (members.js on the gateway; kept in this browser by ./members.js)
+export const SESSION_KEY = "serve.session";
+const session = () => { try { return localStorage.getItem(SESSION_KEY); } catch { return null; } };
+// fetch from the gateway, with its token, and the member's session when they signed in
+export const agentFetch = (path, init = {}) => { const s = session(); return fetch(AGENT_URL + path, { ...init, headers: { ...(init.headers || {}), ...AUTH, ...(s ? { "x-serve-session": s } : {}) } }); };
 // A refused call, as an Error with the gateway's own message when it sent one ({ error }), else its status.
 const refusal = async (r) => {
   const said = await r.json().catch(() => ({}));
@@ -51,6 +54,7 @@ export async function agentReel(file, onEvent, sport = "badminton", effects = fa
 // the body log: what you say hurts, read into entries; and the organized log, load and report
 export const agentBodyRead = (body) => call("/api/body/read", body);
 export const agentBodyReport = (body) => call("/api/body/report", body);
+export const agentBodyContext = (body) => call("/api/body/context", body);
 // a health app's export, sent to your own server only and deleted once read
 export async function agentHealthImport(file, onEvent) {
   const tz = -new Date().getTimezoneOffset();

@@ -197,3 +197,12 @@
 @media (prefers-reduced-motion: reduce) {
   .fd-media-wait, .fd-skel-card i, .fd-dots i, .fd-act.like.on .icon { animation: none; }
 }
+.fd-sig-tag { font: 700 11px/1 var(--font); padding: 4px 7px; border-radius: 999px; background: color-mix(in srgb, #0064e0 12%, transparent); color: #0064e0; margin-left: 6px; }
+.fd-invite { display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 14px; align-items: center; margin: 4px 16px 10px; padding: 12px; border-radius: 14px; background: color-mix(in srgb, var(--agent) 8%, transparent); border: 1px solid color-mix(in srgb, var(--agent) 25%, transparent); }
+.fd-inv-when { display: grid; place-items: center; gap: 2px; padding: 8px 4px; border-radius: 12px; background: var(--agent); color: #fff; font-size: 15px; }
+.fd-inv-when b { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.fd-inv-what { display: grid; gap: 4px; }
+.fd-inv-what .tiny { display: inline-flex; align-items: center; gap: 4px; }
+.fd-inv-spots { display: flex; gap: 4px; }
+.fd-inv-spots i { width: 18px; height: 6px; border-radius: 3px; background: var(--rule-strong, #ccc); }
+.fd-inv-spots i.on { background: var(--agent); }
