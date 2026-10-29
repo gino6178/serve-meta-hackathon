@@ -6,12 +6,11 @@
 import { deps } from "./deps.js";
 import * as S from "./store.js";
 
-const MIN = 6e4, VERSION = 4; // 2: with invites from members' agents; 3: with an orbit highlight
+const MIN = 6e4, VERSION = 5; // 2: with invites from members' agents (3 and 4 had an orbit highlight, now in the deck only)
 const agoMs = (s) => { const m = /^(\d+)\s*(min|h|d)/.exec(String(s || "")); return m ? +m[1] * { min: MIN, h: 60 * MIN, d: 1440 * MIN }[m[2]] : 3 * 60 * MIN; };
 export const DEMO_CLIPS = {
   singles: { src: "/feed/demo_ws.mp4", poster: "/feed/demo_ws.jpg", w: 960, h: 540, credit: "Demo clip · CC BY 3.0, Badminton klub Ljubljana, trimmed · not a club member" },
   doubles: { src: "/feed/demo_md.mp4", poster: "/feed/demo_md.jpg", w: 960, h: 540, credit: "Demo clip · CC BY 3.0, Roy Huang, trimmed · not club members" },
-  orbit: { src: "/feed/smash_loop.mp4", poster: "/feed/smash_loop.jpg", w: 1280, h: 720, credit: "Demo clip · CC BY 3.0, Badminton klub Ljubljana, the smash rendered from other viewpoints by the orbit effect · not a club member" },
 };
 const clip = (c) => ({ static: true, src: c.src, poster: c.poster, type: "video/mp4", w: c.w, h: c.h });
 
@@ -34,9 +33,6 @@ export function seed({ force = false } = {}) {
     text: "My rally from Thursday's doubles. #badminton #ServeApp", media: clip(DEMO_CLIPS.doubles), credit: DEMO_CLIPS.doubles.credit,
     game: { sport: "badminton", moment: "rally", format: "doubles" }, likes: ["sim-fan-5", "hana", "ravi"], reports: [], simulated: true,
     comments: [c("sim-c3", "hana", "Rematch next week, I want revenge.", 400)] });
-  if (who("ravi")) posts.push({ id: "sim-h3", kind: "highlight", at: at(25), by: { type: "agent", agentOf: "ravi" }, approved: { by: "ravi", at: at(25) },
-    text: "Time stopped on my jump smash. #badminton #ServeApp", media: clip(DEMO_CLIPS.orbit), credit: DEMO_CLIPS.orbit.credit,
-    game: { sport: "badminton", moment: "orbit", format: "singles" }, likes: ["sim-fan-6", "leo", "hana", "noor"], reports: [], simulated: true, comments: [] });
   if (who("leo") && who("hana")) posts.push({ id: "sim-r1", kind: "recap", at: at(300), by: { type: "agent", agentOf: "leo" }, approved: { by: "leo", at: at(300) },
     text: "Leo and Hana played doubles on Thursday at Riverside: two hours, booked by their agents in four messages.", likes: ["hana", "sim-fan-4"], comments: [], reports: [], simulated: true });
   // invites members' agents posted for them: anyone can join, and the agent answers in the comments

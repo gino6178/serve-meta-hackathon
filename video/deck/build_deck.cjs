@@ -54,8 +54,11 @@ async function chart(file) {
     dot: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="14" fill="#0a7f44"/><circle cx="32" cy="32" r="24" fill="none" stroke="#0a7f44" stroke-opacity=".25" stroke-width="6"/></svg>'),
     heart: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 54 C 8 38, 6 22, 18 14 C 25 10, 30 14, 32 19 C 34 14, 39 10, 46 14 C 58 22, 56 38, 32 54 Z" fill="#d1352b"/></svg>'),
     check: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#0a7f44"/><path d="M19 33 l9 9 l17 -19" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'),
-    smash: await jpg(path.join(ROOT, "web/public/feed/smash_loop.jpg"), 1280),
-    depth: await jpg(path.join(SHOTS, "orbit/cutout_depth.png")),
+    smash: await jpg(path.join(__dirname, "smash_loop.jpg"), 1280),
+    smashDepth: await jpg(path.join(__dirname, "smash/cutout_depth.png"), 1280),
+    orbit1: await jpg(path.join(__dirname, "smash/orbit_start.png"), 640),
+    orbit2: await jpg(path.join(__dirname, "smash/orbit_mid.png"), 640),
+    orbit3: await jpg(path.join(__dirname, "smash/orbit_end.png"), 640),
   };
 
   const pres = new pptxgen();
@@ -342,7 +345,7 @@ async function chart(file) {
   // 12 · Highlights
   {
     const s = content("Use of Meta AI", "HIGHLIGHTS · FOUR META VISION MODELS", "Your phone clip becomes your moment, on my GPU",
-      "Highlight 管線：DETR 找人 → Sapiens2 讀姿勢、找最快的揮拍 → SAM 2.1 把你切出來 → MapAnything 算深度和相機，時間暫停、鏡頭繞 20° → Muse Glimmer 寫說明，程式核對 → 一鍵分享到 Instagram。影片不離開伺服器。\n旁白：Thursday, game done. I upload a phone clip… With MapAnything, time stops and the camera turns around the smash.");
+      "Highlight 管線（右邊都是同一記殺球：SAM 2.1 去背、MapAnything 深度、俯視環繞圖和沿弧線算繪出的三格）：DETR 找人 → Sapiens2 讀姿勢、找最快的揮拍 → SAM 2.1 把你切出來 → MapAnything 算深度和相機，時間暫停、鏡頭繞 20° → Muse Glimmer 寫說明，程式核對 → 一鍵分享到 Instagram。影片不離開伺服器。\n旁白：Thursday, game done. I upload a phone clip… With MapAnything, time stops and the camera turns around the smash.");
     const flow = [["DETR", "finds the players"], ["Sapiens2", "reads the pose, finds the fastest swing"], ["SAM 2.1", "cuts you out"], ["MapAnything", "depth and camera: time stops, the camera turns 20°"], ["Muse Glimmer", "writes the caption, checked by code"]];
     flow.forEach(([h, d], i) => {
       const x = 0.6 + i * 2.45;
@@ -352,16 +355,29 @@ async function chart(file) {
       if (i < 4) arrow(s, x + 2.22, 2.47, 0.21, 0);
     });
     // the smash, frozen, the camera swinging round it on a loop (plays in PowerPoint; the PDF shows its first frame)
-    s.addMedia({ type: "video", path: path.join(ROOT, "web/public/feed/smash_loop.mp4"), cover: IMG.smash, x: 0.6, y: 3.4, w: 5.9, h: 3.32 });
+    s.addMedia({ type: "video", path: path.join(__dirname, "smash_loop.mp4"), cover: IMG.smash, x: 0.6, y: 3.4, w: 5.9, h: 3.32 });
     T(s, "The smash on a loop: the camera swings round it · CC BY 3.0, Badminton klub Ljubljana", 0.6, 6.76, 5.9, 0.25, { fontSize: 10, color: MUTED });
-    s.addImage({ data: IMG.depth, x: 6.75, y: 3.4, w: 5.95, h: 1.67 });
-    T(s, "SAM 2.1 cut-out and MapAnything depth", 6.75, 5.1, 5.95, 0.25, { fontSize: 10, color: MUTED });
-    box(s, 6.75, 5.5, 5.95, 1.25, { fill: CARD, line: CARD });
-    T(s, [
-      { text: "Any ball sport; batched, bf16, about 0.3 s a frame", options: { bullet: { indent: 14 }, breakLine: true } },
-      { text: "The orbit is an optional camera effect in the app", options: { bullet: { indent: 14 }, breakLine: true } },
-      { text: "Your video is read on the server and nowhere else", options: { bullet: { indent: 14 } } },
-    ], 6.95, 5.62, 5.6, 1.1, { fontSize: 12.5, paraSpaceAfter: 3 });
+    s.addImage({ data: IMG.smashDepth, x: 6.75, y: 3.4, w: 5.95, h: 1.67 });
+    T(s, "SAM 2.1 cuts her out (magenta); MapAnything reads the depth (near warm, far cool)", 6.75, 5.1, 5.95, 0.25, { fontSize: 10, color: MUTED });
+    // the orbit seen from above: her at the centre, the phone where it filmed from, the arc the server chose (drawn at
+    // four times its angle so 20 degrees reads), and the three frames rendered along it
+    const D = { x: 6.75, y: 5.4, w: 1.75, h: 1.5 }, cx = D.x + 0.875, cy = D.y + 0.5, R = 0.55, K = 4;
+    const pt = (deg, r = R) => { const t = (K * deg * Math.PI) / 180; return [cx + r * Math.sin(t), cy + r * Math.cos(t)]; };
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: D.x, y: D.y, w: D.w, h: D.h, rectRadius: 0.12, fill: { color: INK }, line: { color: INK } });
+    for (let d = 8; d >= -12; d -= 1) { const [x, y] = pt(d); s.addShape(pres.shapes.OVAL, { x: x - 0.03, y: y - 0.03, w: 0.06, h: 0.06, fill: { color: "5FD39A" }, line: { color: "5FD39A", width: 0 } }); }
+    { const [x, y] = pt(0, R + 0.02); s.addShape(pres.shapes.LINE, { x: cx, y: cy, w: 0.001, h: y - cy, line: { color: "8A8A92", width: 0.75, dashType: "dash" } }); }
+    s.addShape(pres.shapes.OVAL, { x: cx - 0.07, y: cy - 0.07, w: 0.14, h: 0.14, fill: { color: "FF4FA3" }, line: { color: WHITE, width: 1.25 } });
+    T(s, "her", cx + 0.1, cy - 0.09, 0.4, 0.18, { fontSize: 8, color: WHITE });
+    [[8, "1"], [-2, "2"], [-12, "3"]].forEach(([d, n]) => { const [x, y] = pt(d); s.addShape(pres.shapes.OVAL, { x: x - 0.09, y: y - 0.09, w: 0.18, h: 0.18, fill: { color: WHITE }, line: { color: WHITE } }); T(s, n, x - 0.09, y - 0.09, 0.18, 0.18, { fontSize: 8, bold: true, align: "center", valign: "middle" }); });
+    { const [x, y] = pt(8, R + 0.24); T(s, "+8°", x - 0.2, y - 0.08, 0.5, 0.16, { fontSize: 8, color: WHITE, align: "center" }); }
+    { const [x, y] = pt(-12, R + 0.24); T(s, "−12°", x - 0.3, y - 0.08, 0.5, 0.16, { fontSize: 8, color: WHITE, align: "center" }); }
+    T(s, "From above", D.x + 0.1, D.y + 0.07, 1.0, 0.18, { fontSize: 8, color: "B0B0B8" });
+    [[IMG.orbit1, "1 · +8°"], [IMG.orbit2, "2 · −2°"], [IMG.orbit3, "3 · −12°"]].forEach(([img, l], i) => {
+      const x = 8.67 + i * 1.36;
+      s.addImage({ data: img, x, y: 5.4, w: 1.31, h: 0.737 });
+      T(s, l, x, 6.18, 1.31, 0.22, { fontSize: 10, bold: true, align: "center" });
+    });
+    T(s, "Three frames rendered along the arc, time stopped", 8.67, 6.45, 4.03, 0.4, { fontSize: 10, color: MUTED });
   }
 
   // 13 · Muse Glimmer in practice

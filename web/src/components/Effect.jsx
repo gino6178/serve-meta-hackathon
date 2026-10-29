@@ -31,20 +31,6 @@ export function EffectNote({ fx }) {
   );
 }
 
-// with an orbit, the frozen moment on a loop: the camera swings across the same arc and back, without end (with
-// reduced motion it waits for a tap)
-export function OrbitLoop({ fx, credit = null }) {
-  if (!fx?.loop) return null;
-  const still = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const arc = Math.abs(fx.sweep?.[0] || 0) + Math.abs(fx.sweep?.[1] || 0);
-  return (
-    <figure className="fx-loop">
-      <video src={fx.loop} autoPlay={!still} loop muted playsInline controls={still} aria-label={`Your moment, frozen, the camera turning ${arc} degrees round you`} />
-      <figcaption><span className="fx-live">● Time stopped</span><b>The camera turns {arc}° round you</b>{credit && <span className="fx-credit">{credit}</span>}</figcaption>
-    </figure>
-  );
-}
-
 // the effect's badge on the picture
 export const effectBadge = (fx) => (fx.mode === "orbit" ? `▶ ORBIT · ${Math.abs(fx.sweep?.[0] || 0) + Math.abs(fx.sweep?.[1] || 0)}°` : "▶ ZOOM · SLOW-MO");
 

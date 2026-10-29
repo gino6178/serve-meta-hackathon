@@ -4,7 +4,7 @@ import { feedApi } from "../club/feedApi.js";
 import { agentCaption, agentReel, agentStatus } from "../agent.js";
 import Brand from "../components/Brand.jsx";
 import Icon from "../components/Icon.jsx";
-import { EffectChoice, EffectNote, OrbitLoop, effectOf, effectBadge, effectFrame, playEffect } from "../components/Effect.jsx";
+import { EffectChoice, EffectNote, effectOf, effectBadge, effectFrame, playEffect } from "../components/Effect.jsx";
 import "./highlights.css";
 
 // Film a highlight: a clip you filmed of your own game, in any ball sport, becomes a reel to post. The clip goes to your
@@ -257,10 +257,6 @@ async function play(canvas, F, clip, stop) {
   await wait(stop.current ? 0 : 1400);
 }
 
-// what an orbit looks like, before you send a video: the singles sample's smash, frozen, the camera swinging across
-// the arc the server chose for it and back (orbit.py --loop)
-const DEMO_LOOP = { loop: "/feed/smash_loop.mp4", sweep: [8, -12] };
-
 export default function Highlights() {
   const [sport, setSport] = useState("badminton");
   // the clip: { url, state: reading | ready | failed, steps, working, error, data }
@@ -376,7 +372,6 @@ export default function Highlights() {
                 <label className="btn primary sm own-pick"><input type="file" accept="video/*" onChange={(e) => choose(e.target.files?.[0])} /><Icon name="plus" size={16} />Choose a video</label>
               </div>
             )}
-            {!clip && <OrbitLoop fx={DEMO_LOOP} credit="The sample smash, made by the orbit effect on our GPU · CC BY 3.0, Badminton klub Ljubljana, not a club member" />}
             {!clip && fxReady && <EffectChoice on={fxOn} onChange={setFxOn} />}
             {clip && (
               <ol className="own-steps">
@@ -386,7 +381,6 @@ export default function Highlights() {
               </ol>
             )}
             {ready && <p className="tiny muted">{d.smash != null ? `Your ${kind} at ${d.smash.toFixed(1)} s: ${MOMENT[kind] || "your best moment"}.` : effectOf(d)?.cut?.freeze != null ? `Your moment at ${effectOf(d).cut.freeze.toFixed(1)} s: your fastest swing.` : "No clear moment was found, so the reel shows the rally."} Preview it or create the video, then post it.</p>}
-            {ready && effectOf(d)?.loop && <OrbitLoop fx={effectOf(d)} />}
             {ready && d.effects && <EffectNote fx={d.effects} />}
             {clip?.state === "failed" && <label className="btn ghost sm own-pick"><input type="file" accept="video/*" onChange={(e) => choose(e.target.files?.[0])} />Try another video</label>}
           </div>
