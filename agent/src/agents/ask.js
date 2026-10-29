@@ -23,6 +23,8 @@ import { bandsFor } from "../match/rank.js";
 import { findGame, question, readRequest, sameDay, twoAtOnce } from "../match/flow.js";
 import { noteOwn } from "../match/records.js";
 import { rank as bandRank } from "../match/model.js";
+import * as fb from "./freebusy.js";
+import { privateFor } from "../safety/privacy.js";
 
 const { windows, ymd, hm, toMin, dateOf, readVenues, DAYS } = helpers;
 const FILE = path.resolve(process.env.ASK_FILE || "data/asks.json");
@@ -42,7 +44,8 @@ const names = (ps) => ps.map((p) => first(p.name)).join(ps.length > 2 ? ", " : "
 
 // the next opening: a habitual time in the next `ahead` days that is still open, the best people free then, a court
 // bands: { "date start": { memberId: band } } from the members' agents (match/rank.js bandsFor): a band goes before fit
-export function opening({ history = [], upcoming = [], body = null, skip = [], now = new Date(), ahead = 3, bands = null } = {}) {
+// priv: private calendars (freebusy.js): each member's agent says only whether its member is free at a time asked about
+export function opening({ history = [], upcoming = [], body = null, skip = [], now = new Date(), ahead = 3, bands = null, priv = false, who = "you" } = {}) {
   const club = readClub(), venues = readVenues(), me = { id: "you", name: "You", area: club.you.area, free: club.you.free };
   const hist = [...(club.you.history || []), ...history];
   const org = organize({ log: body?.log || [], workouts: body?.workouts || [], days: body?.days || [], games: hist, now }), bp = org.plan;
@@ -79,7 +82,7 @@ export function opening({ history = [], upcoming = [], body = null, skip = [], n
     if (bp.pause.includes(`${sport} ${format}`)) format = "doubles";
     const minutes = Math.min(bp.capMinutes || 999, s.minutes || 90, 90), st = toMin(s.start);
     if (!freeAt(me.free, s.day, st, minutes)) continue;
-    const free = club.members.filter((m) => (m.sports || ["badminton"]).includes(sport) && (m.prefers === "any" || m.prefers === format || sport !== "badminton") && freeAt(m.free, s.day, st, minutes) && !skip.includes(`${s.date} ${s.start} ${m.id}`)
+    const free = club.members.filter((m) => (m.sports || ["badminton"]).includes(sport) && (m.prefers === "any" || m.prefers === format || sport !== "badminton") && fb.free(m, { date: s.date, start: st, minutes, asker: who, priv }) && !skip.includes(`${s.date} ${s.start} ${m.id}`)
       // someone already booked into a game then (by another player) is not free
       && !playing(m.id, s.date).some((g) => g.from < st + minutes && st < g.to));
     const asked = bands?.[`${s.date} ${s.start}`];
@@ -129,11 +132,12 @@ async function askNow({ who = "app", history = [], upcoming = [], body = null, s
   if (db.snooze[who] && db.snooze[who] > ymd(now)) return { none: `you said not this week; I'll look again on ${LONG[DAYS[dateOf(db.snooze[who]).getDay()]]}`, snoozed: db.snooze[who] };
   // a question whose time the agents moved, still waiting for the player's book or drop, gives way to the new one
   for (const x of Object.values(db.asks)) if (x.who === who && x.status === "moved") { x.status = "replaced"; save(); await releaseHolds(x.agreed); }
-  let o = opening({ history, upcoming, body, skip, now, ahead });
+  const priv = await privateFor(who);
+  let o = opening({ history, upcoming, body, skip, now, ahead, priv, who });
   if (o.none) return o;
   // the people free then, ordered by their agents' bands (each agent answers from its own member's records)
   const bands = await bandsFor(o, { from: who === "app" ? "you" : who }).catch(() => null);
-  if (bands) { const o2 = opening({ history, upcoming, body, skip, now, ahead, bands }); if (!o2.none && o2.date === o.date && o2.start === o.start) o = o2; }
+  if (bands) { const o2 = opening({ history, upcoming, body, skip, now, ahead, bands, priv, who }); if (!o2.none && o2.date === o.date && o2.start === o.start) o = o2; }
   const w = await word(o), id = `gm-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
   db.asks[id] = { id, who, at: Date.now(), status: "asked", opening: o, text: w.text, by: w.by, input: { history, upcoming, body, skip, ahead } };
   // keep the last 40

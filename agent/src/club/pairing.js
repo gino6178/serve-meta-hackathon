@@ -13,6 +13,8 @@ import { chat } from "../core/llm.js";
 import { readClub } from "./club.js";
 import { demoVenues, helpers } from "./play.js";
 import { negotiate, okNums, PRONOUN } from "../a2a/talk.js";
+import * as fb from "../agents/freebusy.js";
+import { privateFor } from "../safety/privacy.js";
 
 const { windows, travelMin, kmBetween, ymd, hm, toMin, dateOf, readVenues, DAYS } = helpers;
 const first = (n) => n.split(" ")[0];
@@ -33,6 +35,16 @@ function shared(a, b, now = new Date()) {
   }
   return out;
 }
+// private calendars: from your own free times, the first few starts the member's agent says yes to (freebusy.js); never
+// their windows, only 90 minutes at a time asked about
+function probed(mine, m, now = new Date(), tries = 6) {
+  const out = [];
+  for (const s of shared(mine, mine, now)) for (const from of [s.from, s.from + 60].filter((f) => f + 90 <= s.to)) {
+    if (tries-- <= 0) return out;
+    if (fb.free(m, { date: s.date, start: from, minutes: 90, priv: true })) out.push({ date: s.date, day: s.day, from, to: from + 90 });
+  }
+  return out;
+}
 // for one time: the venue with a free court where the longer of the two trips is shortest
 function court(slot, start, minutes, people, venues) {
   const date = dateOf(slot.date), out = [];
@@ -48,7 +60,7 @@ function court(slot, start, minutes, people, venues) {
 // ---- best match -------------------------------------------------------------------------------------------------
 export async function best({ you = {}, ratings = {}, played = {}, format = "singles", onStep } = {}) {
   const tell = (s) => onStep?.({ type: "step", ...s }), work = (step) => onStep?.({ type: "working", step });
-  const club = readClub(), venues = readVenues(), me = { id: "you", name: "You", area: club.you.area, free: club.you.free };
+  const club = readClub(), venues = readVenues(), me = { id: "you", name: "You", area: club.you.area, free: club.you.free }, priv = await privateFor("app");
   const r = (id) => ratings[id] ?? (id === "you" ? club.you.rating : club.members.find((m) => m.id === id)?.rating ?? 1500);
   const limit = you.limit || null;
   tell({ step: "Read your profile", tool: "profile", detail: `club rating ${r("you")}${limit ? `, health limit: ${limit}` : ""}` });
@@ -56,7 +68,7 @@ export async function best({ you = {}, ratings = {}, played = {}, format = "sing
   const rows = [];
   for (const m of club.members) {
     const plays = m.prefers === "any" || m.prefers === format;
-    const times = shared(club.you.free, m.free);
+    const times = priv ? probed(club.you.free, m) : shared(club.you.free, m.free);
     if (!times.length) { rows.push({ m, out: "no shared free time this week" }); continue; }
     const t0 = times[0], c = court(t0, t0.from, 90, [me, m], venues);
     const p = expect(r("you"), r(m.id)), fair = 1 - Math.abs(0.5 - p) * 2;

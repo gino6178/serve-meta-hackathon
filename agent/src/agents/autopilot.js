@@ -33,6 +33,8 @@ import { extras, checkedSummary } from "./autopilot_why.js";
 import { rankRows } from "../match/rank.js";
 import { noteOwn } from "../match/records.js";
 import * as align from "../safety/align.js";
+import * as fb from "./freebusy.js";
+import { privateFor } from "../safety/privacy.js";
 
 const { windows, travelMin, ymd, hm, toMin, dateOf, readVenues, DAYS } = helpers;
 const FILE = path.resolve(process.env.AUTOPILOT_FILE || "data/autopilot.json");
@@ -123,6 +125,8 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
   const t0 = Date.now(), s0 = { ...stats };
   const tell = (s) => onStep?.({ type: "step", ...s }), work = (step) => onStep?.({ type: "working", step });
   const club = readClub(), venues = readVenues(), id = runId || newId();
+  // private calendars: other members' free times are asked about one time at a time, never read (freebusy.js)
+  const asker = player || messenger || "you", priv = await privateFor(player || messenger || "app");
   const me = { id: "you", name: "You", area: club.you.area, free: club.you.free };
   // the journal: a resumed run reads what its first life wrote; a new one starts it
   const J = durable() ? journal.open(id, resume?.entries || null) : null;
@@ -217,7 +221,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       const st = toMin(start || "19:00");
       if (!freeAt(me.free, day, st, minutes)) return { error: `You are not usually free ${day} ${start}; pick one of your habitual times` };
       if (bp.pause.includes(`${g.sport} ${format}`) || bp.pause.includes(g.sport)) return { error: `${g.sport} ${format} is paused while ${org.parts.find((p) => p.physio)?.name || "a sore part"} settles; try doubles` };
-      const free = club.members.filter((m) => !leftOut.has(m.id) && (m.sports || ["badminton"]).includes(g.sport) && (m.prefers === "any" || m.prefers === format || g.sport !== "badminton") && freeAt(m.free, day, st, minutes) && !tried.some((t) => t.id === m.id && t.date === d.date));
+      const free = club.members.filter((m) => !leftOut.has(m.id) && (m.sports || ["badminton"]).includes(g.sport) && (m.prefers === "any" || m.prefers === format || g.sport !== "badminton") && fb.free(m, { date: d.date, start: st, minutes, asker, priv }) && !tried.some((t) => t.id === m.id && t.date === d.date));
       const rows = free.map((m) => {
         const p = expect(r("you"), r(m.id)), fair = 1 - Math.abs(0.5 - p) * 2, c = chem[m.id];
         const cv = court({ date: d.date, day }, st, minutes, [me, m], venues, g.sport);
@@ -249,7 +253,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       if (place && !found[place]) return { error: `${place} is not a place find_places returned` };
       const out = ms.filter((m) => leftOut.has(m.id));
       if (out.length) return { error: `${out.map((m) => first(m.name)).join(" and ")} ${out.length > 1 ? "are" : "is"} left out this week, as the player asked` };
-      const busy = ms.filter((m) => !freeAt(m.free, day, toMin(start), minutes));
+      const busy = ms.filter((m) => !fb.free(m, { date: d.date, start, minutes, asker, priv }));
       if (busy.length) return { error: `${busy.map((m) => first(m.name)).join(" and ")} ${busy.length > 1 ? "are" : "is"} not free ${day} ${start}` };
       const game = agreed.length + tried.length;
       // a public court from find_places: one court, free, first come, its place on the club map from its real position

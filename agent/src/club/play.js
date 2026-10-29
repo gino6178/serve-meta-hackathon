@@ -12,6 +12,8 @@ import path from "node:path";
 import { chat } from "../core/llm.js";
 import { readClub } from "./club.js";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
+import * as fb from "../agents/freebusy.js";
+import { privateFor } from "../safety/privacy.js";
 
 // hooks the matchmaker installs (match/index.js): the options' partners ordered by their agents' bands, and an invite's
 // in or out noted for that member (and the ledger of the bands). a2a.js installs confirm and unbook: partners whose
@@ -64,12 +66,14 @@ const travelMin = (a, b) => Math.round(5 + 3 * kmBetween(a, b));
 const first = (n) => n.split(" ")[0];
 const span = ([f, t]) => `${hm(f)}–${hm(t)}`;
 // the times that suit everyone: the intersection of each person's free windows, day by day
-function calendar(people, dates) {
+// only (private calendars): the partners' rows show the one time their agents said yes to, and nothing else of their week
+function calendar(people, dates, only = null) {
   const cut = (a, b) => a.flatMap(([f1, t1]) => b.map(([f2, t2]) => [Math.max(f1, f2), Math.min(t1, t2)])).filter(([f, t]) => t - f >= 60);
   return {
     people: people.map((x) => ({ id: x.id, name: x.name })),
+    ...(only ? { private: true } : {}),
     days: dates.map((ds) => {
-      const d = dateOf(ds), rows = people.map((x) => windows(x.free).filter((w) => w.day === d.getDay()).map((w) => [w.from, w.to]));
+      const d = dateOf(ds), rows = people.map((x) => (only && x.id !== "you" ? (ds === only.date ? [[only.from, only.to]] : []) : windows(x.free).filter((w) => w.day === d.getDay()).map((w) => [w.from, w.to])));
       return { date: ds, day: DAYS[d.getDay()], rows, all: rows.reduce(cut) };
     }),
   };
@@ -146,7 +150,7 @@ export function partnerScore(m, ctx) {
   return { s, why };
 }
 
-export function search({ intent, you, club, venues, now }) {
+export function search({ intent, you, club, venues, now, priv = false, asker = "you" }) {
   const sport = intent.sport || "badminton", members = club.members.filter((m) => plays(m, sport)), myWins = windows(club.you?.free), me = { id: "you", name: "You", area: club.you?.area, free: club.you?.free };
   const dates = intent.days.length ? intent.days : Array.from({ length: 7 }, (_, i) => { const d = new Date(now); d.setDate(d.getDate() + i); return ymd(d); });
   // a challenge is singles (doubles with three named); with a sore knee, doubles first
@@ -169,7 +173,7 @@ export function search({ intent, you, club, venues, now }) {
         if (!courts.length) continue;
         open++; openBy[v.id] = (openBy[v.id] || 0) + 1;
         const ctx = { intent, you, format: want, venue: v };
-        const free = members.filter((m) => freeAt(windows(m.free), date, start, intent.minutes)).map((m) => ({ m, ...partnerScore(m, ctx) })).sort((a, b) => b.s - a.s);
+        const free = members.filter((m) => fb.free(m, { date: ds, start, minutes: intent.minutes, asker, priv })).map((m) => ({ m, ...partnerScore(m, ctx) })).sort((a, b) => b.s - a.s);
         const need = want === "singles" ? 1 : want === "doubles" ? 3 : free.length >= 3 ? 3 : 1;
         if (free.length < need) continue;
         const pick = free.slice(0, need), asked = intent.with.filter((id) => pick.some((p) => p.m.id === id)).length;
@@ -203,7 +207,8 @@ export function search({ intent, you, club, venues, now }) {
   if (best) {
     const people = [me, ...best.partners.map((p) => members.find((m) => m.id === p.id))];
     const week = Array.from({ length: 7 }, (_, i) => { const d = new Date(now); d.setDate(d.getDate() + i); return ymd(d); });
-    cal = { ...calendar(people, week.includes(best.date) ? week : [...week.slice(1), best.date]), pick: { date: best.date, from: toMin(best.start), to: toMin(best.end) } };
+    const pick = { date: best.date, from: toMin(best.start), to: toMin(best.end) };
+    cal = { ...calendar(people, week.includes(best.date) ? week : [...week.slice(1), best.date], priv ? pick : null), pick };
     const date = dateOf(best.date);
     middle = venues.venues.map((v0) => forSport(v0, sport)).filter(Boolean).map((v) => {
       const longest = Math.max(0, ...people.filter((x) => x.area).map((x) => travelMin(x.area, v)));
@@ -273,20 +278,22 @@ export async function plan({ text = "", you = {}, onStep } = {}) {
   tell({ step: "Opened the map", tool: "open_map", detail: `${venues.venues.length} venues and the home areas of ${club.members.length} members (areas only, never addresses)`,
     map: { you: club.you?.area, people: club.members.filter((m) => m.area).map((m) => ({ id: m.id, name: m.name, x: m.area.x, y: m.area.y })), venues: venues.venues.map((v) => ({ id: v.id, name: v.name, x: v.x, y: v.y, courts: v.courts })) } });
   work(`Checking courts at ${venues.venues.length} venues`);
-  const s = search({ intent: it.intent, you: me, club, venues, now });
+  const priv = await privateFor("app");
+  const s = search({ intent: it.intent, you: me, club, venues, now, priv });
   tell({ step: "Checked the courts", tool: "search_courts", detail: `${s.sport !== "badminton" ? `${s.sport}: ` : ""}${s.looked} court times at ${s.venues} venue${s.venues === 1 ? "" : "s"} over ${s.dates} day${s.dates > 1 ? "s" : ""}; ${s.open} had a free court`, free: s.openBy });
   tell({ step: "Found people who are free", tool: "find_players", detail: s.options.length ? `${s.want === "any" ? "best format" : s.want} with club members who are free then, matched on level, format and how far they live` : "nobody fits those times yet" });
   if (hooks.rerank) {
     work("Asking their agents how likely a yes is"); await hooks.rerank(s, { intent: it.intent, tell }).catch(() => {});
     // (the week side by side is for the people now in the best option)
     const b = s.options[0];
-    if (b && s.calendar && b.partners.some((p) => !s.calendar.people.some((x) => x.id === p.id))) s.calendar = { ...calendar([{ id: "you", name: "You", free: club.you?.free }, ...b.partners.map((p) => club.members.find((m) => m.id === p.id))], s.calendar.days.map((d) => d.date)), pick: s.calendar.pick };
+    if (b && s.calendar && b.partners.some((p) => !s.calendar.people.some((x) => x.id === p.id))) s.calendar = { ...calendar([{ id: "you", name: "You", free: club.you?.free }, ...b.partners.map((p) => club.members.find((m) => m.id === p.id))], s.calendar.days.map((d) => d.date), priv ? { date: b.date, from: toMin(b.start), to: toMin(b.end) } : null), pick: s.calendar.pick };
   }
   const b0 = s.options[0];
   if (b0 && s.calendar) {
     const names = s.calendar.people.map((x) => (x.id === "you" ? "you" : first(x.name)));
     const both = s.calendar.days.filter((d) => d.all.length).map((d) => `${d.day} ${d.all.map(span).join(", ")}`);
-    tell({ step: "Lined up everyone's calendar", tool: "calendar", detail: `${names.length > 2 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names.join(" and ")} are all free ${both.slice(0, 2).join("; ")}${both.length > 2 ? ` (+${both.length - 2} more)` : ""}; picked ${b0.day} ${b0.start}–${b0.end}`.replace(/^you/, "You"), calendar: s.calendar });
+    if (s.calendar.private) tell({ step: "Asked their agents about this time only", tool: "calendar", detail: `${names.slice(1).join(", ").replace(/, ([^,]*)$/, " and $1")}'s agent${names.length > 2 ? "s" : ""} said free ${b0.day} ${b0.start}–${b0.end}; nobody's week was shared (private calendars)`, calendar: s.calendar });
+    else tell({ step: "Lined up everyone's calendar", tool: "calendar", detail: `${names.length > 2 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names.join(" and ")} are all free ${both.slice(0, 2).join("; ")}${both.length > 2 ? ` (+${both.length - 2} more)` : ""}; picked ${b0.day} ${b0.start}–${b0.end}`.replace(/^you/, "You"), calendar: s.calendar });
   }
   if (b0 && s.middle) {
     const open = s.middle.filter((v) => v.free), rank = open.findIndex((v) => v.id === b0.venue.id);
