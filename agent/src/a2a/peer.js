@@ -28,6 +28,17 @@
 //      only. Its talks, holds and asker ids are kept apart from this gateway's own, and from other peers'.
 // Every refusal is logged (A2A_DATA/peer_log.jsonl and the console) with the reason, the path and the key id, never a
 // key or a token.
+//
+// The federation: clubs found from their own cards, and keys that can change.
+//   A2A_FEDERATION_FILE lists other clubs by address only ({"clubs": [{"origin": "..."}]}). Each club publishes a card at
+//   /a2a/club.json (its name, the members it lets other clubs ask, a public profile each, and where its keys are); the
+//   gateway reads the cards (discover) and each club becomes a peer, its name and members from its own card. A club named
+//   in A2A_PEERS_FILE keeps what is written there. Its key is pinned on first use, as for any peer.
+//   A gateway can rotate its key (rotateOwnKey): the new key is published with a statement signed by the old one
+//   ({from, to, x}, typ serve-key-rotation+jwt), kept beside the key set. A peer whose pinned key is no longer in the set
+//   follows the statements from its pin (followRotations), each signed by the key before it, and pins the new key only
+//   if the chain holds; otherwise it refuses, as before. A request signed with a key id it doesn't know makes it look
+//   again, at most once a minute per peer.
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -86,7 +97,35 @@ export function config() {
   cfg = { file, at, v: { self: NAME.test(raw.self || "") ? raw.self : null, peers } };
   return cfg.v;
 }
-export const peers = () => config().peers;
+// the clubs of the federation, as their cards say (discover): peers too, unless a club of that name is written by hand
+const FED_CARDS = () => path.join(DATA(), "federation_cards.json");
+let fedDb = null;
+const fedCards = () => (fedDb?.file === FED_CARDS() ? fedDb.v : (fedDb = { file: FED_CARDS(), v: readJSON(FED_CARDS(), {}) }).v);
+function withFederation(base) {
+  if (!process.env.A2A_FEDERATION_FILE) return base;
+  const names = new Set(base.peers.map((p) => p.name));
+  const fed = Object.values(fedCards()).filter((c) => !names.has(c.name)).map((c) => ({ name: c.name, origin: c.origin, serve: "*", members: c.members.map(profile), key: null, found: c.at }));
+  return { ...base, peers: [...base.peers, ...fed] };
+}
+// reads every club's card from A2A_FEDERATION_FILE's addresses (fetchCard(origin) -> the card); a card that is not
+// one, or names itself after a club already found, is left out and logged
+export async function discover(fetchCard) {
+  const file = process.env.A2A_FEDERATION_FILE ? path.resolve(process.env.A2A_FEDERATION_FILE) : null;
+  if (!file) return [];
+  const origins = (readJSON(file, {}).clubs || []).map((c) => originOf(c?.origin)).filter(Boolean), found = {};
+  for (const origin of origins) {
+    try {
+      const c = await fetchCard(origin);
+      if (!NAME.test(c?.name || "") || found[c.name] || !Array.isArray(c.members)) throw new Error("not a club card");
+      found[c.name] = { name: c.name, origin, members: c.members.filter((x) => MEMBER_ID.test(x?.id || "")).slice(0, 200).map(profile), at: new Date().toISOString() };
+      note("discovered", { peer: c.name, origin, members: found[c.name].members.length });
+    } catch (e) { note("discover-refused", { origin, why: String(e.message || e).slice(0, 80) }); }
+  }
+  fedDb = { file: FED_CARDS(), v: found };
+  writeJSON(FED_CARDS(), found);
+  return Object.values(found).map((c) => c.name);
+}
+export const peers = () => withFederation(config()).peers;
 export const on = () => peers().length > 0;
 export const byName = (n) => peers().find((p) => p.name === n) || null;
 export const byOrigin = (u) => { const o = originOf(u); return (o && peers().find((p) => p.origin === o)) || null; };
@@ -120,6 +159,25 @@ let pinDb = null;
 const pins = () => (pinDb?.file === PINS() ? pinDb.v : (pinDb = { file: PINS(), v: readJSON(PINS(), {}) }).v);
 export const pinOf = (name) => { const p = byName(name); return p?.key || pins()[name]?.key || null; };
 const fetching = new Map(), tried = new Map();
+// A peer's key, looked up again: still the pinned one, or a new one its rotation statements lead to from the pin (then
+// pinned); a key set whose key no chain reaches is refused and the old pin kept
+const refreshed = new Map();
+export async function refreshKey(p, fetchKeys) {
+  const pinned = pinOf(p.name);
+  if (!pinned || !fetchKeys || byName(p.name)?.key) return pinned;
+  // (at most once a minute per peer, and not for a pin made in the last minute)
+  const wait = +(process.env.A2A_PEER_REFRESH_MS || 60000), last = Math.max(refreshed.get(p.name) || 0, Date.parse(pins()[p.name]?.at || 0) || 0);
+  if (Date.now() - last < wait) return pinned;
+  refreshed.set(p.name, Date.now());
+  const set = await fetchKeys(p.origin).catch(() => null);
+  if (!set || (set.keys || []).some((k) => k.kid === pinned.kid)) return pinned;
+  const next = followRotations(pinned, set);
+  if (!next) { note("rotation-refused", { peer: p.name, origin: p.origin, pinned: pinned.kid }); return pinned; }
+  pins()[p.name] = { origin: p.origin, key: next, at: new Date().toISOString(), from: pinned.kid };
+  writeJSON(PINS(), pins());
+  note("rotated", { peer: p.name, from: pinned.kid, to: next.kid });
+  return next;
+}
 // The key of an allow-listed peer: in config, pinned, or fetched once from its own origin and pinned there (trust on
 // first use, over a channel the SSH tunnel's pinned host key authenticates). fetchKeys(origin) returns its key set.
 export async function keyOf(p, fetchKeys) {
@@ -137,6 +195,45 @@ export async function keyOf(p, fetchKeys) {
     return key;
   })().finally(() => fetching.delete(p.name)));
   return fetching.get(p.name);
+}
+
+// The key set this gateway publishes: its key, and the statements that lead to it from the keys it had before
+const ROTATIONS = (dir = DATA()) => path.join(path.resolve(dir), "card-key-rotations.json");
+export const rotations = (dir = DATA()) => readJSON(ROTATIONS(dir), []);
+export const keySet = (dir = DATA()) => { const k = ownKey(dir); return { keys: [{ ...k.jwk, kid: k.kid, alg: "EdDSA", use: "sig" }], rotations: rotations(dir) }; };
+const ROT = "serve-key-rotation+jwt";
+// a statement, signed by the old key, that the new key takes over
+export function rotationToken({ oldKey, oldKid, newX, now = Date.now() }) {
+  const header = { alg: "EdDSA", typ: ROT, kid: oldKid }, claims = { from: oldKid, to: kidOf(newX), x: newX, iat: Math.floor(now / 1000) };
+  const input = `${b64u(JSON.stringify(header))}.${b64u(JSON.stringify(claims))}`;
+  return `${input}.${b64u(crypto.sign(null, Buffer.from(input), oldKey))}`;
+}
+// a new key for this gateway: the old one signs the hand-over, and is kept aside (card-key-<kid>.pem), never used again
+export function rotateOwnKey(dir = DATA()) {
+  const old = ownKey(dir), file = path.join(path.resolve(dir), "card-key.pem");
+  const next = crypto.generateKeyPairSync("ed25519").privateKey, x = crypto.createPublicKey(next).export({ format: "jwk" }).x;
+  writeJSON(ROTATIONS(dir), [...rotations(dir), rotationToken({ oldKey: old.key, oldKid: old.kid, newX: x })].slice(-8));
+  fs.renameSync(file, path.join(path.resolve(dir), `card-key-${old.kid}.pem`));
+  fs.writeFileSync(file, next.export({ type: "pkcs8", format: "pem" }), { mode: 0o600 });
+  own.delete(file);
+  return ownKey(dir);
+}
+// From a pinned key, the key a key set now names, by its rotation statements, each one signed by the key before it.
+// Returns the key ({kty, crv, x, kid}), or null when the chain does not reach it.
+export function followRotations(pinned, set) {
+  const current = (set?.keys || []).find((k) => okKey(k));
+  if (!pinned || !current) return null;
+  const read = (t) => { const [h, c, sig] = String(t).split("."); try { return { h: JSON.parse(Buffer.from(h, "base64url")), c: JSON.parse(Buffer.from(c, "base64url")), input: `${h}.${c}`, sig }; } catch { return null; } };
+  let k = pinned;
+  for (let hop = 0; hop < 8 && k.kid !== current.kid; hop++) {
+    const next = (set.rotations || []).map(read).find((r) => r && r.h.typ === ROT && r.h.kid === k.kid && r.c.from === k.kid && typeof r.c.x === "string" && r.c.to === kidOf(r.c.x));
+    if (!next) return null;
+    let good = false;
+    try { good = crypto.verify(null, Buffer.from(next.input), crypto.createPublicKey({ key: { kty: "OKP", crv: "Ed25519", x: k.x }, format: "jwk" }), Buffer.from(next.sig, "base64url")); } catch { good = false; }
+    if (!good) return null;
+    k = { kty: "OKP", crv: "Ed25519", x: next.c.x, kid: next.c.to };
+  }
+  return k.kid === current.kid && k.x === current.x ? { kty: "OKP", crv: "Ed25519", x: current.x, kid: current.kid } : null;
 }
 
 // ---- signing and checking a request ---------------------------------------------------------------------------------
@@ -254,6 +351,8 @@ export async function verify({ method, path: p, headers, body, from = null }, fe
   if (kid && !keyFor(kid) && fetchKeys) {
     const unpinned = peers().filter((x) => !pinOf(x.name) && Date.now() - (tried.get(x.name) || 0) > 60000);
     await Promise.all(unpinned.map((x) => keyOf(x, fetchKeys).catch(() => null)));
+    // (a peer that rotated its key: follow its statements from the pin)
+    if (!keyFor(kid)) await Promise.all(peers().filter((x) => pinOf(x.name)).map((x) => refreshKey(x, fetchKeys).catch(() => null)));
   }
   const r = checkToken(token, { method, path: p, body, keyFor, audience: ownKey().kid, seen: seenStore() });
   if (!r.ok) note("refused", { why: r.why, method, path: p, kid: String(kid || "").slice(0, 40), from });

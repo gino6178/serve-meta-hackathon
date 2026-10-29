@@ -30,6 +30,7 @@ const bodyContext = await import("./body/context.js");
 const membersApi = await import("./members/api.js");
 const poster = await import("./media/poster.js");
 const liveVoice = await import("./voice/live.js");
+const peerMod = await import("./a2a/peer.js");
 const feedPosts = await import("./feed/posts.js");
 const memory = await import("./memory/memory.js");
 const healthImport = await import("./body/health.js");
@@ -632,3 +633,11 @@ liveVoice.attach(gateway, {
   // the same answer as the app's typed questions: Llama Guard on what was said and on the reply, every number checked
   answer: async (text, ctx) => { const r = await webapi.answer({ text, you: ctx.app || {} }, agentAnswer.answer); return { text: r.text, checked: !!r.verified?.ok }; },
 });
+
+// the federation (a2a/peer.js): read the cards of the clubs in A2A_FEDERATION_FILE now and every ten minutes; each one
+// becomes a peer, its key pinned on first use and followed through its rotations
+if (process.env.A2A_FEDERATION_FILE) {
+  const card = (origin) => fetch(`${origin}/a2a/club.json`, { redirect: "error", signal: AbortSignal.timeout(10000) }).then((r) => { if (!r.ok) throw new Error(`card: HTTP ${r.status}`); return r.json(); });
+  const look = () => peerMod.discover(card).catch((e) => console.error("federation:", e.message));
+  look(); setInterval(look, +(process.env.A2A_FEDERATION_MS || 600000)).unref();
+}

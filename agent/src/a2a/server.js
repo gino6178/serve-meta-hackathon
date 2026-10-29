@@ -260,7 +260,8 @@ function cardKey() {
   keyState = { kid, jwk, sign: generateAgentCardSignature(key, { alg: "EdDSA", kid, typ: "JOSE" }) };
   return keyState;
 }
-export const jwks = () => { const k = cardKey(); return { keys: [{ ...k.jwk, kid: k.kid, alg: "EdDSA", use: "sig" }] }; };
+// (the key set also carries the statements that lead to the key from the ones before it: peer.js rotateOwnKey)
+export const jwks = () => { cardKey(); return peer.keySet(DATA); };
 export const signCard = (card) => cardKey().sign(card);
 
 // one SDK request handler (and router) per member's agent, made the first time it is called (its card signed once)
@@ -284,6 +285,14 @@ const app = express();
 app.get("/a2a/keys.json", (req, res) => { try { res.json(jwks()); } catch (e) { res.status(500).json({ error: "no signing key" }); } });
 // what serve.likely is and what its bands mean (the extension's URI in each card)
 app.get(likely.EXT_PATH, (req, res) => res.json(likely.describe()));
+// this club's card for the federation (peer.js discover): its name, the members other clubs may ask (the demo club's,
+// made up; never a real player), a public profile each, and where its keys are
+export const clubSlug = () => (process.env.A2A_CLUB_NAME || readClub().name || "club").replace(/[^A-Za-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32) || "club";
+app.get("/a2a/club.json", (req, res) => {
+  const club = readClub();
+  res.json({ kind: "serve.club", name: clubSlug(), title: club.name, protocol: "a2a/1.0", keys: "/a2a/keys.json",
+    members: club.members.filter((m) => !m.real).map((m) => ({ id: m.id, name: m.name, level: m.level, sports: m.sports || ["badminton"], prefers: m.prefers || "any" })) });
+});
 app.get("/a2a/agents", (req, res) => { const club = readClub(), base = process.env.A2A_BASE || ""; res.json({ club: club.name, agents: club.members.map((m) => ({ id: m.id, name: `${m.name}'s agent`, card: `${base}/a2a/members/${m.id}/${AGENT_CARD_PATH}` })) }); });
 const rpcError = (message) => ({ jsonrpc: "2.0", id: null, error: { code: -32600, message } });
 const serveMember = (m, req, res, next) => routerFor(m).then((r) => r(req, res, next)).catch(() => res.status(500).json({ error: "this agent's card could not be made" }));
