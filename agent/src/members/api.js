@@ -15,6 +15,10 @@
 //   POST /api/clubs/answer {club, member, yes}   the owner of a private club answers someone who asked to join
 //   POST /api/clubs/join {club, on}          join a club, or leave it
 //   GET  /api/clubs/suggest?lat=&lon=&sport=   the nearest club the member is not in, for their agent to recommend
+//   POST /api/clubs/roster {club, names}     a children's club: the organiser's roster, first names only (programs.js)
+//   POST /api/clubs/session {club, present, courts, perCourt, start, end, minutes, day}   today's rotations and the parents' note
+//   POST /api/clubs/enter {club, level, pledge, on}   a charity tournament: enter (joins the club), change or withdraw
+//   POST /api/clubs/draw {club, courts, start, minutes}   the organiser makes the draw; it is said in the club's feed
 // The agent channel, every request signed by a registered agent's key (header serve-signature):
 //   GET  /api/agent-channel/feed             the feed as the agent's member sees it
 //   POST /api/agent-channel/post {text, invite}      a post, or an invite, as "<member>'s agent"
@@ -64,6 +68,15 @@ export async function route(req, res, u, { json, o, forget }) {
     if (p === "/api/clubs" && req.method === "POST") return out(await C.start(me, cb, (t, who) => P.moderate(t, who)));
     if (p === "/api/clubs/join" && req.method === "POST") return out(C.join(me, String(cb.club || ""), cb.on !== false));
     if (p === "/api/clubs/answer" && req.method === "POST") return out(C.answer(me, String(cb.club || ""), String(cb.member || ""), cb.yes === true));
+    if (p === "/api/clubs/roster" && req.method === "POST") return out(await C.setRoster(me, String(cb.club || ""), cb.names, (t, who) => P.moderate(t, who)));
+    if (p === "/api/clubs/session" && req.method === "POST") return out(C.planSession(me, String(cb.club || ""), cb));
+    if (p === "/api/clubs/enter" && req.method === "POST") return out(C.enter(me, String(cb.club || ""), cb));
+    if (p === "/api/clubs/draw" && req.method === "POST") {
+      const r = C.makeDraw(me, String(cb.club || ""), cb);
+      // the draw, said in the club's feed by the organiser
+      if (r.draw) await P.post(me.id, { text: `The draw is out: ${r.draw.teams.length} teams, ${r.draw.matches.length} match${r.draw.matches.length === 1 ? "" : "es"} on ${r.draw.courts} court${r.draw.courts > 1 ? "s" : ""}, ${r.draw.start} to ${r.draw.end}. Your matches are on the club's page.`, room: String(cb.club) }).catch(() => null);
+      return out(r);
+    }
     return send(404, { error: "no such route" });
   }
   if (!p.startsWith("/api/members/")) return false;

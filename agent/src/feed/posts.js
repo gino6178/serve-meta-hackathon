@@ -15,6 +15,8 @@ import * as S from "./store.js";
 import * as T from "./text.js";
 import { perWeekFor, isQuestion, answer } from "./papers.js";
 import { lineFor } from "./line.js";
+import { find as clubOf } from "../members/clubs.js";
+import { holdInvite } from "../members/programs.js";
 
 const MIN = 6e4, DAY = 864e5;
 // how much one member can do: [count, window]
@@ -121,6 +123,8 @@ export async function post(player, { text = "", media = null, invite = null, age
   // posts for its member)
   if (room && !(await import("../members/clubs.js")).joinById(String(room), agent ? agent.owner : player, authorOf(agent ? agent.owner : player))) return { error: "This club is private: ask to join first.", code: 403 };
   const iv = inviteOf(invite); if (iv.error) return { error: iv.error, code: 400 };
+  // a game in a children's club is the organiser's; in an older adults' club, a gentle one (members/programs.js)
+  if (iv.invite && room) { const h = holdInvite(clubOf(room), agent?.owner || player, iv.invite); if (h.error) return { error: h.error, code: 400 }; iv.invite = h.invite; }
   if (!t && !media && !iv.invite) return { error: "Write something, or add a photo.", code: 400 };
   const stop = paused(player); if (stop) return { error: pausedWhy(stop), code: 403, paused: true };
   const lim = limited(player, "post"); if (lim) return lim;

@@ -6,6 +6,7 @@ import { InviteComposer } from "./Social.jsx";
 import { agentFetch } from "../agent.js";
 import { knownPlace, myPlace } from "../where.js";
 import ClubSuggest from "../components/ClubSuggest.jsx";
+import Program, { KINDS } from "../club/Programs.jsx";
 import "./clubs.css";
 
 // Clubs members start themselves (agent members/clubs.js): the clubs near you on a real map, your own first, a club of
@@ -45,7 +46,7 @@ function ClubsHome() {
         {(clubs || []).map((c) => (
           <li key={c.id}><a href={`#/club?room=${c.id}`}>
             <span className="cl-sport">{c.sport}</span>
-            <span className="cl-main"><b>{c.name}{c.privacy === "private" && <span className="cl-lock"> · Private</span>}</b><span>{c.members} member{c.members === 1 ? "" : "s"}{c.km != null ? ` · ${c.km} km` : ""}{c.joined ? " · joined" : ""}</span></span>
+            <span className="cl-main"><b>{c.name}{c.privacy === "private" && <span className="cl-lock"> · Private</span>}{c.kind !== "club" && <span className="cl-lock"> · {KINDS.find((k) => k[0] === c.kind)?.[1]}</span>}</b><span>{c.members} member{c.members === 1 ? "" : "s"}{c.km != null ? ` · ${c.km} km` : ""}{c.joined ? " · joined" : ""}</span></span>
             <Icon name="next" size={16} />
           </a></li>
         ))}
@@ -61,7 +62,7 @@ function ClubsHome() {
 }
 
 function StartClub({ onDone }) {
-  const [v, setV] = useState({ name: "", sport: "badminton", about: "", where: "", at: null, privacy: "public" }), [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  const [v, setV] = useState({ name: "", sport: "badminton", about: "", where: "", at: null, privacy: "public", kind: "club", cause: "" }), [busy, setBusy] = useState(false), [err, setErr] = useState("");
   const set = (k) => (e) => setV({ ...v, [k]: e.target.value });
   const send = async (e) => {
     e.preventDefault(); setBusy(true); setErr("");
@@ -72,11 +73,17 @@ function StartClub({ onDone }) {
     <form className="panel cl-start" onSubmit={send}>
       <input value={v.name} onChange={set("name")} placeholder="Club name" required minLength={3} maxLength={40} aria-label="Club name" />
       <select value={v.sport} onChange={set("sport")} aria-label="Sport">{SPORTS.map((s) => <option key={s}>{s}</option>)}</select>
-      <div className="cl-privacy" role="radiogroup" aria-label="Who can see the club">
+      <div className="cl-privacy cl-kind" role="radiogroup" aria-label="What kind of club">
+        {KINDS.map(([k, l, d]) => (
+          <button type="button" key={k} role="radio" aria-checked={v.kind === k} className={v.kind === k ? "on" : ""} onClick={() => setV({ ...v, kind: k, ...(k === "youth" ? { privacy: "private" } : {}) })}><b>{l}</b><span>{d}</span></button>
+        ))}
+      </div>
+      {v.kind === "charity" && <input value={v.cause} onChange={set("cause")} placeholder="Who it is for, e.g. the city food bank" required minLength={3} maxLength={80} aria-label="The cause" />}
+      {v.kind !== "youth" && <div className="cl-privacy" role="radiogroup" aria-label="Who can see the club">
         {[["public", "Public", "Anyone sees and joins"], ["private", "Private", "You approve who joins"]].map(([k, l, d]) => (
           <button type="button" key={k} role="radio" aria-checked={v.privacy === k} className={v.privacy === k ? "on" : ""} onClick={() => setV({ ...v, privacy: k })}><b>{l}</b><span>{d}</span></button>
         ))}
-      </div>
+      </div>}
       <input value={v.about} onChange={set("about")} placeholder="One line about it (optional)" maxLength={160} aria-label="About the club" />
       <span className="cl-where-l">Where you play: tap a court or a spot</span>
       <RealMap sport={v.sport} pick height={220} onPick={(p) => setV((x) => ({ ...x, at: { lat: p.lat, lon: p.lon }, where: p.name || x.where }))} />
@@ -117,7 +124,8 @@ function ClubRoom({ id }) {
       )}
       {/* a public club: everyone sees the games and posts, and posting joins; a private one: its members only */}
       {shut ? <p className="cl-empty">A private club: its games and posts are for members. {c.asked ? "The owner will answer your ask." : "Ask to join."}</p> : <>
-        <InviteComposer room={c.id} sport={c.sport} highlight={false} onPosted={() => { setN((k) => k + 1); load(); }} />
+        <Program c={c} onChange={(x) => setC({ ...c, ...x })} />
+        {(c.kind !== "youth" || c.mine) && <InviteComposer room={c.id} sport={c.sport} highlight={false} onPosted={() => { setN((k) => k + 1); load(); }} />}
         <Feed key={n} room={c.id} club={null} members={[]} />
       </>}
     </div>

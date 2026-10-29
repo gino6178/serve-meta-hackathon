@@ -26,3 +26,24 @@
 .cl-requests { display: grid; gap: 8px; }
 .cl-req { display: flex; align-items: center; gap: 8px; }
 .cl-req span { flex: 1; }
+/* a club's program (club/Programs.jsx) */
+.cl-kind { grid-template-columns: 1fr 1fr; }
+.pg { display: grid; gap: 10px; }
+.pg p { margin: 0; }
+.pg-form { display: grid; gap: 10px; }
+.pg-l { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.pg-l textarea { border-radius: 10px; border: 1px solid var(--rule-strong, #ccc); padding: 8px 10px; font: 15px var(--font); background: var(--bg); color: var(--ink); }
+.pg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pg-chips button { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--rule-strong, #ccc); background: var(--bg); color: var(--ink-2); font: 14px var(--font); cursor: pointer; }
+.pg-chips button.on { background: var(--agent, #0a7f44); border-color: var(--agent, #0a7f44); color: #fff; }
+.pg-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.pg-row label { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+.pg-row input, .pg-row select { height: 38px; width: 104px; border-radius: 10px; border: 1px solid var(--rule-strong, #ccc); padding: 0 8px; font: 15px var(--font); background: var(--bg); color: var(--ink); }
+.pg-plan { display: grid; gap: 8px; }
+.pg-note { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--agent, #0a7f44) 8%, var(--bg)); }
+.pg-rot { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.pg-rot li { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 14px; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 10px; }
+.pg-rot em { color: var(--ink-2); font-style: normal; font-size: 13px; }
+.pg-total { display: flex; gap: 16px; font-size: 20px; font-weight: 700; }
+.pg-gentle p { color: var(--ink-2); font-size: 14px; }
+.pg-row input[type="time"] { width: 132px; }

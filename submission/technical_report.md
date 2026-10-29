@@ -69,10 +69,9 @@ is measured on a simulated club (5.6), not yet on a real one.
 Around these sit a club (feed, games anyone can join, challenges, a random match, a best match), courts near you in
 any ball sport, highlight clips from the player's own video, voice notes, and the same agent in Messenger.
 
-**Who else it can serve.** The same engine fits groups with no one to organise them, which is where games are hardest
-to start: a teacher or volunteer setting up games for children at a school's free courts, an older adults' group
-whose scheduling limits ask for doubles and shorter games, or a charity tournament pairing players and courts. None of
-these was built or tested here; they need no new agent, only a club and its members.
+**Who else it serves.** Games are hardest to start where no one has the time to organise them. A club on Serve can
+be one of three kinds for those groups (3.19): children's sessions a teacher or volunteer runs, gentle games for older
+adults, and a charity tournament.
 
 ## 2. Architecture
 
@@ -408,6 +407,30 @@ another agent's key is refused. Members on a peer gateway confirm through their 
 
 The four are tested without a model in `test/agentic_unit.mjs`; the offline suites now hold 270 tests (269 pass, 1
 skipped).
+
+### 3.19 Clubs for groups with no organiser
+
+`agent/src/members/programs.js` and `clubs.js`, `web/src/club/Programs.jsx`. A member who starts a club picks its kind.
+Every rule below is code; no model decides who plays when.
+
+- **Children's sessions**, for a teacher or volunteer. The club is always private (the organiser lets in parents and
+  helpers) and only the organiser posts games. Children have no accounts: the organiser keeps a list of first names
+  that only they see (no numbers, emails or full names; checked like any post). On the day they tap who came, and code
+  shares the courts out in turns: each turn fills the courts from a queue, and whoever sat out goes on first next time,
+  so no child plays more than one turn more than another. A note for parents ("Badminton for the children Sat, 09:00
+  to 11:00 at the school gym. Please pick up at 11:00.") goes out through the phone's share sheet.
+- **Gentle games**, for older adults. Every game posted in the club is held by code: it starts between 08:00 and 16:00
+  so a 60-minute game is done by 17:00, has 8 players at most, and is doubles for racket sports. A game outside that
+  is refused with the reason; the card shows "Gentle game · doubles, 60 min".
+- **Charity tournaments.** The organiser names the cause. Players enter with a level they give themselves (1 to 5) and
+  a pledge, which is a promise to the cause and only recorded: Serve handles no money. The organiser makes the draw:
+  balanced doubles teams (the strongest with the newest, and so on in; an odd player waits for a partner), a round
+  robin by the circle method, each match on a court and a time, with no team twice in one slot. The draw is posted in
+  the club's feed, and entries close.
+
+`test/programs_unit.mjs` checks each rule: the gentle hours and sizes, first names only, eleven children on two courts
+playing within one turn of each other, a draw of seven players (three balanced teams, one waiting, three matches, no
+clash) and of sixteen (28 matches on three courts), and who may see and change what.
 
 ## 4. Meta models and tools
 

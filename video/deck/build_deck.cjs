@@ -195,6 +195,27 @@ async function chart(file) {
     T(s, "Live for the last days of a nine-day hackathon: a week-long trial with 10\u201320 players is next (games booked, time to agree, invitees who join).", 6.2, 6.62, 6.6, 0.4, { fontSize: 10, color: MUTED, italic: true });
   }
 
+  // 3c · Clubs for groups with no organiser (agent members/programs.js)
+  {
+    const s = content("Impact", "IMPACT · WHO ELSE IT SERVES", "Games where no one has time to organise them",
+      "同一套引擎服務沒有人組織的群體，三種社團都已實作、有單元測試：\n1 孩童社團（老師或志工）：一定是私密社團，只有帶隊的人能發活動；孩子不用帳號，只存名字（只有帶隊的人看得到）；勾選今天誰來，程式排輪替，每個孩子上場時間最多差一輪；產生家長接送通知。\n2 樂齡社團：社團裡每個揪團由程式把關：08:00–16:00 開始、60 分鐘、最多 8 人、球拍類雙打；不符合就拒絕並說明原因。\n3 慈善賽：發起人寫公益對象，參賽者自評等級與認捐（只記錄，Serve 不經手錢）；一鍵抽籤：實力平均的雙打組合、循環賽、場地與時段，同一時段沒有隊伍撞場，貼到社團動態。");
+    const cards = [
+      ["Children", "A teacher or volunteer", "Private, organiser-led. Children have no accounts: first names only, seen by the organiser. Tap who came; code shares out the courts in turns.", "11 children, 2 courts: everyone plays within one turn of the others. A pick-up note for parents.", GREEN, GREENBG],
+      ["Older adults", "Gentle games", "Every game posted in the club is held by code: starts 08:00 to 16:00, 60 minutes, 8 players at most, doubles for racket sports.", "A 19:00 game is refused, with the reason. The card says \"Gentle game · doubles, 60 min\".", BLUE, BLUEBG],
+      ["A cause", "Charity cup", "Players enter with a level and a pledge to the cause, only recorded: Serve handles no money. The organiser makes the draw in one tap.", "Balanced doubles, a round robin on courts and times, no team twice in a slot; posted in the club.", AMBER, AMBERBG],
+    ];
+    cards.forEach(([k, h, d, r, c, bg], i) => {
+      const x = 0.6 + i * 4.1, y = 1.85, w = 3.9, hh = 4.75;
+      box(s, x, y, w, hh, { fill: WHITE, line: LINE });
+      T(s, k.toUpperCase(), x + 0.25, y + 0.2, w - 0.5, 0.25, { fontSize: 10, bold: true, color: c, charSpacing: 1 });
+      T(s, h, x + 0.25, y + 0.5, w - 0.5, 0.4, { fontSize: 18, bold: true });
+      T(s, d, x + 0.25, y + 1.0, w - 0.5, 1.9, { fontSize: 12.5, color: MUTED, valign: "top" });
+      box(s, x + 0.25, y + 3.05, w - 0.5, 1.45, { fill: bg, line: bg });
+      T(s, r, x + 0.4, y + 3.1, w - 0.8, 1.35, { fontSize: 12, bold: true, valign: "middle" });
+    });
+    T(s, "All rules are code, checked in test/programs_unit.mjs. A new kind of group is a club, not a new agent.", 0.6, 6.72, 12, 0.3, { fontSize: 11, color: MUTED, italic: true });
+  }
+
   // 4 · Simple architecture, in three columns
   {
     const s = content("Impact", "HOW IT WORKS", "One yes from you. Agents do the rest",
