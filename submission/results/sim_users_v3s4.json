@@ -1,0 +1,941 @@
+{
+ "simulated": true,
+ "note": "Simulated users (agent/test/sim_users/personas.json): none is a real person. The gateway, its agents, the guards and the loop ran for real; the people were a model.",
+ "headline": {
+  "run": "v3s4",
+  "seed": 4,
+  "arm": "natural",
+  "days": 3,
+  "users": 20,
+  "gamesPlayed": {
+   "serve": 1,
+   "baseline": 4
+  },
+  "playerGames": {
+   "serve": 2,
+   "baseline": 8,
+   "perUserServe": 0.1,
+   "perUserBaseline": 0.4,
+   "perUserDiff": -0.3,
+   "perUserDiffCI": [
+    -0.5,
+    -0.1
+   ],
+   "perUserServeCI": [
+    0,
+    0.25
+   ],
+   "perUserBaselineCI": [
+    0.2,
+    0.6
+   ]
+  },
+  "usersWithAGame": {
+   "serve": 2,
+   "baseline": 8,
+   "serveCI": [
+    0.03,
+    0.3
+   ],
+   "baselineCI": [
+    0.22,
+    0.61
+   ]
+  },
+  "booked": {
+   "serve": 4,
+   "baseline": 4,
+   "serveAfterTrial": 1
+  },
+  "actionsPerGame": {
+   "serve": 101,
+   "serveGameOnly": 23,
+   "baseline": 8.5,
+   "serveTotal": 101,
+   "serveGameTotal": 23,
+   "baselineTotal": 34
+  },
+  "wantToBookedMin": {
+   "serveMedian": 0,
+   "baselineMedian": 100.5,
+   "serveN": 4,
+   "baselineN": 4
+  }
+ },
+ "perUser": {
+  "u01": {
+   "serve": 0,
+   "base": 0
+  },
+  "u02": {
+   "serve": 0,
+   "base": 0
+  },
+  "u03": {
+   "serve": 0,
+   "base": 0
+  },
+  "u04": {
+   "serve": 1,
+   "base": 1
+  },
+  "u05": {
+   "serve": 0,
+   "base": 1
+  },
+  "u06": {
+   "serve": 0,
+   "base": 0
+  },
+  "u07": {
+   "serve": 0,
+   "base": 0
+  },
+  "u08": {
+   "serve": 0,
+   "base": 1
+  },
+  "u09": {
+   "serve": 1,
+   "base": 1
+  },
+  "u10": {
+   "serve": 0,
+   "base": 0
+  },
+  "u11": {
+   "serve": 0,
+   "base": 0
+  },
+  "u12": {
+   "serve": 0,
+   "base": 1
+  },
+  "u13": {
+   "serve": 0,
+   "base": 1
+  },
+  "u14": {
+   "serve": 0,
+   "base": 0
+  },
+  "u15": {
+   "serve": 0,
+   "base": 0
+  },
+  "u16": {
+   "serve": 0,
+   "base": 0
+  },
+  "u17": {
+   "serve": 0,
+   "base": 1
+  },
+  "u18": {
+   "serve": 0,
+   "base": 1
+  },
+  "u19": {
+   "serve": 0,
+   "base": 0
+  },
+  "u20": {
+   "serve": 0,
+   "base": 0
+  }
+ },
+ "days": [
+  {
+   "day": 1,
+   "date": "2026-11-05",
+   "newUsers": 16,
+   "activated": 16,
+   "active": 16,
+   "activeOfActivated": 1,
+   "baselineActive": 9
+  },
+  {
+   "day": 2,
+   "date": "2026-11-06",
+   "newUsers": 2,
+   "activated": 18,
+   "active": 14,
+   "activeOfActivated": 0.78,
+   "baselineActive": 3
+  },
+  {
+   "day": 3,
+   "date": "2026-11-07",
+   "newUsers": 1,
+   "activated": 19,
+   "active": 11,
+   "activeOfActivated": 0.58,
+   "baselineActive": 0
+  }
+ ],
+ "asks": {
+  "matchHelperAsks": 9,
+  "offersAfterARequest": 8,
+  "autopilotPlans": 0,
+  "unanswered": 4,
+  "yes": 6,
+  "another": 0,
+  "notThisWeek": 4,
+  "drop": 3,
+  "ignored": 4,
+  "noDeal": 2,
+  "noGame": 0,
+  "partnerNotices": 0,
+  "partnerAsked": 3,
+  "partnerIn": 2,
+  "partnerOut": 0,
+  "triedNext": 0,
+  "requests": 8,
+  "readAsPlay": 10,
+  "readAsAutopilot": 0,
+  "filedAsEvent": 0
+ },
+ "turnout": {
+  "serve": {
+   "places": 8,
+   "missing": 3,
+   "why": {
+    "kept away from a game their agent agreed for them": 3
+   }
+  },
+  "baseline": {
+   "places": 8,
+   "missing": 0,
+   "why": {}
+  }
+ },
+ "waits": {
+  "serve": [
+   {
+    "game": "MI-CE2Z",
+    "by": "u18",
+    "minutes": 0,
+    "from": "their request"
+   },
+   {
+    "game": "RI-79SI",
+    "by": "u12",
+    "minutes": 0,
+    "from": "their request"
+   },
+   {
+    "game": "RI-2BYM",
+    "by": "u04",
+    "minutes": 0,
+    "from": "their request"
+   },
+   {
+    "game": "RI-7MAQ",
+    "by": "u13",
+    "minutes": 0,
+    "from": "their request"
+   }
+  ],
+  "baseline": [
+   {
+    "game": "u18:2026-11-07:14:00",
+    "by": "u18",
+    "minutes": 130
+   },
+   {
+    "game": "u12:2026-11-05:19:00",
+    "by": "u12",
+    "minutes": 62
+   },
+   {
+    "game": "u04:2026-11-05:19:00",
+    "by": "u04",
+    "minutes": 127
+   },
+   {
+    "game": "u17:2026-11-06:19:00",
+    "by": "u17",
+    "minutes": 74
+   }
+  ]
+ },
+ "bands": {
+  "estimates": 30,
+  "refused": 21,
+  "byBand": {
+   "maybe": {
+    "estimates": 21,
+    "talked": 7,
+    "agentYes": 7,
+    "played": 4,
+    "agentYesRate": 1,
+    "agentYesCI": [
+     0.65,
+     1
+    ],
+    "playedRate": 0.19
+   },
+   "unlikely": {
+    "estimates": 1,
+    "talked": 0,
+    "agentYes": 0,
+    "played": 0,
+    "agentYesRate": null,
+    "agentYesCI": null,
+    "playedRate": 0
+   },
+   "likely": {
+    "estimates": 8,
+    "talked": 4,
+    "agentYes": 4,
+    "played": 0,
+    "agentYesRate": 1,
+    "agentYesCI": [
+     0.51,
+     1
+    ],
+    "playedRate": 0
+   }
+  },
+  "note": "agentYes: the member's agent said a listed time works in a talk within 30 minutes of the estimate; played: a game with them was booked within the hour and played."
+ },
+ "loop": {
+  "improveOn": 6,
+  "betaOn": 5,
+  "bandsOn": 11,
+  "ideasSent": 6,
+  "offers": 8,
+  "shareTaps": 6,
+  "dontTaps": 1,
+  "shared": 6,
+  "held": 0,
+  "notShared": 0,
+  "notSharedWhy": [],
+  "sharedTexts": [
+   "Check court price when arranging time",
+   "Allow cancelling a match booked by the agent",
+   "Automatically split court fees between players",
+   "Allow members to cancel matches booked by agent",
+   "Split court fees automatically",
+   "Add doubles matchmaking by similar skill level"
+  ],
+  "cantPhrase": 0,
+  "unmetOffers": 2,
+  "items": 6,
+  "voteTaps": 0,
+  "voted": 0,
+  "clusters": [],
+  "ideasShown": 0,
+  "proposals": [],
+  "flags": {
+   "ask.hour": {
+    "key": "ask.hour",
+    "type": "int",
+    "range": [
+     9,
+     20
+    ],
+    "default": 12,
+    "unit": "hour",
+    "feature": "match",
+    "about": "the hour the Match helper sends its daily \"Want a game?\"",
+    "value": 12,
+    "status": "off",
+    "since": null,
+    "proposal": null,
+    "canary": 0.2,
+    "beta": 5,
+    "inCanary": 0,
+    "version": 0,
+    "history": []
+   },
+   "ask.ahead": {
+    "key": "ask.ahead",
+    "type": "int",
+    "range": [
+     2,
+     7
+    ],
+    "default": 3,
+    "unit": "days",
+    "feature": "match",
+    "about": "how many days ahead the daily \"Want a game?\" looks",
+    "value": 3,
+    "status": "off",
+    "since": null,
+    "proposal": null,
+    "canary": 0.2,
+    "beta": 5,
+    "inCanary": 0,
+    "version": 0,
+    "history": []
+   },
+   "autopilot.steps": {
+    "key": "autopilot.steps",
+    "type": "int",
+    "range": [
+     8,
+     16
+    ],
+    "default": 12,
+    "unit": "steps",
+    "feature": "autopilot",
+    "about": "the Autopilot's step budget before rules finish the plan",
+    "value": 12,
+    "status": "off",
+    "since": null,
+    "proposal": null,
+    "canary": 0.2,
+    "beta": 5,
+    "inCanary": 2,
+    "version": 0,
+    "history": []
+   },
+   "places.radius": {
+    "key": "places.radius",
+    "type": "int",
+    "range": [
+     1000,
+     5000
+    ],
+    "default": 2500,
+    "unit": "m",
+    "feature": "places",
+    "about": "how far the court search looks",
+    "value": 2500,
+    "status": "off",
+    "since": null,
+    "proposal": null,
+    "canary": 0.2,
+    "beta": 5,
+    "inCanary": 0,
+    "version": 0,
+    "history": []
+   },
+   "feed.papers.perWeek": {
+    "key": "feed.papers.perWeek",
+    "type": "int",
+    "range": [
+     0,
+     7
+    ],
+    "default": 3,
+    "unit": "papers",
+    "feature": "papers",
+    "about": "how many papers the club's reading agent posts to the feed a week",
+    "value": 3,
+    "status": "off",
+    "since": null,
+    "proposal": null,
+    "canary": 0.2,
+    "beta": 5,
+    "inCanary": 2,
+    "version": 0,
+    "history": []
+   }
+  },
+  "stubs": [],
+  "outcome": "no proposal: the shared items did not cluster"
+ },
+ "feed": {
+  "on": true,
+  "posts": 0,
+  "byPeople": 0,
+  "byAgents": 0,
+  "postTries": 0,
+  "posted": 0,
+  "postsRefused": [],
+  "postsHeld": 0,
+  "likes": 0,
+  "likesOnPapers": 0,
+  "comments": 0,
+  "commentsRefused": [],
+  "opens": 0,
+  "note": "Feed refusals are false positives too: every post and comment the users wrote was benign."
+ },
+ "guard": {
+  "refusals": 0,
+  "helpline": 0,
+  "refusedKinds": {},
+  "note": "Every simulated user's message is benign by construction (trash talk included), so every refusal here is a false positive.",
+  "unsafeVerdicts": 2,
+  "guardCalls": 68,
+  "fallbacks": 0
+ },
+ "never": [
+  {
+   "id": "u01",
+   "name": "Lo Yi-Hsuan",
+   "laziness": 0.88,
+   "why": "asked, nothing came back they took up",
+   "baselineGames": 0
+  },
+  {
+   "id": "u02",
+   "name": "Kuo Chen-Hao",
+   "laziness": 0.68,
+   "why": "opened the chat but never asked for a game (and nothing was offered)",
+   "baselineGames": 0
+  },
+  {
+   "id": "u03",
+   "name": "Bao Tran",
+   "laziness": 0.3,
+   "why": "asked, no game came of it (No deal: 2 talks didn't land (Hsieh and Camille and Kuo and you have no free time in common this week). No other opening at your usual times in the next days. S)",
+   "baselineGames": 0
+  },
+  {
+   "id": "u05",
+   "name": "Tsai Wan-Ju",
+   "laziness": 0.52,
+   "why": "asked, nothing came back they took up",
+   "baselineGames": 1
+  },
+  {
+   "id": "u06",
+   "name": "Hsieh Bo-Wei",
+   "laziness": 0.45,
+   "why": "opened the chat but never asked for a game (and nothing was offered)",
+   "baselineGames": 0
+  },
+  {
+   "id": "u07",
+   "name": "Freya Ashcombe",
+   "laziness": 0.28,
+   "why": "opened the chat but never asked for a game (and nothing was offered)",
+   "baselineGames": 0
+  },
+  {
+   "id": "u08",
+   "name": "Chiang Yu-Ting",
+   "laziness": 0.8,
+   "why": "booked 2, but they kept away from a game their agent agreed for them; they kept away from a game their agent agreed for them",
+   "baselineGames": 1
+  },
+  {
+   "id": "u10",
+   "name": "Tseng Pin-Jung",
+   "laziness": 0.72,
+   "why": "never opened the chat",
+   "baselineGames": 0
+  },
+  {
+   "id": "u11",
+   "name": "Hung Kuan-Lin",
+   "laziness": 0.6,
+   "why": "asked, nothing came back they took up",
+   "baselineGames": 0
+  },
+  {
+   "id": "u12",
+   "name": "Siti Rahmawati",
+   "laziness": 0.42,
+   "why": "booked 1, but u08 kept away from a game their agent agreed for them",
+   "baselineGames": 1
+  },
+  {
+   "id": "u13",
+   "name": "Pan Hsin-Yi",
+   "laziness": 0.25,
+   "why": "booked 1, but u08 kept away from a game their agent agreed for them",
+   "baselineGames": 1
+  },
+  {
+   "id": "u14",
+   "name": "Arnav Kulkarni",
+   "laziness": 0.58,
+   "why": "asked, no game came of it (No deal: nobody who plays badminton doubles is free at your times this week. No other opening at your usual times in the next days. Send /autopilot and I'll loo)",
+   "baselineGames": 0
+  },
+  {
+   "id": "u15",
+   "name": "Liao Chih-Wei",
+   "laziness": 0.48,
+   "why": "turned the offers down",
+   "baselineGames": 0
+  },
+  {
+   "id": "u16",
+   "name": "Camille Roussel",
+   "laziness": 0.5,
+   "why": "opened the chat but never asked for a game (and nothing was offered)",
+   "baselineGames": 0
+  },
+  {
+   "id": "u17",
+   "name": "Yeh Shu-Fen",
+   "laziness": 0.15,
+   "why": "booked 1, but they kept away from a game their agent agreed for them",
+   "baselineGames": 1
+  },
+  {
+   "id": "u18",
+   "name": "Hwang Jae-won",
+   "laziness": 0.84,
+   "why": "booked 1, but u17 kept away from a game their agent agreed for them",
+   "baselineGames": 1
+  },
+  {
+   "id": "u19",
+   "name": "Fang Ting-Yu",
+   "laziness": 0.2,
+   "why": "turned the offers down",
+   "baselineGames": 0
+  },
+  {
+   "id": "u20",
+   "name": "Marta Szymanek",
+   "laziness": 0.76,
+   "why": "turned the offers down",
+   "baselineGames": 0
+  }
+ ],
+ "baseline": {
+  "attempts": 8,
+  "failed": [
+   {
+    "why": "only n of n said they were in before the organizer gave up",
+    "n": 1
+   },
+   {
+    "why": "nobody answered in time",
+    "n": 3
+   }
+  ],
+  "games": [
+   {
+    "date": "2026-11-07",
+    "start": "14:00",
+    "format": "singles",
+    "by": "u18",
+    "with": [
+     "u13"
+    ],
+    "played": true,
+    "waitMin": 130
+   },
+   {
+    "date": "2026-11-05",
+    "start": "19:00",
+    "format": "singles",
+    "by": "u12",
+    "with": [
+     "u09"
+    ],
+    "played": true,
+    "waitMin": 62
+   },
+   {
+    "date": "2026-11-06",
+    "start": "19:00",
+    "format": "singles",
+    "by": "u04",
+    "with": [
+     "u05"
+    ],
+    "played": true,
+    "waitMin": 127
+   },
+   {
+    "date": "2026-11-07",
+    "start": "14:00",
+    "format": "singles",
+    "by": "u17",
+    "with": [
+     "u08"
+    ],
+    "played": true,
+    "waitMin": 74
+   }
+  ]
+ },
+ "serveGames": [
+  {
+   "key": "MI-CE2Z",
+   "date": "2026-11-07",
+   "start": "14:00",
+   "format": "singles",
+   "by": "u18",
+   "with": [
+    "u17"
+   ],
+   "venue": "Midtown Community Gym",
+   "played": false,
+   "turnout": [
+    {
+     "id": "u18",
+     "shows": true,
+     "why": null
+    },
+    {
+     "id": "u17",
+     "shows": false,
+     "why": "kept away from a game their agent agreed for them"
+    }
+   ]
+  },
+  {
+   "key": "RI-79SI",
+   "date": "2026-11-05",
+   "start": "20:00",
+   "format": "singles",
+   "by": "u12",
+   "with": [
+    "u08"
+   ],
+   "venue": "Riverside Sports Centre",
+   "played": false,
+   "turnout": [
+    {
+     "id": "u12",
+     "shows": true,
+     "why": null
+    },
+    {
+     "id": "u08",
+     "shows": false,
+     "why": "kept away from a game their agent agreed for them"
+    }
+   ]
+  },
+  {
+   "key": "RI-2BYM",
+   "date": "2026-11-05",
+   "start": "19:00",
+   "format": "singles",
+   "by": "u04",
+   "with": [
+    "u09"
+   ],
+   "venue": "Riverside Sports Centre",
+   "played": true,
+   "turnout": [
+    {
+     "id": "u04",
+     "shows": true,
+     "why": null
+    },
+    {
+     "id": "u09",
+     "shows": true,
+     "why": null
+    }
+   ]
+  },
+  {
+   "key": "RI-7MAQ",
+   "date": "2026-11-07",
+   "start": "14:00",
+   "format": "singles",
+   "by": "u13",
+   "with": [
+    "u08"
+   ],
+   "venue": "Riverside Sports Centre",
+   "played": false,
+   "turnout": [
+    {
+     "id": "u13",
+     "shows": true,
+     "why": null
+    },
+    {
+     "id": "u08",
+     "shows": false,
+     "why": "kept away from a game their agent agreed for them"
+    }
+   ]
+  }
+ ],
+ "cost": {
+  "gatewayModelCalls": 89,
+  "gatewayModelErrors": 0,
+  "guardCalls": 68,
+  "guardErrors": 0,
+  "personaModelCalls": 49,
+  "personaFailed": 0,
+  "realMinutes": 33,
+  "bySite": [
+   {
+    "site": "life.read",
+    "calls": 24,
+    "prompt": 8968,
+    "cached": 0,
+    "fresh": 8968,
+    "cachedShare": 0,
+    "output": 4520,
+    "reasoning": 3832,
+    "seconds": 130.4,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 374,
+     "output": 188,
+     "seconds": 5.4
+    }
+   },
+   {
+    "site": "answer",
+    "calls": 21,
+    "prompt": 10502,
+    "cached": 0,
+    "fresh": 10502,
+    "cachedShare": 0,
+    "output": 4529,
+    "reasoning": 3861,
+    "seconds": 112.9,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 500,
+     "output": 216,
+     "seconds": 5.4
+    }
+   },
+   {
+    "site": "play.readIntent",
+    "calls": 10,
+    "prompt": 5360,
+    "cached": 0,
+    "fresh": 5360,
+    "cachedShare": 0,
+    "output": 3949,
+    "reasoning": 3355,
+    "seconds": 110,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 536,
+     "output": 395,
+     "seconds": 11
+    }
+   },
+   {
+    "site": "memory.update",
+    "calls": 14,
+    "prompt": 4504,
+    "cached": 0,
+    "fresh": 4504,
+    "cachedShare": 0,
+    "output": 2350,
+    "reasoning": 1989,
+    "seconds": 104.6,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 322,
+     "output": 168,
+     "seconds": 7.5
+    }
+   },
+   {
+    "site": "ask.word",
+    "calls": 9,
+    "prompt": 2285,
+    "cached": 0,
+    "fresh": 2285,
+    "cachedShare": 0,
+    "output": 4382,
+    "reasoning": 4153,
+    "seconds": 92.2,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 254,
+     "output": 487,
+     "seconds": 10.2
+    }
+   },
+   {
+    "site": "loop.paraphrase",
+    "calls": 8,
+    "prompt": 3490,
+    "cached": 0,
+    "fresh": 3490,
+    "cachedShare": 0,
+    "output": 3679,
+    "reasoning": 3409,
+    "seconds": 80,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 436,
+     "output": 460,
+     "seconds": 10
+    }
+   },
+   {
+    "site": "guard.out",
+    "calls": 0,
+    "prompt": 0,
+    "cached": 0,
+    "fresh": 0,
+    "cachedShare": 0,
+    "output": 0,
+    "reasoning": 0,
+    "seconds": 15.8,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 0,
+     "output": 0,
+     "seconds": 15.8
+    }
+   },
+   {
+    "site": "guard.in",
+    "calls": 0,
+    "prompt": 0,
+    "cached": 0,
+    "fresh": 0,
+    "cachedShare": 0,
+    "output": 0,
+    "reasoning": 0,
+    "seconds": 14.1,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 0,
+     "output": 0,
+     "seconds": 14.1
+    }
+   },
+   {
+    "site": "answer.learn",
+    "calls": 2,
+    "prompt": 191,
+    "cached": 0,
+    "fresh": 191,
+    "cachedShare": 0,
+    "output": 227,
+    "reasoning": 225,
+    "seconds": 5.2,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 96,
+     "output": 114,
+     "seconds": 2.6
+    }
+   },
+   {
+    "site": "loop.screen",
+    "calls": 0,
+    "prompt": 0,
+    "cached": 0,
+    "fresh": 0,
+    "cachedShare": 0,
+    "output": 0,
+    "reasoning": 0,
+    "seconds": 2.2,
+    "empty": 0,
+    "invalid": 0,
+    "perCall": {
+     "prompt": 0,
+     "output": 0,
+     "seconds": 2.2
+    }
+   }
+  ]
+ }
+}

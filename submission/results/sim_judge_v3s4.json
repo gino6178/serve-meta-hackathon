@@ -1,0 +1,174 @@
+{
+ "simulated": true,
+ "judge": "muse-glimmer at http://127.0.0.1:11448",
+ "generated": 42,
+ "heldout": 40,
+ "pairs": {
+  "n": 20,
+  "right": 11,
+  "accuracy": 0.55,
+  "ci": [
+   0.34,
+   0.74
+  ]
+ },
+ "singles": {
+  "n": 40,
+  "right": 20,
+  "saidModel": 0,
+  "accuracy": 0.5,
+  "ci": [
+   0.35,
+   0.65
+  ],
+  "saidModelShare": 0
+ },
+ "limits": [
+  "The held-out set was written by an AI assistant imitating people, not by real users.",
+  "The judge is the same model (Muse Glimmer) as the persona model, so it may share its blind spots.",
+  "Small sets: 20 pairs.",
+  "Chance is 0.5; an interval that includes 0.5 means the judge could not tell the sets apart."
+ ],
+ "rows": [
+  {
+   "kind": "checkin-reply",
+   "a": "打了一個半小時 膝蓋有點緊",
+   "b": "played 120 min singles with achterberg felt good no soreness",
+   "model": "B",
+   "said": "B"
+  },
+  {
+   "kind": "hello",
+   "a": "Hi, I'm Freya. Just added you as my friend suggested.",
+   "b": "hey is this the badminton bot",
+   "model": "A",
+   "said": "A"
+  },
+  {
+   "kind": "request",
+   "a": "anyone free for singles thu night",
+   "b": "週六下午14-18 想約單打羽球 D level, 有場嗎?",
+   "model": "B",
+   "said": "A"
+  },
+  {
+   "kind": "request",
+   "a": "Need badminton doubles this afternoon, preferably level A. Can you set it up?",
+   "b": "禮拜五晚上 雙打 有場就揪",
+   "model": "A",
+   "said": "A"
+  },
+  {
+   "kind": "log",
+   "a": "just played 120 minutes singles with albarran",
+   "b": "just played 90 min doubles with the usual crew",
+   "model": "A",
+   "said": "B"
+  },
+  {
+   "kind": "request",
+   "a": "find me badminton singles tonight level b please",
+   "b": "sunday morning doubles? i can book if ppl are in",
+   "model": "A",
+   "said": "B"
+  },
+  {
+   "kind": "question",
+   "a": "Can you also check court price for me? 還是只安排時間？",
+   "b": "這個會幫我訂場嗎還是要自己訂",
+   "model": "A",
+   "said": "A"
+  },
+  {
+   "kind": "checkin-reply",
+   "a": "game didnt happen yeh didnt show up no play today",
+   "b": "didnt happen, nobody showed",
+   "model": "A",
+   "said": "B"
+  },
+  {
+   "kind": "request",
+   "a": "幫我找個單打對手 明天下午",
+   "b": "need badminton doubles tonight fri evening 19 to 22 prefer doubles level c",
+   "model": "B",
+   "said": "B"
+  },
+  {
+   "kind": "question",
+   "a": "會問其他人嗎？還是只問 Mateo？",
+   "b": "does it cost money",
+   "model": "A",
+   "said": "B"
+  },
+  {
+   "kind": "question",
+   "a": "how to cancel Sat 14:00 singles with Chian?",
+   "b": "how do i cancel if i cant go",
+   "model": "A",
+   "said": "B"
+  },
+  {
+   "kind": "request",
+   "a": "need badminton singles tonight 19 to 22",
+   "b": "looking to hit some shuttles sat afternoon, any level",
+   "model": "A",
+   "said": "A"
+  },
+  {
+   "kind": "request",
+   "a": "can u find me someone for badminton this weekend",
+   "b": "need badminton singles saturday afternoon please find me a partner",
+   "model": "B",
+   "said": "B"
+  },
+  {
+   "kind": "hello",
+   "a": "嗨嗨",
+   "b": "hey 👋",
+   "model": "B",
+   "said": "B"
+  },
+  {
+   "kind": "checkin-reply",
+   "a": "沒人來，game 取消了。沒打，0 min。沒 sore.",
+   "b": "played like 80 min, good game, legs dead lol",
+   "model": "A",
+   "said": "A"
+  },
+  {
+   "kind": "request",
+   "a": "今晚有缺人嗎 我可以八點後",
+   "b": "今晚要打羽毛球單打, 單打 A級, 有場嗎?",
+   "model": "B",
+   "said": "B"
+  },
+  {
+   "kind": "question",
+   "a": "can i choose who i play with?",
+   "b": "can you find a court closer to home next time",
+   "model": "B",
+   "said": "A"
+  },
+  {
+   "kind": "hello",
+   "a": "哈囉 朋友叫我加的",
+   "b": "嗨，剛被拉進來試試看",
+   "model": "B",
+   "said": "A"
+  },
+  {
+   "kind": "hello",
+   "a": "hi",
+   "b": "嗨，剛加你，試試看",
+   "model": "B",
+   "said": "A"
+  },
+  {
+   "kind": "request",
+   "a": "Need badminton singles Sat morning 08-11, B level. 有人嗎?",
+   "b": "need a doubles game tmr after work, 7ish?",
+   "model": "A",
+   "said": "A"
+  }
+ ]
+}

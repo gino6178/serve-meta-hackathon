@@ -26,7 +26,18 @@ server):
 
 Seed 2 separates the arms and seed 3 does not; two seeds are not enough to claim an effect. The Match helper now asks
 (8 and 16 asks) and partners are asked before booking; no-shows and partners backing out (10 of 12 in seed 3) are what
-still lose games. The first run, before the fixes, follows.
+still lose games.
+
+**Seed 4, one more run (2026-10-29; `submission/results/sim_users_v3s4.json`):** with Serve, 1 game played against 4
+without; 2 users with a game against 8; player-games per user 0.1 against 0.4 (difference -0.3, 95% CI -0.5 to -0.1).
+Both arms booked 4 games, Serve at once (median 0 minutes from wanting to booked, against 100.5), but 3 of Serve's 8
+places stayed empty: people kept away from games their agent had agreed for them. The Match helper asked 9 times and
+partners were asked 3 times. On this seed Serve lost, and the reason is the same as before: an agent saying yes for a
+person who then does not come. A blinded judge (Muse Glimmer, 40 held-out messages, `sim_judge_v3s4.json`) could not
+tell the simulated users' messages from human-style ones: 11 of 20 pairs (0.55, 95% CI 0.34 to 0.74; chance is 0.5).
+Over the three seeds after the fixes there is no effect we can claim.
+
+The first run, before the fixes, follows.
 
 ## The first run, before the fixes: one finished run (seed 2), so no spread over seeds
 
@@ -320,8 +331,8 @@ cooperate make agents fail in ways cooperative ones never show (Shim et al., ICL
 checks, in `agent/test/sim_users/validity.mjs` and `judge.mjs`, with their output in
 `submission/results/sim_users_validity.json` and `sim_users_judge.json`:
 
-On the seed 2 run, in `submission/results/sim_users_validity_d2.json`. The judge's results file (`sim_users_judge.json`)
-does not exist, since the judge was not run.
+On the seed 2 run, in `submission/results/sim_users_validity_d2.json`. The judge was run once, on seed 4
+(`submission/results/sim_judge_v3s4.json`): 0.55 on 20 pairs (95% CI 0.34 to 0.74), so it could not tell them apart.
 
 - **Plausibility, against published figures** (`validity.mjs SOURCES` lists the sources):
   - *No-shows.* The model's chance that a person misses a booked game is 0.28 for the median persona (0.15 to 0.45).
