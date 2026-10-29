@@ -322,8 +322,7 @@ async function chart(file) {
   // 11 · AI trust: every message between the agents, in the open
   {
     const s = content("Use of Meta AI", "AI TRUST", "See exactly what your agent said to theirs",
-      "AI Trust：像 Messenger 一樣的「Agent 對話」頁。你的 agent 在右邊（綠色），其他會員的 agent 在左邊，一輪一輪，每則訊息下面標示意思（提案、同意、反提案、拒絕），以及程式是否已經用大家的行事曆檢查過（fits everyone）。標題列顯示對方的 Agent Card 已驗證。談成後出現「Agreed」，但要你按 yes 才訂。
-這些就是 agent 之間透過 A2A 真的送出的訊息，不是摘要。");
+      "AI Trust：像 Messenger 一樣的「Agent 對話」頁。你的 agent 在右邊（綠色），其他會員的 agent 在左邊，一輪一輪，每則訊息下面標示意思（提案、同意、反提案、拒絕），以及程式是否已經用大家的行事曆檢查過（fits everyone）。標題列顯示對方的 Agent Card 已驗證。談成後出現「Agreed」，但要你按 yes 才訂。\n這些就是 agent 之間透過 A2A 真的送出的訊息，不是摘要。");
     phone(s, IMG.v3.agent_chats, 0.75, 1.85, 4.7, "Agent chats");
     phone(s, IMG.v3.plan_approve, 3.35, 1.85, 4.7, "Then it asks you");
     const x = 6.2;
