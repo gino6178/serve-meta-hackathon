@@ -209,11 +209,11 @@ async function chart(file) {
 
   // 6 · Monday: say it once, the body context
   {
-    const s = content("Demo", "MONDAY · BODY CONTEXT WITH META'S DRAMA", "Say it once. Every rule shows where it came from",
+    const s = content("Demo", "MONDAY · SCHEDULING CONTEXT WITH META'S DRAMA", "Say it once, and your games fit around it",
       "身體脈絡（RAG）：拿掉了 3D 肌肉圖。你在 Messenger、語音或這裡說一句話，agent 把你的原話、比賽和健康 app 的紀錄都變成筆記。\n規劃這週時，用 Meta 的 DRAMA 依語意檢索，越新的筆記權重越高（身體筆記 7 天減半）。畫面上的分數是真實的 DRAMA 相似度乘上時間衰減。\n規則仍由程式從紀錄決定（不讓模型發明規則），每條規則都附上來源筆記，程式檢查引用是同一個部位。\n旁白：Monday, I tell it my right knee is sore. Meta's DRAMA finds what matters this week, and every rule shows where it came from.");
     const H = 4.7, y = 1.85;
-    phone(s, IMG.v3.body_context, 0.75, y, H, "What matters this week, by meaning");
-    phone(s, IMG.v3.body_rules, 3.35, y, H, "Rules, each with its sources");
+    phone(s, IMG.v3.body_context, 0.75, y, H, "What your week asks for, by meaning");
+    phone(s, IMG.v3.body_rules, 3.35, y, H, "Scheduling limits, each with its source");
     const x = 6.2;
     const step = (i, h, d) => { s.addShape(pres.shapes.OVAL, { x, y: 1.95 + i * 1.18, w: 0.42, h: 0.42, fill: { color: GREEN }, line: { color: GREEN } }); T(s, String(i + 1), x, 1.95 + i * 1.18, 0.42, 0.42, { fontSize: 14, bold: true, color: WHITE, align: "center", valign: "middle" }); T(s, h, x + 0.6, 1.92 + i * 1.18, 5.9, 0.32, { fontSize: 15, bold: true }); T(s, d, x + 0.6, 2.25 + i * 1.18, 5.9, 0.8, { fontSize: 12, color: MUTED }); };
     step(0, "Notes from what you said and what was recorded", "Your words from Messenger, a voice note or the app; each week's load from your games and health app; what you told your agent before.");
@@ -228,8 +228,8 @@ async function chart(file) {
       "規劃與球場：\n左：中心點球場地圖（技術報告第 4 頁那張）——每個人的通勤時間、共同空檔，agent 一輪談好。\n右：手機版找球場——Prompt Guard 2 先過濾 Google 評論，Muse Glimmer 同時判斷四個球場，每個理由都引用來源，程式檢查。\n旁白：Then it plans my week, and agrees it with three friends' agents at once, over A2A. Any ball sport works.");
     s.addImage({ data: IMG.venue, x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406 });
     s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406, fill: { type: "none" }, line: { color: LINE, width: 1 } });
-    T(s, "The venue in the middle: each player's trip, agreed in one round", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
-    phone(s, IMG.v3.courts_badges, 7.6, 1.85, 4.7, "Courts, judged with their sources");
+    T(s, "Badminton: the venue in the middle, each player's trip agreed in one round", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
+    phone(s, IMG.v3.courts_badges, 7.6, 1.85, 4.7, "Basketball: public courts, judged with sources");
     const x = 10.25;
     [["Muse Glimmer plans", "One tool at a time; a refused call comes back as a fact"], ["A2A, one round", "Agents mark the times that work; code picks"], ["Prompt Guard 2", "Screens Google reviews before the judge reads them"], ["Nothing booked", "until you say yes"]].forEach(([h, d], i) => {
       T(s, h, x, 1.95 + i * 1.18, 2.5, 0.3, { fontSize: 13.5, bold: true });
@@ -257,9 +257,9 @@ async function chart(file) {
 
   // 9 · Highlights
   {
-    const s = content("Demo", "THURSDAY · FIVE META VISION MODELS", "Your phone clip becomes your moment, on my GPU",
+    const s = content("Demo", "THURSDAY · A CLIP TO SHARE · FIVE META VISION MODELS", "Your phone video becomes a clip for your friends",
       "Highlight 管線（右邊都是同一記殺球：SAM 2.1 去背、MapAnything 深度、俯視環繞圖和沿弧線算繪出的三格）：DETR 找人 → Sapiens2 讀姿勢、找最快的揮拍 → SAM 2.1 把你切出來 → MapAnything 算深度和相機，時間暫停、鏡頭繞 20° → Muse Glimmer 寫說明，程式核對 → 一鍵分享到 Instagram。影片不離開伺服器。\n旁白：Thursday, game done. I upload a phone clip… With MapAnything, time stops and the camera turns around the smash.");
-    const flow = [["DETR", "finds the players"], ["Sapiens2", "reads the pose, finds the fastest swing"], ["SAM 2.1", "cuts you out; SAM 3.1 checked it once"], ["MapAnything", "depth and camera: time stops, the camera turns 20°"], ["Muse Glimmer", "writes the caption, checked by code"]];
+    const flow = [["DETR", "finds the players"], ["Sapiens2", "finds the moment worth sharing"], ["SAM 2.1", "cuts you out; SAM 3.1 checked it once"], ["MapAnything", "depth and camera: time stops, the camera turns 20°"], ["Muse Glimmer", "writes the caption, checked by code"]];
     flow.forEach(([h, d], i) => {
       const x = 0.6 + i * 2.45;
       box(s, x, 1.85, 2.2, 1.25, { fill: i === 4 ? GREENBG : BLUEBG, line: i === 4 ? GREENBG : BLUEBG });
@@ -490,7 +490,7 @@ async function chart(file) {
       catAxisLabelFontSize: 10, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisOrientation: "maxMin",
       valAxisHidden: true, valAxisMinVal: 60, valAxisMaxVal: 100, valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: false,
     });
-    [["54–67%", "fewer Glimmer calls, no rule broken", GREEN], ["29 / 32", "stated preferences kept (Glimmer 27)", INK]].forEach(([n, d, c], i) => {
+    [["54–67%", "fewer Glimmer calls in the simulated club, no rule broken", GREEN], ["29 / 32", "stated preferences kept (Glimmer 27)", INK]].forEach(([n, d, c], i) => {
       const y = 4.3 + i * 1.25;
       box(s, 10.1, y, 2.6, 1.12, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
       T(s, n, 10.25, y + 0.06, 2.35, 0.5, { fontSize: 22, bold: true, color: c });
@@ -538,7 +538,7 @@ async function chart(file) {
     });
     box(s, 8.3, 5.5, 4.45, 1.25, { fill: GREENBG, line: GREENBG });
     T(s, "Served at 0.6", 8.5, 5.6, 4.1, 0.3, { fontSize: 13.5, bold: true, color: GREEN });
-    T(s, "The student answers 73% of the hardest choices and 96% of the test set; Glimmer takes the rest. Glimmer alone agrees with itself 73.5% on these.", 8.5, 5.92, 4.1, 0.8, { fontSize: 10.5, color: MUTED });
+    T(s, "The student answers 73% of the hardest choices and 96% of the test set; Muse Glimmer takes the rest, with its full reasoning.", 8.5, 5.92, 4.1, 0.8, { fontSize: 10.5, color: MUTED });
   }
 
   // 18 · RAG: retrieval by meaning with Meta's DRAMA, grounded and checked
