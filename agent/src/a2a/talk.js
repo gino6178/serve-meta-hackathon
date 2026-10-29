@@ -29,6 +29,8 @@ import { limitAnswer } from "../safety/disclosure.js";
 import { annotate } from "../agents/talk_meta.js";
 import { proposed, decided as noteAnswer, released as noteReleased } from "../match/hooks.js";
 import { studentOn, studentAnswer } from "../agents/student.js";
+import * as critic from "./critic.js";
+import * as consent from "./consent.js";
 import * as peer from "./peer.js";
 
 const { windows, travelMin, kmBetween, ymd, hm, toMin, dateOf, DAYS } = helpers;
@@ -519,7 +521,8 @@ async function rounds({ id = `neg-${crypto.randomUUID().slice(0, 13)}`, me, memb
   // what the talk asked (one yes or no per listed time and member: what your agent learns of their weeks) and the time
   // it opened with (to see who gave way), in every result
   let askedPairs = 0, opening = null;
-  const done = (r) => { if (theirs) r.memberTokens = theirs; r.asked = askedPairs; if (opening) r.opening = opening; annotate(r, { id, members, privateCalendars }); saveNeg({ ...(negs[id] || base), status: r.agreed ? "agreed" : "failed", result: r }); crashPoint("talk-done"); return r; };
+  // (the game agreed: each member's agent here signs it, consent.js; a member on a peer gateway confirms there)
+  const done = (r) => { if (r.agreed) { critic.record(r.agreed, me.id); r.agreed.consent = (r.agreed.partners || []).filter((p) => !consent.remote(p.id)).map((p) => consent.sign(p.id, r.agreed)); } critic.forgetTalk(id); if (theirs) r.memberTokens = theirs; r.asked = askedPairs; if (opening) r.opening = opening; annotate(r, { id, members, privateCalendars }); saveNeg({ ...(negs[id] || base), status: r.agreed ? "agreed" : "failed", result: r }); crashPoint("talk-done"); return r; };
   const names = members.map((m) => first(m.name)), people = [me, ...members];
   // A2A_PRIVATE=1: your agent does not see the members' calendars. It lists times from your own week that have a
   // court; each member's agent checks them against its own calendar and rules in code; a round in which no listed time
@@ -608,8 +611,12 @@ async function rounds({ id = `neg-${crypto.randomUUID().slice(0, 13)}`, me, memb
       if (j.intent === "counter") {
         // a counter must fit everyone's calendar and a court, and not fall on a day that already has a game
         const s = !exclude.includes(j.date) && times.find((x) => x.date === j.date && x.from <= toMin(j.start || "00:00") && toMin(j.start || "00:00") + minutes <= x.to);
-        const o = s && same(offer(s, toMin(j.start)));
-        msg = { from: m.id, to: "you", intent: "counter", when: o ? o.text : `${j.date} ${j.start}`, text: j.text, checked: !!o, round, tier: j.tier, confidence: j.confidence, task: j.task };
+        const o0 = s && same(offer(s, toMin(j.start)));
+        // the critic reviews the counter for the player before it can be taken (critic.js: probing, fairness)
+        const cr = o0 ? critic.review({ talk: id, member: m, counter: o0, player: me.id }) : { ok: true };
+        const o = cr.ok ? o0 : null;
+        msg = { from: m.id, to: "you", intent: "counter", when: o0 ? o0.text : `${j.date} ${j.start}`, text: j.text, checked: !!o, round, tier: j.tier, confidence: j.confidence, task: j.task, ...(cr.ok ? {} : { critic: cr.check }) };
+        if (!cr.ok) tell({ step: "The critic turned a counter down", tool: "critic", detail: cr.why, check: cr.check });
         if (o) counters.push(o);
         // (a time its agent withheld, disclosure.js, is not learned as a no: it said nothing about it)
         if (!hid(j)) learn(m.id, cur.slot.date, cur.start, "no", `${id}-r${round}-no`, now.getTime());
