@@ -192,7 +192,25 @@ export function join(player, postId, on = true) {
   if (on === was) return { post: view(p, player) };
   S.change(() => { v.going = on ? [...v.going, player] : v.going.filter((x) => x !== player); });
   inviteReply(p, `${on ? `${first(authorOf(player) || "A member")} is in.` : `${first(authorOf(player) || "A member")} can't make it.`} ${spotsLine(p)}`, player);
+  if (on && v.going.length >= v.spots) gameOn(p);
   return { post: view(p, player) };
+}
+// the last spot taken: the game is on, and everyone in it hears so wherever they are in the app (GET /api/feed/notices)
+function gameOn(p) {
+  const v = p.invite, host = p.by.player || p.by.agentOf, game = `${v.sport} ${v.day} ${v.start}${v.where ? ` at ${v.where}` : ""}`;
+  const names = (xs) => xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : xs[0] || "";
+  inviteReply(p, `Game on: all ${v.spots} spots are taken. See you ${v.day} ${v.start}.`);
+  S.change((d) => {
+    d.notices ||= [];
+    d.notices.push({ player: host, at: deps.now(), kind: "gameon", post: p.id, text: `Game on: your ${game} is full. ${names(v.going.map((x) => first(authorOf(x) || "A member")))} ${v.going.length > 1 ? "are" : "is"} in.` });
+    for (const x of v.going) d.notices.push({ player: x, at: deps.now(), kind: "gameon", post: p.id, text: `Game on: ${game} with ${first(authorOf(host) || "the host")} is full. You're in.` });
+  });
+}
+// the notices waiting for a member, taken once (the feed shows them too)
+export function takeNotices(player) {
+  const mine = (S.data().notices || []).filter((x) => x.player === player);
+  if (mine.length) S.change((d) => { d.notices = d.notices.filter((x) => x.player !== player); });
+  return mine.map((x) => ({ text: x.text, kind: x.kind || "note", post: x.post || null }));
 }
 export const pendingAnswers = new Set();
 function answerLater(postId, commentId, player, question) {
@@ -290,6 +308,14 @@ function drop(p, c, why = "Not posted: it waited a week for the safety check.") 
 
 // ---- what a member sees ----
 export const find = (id) => S.data().posts.find((p) => p.id === id);
+// an invite as a link shows it to someone not in the club yet: the game and the spots left, never who is going
+export function publicInvite(id, canSee = () => true) {
+  const p = find(id);
+  if (!p || p.kind !== "invite" || !p.invite || p.held || p.hidden || (p.room && !canSee(p.room))) return null;
+  const v = p.invite;
+  return { id: p.id, sport: v.sport, day: v.day, start: v.start, where: v.where, at: v.at || null, spots: v.spots, going: v.going.length,
+    full: v.going.length >= v.spots, host: first(authorOf(p.by.player || p.by.agentOf) || "A member"), room: p.room || null };
+}
 function visible(p, viewer) {
   const mine = p.by.player === viewer || p.by.agentOf === viewer;
   if ((p.held || p.hidden) && !mine) return false;

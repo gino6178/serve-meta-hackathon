@@ -642,3 +642,22 @@ test("the goal check before a paper post: off the task, dropped; not checked, it
   r = await run(1);
   assert.equal(r.posted, 1); assert.equal(r.timing.align.length, 1, "one check, for the one post");
 });
+
+// ---- a game that fills ----
+test("the last spot taken: the game is on, and the host and every player hear it once; a shared link shows no names", async () => {
+  const r = await P.post("app", { text: "Doubles?", invite: { sport: "badminton", day: "Thu", start: "19:00", where: "Hall 2", spots: 2 } });
+  assert.ok(r.post?.invite, JSON.stringify(r));
+  const id = r.post.id;
+  assert.equal(P.publicInvite(id).going, 0);
+  assert.equal(P.publicInvite(id).names, undefined, "the link card never says who is going");
+  P.join("leo", id);
+  assert.deepEqual(P.takeNotices("app"), [], "one of two spots: not yet");
+  P.join("hana", id);
+  const host = P.takeNotices("app"), leo = P.takeNotices("leo");
+  assert.equal(host.length, 1); assert.equal(host[0].kind, "gameon");
+  assert.match(host[0].text, /^Game on: your badminton Thu 19:00 at Hall 2 is full\. Leo and Hana are in\.$/);
+  assert.match(leo[0].text, /^Game on: badminton Thu 19:00 at Hall 2 with .+ is full\. You're in\.$/);
+  assert.deepEqual(P.takeNotices("leo"), [], "taken once");
+  assert.ok(S.data().posts[0].comments.some((c) => /^Game on: all 2 spots are taken/.test(c.text)));
+  assert.equal(P.publicInvite(id).full, true);
+});

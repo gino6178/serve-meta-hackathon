@@ -6,6 +6,7 @@ import { feedApi } from "../club/feedApi.js";
 import { intentOf } from "../tasks.js";
 import { myPlace } from "../where.js";
 import ClubSuggest from "../components/ClubSuggest.jsx";
+import { shareInvite } from "../invite.js";
 import "./clubs.css";
 import "./messages.css";
 
@@ -104,7 +105,7 @@ function Draft({ d, onChange, onPost, onCancel }) {
 
 // who has joined a posted invite, asked again every half minute while the chat is open
 function Joined({ id }) {
-  const [p, setP] = useState(null);
+  const [p, setP] = useState(null), [copied, setCopied] = useState(false);
   useEffect(() => {
     let live = true;
     const ask = () => feedApi.one(id).then((r) => live && setP(r.post || r)).catch(() => {});
@@ -113,5 +114,12 @@ function Joined({ id }) {
   }, [id]);
   const v = p?.invite;
   if (!v) return null;
-  return <p className="mc-joined">{v.going ? `${v.going} of ${v.spots} joined: ${v.names.join(", ")}` : `0 of ${v.spots} joined yet`}</p>;
+  const share = async () => { if ((await shareInvite(id, `${v.sport} ${v.day} ${v.start}: join me on Serve`)) === "copied") setCopied(true); };
+  return (
+    <div className="mc-joined">
+      {v.full ? <span className="mc-gameon"><b>Game on.</b> All {v.spots} spots are taken: {v.names.join(", ")}.</span>
+        : <span>{v.going ? `${v.going} of ${v.spots} joined: ${v.names.join(", ")}` : `0 of ${v.spots} joined yet`}</span>}
+      {!v.full && <button className="btn ghost sm" onClick={share}>{copied ? "Link copied" : "Share link"}</button>}
+    </div>
+  );
 }

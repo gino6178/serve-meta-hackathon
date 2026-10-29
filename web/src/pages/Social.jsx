@@ -3,6 +3,7 @@ import Icon from "../components/Icon.jsx";
 import Mark from "../components/Mark.jsx";
 import Feed from "../club/Feed.jsx";
 import { feedApi, mediaUrl } from "../club/feedApi.js";
+import { pendingInvite } from "../invite.js";
 import { useMember, providers, startUrl, demo, signOut, registerAgent, revokeAgent, asAgent, agentKid, canSign } from "../members.js";
 import { useReducedMotion } from "../hooks.js";
 import RealMap from "../components/RealMap.jsx";
@@ -23,15 +24,18 @@ export default function Social({ club }) {
   const [m, reload] = useMember();
   if (m === undefined) return <div className="page social"><p className="muted">Loading…</p></div>;
   if (!m) return <Join />;
+  // back from a provider's login that started on a shared game's link: that game first
+  const pending = pendingInvite.get();
+  if (pending) { location.hash = `/invite?id=${encodeURIComponent(pending)}`; return null; }
   return <SocialHome club={club} me={m.member} agents={m.agents} reload={reload} />;
 }
 
 // ---- joining ------------------------------------------------------------------------------------------------------
-export function Join() {
+export function Join({ next = "/social" }) {
   const [p, setP] = useState(null), [name, setName] = useState(""), [busy, setBusy] = useState(false), [err, setErr] = useState(() => decodeURIComponent((/[?&]error=([^&]+)/.exec(location.hash) || [])[1] || ""));
   useEffect(() => { providers().then(setP, () => setErr("Your server did not answer.")); }, []);
   const noMeta = "Facebook and Instagram sign-in need this server's Meta app" + (p?.demo ? ": try the demo account below." : ".");
-  const tryDemo = async (e) => { e.preventDefault(); setBusy(true); try { await demo(name); location.hash = "/social"; } catch (x) { setErr(x.message); } setBusy(false); };
+  const tryDemo = async (e) => { e.preventDefault(); setBusy(true); try { await demo(name); location.hash = next; } catch (x) { setErr(x.message); } setBusy(false); };
   return (
     <div className="page join">
       <section className="join-card">

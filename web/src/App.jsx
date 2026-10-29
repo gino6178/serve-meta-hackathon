@@ -1,4 +1,4 @@
-import { SESSION_KEY } from "./agent.js";
+import { SESSION_KEY, agentFetch } from "./agent.js";
 import { useEffect, useRef, useState } from "react";
 import Agent from "./pages/Agent.jsx";
 import Landing from "./pages/Landing.jsx";
@@ -21,6 +21,7 @@ import { useTasks, plain } from "./tasks.js";
 import Icon from "./components/Icon.jsx";
 import MessengerSetup from "./pages/MessengerSetup.jsx";
 import Clubs from "./pages/Clubs.jsx";
+import InviteLink from "./pages/InviteLink.jsx";
 import Mark from "./components/Mark.jsx";
 
 // Serve's shell: a sidebar on a computer and a tab bar on a phone, the way a social app has them. Five tabs (the
@@ -120,6 +121,27 @@ function Shell({ page, club }) {
   );
 }
 
+// a game the member is in just filled: "Game on", wherever they are in the app (asked every half minute and on return)
+function GameOn() {
+  const [notes, setNotes] = useState([]);
+  useEffect(() => {
+    let live = true;
+    const ask = () => document.visibilityState === "visible" && agentFetch("/api/feed/notices").then((r) => r.json()).then((j) => live && j.notices?.length && setNotes((x) => [...x, ...j.notices])).catch(() => {});
+    ask(); const t = setInterval(ask, 30000); addEventListener("visibilitychange", ask);
+    return () => { live = false; clearInterval(t); removeEventListener("visibilitychange", ask); };
+  }, []);
+  const n = notes[0];
+  if (!n) return null;
+  return (
+    <div className="toast checkback gameon" role="status">
+      <span className="agent-dot" aria-hidden="true" />
+      <span>{n.kind === "gameon" ? <b>Game on </b> : null}{n.text.replace(/^Game on: /, "")}</span>
+      {n.post && <a className="btn sm primary" href="#/club" onClick={() => setNotes((x) => x.slice(1))}>Open</a>}
+      <button className="icon-btn sm" aria-label="Dismiss" onClick={() => setNotes((x) => x.slice(1))}><Icon name="close" size={16} /></button>
+    </div>
+  );
+}
+
 // when a job finishes while the player is elsewhere, say so, with a way to open it
 function CheckBack() {
   const tasks = useTasks();
@@ -149,7 +171,7 @@ function CheckBack() {
 const PAGES = {
   home: (c) => <Agent club={c} />, about: () => <Landing />, club: (c) => (/[?&](tab|demo)=/.test(location.hash) ? <Club club={c} /> : <Clubs />), goals: (c) => <Goals club={c} />,
   play: (c) => <Play data={c} />, you: (c) => <You club={c} />, autopilot: (c) => <Autopilot data={c} />, body: () => <Body />,
-  courts: () => <Courts />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, "messenger-setup": () => <MessengerSetup />, maintain: () => <Maintain />, social: (c) => <Social club={c} />, chats: (c) => <Chats club={c} />, join: () => <Join />,
+  courts: () => <Courts />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, "messenger-setup": () => <MessengerSetup />, maintain: () => <Maintain />, social: (c) => <Social club={c} />, chats: (c) => <Chats club={c} />, join: () => <Join />, invite: () => <InviteLink />,
 };
 
 export default function App() {
@@ -162,10 +184,10 @@ export default function App() {
     loadClub().then(setClub).catch((e) => setErr(`The club could not be loaded (${e.message}).`));
     return () => removeEventListener("hashchange", on);
   }, []);
-  // the public build (no gateway token in it): every page but joining needs a signed-in member, each with an agent of
+  // the public build (no gateway token in it): every page but joining and a shared game's link needs a signed-in member, each with an agent of
   // their own on the server (agent tenants/proxy.js)
   const signedOut = !import.meta.env.VITE_AGENT_TOKEN && !(() => { try { return localStorage.getItem(SESSION_KEY); } catch { return null; } })();
-  const show = signedOut && page !== "join" && page !== "about" ? PAGES.join : PAGES[page] || PAGES.home;
+  const show = signedOut && !["join", "about", "invite"].includes(page) ? PAGES.join : PAGES[page] || PAGES.home;
   return (
     <>
       <Shell page={page} club={club} />
@@ -174,6 +196,7 @@ export default function App() {
         {show(club)}
       </main>
       <CheckBack />
+      {!signedOut && <GameOn />}
     </>
   );
 }

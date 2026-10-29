@@ -24,7 +24,10 @@ Indie Developer · Build for Your World
 
 ## Impact: the problem
 
-31% of adults worldwide did not get enough physical activity in 2022 (World Health Organization, 2024). Most people
+In a 2015 poll of 2,506 US adults (NPR, Robert Wood Johnson Foundation, Harvard Chan School), 40% of 18 to 21 year
+olds played a sport and 26% of 26 to 49 year olds. In Sport New Zealand's Active NZ survey (2023), adults said what stops
+them doing more: other commitments (64.2%), getting out of the habit (21.3%), no one to do it with (10.2%). Serve's
+aim is less screen time and more court time, for any game that needs people, a time and a place. Most people
 who stop playing a sport don't stop liking it. Inertia wins, because finding a court, finding people and matching up
 is a hassle:
 

@@ -8,6 +8,7 @@ import Icon from "../components/Icon.jsx";
 import { feedApi, FeedError } from "./feedApi.js";
 import { Avatar, role, Media, Skeleton, Failed, Empty, FIcon, ago, cap } from "./FeedParts.jsx";
 import { ShareSheet, ReportSheet } from "./FeedSheets.jsx";
+import { shareInvite } from "../invite.js";
 import "./feed.css";
 
 const first = (n = "") => n.split(" ")[0];
@@ -218,13 +219,14 @@ function DraftCard({ d, onDone, say }) {
 function InviteBox({ p, patch, say }) {
   const v = p.invite, [busy, setBusy] = useState(false);
   const join = async (on) => { setBusy(true); try { const r = await feedApi.join(p.id, on); patch(() => r.post); } catch (e) { say(e.message); } setBusy(false); };
+  const share = async () => { const r = await shareInvite(p.id, `${cap(v.sport)} ${v.day} ${v.start}: join me on Serve`); if (r === "copied") say("Link copied. Anyone can open it, also without an account."); };
   return (
     <div className="fd-invite">
       <span className="fd-inv-when"><b>{v.day}</b>{v.start}</span>
       <span className="fd-inv-what"><b>{cap(v.sport)}</b>{v.at ? <a className="tiny muted" href={`https://www.openstreetmap.org/?mlat=${v.at.lat}&mlon=${v.at.lon}#map=17/${v.at.lat}/${v.at.lon}`} target="_blank" rel="noreferrer"><Icon name="pin" size={12} />{v.where}</a> : <span className="tiny muted"><Icon name="pin" size={12} />{v.where}</span>}
         <span className="fd-inv-spots" aria-label={`${v.going} of ${v.spots} spots taken`}>{Array.from({ length: v.spots }, (_, i) => <i key={i} className={i < v.going ? "on" : ""} />)}</span>
         <span className="tiny muted">{v.names.length ? `${v.names.join(", ")} ${v.names.length > 1 ? "are" : "is"} in` : "Nobody yet"} · {v.full ? "full" : `${v.spots - v.going} left`}</span></span>
-      {p.mine ? <span className="task-state running">Your invite</span> : v.joined ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button>
+      {v.full && (p.mine || v.joined) ? <span className="task-state done">Game on</span> : p.mine ? <button className="btn ghost sm" onClick={share}><Icon name="share" size={14} />Share link</button> : v.joined ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button>
         : <button className="btn primary sm" disabled={busy || v.full} onClick={() => join(true)}>{v.full ? "Full" : "Join"}</button>}
     </div>
   );

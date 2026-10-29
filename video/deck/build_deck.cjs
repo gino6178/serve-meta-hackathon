@@ -142,12 +142,17 @@ async function chart(file) {
     const s = content("Impact", "IMPACT · 30%", "People don't quit the game. They quit organizing it",
       "痛點：不是不愛打球，是約不成。\n旁白：Most people don't quit sports because they stopped loving the game. They quit because matching four calendars, finding a court and working around a sore knee takes too much group chat.\n影片：pain.html，群組約球失敗，蓋上 No game this week。");
     box(s, 0.6, 1.85, 3.6, 4.85, { fill: GREENBG, line: GREENBG });
-    T(s, "31%", 0.9, 2.15, 3.1, 1.2, { fontSize: 72, bold: true, color: GREEN });
-    T(s, "of adults worldwide did not get enough physical activity in 2022", 0.9, 3.45, 3.0, 1.1, { fontSize: 16, color: INK });
-    T(s, "World Health Organization, 2024", 0.9, 4.6, 3.0, 0.3, { fontSize: 11, color: MUTED });
-    T(s, "For anyone who plays a ball sport for fun: badminton, tennis, pickleball, table tennis, basketball, volleyball, soccer.", 0.9, 5.15, 3.0, 1.3, { fontSize: 13, color: MUTED });
+    T(s, "40% \u2192 26%", 0.9, 2.1, 3.25, 0.8, { fontSize: 38, bold: true, color: GREEN });
+    T(s, "of US adults play a sport at ages 18 to 21, then at 26 to 49", 0.9, 2.95, 3.0, 0.65, { fontSize: 15, color: INK });
+    T(s, "NPR, RWJF and Harvard Chan poll of 2,506 adults, 2015", 0.9, 3.6, 3.0, 0.45, { fontSize: 10.5, color: MUTED });
+    T(s, "WHAT STOPS ADULTS", 0.9, 4.25, 3.0, 0.25, { fontSize: 10, bold: true, color: GREEN, charSpacing: 1 });
+    [["64%", "other commitments come first"], ["21%", "got out of the habit"], ["10%", "no one to do it with"]].forEach(([n, d], i) => {
+      T(s, n, 0.9, 4.55 + i * 0.45, 0.8, 0.4, { fontSize: 18, bold: true, color: INK });
+      T(s, d, 1.7, 4.55 + i * 0.45, 2.4, 0.4, { fontSize: 12, color: INK, valign: "middle" });
+    });
+    T(s, "Active NZ survey, Sport New Zealand, 2023", 0.9, 5.95, 3.0, 0.3, { fontSize: 10.5, color: MUTED });
     const rows = [
-      ["Playing takes organizing", "A time that suits four people, a free court, somewhere everyone can reach. The group chat goes quiet.", "Your agent lines up the week and agrees every game with the other players' agents. You approve once."],
+      ["Playing takes organizing", "\"Who's free this week?\" \"Is the court taken?\" \"We're one short.\" The group chat wears the fun out.", "Your agent agrees the time and the court with the other players' agents. You approve once; your phone says \"Game on: Thu 19:00, 4 in.\""],
       ["Nobody pushes you", "One missed week becomes a month. Apps count steps; none books your next game.", "When your usual time is open and your partner is free, it asks: \"Thursday 19:00: Leo is free. Want a game?\""],
       ["Life gets in the way", "A sore knee, a heavy week, rain on an outdoor court.", "It plans doubles or one game fewer, checks in two days later, and checks the map, reviews and forecast."],
     ];
@@ -162,6 +167,7 @@ async function chart(file) {
       box(s, 8.75, y, 3.95, 1.35, { fill: GREENBG, line: GREENBG });
       T(s, fix, 8.95, y + 0.18, 3.6, 1.1, { fontSize: 13 });
     });
+    T(s, "Less screen time, more court time: any ball sport that needs people, a time and a place.", 4.6, 6.78, 8.1, 0.3, { fontSize: 11, color: MUTED, italic: true });
   }
 
   // 3b · Live: invited players on the public site, each with an agent of their own
@@ -171,7 +177,7 @@ async function chart(file) {
     phone(s, IMG.v3.live_clubs, 0.75, 1.85, 4.7, "Clubs on a real map, one recommended");
     phone(s, IMG.v3.live_draft, 3.35, 1.85, 4.7, "Say it; your agent drafts the invite");
     T(s, "LIVE SINCE 29 OCT · relay-orders-eliminate-associated.trycloudflare.com", 6.2, 1.85, 6.6, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
-    [["3", "players"], ["1", "club they started"], ["3", "games posted"], ["2", "joins"]].forEach(([n, d], i) => {
+    [["3", "players"], ["1", "club they started"], ["3", "games posted"], ["2", "joins, 2 and 6 min after posting"]].forEach(([n, d], i) => {
       const x = 6.2 + i * 1.6;
       box(s, x, 2.15, 1.48, 1.05, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
       T(s, n, x + 0.14, 2.2, 1.2, 0.55, { fontSize: 26, bold: true, color: i === 0 ? GREEN : INK });
@@ -179,13 +185,14 @@ async function chart(file) {
     });
     [["An agent of their own", "Each player's agent runs in its own process on my server, with its own data folder; the club, its feed and its games are shared."],
       ["Clubs anyone can start", "Public or private, on a real map; your agent recommends the nearest public one."],
-      ["Tell your agent the game", "\"Saturday morning doubles, need 3\": it drafts the invite with the nearest court, you tap Post, it shows who joins."]].forEach(([h, d], i) => {
+      ["Tell your agent the game", "\"Saturday morning doubles, need 3\": it drafts the invite with the nearest court and you tap Post. Share it as a link: anyone opens it and joins, no account needed first."]].forEach(([h, d], i) => {
       const y = 3.5 + i * 1.05;
       s.addShape(pres.shapes.OVAL, { x: 6.2, y: y + 0.04, w: 0.34, h: 0.34, fill: { color: GREEN }, line: { color: GREEN } });
       T(s, String(i + 1), 6.2, y + 0.04, 0.34, 0.34, { fontSize: 11.5, bold: true, color: WHITE, align: "center", valign: "middle" });
       T(s, h, 6.7, y, 6, 0.3, { fontSize: 14, bold: true });
       T(s, d, 6.7, y + 0.33, 6, 0.6, { fontSize: 11, color: MUTED });
     });
+    T(s, "Live for the last days of a nine-day hackathon: a week-long trial with 10\u201320 players is next (games booked, time to agree, invitees who join).", 6.2, 6.62, 6.6, 0.4, { fontSize: 10, color: MUTED, italic: true });
   }
 
   // 4 · Simple architecture, in three columns

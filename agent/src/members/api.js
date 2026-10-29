@@ -29,11 +29,16 @@ const redirect = (res, url) => { res.writeHead(302, { location: url, "cache-cont
 export const member = (req) => M.fromSession(req.headers["x-serve-session"]);
 // the routes a signed-in member may use without the gateway's token
 export const memberRoute = (p) => p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/") || p === "/api/clubs" || p.startsWith("/api/clubs/");
-export const publicRoute = (p) => p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/");
+export const publicRoute = (p) => p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p === "/api/invite";
 
 export async function route(req, res, u, { json, o, forget }) {
   const p = u.pathname, send = (code, body) => { json(res, code, body, o); return true; };
   if (p === "/api/auth/providers") return send(200, M.providers());
+  // an invite link (#/i/<id>) opened by someone who has no account yet
+  if (p === "/api/invite" && req.method === "GET") {
+    const v = P.publicInvite(String(u.searchParams.get("id") || ""), (room) => C.canSee(room, null));
+    return v ? send(200, { invite: v }) : send(404, { error: "That game is not open any more." });
+  }
   const a = /^\/api\/auth\/(facebook|instagram)\/(start|callback)$/.exec(p);
   if (a && a[2] === "start") { const r = M.start(a[1]); return r.error ? redirect(res, `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}`) : redirect(res, r.url); }
   if (a && a[2] === "callback") {
