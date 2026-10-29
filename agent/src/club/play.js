@@ -13,6 +13,7 @@ import { chat } from "../core/llm.js";
 import { readClub } from "./club.js";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
 import * as fb from "../agents/freebusy.js";
+import * as consentMod from "../a2a/consent.js";
 import { privateFor } from "../safety/privacy.js";
 
 // hooks the matchmaker installs (match/index.js): the options' partners ordered by their agents' bands, and an invite's
@@ -407,6 +408,14 @@ export async function book({ option, invites = {}, you = {} } = {}) {
   const clash = (option?.partners || []).map((p) => [p, playing(p.id, option.date).find((g) => !mine.has(g.ref) && g.from < to && from < g.to)]).find(([, g]) => g);
   // (a game that can't be booked lets its holds go)
   if (clash) { mine.forEach((r) => release(r)); return { error: `${clash[0].name.split(" ")[0]} ${clash[1].held ? "is held for another game" : "was booked into another game"} at that time meanwhile. Ask again for a fresh option.`, clash: clash[0].id }; }
+  // proof of consent (a2a/consent.js): every player's agent signed this same game, the player's own on this yes; a
+  // record changed since, or a signature by another key, is refused (members on a peer gateway confirm there, below)
+  if (option?.consent?.length || consentMod.required()) {
+    const pc = consentMod.verify(option, [...(option.consent || []), consentMod.sign("you", option)]);
+    const missing = pc.missing.filter((id) => !consentMod.remote(id));
+    if (pc.bad.length || missing.length) { mine.forEach((r) => release(r)); return { error: pc.bad.length ? "This game's record no longer matches what the players' agents agreed. Ask again for a fresh option." : "Not every player's agent has agreed to this game yet.", consent: { ...pc, missing } }; }
+    option.proof = { signed: pc.signed, of: pc.of };
+  }
   // partners whose agents are on a peer gateway confirm there, all or nothing, just before the game is booked here (and
   // a refusal lets this talk's holds go): hooks.confirm, a2a.js
   const remote = async () => { const r = hooks.confirm ? await hooks.confirm(option) : null; if (r?.error) mine.forEach((x) => release(x)); return r?.error ? r : null; };
