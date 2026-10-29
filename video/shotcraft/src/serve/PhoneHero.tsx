@@ -7,7 +7,7 @@ import { EASE, FONT, ramp } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, TextReveal, alpha, springAt, type } from '../demos/_fixtures/Look';
 import { BRAND, ShotcraftMark } from '../demos/_fixtures/Brand';
 
-export const PHONE_HERO_DURATION = 186; // 5600ms @30fps
+export const PHONE_HERO_DURATION = 156; // 5600ms @30fps
 
 const L = LOOKS.serve;
 const DUR = PHONE_HERO_DURATION;
@@ -141,14 +141,22 @@ export const PhoneHero: React.FC = () => {
         </div>
       </div>
 
+      {/* the model and where it runs, low on the left once both chips have landed */}
+      <div style={{ position: 'absolute', left: 120, bottom: 110, display: 'flex', alignItems: 'center', gap: 16, opacity: ramp(f, 92, 12, EASE.out), transform: `translateY(${((1 - ramp(f, 92, 16, EASE.snappy)) * 18).toFixed(2)}px)` }}>
+        <ShotcraftMark size={56} tone="light" />
+        <div>
+          <div style={{ ...type(34, 750), color: L.ink }}>Built on Muse Glimmer</div>
+          <div style={{ ...type(26, 500), color: L.ink2 }}>Meta's open weights, on my RTX 3090</div>
+        </div>
+      </div>
       {/* 两侧 chip：左先右后，从手机侧边弹出 */}
       <div style={{ ...chipBase, top: 330, right: 1920 - PX + CHIP_GAP, ...chip(37, 0, -1) }}>
         <ChipIcon kind="agents" />
-        Agents agree your week
+        Your week, agreed agent to agent
       </div>
       <div style={{ ...chipBase, top: 610, left: PX + PW + CHIP_GAP, ...chip(67, 1.8, 1) }}>
         <ChipIcon kind="check" />
-        One yes, and it's booked
+        One yes from you
       </div>
 
     </div>

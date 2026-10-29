@@ -833,7 +833,7 @@ how many invited players join, and the same group's group-chat polls for compari
 agent, A2A and its signing, the matchmaking, the memory and its beliefs, the guards' use, the community loop and its
 builder, the highlight pipeline's code, the web app, the members, clubs and the per-player gateways, the tests and
 evaluations. The repository's history starts on October 28, the hackathon's second day, when the work so far was
-restructured into it, with over 900 commits since. The demo video (2:42) was recorded from this code.
+restructured into it, with over 900 commits since. The demo video (2:29) was recorded from this code.
 
 **Mine, from before.** TrackNetV5, a published shuttle tracker (ICIP 2026): fetched at run time, off unless
 `BALL_TRACKING=1`, and not used in this entry.

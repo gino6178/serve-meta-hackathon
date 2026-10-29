@@ -18,10 +18,10 @@
 
 | Requirement | Decision |
 |---|---|
-| ≤ 3 min | About 2:09 (3,877 frames at 30 fps, the close held 45 frames) |
+| ≤ 3 min | About 2:29 (4,475 frames at 30 fps, the close held 45 frames) |
 | Real product, not mock-ups | The live segment is screen recordings of the running app (record_live.mjs) against the real gateway code, Muse Glimmer and Llama Guard on the GPU server |
 | Speed-ups visible | Every slice faster than 1× carries a "N× speed" pill in the frame's bottom band |
-| No sports analysis | No highlight, pose or body content; the planner's tool is shown as check_limits |
+| No sports analysis | The one video shot is an auto-cut clip to share, labelled "not a coach, not a sports analyzer"; the planner's tool is shown as check_limits |
 | Honest numbers | 93/93 attacks with 37 of 42 unsafe messages refused beside it; live counts dated 29 Oct |
 | Music optional | Two renders from one timeline: with and without music (`bgm` prop) |
 
@@ -39,7 +39,8 @@ weights, tight tracking (−0.02 to −0.045em); radii 18–34. Motion personali
 |---|---|---|
 | The problem (group chat) | list-stack-press | demos/ui-entrance/list-stack-press/ListStackPress.tsx |
 | Brand | letterspace-materialize | demos/opening/letterspace-materialize/LetterspaceMaterialize.tsx |
-| Why people stop (40% → 26%) | blur-slide | demos/typography/blur-slide/BlurSlide.tsx |
+| Fine-tune and cascade (40 s → 0.9 s, 89.5%) | blur-slide | demos/typography/blur-slide/BlurSlide.tsx |
+| Auto-cut clip to share | push-in on footage (own) | src/serve/AutoClip.tsx |
 | The product, at a glance | radial-ripple-phone-chips | demos/effects/radial-ripple-phone-chips/RadialRipplePhoneChips.tsx |
 | The real app (5 recordings) | brand-frame-snap (frame + window drop + one-frame flip, 2 flips) | demos/effects/brand-frame-snap/BrandFrameSnap.tsx |
 | Meta models | card-stack | demos/ui-entrance/card-stack/CardStack.tsx |
@@ -48,25 +49,33 @@ weights, tight tracking (−0.02 to −0.045em); radii 18–34. Motion personali
 | Real usage | card-flip-reveal | demos/transition/card-flip-reveal/CardFlipReveal.tsx |
 | Close | logo-shrink-wordmark-lockup | demos/outro/logo-shrink-wordmark-lockup/LogoShrinkWordmarkLockup.tsx |
 
-Cut on purpose: gauge-readout (the student's 0.9 s is on the models card), a separate cold-start card (the live
-segment shows the link opening with no account).
+Cut on purpose: gauge-readout (the cascade shot carries the numbers). The 40% → 26% stat now sits in the cold open.
 
-## 3. Storyboard and frame timeline (30 fps)
+## 3. Storyboard and frame timeline (30 fps, 4,475 frames, 2:29)
 
 | # | From | Frames | Shot | Main motion | Sound |
 |---|---|---|---|---|---|
-| 1 | 0 | 190 | Cold open: "Saturday badminton" chat, messages pile up, counter "Games booked: 0"; then "People don't quit the game. They quit organizing it." | stack-press, counter roll, blur reveal | pop ×6 stepping down, swoosh |
-| 2 | 190 | 120 | "serve" drawn in, all strokes together; "Play more. Manage less." | synchronous stroke | soft transition, sparkle |
-| 3 | 310 | 150 | 40% → 26%; what stops adults; sources | blur-slide | swoosh |
-| 4 | 460 | 186 | Phone with real screens (agent chats → games agreed), chips "Agents agree your week", "One yes, and it's booked" | rings, scroll, chip pops | whoosh-big, pops |
-| 5 | 646 | 2394 | Live: ask the agent (typing; draft at 10×; Llama Guard at 8×; posted) → Leo's phone, no account, joins (blue frame) → "Game on" (green) → Plan my week (16× while Glimmer works) → agreed, one yes → agent chats word for word → clubs on a real map, start one (3×, 2×) | frame grows, window drops, hard cuts, 2 flips | snap, keyboard, clicks on flips |
-| 6 | 3040 | 165 | Six Meta models, Glimmer at the centre | card stack → fan → lift | whoosh-fast, snap |
-| 7 | 3205 | 165 | 93 / 93 attacks stopped; Rule of Two; 37 of 42 unsafe refused | score-slam (big hit 1) | impact |
-| 8 | 3370 | 180 | Built for your club / a school club / older adults / a charity cup / any ball sport | word roll | swoosh ×4 |
-| 9 | 3550 | 150 | Live since 29 October: 8 players, 2 clubs, 7 joins | card flips | swoosh ×3 |
-| 10 | 3700 | 132 + 45 hold | Logo lockup, motto, repository | collapse, heal, lockup (big hit 2) | whoosh → impact → sparkle |
+| 1 | 0 | 205 | Cold open: the chat piles up, "Games booked: 0"; "People don't quit the game. They quit organizing it."; 40% → 26% with its source | stack-press, counter roll, blur reveal | pop ×6, swoosh ×2 |
+| 2 | 205 | 96 | "serve" drawn in; "Play more. Manage less." | synchronous stroke | soft transition, sparkle |
+| 3 | 301 | 156 | Phone with real screens; chips "Your week, agreed agent to agent", "One yes from you"; "Built on Muse Glimmer, on my RTX 3090" | rings, scroll, chip pops | whoosh-big, pops |
+| 4 | 457 | 2806 | Live, in three acts, each opened by a 1.5 s card. Act 1, cold start: ask (Glimmer at 10×, Llama Guard at 8×), Leo joins with no account, Leo and Mia side by side, "Game on". Act 2, A2A: Plan my week (16×), agreed, one yes in Messenger (1.5×), Hana's counter-offer marked. Act 3: courts (Prompt Guard 2 then Glimmer, 14×), clubs (4×). A pill in the top band names the Meta model at work | frame, act cards, split, mark, model pill | snap, swooshes on cards, keyboard, clicks, pop on the mark |
+| 5 | 3263 | 150 | Auto-cut clip to share (CC BY footage); not a coach, not a sports analyzer | push-in | soft transition |
+| 6 | 3413 | 165 | Six Meta models, Glimmer at the centre; the other nine named | card stack → fan → lift | swoosh, whoosh-fast, snap |
+| 7 | 3578 | 225 | Teacher 40 s → student fine-tuned here 0.9 s → cascade 89.5% agreement; 54–67% fewer Glimmer answers | blur-slide columns | swoosh ×3 |
+| 8 | 3803 | 165 | 93 / 93 attacks stopped; Rule of Two; 37 of 42 unsafe refused; disclosure budget 97.6% → 32.4% | score-slam (big hit 1) | impact |
+| 9 | 3968 | 150 | Live since 29 October: 8 players, 2 clubs, 7 joins | card flips | swoosh ×3 |
+| 10 | 4118 | 180 | Built for your club / a school club / older adults / a charity cup / any ball sport | word roll | swoosh ×4 |
+| 11 | 4298 | 132 + 45 hold | Logo lockup, motto, "Built Oct 27 – Nov 4, 2026, 900+ commits", repository | collapse, heal, lockup (big hit 2) | whoosh → impact → sparkle |
 
 Source files: src/serve/*.tsx; timeline and sound table: src/Main.tsx; live slices: src/serve/live.ts.
+
+## Restructure (judges' feedback on the 2:09 cut)
+
+- Intro cut to about 15 s: the stat joins the cold open, the separate stat shot is gone.
+- The live segment is three acts with cards, so a judge can follow cold start → A2A → courts; Messenger and the
+  Prompt Guard court search are now in the film, matching the deck's video slide.
+- The model pill answers "which Meta model is doing this" during every slow wait.
+- New shots for the auto-cut clip (framed as sharing, not analysis) and the fine-tune and cascade (technical depth).
 
 ## Notes after the independent review
 

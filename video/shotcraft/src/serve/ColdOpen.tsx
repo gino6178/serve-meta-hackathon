@@ -23,7 +23,7 @@ const TILTS = [2, -2, 2, -2, 2, -2];
 const ROW = 122;
 const COL_X = 560; // the chat column
 const TOP = 190;
-export const COLD_OPEN_DURATION = 190;
+export const COLD_OPEN_DURATION = 205;
 
 const flyT = (i: number, f: number) => interpolate(f, [CUES[i], CUES[i] + DUR], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: FLY_EASE });
 const flyY = (i: number, f: number) => 600 * (1 - flyT(i, f));
@@ -102,6 +102,12 @@ export const ColdOpen: React.FC = () => {
         </div>
         <div style={{ fontSize: 84, fontWeight: 760, letterSpacing: '-0.035em', lineHeight: 1.1, color: L.accent }}>
           <TextReveal text="They quit organizing it." by="word" variant="blur" start={LINE + 22} each={16} />
+        </div>
+        <div style={{ fontSize: 40, fontWeight: 600, letterSpacing: '-0.015em', color: L.ink2, marginTop: 40 }}>
+          <TextReveal text="40% of US adults play a sport at 18 to 21. At 26 to 49: 26%." by="word" variant="blur" start={LINE + 44} each={14} gap={2} />
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '0.08em', color: L.ink3, marginTop: 14, opacity: interpolate(f, [LINE + 60, LINE + 72], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }) }}>
+          NPR, RWJF AND HARVARD CHAN POLL, 2015
         </div>
       </div>
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: `radial-gradient(ellipse 60% 50% at 50% 50%, ${alpha('#ffffff', 0)} 60%, ${alpha('#0a1a10', 0.05)} 100%)` }} />

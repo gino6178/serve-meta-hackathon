@@ -55,7 +55,7 @@ async function chart(file) {
     heart: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 54 C 8 38, 6 22, 18 14 C 25 10, 30 14, 32 19 C 34 14, 39 10, 46 14 C 58 22, 56 38, 32 54 Z" fill="#d1352b"/></svg>'),
     check: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#0a7f44"/><path d="M19 33 l9 9 l17 -19" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'),
     smash: await jpg(path.join(__dirname, "smash_loop.jpg"), 1280),
-    frames: await Promise.all([20, 55, 68].map((t) => jpg(path.join(__dirname, `vframe_${t}.png`), 1280))),
+    frames: await Promise.all([41, 75, 85].map((t) => jpg(path.join(__dirname, `vframe_${t}.png`), 1280))),
     faces: await Promise.all(["you", "hana", "ravi", "tomas", "yuki", "aisha", "leo", "noor", "sam", "ines", "kenji", "priya"].map((k) => png(path.join(ROOT, "web/public/agents", k + ".png")))),
     smashDepth: await jpg(path.join(__dirname, "smash/cutout_depth.png"), 1280),
     orbit1: await jpg(path.join(__dirname, "smash/orbit_start.png"), 640),
@@ -493,7 +493,7 @@ async function chart(file) {
       "The community loop and its builder; the highlight pipeline's code",
       "The web app, members, clubs, the per-player gateways",
       "The Llama 3.2 1B student, fine-tuned from Glimmer's choices",
-      "Every test and evaluation; the demo video (2:42)",
+      "Every test and evaluation; the demo video (2:29)",
       "Day 1's work moved into this repository on Oct 28 (day 2); over 900 commits since",
     ], 12);
     col(5.35, 2.6, "MINE, FROM BEFORE", "Off in this entry", CARD, MUTED, [
@@ -509,9 +509,9 @@ async function chart(file) {
 
   // V · The demo video
   {
-    const s = content(SEC, "DEMO · 25% · THE VIDEO, 2:42", "What the video shows, in the running app",
-      "Demo 影片 2:42 的三個畫面：Messenger 裡一個 yes 就訂好（端對端測試的真實回覆）、agent 在 Muse Glimmer 上協商（8 倍速，有標示）、找球場並由 Glimmer 判斷（15 倍速）。");
-    [["0:20", "One yes in Messenger, and the game is booked (real replies from the end-to-end test)"], ["0:55", "Your agent and three players' agents negotiate on Muse Glimmer (shown at 8×, labelled)"], ["1:08", "Courts found and judged with Prompt Guard 2 and Glimmer (shown at 15×, labelled)"]].forEach(([t, d], i) => {
+    const s = content(SEC, "DEMO · 25% · THE VIDEO, 2:29", "Three acts, all in the running app",
+      "Demo 影片 2:29，三幕：一、冷啟動：Leo 沒有帳號，點連結就加入，Mia 同時收到 Game on（並排）；二、agent 透過 A2A 協商，Hana 的 agent 提出反提案（Messenger 裡一個 yes 就訂好也在這一幕）；三、找球場：Prompt Guard 2 先過濾評論，再由 Muse Glimmer 判斷（14 倍速，有標示），然後是社團。");
+    [["0:41", "Act 1 · cold start: Leo has no account, the link joins him, and Mia hears \"Game on\" at once"], ["1:15", "Act 2 · A2A: Hana's agent makes a real counter-offer; one yes in Messenger books it (end-to-end test)"], ["1:25", "Act 3 · courts: Prompt Guard 2 screens reviews, then Muse Glimmer judges (shown at 14×, labelled)"]].forEach(([t, d], i) => {
       const x = 0.6 + i * 4.1;
       s.addImage({ data: IMG.frames[i], x, y: 1.95, w: 3.9, h: 3.9 * 9 / 16 });
       s.addShape(pres.shapes.RECTANGLE, { x, y: 1.95, w: 3.9, h: 3.9 * 9 / 16, fill: { type: "none" }, line: { color: LINE, width: 1 } });
@@ -531,7 +531,7 @@ async function chart(file) {
     pill(s, "Your week, agreed agent to agent", 1.45, 4.45, 3.3, { h: 0.5, size: 13 });
     pill(s, "Your agent in Messenger", 4.9, 4.45, 2.9, { h: 0.5, size: 13 });
     pill(s, "Auto-cut highlights to Instagram", 7.95, 4.45, 3.95, { h: 0.5, size: 13 });
-    T(s, "Built during the hackathon, Oct 27 – Nov 4, 2026 · demo video 2:42 · what is new and what is not: slide 16", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
+    T(s, "Built during the hackathon, Oct 27 – Nov 4, 2026 · demo video 2:29 · what is new and what is not: slide 16", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
     T(s, "github.com/gino6178/serve-meta-hackathon  ·  live: relay-orders-eliminate-associated.trycloudflare.com", 1, 5.78, 11.333, 0.35, { fontSize: 13, color: BLUE, align: "center" });
     T(s, "The product runs Muse Glimmer on an RTX 3090 I own; cloud A100s ran evaluations, including the A2A test's second gateway", 1, 6.6, 11.333, 0.36, { fontSize: 13, color: MUTED, align: "center", valign: "middle" });
     s.addNotes("片尾：Play more, manage less. 黑客松期間開發聲明（TrackNetV5 除外）、repo 連結、Built on Muse Glimmer。\n旁白：That's Serve. Play more, manage less.");

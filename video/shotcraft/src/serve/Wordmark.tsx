@@ -18,9 +18,9 @@ const WORD = 'serve';
 const SCALE = 2.4;
 const GLYPH_H = 64 * SCALE;
 const TRACK = 58;
-const START = 14;
-const DUR = 52;
-export const WORDMARK_DURATION = 120;
+const START = 6;
+const DUR = 44;
+export const WORDMARK_DURATION = 96;
 const strokeEase = bezier(0.5, 0, 0.3, 1);
 
 const Word: React.FC<{ e: number }> = ({ e }) => (
@@ -64,7 +64,7 @@ export const Wordmark: React.FC = () => {
         <Word e={e} />
       </div>
       <div style={{ position: 'absolute', left: 0, right: 0, top: 560, textAlign: 'center', fontSize: 52, fontWeight: 650, letterSpacing: '-0.025em', color: L.ink2 }}>
-        <TextReveal text="Play more. Manage less." by="word" variant="blur" start={START + DUR + 8} each={16} />
+        <TextReveal text="Play more. Manage less." by="word" variant="blur" start={START + DUR + 2} each={14} />
       </div>
       <Grain opacity={0.03} blend="soft-light" />
     </AbsoluteFill>

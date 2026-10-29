@@ -18,7 +18,15 @@ const WIN_W = 1560;
 const WIN_H = 864;
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 
-export type Seg = { src: string; from: number; to: number; rate?: number; caption: string; who?: 'you' | 'friend'; label?: string; zoom?: { x: number; y: number; s: number } };
+// a slice: a clip at a speed (the default), an act's title card, or two clips side by side (each cropped to what
+// matters). model names the Meta model at work, shown in the top band; mark draws a highlight box (window px).
+type Box = { x: number; y: number; w: number; h: number };
+type Side = { src: string; from: number; crop: Box; tint: string; who: string };
+export type Seg = {
+  src: string; from: number; to: number; rate?: number; caption: string; who?: 'you' | 'friend'; label?: string;
+  zoom?: { x: number; y: number; s: number }; mark?: Box; model?: string;
+  kind?: 'clip' | 'bumper' | 'split'; num?: string; title?: string; sub?: string; left?: Side; right?: Side;
+};
 const lenOf = (s: Seg) => Math.round(((s.to - s.from) * 30) / (s.rate ?? 1));
 export const liveDuration = (segs: Seg[]) => segs.reduce((n, s) => n + lenOf(s), 0);
 
@@ -32,8 +40,47 @@ const Clip: React.FC<{ s: Seg }> = ({ s }) => {
     <div style={{ position: 'absolute', inset: 0, transform: `scale(${sc.toFixed(4)})`, transformOrigin: s.zoom ? `${s.zoom.x}px ${s.zoom.y}px` : '50% 50%' }}>
       <OffthreadVideo src={staticFile(`clips/${s.src}.mp4`)} startFrom={Math.round(s.from * 30)} playbackRate={s.rate ?? 1} muted
         style={{ position: 'absolute', inset: 0, width: WIN_W, height: WIN_H, objectFit: 'cover' }} />
+      {s.mark && <Mark b={s.mark} />}
     </div>
   );
+};
+// an act's title card, inside the window: the number, the title, one line under it
+const Bumper: React.FC<{ s: Seg }> = ({ s }) => {
+  const f = useCurrentFrame();
+  const a = ramp(f, 0, 10, EASE.snappy), t = ramp(f, 4, 14, EASE.out);
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#ffffff', display: 'flex', alignItems: 'center', paddingLeft: 170, gap: 50, fontFamily: FONT.sans }}>
+      <div style={{ width: 170, height: 170, borderRadius: 85, background: GREEN, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 96, fontWeight: 800, transform: `scale(${(0.7 + 0.3 * springAt(f, 0, { damping: 12, stiffness: 200 })).toFixed(4)})`, opacity: a }}>{s.num}</div>
+      <div style={{ opacity: t, transform: `translateY(${((1 - t) * 18).toFixed(2)}px)` }}>
+        <div style={{ fontSize: 84, fontWeight: 800, letterSpacing: '-0.035em', color: L.ink, lineHeight: 1.05 }}>{s.title}</div>
+        <div style={{ fontSize: 40, fontWeight: 500, color: L.ink2, marginTop: 14 }}>{s.sub}</div>
+      </div>
+    </div>
+  );
+};
+// two clips side by side, each cropped to the part that matters and scaled to fill its half
+const Half: React.FC<{ h: Side; x: number }> = ({ h, x }) => {
+  const W = WIN_W / 2 - 6, sc = Math.min(W / h.crop.w, WIN_H / h.crop.h);
+  return (
+    <div style={{ position: 'absolute', left: x, top: 0, width: W, height: WIN_H, overflow: 'hidden', background: '#ffffff' }}>
+      <div style={{ position: 'absolute', left: (W - h.crop.w * sc) / 2 - h.crop.x * sc, top: (WIN_H - h.crop.h * sc) / 2 - h.crop.y * sc, width: WIN_W, height: WIN_H, transform: `scale(${sc.toFixed(4)})`, transformOrigin: '0 0' }}>
+        <OffthreadVideo src={staticFile(`clips/${h.src}.mp4`)} startFrom={Math.round(h.from * 30)} muted style={{ position: 'absolute', inset: 0, width: WIN_W, height: WIN_H, objectFit: 'cover' }} />
+      </div>
+      <div style={{ position: 'absolute', left: 24, top: 22, padding: '8px 18px', borderRadius: 999, background: h.tint, color: '#fff', fontFamily: FONT.sans, fontSize: 26, fontWeight: 800, letterSpacing: '0.06em' }}>{h.who}</div>
+    </div>
+  );
+};
+const Split: React.FC<{ s: Seg }> = ({ s }) => (
+  <div style={{ position: 'absolute', inset: 0, background: L.line }}>
+    {s.left && <Half h={s.left} x={0} />}
+    {s.right && <Half h={s.right} x={WIN_W / 2 + 6} />}
+  </div>
+);
+// a highlight box that draws in after the zoom has landed, in window px (it rides the zoom)
+const Mark: React.FC<{ b: Box }> = ({ b }) => {
+  const f = useCurrentFrame();
+  const t = ramp(f, 26, 10, EASE.snappy);
+  return <div style={{ position: 'absolute', left: b.x, top: b.y, width: b.w, height: b.h, borderRadius: 18, border: '5px solid #f2b705', boxShadow: '0 0 0 9999px rgba(255,255,255,0)', background: 'rgba(242,183,5,0.10)', opacity: t, transform: `scale(${(1.06 - 0.06 * t).toFixed(4)})` }} />;
 };
 const Window: React.FC<{ segs: Seg[] }> = ({ segs }) => {
   let at = 0;
@@ -42,9 +89,42 @@ const Window: React.FC<{ segs: Seg[] }> = ({ segs }) => {
       {segs.map((s, i) => {
         const d = lenOf(s), start = at;
         at += d;
-        return <Sequence key={i} from={start} durationInFrames={d} layout="none"><Clip s={s} /></Sequence>;
+        return (
+          <Sequence key={i} from={start} durationInFrames={d} layout="none">
+            {s.kind === 'bumper' ? <Bumper s={s} /> : s.kind === 'split' ? <Split s={s} /> : <Clip s={s} />}
+          </Sequence>
+        );
       })}
     </>
+  );
+};
+// the model at work, in the top band's centre
+const ModelPill: React.FC<{ segs: Seg[]; h: number }> = ({ segs, h }) => {
+  let at = 0;
+  return (
+    <>
+      {segs.map((s, i) => {
+        const d = lenOf(s), start = at;
+        at += d;
+        return s.model ? (
+          <Sequence key={i} from={start} durationInFrames={d} layout="none">
+            <PillIn text={s.model} h={h} />
+          </Sequence>
+        ) : null;
+      })}
+    </>
+  );
+};
+const PillIn: React.FC<{ text: string; h: number }> = ({ text, h }) => {
+  const f = useCurrentFrame();
+  const t = ramp(f, 0, 10, EASE.snappy);
+  return (
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: h, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 20px', borderRadius: 999, background: '#ffffff', color: L.ink, fontFamily: FONT.sans, fontSize: 26, fontWeight: 750, letterSpacing: '-0.01em', opacity: t, transform: `translateY(${((1 - t) * -10).toFixed(2)}px)` }}>
+        <span style={{ width: 12, height: 12, borderRadius: 6, background: GREEN, boxShadow: `0 0 0 4px ${alpha(GREEN, 0.22)}` }} />
+        {text}
+      </div>
+    </div>
   );
 };
 // the bottom band's words for the slice on screen
@@ -166,7 +246,7 @@ export const LiveFrame: React.FC<{ segs: Seg[] }> = ({ segs }) => {
         <ShotcraftMark size={40} frameColor="#ffffff" cutColor="#ffffff" />
         {BRAND.name}
       </div>
-      <div style={{ opacity: labelIn }}><BandCaption segs={segs} /></div>
+      <div style={{ opacity: labelIn }}><BandCaption segs={segs} /><ModelPill segs={segs} h={inner} /></div>
       {flash > 0 && (
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: flash, background: 'radial-gradient(ellipse 75% 75% at 50% 50%, rgba(255,255,255,0.3) 40%, rgba(255,255,255,1) 100%)' }} />
       )}

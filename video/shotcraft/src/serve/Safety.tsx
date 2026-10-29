@@ -207,7 +207,7 @@ export const Safety: React.FC = () => {
             </span>
           </div>
           <div style={{ position: 'absolute', left: 0, right: 0, top: CY + CH / 2 + 200, textAlign: 'center', font: `500 32px ${FONT.sans}`, color: L.ink2, letterSpacing: '-0.01em', opacity: ramp(frame, 52, 14, EASE.out), transform: `translateY(${mix(12, 0, ramp(frame, 52, 16, EASE.out)).toFixed(2)}px)` }}>
-            Untrusted input, private data, the power to act: Meta's Agents Rule of Two. Unsafe messages: 37 of 42 refused.
+            Untrusted input, private data, the power to act: Meta's Agents Rule of Two. Unsafe messages: 37 of 42 refused.<br />A prober pins down 32.4% of your week, not 97.6%: a disclosure budget.
           </div>
         </div>
       </div>

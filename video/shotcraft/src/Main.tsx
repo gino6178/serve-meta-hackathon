@@ -1,15 +1,16 @@
-// The film: Serve's demo, about two minutes. SHOTS is the one timeline; the sound cues are written against it (a shot's
+// The film: Serve's demo, about two and a half minutes. SHOTS is the one timeline; the sound cues are written against it (a shot's
 // start plus an offset, never a bare frame), so moving a shot moves its sounds. The music is its own <Audio> behind
 // the `bgm` prop, so the same timeline renders with and without it.
 import React from 'react';
 import { AbsoluteFill, Audio, Freeze, Sequence, interpolate, staticFile } from 'remotion';
 import { ColdOpen, COLD_OPEN_DURATION } from './serve/ColdOpen';
 import { Wordmark, WORDMARK_DURATION } from './serve/Wordmark';
-import { Stat, STAT_DURATION } from './serve/Stat';
 import { PhoneHero, PHONE_HERO_DURATION } from './serve/PhoneHero';
 import { LiveFrame, liveDuration } from './serve/LiveFrame';
 import { LIVE } from './serve/live';
+import { AutoClip, AUTO_CLIP_DURATION } from './serve/AutoClip';
 import { Models, MODELS_DURATION } from './serve/Models';
+import { Cascade, CASCADE_DURATION } from './serve/Cascade';
 import { Safety, SAFETY_DURATION } from './serve/Safety';
 import { WhoElse, WHO_ELSE_DURATION } from './serve/WhoElse';
 import { LiveNumbers, LIVE_NUMBERS_DURATION } from './serve/LiveNumbers';
@@ -21,13 +22,14 @@ const OUTRO_HOLD = 45; // the lockup stays a beat and a half after it lands
 const ORDER: [string, React.FC, number][] = [
   ['cold', ColdOpen, COLD_OPEN_DURATION],
   ['wordmark', Wordmark, WORDMARK_DURATION],
-  ['stat', Stat, STAT_DURATION],
   ['phone', PhoneHero, PHONE_HERO_DURATION],
   ['live', Live, liveDuration(LIVE)],
+  ['autoclip', AutoClip, AUTO_CLIP_DURATION],
   ['models', Models, MODELS_DURATION],
+  ['cascade', Cascade, CASCADE_DURATION],
   ['safety', Safety, SAFETY_DURATION],
-  ['who', WhoElse, WHO_ELSE_DURATION],
   ['numbers', LiveNumbers, LIVE_NUMBERS_DURATION],
+  ['who', WhoElse, WHO_ELSE_DURATION],
   ['outro', Outro, OUTRO_DURATION],
 ];
 export const SHOTS: Record<string, { from: number; dur: number }> = {};
@@ -39,6 +41,8 @@ export const TOTAL = SHOTS.outro.from + OUTRO_DURATION + OUTRO_HOLD;
 
 // where each live slice starts inside the live shot (frames), for the cues that belong to a slice
 const liveAt = (i: number) => LIVE.slice(0, i).reduce((n, s) => n + Math.round(((s.to - s.from) * 30) / (s.rate ?? 1)), 0);
+// slices found by what they are, not by position, so a slice added in one act leaves the others' cues alone
+const at = (pick: (s: (typeof LIVE)[number]) => boolean, nth = 0) => liveAt(LIVE.map((s, i) => (pick(s) ? i : -1)).filter((i) => i >= 0)[nth]);
 
 type Cue = { from: number; src: string; volume: number; dur?: number; note: string };
 export const SFX: Cue[] = [
@@ -46,24 +50,29 @@ export const SFX: Cue[] = [
   ...[30, 44, 58, 72, 86, 100].map((o, i) => ({ from: SHOTS.cold.from + o, src: 'pop', volume: 0.6 - i * 0.04, note: `message ${i + 1} lands` })),
   { from: SHOTS.cold.from + 114, src: 'swoosh-quick', volume: 0.35, note: 'the line rises' },
   // the wordmark: a soft entry, and the shimmer when every stroke closes (14 + 52)
+  { from: SHOTS.cold.from + 158, src: 'swoosh-quick', volume: 0.25, note: 'the number rises' },
   { from: SHOTS.wordmark.from, src: 'transition-soft', volume: 0.4, note: 'into the wordmark' },
-  { from: SHOTS.wordmark.from + 64, src: 'sparkle', volume: 0.45, dur: 60, note: 'serve is written' },
-  { from: SHOTS.stat.from + 8, src: 'swoosh-quick', volume: 0.3, note: '40% rises' },
+  { from: SHOTS.wordmark.from + 50, src: 'sparkle', volume: 0.45, dur: 60, note: 'serve is written' },
   // the phone rises, the chips pop (37, 67)
   { from: SHOTS.phone.from, src: 'whoosh-big', volume: 0.35, note: 'the phone rises' },
   { from: SHOTS.phone.from + 37, src: 'pop', volume: 0.35, note: 'left chip' },
   { from: SHOTS.phone.from + 67, src: 'pop', volume: 0.32, note: 'right chip' },
-  // the live frame: the band snaps in, typing under the first slice, a click on each flip (slice 5 → Leo, slice 6 → back)
+  // the live frame: the band snaps in, a swoosh on each act's card, typing under the first slice, clicks on the flips
   { from: SHOTS.live.from, src: 'transition-snap', volume: 0.45, note: 'the frame grows' },
-  { from: SHOTS.live.from + 20, src: 'keyboard', volume: 0.28, dur: 150, note: 'typing the request' },
-  { from: SHOTS.live.from + liveAt(5), src: 'switch-click-quick', volume: 0.5, note: "flip to Leo's phone" },
-  { from: SHOTS.live.from + liveAt(6), src: 'switch-click-quick', volume: 0.5, note: 'flip back: Game on' },
-  { from: SHOTS.live.from + liveAt(7), src: 'swoosh-quick', volume: 0.28, note: 'into the planner' },
-  { from: SHOTS.live.from + liveAt(11), src: 'swoosh-quick', volume: 0.28, note: 'into clubs' },
-  // the models: soft entry, the fan opens (68), the centre card is drawn out (102)
-  { from: SHOTS.models.from, src: 'transition-soft', volume: 0.38, note: 'out of the live frame' },
+  ...[0, 1, 2].map((n) => ({ from: SHOTS.live.from + at((s) => s.kind === 'bumper', n) + 4, src: 'swoosh-quick', volume: 0.4, note: `act ${n + 1} card` })),
+  { from: SHOTS.live.from + at((s) => s.src === 'ask') + 6, src: 'keyboard', volume: 0.28, dur: 150, note: 'typing the request' },
+  { from: SHOTS.live.from + at((s) => s.src === 'link'), src: 'switch-click-quick', volume: 0.5, note: "flip to Leo's phone" },
+  { from: SHOTS.live.from + at((s) => s.kind === 'split'), src: 'switch-click-quick', volume: 0.45, note: 'both phones side by side' },
+  { from: SHOTS.live.from + at((s) => s.src === 'gameon'), src: 'switch-click-quick', volume: 0.5, note: 'Game on, close up' },
+  { from: SHOTS.live.from + at((s) => s.src === 'msgbook'), src: 'switch-click-quick', volume: 0.45, note: 'into Messenger' },
+  { from: SHOTS.live.from + at((s) => !!s.mark) + 26, src: 'pop', volume: 0.4, note: "Hana's counter-offer marked" },
+  // the auto-cut clip rises; the models: soft entry, the fan opens (68), the centre card is drawn out (102)
+  { from: SHOTS.autoclip.from, src: 'transition-soft', volume: 0.38, note: 'out of the live frame' },
+  { from: SHOTS.models.from, src: 'swoosh-quick', volume: 0.3, note: 'into the models' },
   { from: SHOTS.models.from + 68, src: 'whoosh-fast', volume: 0.35, note: 'the fan opens' },
   { from: SHOTS.models.from + 102, src: 'transition-snap', volume: 0.4, note: 'Glimmer lifts' },
+  // the cascade: one swoosh per column rising (20, 48, 76)
+  ...[20, 48, 76].map((o, i) => ({ from: SHOTS.cascade.from + o, src: 'swoosh-quick', volume: 0.3, note: `cascade column ${i + 1}` })),
   // safety: the slam (impact frame 15) — the first of the film's two big hits
   { from: SHOTS.safety.from + 9, src: 'whoosh-fast', volume: 0.3, note: 'the card falls' },
   { from: SHOTS.safety.from + 15 - 17, src: 'impact-deep-whoosh', volume: 0.6, dur: 90, note: 'the card lands (the sample peaks 17 frames in)' },

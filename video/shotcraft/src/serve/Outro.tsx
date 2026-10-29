@@ -211,7 +211,7 @@ export const Outro: React.FC = () => {
           {PITCH.en.motto.toUpperCase()}
         </div>
         <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(50% + 60px)', textAlign: 'center', color: '#5c5f66', font: `600 10px/1 ${FONT.sans}`, letterSpacing: 0.2, opacity: seg(t, 0.82, 0.94, E.outQuad) }}>
-          {BRAND.repo} · built during the Meta Global AI Developer Hackathon
+          Built Oct 27 – Nov 4, 2026, 900+ commits · {BRAND.repo}
         </div>
       </div>
     </DesignStage>

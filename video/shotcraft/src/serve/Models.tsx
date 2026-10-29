@@ -137,7 +137,10 @@ export const Models: React.FC = () => {
         position: 'absolute', left: 0, right: 0, top: 268, textAlign: 'center', ...type(34, 450), color: L.ink2,
         opacity: ramp(f, 116, 14, EASE.out), transform: `translateY(${(1 - ramp(f, 116, 18, EASE.snappy)) * 16}px)`,
       }}>
-        Muse Glimmer at the centre, on a GPU I own. All fifteen are in the deck.
+        Muse Glimmer at the centre, on my RTX 3090.
+      </div>
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 70, textAlign: 'center', fontFamily: FONT.sans, fontSize: 26, fontWeight: 550, color: L.ink2, opacity: ramp(f, 120, 16, EASE.out) }}>
+        And nine more: Omnilingual ASR · DETR · Sapiens2 · SAM 2.1 · MapAnything · Muse Image · Muse Spark · Muse Wonder · SAM 3.1
       </div>
     </AbsoluteFill>
   );
