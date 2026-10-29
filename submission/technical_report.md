@@ -364,6 +364,43 @@ The name and line are checked like any post. A member's agent recommends the nea
 time, how many players, and the nearest court to the player. The player changes the count and taps Post; it goes into
 their club for that sport, else the shared feed, and the chat shows who has joined.
 
+### 3.18 Four pieces of agent architecture
+
+**Active epistemic querying, by the value of information** (`agent/src/match/voi.js`). When a game request's talks have
+not landed, the agent does not give up or ask the player again. For each member and each of the player's times it
+keeps a Beta posterior of "free then", Beta(1 + yes, 1 + no), over what it has seen of that member's agent at that
+weekday and hour (the faded counts of 3.2, never a calendar), and multiplies it by the chance of a yes from the
+member's band. It then asks the one yes-or-no question whose answer most raises the expected best chance of a game,
+through the private free-or-busy channel and its budget (3.15), and talks again only on a yes. On 20,000 simulated
+requests (8 members, 6 times, hidden true availability; `test/voi_sim.mjs`, `submission/results/voi_sim.json`), one
+question by value of information then one talk found a game 51.9% of the time, against 40.7% with no question, 44.4%
+with a random question and 48.2% asking about the likeliest pair.
+
+**A critic in the loop on every counter-offer** (`agent/src/a2a/critic.js`). Before the player's agent may take a
+member's agent's counter-offer, code reviews it for the player. Probing: a member's agent that asks for more than two
+different times in one talk is mapping the player's week, and its further counters are refused. Fairness: the trips of
+the games the agent agreed are kept; when the player had the longest trip in two of their last three games, a counter
+that again gives them the longest trip by more than 10 minutes is refused, and the talk goes on with the other times.
+Each refusal is said in the trail, with the reason.
+
+**From episodes to beliefs** (`agent/src/memory/beliefs.js`). Once a week (or on ask), Muse Glimmer abstracts the
+player's live notes into a few standing beliefs about how they like to play, each citing the notes it rests on. Code
+checks every belief: the cited notes exist and are live, a belief that generalizes ("usually", "prefers") cites at least
+two, and every number in it is in what it cites; a belief that fails is dropped. The planner reads the beliefs first,
+each with how many notes stand behind it; the notes stay, and `/forget` deletes both. On 10 written notes, Glimmer gave
+3 beliefs, each resting on two notes, none dropped, in 42 s (`submission/results/beliefs_glimmer.json`), for example
+"work-night games start no earlier than 19:00 and finish by 22:00".
+
+**Proof of consent before a booking** (`agent/src/a2a/consent.js`). When a talk agrees a game, each member's agent
+that said yes signs the game's canonical record (date, start, length, venue, sport and the sorted players) with its own
+Ed25519 key; the player's agent signs when the player says yes. Booking verifies every signature against the game it
+is asked to book: a record changed after it was signed (another time or venue, a player added) or a signature made with
+another agent's key is refused. Members on a peer gateway confirm through their own gateway's mandate (3.11).
+`CONSENT=require` also refuses a game that carries no signatures.
+
+The four are tested without a model in `test/agentic_unit.mjs`; the offline suites now hold 270 tests (269 pass, 1
+skipped).
+
 ## 4. Meta models and tools
 
 Only what is wired into the code.
@@ -419,7 +456,7 @@ Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformer
 
 | Suite | Result | Hardware | Source |
 |---|---|---|---|
-| `npm test`: 23 offline suites | 264 of 265, 1 skipped <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
+| `npm test`: 24 offline suites | 269 of 270, 1 skipped <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
 | The deployed gateway (2026-10-29) | Ready on Muse Glimmer; an answer passed both Llama Guard checks; a dosage question refused; one "I want to play" round over A2A (nothing booked); the Messenger webhook verified through the public tunnel; no errors in the log | RTX 3090 | `submission/results/deploy_smoke_2026-10-29.log` |
 | Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks, run inside the gates (5.13) <!-- COUNT --> | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
 | Adversarial (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | A100 | `submission/results/redteam_93.log`; 93 of 93 again inside the gates (5.13) |
@@ -743,7 +780,7 @@ run dev`. From `agent/`:
 <!-- COUNT: the block below says 265 tests and 93 attacks -->
 
 ```bash
-npm test                                   # 23 offline suites, 265 tests, no model or GPU
+npm test                                   # 24 offline suites, 270 tests, no model or GPU
 npm run test:crash                         # the crash matrix, against a stand-in model
 node test/e2e.mjs                          # Messenger end to end
 node test/redteam.mjs                      # the 93 attacks

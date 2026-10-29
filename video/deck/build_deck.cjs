@@ -629,6 +629,27 @@ async function chart(file) {
     });
   }
 
+  // 19b · Four pieces of agent architecture
+  {
+    const s = content("Technical depth", "TECHNICAL DEPTH · AGENT ARCHITECTURE", "An agent that asks, doubts, abstracts and proves",
+      "四個代理架構：\n1 主動資訊探詢（VoI）：談判失敗時不放棄、不把問題丟回給使用者，用 Beta 後驗（只來自它看過的 yes/no，不看別人的行事曆）× 對方 agent 的意願，算出「問哪一題最能提高成局機率」，只問一個是非題，答是才再談。模擬 20,000 次：一題 + 一次談判成局 51.9%，不問 40.7%、隨便問 44.4%、問最可能的那組 48.2%。\n2 談判中的批評者：對方 agent 的每個反提案先經過程式審查——一場談判問超過兩個不同時間＝在探測你的行程，不再接受；你最近三場有兩場路最遠，又要你跑最遠就拒絕。\n3 從片段到信念：每週把零散筆記抽象成幾條長期信念，每條必須引用筆記、概括要兩條以上、數字必須出現在引用裡，不合格就丟。Glimmer 實測 10 條筆記 → 3 條信念，0 條被丟。\n4 預約前的同意證明：談妥的比賽每位球員的 agent 用自己的 Ed25519 金鑰簽同一份比賽紀錄，預約時逐一驗證，改過時間、加人、用別人的金鑰都會被拒絕。");
+    const cards = [
+      ["Asks", "Active epistemic querying", "When talks fail, a Beta posterior per member and hour (from yes/no it has seen, never a calendar) times their chance of a yes picks the one question that most raises the chance of a game.", "One question, then a talk: 51.9% games, against 40.7% asking nothing, 44.4% a random question (20,000 simulated requests)", GREEN, GREENBG],
+      ["Doubts", "A critic on every counter-offer", "Code reviews each counter for the player: more than two times asked in a talk is probing, and the player who keeps travelling furthest is not sent furthest again.", "Probing and unfair counters refused, with the reason in the trail", AMBER, AMBERBG],
+      ["Abstracts", "From episodes to beliefs", "Weekly, Glimmer turns scattered notes into standing beliefs; each must cite live notes, two to generalize, and say no number they do not.", "10 notes to 3 beliefs, each on two notes, none dropped (Glimmer, 42 s)", BLUE, BLUEBG],
+      ["Proves", "Proof of consent", "Every player's agent signs the agreed game with its own Ed25519 key; booking checks each one against the game it books.", "A changed time, an added player or another agent's key: refused", RED, REDBG],
+    ];
+    cards.forEach(([k, h, d, r, c, bg], i) => {
+      const x = 0.6 + (i % 2) * 6.15, y = 1.8 + Math.floor(i / 2) * 2.55, w = 5.95, hh = 2.4;
+      box(s, x, y, w, hh, { fill: WHITE, line: LINE });
+      T(s, k.toUpperCase(), x + 0.2, y + 0.15, 2, 0.25, { fontSize: 10, bold: true, color: c, charSpacing: 1 });
+      T(s, h, x + 0.2, y + 0.42, w - 0.4, 0.35, { fontSize: 15, bold: true });
+      T(s, d, x + 0.2, y + 0.82, w - 0.4, 0.85, { fontSize: 10.5, color: MUTED });
+      box(s, x + 0.2, y + 1.72, w - 0.4, 0.55, { fill: bg, line: bg });
+      T(s, r, x + 0.32, y + 1.72, w - 0.64, 0.55, { fontSize: 10.5, bold: true, valign: "middle" });
+    });
+  }
+
   // 19 · Measured at scale: what one model call reads as the club grows
   {
     const s = content("Technical depth", "MEASURED", "It stays the same size as the club grows",
@@ -729,7 +750,7 @@ async function chart(file) {
     const H = { bold: true, color: MUTED, fontSize: 11, fill: { color: WHITE } };
     const rows = [
       [{ text: "Suite", options: H }, { text: "Result", options: H }, { text: "Where it ran", options: H }],
-      ["npm test, 23 offline suites", "264 passed, 0 failed", "No model, no GPU"],
+      ["npm test, 24 offline suites", "269 passed, 0 failed", "No model, no GPU"],
       ["Messenger end to end (test/e2e.mjs)", "58 of 58 checks", "Muse Glimmer on a cloud A100"],
       ["Attacks (test/redteam.mjs)", "93 of 93 stopped", "A cloud A100, twice"],
       ["Community loop's attacks, within the 93", "29 of 29 stopped, 5 of 5 controls passed", "The server's CPU, with the real guards"],
