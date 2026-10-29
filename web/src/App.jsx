@@ -1,3 +1,4 @@
+import { SESSION_KEY } from "./agent.js";
 import { useEffect, useRef, useState } from "react";
 import Agent from "./pages/Agent.jsx";
 import Landing from "./pages/Landing.jsx";
@@ -159,7 +160,10 @@ export default function App() {
     loadClub().then(setClub).catch((e) => setErr(`The club could not be loaded (${e.message}).`));
     return () => removeEventListener("hashchange", on);
   }, []);
-  const show = PAGES[page] || PAGES.home;
+  // the public build (no gateway token in it): every page but joining needs a signed-in member, each with an agent of
+  // their own on the server (agent tenants/proxy.js)
+  const signedOut = !import.meta.env.VITE_AGENT_TOKEN && !(() => { try { return localStorage.getItem(SESSION_KEY); } catch { return null; } })();
+  const show = signedOut && page !== "join" && page !== "about" ? PAGES.join : PAGES[page] || PAGES.home;
   return (
     <>
       <Shell page={page} club={club} />

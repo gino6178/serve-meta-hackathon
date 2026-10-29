@@ -10,7 +10,9 @@ export const SESSION_KEY = "serve.session";
 // the live voice line (agent voice/live.js): a WebSocket can't carry headers, so the token or the session goes in the address
 export const liveVoiceUrl = () => {
   const s = (() => { try { return localStorage.getItem(SESSION_KEY); } catch { return null; } })(), t = import.meta.env.VITE_AGENT_TOKEN;
-  return `${AGENT_URL.replace(/^http/, "ws")}/api/voice/live?${t ? `auth=${encodeURIComponent(t)}` : `session=${encodeURIComponent(s || "")}`}`;
+  // (the public build talks to its own address: VITE_AGENT_URL=/)
+  const base = AGENT_URL || location.origin;
+  return `${base.replace(/^http/, "ws")}/api/voice/live?${t ? `auth=${encodeURIComponent(t)}` : `session=${encodeURIComponent(s || "")}`}`;
 };
 const session = () => { try { return localStorage.getItem(SESSION_KEY); } catch { return null; } };
 // fetch from the gateway, with its token, and the member's session when they signed in

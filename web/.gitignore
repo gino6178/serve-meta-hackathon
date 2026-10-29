@@ -18,3 +18,4 @@ public/data/*
 # short sample clips for the highlight reel, trimmed from CC BY 3.0 videos (CREDITS.md)
 !public/media/samples/
 /public/models/
+**/dist-public/
