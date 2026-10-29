@@ -1,1442 +1,1484 @@
 
 > test
-> node --test test/unit.mjs test/decider_unit.mjs test/student_unit.mjs test/loop_unit.mjs test/loop_ship_unit.mjs test/loop_anytime_unit.mjs test/loop_signals_unit.mjs test/loop_builder.mjs test/match_unit.mjs test/feed_unit.mjs test/webfeat_unit.mjs test/durable_unit.mjs test/a2a_peer_unit.mjs test/align_unit.mjs test/privacy_unit.mjs test/memory_update_unit.mjs test/sim_users_unit.mjs test/members_unit.mjs test/llm_fallback_unit.mjs test/voice_unit.mjs test/federation_unit.mjs
+> node --test test/unit.mjs test/decider_unit.mjs test/student_unit.mjs test/loop_unit.mjs test/loop_ship_unit.mjs test/loop_anytime_unit.mjs test/loop_signals_unit.mjs test/loop_builder.mjs test/match_unit.mjs test/feed_unit.mjs test/webfeat_unit.mjs test/durable_unit.mjs test/a2a_peer_unit.mjs test/align_unit.mjs test/privacy_unit.mjs test/memory_update_unit.mjs test/sim_users_unit.mjs test/members_unit.mjs test/llm_fallback_unit.mjs test/voice_unit.mjs test/federation_unit.mjs test/freebusy_unit.mjs test/router_unit.mjs
 
 TAP version 13
 # [peer] pin-refused: {"peer":"gwc","origin":"http://127.0.0.1:23990","why":"2 Ed25519 keys"}
 # [peer] pin-refused: {"peer":"gwe","origin":"http://127.0.0.1:24090","why":"key id is not the key's fingerprint"}
-# [peer] refused: {"why":"unknown-peer","method":"POST","path":"/a2a/members/leo/","kid":"serve-31f209886397bdca","from":null}
+# [peer] refused: {"why":"unknown-peer","method":"POST","path":"/a2a/members/leo/","kid":"serve-a6ab213fa8373f20","from":null}
 # [peer] refused: {"why":"answer-unsigned","peer":"gwb","status":200}
 # Subtest: a signed request from an allow-listed peer checks out, and names that peer
 ok 1 - a signed request from an allow-listed peer checks out, and names that peer
   ---
-  duration_ms: 4.564861
+  duration_ms: 4.690611
   type: 'test'
   ...
 # Subtest: a body, a path or a method other than the one signed is refused
 ok 2 - a body, a path or a method other than the one signed is refused
   ---
-  duration_ms: 2.639601
+  duration_ms: 2.727147
   type: 'test'
   ...
 # Subtest: a request meant for another gateway (aud) is refused
 ok 3 - a request meant for another gateway (aud) is refused
   ---
-  duration_ms: 0.786962
+  duration_ms: 0.855075
   type: 'test'
   ...
 # Subtest: an expired request, one from the future, and one that lives too long are refused
 ok 4 - an expired request, one from the future, and one that lives too long are refused
   ---
-  duration_ms: 2.735933
+  duration_ms: 2.420031
   type: 'test'
   ...
 # Subtest: the same request twice is a replay, and the nonce is kept across a restart
 ok 5 - the same request twice is a replay, and the nonce is kept across a restart
   ---
-  duration_ms: 3.108908
+  duration_ms: 3.224305
   type: 'test'
   ...
 # Subtest: a key no allow-listed peer has, and a forged signature under a peer's key id, are refused
 ok 6 - a key no allow-listed peer has, and a forged signature under a peer's key id, are refused
   ---
-  duration_ms: 1.223099
+  duration_ms: 1.251352
   type: 'test'
   ...
 # Subtest: what is not a Serve request signature is refused before any key is looked up
 ok 7 - what is not a Serve request signature is refused before any key is looked up
   ---
-  duration_ms: 0.538699
+  duration_ms: 0.54874
   type: 'test'
   ...
 # Subtest: the allow-list: only well-formed peers, and a member's agent answers only the peers it is shared with
 ok 8 - the allow-list: only well-formed peers, and a member's agent answers only the peers it is shared with
   ---
-  duration_ms: 2.803643
+  duration_ms: 2.91561
   type: 'test'
   ...
 # Subtest: a peer's members are <id>@<peer>, reached at the peer's origin, and carry no calendar or rule
 ok 9 - a peer's members are <id>@<peer>, reached at the peer's origin, and carry no calendar or rule
   ---
-  duration_ms: 1.594905
+  duration_ms: 1.608277
   type: 'test'
   ...
 # Subtest: a peer's key is pinned on first use, once, and a key set that would not pin is refused
 ok 10 - a peer's key is pinned on first use, once, and a key set that would not pin is refused
   ---
-  duration_ms: 4.886085
+  duration_ms: 5.265501
   type: 'test'
   ...
 # Subtest: sign(): no header for a GET or for an address that is not a peer; a POST to a peer checks out at the peer
 ok 11 - sign(): no header for a GET or for an address that is not a peer; a POST to a peer checks out at the peer
   ---
-  duration_ms: 1.761098
+  duration_ms: 2.128646
   type: 'test'
   ...
 # Subtest: verify(): a request whose key id no pin has, from an unpinned peer, pins that peer first (at most once a minute)
 ok 12 - verify(): a request whose key id no pin has, from an unpinned peer, pins that peer first (at most once a minute)
   ---
-  duration_ms: 4.56764
+  duration_ms: 5.129318
   type: 'test'
   ...
 # Subtest: an answer counts only if the asked peer's pinned key signed it, for that very request
 ok 13 - an answer counts only if the asked peer's pinned key signed it, for that very request
   ---
-  duration_ms: 11.262565
+  duration_ms: 12.480804
   type: 'test'
   ...
 # Subtest: a mandate: the player's yes for one game, checked for its key, talk, time, member and age, used once per member
 ok 14 - a mandate: the player's yes for one game, checked for its key, talk, time, member and age, used once per member
   ---
-  duration_ms: 4.590921
+  duration_ms: 4.916754
   type: 'test'
   ...
 # Subtest: a peer's message ids, talks and askers are its own, apart from this gateway's and from each other's
 ok 15 - a peer's message ids, talks and askers are its own, apart from this gateway's and from each other's
   ---
-  duration_ms: 0.458457
+  duration_ms: 0.466588
   type: 'test'
   ...
 # Subtest: the outbox: a release is kept once, sent again until heard, and dropped when the hold has lapsed anyway
 ok 16 - the outbox: a release is kept once, sent again until heard, and dropped when the hold has lapsed anyway
   ---
-  duration_ms: 23.431043
+  duration_ms: 24.337088
   type: 'test'
   ...
 # Subtest: a peer that does not answer is not reachable, at once
 ok 17 - a peer that does not answer is not reachable, at once
   ---
-  duration_ms: 0.330725
+  duration_ms: 0.330846
   type: 'test'
   ...
 # Subtest: the fail-closed rule: aligned only on a verdict that says so
 ok 18 - the fail-closed rule: aligned only on a verdict that says so
   ---
-  duration_ms: 1.703817
+  duration_ms: 1.808431
   type: 'test'
   ...
 # Subtest: the switch: off without an endpoint, on with one, ALIGN_CHECK=off wins
 ok 19 - the switch: off without an endpoint, on with one, ALIGN_CHECK=off wins
   ---
-  duration_ms: 1.456343
+  duration_ms: 1.523396
   type: 'test'
   ...
 # Subtest: the protocol: one line each way, answers matched by id, a ledger row with no text
 ok 20 - the protocol: one line each way, answers matched by id, a ledger row with no text
   ---
-  duration_ms: 96.25395
+  duration_ms: 101.888651
   type: 'test'
   ...
 # Subtest: fail-closed: an error, no verdict, a line that is not JSON, no answer, a worker that dies or never starts
 ok 21 - fail-closed: an error, no verdict, a line that is not JSON, no answer, a worker that dies or never starts
   ---
-  duration_ms: 3153.176249
+  duration_ms: 3144.136045
   type: 'test'
   ...
 # Subtest: actionsOf: each tool call as action, input, thought and result
 ok 22 - actionsOf: each tool call as action, input, thought and result
   ---
-  duration_ms: 0.746371
+  duration_ms: 1.348263
   type: 'test'
   ...
 # Subtest: the Autopilot: not aligned or not checked, the plan is a draft and the player is told
 ok 23 - the Autopilot: not aligned or not checked, the plan is a draft and the player is told
   ---
-  duration_ms: 2196.803135
+  duration_ms: 2080.267651
   type: 'test'
   ...
 # Subtest: align_worker.py with LlamaFirewall (skipped without its venv)
-ok 24 - align_worker.py with LlamaFirewall (skipped without its venv) # SKIP no venv at /tmp/servetest/attack/lfenv/bin/python
+ok 24 - align_worker.py with LlamaFirewall (skipped without its venv) # SKIP no venv at /tmp/bench/attack/lfenv/bin/python
   ---
-  duration_ms: 0.376595
+  duration_ms: 0.262214
   type: 'test'
   ...
 # Subtest: the options' probabilities are read from the next token: a letter's spellings add up, other words do not count
 ok 25 - the options' probabilities are read from the next token: a letter's spellings add up, other words do not count
   ---
-  duration_ms: 2.911555
+  duration_ms: 2.552003
   type: 'test'
   ...
 # Subtest: the question: one letter per time that works, in the order listed, Z last, closing on the answer cue
 ok 26 - the question: one letter per time that works, in the order listed, Z last, closing on the answer cue
   ---
-  duration_ms: 0.724712
+  duration_ms: 0.682552
   type: 'test'
   ...
 # Subtest: A2A_DECIDER=raw: a sure pick between the times that work is the counter, in one pass of one token
 ok 27 - A2A_DECIDER=raw: a sure pick between the times that work is the counter, in one pass of one token
   ---
-  duration_ms: 49.979614
+  duration_ms: 47.770771
   type: 'test'
   ...
 # Subtest: not sure, or not this week: the full answer decides
 ok 28 - not sure, or not this week: the full answer decides
   ---
-  duration_ms: 28.919278
+  duration_ms: 29.154622
   type: 'test'
   ...
 # Subtest: the decider is asked only for a choice between times, and only when on
 ok 29 - the decider is asked only for a choice between times, and only when on
   ---
-  duration_ms: 5.82699
+  duration_ms: 6.058664
   type: 'test'
   ...
 # Subtest: journal: written line by line, read back, a torn last line left out, unfinished runs listed
 ok 30 - journal: written line by line, read back, a torn last line left out, unfinished runs listed
   ---
-  duration_ms: 5.896311
+  duration_ms: 4.671681
   type: 'test'
   ...
 # Subtest: a run cut off after its first talk resumes from the journal: same games, no turn asked twice, no talk started again
 ok 31 - a run cut off after its first talk resumes from the journal: same games, no turn asked twice, no talk started again
   ---
-  duration_ms: 299.687572
+  duration_ms: 274.659581
   type: 'test'
   ...
 # Subtest: error.type: each of the Autopilot's refusals has its kind
 ok 32 - error.type: each of the Autopilot's refusals has its kind
   ---
-  duration_ms: 2.749332
+  duration_ms: 1.144099
   type: 'test'
   ...
 # Subtest: attribution: a run that met its goal by the model has none
 ok 33 - attribution: a run that met its goal by the model has none
   ---
-  duration_ms: 1.133007
+  duration_ms: 0.821585
   type: 'test'
   ...
 # Subtest: attribution: a member's agent that timed out inside the talk that failed
 ok 34 - attribution: a member's agent that timed out inside the talk that failed
   ---
-  duration_ms: 1.178678
+  duration_ms: 1.713429
   type: 'test'
   ...
 # Subtest: attribution: a member's agent that could not be reached
 ok 35 - attribution: a member's agent that could not be reached
   ---
-  duration_ms: 0.513338
+  duration_ms: 1.73224
   type: 'test'
   ...
 # Subtest: attribution: the model stopped calling tools (and the rules finished it)
 ok 36 - attribution: the model stopped calling tools (and the rules finished it)
   ---
-  duration_ms: 0.439596
+  duration_ms: 1.659189
   type: 'test'
   ...
 # Subtest: attribution: a stop refused that the run got past is not the step; a rule break it did not get past is
 ok 37 - attribution: a stop refused that the run got past is not the step; a rule break it did not get past is
   ---
-  duration_ms: 0.508218
+  duration_ms: 2.044555
   type: 'test'
   ...
 # Subtest: attribution: arguments that did not fit, then fixed, are got past; the talk declined after is a dead end
 ok 38 - attribution: arguments that did not fit, then fixed, are got past; the talk declined after is a dead end
   ---
-  duration_ms: 0.771812
+  duration_ms: 3.787205
   type: 'test'
   ...
 # Subtest: attribution: a fault after a dead end wins (the model ran out of steps)
 ok 39 - attribution: a fault after a dead end wins (the model ran out of steps)
   ---
-  duration_ms: 1.837769
+  duration_ms: 3.359218
   type: 'test'
   ...
 # Subtest: attribution: a game the oracle rejects is a rule break missed
 ok 40 - attribution: a game the oracle rejects is a rule break missed
   ---
-  duration_ms: 0.556638
+  duration_ms: 0.887645
   type: 'test'
   ...
 # Subtest: attribution: a member's yes that broke its rule, put right by code, ends the talk: a rule break caught
 ok 41 - attribution: a member's yes that broke its rule, put right by code, ends the talk: a rule break caught
   ---
-  duration_ms: 0.535599
+  duration_ms: 1.237011
   type: 'test'
   ...
-# [peer] discovered: {"peer":"clubB","origin":"http://127.0.0.1:46591","members":1}
-# [peer] discovered: {"peer":"clubC","origin":"http://127.0.0.1:44947","members":1}
-# [peer] discover-refused: {"origin":"http://127.0.0.1:39551","why":"Unexpected token '<', \\"<html>not \\"... is not valid JSON"}
+# [peer] discovered: {"peer":"clubB","origin":"http://127.0.0.1:36415","members":1}
+# [peer] discovered: {"peer":"clubC","origin":"http://127.0.0.1:34769","members":1}
+# [peer] discover-refused: {"origin":"http://127.0.0.1:33055","why":"Unexpected token '<', \\"<html>not \\"... is not valid JSON"}
 # Subtest: A finds the clubs by address: names and members from their own cards; a page that isn't a card is left out
 ok 42 - A finds the clubs by address: names and members from their own cards; a page that isn't a card is left out
   ---
-  duration_ms: 47.902172
+  duration_ms: 50.524689
   type: 'test'
   ...
-# [peer] pinned: {"peer":"clubB","origin":"http://127.0.0.1:46591","kid":"serve-2d7803fb7e2e6ff6"}
-# [peer] pinned: {"peer":"clubC","origin":"http://127.0.0.1:44947","kid":"serve-add2d6b202fb6349"}
-# [peer] refused: {"why":"replay","method":"POST","path":"/a2a/members/hana","kid":"serve-2d7803fb7e2e6ff6","from":null}
+# [peer] pinned: {"peer":"clubB","origin":"http://127.0.0.1:36415","kid":"serve-09d393f82e42f237"}
+# [peer] pinned: {"peer":"clubC","origin":"http://127.0.0.1:34769","kid":"serve-248085d0c3d8b212"}
+# [peer] refused: {"why":"replay","method":"POST","path":"/a2a/members/hana","kid":"serve-09d393f82e42f237","from":null}
 # Subtest: each club's signed request: its key pinned on first use, then accepted; a replay refused
 ok 43 - each club's signed request: its key pinned on first use, then accepted; a replay refused
   ---
-  duration_ms: 23.974942
+  duration_ms: 28.199885
   type: 'test'
   ...
-# [peer] rotated: {"peer":"clubB","from":"serve-2d7803fb7e2e6ff6","to":"serve-b663ef21c266c8d7"}
+# [peer] rotated: {"peer":"clubB","from":"serve-09d393f82e42f237","to":"serve-6fe813cac42041e7"}
 # Subtest: B rotates its key: A follows the statement signed by the old key, and pins the new one
 ok 44 - B rotates its key: A follows the statement signed by the old key, and pins the new one
   ---
-  duration_ms: 14.22015
+  duration_ms: 18.240493
   type: 'test'
   ...
-# [peer] rotated: {"peer":"clubB","from":"serve-b663ef21c266c8d7","to":"serve-ff45246cd16bc118"}
-# [peer] rotation-refused: {"peer":"clubC","origin":"http://127.0.0.1:44947","pinned":"serve-add2d6b202fb6349"}
-# [peer] refused: {"why":"unknown-peer","method":"POST","path":"/a2a/members/hana","kid":"serve-54ad7c2d0d50eebf","from":null}
+# [peer] rotated: {"peer":"clubB","from":"serve-6fe813cac42041e7","to":"serve-80abc62a2fb434d5"}
+# [peer] rotation-refused: {"peer":"clubC","origin":"http://127.0.0.1:34769","pinned":"serve-248085d0c3d8b212"}
+# [peer] refused: {"why":"unknown-peer","method":"POST","path":"/a2a/members/hana","kid":"serve-f037e39d05808b67","from":null}
 # Subtest: C's 'rotation' signed by a key C never had: refused, and A keeps its pin
 ok 45 - C's 'rotation' signed by a key C never had: refused, and A keeps its pin
   ---
-  duration_ms: 11.943285
+  duration_ms: 12.20367
   type: 'test'
   ...
 # Subtest: a highlight is posted only with its member's yes: a draft waits, Not now deletes it, another member cannot post it
 ok 46 - a highlight is posted only with its member's yes: a draft waits, Not now deletes it, another member cannot post it
   ---
-  duration_ms: 26.705824
+  duration_ms: 25.304674
   type: 'test'
   ...
 # Subtest: in Messenger the agent asks "Post this to the club?" with Post and Not now, and only that member's tap posts it
 ok 47 - in Messenger the agent asks "Post this to the club?" with Post and Not now, and only that member's tap posts it
   ---
-  duration_ms: 3.295561
+  duration_ms: 3.187595
   type: 'test'
   ...
 # Subtest: a draft is a clip, checked by its first bytes; an edited caption is checked like any post
 ok 48 - a draft is a clip, checked by its first bytes; an edited caption is checked like any post
   ---
-  duration_ms: 7.422895
+  duration_ms: 6.704175
   type: 'test'
   ...
 # Subtest: a person's post: Llama Guard first; a flagged one is not kept and the author is told why in plain words
 ok 49 - a person's post: Llama Guard first; a flagged one is not kept and the author is told why in plain words
   ---
-  duration_ms: 2.985217
+  duration_ms: 3.159714
   type: 'test'
   ...
 # Subtest: what Llama Guard lets through, the club's standard can stop; and with the standard's reader down, the post waits
 ok 50 - what Llama Guard lets through, the club's standard can stop; and with the standard's reader down, the post waits
   ---
-  duration_ms: 2.864154
+  duration_ms: 2.85957
   type: 'test'
   ...
 # Subtest: words of self-harm get the helpline, not a post
 ok 51 - words of self-harm get the helpline, not a post
   ---
-  duration_ms: 1.265719
+  duration_ms: 1.427255
   type: 'test'
   ...
 # Subtest: the guard down: the post waits, seen only by its author, and shows once checked
 ok 52 - the guard down: the post waits, seen only by its author, and shows once checked
   ---
-  duration_ms: 2.238945
+  duration_ms: 2.489953
   type: 'test'
   ...
 # Subtest: another member's private data is refused by code: their health, their address, a phone number
 ok 53 - another member's private data is refused by code: their health, their address, a phone number
   ---
-  duration_ms: 4.657142
+  duration_ms: 4.547248
   type: 'test'
   ...
 # Subtest: a comment is checked the same way, and a hostile one is not shown
 ok 54 - a comment is checked the same way, and a hostile one is not shown
   ---
-  duration_ms: 2.922515
+  duration_ms: 2.968311
   type: 'test'
   ...
 # Subtest: reports: one per member per item, three members hide it until the maintainer looks; Not for me hides it for one
 ok 55 - reports: one per member per item, three members hide it until the maintainer looks; Not for me hides it for one
   ---
-  duration_ms: 3.701318
+  duration_ms: 3.837406
   type: 'test'
   ...
 # Subtest: rate limits: four posts in ten minutes, ten comments; a flood stops at the limit
 ok 56 - rate limits: four posts in ten minutes, ten comments; a flood stops at the limit
   ---
-  duration_ms: 9.452406
+  duration_ms: 10.755964
   type: 'test'
   ...
 # Subtest: a like on a paper or a highlight is a 👍 for the loop, counted only with /improve on, with no words
 ok 57 - a like on a paper or a highlight is a 👍 for the loop, counted only with /improve on, with no words
   ---
-  duration_ms: 5.089789
+  duration_ms: 5.508685
   type: 'test'
   ...
 # Subtest: queries are the club's sports and fixed topics only: no player data in any request that leaves the server
 ok 58 - queries are the club's sports and fixed topics only: no player data in any request that leaves the server
   ---
-  duration_ms: 47.593887
+  duration_ms: 51.497945
   type: 'test'
   ...
 # Subtest: a paper post: title, authors, year, venue, the DOI link and a summary in the model's own words; never the abstract
 ok 59 - a paper post: title, authors, year, venue, the DOI link and a summary in the model's own words; never the abstract
   ---
-  duration_ms: 15.973917
+  duration_ms: 17.322708
   type: 'test'
   ...
 # Subtest: dedupe: one post per paper across the three sources (DOI, arXiv id, title), and never the same paper twice
 ok 60 - dedupe: one post per paper across the three sources (DOI, arXiv id, title), and never the same paper twice
   ---
-  duration_ms: 26.905427
+  duration_ms: 14.315676
   type: 'test'
   ...
 # Subtest: Prompt Guard 2 reads every abstract first: an injected one never reaches the model, and with the guard down nothing does
 ok 61 - Prompt Guard 2 reads every abstract first: an injected one never reaches the model, and with the guard down nothing does
   ---
-  duration_ms: 20.68402
+  duration_ms: 17.834236
   type: 'test'
   ...
 # Subtest: code checks the summary: copying the abstract, advice, stray numbers; once more with the problems, then dropped
 ok 62 - code checks the summary: copying the abstract, advice, stray numbers; once more with the problems, then dropped
   ---
-  duration_ms: 11.076931
+  duration_ms: 11.812793
   type: 'test'
   ...
 # Subtest: Llama Guard reads the summary on its way out: flagged or medical, dropped; the guard down, it waits
 ok 63 - Llama Guard reads the summary on its way out: flagged or medical, dropped; the guard down, it waits
   ---
-  duration_ms: 19.729005
+  duration_ms: 19.185749
   type: 'test'
   ...
 # Subtest: the flag feed.papers.perWeek: declared C0 (0 to 7, default 3), read with flags.get, spread over the week, a canary sees its own number
 ok 64 - the flag feed.papers.perWeek: declared C0 (0 to 7, default 3), read with flags.get, spread over the week, a canary sees its own number
   ---
-  duration_ms: 17.067775
+  duration_ms: 17.334368
   type: 'test'
   ...
 # Subtest: a member's question on a paper: their agent answers from the abstract only, with the link, past the guards
 ok 65 - a member's question on a paper: their agent answers from the abstract only, with the link, past the guards
   ---
-  duration_ms: 16.420685
+  duration_ms: 17.568491
   type: 'test'
   ...
 # Subtest: /forget deletes the member's posts, comments, likes, reports and drafts, with their photos and clips
 ok 66 - /forget deletes the member's posts, comments, likes, reports and drafts, with their photos and clips
   ---
-  duration_ms: 6.44726
+  duration_ms: 5.970853
   type: 'test'
   ...
 # Subtest: photos keep no metadata: EXIF and the rest are dropped, the size is read from the frame
 ok 67 - photos keep no metadata: EXIF and the rest are dropped, the size is read from the frame
   ---
-  duration_ms: 1.165628
+  duration_ms: 1.17077
   type: 'test'
   ...
 # Subtest: a recap of a booked game is posted only when every player in it says yes, written by code from the booking
 ok 68 - a recap of a booked game is posted only when every player in it says yes, written by code from the booking
   ---
-  duration_ms: 4.345257
+  duration_ms: 4.408805
   type: 'test'
   ...
 # Subtest: recaps: one no, or silence past the deadline, means never; a member is asked in Messenger; /forget removes them
 ok 69 - recaps: one no, or silence past the deadline, means never; a member is asked in Messenger; /forget removes them
   ---
-  duration_ms: 4.839725
+  duration_ms: 4.520558
   type: 'test'
   ...
 # Subtest: the maintainer's queue: reasons and counts, the checks each item passed; hide, restore, dismiss, limit; all in the audit log
 ok 70 - the maintainer's queue: reasons and counts, the checks each item passed; hide, restore, dismiss, limit; all in the audit log
   ---
-  duration_ms: 20.113672
+  duration_ms: 19.071378
   type: 'test'
   ...
 # Subtest: the maintainer's routes need MAINTAINER_TOKEN, and the gateway lists them as the maintainer's
 ok 71 - the maintainer's routes need MAINTAINER_TOKEN, and the gateway lists them as the maintainer's
   ---
-  duration_ms: 2.697002
+  duration_ms: 2.406291
   type: 'test'
   ...
 # Subtest: a photo is screened by the model first; text in it goes past Prompt Guard, code and Llama Guard; no answer means it waits
 ok 72 - a photo is screened by the model first; text in it goes past Prompt Guard, code and Llama Guard; no answer means it waits
   ---
-  duration_ms: 9.169492
+  duration_ms: 8.298492
   type: 'test'
   ...
 # Subtest: a video from the composer: checked (a video, 100 MB, 90 s), the reel finds the moment, the agent drafts the post
 ok 73 - a video from the composer: checked (a video, 100 MB, 90 s), the reel finds the moment, the agent drafts the post
   ---
-  duration_ms: 1423.460488
+  duration_ms: 1369.257492
   type: 'test'
   ...
 # Subtest: text checks: the abstract's numbers only, two or three sentences, no links
 ok 74 - text checks: the abstract's numbers only, two or three sentences, no links
   ---
-  duration_ms: 1.9598
+  duration_ms: 3.795475
   type: 'test'
   ...
 # Subtest: the goal check before a paper post: off the task, dropped; not checked, it waits; aligned, posted
 ok 75 - the goal check before a paper post: off the task, dropped; not checked, it waits; aligned, posted
   ---
-  duration_ms: 18.531637
+  duration_ms: 34.181288
+  type: 'test'
+  ...
+# Subtest: one member, one asker: 24 different times a day, then no; a time asked again costs nothing
+ok 76 - one member, one asker: 24 different times a day, then no; a time asked again costs nothing
+  ---
+  duration_ms: 2.939761
+  type: 'test'
+  ...
+# Subtest: without private calendars: the shared calendar, no budget
+ok 77 - without private calendars: the shared calendar, no budget
+  ---
+  duration_ms: 0.477328
+  type: 'test'
+  ...
+# Subtest: the play search with private calendars: nobody's calendar read but by its agent; the partners' rows show only the time agreed
+ok 78 - the play search with private calendars: nobody's calendar read but by its agent; the partners' rows show only the time agreed
+  ---
+  duration_ms: 43.921965
+  type: 'test'
+  ...
+# Subtest: the Match helper's daily ask with private calendars: the same time and partners, asked one time at a time
+ok 79 - the Match helper's daily ask with private calendars: the same time and partners, asked one time at a time
+  ---
+  duration_ms: 156.399908
   type: 'test'
   ...
 # Subtest: a chat the model server can't take goes to Muse Spark, in its protocol, and the ledger says so
-ok 76 - a chat the model server can't take goes to Muse Spark, in its protocol, and the ledger says so
+ok 80 - a chat the model server can't take goes to Muse Spark, in its protocol, and the ledger says so
   ---
-  duration_ms: 46.229176
+  duration_ms: 44.235611
   type: 'test'
   ...
 # Subtest: a tool turn mid-run: Ollama's tool calls get ids and each result the id of its call
-ok 77 - a tool turn mid-run: Ollama's tool calls get ids and each result the id of its call
+ok 81 - a tool turn mid-run: Ollama's tool calls get ids and each result the id of its call
   ---
-  duration_ms: 12.192289
+  duration_ms: 12.141129
   type: 'test'
   ...
 # Subtest: no evidence without data, or without a rise: E is at most 1
-ok 78 - no evidence without data, or without a rise: E is at most 1
+ok 82 - no evidence without data, or without a rise: E is at most 1
   ---
-  duration_ms: 8.43657
+  duration_ms: 8.335654
   type: 'test'
   ...
 # Subtest: the null's best fit: each window at its own share, or both at the pooled share when the canary's is higher
-ok 79 - the null's best fit: each window at its own share, or both at the pooled share when the canary's is higher
+ok 83 - the null's best fit: each window at its own share, or both at the pooled share when the canary's is higher
   ---
-  duration_ms: 0.416786
+  duration_ms: 0.417777
   type: 'test'
   ...
 # Subtest: an e-value at any fixed look: its mean is at most 1 under every null pair, summed exactly over every outcome
-ok 80 - an e-value at any fixed look: its mean is at most 1 under every null pair, summed exactly over every outcome
+ok 84 - an e-value at any fixed look: its mean is at most 1 under every null pair, summed exactly over every outcome
   ---
-  duration_ms: 31.832493
+  duration_ms: 30.055216
   type: 'test'
   ...
 # Subtest: a change that does nothing, looked at after every thumb: E never reaches 20 on a seeded stream, and 5% at most cross over many
-ok 81 - a change that does nothing, looked at after every thumb: E never reaches 20 on a seeded stream, and 5% at most cross over many
+ok 85 - a change that does nothing, looked at after every thumb: E never reaches 20 on a seeded stream, and 5% at most cross over many
   ---
-  duration_ms: 126.194315
+  duration_ms: 153.422806
   type: 'test'
   ...
 # Subtest: a clearly bad change crosses: thumbs down from 25% to 60%
-ok 82 - a clearly bad change crosses: thumbs down from 25% to 60%
+ok 86 - a clearly bad change crosses: thumbs down from 25% to 60%
   ---
-  duration_ms: 4.49748
+  duration_ms: 2.869359
   type: 'test'
   ...
 # Subtest: softRise: 5 thumbs and a 10-point rise first, then the test; the z-test kept for comparison
-ok 83 - softRise: 5 thumbs and a 10-point rise first, then the test; the z-test kept for comparison
+ok 87 - softRise: 5 thumbs and a 10-point rise first, then the test; the z-test kept for comparison
   ---
-  duration_ms: 1.424092
+  duration_ms: 1.038768
   type: 'test'
   ...
 # Subtest: LOOP_SOFT_TEST picks the test: the e-process unless it says z
-ok 84 - LOOP_SOFT_TEST picks the test: the e-process unless it says z
+ok 88 - LOOP_SOFT_TEST picks the test: the e-process unless it says z
   ---
-  duration_ms: 0.495728
+  duration_ms: 0.363027
   type: 'test'
   ...
 # Subtest: odds: how a note says E
-ok 85 - odds: how a note says E
+ok 89 - odds: how a note says E
   ---
-  duration_ms: 28.174657
+  duration_ms: 24.260187
   type: 'test'
   ...
 # Subtest: a spec is built only when approved, of class C1-C3, with safe files
-ok 86 - a spec is built only when approved, of class C1-C3, with safe files
+ok 90 - a spec is built only when approved, of class C1-C3, with safe files
   ---
-  duration_ms: 8.957619
+  duration_ms: 7.505409
   type: 'test'
   ...
 # Subtest: paths: repository paths only; the never-list from docs/never.md; globs
-ok 87 - paths: repository paths only; the never-list from docs/never.md; globs
+ok 91 - paths: repository paths only; the never-list from docs/never.md; globs
   ---
-  duration_ms: 1.328461
+  duration_ms: 1.001827
   type: 'test'
   ...
 # Subtest: writes to tests, the never-list, other files, outside the repository and secrets are refused, with reasons
-ok 88 - writes to tests, the never-list, other files, outside the repository and secrets are refused, with reasons
+ok 92 - writes to tests, the never-list, other files, outside the repository and secrets are refused, with reasons
   ---
-  duration_ms: 899.313599
+  duration_ms: 837.546614
   type: 'test'
   ...
 # Subtest: review.check refuses a write by its content, and the write is undone
-ok 89 - review.check refuses a write by its content, and the write is undone
+ok 93 - review.check refuses a write by its content, and the write is undone
   ---
-  duration_ms: 792.640347
+  duration_ms: 789.855734
   type: 'test'
   ...
 # Subtest: each attempt starts from a clean worktree, and hears from code how the last one ended
-ok 90 - each attempt starts from a clean worktree, and hears from code how the last one ended
+ok 94 - each attempt starts from a clean worktree, and hears from code how the last one ended
   ---
-  duration_ms: 973.132213
+  duration_ms: 901.390301
   type: 'test'
   ...
 # Subtest: caps: 3 attempts, the step cap, and the token budgets
-ok 91 - caps: 3 attempts, the step cap, and the token budgets
+ok 95 - caps: 3 attempts, the step cap, and the token budgets
   ---
-  duration_ms: 1792.692047
+  duration_ms: 1832.121727
   type: 'test'
   ...
 # Subtest: the conversation shrinks redundant and stale reads first, and keeps the latest
-ok 92 - the conversation shrinks redundant and stale reads first, and keeps the latest
+ok 96 - the conversation shrinks redundant and stale reads first, and keeps the latest
   ---
-  duration_ms: 1.749587
+  duration_ms: 2.031065
   type: 'test'
   ...
 # Subtest: cannot ends the build at once, with the reason, but only after every file the spec names has been read
-ok 93 - cannot ends the build at once, with the reason, but only after every file the spec names has been read
+ok 97 - cannot ends the build at once, with the reason, but only after every file the spec names has been read
   ---
-  duration_ms: 442.177119
+  duration_ms: 393.502633
   type: 'test'
   ...
 # Subtest: plan first: a patch waits for a plan that names every file of the spec, and done for every planned file
-ok 94 - plan first: a patch waits for a plan that names every file of the spec, and done for every planned file
+ok 98 - plan first: a patch waits for a plan that names every file of the spec, and done for every planned file
   ---
-  duration_ms: 1606.189298
+  duration_ms: 1672.627705
   type: 'test'
   ...
 # Subtest: done shows the diff beside the spec's numbered requirements, and is accepted only when each is said to be met
-ok 95 - done shows the diff beside the spec's numbered requirements, and is accepted only when each is said to be met
+ok 99 - done shows the diff beside the spec's numbered requirements, and is accepted only when each is said to be met
   ---
-  duration_ms: 1228.101981
+  duration_ms: 1184.263163
   type: 'test'
   ...
 # Subtest: done is refused until a change is made and the unit tests pass
-ok 96 - done is refused until a change is made and the unit tests pass
+ok 100 - done is refused until a change is made and the unit tests pass
   ---
-  duration_ms: 1093.469406
+  duration_ms: 1071.534395
   type: 'test'
   ...
 # Subtest: the model reads the spec's change, files and oracle and the maintainer's note, never its problem, title or privacy note
-ok 97 - the model reads the spec's change, files and oracle and the maintainer's note, never its problem, title or privacy note
+ok 101 - the model reads the spec's change, files and oracle and the maintainer's note, never its problem, title or privacy note
   ---
-  duration_ms: 791.008051
+  duration_ms: 749.018572
   type: 'test'
   ...
 # Subtest: no network: no tool reaches it, and the tests run in a sandbox without it
-ok 98 - no network: no tool reaches it, and the tests run in a sandbox without it
+ok 102 - no network: no tool reaches it, and the tests run in a sandbox without it
   ---
-  duration_ms: 1154.966419
+  duration_ms: 1114.693727
   type: 'test'
   ...
 # Subtest: the build holds the GPU lock and lets it go, whatever happens
-ok 99 - the build holds the GPU lock and lets it go, whatever happens
+ok 103 - the build holds the GPU lock and lets it go, whatever happens
   ---
-  duration_ms: 1898.994633
+  duration_ms: 1973.375454
   type: 'test'
   ...
 # Subtest: flock: the lock is held until released
-ok 100 - flock: the lock is held until released
+ok 104 - flock: the lock is held until released
   ---
-  duration_ms: 25.597476
+  duration_ms: 31.136405
   type: 'test'
   ...
 # Subtest: declared keys only, today's defaults while off, and every reader that imports flags.js reads its key
-ok 101 - declared keys only, today's defaults while off, and every reader that imports flags.js reads its key
+ok 105 - declared keys only, today's defaults while off, and every reader that imports flags.js reads its key
   ---
-  duration_ms: 6.368548
+  duration_ms: 7.830565
   type: 'test'
   ...
 # Subtest: set: the type and the range are checked, and the change goes into history with who and why
-ok 102 - set: the type and the range are checked, and the change goes into history with who and why
+ok 106 - set: the type and the range are checked, and the change goes into history with who and why
   ---
-  duration_ms: 84.781743
+  duration_ms: 91.834049
   type: 'test'
   ...
 # Subtest: who is an HMAC of the player id with the loop's secret; the canary is the beta members in the first 20% by HMAC
-ok 103 - who is an HMAC of the player id with the loop's secret; the canary is the beta members in the first 20% by HMAC
+ok 107 - who is an HMAC of the player id with the loop's secret; the canary is the beta members in the first 20% by HMAC
   ---
-  duration_ms: 619.396704
+  duration_ms: 544.501198
   type: 'test'
   ...
 # Subtest: ship: C0 only, gated, inside its range, into a 7-day canary of beta members
-ok 104 - ship: C0 only, gated, inside its range, into a 7-day canary of beta members
+ok 108 - ship: C0 only, gated, inside its range, into a 7-day canary of beta members
   ---
-  duration_ms: 41.650465
+  duration_ms: 32.312456
   type: 'test'
   ...
 # Subtest: monitor: 7 clean days, then on for everyone, returned as promoted, with a club note
-ok 105 - monitor: 7 clean days, then on for everyone, returned as promoted, with a club note
+ok 109 - monitor: 7 clean days, then on for everyone, returned as promoted, with a club note
   ---
-  duration_ms: 27.991704
+  duration_ms: 22.478207
   type: 'test'
   ...
 # Subtest: LOOP_SOFT_TEST=z: the old rule's window before is of the same length as the canary so far
-ok 106 - LOOP_SOFT_TEST=z: the old rule's window before is of the same length as the canary so far
+ok 110 - LOOP_SOFT_TEST=z: the old rule's window before is of the same length as the canary so far
   ---
-  duration_ms: 28.868197
+  duration_ms: 18.02125
   type: 'test'
   ...
 # Subtest: one canary at a time: ship() refuses while another flag is in a canary
-ok 107 - one canary at a time: ship() refuses while another flag is in a canary
+ok 111 - one canary at a time: ship() refuses while another flag is in a canary
   ---
-  duration_ms: 50.859668
+  duration_ms: 18.985856
   type: 'test'
   ...
 # Subtest: LOOP_CANARY_DAYS sets how long a canary runs
-ok 108 - LOOP_CANARY_DAYS sets how long a canary runs
+ok 112 - LOOP_CANARY_DAYS sets how long a canary runs
   ---
-  duration_ms: 31.440717
+  duration_ms: 17.948808
   type: 'test'
   ...
 # Subtest: part A's loop_eval path: ask.hour promoted, then a bad ask.ahead rolled back by a thumbs-down rise
-ok 109 - part A's loop_eval path: ask.hour promoted, then a bad ask.ahead rolled back by a thumbs-down rise
+ok 113 - part A's loop_eval path: ask.hour promoted, then a bad ask.ahead rolled back by a thumbs-down rise
   ---
-  duration_ms: 93.562389
+  duration_ms: 80.191538
   type: 'test'
   ...
 # Subtest: hard breach: a game the Match helper agreed, booked without the player's yes
-ok 110 - hard breach: a game the Match helper agreed, booked without the player's yes
+ok 114 - hard breach: a game the Match helper agreed, booked without the player's yes
   ---
-  duration_ms: 39.622594
+  duration_ms: 52.305069
   type: 'test'
   ...
 # Subtest: hard breach: an Autopilot game booked without the player's yes
-ok 111 - hard breach: an Autopilot game booked without the player's yes
+ok 115 - hard breach: an Autopilot game booked without the player's yes
   ---
-  duration_ms: 21.834598
+  duration_ms: 22.65801
   type: 'test'
   ...
 # Subtest: hard breach: a member booked into two games at once (play.js playing())
-ok 112 - hard breach: a member booked into two games at once (play.js playing())
+ok 116 - hard breach: a member booked into two games at once (play.js playing())
   ---
-  duration_ms: 16.726949
+  duration_ms: 19.841571
   type: 'test'
   ...
 # Subtest: hard breach: the privacy canary's marker in a request to an outside host (fetch is watched)
-ok 113 - hard breach: the privacy canary's marker in a request to an outside host (fetch is watched)
+ok 117 - hard breach: the privacy canary's marker in a request to an outside host (fetch is watched)
   ---
-  duration_ms: 19.512682
+  duration_ms: 23.138057
   type: 'test'
   ...
 # Subtest: the outbound watch: an outside request without the marker goes, the marker never leaves
-ok 114 - the outbound watch: an outside request without the marker goes, the marker never leaves
+ok 118 - the outbound watch: an outside request without the marker goes, the marker never leaves
   ---
-  duration_ms: 7.848022
+  duration_ms: 6.102114
   type: 'test'
   ...
 # Subtest: hard breach: the guard flags more of what the models write than before
-ok 115 - hard breach: the guard flags more of what the models write than before
+ok 119 - hard breach: the guard flags more of what the models write than before
   ---
-  duration_ms: 36.574297
+  duration_ms: 25.192203
   type: 'test'
   ...
 # Subtest: soft breach: thumbs down up 10 points among the beta members: off, returned for part A to reopen
-ok 116 - soft breach: thumbs down up 10 points among the beta members: off, returned for part A to reopen
+ok 120 - soft breach: thumbs down up 10 points among the beta members: off, returned for part A to reopen
   ---
-  duration_ms: 51.633739
+  duration_ms: 46.048821
   type: 'test'
   ...
 # Subtest: a canary that changes nothing, watched every 5 minutes for 7 days: the old rule rolls it back early, the e-process promotes it
-ok 117 - a canary that changes nothing, watched every 5 minutes for 7 days: the old rule rolls it back early, the e-process promotes it
+ok 121 - a canary that changes nothing, watched every 5 minutes for 7 days: the old rule rolls it back early, the e-process promotes it
   ---
-  duration_ms: 1943.131596
+  duration_ms: 1617.469938
   type: 'test'
   ...
 # Subtest: the guard's rate counts only its verdicts on what models wrote to players, not the loop's screen of shared ideas
-ok 118 - the guard's rate counts only its verdicts on what models wrote to players, not the loop's screen of shared ideas
+ok 122 - the guard's rate counts only its verdicts on what models wrote to players, not the loop's screen of shared ideas
   ---
-  duration_ms: 0.915094
+  duration_ms: 0.56181
   type: 'test'
   ...
 # Subtest: soft breach: measured on the canary's members only, so the rest of the beta list cannot dilute it
-ok 119 - soft breach: measured on the canary's members only, so the rest of the beta list cannot dilute it
+ok 123 - soft breach: measured on the canary's members only, so the rest of the beta list cannot dilute it
   ---
-  duration_ms: 24.637851
+  duration_ms: 19.736179
   type: 'test'
   ...
 # Subtest: soft breach: less than 10 points up, a rise that could be chance, or too few thumbs, is not a breach
-ok 120 - soft breach: less than 10 points up, a rise that could be chance, or too few thumbs, is not a breach
+ok 124 - soft breach: less than 10 points up, a rise that could be chance, or too few thumbs, is not a breach
   ---
-  duration_ms: 194.421311
+  duration_ms: 160.538939
   type: 'test'
   ...
 # Subtest: soft breach: the unmet requests in the source cluster do not fall over the canary
-ok 121 - soft breach: the unmet requests in the source cluster do not fall over the canary
+ok 125 - soft breach: the unmet requests in the source cluster do not fall over the canary
   ---
-  duration_ms: 37.081795
+  duration_ms: 30.642807
   type: 'test'
   ...
 # Subtest: after it ships, hard breaches are still watched for 7 days; a manual rollback is kept with who and why
-ok 122 - after it ships, hard breaches are still watched for 7 days; a manual rollback is kept with who and why
+ok 126 - after it ships, hard breaches are still watched for 7 days; a manual rollback is kept with who and why
   ---
-  duration_ms: 30.37319
+  duration_ms: 24.856287
   type: 'test'
   ...
 # Subtest: gates: all nine in the contract's order; pass only when every one passes
-ok 123 - gates: all nine in the contract's order; pass only when every one passes
+ok 127 - gates: all nine in the contract's order; pass only when every one passes
   ---
-  duration_ms: 4.587451
+  duration_ms: 3.194124
   type: 'test'
   ...
 # Subtest: gates: the first failure stops the run (the GPU gates never start), a throwing gate fails closed
-ok 124 - gates: the first failure stops the run (the GPU gates never start), a throwing gate fails closed
+ok 128 - gates: the first failure stops the run (the GPU gates never start), a throwing gate fails closed
   ---
-  duration_ms: 5.901142
+  duration_ms: 4.682571
   type: 'test'
   ...
 # Subtest: gates: a C0 change runs on its value in a scratch folder; the live flags are not touched
-ok 125 - gates: a C0 change runs on its value in a scratch folder; the live flags are not touched
+ok 129 - gates: a C0 change runs on its value in a scratch folder; the live flags are not touched
   ---
-  duration_ms: 2.820853
+  duration_ms: 2.32801
   type: 'test'
   ...
 # Subtest: gate 1 (part B's classifier for a flag value, its policy for a diff) and gate 2 (the code scan)
-ok 126 - gate 1 (part B's classifier for a flag value, its policy for a diff) and gate 2 (the code scan)
+ok 130 - gate 1 (part B's classifier for a flag value, its policy for a diff) and gate 2 (the code scan)
   ---
-  duration_ms: 219.53475
+  duration_ms: 202.880226
   type: 'test'
   ...
 # Subtest: the model endpoint is a parameter: this server's GPU under the lock by default, another one without it
-ok 127 - the model endpoint is a parameter: this server's GPU under the lock by default, another one without it
+ok 131 - the model endpoint is a parameter: this server's GPU under the lock by default, another one without it
   ---
-  duration_ms: 4.327887
+  duration_ms: 4.567098
   type: 'test'
   ...
 # Subtest: gate 7's numbers: pass^3, tokens per run within +15%, p95 within +20%
-ok 128 - gate 7's numbers: pass^3, tokens per run within +15%, p95 within +20%
+ok 132 - gate 7's numbers: pass^3, tokens per run within +15%, p95 within +20%
   ---
-  duration_ms: 1.218949
+  duration_ms: 2.178757
   type: 'test'
   ...
 # Subtest: gate 8: an oracle runs only a test file of this tree, never text from the spec
-ok 129 - gate 8: an oracle runs only a test file of this tree, never text from the spec
+ok 133 - gate 8: an oracle runs only a test file of this tree, never text from the spec
   ---
-  duration_ms: 11.751632
+  duration_ms: 13.132465
   type: 'test'
   ...
 # Subtest: who is an HMAC of the player id with a secret made once, mode 600
-ok 130 - who is an HMAC of the player id with a secret made once, mode 600
+ok 134 - who is an HMAC of the player id with a secret made once, mode 600
   ---
-  duration_ms: 3.089457
+  duration_ms: 3.313157
   type: 'test'
   ...
 # Subtest: consent: nothing is counted until /improve on, and /improve off deletes the counts
-ok 131 - consent: nothing is counted until /improve on, and /improve off deletes the counts
+ok 135 - consent: nothing is counted until /improve on, and /improve off deletes the counts
   ---
-  duration_ms: 3.599976
+  duration_ms: 3.684763
   type: 'test'
   ...
 # Subtest: body and health never become signals
-ok 132 - body and health never become signals
+ok 136 - body and health never become signals
   ---
-  duration_ms: 3.086787
+  duration_ms: 3.004002
   type: 'test'
   ...
 # Subtest: an unmet request's words stay in the player's own record, never in loop data
-ok 133 - an unmet request's words stay in the player's own record, never in loop data
+ok 137 - an unmet request's words stay in the player's own record, never in loop data
   ---
-  duration_ms: 2.156314
+  duration_ms: 2.158957
   type: 'test'
   ...
 # Subtest: what code checks in a shared sentence
-ok 134 - what code checks in a shared sentence
+ok 138 - what code checks in a shared sentence
   ---
-  duration_ms: 6.671463
+  duration_ms: 6.39757
   type: 'test'
   ...
 # Subtest: sharing: per item, the player's own offer only, and the guards fail closed
-ok 135 - sharing: per item, the player's own offer only, and the guards fail closed
+ok 139 - sharing: per item, the player's own offer only, and the guards fail closed
   ---
-  duration_ms: 36.210851
+  duration_ms: 36.251623
   type: 'test'
   ...
 # Subtest: clusters: 5 distinct members to show, both groups to propose; a sock puppet counts once; no chaining; only the same thing
-ok 136 - clusters: 5 distinct members to show, both groups to propose; a sock puppet counts once; no chaining; only the same thing
+ok 140 - clusters: 5 distinct members to show, both groups to propose; a sock puppet counts once; no chaining; only the same thing
   ---
-  duration_ms: 34.729868
+  duration_ms: 34.176738
   type: 'test'
   ...
 # Subtest: clusters: one group alone waits; the catalog answers what Serve already does
-ok 137 - clusters: one group alone waits; the catalog answers what Serve already does
+ok 141 - clusters: one group alone waits; the catalog answers what Serve already does
   ---
-  duration_ms: 3.388833
+  duration_ms: 3.313077
   type: 'test'
   ...
 # Subtest: grouping: average linkage does not depend on the order requests came in; greedy did
-ok 138 - grouping: average linkage does not depend on the order requests came in; greedy did
+ok 142 - grouping: average linkage does not depend on the order requests came in; greedy did
   ---
-  duration_ms: 2.085802
+  duration_ms: 1.869653
   type: 'test'
   ...
 # Subtest: bridging: an idea a faction pushes alone has its support explained by one side; a broadly wanted one does not
-ok 139 - bridging: an idea a faction pushes alone has its support explained by one side; a broadly wanted one does not
+ok 143 - bridging: an idea a faction pushes alone has its support explained by one side; a broadly wanted one does not
   ---
-  duration_ms: 42.944206
+  duration_ms: 41.499383
   type: 'test'
   ...
 # Subtest: quadratic votes: 9 credits a month, n votes on one proposal cost n²
-ok 140 - quadratic votes: 9 credits a month, n votes on one proposal cost n²
+ok 144 - quadratic votes: 9 credits a month, n votes on one proposal cost n²
   ---
-  duration_ms: 2.466978
+  duration_ms: 2.553304
   type: 'test'
   ...
 # Subtest: /forget: signals, pending offers, shared items and votes are gone
-ok 141 - /forget: signals, pending offers, shared items and votes are gone
+ok 145 - /forget: signals, pending offers, shared items and votes are gone
   ---
-  duration_ms: 5.102879
+  duration_ms: 4.991965
   type: 'test'
   ...
 # Subtest: the Rule of Two holds at every stage of a spec, for a config change and for code
-ok 142 - the Rule of Two holds at every stage of a spec, for a config change and for code
+ok 146 - the Rule of Two holds at every stage of a spec, for a config change and for code
   ---
-  duration_ms: 0.581149
+  duration_ms: 0.631451
   type: 'test'
   ...
 # Subtest: the stand-ins fail closed until their modules are here
-ok 143 - the stand-ins fail closed until their modules are here
+ok 147 - the stand-ins fail closed until their modules are here
   ---
-  duration_ms: 1.364251
+  duration_ms: 1.372274
   type: 'test'
   ...
 # Subtest: policy: the never-list paths are refused, the rest are not
-ok 144 - policy: the never-list paths are refused, the rest are not
+ok 148 - policy: the never-list paths are refused, the rest are not
   ---
-  duration_ms: 20.64722
+  duration_ms: 21.249496
   type: 'test'
   ...
 # Subtest: policy: a wording change in a prompt is allowed
-ok 145 - policy: a wording change in a prompt is allowed
+ok 149 - policy: a wording change in a prompt is allowed
   ---
-  duration_ms: 6.275077
+  duration_ms: 7.136653
   type: 'test'
   ...
 # Subtest: policy: outbound hosts are a fixed list, and a new call needs a listed literal
-ok 146 - policy: outbound hosts are a fixed list, and a new call needs a listed literal
+ok 150 - policy: outbound hosts are a fixed list, and a new call needs a listed literal
   ---
-  duration_ms: 9.375055
+  duration_ms: 9.011305
   type: 'test'
   ...
 # Subtest: policy: CodeShield's rules (shell, eval, Function, computed imports)
-ok 147 - policy: CodeShield's rules (shell, eval, Function, computed imports)
+ok 151 - policy: CodeShield's rules (shell, eval, Function, computed imports)
   ---
-  duration_ms: 3.624897
+  duration_ms: 3.313027
   type: 'test'
   ...
 # Subtest: policy: secret-like strings are refused, and never printed
-ok 148 - policy: secret-like strings are refused, and never printed
+ok 152 - policy: secret-like strings are refused, and never printed
   ---
-  duration_ms: 2.698582
+  duration_ms: 2.855889
   type: 'test'
   ...
 # Subtest: policy: the app stays English and names no papers; the gateway's own matching may read other languages
-ok 149 - policy: the app stays English and names no papers; the gateway's own matching may read other languages
+ok 153 - policy: the app stays English and names no papers; the gateway's own matching may read other languages
   ---
-  duration_ms: 10.709986
+  duration_ms: 10.536521
   type: 'test'
   ...
 # Subtest: policy: no diagnosis or dosage; a disclaimer and a training dose are fine
-ok 150 - policy: no diagnosis or dosage; a disclaimer and a training dose are fine
+ok 154 - policy: no diagnosis or dosage; a disclaimer and a training dose are fine
   ---
-  duration_ms: 0.940234
+  duration_ms: 0.990327
   type: 'test'
   ...
 # Subtest: policy: /forget, booking and the approval may not change; a moved line may
-ok 151 - policy: /forget, booking and the approval may not change; a moved line may
+ok 155 - policy: /forget, booking and the approval may not change; a moved line may
   ---
-  duration_ms: 2.821683
+  duration_ms: 2.9066
   type: 'test'
   ...
 # Subtest: policy: dependencies, safety settings, flags, new data
-ok 152 - policy: dependencies, safety settings, flags, new data
+ok 156 - policy: dependencies, safety settings, flags, new data
   ---
-  duration_ms: 3.446153
+  duration_ms: 3.247296
   type: 'test'
   ...
 # Subtest: policy: what can't be read is refused
-ok 153 - policy: what can't be read is refused
+ok 157 - policy: what can't be read is refused
   ---
-  duration_ms: 2.428128
+  duration_ms: 2.097366
   type: 'test'
   ...
 # Subtest: policy: the command exits 0 when allowed and 1 when refused, with JSON on stdout
-ok 154 - policy: the command exits 0 when allowed and 1 when refused, with JSON on stdout
+ok 158 - policy: the command exits 0 when allowed and 1 when refused, with JSON on stdout
   ---
-  duration_ms: 267.108657
+  duration_ms: 283.260828
   type: 'test'
   ...
 # Subtest: screen: both guards answer, a plain item passes
-ok 155 - screen: both guards answer, a plain item passes
+ok 159 - screen: both guards answer, a plain item passes
   ---
-  duration_ms: 23.28568
+  duration_ms: 23.996493
   type: 'test'
   ...
 # Subtest: screen: it fails closed, for the guards LOOP_GUARDS requires
-ok 156 - screen: it fails closed, for the guards LOOP_GUARDS requires
+ok 160 - screen: it fails closed, for the guards LOOP_GUARDS requires
   ---
-  duration_ms: 11.786812
+  duration_ms: 11.435077
   type: 'test'
   ...
 # Subtest: screen: code checks the paraphrase even when the guards pass it
-ok 157 - screen: code checks the paraphrase even when the guards pass it
+ok 161 - screen: code checks the paraphrase even when the guards pass it
   ---
-  duration_ms: 11.63893
+  duration_ms: 10.876297
   type: 'test'
   ...
 # Subtest: classify: C0 is a declared key inside its range, and nothing else
-ok 158 - classify: C0 is a declared key inside its range, and nothing else
+ok 162 - classify: C0 is a declared key inside its range, and nothing else
   ---
-  duration_ms: 2.732893
+  duration_ms: 3.715033
   type: 'test'
   ...
 # Subtest: classify: a diff is classed by what it changes
-ok 159 - classify: a diff is classed by what it changes
+ok 163 - classify: a diff is classed by what it changes
   ---
-  duration_ms: 3.422583
+  duration_ms: 3.399848
   type: 'test'
   ...
 # Subtest: support: distinct members from both groups, recounted from the items
-ok 160 - support: distinct members from both groups, recounted from the items
+ok 164 - support: distinct members from both groups, recounted from the items
   ---
-  duration_ms: 5.553866
+  duration_ms: 4.530668
   type: 'test'
   ...
 # Subtest: support: near-duplicates and copies; votes within each member's budget
-ok 161 - support: near-duplicates and copies; votes within each member's budget
+ok 165 - support: near-duplicates and copies; votes within each member's budget
   ---
-  duration_ms: 16.810901
+  duration_ms: 17.667374
   type: 'test'
   ...
 # Subtest: check: a C0 inside its range, with its support recounted, needs no one
-ok 162 - check: a C0 inside its range, with its support recounted, needs no one
+ok 166 - check: a C0 inside its range, with its support recounted, needs no one
   ---
-  duration_ms: 1.626295
+  duration_ms: 1.75563
   type: 'test'
   ...
 # Subtest: check: C1 to C3 need a maintainer's approval, and only a maintainer's counts
-ok 163 - check: C1 to C3 need a maintainer's approval, and only a maintainer's counts
+ok 167 - check: C1 to C3 need a maintainer's approval, and only a maintainer's counts
   ---
-  duration_ms: 2.526749
+  duration_ms: 2.753877
   type: 'test'
   ...
 # Subtest: check: the never-list is never, whoever approved
-ok 164 - check: the never-list is never, whoever approved
+ok 168 - check: the never-list is never, whoever approved
   ---
-  duration_ms: 6.556042
+  duration_ms: 7.116482
   type: 'test'
   ...
 # Subtest: check: what isn't a spec is not allowed
-ok 165 - check: what isn't a spec is not allowed
+ok 169 - check: what isn't a spec is not allowed
   ---
-  duration_ms: 1.398211
+  duration_ms: 1.418324
   type: 'test'
   ...
 # Subtest: the Rule of Two: no stage of the loop holds all three, and the builder reads no community text
-ok 166 - the Rule of Two: no stage of the loop holds all three, and the builder reads no community text
+ok 170 - the Rule of Two: no stage of the loop holds all three, and the builder reads no community text
   ---
-  duration_ms: 0.383726
+  duration_ms: 0.386976
   type: 'test'
   ...
 # Subtest: serve.likely: facts only, at most twelve times, and the answer is a band and nothing else
-ok 167 - serve.likely: facts only, at most twelve times, and the answer is a band and nothing else
+ok 171 - serve.likely: facts only, at most twelve times, and the answer is a band and nothing else
   ---
-  duration_ms: 4.212215
+  duration_ms: 4.453077
   type: 'test'
   ...
 # Subtest: features: from the member's own records, as of the moment asked
-ok 168 - features: from the member's own records, as of the moment asked
+ok 172 - features: from the member's own records, as of the moment asked
   ---
-  duration_ms: 1.492123
+  duration_ms: 1.590628
   type: 'test'
   ...
 # Subtest: the model: probabilities, calibrated, then four bands at the published cut points
-ok 169 - the model: probabilities, calibrated, then four bands at the published cut points
+ok 173 - the model: probabilities, calibrated, then four bands at the published cut points
   ---
-  duration_ms: 2.878035
+  duration_ms: 2.968391
   type: 'test'
   ...
 # Subtest: a member's estimate: rules first, a band, the cache, the budgets, and one refusal for every reason
-ok 170 - a member's estimate: rules first, a band, the cache, the budgets, and one refusal for every reason
+ok 174 - a member's estimate: rules first, a band, the cache, the budgets, and one refusal for every reason
   ---
-  duration_ms: 6.806316
+  duration_ms: 7.503778
   type: 'test'
   ...
 # Subtest: records: one row per talk, settled by the invite, and /forget removes every row that names someone
-ok 171 - records: one row per talk, settled by the invite, and /forget removes every row that names someone
+ok 175 - records: one row per talk, settled by the invite, and /forget removes every row that names someone
   ---
-  duration_ms: 1.28714
+  duration_ms: 1.349443
   type: 'test'
   ...
 # Subtest: whom to ask first: bands, then fit; two beyond the top ten; a refusal is the club's average, never a no
-ok 172 - whom to ask first: bands, then fit; two beyond the top ten; a refusal is the club's average, never a no
+ok 176 - whom to ask first: bands, then fit; two beyond the top ten; a refusal is the club's average, never a no
   ---
-  duration_ms: 9.170852
+  duration_ms: 9.653216
   type: 'test'
   ...
 # Subtest: the order with exact chances: the band first for everyone; within it the least asked, then the exact chance; a refusal is maybe
-ok 173 - the order with exact chances: the band first for everyone; within it the least asked, then the exact chance; a refusal is maybe
+ok 177 - the order with exact chances: the band first for everyone; within it the least asked, then the exact chance; a refusal is maybe
   ---
-  duration_ms: 1.471863
+  duration_ms: 1.605818
   type: 'test'
   ...
 # Subtest: the calibration ledger: an agent whose 'very likely' keeps failing is caught, and its band ignored
-ok 174 - the calibration ledger: an agent whose 'very likely' keeps failing is caught, and its band ignored
+ok 178 - the calibration ledger: an agent whose 'very likely' keeps failing is caught, and its band ignored
   ---
-  duration_ms: 1.135137
+  duration_ms: 1.090309
   type: 'test'
   ...
 # Subtest: a message that asks for a game, and one that doesn't
-ok 175 - a message that asks for a game, and one that doesn't
+ok 179 - a message that asks for a game, and one that doesn't
   ---
-  duration_ms: 5.324813
+  duration_ms: 5.344731
   type: 'test'
   ...
 # Subtest: the player's times: the intent's days and hours, the usual ones first, twelve at most
-ok 176 - the player's times: the intent's days and hours, the usual ones first, twelve at most
+ok 180 - the player's times: the intent's days and hours, the usual ones first, twelve at most
   ---
-  duration_ms: 1.715057
+  duration_ms: 1.660308
   type: 'test'
   ...
 # Subtest: the simulated world is the same for the same seed, and its demo history is in the past only
-ok 177 - the simulated world is the same for the same seed, and its demo history is in the past only
+ok 181 - the simulated world is the same for the same seed, and its demo history is in the past only
   ---
-  duration_ms: 63.2307
+  duration_ms: 66.549994
   type: 'test'
   ...
 # Subtest: over A2A: the card declares serve.likely, a member's agent answers a band, and refuses with REJECTED
-ok 178 - over A2A: the card declares serve.likely, a member's agent answers a band, and refuses with REJECTED
+ok 182 - over A2A: the card declares serve.likely, a member's agent answers a band, and refuses with REJECTED
   ---
-  duration_ms: 308.58657
+  duration_ms: 263.775733
   type: 'test'
   ...
 # Subtest: the asker's reliability: what this member's agent saw itself of the asker, dropped and cancelled games
-ok 179 - the asker's reliability: what this member's agent saw itself of the asker, dropped and cancelled games
+ok 183 - the asker's reliability: what this member's agent saw itself of the asker, dropped and cancelled games
   ---
-  duration_ms: 1.183659
+  duration_ms: 1.057668
   type: 'test'
   ...
 # Subtest: the exact chance: only for a member who shares it, on the 0.05 step, never below the lowest band edge
-ok 180 - the exact chance: only for a member who shares it, on the 0.05 step, never below the lowest band edge
+ok 184 - the exact chance: only for a member who shares it, on the 0.05 step, never below the lowest band edge
   ---
-  duration_ms: 3.328482
+  duration_ms: 1.73815
   type: 'test'
   ...
 # Subtest: a real player's choices: no bands until /bands on, the exact chance only on top, /learn apart, /forget back to off
-ok 181 - a real player's choices: no bands until /bands on, the exact chance only on top, /learn apart, /forget back to off
+ok 185 - a real player's choices: no bands until /bands on, the exact chance only on top, /learn apart, /forget back to off
   ---
-  duration_ms: 31.357436
+  duration_ms: 25.763292
   type: 'test'
   ...
 # Subtest: retraining: only consenting members' records, a calibration gate before a model is used, and a rollback
-ok 182 - retraining: only consenting members' records, a calibration gate before a model is used, and a rollback
+ok 186 - retraining: only consenting members' records, a calibration gate before a model is used, and a rollback
   ---
-  duration_ms: 226.343336
+  duration_ms: 196.225123
   type: 'test'
   ...
 # Subtest: two at once, for today: when both agree, the second is let go politely, its hold freed, nothing booked
-ok 183 - two at once, for today: when both agree, the second is let go politely, its hold freed, nothing booked
+ok 187 - two at once, for today: when both agree, the second is let go politely, its hold freed, nothing booked
   ---
-  duration_ms: 117.556011
+  duration_ms: 51.534776
   type: 'test'
   ...
 # Subtest: the demo's invites: a member answers by its own agent's chance of a yes, the same for the same booking
-ok 184 - the demo's invites: a member answers by its own agent's chance of a yes, the same for the same booking
+ok 188 - the demo's invites: a member answers by its own agent's chance of a yes, the same for the same booking
   ---
-  duration_ms: 368.749101
+  duration_ms: 269.301449
   type: 'test'
   ...
 # Subtest: a free-text request is durable: checkpoints, the talks' own ids, and a resume that asks nobody twice
-ok 185 - a free-text request is durable: checkpoints, the talks' own ids, and a resume that asks nobody twice
+ok 189 - a free-text request is durable: checkpoints, the talks' own ids, and a resume that asks nobody twice
   ---
-  duration_ms: 14.620256
+  duration_ms: 9.516273
   type: 'test'
   ...
 # Subtest: I want to play, end to end without a model: the intent by rules, bands, a talk, and a question that waits for the yes
-ok 186 - I want to play, end to end without a model: the intent by rules, bands, a talk, and a question that waits for the yes
+ok 190 - I want to play, end to end without a model: the intent by rules, bands, a talk, and a question that waits for the yes
   ---
-  duration_ms: 18.969344
+  duration_ms: 12.070868
   type: 'test'
   ...
 # Subtest: a session: signed by this gateway, expires, and names a member who still exists
-ok 187 - a session: signed by this gateway, expires, and names a member who still exists
+ok 191 - a session: signed by this gateway, expires, and names a member who still exists
   ---
-  duration_ms: 6.41654
+  duration_ms: 6.242927
   type: 'test'
   ...
 # Subtest: the same provider account is the same member, and only a hash of its id is kept
-ok 188 - the same provider account is the same member, and only a hash of its id is kept
+ok 192 - the same provider account is the same member, and only a hash of its id is kept
   ---
-  duration_ms: 1.399222
+  duration_ms: 1.468995
   type: 'test'
   ...
 # Subtest: the login round trip: an unknown or reused state is refused
-ok 189 - the login round trip: an unknown or reused state is refused
+ok 193 - the login round trip: an unknown or reused state is refused
   ---
-  duration_ms: 1.227619
+  duration_ms: 1.240741
   type: 'test'
   ...
 # Subtest: an agent joins by its public key; never a private key, never another member's
-ok 190 - an agent joins by its public key; never a private key, never another member's
+ok 194 - an agent joins by its public key; never a private key, never another member's
   ---
-  duration_ms: 3.591836
+  duration_ms: 6.509932
   type: 'test'
   ...
 # Subtest: the agent channel: only a fresh request signed by a registered key, for this path and this body
-ok 191 - the agent channel: only a fresh request signed by a registered key, for this path and this body
+ok 195 - the agent channel: only a fresh request signed by a registered key, for this path and this body
   ---
-  duration_ms: 8.729696
+  duration_ms: 6.955649
   type: 'test'
   ...
 # Subtest: an invite: checked, joined up to its spots, and the poster's agent answers with facts made by code
-ok 192 - an invite: checked, joined up to its spots, and the poster's agent answers with facts made by code
+ok 196 - an invite: checked, joined up to its spots, and the poster's agent answers with facts made by code
   ---
-  duration_ms: 11.318825
+  duration_ms: 12.935012
   type: 'test'
   ...
 # Subtest: code finds the members, weekdays and times a note names
-ok 193 - code finds the members, weekdays and times a note names
+ok 197 - code finds the members, weekdays and times a note names
   ---
-  duration_ms: 8.282128
+  duration_ms: 8.537637
   type: 'test'
   ...
 # Subtest: the model's answer is checked by code
-ok 194 - the model's answer is checked by code
+ok 198 - the model's answer is checked by code
   ---
-  duration_ms: 9.71984
+  duration_ms: 8.946163
   type: 'test'
   ...
 # Subtest: a newer note replaces an older one, its rule goes with it, and a note past its last day expires
-ok 195 - a newer note replaces an older one, its rule goes with it, and a note past its last day expires
+ok 199 - a newer note replaces an older one, its rule goes with it, and a note past its last day expires
   ---
-  duration_ms: 13.677752
+  duration_ms: 14.821345
   type: 'test'
   ...
 # Subtest: forgetting what was said about one member, or one topic, and nothing else
-ok 196 - forgetting what was said about one member, or one topic, and nothing else
+ok 200 - forgetting what was said about one member, or one topic, and nothing else
   ---
-  duration_ms: 14.805919
+  duration_ms: 13.906419
   type: 'test'
   ...
 # Subtest: the budget counts hours of the week told to an asker, not answers
-ok 197 - the budget counts hours of the week told to an asker, not answers
+ok 201 - the budget counts hours of the week told to an asker, not answers
   ---
-  duration_ms: 3.409623
+  duration_ms: 3.400928
   type: 'test'
   ...
 # Subtest: an answer cut to the budget: withheld times are neither a yes nor a no
-ok 198 - an answer cut to the budget: withheld times are neither a yes nor a no
+ok 202 - an answer cut to the budget: withheld times are neither a yes nor a no
   ---
-  duration_ms: 2.381757
+  duration_ms: 2.413491
   type: 'test'
   ...
 # Subtest: a talk with private calendars: the curious asker runs out, the player who keeps to the same hours does not
-ok 199 - a talk with private calendars: the curious asker runs out, the player who keeps to the same hours does not
+ok 203 - a talk with private calendars: the curious asker runs out, the player who keeps to the same hours does not
   ---
-  duration_ms: 48.177287
+  duration_ms: 49.247567
   type: 'test'
   ...
 # Subtest: a band is refused once the hours it covers are over the member's budget
-ok 200 - a band is refused once the hours it covers are over the member's budget
+ok 204 - a band is refused once the hours it covers are over the member's budget
   ---
-  duration_ms: 4.779254
+  duration_ms: 4.737152
   type: 'test'
   ...
 # Subtest: what your agent keeps about a member's agent fades, and can be coarse
-ok 201 - what your agent keeps about a member's agent fades, and can be coarse
+ok 205 - what your agent keeps about a member's agent fades, and can be coarse
   ---
-  duration_ms: 5.595017
+  duration_ms: 5.537255
+  type: 'test'
+  ...
+# Subtest: the head: a softmax over the classes, the most likely one named
+ok 206 - the head: a softmax over the classes, the most likely one named
+  ---
+  duration_ms: 1.619358
+  type: 'test'
+  ...
+# Subtest: the shipped head has the five classes and one row per class
+ok 207 - the shipped head has the five classes and one row per class
+  ---
+  duration_ms: 1.804092
+  type: 'test'
+  ...
+# Subtest: no: when it is off, for a command, and with no embedder
+ok 208 - no: when it is off, for a command, and with no embedder
+  ---
+  duration_ms: 0.477378
   type: 'test'
   ...
 # Subtest: sim dice: the same name gives the same draw, another name another
-ok 202 - sim dice: the same name gives the same draw, another name another
+ok 209 - sim dice: the same name gives the same draw, another name another
   ---
-  duration_ms: 2.896085
+  duration_ms: 3.926968
   type: 'test'
   ...
 # Subtest: personas: twenty invented, simulated people, the same from the same seed, and the file is what the code makes
-ok 203 - personas: twenty invented, simulated people, the same from the same seed, and the file is what the code makes
+ok 210 - personas: twenty invented, simulated people, the same from the same seed, and the file is what the code makes
   ---
-  duration_ms: 6.037554
+  duration_ms: 8.654128
   type: 'test'
   ...
 # Subtest: personas: they vary in what matters
-ok 204 - personas: they vary in what matters
+ok 211 - personas: they vary in what matters
   ---
-  duration_ms: 1.225139
+  duration_ms: 2.112887
   type: 'test'
   ...
 # Subtest: the trial club: the personas as simulated members, nobody else, no demo history
-ok 205 - the trial club: the personas as simulated members, nobody else, no demo history
+ok 212 - the trial club: the personas as simulated members, nobody else, no demo history
   ---
-  duration_ms: 0.881004
+  duration_ms: 1.352793
   type: 'test'
   ...
 # Subtest: inertia: a game is never a yes when they're not free or need none
-ok 206 - inertia: a game is never a yes when they're not free or need none
+ok 213 - inertia: a game is never a yes when they're not free or need none
   ---
-  duration_ms: 4.602571
+  duration_ms: 6.148965
   type: 'test'
   ...
 # Subtest: inertia: a lazier person opens less, answers slower, declines and flakes more, gives up sooner
-ok 207 - inertia: a lazier person opens less, answers slower, declines and flakes more, gives up sooner
+ok 214 - inertia: a lazier person opens less, answers slower, declines and flakes more, gives up sooner
   ---
-  duration_ms: 0.848813
+  duration_ms: 0.808084
   type: 'test'
   ...
 # Subtest: inertia: the game they have in mind is in their free times, three hours ahead, within the trial
-ok 208 - inertia: the game they have in mind is in their free times, three hours ahead, within the trial
+ok 215 - inertia: the game they have in mind is in their free times, three hours ahead, within the trial
   ---
-  duration_ms: 2.419547
+  duration_ms: 2.563194
   type: 'test'
   ...
 # Subtest: courts: the baseline's timetable is play.js's
-ok 209 - courts: the baseline's timetable is play.js's
+ok 216 - courts: the baseline's timetable is play.js's
   ---
-  duration_ms: 113.166733
+  duration_ms: 124.942478
   type: 'test'
   ...
 # Subtest: the trial's requests reach matchmaking, and a calendar note still files as one
-ok 210 - the trial's requests reach matchmaking, and a calendar note still files as one
+ok 217 - the trial's requests reach matchmaking, and a calendar note still files as one
   ---
-  duration_ms: 115.844114
+  duration_ms: 118.129041
   type: 'test'
   ...
 # Subtest: courts: a court booked in the baseline's world is not free again
-ok 211 - courts: a court booked in the baseline's world is not free again
+ok 218 - courts: a court booked in the baseline's world is not free again
   ---
-  duration_ms: 0.958124
+  duration_ms: 0.858635
   type: 'test'
   ...
 # Subtest: baseline: the same seed gives the same week, every game fits everyone and no one plays twice at once
-ok 212 - baseline: the same seed gives the same week, every game fits everyone and no one plays twice at once
+ok 219 - baseline: the same seed gives the same week, every game fits everyone and no one plays twice at once
   ---
-  duration_ms: 32.171918
+  duration_ms: 31.272058
   type: 'test'
   ...
 # Subtest: baseline: with nobody busy, flaky or slow, the people who would play do
-ok 213 - baseline: with nobody busy, flaky or slow, the people who would play do
+ok 220 - baseline: with nobody busy, flaky or slow, the people who would play do
   ---
-  duration_ms: 10.788667
+  duration_ms: 9.486603
   type: 'test'
   ...
 # Subtest: measures: intervals and counts
-ok 214 - measures: intervals and counts
+ok 221 - measures: intervals and counts
   ---
-  duration_ms: 24.611981
+  duration_ms: 26.018707
   type: 'test'
   ...
 # Subtest: the seed loader: only where it is told, everything marked simulated, dates moved, HMACs its own, and removable
-ok 215 - the seed loader: only where it is told, everything marked simulated, dates moved, HMACs its own, and removable
+ok 222 - the seed loader: only where it is told, everything marked simulated, dates moved, HMACs its own, and removable
   ---
-  duration_ms: 12.376251
+  duration_ms: 11.568239
   type: 'test'
   ...
 # Subtest: the injected clock: Date starts at the simulated time and moves only forward
-ok 216 - the injected clock: Date starts at the simulated time and moves only forward
+ok 223 - the injected clock: Date starts at the simulated time and moves only forward
   ---
-  duration_ms: 52.170258
+  duration_ms: 52.256868
   type: 'test'
   ...
 # Subtest: the student answers the real choice: a counter to a time that works, with code's set of times
-ok 217 - the student answers the real choice: a counter to a time that works, with code's set of times
+ok 224 - the student answers the real choice: a counter to a time that works, with code's set of times
   ---
-  duration_ms: 40.65893
+  duration_ms: 42.307537
   type: 'test'
   ...
 # Subtest: unsure, or its own reading of the times differs from code's: Muse Glimmer answers
-ok 218 - unsure, or its own reading of the times differs from code's: Muse Glimmer answers
+ok 225 - unsure, or its own reading of the times differs from code's: Muse Glimmer answers
   ---
-  duration_ms: 11.212064
+  duration_ms: 12.750439
   type: 'test'
   ...
 # Subtest: only the real choice, and only for a member whose limits are all in code
-ok 219 - only the real choice, and only for a member whose limits are all in code
+ok 226 - only the real choice, and only for a member whose limits are all in code
   ---
-  duration_ms: 0.502678
+  duration_ms: 0.774933
   type: 'test'
   ...
 # Subtest: A2A_STUDENT on by default: a member's agent decides with it, through the full answer's path
-ok 220 - A2A_STUDENT on by default: a member's agent decides with it, through the full answer's path
+ok 227 - A2A_STUDENT on by default: a member's agent decides with it, through the full answer's path
   ---
-  duration_ms: 6.982718
+  duration_ms: 8.636488
   type: 'test'
   ...
 # Subtest: a worker that is down is no answer, and Muse Glimmer is asked (A2A_STUDENT=off asks it directly)
-ok 221 - a worker that is down is no answer, and Muse Glimmer is asked (A2A_STUDENT=off asks it directly)
+ok 228 - a worker that is down is no answer, and Muse Glimmer is asked (A2A_STUDENT=off asks it directly)
   ---
-  duration_ms: 11.714251
+  duration_ms: 10.686294
   type: 'test'
   ...
 # Subtest: a member's reply: the decision only, and times in the protocol's form
-ok 222 - a member's reply: the decision only, and times in the protocol's form
+ok 229 - a member's reply: the decision only, and times in the protocol's form
   ---
-  duration_ms: 3.348852
+  duration_ms: 3.43063
   type: 'test'
   ...
 # Subtest: a proposal carries facts only
-ok 223 - a proposal carries facts only
+ok 230 - a proposal carries facts only
   ---
-  duration_ms: 1.062237
+  duration_ms: 0.974667
   type: 'test'
   ...
 # Subtest: the acceptable set is kept consistent with the decision
-ok 224 - the acceptable set is kept consistent with the decision
+ok 231 - the acceptable set is kept consistent with the decision
   ---
-  duration_ms: 0.541908
+  duration_ms: 0.510669
   type: 'test'
   ...
 # Subtest: a member's hard rules
-ok 225 - a member's hard rules
+ok 232 - a member's hard rules
   ---
-  duration_ms: 1.016386
+  duration_ms: 1.011467
   type: 'test'
   ...
 # Subtest: shared free time: only what everyone has, long enough
-ok 226 - shared free time: only what everyone has, long enough
+ok 233 - shared free time: only what everyone has, long enough
   ---
-  duration_ms: 1.113857
+  duration_ms: 1.130579
   type: 'test'
   ...
 # Subtest: badminton's scoring rules
-ok 227 - badminton's scoring rules
+ok 234 - badminton's scoring rules
   ---
-  duration_ms: 0.538949
+  duration_ms: 0.534239
   type: 'test'
   ...
 # Subtest: the simulated club: the same seed, the same club; unique names; rules that go with the words
-ok 228 - the simulated club: the same seed, the same club; unique names; rules that go with the words
+ok 235 - the simulated club: the same seed, the same club; unique names; rules that go with the words
   ---
-  duration_ms: 14.478965
+  duration_ms: 15.864563
   type: 'test'
   ...
 # Subtest: the gateway's token: required, compared exactly, sent to this gateway only
-ok 229 - the gateway's token: required, compared exactly, sent to this gateway only
+ok 236 - the gateway's token: required, compared exactly, sent to this gateway only
   ---
-  duration_ms: 1.469313
+  duration_ms: 1.643779
   type: 'test'
   ...
-# store.json could not be read (Unexpected end of JSON input); moved aside to store.json.bad-1793244386897, starting empty
+# store.json could not be read (Unexpected end of JSON input); moved aside to store.json.bad-1793247360317, starting empty
 # Subtest: shared files: allowed servers only, redirects checked, the cap checked as bytes arrive
-ok 230 - shared files: allowed servers only, redirects checked, the cap checked as bytes arrive
+ok 237 - shared files: allowed servers only, redirects checked, the cap checked as bytes arrive
   ---
-  duration_ms: 90.883338
+  duration_ms: 89.684001
   type: 'test'
   ...
 # Subtest: a store that cannot be read is moved aside, and the gateway still starts
-ok 231 - a store that cannot be read is moved aside, and the gateway still starts
+ok 238 - a store that cannot be read is moved aside, and the gateway still starts
   ---
-  duration_ms: 1.718286
+  duration_ms: 1.73206
   type: 'test'
   ...
 # Subtest: the ledger: a reply that did not fit counts as invalid, not as a call
-ok 232 - the ledger: a reply that did not fit counts as invalid, not as a call
+ok 239 - the ledger: a reply that did not fit counts as invalid, not as a call
   ---
-  duration_ms: 0.404706
+  duration_ms: 0.417428
   type: 'test'
   ...
 # Subtest: booking: a public court is set without a hold, and the same game booked twice is one booking
-ok 233 - booking: a public court is set without a hold, and the same game booked twice is one booking
+ok 240 - booking: a public court is set without a hold, and the same game booked twice is one booking
   ---
-  duration_ms: 3.168959
+  duration_ms: 3.350038
   type: 'test'
   ...
 # Subtest: one member, two talks at once: a booking at an overlapping time is refused, and their agent sees the game
-ok 234 - one member, two talks at once: a booking at an overlapping time is refused, and their agent sees the game
+ok 241 - one member, two talks at once: a booking at an overlapping time is refused, and their agent sees the game
   ---
-  duration_ms: 2.970906
+  duration_ms: 2.814248
   type: 'test'
   ...
 # Subtest: holds: the agreed time is held, other talks see it, and a booking, a release or time lets it go
-ok 235 - holds: the agreed time is held, other talks see it, and a booking, a release or time lets it go
+ok 242 - holds: the agreed time is held, other talks see it, and a booking, a release or time lets it go
   ---
-  duration_ms: 25.057788
+  duration_ms: 23.599106
   type: 'test'
   ...
 # Subtest: a court booked through Serve is not free for another talk; a game planned from a talk passes that talk's hold
-ok 236 - a court booked through Serve is not free for another talk; a game planned from a talk passes that talk's hold
+ok 243 - a court booked through Serve is not free for another talk; a game planned from a talk passes that talk's hold
   ---
-  duration_ms: 7.686239
+  duration_ms: 6.874508
   type: 'test'
   ...
 # Signature verification on entry was not successful: {
-#   protected: 'eyJhbGciOiJFZERTQSIsImtpZCI6InNlcnZlLWNkYWYxZjJhMWYxMjdmMWQiLCJ0eXAiOiJKT1NFIn0',
-#   signature: '6ur5CsK1eazC-Oq8mLJ1--3tPQP6ylNctthRkDGyNeaLKxujO8Tr4OAyz7cSZDhNiPJ3s4KGknQur5hLJgfTAQ',
+#   protected: 'eyJhbGciOiJFZERTQSIsImtpZCI6InNlcnZlLTFkZDU1ODJkNDgyNzk1NGYiLCJ0eXAiOiJKT1NFIn0',
+#   signature: 'm6FYEcRdfYgigjEwJ2W6Cf6rYn005x8vFGVj82lIISw57rrwshoxpbmxg0kx9bfT4lnTCsjBR_dvZuha4oJmCw',
 #   header: undefined
 # } JWSSignatureVerificationFailed: signature verification failed
 #     at verifySignature (file:///home/gino/serve/agent/node_modules/jose/dist/webapi/lib/jws_verify.js:70:11)
@@ -1444,159 +1486,159 @@ ok 236 - a court booked through Serve is not free for another talk; a game plann
 #     at async file:///home/gino/serve/agent/node_modules/@a2a-js/sdk/dist/index.js:1614:9
 #     at async waitForActual (node:assert:644:5)
 #     at async Function.rejects (node:assert:767:25)
-#     at async TestContext.<anonymous> (file:///tmp/servetest/agent/test/unit.mjs:222:3)
+#     at async TestContext.<anonymous> (file:///tmp/bench/agent/test/unit.mjs:222:3)
 #     at async Test.run (node:internal/test_runner/test:1054:7)
 #     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7) {
 #   code: 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED'
 # }
 # Signature verification on entry was not successful: {
-#   protected: 'eyJhbGciOiJFZERTQSIsImtpZCI6InNlcnZlLWNkYWYxZjJhMWYxMjdmMWQiLCJ0eXAiOiJKT1NFIn0',
-#   signature: '6ur5CsK1eazC-Oq8mLJ1--3tPQP6ylNctthRkDGyNeaLKxujO8Tr4OAyz7cSZDhNiPJ3s4KGknQur5hLJgfTAQ',
+#   protected: 'eyJhbGciOiJFZERTQSIsImtpZCI6InNlcnZlLTFkZDU1ODJkNDgyNzk1NGYiLCJ0eXAiOiJKT1NFIn0',
+#   signature: 'm6FYEcRdfYgigjEwJ2W6Cf6rYn005x8vFGVj82lIISw57rrwshoxpbmxg0kx9bfT4lnTCsjBR_dvZuha4oJmCw',
 #   header: undefined
 # } Error: no such key
-#     at file:///tmp/servetest/agent/test/unit.mjs:223:69
+#     at file:///tmp/bench/agent/test/unit.mjs:223:69
 #     at file:///home/gino/serve/agent/node_modules/@a2a-js/sdk/dist/index.js:1607:33
-#     at TestContext.<anonymous> (file:///tmp/servetest/agent/test/unit.mjs:223:97)
+#     at TestContext.<anonymous> (file:///tmp/bench/agent/test/unit.mjs:223:97)
 #     at async Test.run (node:internal/test_runner/test:1054:7)
 #     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
 # Subtest: a member's Agent Card is signed, and a changed card does not check out
-ok 237 - a member's Agent Card is signed, and a changed card does not check out
+ok 244 - a member's Agent Card is signed, and a changed card does not check out
   ---
-  duration_ms: 129.029109
+  duration_ms: 125.135701
   type: 'test'
   ...
 # Subtest: routing: what the calendar and the rules decide is not asked of the model
-ok 238 - routing: what the calendar and the rules decide is not asked of the model
+ok 245 - routing: what the calendar and the rules decide is not asked of the model
   ---
-  duration_ms: 1.2901
+  duration_ms: 1.261672
   type: 'test'
   ...
 # Subtest: a voice note's spoken scale: the homophone before "out of" is the number
-ok 239 - a voice note's spoken scale: the homophone before "out of" is the number
+ok 246 - a voice note's spoken scale: the homophone before "out of" is the number
   ---
-  duration_ms: 1.575785
+  duration_ms: 1.550677
   type: 'test'
   ...
 # Subtest: a level the player states is read by code, in digits or words; a spoken side before a body part is a side
-ok 240 - a level the player states is read by code, in digits or words; a spoken side before a body part is a side
+ok 247 - a level the player states is read by code, in digits or words; a spoken side before a body part is a side
   ---
-  duration_ms: 4.218916
+  duration_ms: 4.251653
   type: 'test'
   ...
 # Subtest: Llama Guard's answer: safe, unsafe with its categories, or no verdict
-ok 241 - Llama Guard's answer: safe, unsafe with its categories, or no verdict
+ok 248 - Llama Guard's answer: safe, unsafe with its categories, or no verdict
   ---
-  duration_ms: 4.49351
+  duration_ms: 4.730301
   type: 'test'
   ...
 # Subtest: a guard that fails or is slow is skipped and counted, and not waited on again until it answers
-ok 242 - a guard that fails or is slow is skipped and counted, and not waited on again until it answers
+ok 249 - a guard that fails or is slow is skipped and counted, and not waited on again until it answers
   ---
-  duration_ms: 930.544133
+  duration_ms: 935.432896
   type: 'test'
   ...
 # Subtest: Prompt Guard's worker: no Python, or one that can't start, is skipped and does not stop the gateway
-ok 243 - Prompt Guard's worker: no Python, or one that can't start, is skipped and does not stop the gateway
+ok 250 - Prompt Guard's worker: no Python, or one that can't start, is skipped and does not stop the gateway
   ---
-  duration_ms: 92.151927
+  duration_ms: 95.154445
   type: 'test'
   ...
 # Subtest: an answer with a training tip is not sent: Serve is not a coach
-ok 244 - an answer with a training tip is not sent: Serve is not a coach
+ok 251 - an answer with a training tip is not sent: Serve is not a coach
   ---
-  duration_ms: 2.547449
+  duration_ms: 1.934223
   type: 'test'
   ...
 # Subtest: the body context: notes from the log and the load, recent ones first, and every limit citing notes about the same part
-ok 245 - the body context: notes from the log and the load, recent ones first, and every limit citing notes about the same part
+ok 252 - the body context: notes from the log and the load, recent ones first, and every limit citing notes about the same part
   ---
-  duration_ms: 29.371565
+  duration_ms: 18.869794
   type: 'test'
   ...
 # Subtest: a score checked against its sport's rules: tennis sets and match tiebreaks, basketball, games to 11
-ok 246 - a score checked against its sport's rules: tennis sets and match tiebreaks, basketball, games to 11
+ok 253 - a score checked against its sport's rules: tennis sets and match tiebreaks, basketball, games to 11
   ---
-  duration_ms: 2.155533
+  duration_ms: 1.368654
   type: 'test'
   ...
 # Subtest: a turn: handshake, audio relayed, the reply in text and in speech
-ok 247 - a turn: handshake, audio relayed, the reply in text and in speech
+ok 254 - a turn: handshake, audio relayed, the reply in text and in speech
   ---
-  duration_ms: 434.435449
+  duration_ms: 435.547395
   type: 'test'
   ...
 # Subtest: barge-in: the player speaks again before the reply is ready, and that reply is dropped
-ok 248 - barge-in: the player speaks again before the reply is ready, and that reply is dropped
+ok 255 - barge-in: the player speaks again before the reply is ready, and that reply is dropped
   ---
-  duration_ms: 405.42871
+  duration_ms: 403.86196
   type: 'test'
   ...
 # Subtest: a reply is spoken a sentence at a time; short ones go with the next
-ok 249 - a reply is spoken a sentence at a time; short ones go with the next
+ok 256 - a reply is spoken a sentence at a time; short ones go with the next
   ---
-  duration_ms: 0.772892
+  duration_ms: 0.697262
   type: 'test'
   ...
 # Subtest: private calendars: the server's default, the player's own choice wins, an explicit mode wins over both
-ok 250 - private calendars: the server's default, the player's own choice wins, an explicit mode wins over both
+ok 257 - private calendars: the server's default, the player's own choice wins, an explicit mode wins over both
   ---
-  duration_ms: 4.870546
+  duration_ms: 4.920435
   type: 'test'
   ...
 # Subtest: a talk runs in the player's mode: private proposes from your own week and says so; shared lists only common times
-ok 251 - a talk runs in the player's mode: private proposes from your own week and says so; shared lists only common times
+ok 258 - a talk runs in the player's mode: private proposes from your own week and says so; shared lists only common times
   ---
-  duration_ms: 37.554352
+  duration_ms: 45.169496
   type: 'test'
   ...
 # Subtest: every check is noted with its verdict and what happened, for its own player, and never with the text
-ok 252 - every check is noted with its verdict and what happened, for its own player, and never with the text
+ok 259 - every check is noted with its verdict and what happened, for its own player, and never with the text
   ---
-  duration_ms: 146.5366
+  duration_ms: 136.685369
   type: 'test'
   ...
 # Subtest: who the plan left out, with the note that asked for it, found by first name with or without accents
-ok 253 - who the plan left out, with the note that asked for it, found by first name with or without accents
+ok 260 - who the plan left out, with the note that asked for it, found by first name with or without accents
   ---
-  duration_ms: 7.495466
+  duration_ms: 4.924425
   type: 'test'
   ...
 # Subtest: the camera effect: what was chosen and why, in the player's words
-ok 254 - the camera effect: what was chosen and why, in the player's words
+ok 261 - the camera effect: what was chosen and why, in the player's words
   ---
-  duration_ms: 1.988701
+  duration_ms: 1.14333
   type: 'test'
   ...
 # Subtest: a build: its attempts, branch, diff and gates are kept, and the proposal moves to gated
-ok 255 - a build: its attempts, branch, diff and gates are kept, and the proposal moves to gated
+ok 262 - a build: its attempts, branch, diff and gates are kept, and the proposal moves to gated
   ---
-  duration_ms: 6.318578
+  duration_ms: 3.852236
   type: 'test'
   ...
 # Subtest: a build that stops, or a gate that fails, says why and leaves the proposal approved; only approved C1-C3 is built
-ok 256 - a build that stops, or a gate that fails, says why and leaves the proposal approved; only approved C1-C3 is built
+ok 263 - a build that stops, or a gate that fails, says why and leaves the proposal approved; only approved C1-C3 is built
   ---
-  duration_ms: 15.768495
+  duration_ms: 9.943681
   type: 'test'
   ...
 # Subtest: the gateway's new routes: tokens, prefs, server memory, the app's chat past the guards, safety, holds, builds
-ok 257 - the gateway's new routes: tokens, prefs, server memory, the app's chat past the guards, safety, holds, builds
+ok 264 - the gateway's new routes: tokens, prefs, server memory, the app's chat past the guards, safety, holds, builds
   ---
-  duration_ms: 3588.888887
+  duration_ms: 2412.721995
   type: 'test'
   ...
 # Subtest: the app's voice input: the token, audio only, a size cap, a language code; the words back and a ledger row without them
-ok 258 - the app's voice input: the token, audio only, a size cap, a language code; the words back and a ledger row without them
+ok 265 - the app's voice input: the token, audio only, a size cap, a language code; the words back and a ledger row without them
   ---
-  duration_ms: 917.373769
+  duration_ms: 917.237773
   type: 'test'
   ...
-1..258
-# tests 258
+1..265
+# tests 265
 # suites 0
-# pass 257
+# pass 264
 # fail 0
 # cancelled 0
 # skipped 1
 # todo 0
-# duration_ms 13004.805758
+# duration_ms 12874.955046

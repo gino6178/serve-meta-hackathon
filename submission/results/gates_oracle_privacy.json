@@ -1,0 +1,72 @@
+{
+ "at": "2026-10-29T04:50:57.993Z",
+ "spec": {
+  "id": "P-gates",
+  "change": {
+   "class": "C0",
+   "key": "places.radius",
+   "value": 3000,
+   "files": [
+    "agent/src/agents/autopilot.js",
+    "agent/src/club/places.js"
+   ],
+   "summary": "places.radius: 2500 to 3000"
+  }
+ },
+ "seconds": 4.9,
+ "pass": false,
+ "endpoint": "11446",
+ "results": [
+  {
+   "gate": "oracle",
+   "ok": true,
+   "details": {
+    "kind": "check",
+    "readers": [
+     {
+      "file": "src/agents/autopilot.js",
+      "reads": true
+     },
+     {
+      "file": "src/club/places.js",
+      "reads": true
+     }
+    ],
+    "values": [
+     3000,
+     3000,
+     3000
+    ],
+    "expected": 3000,
+    "took": 0.2
+   }
+  },
+  {
+   "gate": "privacy",
+   "ok": false,
+   "details": {
+    "outsideRequests": 0,
+    "hosts": {},
+    "carriedTheMarker": 0,
+    "controlStopped": true,
+    "asked": true,
+    "autopilotSteps": [
+     "goal",
+     "get_week",
+     "check_body",
+     "find_partners",
+     "verify",
+     "negotiate",
+     "request_approval",
+     "report"
+    ],
+    "took": 4.7
+   }
+  }
+ ],
+ "subset": [
+  "oracle",
+  "privacy"
+ ],
+ "subsetOk": false
+}

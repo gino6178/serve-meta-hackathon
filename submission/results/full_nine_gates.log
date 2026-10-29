@@ -1,0 +1,14 @@
+Muse Glimmer for the suites: http://127.0.0.1:11446 (no lock)
+gates for P-gates (C0 places.radius = 3000), only policy, scan, unit, crash_matrix, redteam, e2e, autopilot_eval, oracle, privacy
+  PASS policy (0 s) {"by":"review.classify","class":"C0","reasons":["places.radius = 3000, inside its declared range"],"diff":"none (a flag value)","took":0}
+  PASS scan (0.1 s) {"lines":0,"findings":[],"diff":"none (a flag value)","took":0.1}
+  PASS unit (3.5 s) {"files":["test/unit.mjs","test/loop_unit.mjs","test/loop_ship_unit.mjs"],"pass":77,"fail":0,"baseline":77,"regressions":[],"code":0,"seconds":3.5,"took":3.5}
+  PASS crash_matrix (101.1 s) {"pass":201,"fail":0,"baseline":201,"regressions":[],"code":0,"seconds":101.1,"waitedForLock":0,"took":101.1}
+  PASS redteam (421.2 s) {"passed":93,"cases":93,"baseline":91,"regressions":[],"code":0,"seconds":421.2,"waitedForLock":0,"took":421.2}
+  PASS e2e (256.1 s) {"pass":58,"fail":0,"baseline":48,"regressions":[],"code":0,"seconds":256.1,"waitedForLock":0,"took":256.1}
+  FAIL autopilot_eval (1069.3 s) {"runs":27,"weeks":9,"passK":0.889,"tokensPerRun":23600,"p95Seconds":56.9,"baseline":{"passK":0.778,"runs":27,"tokensPerRun":33732,"p95Seconds":101.7,"ok":false,"seconds":null,"at":"2026-10-29T04:19:35.934Z"},"regressions":["pass^3 0.889 < 1"],"locks":[{"week":"Two games a week","code":0,"seconds":108.9,"waitedForLock":0},{"week":"Two games, sore knee (doubles first)","code":0,"seconds":109.5,"waitedForLock":0},{"week":"Three games a week","code":0,"seconds":152.3,"waitedForLock":0},{"week":"Thursday already booked","code":0,"seconds":99.7,"waitedForLock":0},{"week":"Tennis, one game","code":0,"seconds":81.7,"waitedForLock":0},{"week":"Two games, Kenji just played long","code":0,"seconds":104,"waitedForLock":0},{"week":"Sore knee and a heavy week (body log + health app)","code":0,"seconds":91.5,"waitedForLock":0},{"week":"Two games, Tomás left out (what the player said)","code":0,"seconds":130.4,"waitedForLock":0},{"week":"Basketball, two on two (public courts)","code":0,"seconds":191.2,"waitedForLock":0}],"took":1069.3}
+  FAIL oracle (? s) {"skipped":"an earlier gate failed"}
+  FAIL privacy (? s) {"skipped":"an earlier gate failed"}
+
+6 of 9 gates passed in 1851.3 s on 11446 (a subset: not all passed; a change ships only on all nine)
+FINISHED
