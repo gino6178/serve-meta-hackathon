@@ -27,6 +27,7 @@ import { organize } from "../body/body.js";
 import * as bodyContext from "../body/context.js";
 import * as places from "../club/places.js";
 import * as memory from "../memory/memory.js";
+import * as beliefs from "../memory/beliefs.js";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
 import * as flags from "../loop/flags.js";
 import { extras, checkedSummary } from "./autopilot_why.js";
@@ -158,6 +159,10 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
   const weekQuestion = `Planning ${perWeek} ${g.sport} games this week: who to play with (${Object.keys(chem).map((id) => club.members.find((m) => m.id === id)?.name).filter(Boolean).join(", ") || "club members"}) and when (${habit.map((h) => `${h.day} ${h.start}`).join(", ") || "the usual times"}), and where.`;
   const fromMemory = J?.once.memory ? J.once.memory.notes : memory.memoryOn() ? (await findNotes(weekQuestion)).notes : [];
   if (J && !J.once.memory) J.rec("memory", { notes: fromMemory });
+  // what holds about the player, abstracted from their notes once a week, each belief with the notes it cites
+  // (memory/beliefs.js); a run on notes handed in (the evals) has none
+  const standing = J?.once.beliefs ? J.once.beliefs.list : notes ? [] : await beliefs.current(player || messenger || "app").catch(() => []);
+  if (J && !J.once.beliefs) J.rec("beliefs", { list: standing });
   // the rules in what the player told their agent (memory.js rules, from live notes: a member left out, a weekday
   // off), kept by code as leaveOut is, so they can only take options away; a replaced or expired note has none
   const kept = notes ? [] : memory.rules(player || messenger || "app", now.getTime());
@@ -212,7 +217,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       return { today: `${DAYS[now.getDay()]} ${ymd(now)}`, goal: `${perWeek} ${g.sport} games this week${perWeek !== g.perWeek ? ` (one fewer than usual: your load is ${org.load.acwr} times your usual week)` : ""}`, gameMinutes: minutes, booked: booked.map((b) => `${DAYS[dateOf(b.date).getDay()]} ${b.start}`), agreed: agreed.map((a) => `${a.day} ${a.start}`), stillNeeded: need,
         habitualTimes: open.map((h) => ({ day: h.day, start: h.start, date: h.date, played: `${h.count} of the last ${h.weeks} weeks`, usualMinutes: h.minutes, alreadyTaken: h.taken })),
         ...(other.length ? { otherFreeTimes: other, otherNote: "your usual times are not enough this week: these are other times you are free" } : {}),
-        playsBestWith: best, healthLimit: limit || null, ...(kept.length ? { playerRules: kept.map(ruleText), playerRulesNote: "kept by code: these people and days are already left out" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? "with a health limit, doubles first; call check_body" : body?.log?.length || body?.workouts?.length ? "call check_body before choosing" : undefined };
+        playsBestWith: best, healthLimit: limit || null, ...(kept.length ? { playerRules: kept.map(ruleText), playerRulesNote: "kept by code: these people and days are already left out" } : {}), ...(standing.length ? { standingBeliefs: standing, standingNote: "what holds about the player, each from several of their notes: plan by these first" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? "with a health limit, doubles first; call check_body" : body?.log?.length || body?.workouts?.length ? "call check_body before choosing" : undefined };
     },
     find_partners({ day, start, format = "singles", leaveOut = [] }, quiet = false) {
       // someone the player asked to leave out stays out of this run: these candidates, the stop check's, the rules'

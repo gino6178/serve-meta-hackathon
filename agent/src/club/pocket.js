@@ -116,7 +116,7 @@ export function createPocket({ name: app, send: post, typing = async () => {}, o
     }
     // what the player says is kept as a note their agent can recall later (memory.js; /forget deletes it)
     if (!text.startsWith("/")) memory.remember(id, [{ text: text.slice(0, 400), kind: "said" }]).catch(() => {});
-    if (text.startsWith("/forget")) { store.forget(id); forgetAsks(id); memory.forget(id); await signals.forget(id).catch(() => {}); forgetMatch(id); forgetFeed(id); return send(id, "Done: your memories, messages, calendar, games, body log, health data and club posts are deleted from the server. Send /start to begin again."); }
+    if (text.startsWith("/forget")) { store.forget(id); forgetAsks(id); memory.forget(id); (await import("../memory/beliefs.js")).forget(id); await signals.forget(id).catch(() => {}); forgetMatch(id); forgetFeed(id); return send(id, "Done: your memories, messages, calendar, games, body log, health data and club posts are deleted from the server. Send /start to begin again."); }
     // helping improve Serve: count-only signals (/improve on), one idea shared with a yes (/idea), the club's ideas (/ideas)
     if (/^\/improve\b/.test(text)) return improve(id, text);
     if (/^\/ideas\b/.test(text)) return ideasList(id);

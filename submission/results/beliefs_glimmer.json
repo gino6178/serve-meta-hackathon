@@ -1,0 +1,34 @@
+{
+ "what": "memory/beliefs.js consolidate on 10 written notes, Muse Glimmer on the RTX 3090, one call",
+ "at": "2026-10-29",
+ "notes": [
+  "I need to be home by 22:00 on work nights, my train is early.",
+  "Weeknights I can start at 19:00 at the earliest.",
+  "Every Wednesday I pick my daughter up from swimming, so no games then.",
+  "Saturdays before nine are too early for me.",
+  "Doubles with Hana went really well last time, we should team up again.",
+  "Kenji always pushes me, I would like to play him more.",
+  "Anything more than half an hour away is too far for me after work.",
+  "My knee feels better if I stop after an hour.",
+  "Three games a week is my target this season.",
+  "Please leave Tomás out of my games for a few weeks."
+ ],
+ "seconds": 42.113,
+ "from": 10,
+ "kept": 3,
+ "dropped": 0,
+ "beliefs": [
+  [
+   "Prefers work-night games to start no earlier than 19:00 and finish by 22:00",
+   2
+  ],
+  [
+   "Likes playing with specific partners, including Kenji and Hana for doubles",
+   2
+  ],
+  [
+   "Wants to avoid long travel after work and be home by 22:00 on work nights",
+   2
+  ]
+ ]
+}
