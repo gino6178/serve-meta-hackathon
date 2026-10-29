@@ -30,6 +30,12 @@ async function jpg(file, width = 1600) {
   return "image/jpeg;base64," + buf.toString("base64");
 }
 
+// a chart from an SVG figure, on white, wide enough to stay sharp on a slide
+async function chart(file) {
+  const buf = await sharp(fs.readFileSync(file), { density: 220 }).flatten({ background: "#ffffff" }).png().toBuffer();
+  return "image/png;base64," + buf.toString("base64");
+}
+
 (async () => {
   const IMG = {
     meta: await png(path.join(SCENES, "meta.svg")),
@@ -38,13 +44,16 @@ async function jpg(file, width = 1600) {
     facebook: await png(path.join(SCENES, "facebook.svg")),
     serve: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M10 48 C 22 8, 42 8, 54 30" fill="none" stroke="#0a0a0b" stroke-width="5.5" stroke-linecap="round"/><circle cx="54" cy="30" r="5" fill="#0a7f44"/></svg>'),
     cover: await jpg(path.join(ROOT, "submission/cover.png"), 1920),
-    body: await jpg(path.join(SHOTS, "body_log.png")),
-    autopilot: await jpg(path.join(SHOTS, "autopilot_week.png")),
-    courts: await jpg(path.join(SHOTS, "courts_near_you.png")),
-    leaderboard: await jpg(path.join(SHOTS, "club_leaderboard.png")),
+    // the app on a phone (video/shots_v3.mjs), the venue map, and two of the report's charts
+    v3: Object.fromEntries(await Promise.all(["join", "social_feed", "social_agent", "social_invite", "body_context", "body_rules", "courts_badges"].map(async (k) => [k, await jpg(path.join(SHOTS, "v3", k + ".png"), 780)]))),
+    venue: await jpg(path.join(SHOTS, "venue_in_the_middle.png"), 1600),
+    scale: await chart(path.join(ROOT, "docs/scale.svg")),
+    tiers: await chart(path.join(ROOT, "docs/decision_tiers.svg")),
+    dot: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="14" fill="#0a7f44"/><circle cx="32" cy="32" r="24" fill="none" stroke="#0a7f44" stroke-opacity=".25" stroke-width="6"/></svg>'),
+    heart: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 54 C 8 38, 6 22, 18 14 C 25 10, 30 14, 32 19 C 34 14, 39 10, 46 14 C 58 22, 56 38, 32 54 Z" fill="#d1352b"/></svg>'),
+    check: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#0a7f44"/><path d="M19 33 l9 9 l17 -19" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'),
     moment: await jpg(path.join(SHOTS, "orbit/moment.png")),
     depth: await jpg(path.join(SHOTS, "orbit/cutout_depth.png")),
-    phone: await jpg(path.join(SHOTS, "phone_home.png"), 780),
   };
 
   const pres = new pptxgen();
@@ -73,6 +82,14 @@ async function jpg(file, width = 1600) {
     T(s, text, x, y, w, o.h || 0.36, { fontSize: o.size || 12, bold: true, color: o.color || INK, align: "center", valign: "middle" });
   };
   const arrow = (s, x, y, w, h, o = {}) => s.addShape(pres.shapes.LINE, { x, y, w, h, flipH: !!o.flipH, flipV: !!o.flipV, line: { color: o.color || SOFT, width: o.width || 1.75, endArrowType: "triangle", beginArrowType: o.both ? "triangle" : undefined } });
+  // a phone screenshot (390 x 844) in a dark bezel, with a caption under it; h is the screen's height
+  const phone = (s, img, x, y, h, cap) => {
+    const w = (h * 390) / 844, b = 0.07;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x - b, y: y - b, w: w + 2 * b, h: h + 2 * b, rectRadius: 0.2, fill: { color: INK }, line: { color: INK, width: 1 } });
+    s.addImage({ data: img, x, y, w, h });
+    if (cap) T(s, cap, x - 0.3, y + h + 0.13, w + 0.6, 0.28, { fontSize: 10.5, color: MUTED, align: "center" });
+    return w;
+  };
   const content = (section, kicker, title, notes) => {
     const s = pres.addSlide({ masterName: "CONTENT", sectionTitle: section });
     s.addText(kicker, { placeholder: "kicker" });
@@ -131,85 +148,80 @@ async function jpg(file, width = 1600) {
     });
   }
 
-  // 4 · Simple architecture
+  // 4 · Simple architecture, in three columns
   {
     const s = content("Impact", "HOW IT WORKS", "One yes from you. Agents do the rest",
-      "一頁架構圖（給一般觀眾）：你只在 Messenger 或 app 按一次 yes；你的 agent（Muse Glimmer）用工具排好一週，跟朋友的 agent 透過 A2A 談好時間；球場、精華、社團都在同一台伺服器上；所有東西給人看之前都先被程式檢查。\n旁白重點：Agents only mark which times work; code picks from the overlap. Nothing is booked until I say yes.");
-    // You
-    box(s, 0.6, 2.05, 2.45, 2.3, { fill: WHITE });
-    T(s, "You", 0.85, 2.25, 2, 0.4, { fontSize: 18, bold: true });
-    s.addImage({ data: IMG.messenger, x: 0.85, y: 2.8, w: 0.36, h: 0.36 });
-    T(s, "Messenger", 1.3, 2.8, 1.6, 0.36, { fontSize: 13, valign: "middle" });
-    s.addImage({ data: IMG.serve, x: 0.85, y: 3.28, w: 0.36, h: 0.36 });
-    T(s, "Serve app", 1.3, 3.28, 1.6, 0.36, { fontSize: 13, valign: "middle" });
-    T(s, "approve with one tap", 0.85, 3.8, 2, 0.3, { fontSize: 11, color: MUTED });
-    arrow(s, 3.1, 3.2, 0.55, 0, { both: true });
-    // Your agent
-    box(s, 3.7, 1.85, 4.75, 2.7, { fill: GREENBG, line: GREEN, lw: 2 });
-    T(s, "Your agent", 3.95, 2.05, 3, 0.42, { fontSize: 20, bold: true });
-    T(s, "Autopilot · Muse Glimmer on my RTX 3090", 3.95, 2.5, 4.3, 0.3, { fontSize: 12, bold: true, color: GREEN });
-    T(s, "Picks one tool at a time; code runs it and hands back the facts, until the week is planned.", 3.95, 2.88, 4.3, 0.65, { fontSize: 12.5 });
-    [["Body", "limits from what hurts"], ["Match", "\"want a game?\""], ["Talk", "agrees with their agents"]].forEach(([h, d], i) => {
-      const x = 3.95 + i * 1.45;
-      box(s, x, 3.6, 1.35, 0.8, { fill: WHITE, line: WHITE });
-      T(s, h, x + 0.12, 3.67, 1.15, 0.3, { fontSize: 13, bold: true });
-      T(s, d, x + 0.12, 3.97, 1.18, 0.4, { fontSize: 10, color: MUTED });
-    });
-    // Friends' agents
-    arrow(s, 8.5, 3.2, 0.95, 0, { both: true, color: BLUE });
-    T(s, "A2A v1.0", 8.5, 2.82, 0.95, 0.3, { fontSize: 11, bold: true, color: BLUE, align: "center" });
-    T(s, "facts only", 8.5, 3.3, 0.95, 0.3, { fontSize: 10, color: MUTED, align: "center" });
-    box(s, 9.5, 1.85, 3.2, 2.7, { fill: BLUEBG, line: BLUEBG });
-    T(s, "Friends' agents", 9.75, 2.05, 2.8, 0.42, { fontSize: 18, bold: true });
-    ["Leo's agent", "Hana's agent", "Tomás's agent"].forEach((n, i) => {
-      s.addShape(pres.shapes.OVAL, { x: 9.8, y: 2.55 + i * 0.5, w: 0.42, h: 0.42, fill: { color: WHITE }, line: { color: BLUE, width: 1.25 } });
-      T(s, n[0], 9.8, 2.55 + i * 0.5, 0.42, 0.42, { fontSize: 13, bold: true, color: BLUE, align: "center", valign: "middle" });
-      T(s, n, 10.35, 2.55 + i * 0.5, 2.2, 0.42, { fontSize: 13, valign: "middle" });
-    });
-    T(s, "They mark which times work; code picks from the overlap.", 9.75, 4.08, 2.85, 0.45, { fontSize: 10, color: MUTED });
-    // What the agent reaches
-    const reach = [
-      ["Courts near you", "OpenStreetMap, Google reviews, the forecast; judged by Muse Glimmer"],
-      ["Highlights", "Your phone clip, read by Meta's vision models; one tap to Instagram"],
-      ["Club", "A scoreboard photo, checked by code; rankings and challenges"],
-    ];
-    reach.forEach(([h, d], i) => {
-      const x = 3.7 + i * 3.02;
-      box(s, x, 4.95, 2.9, 1.2, { fill: WHITE });
-      T(s, h, x + 0.2, 5.08, 2.5, 0.32, { fontSize: 14, bold: true });
-      T(s, d, x + 0.2, 5.42, 2.55, 0.7, { fontSize: 11, color: MUTED });
-    });
-    arrow(s, 6.07, 4.58, 0, 0.34);
+      "一頁架構圖（三欄資料流）：\n左：你的脈絡——Messenger 的一句話、語音、健康 app，由 Meta DRAMA 依語意找出這週該注意的事。\n中：你的 Serve agent——Muse Glimmer（加上蒸餾出的 Llama 3.2 1B）一步一步規劃，透過 A2A 跟朋友的 agent 一輪談好時間。\n右：球場上下——你按一次 yes；賽後 Meta 的視覺模型剪出精華，在社群動態和限時動態分享。\n底：所有東西給人看之前都先由程式檢查。");
+    const col = (x, w, k, h, fill, line) => { box(s, x, 1.85, w, 4.25, { fill, line, lw: line === GREEN ? 2 : 1 }); T(s, k, x + 0.25, 2.02, w - 0.5, 0.25, { fontSize: 10.5, bold: true, color: line === GREEN ? GREEN : MUTED, charSpacing: 1 }); T(s, h, x + 0.25, 2.3, w - 0.5, 0.45, { fontSize: 19, bold: true }); };
+    const row = (x, y, w, ic, h, d) => { s.addImage({ data: ic, x, y: y + 0.02, w: 0.32, h: 0.32 }); T(s, h, x + 0.45, y, w - 0.45, 0.3, { fontSize: 13, bold: true }); T(s, d, x + 0.45, y + 0.3, w - 0.45, 0.5, { fontSize: 11, color: MUTED }); };
+    col(0.6, 3.75, "YOUR CONTEXT", "Say it once", CARD, CARD);
+    row(0.85, 2.95, 3.3, IMG.messenger, "Messenger and voice", "\"My right knee is sore\" · \"not Tomás this week\"");
+    row(0.85, 3.85, 3.3, IMG.heart, "Your health app", "Apple Health, Google Fit, GPX: your load");
+    row(0.85, 4.75, 3.3, IMG.dot, "Meta's DRAMA", "Finds what matters for this week, by meaning, recent first");
+    arrow(s, 4.4, 3.97, 0.4, 0);
+    col(4.85, 3.75, "YOUR SERVE AGENT", "Plans your week", GREENBG, GREEN);
+    row(5.1, 2.95, 3.3, IMG.serve, "Muse Glimmer", "Picks one tool at a time on my RTX 3090; code runs it");
+    row(5.1, 3.85, 3.3, IMG.dot, "Llama 3.2 1B", "Distilled from Glimmer: the easy calls, on the CPU");
+    row(5.1, 4.75, 3.3, IMG.dot, "A2A with friends' agents", "One round: they mark times, code picks the overlap");
+    arrow(s, 8.65, 3.97, 0.4, 0);
+    col(9.1, 3.6, "ON AND OFF THE COURT", "You just play", BLUEBG, BLUEBG);
+    row(9.35, 2.95, 3.15, IMG.check, "One yes", "In the app or with a tap in Messenger");
+    row(9.35, 3.85, 3.15, IMG.dot, "Your highlight", "DETR · Sapiens2 · SAM 2.1 · MapAnything");
+    row(9.35, 4.75, 3.15, IMG.instagram, "The club and your stories", "Invites, stories, one tap to Instagram");
     box(s, 0.6, 6.33, 12.1, 0.52, { fill: AMBERBG, line: AMBERBG });
     T(s, "Checked by code before anyone sees it  ·  nothing is booked without your yes  ·  video and health data stay on the server", 0.85, 6.33, 11.6, 0.52, { fontSize: 13, bold: true, color: AMBER, valign: "middle" });
   }
 
-  // 5 · Demo: a week
+  // 5 · The social app
   pres.addSection({ title: "Demo" });
   {
-    const s = content("Demo", "DEMO · 25%", "A week with Serve, live",
-      "Demo 段落（影片 0:30–1:34）：照一週的順序走，每個 Meta 模型出場時左上角都有標籤。\n週一：膝蓋 → 身體紀錄。Autopilot 排一週＋A2A 談判。找球場。週四：上傳影片 → highlight（時間暫停、鏡頭轉 20°）。賽後：記分板照片 → 排名。\n旁白開頭：Here's a live run of my week.");
-    const steps = [
-      [IMG.body, "MONDAY", "\"My right knee is sore\"", "Muse Glimmer files it on your body and turns it into a rule: doubles first, one game fewer."],
-      [IMG.autopilot, "TUESDAY", "Autopilot plans the week", "One tool at a time, then three friends' agents at once, over A2A. Nothing booked until you say yes."],
-      [IMG.courts, "WEDNESDAY", "A court in any ball sport", "Prompt Guard 2 screens the reviews; Glimmer judges four courts at once, citing its sources."],
-      [IMG.moment, "THURSDAY", "Your highlight", "DETR, Sapiens2 and SAM 2.1 find your moment; MapAnything turns the camera round it."],
-      [IMG.leaderboard, "AFTER THE GAME", "A scoreboard photo", "Glimmer reads 21–17, 19–21, 21–15; code checks it against the rules; your ranking moves."],
-    ];
-    steps.forEach(([img, day, h, d], i) => {
-      const x = 0.6 + i * 2.45, w = 2.3;
-      s.addImage({ data: img, x, y: 1.9, w, h: 1.44, sizing: { type: "cover", w, h: 1.44 } });
-      s.addShape(pres.shapes.RECTANGLE, { x, y: 1.9, w, h: 1.44, fill: { type: "none" }, line: { color: LINE, width: 1 } });
-      T(s, day, x, 3.55, w, 0.28, { fontSize: 11, bold: true, color: GREEN, charSpacing: 1 });
-      T(s, h, x, 3.85, w, 0.62, { fontSize: 15, bold: true });
-      T(s, d, x, 4.5, w, 1.4, { fontSize: 12, color: MUTED });
+    const s = content("Demo", "DEMO · 25%", "Your club, made by people and agents together",
+      "社群 app（手機畫面）：\n1. 用 Facebook 或 Instagram 加入（OAuth 在伺服器上完成，只存帳號 id 的雜湊；目前 demo 用 demo 帳號，因為還沒設定 Meta app）。\n2. 動態最上面是限時動態：會員的 agent 從他自己的影片剪出的精華，經本人同意才發。\n3. 揪團：任何人都能加入；發文者的 agent 在留言裡用程式產生的句子回答「還剩幾個位子」。\n旁白建議：You join with Facebook or Instagram. Stories are highlights your agent cut from your own video, and anyone can join a game.");
+    const H = 4.7, y = 1.85;
+    phone(s, IMG.v3.join, 0.75, y, H, "Join with Facebook or Instagram");
+    phone(s, IMG.v3.social_feed, 3.35, y, H, "Stories cut by members' agents");
+    phone(s, IMG.v3.social_invite, 5.95, y, H, "An invite anyone can join");
+    const x = 8.75;
+    [["Join with Meta", "Facebook Login and Instagram Login, on the server. Serve keeps a name, a picture and a hash of the id; never a token."],
+      ["Stories by agents", "A member's agent cuts the highlight from their own video and posts it only after their yes."],
+      ["Games anyone can join", "Join with a tap. The poster's agent answers in the comments with facts made by code: who is in, spots left."],
+      ["Every card says who wrote it", "A person, an agent and whose, and Simulated for the demo club's made-up members."]].forEach(([h, d], i) => {
+      T(s, h, x, 1.9 + i * 1.2, 3.95, 0.32, { fontSize: 15, bold: true });
+      T(s, d, x, 2.24 + i * 1.2, 3.95, 0.8, { fontSize: 12, color: MUTED });
     });
-    box(s, 0.6, 6.05, 12.1, 0.75, { fill: CARD, line: CARD });
-    s.addImage({ data: IMG.messenger, x: 0.85, y: 6.24, w: 0.38, h: 0.38 });
-    T(s, "All of it also works from Messenger: \"Line up my week\" → On it → Lined up [Book it] → Booked. Real replies from the end-to-end test.", 1.38, 6.05, 11.1, 0.75, { fontSize: 13, valign: "middle" });
   }
 
-  // 6 · Meta stack
+  // 6 · Monday: say it once, the body context
+  {
+    const s = content("Demo", "MONDAY · BODY CONTEXT WITH META'S DRAMA", "Say it once. Every rule shows where it came from",
+      "身體脈絡（RAG）：拿掉了 3D 肌肉圖。你在 Messenger、語音或這裡說一句話，agent 把你的原話、比賽和健康 app 的紀錄都變成筆記。\n規劃這週時，用 Meta 的 DRAMA 依語意檢索，越新的筆記權重越高（身體筆記 7 天減半）。畫面上的分數是真實的 DRAMA 相似度乘上時間衰減。\n規則仍由程式從紀錄決定（不讓模型發明規則），每條規則都附上來源筆記，程式檢查引用是同一個部位。\n旁白：Monday, I tell it my right knee is sore. Meta's DRAMA finds what matters this week, and every rule shows where it came from.");
+    const H = 4.7, y = 1.85;
+    phone(s, IMG.v3.body_context, 0.75, y, H, "What matters this week, by meaning");
+    phone(s, IMG.v3.body_rules, 3.35, y, H, "Rules, each with its sources");
+    const x = 6.2;
+    const step = (i, h, d) => { s.addShape(pres.shapes.OVAL, { x, y: 1.95 + i * 1.18, w: 0.42, h: 0.42, fill: { color: GREEN }, line: { color: GREEN } }); T(s, String(i + 1), x, 1.95 + i * 1.18, 0.42, 0.42, { fontSize: 14, bold: true, color: WHITE, align: "center", valign: "middle" }); T(s, h, x + 0.6, 1.92 + i * 1.18, 5.9, 0.32, { fontSize: 15, bold: true }); T(s, d, x + 0.6, 2.25 + i * 1.18, 5.9, 0.8, { fontSize: 12, color: MUTED }); };
+    step(0, "Notes from what you said and what was recorded", "Your words from Messenger, a voice note or the app; each week's load from your games and health app; what you told your agent before.");
+    step(1, "Found by meaning with Meta's DRAMA", "The planner's question against every note, on the server's CPU. Recent notes count more: a body note keeps half its weight after a week.");
+    step(2, "Rules decided by code, each citing its notes", "Doubles first, no jump sports, one game fewer in a heavy week. A citation must be a real note about the same body part, checked by code.");
+    step(3, "The planner gets the same context", "check_body hands the top notes and the cited rules to Muse Glimmer when it plans your week. A record, never a diagnosis.");
+  }
+
+  // 7 · Tuesday to Wednesday: the planner, the venue in the middle, courts
+  {
+    const s = content("Demo", "TUESDAY · WEDNESDAY", "Your agent plans the week and finds the court",
+      "規劃與球場：\n左：中心點球場地圖（技術報告第 4 頁那張）——每個人的通勤時間、共同空檔，agent 一輪談好。\n右：手機版找球場——Prompt Guard 2 先過濾 Google 評論，Muse Glimmer 同時判斷四個球場，每個理由都引用來源，程式檢查。\n旁白：Then it plans my week, and agrees it with three friends' agents at once, over A2A. Any ball sport works.");
+    s.addImage({ data: IMG.venue, x: 0.6, y: 1.85, w: 6.55, h: 6.55 * 1670 / 2237 });
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 1.85, w: 6.55, h: 6.55 * 1670 / 2237, fill: { type: "none" }, line: { color: LINE, width: 1 } });
+    T(s, "The venue in the middle: each player's trip on the club map, agreed by their agents in one round", 0.6, 6.83, 6.55, 0.25, { fontSize: 10.5, color: MUTED });
+    phone(s, IMG.v3.courts_badges, 7.6, 1.85, 4.7, "Courts, judged with their sources");
+    const x = 10.25;
+    [["Muse Glimmer plans", "One tool at a time; a refused call comes back as a fact"], ["A2A, one round", "Agents mark the times that work; code picks"], ["Prompt Guard 2", "Screens Google reviews before the judge reads them"], ["Nothing booked", "until you say yes"]].forEach(([h, d], i) => {
+      T(s, h, x, 1.95 + i * 1.18, 2.5, 0.3, { fontSize: 13.5, bold: true });
+      T(s, d, x, 2.27 + i * 1.18, 2.5, 0.8, { fontSize: 11.5, color: MUTED });
+    });
+  }
+
+  // 8 · Meta stack
   pres.addSection({ title: "Use of Meta AI" });
   {
     const s = content("Use of Meta AI", "USE OF META AI · 25%", "Ten Meta models and two Meta products, each with a job",
@@ -220,14 +232,14 @@ async function jpg(file, width = 1600) {
       ["Reasoning", "Llama 3.2 1B", "Distilled from Glimmer; answers 54–67% of members' decisions when sure", "CPU · simulated club"],
       ["Safety", "Llama Guard 3 1B", "What you write, what a model writes, every idea shared with the club", "CPU"],
       ["Safety", "Prompt Guard 2 86M", "Google reviews before the court judge reads them; shared ideas", "CPU"],
-      ["Memory", "DRAMA", "Memory by meaning for the Autopilot; groups the club's ideas", "CPU"],
+      ["Memory", "DRAMA", "Finds what matters for your week by meaning (RAG); groups the club's ideas", "CPU"],
       ["Voice", "Omnilingual ASR", "Voice notes in Messenger to text", "CPU · CTC 1B"],
       ["Vision", "DETR", "Finds the people in your video, so the reel follows you", "GPU"],
       ["Vision", "Sapiens2", "Every player's pose on every frame; finds the moment", "GPU · 0.4B"],
       ["Vision", "SAM 2.1", "Cuts each player out for the spotlight and the drawn view", "GPU · Hiera-L"],
       ["3D", "MapAnything", "Depth and the camera for the orbit camera effect", "GPU · optional effect"],
       ["Product", "Messenger Platform", "Your agent in your chats: plans, a tap to approve, check-ins", "Signed webhook · Send API"],
-      ["Product", "Instagram · Facebook", "Your reel and its caption, shared by you", "The phone's share sheet"],
+      ["Product", "Instagram · Facebook", "Join the club with your account; share your reel", "Facebook Login · Instagram Login"],
     ];
     items.forEach(([cat, name, job, where], i) => {
       const col = i % 4, row = Math.floor(i / 4);
@@ -244,12 +256,12 @@ async function jpg(file, width = 1600) {
     T(s, "All ten models are open weights, on hardware I own. Every agent follows Meta's Agents Rule of Two.", 1.0, 6.66, 11.5, 0.3, { fontSize: 12, bold: true, valign: "middle" });
   }
 
-  // 7 · Agents
+  // 9 · Agents
   {
     const s = content("Use of Meta AI", "AN AGENT, NOT A CHATBOT", "Glimmer plans, agents agree, code decides",
       "Autopilot：Muse Glimmer 用原生 tool calling 一步一步叫工具，被拒絕的呼叫會變成事實回來，它重新規劃。A2A：每個會員一個 agent、簽章的 Agent Card、一輪就談完、談好的時間先鎖 30 分鐘、每輪存檔可續跑。兩台機器（台北的 GPU 伺服器 + GCP A100）跨網路 22/22 項檢查通過。\n旁白：Autopilot takes over… Then it negotiates with three friends' agents at once, over A2A.");
     box(s, 0.6, 1.85, 5.85, 4.95, { fill: WHITE });
-    T(s, "Autopilot · a tool loop", 0.85, 2.05, 5.3, 0.4, { fontSize: 18, bold: true });
+    T(s, "The planner agent · a tool loop", 0.85, 2.05, 5.3, 0.4, { fontSize: 18, bold: true });
     T(s, "Muse Glimmer picks the next tool; code runs it with checked arguments and hands back the facts.", 0.85, 2.5, 5.4, 0.6, { fontSize: 12.5, color: MUTED });
     ["get_week", "check_body", "find_partners", "find_places", "negotiate", "request_approval", "nudge", "finish"].forEach((t, i) => {
       const x = 0.85 + (i % 4) * 1.36, y = 3.25 + Math.floor(i / 4) * 0.5;
@@ -280,7 +292,34 @@ async function jpg(file, width = 1600) {
     T(s, "checks across two machines: my GPU server in Taipei and a gateway on a cloud A100", 8.85, 5.75, 3.5, 0.85, { fontSize: 11.5, valign: "middle" });
   }
 
-  // 8 · Highlights
+  // 10 · Your agent is a member too: the signed agent channel
+  {
+    const s = content("Use of Meta AI", "AGENTS AS MEMBERS", "Your agent joins the club with a key of its own",
+      "Agent 會員通道（專屬簽章）：\n1. 會員在 app 裡按「Add my agent」，瀏覽器用 Web Crypto 產生 Ed25519 金鑰，只有公鑰送到伺服器註冊，私鑰不離開瀏覽器。\n2. Agent 之後每一個請求（發揪團、留言、代為加入）都簽章：方法、路徑、內容的 SHA-256、60 秒有效、一次性 nonce——跟兩台 gateway 之間用的同一套。\n3. 沒簽章、重放、被改過內容、用錯路徑、或金鑰已撤銷的請求都會被拒絕並記錄原因。\n4. Agent 發的東西標示「Agent · Signed」，以及是誰的 agent。");
+    phone(s, IMG.v3.social_agent, 0.75, 1.85, 4.7, "Your agent in the club");
+    const x = 3.75, flow = [
+      ["1", "A key made in your browser", "Ed25519 with Web Crypto. Only the public half is registered; the private half never leaves the browser."],
+      ["2", "Every request signed", "A compact JWS over the method, the path, the SHA-256 of the body, a 60-second life and a one-time nonce: the same token our two gateways use."],
+      ["3", "Checked, or refused and logged", "Unsigned, replayed, changed, sent to another path, or signed by a revoked key: refused, with the reason."],
+      ["4", "Labelled in the feed", "What it posts says Agent, whose agent, and Signed. Its member can revoke the key at once."],
+    ];
+    flow.forEach(([n, h, d], i) => {
+      const y = 1.9 + i * 1.2;
+      s.addShape(pres.shapes.OVAL, { x, y: y + 0.02, w: 0.42, h: 0.42, fill: { color: BLUE }, line: { color: BLUE } });
+      T(s, n, x, y + 0.02, 0.42, 0.42, { fontSize: 14, bold: true, color: WHITE, align: "center", valign: "middle" });
+      T(s, h, x + 0.6, y, 4.3, 0.32, { fontSize: 15, bold: true });
+      T(s, d, x + 0.6, y + 0.34, 4.3, 0.8, { fontSize: 11.5, color: MUTED });
+    });
+    box(s, 9.0, 1.85, 3.7, 4.95, { fill: CARD, line: CARD });
+    T(s, "What the agent can do", 9.25, 2.05, 3.3, 0.35, { fontSize: 15, bold: true });
+    ["Post an invite for its member", "Join a game for its member", "Comment, as \"<member>'s agent\"", "Read the feed its member sees"].forEach((t, i) => {
+      s.addImage({ data: IMG.check, x: 9.25, y: 2.6 + i * 0.5, w: 0.26, h: 0.26 });
+      T(s, t, 9.62, 2.58 + i * 0.5, 3.0, 0.32, { fontSize: 12.5 });
+    });
+    T(s, "Tested: a replayed request, a changed body, another path, an unknown key and a revoked key are all refused (test/members_unit.mjs).", 9.25, 4.85, 3.25, 1.6, { fontSize: 11, color: MUTED });
+  }
+
+  // 11 · Highlights
   {
     const s = content("Use of Meta AI", "HIGHLIGHTS · FOUR META VISION MODELS", "Your phone clip becomes your moment, on my GPU",
       "Highlight 管線：DETR 找人 → Sapiens2 讀姿勢、找最快的揮拍 → SAM 2.1 把你切出來 → MapAnything 算深度和相機，時間暫停、鏡頭繞 20° → Muse Glimmer 寫說明，程式核對 → 一鍵分享到 Instagram。影片不離開伺服器。\n旁白：Thursday, game done. I upload a phone clip… With MapAnything, time stops and the camera turns around the smash.");
@@ -304,7 +343,7 @@ async function jpg(file, width = 1600) {
     ], 6.95, 5.62, 5.6, 1.1, { fontSize: 12.5, paraSpaceAfter: 3 });
   }
 
-  // 9 · Muse Glimmer in practice
+  // 12 · Muse Glimmer in practice
   pres.addSection({ title: "Technical depth" });
   {
     const s = content("Technical depth", "TECHNICAL DEPTH · 20%", "What running Muse Glimmer taught me",
@@ -342,7 +381,17 @@ async function jpg(file, width = 1600) {
     T(s, "submission/results/glimmer_in_practice.json · technical report 3.12, 5.10", 5.4, 6.7, 7.3, 0.25, { fontSize: 10, color: SOFT });
   }
 
-  // 10 · Safe by design
+  // 13 · Measured: what each choice costs
+  {
+    const s = content("Technical depth", "MEASURED", "Two charts behind two design choices",
+      "兩張實驗圖（技術報告裡的）：\n左：把整個社團塞進 prompt，token 隨人數線性成長；Serve 先用程式篩選候選人，每次呼叫的 token 幾乎不變。\n右：一個會員的決策，每一層的成本 vs. 和完整答案一致的比例：程式 → Llama 3.2 1B → Muse Glimmer（FrugalGPT 式分層）。\n這頁讓評審三秒看出工程上有量測。");
+    s.addImage({ data: IMG.scale, x: 0.6, y: 1.85, w: 5.95, h: 5.95 * 400 / 760 });
+    T(s, "Tokens per model call, by club size: the whole club in the prompt grows with it; Serve's calls stay about 1,500 tokens from 11 to 301 members", 0.6, 1.95 + 5.95 * 400 / 760, 5.95, 0.6, { fontSize: 11, color: MUTED });
+    s.addImage({ data: IMG.tiers, x: 6.85, y: 1.85, w: 5.85, h: 5.85 * 500 / 780 });
+    T(s, "One member's decision: what each tier costs, and how often it matches the full answer (code, then Llama 3.2 1B, then Muse Glimmer)", 6.85, 1.95 + 5.85 * 500 / 780, 5.85, 0.6, { fontSize: 11, color: MUTED });
+  }
+
+  // 14 · Safe by design
   {
     const s = content("Technical depth", "SAFE BY DESIGN", "No agent holds all three at once",
       "安全：每個 agent 都遵守 Meta 的 Agents Rule of Two（不可信輸入、私人資料、行動能力，最多同時兩個）。揭露預算：一直約球的 agent 能拼出你一週的行程，有預算時從 97.6% 降到 32.4%（模擬的探測者）。65 個攻擊全部擋下。\n旁白：Every agent follows Meta's Agents Rule of Two. And a disclosure budget cuts how much of your week a snooping agent can pin down, from 97.6% to 32.4%.");
@@ -371,7 +420,7 @@ async function jpg(file, width = 1600) {
     T(s, "attacks stopped: injected instructions, poisoned reviews, forged Agent Cards, sock-puppet votes, diffs that book without a yes", 8.85, 5.55, 3.7, 1.25, { fontSize: 11.5, valign: "middle" });
   }
 
-  // 11 · Community loop
+  // 15 · Community loop
   {
     const s = content("Technical depth", "SELF-EVOLVING", "The club makes itself better, safely",
       "自我演化的社團：會員在 Messenger 打 /idea 或按讚 → DRAMA 依語意分群，5 人提到才出現 → 二次方投票 → Muse Glimmer 寫規格、人工核准 → coding agent 在自己的分支上實作（從不讀社群文字）→ 九道關卡，第一個失敗就停 → 小規模上線，倒讚變多就自己關掉。永遠不能改的清單。這段是模擬社團（seed 7），但管線、關卡和回滾是真的。\n旁白：And the club evolves itself…");
@@ -408,7 +457,7 @@ async function jpg(file, width = 1600) {
     T(s, "Booking without a yes · data off the server · a diagnosis or a dose · the guards · the tests · A2A · deployment", 2.45, 6.1, 10.1, 0.72, { fontSize: 13, color: WHITE, valign: "middle" });
   }
 
-  // 12 · Proof
+  // 16 · Proof
   {
     const s = content("Technical depth", "MEASURED", "Every claim has a log behind it",
       "證據頁：每個數字都有 log。e2e、攻擊測試在雲端 A100 上用同一個 Muse Glimmer（同一個 model digest）跑。可以快速帶過，或只在影片片尾字卡出現。");
@@ -432,14 +481,14 @@ async function jpg(file, width = 1600) {
     s.addTable(rows, { x: 0.6, y: 3.45, w: 12.1, colW: [4.6, 3.9, 3.6], fontSize: 12, fontFace: FONT, color: INK, rowH: 0.38, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
   }
 
-  // 13 · Full technical architecture
+  // 17 · Full technical architecture
   pres.addSection({ title: "Architecture" });
   {
     const s = content("Architecture", "FULL TECHNICAL ARCHITECTURE", "Everything runs on one GPU server I own",
       "完整技術架構（放最後給想深入的評審）：左邊是使用者的入口；中間是 Node.js gateway 上的各個模組；右邊是 Meta 模型實際跑在哪（GPU 1 Muse Glimmer、GPU 0 視覺、CPU 上的小模型），以及外部開放資料。底下是「給人看之前先由程式檢查」與帳本/追蹤。");
     // Left: you
     T(s, "YOU", 0.45, 1.62, 2.2, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
-    const you = [["Serve app", "React · phone to desktop", false], ["Messenger", "your agent in your chats", true], ["Health export", "Apple Health, Google Fit, GPX", false], ["Your video", "any ball sport, from a phone", false], ["Instagram · Facebook", "your reel, shared by you", true]];
+    const you = [["Serve app", "React · on your phone", false], ["Messenger", "your agent in your chats", true], ["Health export", "Apple Health, Google Fit, GPX", false], ["Your video", "any ball sport, from a phone", false], ["Facebook · Instagram", "sign in · share your reel", true]];
     you.forEach(([h, d, meta], i) => {
       const y = 1.92 + i * 1.0;
       box(s, 0.45, y, 2.25, 0.86, { fill: meta ? BLUEBG : WHITE, line: meta ? BLUEBG : LINE });
@@ -452,11 +501,11 @@ async function jpg(file, width = 1600) {
     box(s, 3.08, 1.6, 6.47, 5.35, { fill: WHITE, line: SOFT, dash: "dash" });
     T(s, "SERVE GATEWAY · NODE.JS · STREAMS EACH STEP TO THE APP", 3.28, 1.68, 6.1, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
     const mods = [
-      ["Autopilot", "tool loop · native tool calling · 12 steps max · rules finish if it stalls"],
+      ["Planner agent", "tool loop · native tool calling · 12 steps max · rules finish if it stalls"],
       ["Agent to agent", "A2A v1.0 · signed Agent Cards · one round · held times · checkpoints"],
-      ["Body log", "what hurts, by a tool call · health app linked to games · check-ins"],
+      ["Body context", "your words, games, health app · found by DRAMA · rules cite notes"],
       ["Courts near you", "map, reviews, forecast · 4 judged at once · reasons cited"],
-      ["Club and Play", "scoreboard photo · leaderboard · challenges · best match"],
+      ["Social feed and members", "Facebook / Instagram login · invites · stories · signed agent channel"],
       ["Highlights", "find you, read your pose, cut you out · orbit effect · caption"],
       ["Community loop", "ideas · DRAMA · votes · spec · coding agent · 9 gates · canary"],
       ["Decision tiers", "code first · Llama 3.2 1B when sure · Muse Glimmer if needed"],
@@ -498,7 +547,7 @@ async function jpg(file, width = 1600) {
     arrow(s, 9.57, 5.95, 0.3, 0);
   }
 
-  // 14 · End
+  // 18 · End
   pres.addSection({ title: "Close" });
   {
     const s = pres.addSlide({ masterName: "BLANK", sectionTitle: "Close" });

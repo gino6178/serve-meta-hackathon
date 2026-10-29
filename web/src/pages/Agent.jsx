@@ -181,7 +181,7 @@ export default function Agent({ club }) {
                   })}
                 </ol>
                 <ul className="status-pills">
-                  {rows.map((r) => <li key={r.k} className={`helper ${r.k}`} title={r.role}><a href={r.go[1]}><Icon name={r.ic} size={16} /><b>{r.name}</b><span>{r.now}</span></a></li>)}
+                  {rows.map((r) => <li key={r.k} title={r.role}><a href={r.go[1]}><Icon name={r.ic} size={16} /><b>{r.name}</b><span>{r.now}</span></a></li>)}
                 </ul>
               </section>
             );

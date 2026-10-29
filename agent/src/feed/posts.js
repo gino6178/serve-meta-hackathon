@@ -173,9 +173,9 @@ export async function comment(player, postId, text, { agent = null } = {}) {
 // the poster's agent, in the comments of an invite: sentences made by code from the invite, never a model's
 const first = (n = "") => String(n).split(" ")[0];
 const spotsLine = (p) => { const v = p.invite, left = v.spots - v.going.length; return `${left > 0 ? `${left} of ${v.spots} spot${v.spots > 1 ? "s" : ""} left` : "Full"} for ${v.sport} ${v.day} ${v.start} at ${v.where}.`; };
-function inviteReply(p, text) {
+function inviteReply(p, text, about = null) {
   const owner = p.by.agentOf || p.by.player;
-  S.change(() => { p.comments.push({ id: S.newId("c"), at: deps.now(), by: { type: "agent", agentOf: owner }, text, reply: true, reports: [], checks: { made: "code" } }); });
+  S.change(() => { p.comments.push({ id: S.newId("c"), at: deps.now(), by: { type: "agent", agentOf: owner }, text, reply: true, ...(about ? { about } : {}), reports: [], checks: { made: "code" } }); });
 }
 // joining an invite (or leaving it): the poster's agent says who is in and how many spots are left
 export function join(player, postId, on = true) {
@@ -186,7 +186,7 @@ export function join(player, postId, on = true) {
   if (on && !was && v.going.length >= v.spots) return { error: "That game is full.", code: 409 };
   if (on === was) return { post: view(p, player) };
   S.change(() => { v.going = on ? [...v.going, player] : v.going.filter((x) => x !== player); });
-  inviteReply(p, `${on ? `${first(authorOf(player) || "A member")} is in.` : `${first(authorOf(player) || "A member")} can't make it.`} ${spotsLine(p)}`);
+  inviteReply(p, `${on ? `${first(authorOf(player) || "A member")} is in.` : `${first(authorOf(player) || "A member")} can't make it.`} ${spotsLine(p)}`, player);
   return { post: view(p, player) };
 }
 export const pendingAnswers = new Set();
@@ -341,7 +341,9 @@ export function forget(player) {
     d.posts = d.posts.filter((x) => x.by.player !== player && x.by.agentOf !== player);
     out.posts = n - d.posts.length;
     for (const p of d.posts) {
-      const mine = new Set(p.comments.filter((c) => c.by.player === player || c.by.agentOf === player).map((c) => c.id));
+      // (and an agent's line that names them: "Mia is in")
+      const mine = new Set(p.comments.filter((c) => c.by.player === player || c.by.agentOf === player || c.about === player).map((c) => c.id));
+      if (p.invite) p.invite.going = p.invite.going.filter((x) => x !== player);
       const before = p.comments.length;
       p.comments = p.comments.filter((c) => !mine.has(c.id) && !mine.has(c.reply));
       out.comments += before - p.comments.length;

@@ -19,7 +19,7 @@ const ymd = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOStri
 // what the map says, as icon badges: [icon, label]
 const TAGS = (p) => [p.tags.lit === "yes" && ["sun", "Lights"], p.tags.lit === "no" && ["warn", "No lights"], p.tags.hoops && ["play", `${p.tags.hoops} hoops`], p.count > 1 && ["table", `${p.count} courts`], p.tags.surface && ["route", p.tags.surface.replace(/_/g, " ")], !p.outdoor && ["home", "Indoor or covered"], p.tags.access && p.tags.access !== "yes" && ["lock", `Access: ${p.tags.access}`], p.tags.fee === "yes" && ["book", "Fee"], p.kind === "park" && ["pin", "Park"]].filter(Boolean);
 // the reasons worth reading: a review quote first, then what the badges do not already say
-const SAID = /(lights?|lit|forecast|rain)/i;
+const SAID = /\b(lights?|lit|forecast|rain)\b/i;
 const pickReasons = (p) => [...p.reasons.filter((x) => x.quote), ...p.reasons.filter((x) => !x.quote && !SAID.test(x.text))].slice(0, 2);
 
 export default function Courts() {

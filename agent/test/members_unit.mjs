@@ -103,4 +103,8 @@ test("an invite: checked, joined up to its spots, and the poster's agent answers
   assert.match(said.at(-1), /^Full for badminton/);
   P.join(ben.id, id, false);
   assert.equal(P.view(P.find(id), cy.id).invite.going, 0);
+  P.join(cy.id, id);
+  P.forget(cy.id);
+  assert.equal(P.find(id).invite.going.length, 0, "a member who leaves is out of the invite");
+  assert.ok(!P.find(id).comments.some((c) => /Cy is in/.test(c.text)), "and the agent's line naming them is gone");
 });

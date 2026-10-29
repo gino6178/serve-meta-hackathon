@@ -19,8 +19,8 @@ import { useTasks, plain } from "./tasks.js";
 import Icon from "./components/Icon.jsx";
 import Mark from "./components/Mark.jsx";
 
-// Serve's shell: a sidebar on a computer and a tab bar on a phone, the way a social app has them. Five tabs (your
-// agent, the club, play, goals and you), Messenger as the inbox, and the rest under More. Pages are picked by the
+// Serve's shell: a sidebar on a computer and a tab bar on a phone, the way a social app has them. Five tabs (the
+// feed, your agent, the club, play and you), Messenger as the inbox, and the rest under More. Pages are picked by the
 // address (#/club?tab=ranks); every page reads the demo club, which ships with the app (public/data/club.json).
 const route = () => location.hash.replace(/^#\/?/, "").split("?")[0] || "home";
 export function go(path) { location.hash = "/" + path; window.scrollTo(0, 0); }
@@ -30,12 +30,12 @@ const TABS = [
   { k: "home", label: "Agent", icon: "spark", on: ["home", "autopilot"] },
   { k: "club", label: "Club", icon: "coaches", on: ["club"] },
   { k: "play", label: "Play", icon: "book", on: ["play", "courts"] },
-  { k: "goals", label: "Goals", icon: "goals", on: ["goals"] },
   { k: "you", label: "You", icon: "you", on: ["you", "body", "memory", "highlights", "match"] },
 ];
 const INBOX = { k: "messages", label: "Messenger", icon: "send", on: ["messages"] };
 const MORE = [
   { k: "autopilot", label: "Plan my week", note: "Your agent lines up your week", icon: "spark" },
+  { k: "goals", label: "Goals", note: "Your games this week and your streak", icon: "goals" },
   { k: "body", label: "Body log", note: "Tell your agent what hurts; your health app", icon: "heart" },
   { k: "courts", label: "Courts near you", note: "Any sport, judged from reviews and weather", icon: "pin" },
   { k: "highlights", label: "Film a highlight", note: "Your own video, as a reel to post", icon: "play" },
