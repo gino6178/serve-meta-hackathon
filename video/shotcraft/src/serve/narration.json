@@ -1,0 +1,307 @@
+[
+ {
+  "at": 0.4,
+  "dur": 5.394,
+  "subs": [
+   {
+    "text": "People don't quit the game.",
+    "start": 0.0,
+    "end": 1.349
+   },
+   {
+    "text": "They quit organizing it.",
+    "start": 1.669,
+    "end": 3.018
+   },
+   {
+    "text": "Six messages, and still no game.",
+    "start": 3.338,
+    "end": 5.394
+   }
+  ]
+ },
+ {
+  "at": 6.4,
+  "dur": 9.197,
+  "subs": [
+   {
+    "text": "This is Serve.",
+    "start": 0.0,
+    "end": 0.88
+   },
+   {
+    "text": "Your agent agrees your week with your friends' agents, and you say yes once.",
+    "start": 1.2,
+    "end": 5.253
+   },
+   {
+    "text": "It runs on Muse Glimmer, on my own RTX 3090.",
+    "start": 5.573,
+    "end": 9.197
+   }
+  ]
+ },
+ {
+  "at": 16.0,
+  "dur": 13.674,
+  "subs": [
+   {
+    "text": "Act one:",
+    "start": 0.0,
+    "end": 0.693
+   },
+   {
+    "text": "cold start.",
+    "start": 0.913,
+    "end": 1.824
+   },
+   {
+    "text": "I ask my agent for one more player on Saturday.",
+    "start": 2.144,
+    "end": 4.832
+   },
+   {
+    "text": "Muse Glimmer drafts the invite with the nearest court, and Llama Guard checks it before anyone sees it.",
+    "start": 5.152,
+    "end": 10.833
+   },
+   {
+    "text": "I post it, and share the link to any group chat.",
+    "start": 11.153,
+    "end": 13.674
+   }
+  ]
+ },
+ {
+  "at": 34.4,
+  "dur": 7.327,
+  "subs": [
+   {
+    "text": "Leo has no account.",
+    "start": 0.0,
+    "end": 1.258
+   },
+   {
+    "text": "The link opens the game, one sign-in, and he's in.",
+    "start": 1.578,
+    "end": 4.604
+   },
+   {
+    "text": "The game is full, and I hear:",
+    "start": 4.924,
+    "end": 6.423
+   },
+   {
+    "text": "game on.",
+    "start": 6.643,
+    "end": 7.327
+   }
+  ]
+ },
+ {
+  "at": 48.3,
+  "dur": 16.131,
+  "subs": [
+   {
+    "text": "Act two:",
+    "start": 0.0,
+    "end": 0.738
+   },
+   {
+    "text": "agents negotiate.",
+    "start": 0.958,
+    "end": 2.184
+   },
+   {
+    "text": "One tap plans my week.",
+    "start": 2.504,
+    "end": 3.968
+   },
+   {
+    "text": "Each friend's agent answers over A2A, with signed Agent Cards.",
+    "start": 4.287,
+    "end": 8.299
+   },
+   {
+    "text": "A small model I fine-tuned answers when it's sure, and Glimmer when it's not.",
+    "start": 8.619,
+    "end": 12.751
+   },
+   {
+    "text": "Everyone agreed, and nothing is booked until I say yes.",
+    "start": 13.071,
+    "end": 16.131
+   }
+  ]
+ },
+ {
+  "at": 69.9,
+  "dur": 2.585,
+  "subs": [
+   {
+    "text": "Or in Messenger:",
+    "start": 0.0,
+    "end": 1.016
+   },
+   {
+    "text": "one yes, and it's booked.",
+    "start": 1.236,
+    "end": 2.585
+   }
+  ]
+ },
+ {
+  "at": 75.3,
+  "dur": 3.948,
+  "subs": [
+   {
+    "text": "And it's a real negotiation:",
+    "start": 0.0,
+    "end": 1.615
+   },
+   {
+    "text": "Hana's agent counter-offers Saturday.",
+    "start": 1.835,
+    "end": 3.948
+   }
+  ]
+ },
+ {
+  "at": 81.0,
+  "dur": 15.641,
+  "subs": [
+   {
+    "text": "Act three:",
+    "start": 0.0,
+    "end": 0.739
+   },
+   {
+    "text": "courts and clubs.",
+    "start": 0.959,
+    "end": 1.969
+   },
+   {
+    "text": "Real courts from OpenStreetMap.",
+    "start": 2.289,
+    "end": 4.052
+   },
+   {
+    "text": "Prompt Guard screens the reviews first, then Glimmer judges every court, and each reason cites the map, a review or the forecast.",
+    "start": 4.372,
+    "end": 12.224
+   },
+   {
+    "text": "Clubs sit on a real map too, and anyone can start one.",
+    "start": 12.544,
+    "end": 15.641
+   }
+  ]
+ },
+ {
+  "at": 109.0,
+  "dur": 4.329,
+  "subs": [
+   {
+    "text": "Beyond text:",
+    "start": 0.0,
+    "end": 0.91
+   },
+   {
+    "text": "your own video, auto-cut into a clip to share with your club.",
+    "start": 1.13,
+    "end": 4.329
+   }
+  ]
+ },
+ {
+  "at": 114.3,
+  "dur": 4.412,
+  "subs": [
+   {
+    "text": "Fifteen Meta models.",
+    "start": 0.0,
+    "end": 1.333
+   },
+   {
+    "text": "Six carry Serve, with Muse Glimmer at the centre.",
+    "start": 1.653,
+    "end": 4.412
+   }
+  ]
+ },
+ {
+  "at": 119.4,
+  "dur": 8.711,
+  "subs": [
+   {
+    "text": "Glimmer needs forty seconds.",
+    "start": 0.0,
+    "end": 1.509
+   },
+   {
+    "text": "The 1B model I fine-tuned on its choices needs under one, and agrees 89.5 percent of the time.",
+    "start": 1.829,
+    "end": 8.711
+   }
+  ]
+ },
+ {
+  "at": 128.4,
+  "dur": 4.026,
+  "subs": [
+   {
+    "text": "Ninety-three attacks, all stopped, under Meta's Agents Rule of Two.",
+    "start": 0.0,
+    "end": 4.026
+   }
+  ]
+ },
+ {
+  "at": 132.9,
+  "dur": 2.728,
+  "subs": [
+   {
+    "text": "It's live, with real players and two real clubs.",
+    "start": 0.0,
+    "end": 2.728
+   }
+  ]
+ },
+ {
+  "at": 137.7,
+  "dur": 4.465,
+  "subs": [
+   {
+    "text": "And it works for school clubs, older adults, a charity cup:",
+    "start": 0.0,
+    "end": 3.211
+   },
+   {
+    "text": "any ball sport.",
+    "start": 3.431,
+    "end": 4.465
+   }
+  ]
+ },
+ {
+  "at": 144.0,
+  "dur": 2.768,
+  "subs": [
+   {
+    "text": "Serve.",
+    "start": 0.0,
+    "end": 0.588
+   },
+   {
+    "text": "Play more.",
+    "start": 0.908,
+    "end": 1.573
+   },
+   {
+    "text": "Manage less.",
+    "start": 1.893,
+    "end": 2.768
+   }
+  ]
+ }
+]

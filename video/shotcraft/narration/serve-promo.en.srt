@@ -1,0 +1,140 @@
+1
+00:00:00,400 --> 00:00:02,069
+People don't quit the game.
+
+2
+00:00:02,069 --> 00:00:03,738
+They quit organizing it.
+
+3
+00:00:03,738 --> 00:00:06,194
+Six messages, and still no game.
+
+4
+00:00:06,400 --> 00:00:07,600
+This is Serve.
+
+5
+00:00:07,600 --> 00:00:11,973
+Your agent agrees your week with your friends' agents, and you say yes once.
+
+6
+00:00:11,973 --> 00:00:15,997
+It runs on Muse Glimmer, on my own RTX 3090.
+
+7
+00:00:16,000 --> 00:00:18,144
+Act one: cold start.
+
+8
+00:00:18,144 --> 00:00:21,152
+I ask my agent for one more player on Saturday.
+
+9
+00:00:21,152 --> 00:00:27,153
+Muse Glimmer drafts the invite with the nearest court, and Llama Guard checks it before anyone sees it.
+
+10
+00:00:27,153 --> 00:00:30,074
+I post it, and share the link to any group chat.
+
+11
+00:00:34,400 --> 00:00:35,978
+Leo has no account.
+
+12
+00:00:35,978 --> 00:00:39,324
+The link opens the game, one sign-in, and he's in.
+
+13
+00:00:39,324 --> 00:00:42,127
+The game is full, and I hear: game on.
+
+14
+00:00:48,300 --> 00:00:50,804
+Act two: agents negotiate.
+
+15
+00:00:50,804 --> 00:00:52,587
+One tap plans my week.
+
+16
+00:00:52,587 --> 00:00:56,919
+Each friend's agent answers over A2A, with signed Agent Cards.
+
+17
+00:00:56,919 --> 00:01:01,371
+A small model I fine-tuned answers when it's sure, and Glimmer when it's not.
+
+18
+00:01:01,371 --> 00:01:04,831
+Everyone agreed, and nothing is booked until I say yes.
+
+19
+00:01:09,900 --> 00:01:12,885
+Or in Messenger: one yes, and it's booked.
+
+20
+00:01:15,300 --> 00:01:19,648
+And it's a real negotiation: Hana's agent counter-offers Saturday.
+
+21
+00:01:21,000 --> 00:01:23,289
+Act three: courts and clubs.
+
+22
+00:01:23,289 --> 00:01:25,372
+Real courts from OpenStreetMap.
+
+23
+00:01:25,372 --> 00:01:33,544
+Prompt Guard screens the reviews first, then Glimmer judges every court, and each reason cites the map, a review or the forecast.
+
+24
+00:01:33,544 --> 00:01:37,041
+Clubs sit on a real map too, and anyone can start one.
+
+25
+00:01:49,000 --> 00:01:53,729
+Beyond text: your own video, auto-cut into a clip to share with your club.
+
+26
+00:01:54,300 --> 00:01:55,953
+Fifteen Meta models.
+
+27
+00:01:55,953 --> 00:01:59,112
+Six carry Serve, with Muse Glimmer at the centre.
+
+28
+00:01:59,400 --> 00:02:01,229
+Glimmer needs forty seconds.
+
+29
+00:02:01,229 --> 00:02:08,511
+The 1B model I fine-tuned on its choices needs under one, and agrees 89.5 percent of the time.
+
+30
+00:02:08,400 --> 00:02:12,826
+Ninety-three attacks, all stopped, under Meta's Agents Rule of Two.
+
+31
+00:02:12,900 --> 00:02:16,028
+It's live, with real players and two real clubs.
+
+32
+00:02:17,700 --> 00:02:22,565
+And it works for school clubs, older adults, a charity cup: any ball sport.
+
+33
+00:02:24,000 --> 00:02:24,908
+Serve.
+
+34
+00:02:24,908 --> 00:02:25,893
+Play more.
+
+35
+00:02:25,893 --> 00:02:27,168
+Manage less.
+

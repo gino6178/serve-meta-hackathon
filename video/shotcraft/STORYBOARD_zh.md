@@ -1,4 +1,4 @@
-# Serve Demo 影片分鏡稿（目前版本，2:29）
+# Serve Demo 影片分鏡稿（目前版本，2:29，英文旁白＋字幕）
 
 畫面上的字都是英文（評審看的）。「改哪裡」欄寫的是要改這一鏡時動哪個檔案。
 時間是成片時間（mm:ss），30 fps，共 4,475 格。
@@ -93,6 +93,14 @@
 ### 11　結尾（2:23–2:29）
 - **畫面**：serve 標誌、「PLAY MORE. MANAGE LESS.」、「Built Oct 27 – Nov 4, 2026, 900+ commits · github.com/gino6178/serve-meta-hackathon」，定格 1.5 秒。
 - **改哪裡**：`src/serve/Outro.tsx`
+
+## 英文旁白與字幕
+
+- **旁白稿**：`narration/lines.json`，每句寫在片中第幾秒開始（at）。共 15 句，配合各鏡頭；女聲 Kokoro af_heart。
+- **產生聲音**：在 GPU 伺服器的 CPU 上跑 `scripts/tts_lines.py`（不佔 3090），輸出 `public/narration/n*.wav` 和 `src/serve/narration.json`（每句、每個子句的時間）。改了稿子要重跑；只改 at 不用重跑。
+- **字幕**：燒進畫面，跟旁白逐句同步；冒號後半句併在同一行。錄影段落在綠色字幕帶上方，其他鏡頭貼近畫面底部。上傳用的字幕檔 `narration/serve-promo.en.srt`（`python scripts/srt.py` 產生）。
+- **配樂**：講話時自動降低（0.24 → 0.09），句子之間回來。
+- **開關**：`ServePromo` 的 props `voice`、`subs`、`bgm`；`props-nobgm.json` 是有旁白字幕、沒有配樂。
 
 ## 調整順序、改完怎麼出片
 

@@ -1,6 +1,7 @@
 // The film: Serve's demo, about two and a half minutes. SHOTS is the one timeline; the sound cues are written against it (a shot's
 // start plus an offset, never a bare frame), so moving a shot moves its sounds. The music is its own <Audio> behind
-// the `bgm` prop, so the same timeline renders with and without it.
+// the `bgm` prop, so the same timeline renders with and without it; the English narration and its subtitles are the
+// `voice` and `subs` props, and the music ducks under each spoken line.
 import React from 'react';
 import { AbsoluteFill, Audio, Freeze, Sequence, interpolate, staticFile } from 'remotion';
 import { ColdOpen, COLD_OPEN_DURATION } from './serve/ColdOpen';
@@ -15,6 +16,7 @@ import { Safety, SAFETY_DURATION } from './serve/Safety';
 import { WhoElse, WHO_ELSE_DURATION } from './serve/WhoElse';
 import { LiveNumbers, LIVE_NUMBERS_DURATION } from './serve/LiveNumbers';
 import { Outro, OUTRO_DURATION } from './serve/Outro';
+import { Narration, speaking } from './serve/Narration';
 
 const Live: React.FC = () => <LiveFrame segs={LIVE} />;
 const OUTRO_HOLD = 45; // the lockup stays a beat and a half after it lands
@@ -86,7 +88,7 @@ export const SFX: Cue[] = [
   { from: SHOTS.outro.from + 46, src: 'sparkle', volume: 0.35, dur: 70, note: 'after the landing' },
 ];
 
-export const ServePromo: React.FC<{ bgm?: boolean }> = ({ bgm = true }) => (
+export const ServePromo: React.FC<{ bgm?: boolean; voice?: boolean; subs?: boolean }> = ({ bgm = true, voice = true, subs = true }) => (
   <AbsoluteFill style={{ background: '#ffffff' }}>
     {ORDER.map(([k, C]) => (
       <Sequence key={k} from={SHOTS[k].from} durationInFrames={SHOTS[k].dur + (k === 'outro' ? OUTRO_HOLD : 0)}>
@@ -100,8 +102,9 @@ export const ServePromo: React.FC<{ bgm?: boolean }> = ({ bgm = true }) => (
     ))}
     {bgm && (
       <Audio src={staticFile('audio/bgm-tech-house.mp3')}
-        volume={(f) => interpolate(f, [0, 30, TOTAL - 75, TOTAL], [0, 0.24, 0.24, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })} />
+        volume={(f) => interpolate(f, [0, 30, TOTAL - 75, TOTAL], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }) * (voice ? 0.24 - 0.15 * speaking(f) : 0.24)} />
     )}
+    <Narration voice={voice} subs={subs} live={[SHOTS.live.from, SHOTS.live.from + SHOTS.live.dur]} />
     {SFX.map((s, i) => (
       <Sequence key={i} from={Math.max(0, s.from)} durationInFrames={s.dur ?? 60}>
         <Audio src={staticFile(`audio/${s.src}.mp3`)} volume={s.volume} />

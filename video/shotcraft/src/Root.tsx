@@ -19,7 +19,7 @@ const Live: React.FC = () => <LiveFrame segs={LIVE} />;
 // each shot as its own composition for stills while it is built; the film is ServePromo (Main.tsx)
 export const Root: React.FC = () => (
   <>
-    <Composition id="ServePromo" component={ServePromo} durationInFrames={TOTAL} fps={30} width={1920} height={1080} defaultProps={{ bgm: true }} />
+    <Composition id="ServePromo" component={ServePromo} durationInFrames={TOTAL} fps={30} width={1920} height={1080} defaultProps={{ bgm: true, voice: true, subs: true }} />
     <Composition id="ColdOpen" component={ColdOpen} durationInFrames={COLD_OPEN_DURATION} fps={30} width={1920} height={1080} />
     <Composition id="Wordmark" component={Wordmark} durationInFrames={WORDMARK_DURATION} fps={30} width={1920} height={1080} />
     <Composition id="PhoneHero" component={PhoneHero} durationInFrames={PHONE_HERO_DURATION} fps={30} width={1920} height={1080} />
