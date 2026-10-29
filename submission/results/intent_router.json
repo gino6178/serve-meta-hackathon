@@ -1,0 +1,111 @@
+{
+ "simulated": true,
+ "what": "intent router: DRAMA vectors and a softmax head (numpy), on the CPU",
+ "classes": [
+  "play",
+  "played",
+  "body",
+  "question",
+  "chat"
+ ],
+ "train": {
+  "messages": 132,
+  "runs": [
+   "v2s2",
+   "v2s3",
+   "v3s4"
+  ],
+  "perClass": {
+   "play": 32,
+   "played": 22,
+   "body": 8,
+   "question": 30,
+   "chat": 40
+  },
+  "leaveOneRunOut": [
+   0.972,
+   0.905,
+   0.879
+  ]
+ },
+ "test": {
+  "messages": 32,
+  "source": "test/sim_users/judge_heldout.json (bail and idea left out)",
+  "accuracy": 0.844,
+  "perClass": {
+   "play": {
+    "right": 9,
+    "of": 10
+   },
+   "played": {
+    "right": 6,
+    "of": 10
+   },
+   "body": {
+    "right": 0,
+    "of": 0
+   },
+   "question": {
+    "right": 4,
+    "of": 4
+   },
+   "chat": {
+    "right": 8,
+    "of": 8
+   }
+  },
+  "gameRequests": {
+   "regex": {
+    "found": 6,
+    "of": 10,
+    "falseAlarms": 0,
+    "missed": 4
+   },
+   "learned": {
+    "found": 9,
+    "of": 10,
+    "falseAlarms": 1,
+    "missed": 1
+   },
+   "regexOrLearned": {
+    "found": 10,
+    "of": 10,
+    "falseAlarms": 1,
+    "missed": 0
+   },
+   "learnedSure": 0.0
+  },
+  "wrong": [
+   {
+    "text": "今晚有缺人嗎 我可以八點後",
+    "is": "play",
+    "said": "question",
+    "p": 0.39
+   },
+   {
+    "text": "打了一個半小時 膝蓋有點緊",
+    "is": "played",
+    "said": "chat",
+    "p": 0.27
+   },
+   {
+    "text": "還不錯 打了兩局雙打",
+    "is": "played",
+    "said": "play",
+    "p": 0.31
+   },
+   {
+    "text": "剛打完 單打一小時 累爆",
+    "is": "played",
+    "said": "chat",
+    "p": 0.34
+   },
+   {
+    "text": "今天終於贏一場 開心",
+    "is": "played",
+    "said": "chat",
+    "p": 0.39
+   }
+  ]
+ }
+}

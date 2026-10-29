@@ -19,6 +19,7 @@ import * as vision from "../media/vision.js";
 import * as asr from "../media/asr.js";
 import { fetchFile } from "../core/files.js";
 import { isPlayRequest, forget as forgetMatch, command as matchCommand } from "../match/index.js";
+import { isPlay as isPlayLearned } from "../match/router.js";
 import * as signals from "../loop/signals.js";
 import * as proposals from "../loop/proposals.js";
 import { load as loadParts } from "../loop/parts.js";
@@ -131,7 +132,8 @@ export function createPocket({ name: app, send: post, typing = async () => {}, o
     }
     // "I want to play", "anyone for doubles Thursday?": the agents of the people likeliest to say yes are asked first,
     // and the game they agree waits for the player's yes (match/flow.js)
-    if (onPlay && isPlayRequest(text)) { await typing(id).catch(() => {}); return onPlay(id, text).catch((e) => send(id, `I couldn't look right now (${e.message}).`)); }
+    // (a request the expressions miss may still be one: the learned router, match/router.js)
+    if (onPlay && (isPlayRequest(text) || (!text.startsWith("/") && await isPlayLearned(text)))) { await typing(id).catch(() => {}); return onPlay(id, text).catch((e) => send(id, `I couldn't look right now (${e.message}).`)); }
     // "want a game?" asked for: the Match helper looks at the next week now
     if (text.startsWith("/game") || /^(any|want|up for|fancy) (a )?(game|match)\b|\bgame (this|tomorrow|tonight)\b.*\?$/i.test(text)) {
       if (/\b(off|stop)\b/i.test(text)) { store.setPref(id, "ask", false); return send(id, "OK, I'll stop asking. Send /game when you want one."); }
