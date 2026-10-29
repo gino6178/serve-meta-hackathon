@@ -50,7 +50,7 @@ export async function handle(req, res, u, { cors = {}, maintainer = false, as = 
     const out = (r) => send(r?.code || (r?.error ? 400 : 200), r);
 
     if (p === "/api/feed" && !post) {
-      const f = P.feed(player, { before: +(q("before") || Infinity) || Infinity, n: +(q("n") || 30) });
+      const f = P.feed(player, { before: +(q("before") || Infinity) || Infinity, n: +(q("n") || 30), room: q("room") || null });
       const club = deps.club(), w = papers.weekCap();
       return send(200, { ...f, drafts: H.drafts(player), recaps: R.pendingFor(player), paused: P.paused(player), club: { name: club.name || "Your club" }, papers: { perWeek: papers.perWeekFor(player), club: w.club }, simulated: S.data().posts.some((x) => x.simulated) });
     }
@@ -69,7 +69,7 @@ export async function handle(req, res, u, { cors = {}, maintainer = false, as = 
       S.change((d) => { const r = (d.rate[player] ||= {}); r.upload = [...(r.upload || []), deps.now()].slice(-50); });
       return send(200, { media: { id: m.id, w: c.w, h: c.h } });
     }
-    if (p === "/api/feed/post" && post) return out(await P.post(player, { text: body.text, media: body.media || null, invite: body.invite || null }));
+    if (p === "/api/feed/post" && post) return out(await P.post(player, { text: body.text, media: body.media || null, invite: body.invite || null, room: body.room || null }));
     if (p === "/api/feed/join" && post) return out(P.join(player, String(body.post || ""), body.on !== false));
     if (p === "/api/feed/comment" && post) return out(await P.comment(player, String(body.post || ""), body.text));
     if (p === "/api/feed/like" && post) return out(P.like(player, String(body.post || ""), body.on !== false));

@@ -32,7 +32,7 @@ fs.mkdirSync(ROOT, { recursive: true });
 
 // the club's routes, on the shared gateway
 const shared = (p) => p === "/api/status" || p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/")
-  || p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p.startsWith("/a2a/");
+  || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p.startsWith("/a2a/");
 
 // who a session belongs to, asked of the shared gateway (kept a minute)
 const seen = new Map();

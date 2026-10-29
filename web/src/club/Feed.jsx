@@ -11,22 +11,23 @@ import { ShareSheet, ReportSheet } from "./FeedSheets.jsx";
 import "./feed.css";
 
 const first = (n = "") => n.split(" ")[0];
-export default function Feed({ club, members = [], local = [], joined = {}, onJoin, onChallenge, only = null, onData = null, compose = true }) {
+// room: a club members started (its own posts and games); without it, the feed everyone shares
+export default function Feed({ club, members = [], local = [], joined = {}, onJoin, onChallenge, only = null, onData = null, compose = true, room = null }) {
   const [st, setSt] = useState({ phase: "loading", data: null, error: null });
   const [more, setMore] = useState(false);
   const [sheet, setSheet] = useState(null); // { kind: "share" | "report", p, comment }
   const [said, setSaid] = useState("");
   const load = useCallback(() => {
     setSt((s) => ({ ...s, phase: "loading", error: null }));
-    feedApi.list().then((data) => setSt({ phase: "ready", data, error: null }), (error) => setSt((s) => ({ ...s, phase: "error", error })));
-  }, []);
+    feedApi.list(null, room).then((data) => setSt({ phase: "ready", data, error: null }), (error) => setSt((s) => ({ ...s, phase: "error", error })));
+  }, [room]);
   useEffect(() => { load(); }, [load]);
   const patch = (id, fn) => setSt((s) => ({ ...s, data: { ...s.data, posts: s.data.posts.map((p) => (p.id === id ? fn(p) : p)) } }));
   const drop = (id) => setSt((s) => ({ ...s, data: { ...s.data, posts: s.data.posts.filter((p) => p.id !== id) } }));
   const older = async () => {
     const last = st.data.posts.at(-1);
     setMore(true);
-    try { const r = await feedApi.list(last.at); setSt((s) => ({ ...s, data: { ...s.data, posts: [...s.data.posts, ...r.posts], more: r.more } })); } catch (error) { setSaid(error.message); } finally { setMore(false); }
+    try { const r = await feedApi.list(last.at, room); setSt((s) => ({ ...s, data: { ...s.data, posts: [...s.data.posts, ...r.posts], more: r.more } })); } catch (error) { setSaid(error.message); } finally { setMore(false); }
   };
   const byId = Object.fromEntries(members.map((m) => [m.id, m]));
   const name = club?.name || st.data?.club?.name || "the club";
@@ -43,7 +44,7 @@ export default function Feed({ club, members = [], local = [], joined = {}, onJo
       <p className="sr-only" aria-live="polite">{said}</p>
       {(d?.notices || []).map((n, i) => <p key={i} className="fd-notice" role="status"><Icon name="info" size={18} />{n}</p>)}
       {d?.paused && <p className="fd-held" role="status">The club's maintainer has paused your posts and comments until {new Date(d.paused.until).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}{d.paused.reason ? `: ${d.paused.reason}` : ""}.</p>}
-      {compose && <Composer onPosted={(p) => { setSt((s) => ({ ...s, data: { ...s.data, posts: [p, ...(s.data?.posts || [])] } })); setSaid("Posted."); }}
+      {compose && <Composer room={room} onPosted={(p) => { setSt((s) => ({ ...s, data: { ...s.data, posts: [p, ...(s.data?.posts || [])] } })); setSaid("Posted."); }}
         onDraft={(x) => { setSt((s) => ({ ...s, data: { ...s.data, drafts: [x, ...(s.data?.drafts || [])] } })); setSaid("Your agent drafted a post from your video. It waits for your yes."); }} />}
       {(d?.drafts || []).map((x) => <DraftCard key={x.id} d={x} onDone={(post) => setSt((s) => ({ ...s, data: { ...s.data, drafts: s.data.drafts.filter((y) => y.id !== x.id), posts: post ? [post, ...s.data.posts] : s.data.posts } }))} say={setSaid} />)}
       {(d?.recaps || []).map((x) => <RecapCard key={x.id} r={x} say={setSaid} onDone={(post) => setSt((s) => ({ ...s, data: { ...s.data, recaps: s.data.recaps.filter((y) => y.id !== x.id), posts: post ? [post, ...s.data.posts] : s.data.posts } }))} />)}
@@ -94,7 +95,7 @@ function VideoJob({ job, onClose }) {
 }
 
 // ---- what a member writes ----
-function Composer({ onPosted, onDraft }) {
+function Composer({ onPosted, onDraft, room = null }) {
   const [text, setText] = useState(""), [photo, setPhoto] = useState(null), [busy, setBusy] = useState(false), [msg, setMsg] = useState(null), [job, setJob] = useState(null);
   const file = useRef(null), vfile = useRef(null);
   const pickVideo = async (f) => {
@@ -121,7 +122,7 @@ function Composer({ onPosted, onDraft }) {
     setBusy(true); setMsg(null);
     try {
       const media = photo ? (await feedApi.photo(photo.file)).media.id : null;
-      const r = await feedApi.post(text.trim(), media);
+      const r = await feedApi.post(text.trim(), media, null, room);
       onPosted(r.post); setText(""); setPhoto(null);
       if (r.held) setMsg({ text: r.why });
     } catch (x) { setMsg({ bad: true, text: x.message, helpline: x.helpline }); }

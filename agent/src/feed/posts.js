@@ -115,8 +115,10 @@ export function inviteOf(x) {
   const lat = +x.at?.lat, lon = +x.at?.lon, at = isFinite(lat) && isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat: +lat.toFixed(4), lon: +lon.toFixed(4) } : null;
   return { invite: { sport, day, start, where, spots, ...(at ? { at } : {}), going: [] } };
 }
-export async function post(player, { text = "", media = null, invite = null, agent = null } = {}) {
+export async function post(player, { text = "", media = null, invite = null, agent = null, room = null } = {}) {
   const t = T.tidy(text, 600);
+  // a post in a club members started (members/clubs.js): only its members post there
+  if (room && !(await import("../members/clubs.js")).isMember(String(room), player)) return { error: "Join the club to post in it.", code: 403 };
   const iv = inviteOf(invite); if (iv.error) return { error: iv.error, code: 400 };
   if (!t && !media && !iv.invite) return { error: "Write something, or add a photo.", code: 400 };
   const stop = paused(player); if (stop) return { error: pausedWhy(stop), code: 403, paused: true };
@@ -132,7 +134,7 @@ export async function post(player, { text = "", media = null, invite = null, age
   if (m.refused || m.helpline) { if (photo) dropUpload(player, photo.id); return { refused: true, why: m.why, check: m.helpline ? "helpline" : m.check, ...(m.helpline ? { helpline: true } : {}) }; }
   const x = S.change((d) => {
     const p = { id: S.newId("p"), kind: iv.invite ? "invite" : photo ? "photo" : "note", at: deps.now(), by: agent ? { type: "agent", agentOf: agent.owner, agentId: agent.id } : { type: "person", player }, text: t, media: photo, ...(iv.invite ? { invite: iv.invite } : {}), likes: [], comments: [], reports: [], ...(m.down ? { held: true } : {}),
-      checks: { llamaGuard: m.verdict ?? null, standard: m.standard ?? null, ...(m.photo ? { photo: m.photo } : {}) } };
+      ...(room ? { room: String(room) } : {}), checks: { llamaGuard: m.verdict ?? null, standard: m.standard ?? null, ...(m.photo ? { photo: m.photo } : {}) } };
     d.posts.push(p);
     if (photo) d.uploads = d.uploads.filter((u) => u.id !== photo.id);
     return p;
@@ -326,8 +328,9 @@ export function view(p, viewer) {
     reported: (p.reports || []).some((r) => r.player === viewer),
   };
 }
-export function feed(viewer, { before = Infinity, n = 30 } = {}) {
-  const db = S.data(), all = db.posts.filter((p) => p.at < before && visible(p, viewer)).sort((a, b) => b.at - a.at);
+export function feed(viewer, { before = Infinity, n = 30, room = null } = {}) {
+  // one club's posts, or (no room) the club feed everyone shares
+  const db = S.data(), all = db.posts.filter((p) => p.at < before && (room ? p.room === room : !p.room) && visible(p, viewer)).sort((a, b) => b.at - a.at);
   const posts = all.slice(0, Math.min(60, Math.max(1, n))).map((p) => view(p, viewer));
   const notices = (db.notices || []).filter((x) => x.player === viewer);
   if (notices.length) S.change((d) => { d.notices = d.notices.filter((x) => x.player !== viewer); });

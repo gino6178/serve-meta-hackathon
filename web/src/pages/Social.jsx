@@ -95,19 +95,19 @@ function SocialHome({ club, me, agents, reload }) {
 }
 
 // starting a game anyone in the club can join
-function InviteComposer({ onPosted }) {
-  const [open, setOpen] = useState(false), [v, setV] = useState({ sport: "badminton", day: "Thu", start: "19:00", where: "", spots: 3, text: "" }), [busy, setBusy] = useState(false), [err, setErr] = useState("");
+export function InviteComposer({ onPosted, room = null, sport = "badminton", highlight = true }) {
+  const [open, setOpen] = useState(false), [v, setV] = useState({ sport, day: "Thu", start: "19:00", where: "", spots: 3, text: "" }), [busy, setBusy] = useState(false), [err, setErr] = useState("");
   const set = (k) => (e) => setV({ ...v, [k]: e.target.value });
   const send = async (e) => {
     e.preventDefault(); setBusy(true); setErr("");
-    try { await feedApi.post(v.text, null, { sport: v.sport, day: v.day, start: v.start, where: v.where, spots: +v.spots, ...(v.at ? { at: v.at } : {}) }); setOpen(false); setV({ ...v, where: "", text: "" }); onPosted(); }
+    try { await feedApi.post(v.text, null, { sport: v.sport, day: v.day, start: v.start, where: v.where, spots: +v.spots, ...(v.at ? { at: v.at } : {}) }, room); setOpen(false); setV({ ...v, where: "", text: "" }); onPosted(); }
     catch (x) { setErr(x.message); }
     setBusy(false);
   };
   if (!open) return (
     <div className="so-starts">
       <button className="so-start" onClick={() => setOpen(true)}><Icon name="plus" size={18} />Start a game anyone can join</button>
-      <a className="so-start hl" href="#/highlights"><Icon name="play" size={18} />Auto highlight: your video, cut by your agent</a>
+      {highlight && <a className="so-start hl" href="#/highlights"><Icon name="play" size={18} />Auto highlight: your video, cut by your agent</a>}
     </div>
   );
   return (

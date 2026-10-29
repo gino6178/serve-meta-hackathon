@@ -8,7 +8,8 @@ import { myPlace } from "../where.js";
 // A real map (OpenStreetMap) around where the player is, with the courts for a sport nearby (agent places.js nearby).
 // pick: tap a court, or anywhere on the map, to choose the place; onPick hears { name, lat, lon }. Without pick it
 // only shows. marks: extra places to show ({ name, lat, lon }), such as the courts a plan chose.
-export default function RealMap({ sport = "badminton", pick = false, onPick = () => {}, marks = [], height = 240 }) {
+// courts: show the courts nearby (off for a map of clubs); onMark: a tap on one of marks
+export default function RealMap({ sport = "badminton", pick = false, onPick = () => {}, marks = [], onMark = null, courts = true, height = 240 }) {
   const box = useRef(null), map = useRef(null), layer = useRef(null), chosen = useRef(null), [note, setNote] = useState("");
   const pickRef = useRef(onPick); pickRef.current = onPick;
 
@@ -33,7 +34,7 @@ export default function RealMap({ sport = "badminton", pick = false, onPick = ()
 
   // the courts around the map's centre, again when it is moved
   useEffect(() => {
-    const m = map.current; if (!m) return;
+    const m = map.current; if (!m || !courts) return;
     let t = null, live = true;
     const load = async () => {
       const c = m.getCenter();
@@ -54,14 +55,18 @@ export default function RealMap({ sport = "badminton", pick = false, onPick = ()
     const soon = () => { clearTimeout(t); t = setTimeout(load, 500); };
     m.on("moveend", soon); soon();
     return () => { live = false; clearTimeout(t); m.off("moveend", soon); };
-  }, [sport, pick]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sport, pick, courts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // places to show besides the courts
   useEffect(() => {
     const m = map.current; if (!m || !marks.length) return;
-    const g = L.layerGroup(marks.filter((p) => p.lat != null).map((p) => L.marker([p.lat, p.lon], { icon: L.divIcon({ className: "rm-pin", html: "<span></span>", iconSize: [26, 26], iconAnchor: [13, 26] }) }).bindTooltip(p.name || ""))).addTo(m);
+    const g = L.layerGroup(marks.filter((p) => p.lat != null).map((p) => {
+      const mk = L.marker([p.lat, p.lon], { icon: L.divIcon({ className: `rm-pin${p.mine ? " mine" : ""}`, html: "<span></span>", iconSize: [26, 26], iconAnchor: [13, 26] }) }).bindTooltip(p.name || "", { permanent: !!onMark, direction: "top", offset: [0, -24] });
+      if (onMark) mk.on("click", (e) => { L.DomEvent.stopPropagation(e); onMark(p); });
+      return mk;
+    })).addTo(m);
     return () => g.remove();
-  }, [marks]);
+  }, [marks]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="rm">

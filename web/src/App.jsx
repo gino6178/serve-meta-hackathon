@@ -20,6 +20,7 @@ import { loadClub } from "./club/data.js";
 import { useTasks, plain } from "./tasks.js";
 import Icon from "./components/Icon.jsx";
 import MessengerSetup from "./pages/MessengerSetup.jsx";
+import Clubs from "./pages/Clubs.jsx";
 import Mark from "./components/Mark.jsx";
 
 // Serve's shell: a sidebar on a computer and a tab bar on a phone, the way a social app has them. Five tabs (the
@@ -146,7 +147,7 @@ function CheckBack() {
 
 // (#/match was the old address of the highlight reel: it opens Highlights)
 const PAGES = {
-  home: (c) => <Agent club={c} />, about: () => <Landing />, club: (c) => <Club club={c} />, goals: (c) => <Goals club={c} />,
+  home: (c) => <Agent club={c} />, about: () => <Landing />, club: (c) => (/[?&](tab|demo)=/.test(location.hash) ? <Club club={c} /> : <Clubs />), goals: (c) => <Goals club={c} />,
   play: (c) => <Play data={c} />, you: (c) => <You club={c} />, autopilot: (c) => <Autopilot data={c} />, body: () => <Body />,
   courts: () => <Courts />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, "messenger-setup": () => <MessengerSetup />, maintain: () => <Maintain />, social: (c) => <Social club={c} />, chats: (c) => <Chats club={c} />, join: () => <Join />,
 };

@@ -92,7 +92,7 @@ export default function Agent({ club }) {
   // stories: members who posted in the club
   const stories = !club ? [] : [
     ...club.feed.slice(0, 4).map((f) => { const mm = club.members.find((x) => x.id === f.who); return mm && { id: f.id, name: mm.name, sub: `${f.ago} · ${club.name}`, color: "var(--agent)", text: f.text,
-      actions: <><button className="btn primary sm" onClick={() => { setStory(null); go(`play?task=${startPlay(`Doubles this week with ${first(mm.name)}`, you)}`); }}>Play with {first(mm.name)}</button><a className="btn ghost sm" href="#/club">See the club</a></> }; }).filter(Boolean),
+      actions: <><button className="btn primary sm" onClick={() => { setStory(null); go(`play?task=${startPlay(`Doubles this week with ${first(mm.name)}`, you)}`); }}>Play with {first(mm.name)}</button><a className="btn ghost sm" href="#/club?tab=feed">See the club</a></> }; }).filter(Boolean),
   ];
   const open = (k) => { setStory(k); setSeen((s) => [...new Set([...s, stories[k].id])]); };
   const move = (d) => { const k = story + d; if (k < 0 || k >= stories.length) return setStory(null); open(k); };

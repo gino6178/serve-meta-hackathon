@@ -81,7 +81,7 @@ export default function Club({ club }) {
       </header>
 
       <nav className="club-tabs" aria-label="Club">
-        {[["feed", "Feed"], ["ranks", "Leaderboard"], ["challenges", "Challenges"], ["ideas", "Ideas"]].map(([k, l]) => <a key={k} href={k === "feed" ? "#/club" : `#/club?tab=${k}`} aria-current={tab === k ? "page" : undefined}>{l}</a>)}
+        {[["feed", "Feed"], ["ranks", "Leaderboard"], ["challenges", "Challenges"], ["ideas", "Ideas"]].map(([k, l]) => <a key={k} href={`#/club?tab=${k}`} aria-current={tab === k ? "page" : undefined}>{l}</a>)}
       </nav>
       {tab === "ranks" && <>{standing}<Rankings club={club} members={members} r={r} rec={rec} onChallenge={challengeTo} /></>}
       {tab === "challenges" && <>{standing}<Challenges key={hash} club={club} members={members} r={r} rec={rec} g={g} you={you} me={me} /></>}
