@@ -47,7 +47,7 @@ async function chart(file) {
     serve: await svgPng('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M10 48 C 22 8, 42 8, 54 30" fill="none" stroke="#0a0a0b" stroke-width="5.5" stroke-linecap="round"/><circle cx="54" cy="30" r="5" fill="#0a7f44"/></svg>'),
     cover: await jpg(path.join(ROOT, "submission/cover.png"), 1920),
     // the app on a phone (video/shots_v3.mjs), the venue map, and two of the report's charts
-    v3: Object.fromEntries(await Promise.all(["join", "social_feed", "social_agent", "social_invite", "body_context", "body_rules", "courts_badges", "agent_chats", "plan_approve", "poster", "live_talk"].map(async (k) => [k, await jpg(path.join(SHOTS, "v3", k + ".png"), 780)]))),
+    v3: Object.fromEntries(await Promise.all(["join", "social_feed", "social_agent", "social_invite", "body_context", "body_rules", "courts_badges", "agent_chats", "plan_approve", "poster", "live_talk", "live_clubs", "live_draft"].map(async (k) => [k, await jpg(path.join(SHOTS, "v3", k + ".png"), 780)]))),
     venue: "image/jpeg;base64," + (await sharp(path.join(SHOTS, "venue_in_the_middle.png")).extract({ left: 823, top: 168, width: 1406, height: 1120 }).jpeg({ quality: 86 }).toBuffer()).toString("base64"), // the map, without the step list
     scale: await chart(path.join(ROOT, "docs/scale.svg")),
     tiers: await chart(path.join(ROOT, "docs/decision_tiers.svg")),
@@ -161,6 +161,30 @@ async function chart(file) {
       arrow(s, 8.52, y + 0.68, 0.2, 0);
       box(s, 8.75, y, 3.95, 1.35, { fill: GREENBG, line: GREENBG });
       T(s, fix, 8.95, y + 0.18, 3.6, 1.1, { fontSize: 13 });
+    });
+  }
+
+  // 3b · Live: invited players on the public site, each with an agent of their own
+  {
+    const s = content("Impact", "LIVE · INVITED PLAYERS", "Real players, each with an agent of their own",
+      "上線給真的使用者用：公開網址（Cloudflare tunnel），每位使用者登入後在伺服器上有一個自己的 agent（獨立的 gateway 程序、獨立資料夾），社團、動態、揪團大家共用。\n第一天：3 位使用者（5 個帳號）、使用者自己開了 1 個社團（新竹，2 人）、發了 3 個揪團、2 次加入、1 則留言。\n左：社團在真地圖上，agent 主動推薦附近的公開社團；右：直接跟 agent 說「週六早上雙打，缺 3 個」，agent 擬好邀請（日期由程式算、最近的球場），按一下就發佈，之後在對話裡看到誰加入。");
+    phone(s, IMG.v3.live_clubs, 0.75, 1.85, 4.7, "Clubs on a real map, one recommended");
+    phone(s, IMG.v3.live_draft, 3.35, 1.85, 4.7, "Say it; your agent drafts the invite");
+    T(s, "LIVE ON THE WEB SINCE 29 OCT", 6.2, 1.85, 6, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
+    [["3", "players"], ["1", "club they started"], ["3", "games posted"], ["2", "joins"]].forEach(([n, d], i) => {
+      const x = 6.2 + i * 1.6;
+      box(s, x, 2.15, 1.48, 1.05, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
+      T(s, n, x + 0.14, 2.2, 1.2, 0.55, { fontSize: 26, bold: true, color: i === 0 ? GREEN : INK });
+      T(s, d, x + 0.14, 2.75, 1.25, 0.4, { fontSize: 10.5, color: MUTED });
+    });
+    [["An agent of their own", "Each player's agent runs in its own process on my server, with its own data folder; the club, its feed and its games are shared."],
+      ["Clubs anyone can start", "Public or private, on a real map; your agent recommends the nearest public one."],
+      ["Tell your agent the game", "\"Saturday morning doubles, need 3\": it drafts the invite with the nearest court, you tap Post, it shows who joins."]].forEach(([h, d], i) => {
+      const y = 3.5 + i * 1.05;
+      s.addShape(pres.shapes.OVAL, { x: 6.2, y: y + 0.04, w: 0.34, h: 0.34, fill: { color: GREEN }, line: { color: GREEN } });
+      T(s, String(i + 1), 6.2, y + 0.04, 0.34, 0.34, { fontSize: 11.5, bold: true, color: WHITE, align: "center", valign: "middle" });
+      T(s, h, 6.7, y, 6, 0.3, { fontSize: 14, bold: true });
+      T(s, d, 6.7, y + 0.33, 6, 0.6, { fontSize: 11, color: MUTED });
     });
   }
 
