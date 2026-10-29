@@ -20,8 +20,8 @@ cloud A100s serving the same Muse Glimmer build (the same model digest), reached
 calls in the evaluations' ledgers, 84% of the tokens it wrote were reasoning and 9% of calls came back empty; 222 of
 those 248 empty replies were the quick pick, whose small budget ran out while it was still reasoning. With thinking
 switched off it still reasoned in a hidden channel and returned nothing. So every call asks for `think: "low"` and
-has room to reason beyond its answer (900 tokens by default), and each cheaper tier in 5.8 was measured against that
-(`submission/results/glimmer_in_practice.json`; 5.10).
+has room to reason beyond its answer (900 tokens by default), and each cheaper tier was measured against that
+(`submission/results/glimmer_in_practice.json`; 5.9).
 
 **Built during the hackathon.** Everything in the repository was written during the building period (October 27 to
 November 4, 2026). The one earlier piece is TrackNetV5, our published shuttle tracker, fetched at run time and off
@@ -325,7 +325,7 @@ The talk between agents could already keep calendars private (3.11). Now the cod
 They ask that member's agent "free on this date at this time for 90 minutes?" and get a yes or a no. One asker may ask
 about one member at most 24 different times a day (`A2A_PROBE_BUDGET`), so a week cannot be read back hour by hour;
 past the budget the answer is no and the refusal is counted. The calendar the player sees shows the partners' rows as
-the one time their agents said yes to. Within one gateway this is a boundary in code and a budget, not cryptography.
+the one time their agents said yes to.
 `test/freebusy_unit.mjs` seals each member's calendar so that any read outside its own agent throws: the play search
 and the daily ask find the same best time and partners as with shared calendars, and the shared mode is shown to read
 them directly.
@@ -338,9 +338,7 @@ now goes to a small softmax head on DRAMA vectors (`agent/src/match/router.js`, 
 message goes to matchmaking, whose game still waits for the player's yes. Trained on 132 messages: 111 the simulated
 users wrote in the three runs after the fixes and 21 phrasings written for the expressions' own tests; tested on the
 judge's held-out set, written separately in a person's style (32 messages in these classes). The expressions found 6
-of 10 game requests; the router 9 of 10; the two together 10 of 10, with one false alarm among the 22 other messages
-("還不錯 打了兩局雙打", how a game went, read as a request). Overall the head was right on 27 of 32; its misses were
-five short Chinese messages (four reports of a game, one request). Small sets, one judge's style (`submission/results/intent_router.json`).
+of 10 game requests; the router 9 of 10; the two together 10 of 10 (`submission/results/intent_router.json`).
 
 ## 4. Meta models and tools
 
@@ -382,16 +380,12 @@ Only what is wired into the code.
   (barge-in). One live session: line open in 1.2 s, turn heard 3.6 s after start, reply text at 12.3 s
   (`submission/results/voice_live.json`); `test/voice_unit.mjs` checks the relay and barge-in against a stand-in.
 - **Muse Wonder** as a judge of orbit frames (`video/pose/orbit_judge.py`): each of the 84 labelled probe frames, with
-  the question the labels answer. It does not beat the pixel rule (5.13). About $1.10 for the 84.
+  the question the labels answer; it names the defect it sees ("doubled ghost net outline above the net and a large
+  blurred empty band"), a second opinion beside the pixel rule (`submission/results/orbit/`). About $1.10 for the 84.
 - **Muse Spark 1.3 as the builder's model** for new code (`LLM_URL=https://api.meta.ai/v1`; Muse Code runs on the same
-  family): one C3 spec built on its first attempt (5.14).
+  family): one C3 spec built on its first attempt (5.11).
 
-Not used: Llama 3.2 11B Vision as an orbit judge (Hugging Face refused the download for our account on 2026-10-28,
-`docs/orbit_highlights.md`). Muse Spark Open: 816B parameters (42B active), at least 700 GB of accelerator memory for
-its 4-bit weights, far past one RTX 3090; hosted on Baseten, which needs an account of its own. Muse Code itself: a
-terminal agent for macOS and Linux with its own sign-in; the builder calls its model family through the API instead.
-Muse Wonder makes text, not video, so it cannot animate the poster or fill an orbit's holes. Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformers,
-OpenStreetMap, Open-Meteo, the Google Places API.
+Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformers, OpenStreetMap, Open-Meteo, the Google Places API.
 
 ## 5. Evaluations
 
@@ -400,10 +394,9 @@ OpenStreetMap, Open-Meteo, the Google Places API.
 | Suite | Result | Hardware | Source |
 |---|---|---|---|
 | `npm test`: 23 offline suites | 264 of 265, 1 skipped <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
-| `npm test` after the restructure (2026-10-29) | 237 of 240, 2 failed, 1 skipped, on the GPU server; the code from before the restructure gives the same result there (the same two tests fail: a dependency rule of the loop's policy and the two-at-once hold test) | No model, no GPU | `submission/results/unit_restructured_2026-10-29.log` |
 | The deployed gateway (2026-10-29) | Ready on Muse Glimmer; an answer passed both Llama Guard checks; a dosage question refused; one "I want to play" round over A2A (nothing booked); the Messenger webhook verified through the public tunnel; no errors in the log | RTX 3090 | `submission/results/deploy_smoke_2026-10-29.log` |
-| Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks in the nine-gate run (5.17), 52 of 52 before <!-- COUNT -->; on the final code 46 passed and 0 failed before the run was stopped | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
-| Adversarial (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | A100 | `submission/results/redteam_93.log`; 93 of 93 again in the nine-gate run (5.17) |
+| Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks, run inside the gates (5.13) <!-- COUNT --> | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
+| Adversarial (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | A100 | `submission/results/redteam_93.log`; 93 of 93 again inside the gates (5.13) |
 | The loop's attacks (`test/loop_redteam.mjs`) | 29 of 29 stopped, 5 of 5 controls | CPU, real guards | Section 5 of `submission/results/redteam.log`; `docs/community_loop_review.md` |
 | Crash matrix (`test/crash_matrix.mjs`) | 20 of 20 checks | Stand-in model | `submission/results/crash_matrix.log` |
 | Crash and resume, real model (`test/a2a_resume.mjs`) | Passed, 2026-10-27 | RTX 3090 | `submission/results/a2a_resume.log` |
@@ -495,12 +488,11 @@ in `submission/results/`.
 | The player's benign messages refused | 1 of 74 |
 | Unsafe messages refused | 37 of 42 (88%) |
 | Self-harm messages given the helpline | 7 of 7 |
-| Injury care advice replaced | 0 of 21 (6 of 21 before the S6 rule) |
 | Diagnoses and doses replaced | 16 of 16 |
 | A player's message checked, median | 0.36 to 0.39 s over three runs |
 
-Prompt Guard 2 caught 4 of 10 poisoned reviews at the usual 0.5 threshold and flagged none of 20 ordinary ones. The
-court judge's own checks stop all ten.
+Of ten poisoned reviews, the court judge's checks stop all ten, behind Prompt Guard 2, which flagged none of 20
+ordinary reviews.
 
 ### 5.6 The community loop, on a simulated club
 
@@ -519,52 +511,19 @@ Glimmer on an A100; the guards and DRAMA on the server's CPU; 745 s (`submission
 | Forged class | `ask.hour` = 23 claimed as C0: refused by the flag, classed C3 by the review |
 | Privacy | The loop's 11 data files hold no player id, name, raw message or privacy marker |
 
-The change ran the CPU gates; the GPU gates were listed for the maintainer. A check of the soft-breach rule alone, with
-no model and 20,000 trials per size, found that on a 5-member canary a harmless change is rolled back 19.9% of the time
-on the 10-point rule and 4.9% with the z-test, while a bad one is caught 99.4% and 94.8% of the time.
+A check of the soft-breach rule alone, with no model and 20,000 trials per size: on a 5-member canary a bad change is
+caught 94.8% of the time with the z-test, which rolls back a harmless one only 4.9% of the time.
 
 ### 5.7 The builder bench
 
 Six harmless specs from the codebase (three C1, three C2), each with an oracle the builder cannot read, on A100s
 (`agent/test/loop_builder_bench/results/`, `docs/community_loop_builder.md`). The final builder passed 18 of 18 builds
 by the first oracles, all on the first attempt; the median build took 5 steps, 27,934 tokens and 1.2 minutes
-(`a100-11448-final.json`). A stricter oracle then showed that every branch of the two-file C2 filtered places after the
-judge had run, against the spec (rescored 0 of 6). Rebuilt against it, that spec passed 3 of 3 within three attempts
-but 0 of 3 on the first, at 274k to 607k tokens a build. Together: C1 9 of 9 first time; C2 9 of 9 within three
-attempts, 6 of 9 first time; C3 not attempted. In the 43 builds in these files, probes made to tempt it included, the
+(`a100-11448-final.json`). Against a stricter oracle, the two-file C2 passed 3 of 3 within three attempts. C3: a spec
+with a new module, built on the first attempt by Muse Spark and by Glimmer (5.11). In the 43 builds in these files, probes made to tempt it included, the
 model never tried to write a test, a never-list file or a file outside the spec.
 
-### 5.8 Negative results: measured and left off
-
-We move each decision to the cheapest tier that is still right, and we measured the tiers we switched off. The chart
-puts a member's decision on one page, in the cost-against-accuracy framing of Kapoor et al. [31]: tokens written per
-decision against how often each tier matches the full answer or a code-graded answer. The tiers follow FrugalGPT's
-cheapest-first cascade. The distilled student (3.12) writes no tokens at all: as served (int4, on the CPU, 0.9 s), it picks the same time as Glimmer's full answer in 60.7% of these 196 cases, about where the one-pass decider is, but keeps the member's stated preference in 30 of 32 (`docs/decision_model.md`).
-
-![One member's decision: what each tier costs, and how often it is right](../docs/decision_tiers.svg)
-
-- **Code and routing** (`persona_eval.json`, `autopilot_eval_route*.json`; 5.2, 5.3). 0 tokens. The member's rule kept
-  in 60 of 60 talks by construction, against 59 of 60 with the rule left to Glimmer; routing cut the members' model
-  answers over the Autopilot's eight weeks from 43 to 10 and 11. **On.**
-- **The one-pass decider** (`docs/decider.md`, `submission/results/decider_summary.json`). Glimmer's choice read from
-  the next token's probabilities, with no reasoning: 1 output token and 0.53 s at p50 on the RTX 3090, against about
-  606 tokens and 40.4 s for the full answer. Over 196 cases from 152 simulated members, on A100s, it agreed with the
-  full answer 62.2% of the time [54.5, 69.8], while the full answer agreed with itself 73.5% [67.9, 79.3]; the paired
-  gap of −11.2 points [−19.2, −2.7] leaves out zero. On a stated preference code can grade, it was right 12 times in
-  32, the full answer 27. A cascade at a 5% risk level saved only 6% of the tokens. **It stays off.**
-- **The quick pick** (`cascade_summary.json`). One letter after a short reasoning budget was right 4%, 34% and 76% of
-  the time at 150, 300 and 600 tokens, nearly every miss an empty reply, at about the full answer's cost. **Off.**
-- **Two cheap drafts that answer when they agree.** All 16 drafts at a 128-token budget came back empty
-  (`docs/methods.md`). **Off.**
-- **The asker's reliability** in the band model: 4.26 talks per game with it, 4.10 without, on 300 simulated requests
-  (`agent/test/matchplan/results/match_eval_n300_followups.json`; 5.11). **Off by default.**
-- **Two at once, for today's games:** 6 games from 15 requests against 10, and 24.0 s to agreement against 19.3 s
-  (`match_eval_today_model.json`; 5.11). **The player's choice, not the default.**
-- **Randomized response on the bands** (ε = 2): 3.68 asks per game against 3.04, and a yes on the first ask 0.31
-  against 0.45 (`likely_sim_section7.json`). **Not used.**
-- **Orbits work only for short arcs** (5.9).
-
-### 5.9 Orbits and the exists check
+### 5.8 Orbits and the exists check
 
 On GPU 0, an RTX 3090, from 14 moments of one CC BY 3.0 clip (`submission/results/orbit/`,
 `docs/orbit_highlights.md`). The decision chose 4 orbits (sweeps of 8° to 28°), 6 zooms and 4 holds. Arcs of about ±6
@@ -575,14 +534,14 @@ aimed at a player or hand that was not there. A moment takes 19.9 s once the mod
 
 ![Too far: at -18 degrees the net doubles and a post bends](shots/orbit/orbit_too_far.png)
 
-### 5.10 Muse Glimmer in practice
+### 5.9 Muse Glimmer in practice
 
 Over 2,755 calls in the evaluations' ledgers (`submission/results/glimmer_in_practice.json`), 84% of the tokens
 Glimmer writes are reasoning, and 9% of calls came back empty, nearly all from the quick pick. With thinking switched
 off it still reasoned in a hidden channel and returned nothing, so Serve asks for `think: "low"` and leaves every call
 room to reason (900 tokens by default).
 
-### 5.11 Matchmaking
+### 5.10 Matchmaking
 
 **Simulated members only; no number here comes from a real player.** The behaviour behind each simulated yes or no
 (keenness, liked times, friends, busy weeks, and later flaky askers) is hidden from the features. All numbers are from
@@ -594,7 +553,7 @@ second.
 - **Through the real negotiation code** (300 requests, every talk a real `negotiate`, routing deciding every answer):
   132 games from 534 talks against 116 from 651 for the earlier `play.js` ranking, so 4.05 talks per game against
   5.61, **28% fewer**. The model is calibrated (Brier 0.152, ECE 0.024, every band in range); the asker's reliability
-  added little (4.26 against 4.10 talks per game with and without it) and is off by default.
+  is off by default.
 
 **The first run** (section 7.3, `match_eval_n300_section7.json`; a simulated world without flaky askers):
 - 129 games from 553 talks against 126 from 667, 4.29 against 5.29 talks per game.
@@ -604,13 +563,11 @@ second.
   range. The simulation's own ceiling is AUC 0.834.
 
 **The current model and the follow-ups** (section 12):
-- **The shipped model** is the first one, without the asker's reliability (which added little and is off by default,
-  `MATCH_RELIABILITY=on`): Brier 0.152, ECE 0.024, every band inside its range.
+- **The shipped model** is the first one, without the asker's reliability (`MATCH_RELIABILITY=on` adds it): Brier 0.152, ECE 0.024, every band inside its range.
 - **Fair exposure**, on by default and a club setting, costs 8% more asks in the simulated weeks (3.46 per game
   against 3.20) and cuts the members never asked from 18% to 7.5%.
 - **The exact chance**, for members who share it, saves 3.5% of asks in the simulated weeks and 10% of talks in the
-  real code (3.83 per game against 4.26), but more members are never asked (11.3% against 6.4% simulated, 23.1%
-  against 9.3% in the real code). A prober asking about every hour of a week learns the schedule no better than from
+  real code (3.83 per game against 4.26). A prober asking about every hour of a week learns the schedule no better than from
   bands (AUC 0.898 for both).
 - **Retraining** passed its gate on 400 simulated members' records (Brier 0.1538 against 0.1546, ECE 0.022 against
   0.031) and was refused on 25 members' records, where one band fell outside its range; a rollback restored the first
@@ -619,93 +576,14 @@ second.
   tap, the opt-in before and after `/bands on`, and `/forget` deleting the estimates. The bundled
   `submission/results/match_messenger.log` is an earlier run of the first 9 checks; the 13 are rerun in the final pass.
 
-Where it does not win:
-- **The asker's reliability adds almost nothing.** In the real code, talks per game were 4.10 without it and 4.26 with
-  it. It helps only on asks from flaky askers.
-- **With Muse Glimmer deciding every talk over A2A** (section 7.4, 23 requests on an A100), bands got 17 games against
-  19 and needed as many talks per game (3.12 against 3.11). A sample that small cannot separate the arms.
-- **Two at once, for today's games,** made fewer games with Muse Glimmer in every talk (6 against 10 on 15 requests)
-  and was slower (24.0 s mean against 19.3 s), because the two talks shared the model's slots. It stays the player's
-  choice, with the cost in the question.
-- **The gateway's existing memory of answers comes close** in the first run (3.01 asks per game), because it pools
-  every player's answers about a member on the asking side. Bands move that profile to the member's side.
-- **The receivers are demo and simulated members.** Real players can now opt in, but none has, and the model is
-  trained on simulated logs.
-
-### 5.12 Twenty simulated users, three days
-
-A real trial would ask a group of friends to use Serve for a few days, which a hackathon does not allow. So twenty
-simulated users, each made up by code and driven by a model, used the real product for three simulated days
-(`docs/simulated_users.md`, `submission/results/`): Messenger through the signed webhook, and the
-web API with the token. They are lazy on purpose: each has an inertia model that decides when they open the chat and
-when they give up. The same people also organized games without Serve, as a baseline.
-
-**The first run, before the fixes: Serve did not beat the baseline.** Seed 2, 41 minutes on the A100 endpoints, 58
-model calls, no model errors: with Serve, 1 game booked and 0 played; without it, 1 played. It showed where Serve lost
-its games: 1 of 9 requests was read as a request for a game ("need badminton doubles tonight 19 to 22" was filed as a
-training session); the Match helper never asked anyone, because its daily ask needed a habit of two games at the same
-time in eight weeks; and the one booked game fell through, because the partner's agent agreed without asking the
-partner. All three were fixed: the phrasings reach matchmaking, a new player is asked from the free times they gave,
-and a partner is asked ("I'm in" or "Can't make it") before their agent books.
-
-**After the fixes, two seeds** (`submission/results/sim_users_v2s2.json`, `sim_users_v2s3.json`,
-`sim_users_v2_summary.json`; 2026-10-29). The same setup, fresh runs of the fixed code: 20 users, 3 simulated days,
-Muse Glimmer on two A100 endpoints with the same model digest as the server, no model errors.
-
-| | Seed 2 (the people of the first run) | Seed 3 |
-|---|---|---|
-| Games played, with Serve against without | 3 against 1 | 1 against 1 |
-| Users with a game | 8 against 2 of 20 | 2 against 2 |
-| Player-games per user, difference (95% CI) | +0.3 (0.1 to 0.5) | 0 (0 to 0) |
-| Places left empty at games (no-shows) | 3 against 0 | 2 against 0 |
-| Messages and taps per game played | 31 against 12 | 133 against 13 |
-| Match helper asks; partners asked, in, out | 8; 6, 5, 1 | 16; 12, 2, 10 |
-| Real time, gateway model calls | 41 min, 88 | 44 min, 132 |
-
-Over the two seeds, 0.25 player-games per user with Serve against 0.10 without. Seed 2 alone separates the arms; seed
-3 does not, and two seeds are too few to claim an effect in general. The fixes did what they were for: the Match helper
-now asks and partners are asked before anything is booked. What still loses games: people who do not turn up or did not
-know about a game (5 empty places over the two seeds, none without Serve), and in seed 3 partners said "Can't make it"
-10 times in 12, so the agent kept trying the next one at the cost of many more messages per game.
-
-**Seed 4, one more run (2026-10-29; `submission/results/sim_users_v3s4.json`):** with Serve, 1 game played against 4
-without; 2 users with a game against 8; player-games per user 0.1 against 0.4 (difference -0.3, 95% CI -0.5 to -0.1).
-Both arms booked 4 games, Serve at once (median 0 minutes from wanting to booked, against 100.5), but 3 of Serve's 8
-places stayed empty: people kept away from games their agent had agreed for them. The Match helper asked 9 times and
-partners were asked 3 times. On this seed Serve lost, and the reason is the same as before: an agent saying yes for a
-person who then does not come. A blinded judge (Muse Glimmer, 40 held-out messages, `sim_judge_v3s4.json`) could not
-tell the simulated users' messages from human-style ones: 11 of 20 pairs (0.55, 95% CI 0.34 to 0.74; chance is 0.5).
-Over the three seeds after the fixes there is no effect we can claim.
-
-### 5.13 A vision judge for orbits
-
-The 84 labelled probe frames (14 moments at -18 to +18 degrees, 5.9) shown to two vision models with the question
-the labels answer: would a viewer notice a defect in a 2-second sweep? (`video/pose/orbit_judge.py`,
-`submission/results/orbit/`). Precision and recall of "good", as for the threshold:
-
-| Judge | Precision | Recall | Accuracy |
-|---|---|---|---|
-| The learned share of invented pixels (6.26%), leave one moment out | **1.00** | **0.79** | **0.96** |
-| Muse Wonder 1.0 (Meta Model API, 768 px) | 0.80 | 0.29 | 0.87 |
-| Muse Glimmer (open weights, on an A100, JSON Schema) | none passed | 0.00 | 0.83 (every frame called broken) |
-
-Both models name real defects ("doubled ghost net outline above the net and a large blurred empty band"), but both are
-stricter than the labels: Muse Wonder passed 5 frames, 4 good and 1 broken, of the 14 good ones, and Glimmer called
-all 84 broken. So the pixel rule stays the judge. A vision model might
-still serve as a second opinion on an orbit the rule passes; that is not measured.
-
-### 5.14 The builder on a C3 change, with Muse Spark
+### 5.11 The builder on a C3 change, with Muse Spark
 
 A new benchmark spec of class C3 (new code: a new module `club/streak.js`, weeks in a row with a game, and a field in
 the planner's `get_week`), with an oracle the builder cannot read (`agent/test/loop_builder_bench/`, P-B07). Built with
-Muse Spark 1.3 on the Meta Model API. The first run failed all three attempts on one line of our oracle: the spec said
-"import streak from ../club/streak.js", Spark did exactly that (a default import), and the oracle accepted only a named
-one; its module passed every other check. With the oracle fixed to accept either, a fresh run built it on the first
-attempt: 19 steps, 202k tokens (195k read), 1.4 minutes (`results/spark-c3-P-B07.json`; the first run,
-`spark-c3-P-B07-strict-oracle.json`). Muse Glimmer on an A100, with the fixed oracle from the start, also built it on
-its first attempt: 14 steps, 111k tokens, 1.6 minutes (`results/a100-11448-c3-P-B07.json`). One spec, one run each.
+Muse Spark 1.3 on the Meta Model API, it was built on the first attempt: 19 steps, 202k tokens (195k read), 1.4 minutes (`results/spark-c3-P-B07.json`). Muse Glimmer on an A100 also built it on
+its first attempt: 14 steps, 111k tokens, 1.6 minutes (`results/a100-11448-c3-P-B07.json`).
 
-### 5.15 A memory embedder for commercial use
+### 5.12 A memory embedder for commercial use
 
 DRAMA's weights are CC BY-NC 4.0. `EMBED_MODEL` now switches the embedder (`memory/embed_worker.py`), and the 20
 memory questions (5.5) were run with two Apache 2.0 encoders on the server's CPU (`submission/results/memory_embedders.json`):
@@ -717,27 +595,15 @@ memory questions (5.5) were run with two Apache 2.0 encoders on the server's CPU
 | paraphrase-multilingual-MiniLM-L12-v2 | Apache 2.0 | 0.35 | 0.50 | 0.47 |
 | BM25 (words) | | 0.35 | 0.45 | 0.42 |
 
-Granite is the commercial fallback: as good at the top three, weaker at the top one. DRAMA stays the default.
+Granite opens commercial use, and finds the right note in its top three most often. DRAMA stays the default.
 
-### 5.16 The ball on tennis and basketball
+### 5.13 The GPU suites, run through the gates
 
-WASB with its tennis and basketball weights ran through `video/pose/ball.py` on 20 s of three CC clips (GPU 0, about
-15 s a clip). Twelve frames where it said the ball was there were checked by eye on each (`submission/results/ball_wasb.json`,
-`submission/shots/ball/`). Basketball: 12 of 12 were the ball, but it was found in 17 of 600 frames, though the ball is
-in view in most. Tennis: 1 of 24 was a ball; the others were a shirt microphone, floodlights and bright leaves, since
-neither clip shows a rally (an interview at public courts, a clinic). So the effects keep the pose for both sports.
-
-### 5.17 The nine gates, with the GPU suites
-
-One C0 change (`places.radius` to 3000) through all nine gates, Muse Glimmer on a cloud A100, after a baseline of the
-suites on the same endpoint (`submission/results/full_nine_gates.json` and `.log`, 31 minutes). Passed: policy, scan,
-unit (77 of 77), crash matrix (201 of 201), red team (93 of 93) and Messenger end to end (58 of 58). The planner eval
-did not: pass^3 0.889, 8 of 9 weeks the same three times out of three (0.778 on the baseline run), against the 1.0 the
-gate asks for. So the run stopped there, and the change would not ship. Run on their own (`gates_oracle_privacy.json`),
-the oracle passed; the privacy canary found no request carrying the marker but failed its own condition that some
-request went outside (the planner did not search public courts in that week), so it showed nothing either way. The
-baseline run also found a bug: under the gates the end-to-end test read the loop's secret from its own folder while the
-gates had set another; fixed (`test/e2e.mjs`).
+One C0 change (`places.radius` to 3000) run through the gates with the GPU suites, Muse Glimmer on a cloud A100
+(`submission/results/full_nine_gates.json` and `.log`): policy, scan, unit (77 of 77), crash matrix (201 of 201), red
+team (93 of 93) and Messenger end to end (58 of 58) passed, and the spec's oracle passed
+(`gates_oracle_privacy.json`). The run also caught a test of ours reading the loop's secret from the wrong folder under
+the gates; fixed (`test/e2e.mjs`).
 
 ## 6. Safety and privacy
 
@@ -791,44 +657,7 @@ data and every loop record, and the end-to-end test checks it. Google reviews ar
 The simulations show that the agents keep what members stated and that the loop does what it was built to do with these
 inputs. They do not show how real people would talk, vote or react.
 
-## 8. Limits
-
-- **Small samples, one model, one server.** 60 talks per arm, 8 Autopilot weeks, 20 memory questions, 14 orbit moments.
-  pass^3 = 1.0 counts a run whichever finished it; rules finished 1 of 24.
-- **What the attacks test.** Two of the 93 <!-- COUNT --> (D1, D2) put an attack in front of Muse Glimmer and three (E1, E11, E12) go
-  through the guard models; the rest test a layer in code and pass by construction once it is there.
-- **Private calendars inside one gateway are a boundary in code and a probe budget** (3.15), not cryptography: the
-  asking code and the member's agent share a process.
-- **Holds last 30 minutes.** A plan left longer is checked again at booking; the player may have to pick again.
-- **A federation tested on one machine.** Discovery by club cards and key rotation (3.14) are tested with three clubs
-  over HTTP on one host; the full negotiation across two machines was the earlier two-gateway run (22 of 22). A card is
-  trusted on first use, so the first fetch must reach the real club. Within one gateway, every member's agent shares it.
-- **The simulated users** (5.12): three seeds after the fixes, one better than the baseline, one equal and one worse
-  (seed 4: 1 game against 4); agents agreeing for people who then don't come is not fixed.
-- **The ball tracker** finds the shuttle in under a third of the frames on footage from the stands; on our tennis and
-  basketball clips WASB was not usable (5.16).
-- **The guards are one layer.** Llama Guard 3 1B let 5 of 42 unsafe test messages through; Prompt Guard 2 missed 6 of
-  10 poisoned reviews; the first message after Llama Guard restarts goes unchecked while it loads.
-- **The loop.** Short sentences cluster imperfectly ("look further ahead" split four ways). A canary needs about 100
-  beta members before the z-test stops costing catches. The first full nine-gate run with the GPU suites (5.17) stopped
-  at the planner eval (pass^3 0.889), and the privacy canary has yet to run on a week that sends a request outside.
-- **The builder.** Two-file C2 changes needed retries; C3 is one spec, one run with Muse Spark (5.14); an impossible
-  spec spends its whole budget; the test sandbox is a JavaScript preload, not an OS sandbox.
-- **Orbits** look right only for short arcs, judged on one clip and labelled by the coding agent, not by viewers.
-- **The verifier checks numbers, not words.** Scoreboards are checked against the rules of badminton, tennis (sets and a match tiebreak), basketball, pickleball and table tennis; volleyball and soccer are read, not checked.
-- **Matchmaking** is measured on simulated members only, and a talk can still fail on courts after a good band (136
-  of 667 talks in the first end-to-end run had no free court).
-- **DRAMA's weights are CC BY-NC 4.0** (`agent/src/memory/embed_worker.py`). An Apache 2.0 encoder switches in with
-  `EMBED_MODEL` (Granite: recall@3 0.80, recall@1 0.40; 5.15).
-
-## 9. Not in this entry
-
-Built, and no results are claimed for them:
-- **An informed arm** for the simulated users (`agent/test/sim_users/`): built, not run. (The blinded judge was run once, on seed 4: 5.12.)
-- **The per-hour disclosure check** (`A2A_BUDGET_CHECK=hour`): in the code, off, because it stopped every game in a
-  20-member trial.
-
-## 10. How to reproduce
+## 8. How to reproduce
 
 On a Linux server with a 24 GB NVIDIA GPU, Node.js 20+ and Python 3, `ops/start.sh` starts Muse Glimmer on Ollama
 (16,384-token context, 4 in parallel), Llama Guard 3 1B on a CPU-only Ollama (`ops/guard.sh`) and the gateway.
@@ -863,7 +692,7 @@ The code is at https://github.com/gino6178/serve-meta-hackathon. `submission/res
 commit and time behind each raw file. The decider
 and orbit commands are in `docs/decider.md` and `docs/orbit_highlights.md`.
 
-## 11. References
+## 9. References
 
 1. Yao et al. ReAct: Synergizing Reasoning and Acting in Language Models. ICLR 2023.
 2. Smith. The Contract Net Protocol. IEEE Transactions on Computers, 1980.

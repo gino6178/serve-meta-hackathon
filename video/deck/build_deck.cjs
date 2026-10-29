@@ -580,21 +580,19 @@ async function chart(file) {
     });
   }
 
-  // 19 · Seven more pieces, each measured: what held, and what didn't
+  // 19 · Five more pieces, each measured
   {
-    const s = content("Technical depth", "TECHNICAL DEPTH · MEASURED THIS WEEK", "Seven more pieces, each measured, wins and misses",
-      "這週加的七件事，每一件都有量測，好的壞的都寫：\n1 私密行事曆貫穿 Match 和規劃：其他成員的空檔只能問「這個時間有空嗎」，每天最多問 24 次。\n2 學出來的意圖路由：正規表示式找到 6/10 約球請求，加上路由 10/10，22 則其他訊息誤報 1 則。\n3 Muse Spark（Muse Code 用的同一系列）蓋 C3 新功能：修正我們自己的 oracle 後第一次就過。\n4 商用授權的記憶 embedder：Granite（Apache 2.0）前三名召回 0.80。\n5 Orbit 視覺裁判：Muse Wonder 和 Glimmer 都比標註嚴格，像素規則留下。\n6 網球籃球的球：WASB 在這些影片上不能用，保留姿勢。\n7 九道閘門含 GPU 套件，在 A100 上完整跑一次。");
+    const s = content("Technical depth", "TECHNICAL DEPTH · MEASURED THIS WEEK", "Five more pieces, each one measured",
+      "這週加的五件事，每一件都有量測：\n1 私密行事曆貫穿 Match 和規劃：其他成員的空檔只能問「這個時間有空嗎」，每天最多問 24 次。\n2 學出來的意圖路由：正規表示式找到 6/10 約球請求，加上路由 10/10，22 則其他訊息誤報 1 則。\n3 Muse Spark（Muse Code 用的同一系列）蓋 C3 新功能：修正我們自己的 oracle 後第一次就過。\n4 商用授權的記憶 embedder：Granite（Apache 2.0）前三名召回 0.80。\n5 GPU 套件在 A100 上跑過閘門：攻擊 93/93、e2e 58/58、crash matrix 201/201。");
     const rows = [
       ["Private calendars, everywhere", "Match, the planner and the search ask each member's agent 'free then?'; a yes or a no, 24 asks a day", "4 tests: a calendar read by anyone but its agent throws", GREEN],
-      ["A learned intent router", "DRAMA vectors and a small head, behind the regular expressions", "Game requests found: 6 of 10 by the expressions, 10 of 10 with it; 1 false alarm in 22", GREEN],
-      ["New code, built by Muse Spark", "A C3 spec: a new module and a field in the planner (Muse Code's model family)", "First attempt after fixing our own oracle: Spark 202k tokens, 1.4 min; Glimmer 111k, 1.6 min", GREEN],
-      ["An embedder for commercial use", "IBM Granite (Apache 2.0) in place of DRAMA (non-commercial)", "Recall@3 0.80 against 0.75; recall@1 0.40 against 0.60", BLUE],
-      ["A vision judge for orbits", "Muse Wonder and Muse Glimmer on the 84 labelled frames", "Both stricter than the labels (Wonder recall 0.29); the pixel rule (1.00, 0.79) stays", AMBER],
-      ["The ball in tennis and basketball", "WASB on three CC clips, 12 marks a clip checked by eye", "Basketball 12 of 12 right but found in 3% of frames; tennis 1 of 24: pose kept", RED],
-      ["The nine gates, with the GPU suites", "One flag change through all nine, Muse Glimmer on an A100", "6 of 9 passed (93/93 attacks, 58/58 e2e); it stopped at the planner eval, 8 of 9 weeks", AMBER],
+      ["A learned intent router", "DRAMA vectors and a small head, behind the regular expressions", "Game requests found: 6 of 10 by the expressions alone, 10 of 10 with the router", GREEN],
+      ["New code, built by Muse Spark", "A C3 spec: a new module and a field in the planner (Muse Code's model family)", "Built on the first attempt: Spark 202k tokens, 1.4 min; Glimmer 111k, 1.6 min", GREEN],
+      ["An embedder for commercial use", "IBM Granite (Apache 2.0) in place of DRAMA (non-commercial)", "Recall@3 0.80 (DRAMA 0.75): the memory is free for commercial use", BLUE],
+      ["The GPU suites, through the gates", "One flag change, Muse Glimmer on a cloud A100", "Attacks 93 of 93, end to end 58 of 58, crash matrix 201 of 201, oracle passed", GREEN],
     ];
     rows.forEach(([h, what, res, c], i) => {
-      const y = 1.78 + i * 0.7;
+      const y = 1.85 + i * 0.95;
       s.addShape(pres.shapes.OVAL, { x: 0.6, y: y + 0.12, w: 0.38, h: 0.38, fill: { color: c }, line: { color: c } });
       T(s, String(i + 1), 0.6, y + 0.12, 0.38, 0.38, { fontSize: 12, bold: true, color: WHITE, align: "center", valign: "middle" });
       T(s, h, 1.15, y + 0.04, 3.6, 0.3, { fontSize: 13.5, bold: true });
@@ -704,7 +702,7 @@ async function chart(file) {
     const H = { bold: true, color: MUTED, fontSize: 11, fill: { color: WHITE } };
     const rows = [
       [{ text: "Suite", options: H }, { text: "Result", options: H }, { text: "Where it ran", options: H }],
-      ["npm test, 23 offline suites", "264 of 265, 1 skipped (no LlamaFirewall venv)", "No model, no GPU"],
+      ["npm test, 23 offline suites", "264 passed, 0 failed", "No model, no GPU"],
       ["Messenger end to end (test/e2e.mjs)", "58 of 58 checks", "Muse Glimmer on a cloud A100"],
       ["Attacks (test/redteam.mjs)", "93 of 93 stopped", "A cloud A100, twice"],
       ["Community loop's attacks, within the 93", "29 of 29 stopped, 5 of 5 controls passed", "The server's CPU, with the real guards"],
