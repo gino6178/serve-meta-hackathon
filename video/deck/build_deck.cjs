@@ -418,7 +418,47 @@ async function chart(file) {
     T(s, "submission/results/glimmer_in_practice.json · technical report 3.12, 5.10", 5.4, 6.7, 7.3, 0.25, { fontSize: 10, color: SOFT });
   }
 
-  // 14 · Fine-tuned: the decision model (Jev-style) distilled from Muse Glimmer
+  // 14 · RAG: retrieval by meaning with Meta's DRAMA, grounded and checked
+  {
+    const s = content("Technical depth", "TECHNICAL DEPTH · RAG", "Found by meaning with Meta's DRAMA, checked by code",
+      "RAG（agent/src/memory/memory.js、body/context.js）：\n寫入：筆記只來自玩家自己的話和程式產生的事實（比賽、健康 app），其他 agent 寫的東西永遠不會變成筆記（防記憶注入）。新的一句話會跟舊筆記比對：新增、取代、或重複（類似 Mem0）。被取代的筆記保留但不再被檢索。\n檢索：Meta 的 DRAMA（drama-base，768 維）在伺服器 CPU 上把問題和筆記變成向量，用餘弦相似度乘上時間衰減排序（身體筆記 7 天減半），取前幾名。\n生成與接地：Muse Glimmer 拿這些筆記規劃這週；規則由程式從紀錄產生，每條附上來源筆記，程式檢查引用的是同一個部位。\n數字：20 題規劃問題中 DRAMA 第一名就對 12 題（Recall@1 0.60，BM25 0.35）；有更新機制時過期筆記 0 筆還被當真（只追加是 15 筆）、規則正確 90.5%（52.4%）；玩家兩週前說先不要約 Tomás，有記憶時 3/3 都排除他，沒記憶 0/3。");
+    const stage = (i, k, h, d, fill, c) => {
+      const x = 0.6 + i * 1.53;
+      box(s, x, 1.85, 1.42, 2.25, { fill, line: fill });
+      T(s, k, x + 0.12, 1.95, 1.2, 0.22, { fontSize: 9.5, bold: true, color: c, charSpacing: 1 });
+      T(s, h, x + 0.12, 2.2, 1.2, 0.62, { fontSize: 12.5, bold: true });
+      T(s, d, x + 0.12, 2.85, 1.22, 1.2, { fontSize: 9.5, color: MUTED });
+      if (i < 3) arrow(s, x + 1.43, 2.97, 0.09, 0);
+    };
+    stage(0, "1 · NOTES", "Your words and the facts", "Messenger, voice, the app; games and health app. Nothing another agent wrote.", CARD, MUTED);
+    stage(1, "2 · EMBED", "Meta's DRAMA", "drama-base, all 768 dimensions, on the server's CPU", BLUEBG, BLUE);
+    stage(2, "3 · RETRIEVE", "Meaning × age", "Cosine similarity, faded by age (a body note halves in a week); the top notes", BLUEBG, BLUE);
+    stage(3, "4 · GROUND", "Plan, with citations", "Muse Glimmer plans from them; code's rules cite their notes, checked", GREENBG, GREEN);
+    box(s, 0.6, 4.3, 6.0, 1.15, { fill: AMBERBG, line: AMBERBG });
+    T(s, "Notes that change", 0.8, 4.4, 5.6, 0.3, { fontSize: 13, bold: true, color: AMBER });
+    T(s, "A new note is checked against the old ones it may change: added, replacing them, or the same. A replaced note is kept but never recalled, so \"leave Tomás out\" gives way to \"Tomás is fine again\".", 0.8, 4.72, 5.6, 0.7, { fontSize: 10.5 });
+    box(s, 0.6, 5.6, 6.0, 1.15, { fill: CARD, line: CARD });
+    T(s, "End to end", 0.8, 5.7, 5.6, 0.3, { fontSize: 13, bold: true });
+    T(s, "Two weeks after the player said to leave Tomás out, the planner left him out in 3 of 3 weeks with memory on, and in 0 of 3 with it off.", 0.8, 6.02, 5.6, 0.7, { fontSize: 10.5, color: MUTED });
+    s.addChart(pres.charts.BAR, [
+      { name: "Meta's DRAMA", labels: ["Recall@1", "Recall@3", "MRR"], values: [0.60, 0.75, 0.696] },
+      { name: "BM25 (words)", labels: ["Recall@1", "Recall@3", "MRR"], values: [0.35, 0.45, 0.422] },
+    ], {
+      x: 6.9, y: 1.75, w: 5.85, h: 3.0, barDir: "col", barGrouping: "clustered", chartColors: [BLUE, LINE], barGapWidthPct: 60,
+      showTitle: true, title: "Finding the right note: 20 planning questions, 41 notes each", titleFontSize: 12, titleColor: INK, titleFontFace: "+mn-lt",
+      showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00", dataLabelFontSize: 11, dataLabelFontBold: true, dataLabelFontFace: "+mn-lt", dataLabelColor: INK,
+      catAxisLabelFontSize: 11, catAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, valAxisHidden: true, valAxisMinVal: 0, valAxisMaxVal: 1,
+      valGridLine: { style: "none" }, catGridLine: { style: "none" }, showLegend: true, legendPos: "b", legendFontSize: 10, legendFontFace: "+mn-lt", legendColor: INK,
+    });
+    [["0 vs 15", "out-of-date notes still taken as true, with updates against append-only", GREEN], ["90.5%", "of the rules notes ask for kept right (append-only: 52.4%)", INK]].forEach(([n, d, c], i) => {
+      const x = 6.9 + i * 2.98;
+      box(s, x, 5.0, 2.87, 1.75, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
+      T(s, n, x + 0.2, 5.12, 2.5, 0.6, { fontSize: 26, bold: true, color: c });
+      T(s, d, x + 0.2, 5.75, 2.5, 0.9, { fontSize: 10.5, color: MUTED });
+    });
+  }
+
+  // 15 · Fine-tuned: the decision model (Jev-style) distilled from Muse Glimmer
   {
     const s = content("Technical depth", "TECHNICAL DEPTH · FINE-TUNING", "A 1B decision model, distilled from Muse Glimmer",
       "Jev 式決策模型的微調（docs/decision_model.md）：\n1. 教師資料：用真正的 fullAnswer（同一個 prompt、JSON Schema、think low）讓 Muse Glimmer 在 GCP A100 上標註，三個訓練集共 4,868 題，另有測試、驗證、demo 社團等留出集。\n2. LoRA 微調 Meta 的 Llama 3.2 1B 和 3B（rank 16、3 個 epoch，1B 20 分鐘、3B 44 分鐘）。不生成任何文字：在答案位置對宣告的選項（B、C…、Z）做 softmax，並在每個時段的 works? 標記上判斷可不可行，這是它自己讀行事曆的檢查。\n3. 量化成 int4 GGUF，在伺服器 CPU 上跑：1B 0.8 GB、每次決策約 0.9 秒、寫出 0 個 token（Glimmer 每次約 450 個）。\n結果：留出會員上和 Glimmer 一致 89.5%，Glimmer 跟自己一致 88.8%；會員明說的偏好保住 29/32（Glimmer 27）；可行時段判讀 precision 100%；在模擬社團少用 54–67% 的 Glimmer 呼叫，沒有破壞任何規則。");
@@ -448,7 +488,7 @@ async function chart(file) {
     });
   }
 
-  // 15 · The student and Muse Glimmer: when the small model isn't enough, the big one answers
+  // 16 · The student and Muse Glimmer: when the small model isn't enough, the big one answers
   {
     const s = content("Technical depth", "TECHNICAL DEPTH · THE CASCADE", "When the student isn't sure, Muse Glimmer answers",
       "Jev 學生模型和 Muse Glimmer 的交接（agent/src/agents/student.js、a2a.js fullAnswer）：\n1. 先由程式處理事實能決定的：行事曆、硬規則；只剩一個可行時段就直接回答，不叫任何模型。\n2. 真正需要判斷時，先問 Llama 3.2 1B 學生模型。它只有在三個條件都成立時才回答：選項機率 ≥ 0.6；它自己對「哪些時段可行」的判讀和程式算的一致；worker 有空且夠快（排隊超過 8 秒或超過 20 秒就放棄）。\n3. 任何一個不成立，就交給 Muse Glimmer 完整推理。\n4. 不管誰回答，程式都再檢查一次硬規則，結果才透過 A2A 送出，並標示是哪一層回答的（Agent 對話頁上看得到）。\n右圖：門檻越高，學生回答得越少、整體越準；我們選 0.6：在最難的 196 題裡學生回答 73%，其餘交給 Glimmer。");
@@ -491,7 +531,7 @@ async function chart(file) {
     T(s, "The student answers 73% of the hardest choices and 96% of the test set; Glimmer takes the rest. Glimmer alone agrees with itself 73.5% on these.", 8.5, 5.92, 4.1, 0.8, { fontSize: 10.5, color: MUTED });
   }
 
-  // 16 · Measured: what each choice costs
+  // 17 · Measured: what each choice costs
   {
     const s = content("Technical depth", "MEASURED", "Two charts behind two design choices",
       "兩張實驗圖（技術報告裡的）：\n左：把整個社團塞進 prompt，token 隨人數線性成長；Serve 先用程式篩選候選人，每次呼叫的 token 幾乎不變。\n右：一個會員的決策，每一層的成本 vs. 和完整答案一致的比例：程式 → Llama 3.2 1B → Muse Glimmer（FrugalGPT 式分層）。\n這頁讓評審三秒看出工程上有量測。");
@@ -501,7 +541,7 @@ async function chart(file) {
     T(s, "One member's decision: what each tier costs, and how often it matches the full answer (code, then Llama 3.2 1B, then Muse Glimmer)", 6.85, 1.95 + 5.85 * 500 / 780, 5.85, 0.6, { fontSize: 11, color: MUTED });
   }
 
-  // 17 · Safe by design
+  // 18 · Safe by design
   {
     const s = content("Technical depth", "SAFE BY DESIGN", "No agent holds all three at once",
       "安全：每個 agent 都遵守 Meta 的 Agents Rule of Two（不可信輸入、私人資料、行動能力，最多同時兩個）。揭露預算：一直約球的 agent 能拼出你一週的行程，有預算時從 97.6% 降到 32.4%（模擬的探測者）。65 個攻擊全部擋下。\n旁白：Every agent follows Meta's Agents Rule of Two. And a disclosure budget cuts how much of your week a snooping agent can pin down, from 97.6% to 32.4%.");
@@ -530,7 +570,7 @@ async function chart(file) {
     T(s, "attacks stopped: injected instructions, poisoned reviews, forged Agent Cards, sock-puppet votes, diffs that book without a yes", 8.85, 5.55, 3.7, 1.25, { fontSize: 11.5, valign: "middle" });
   }
 
-  // 18 · Community loop
+  // 19 · Community loop
   {
     const s = content("Technical depth", "SELF-EVOLVING", "The club makes itself better, safely",
       "自我演化的社團：會員在 Messenger 打 /idea 或按讚 → DRAMA 依語意分群，5 人提到才出現 → 二次方投票 → Muse Glimmer 寫規格、人工核准 → coding agent 在自己的分支上實作（從不讀社群文字）→ 九道關卡，第一個失敗就停 → 小規模上線，倒讚變多就自己關掉。永遠不能改的清單。這段是模擬社團（seed 7），但管線、關卡和回滾是真的。\n旁白：And the club evolves itself…");
@@ -567,7 +607,7 @@ async function chart(file) {
     T(s, "Booking without a yes · data off the server · a diagnosis or a dose · the guards · the tests · A2A · deployment", 2.45, 6.1, 10.1, 0.72, { fontSize: 13, color: WHITE, valign: "middle" });
   }
 
-  // 19 · Proof
+  // 20 · Proof
   {
     const s = content("Technical depth", "MEASURED", "Every claim has a log behind it",
       "證據頁：每個數字都有 log。e2e、攻擊測試在雲端 A100 上用同一個 Muse Glimmer（同一個 model digest）跑。可以快速帶過，或只在影片片尾字卡出現。");
@@ -591,7 +631,7 @@ async function chart(file) {
     s.addTable(rows, { x: 0.6, y: 3.45, w: 12.1, colW: [4.6, 3.9, 3.6], fontSize: 12, fontFace: FONT, color: INK, rowH: 0.38, border: { type: "solid", pt: 0.75, color: LINE }, margin: [0, 0.1, 0, 0.1], valign: "middle" });
   }
 
-  // 20 · Full technical architecture
+  // 21 · Full technical architecture
   pres.addSection({ title: "Architecture" });
   {
     const s = content("Architecture", "FULL TECHNICAL ARCHITECTURE", "Everything runs on one GPU server I own",
@@ -657,7 +697,7 @@ async function chart(file) {
     arrow(s, 9.57, 5.95, 0.3, 0);
   }
 
-  // 21 · End
+  // 22 · End
   pres.addSection({ title: "Close" });
   {
     const s = pres.addSlide({ masterName: "BLANK", sectionTitle: "Close" });
