@@ -112,7 +112,7 @@ function ruleIntent(text, members, now) {
 const WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, 一: 1, 兩: 2, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6 };
 export function spotsIn(text, format) {
   const t = String(text || "");
-  const m = /(?:need|looking for|want|find|缺|找|要)\s*(\d{1,2}|one|two|three|four|five|six|[一兩二三四五六])\s*(?:more\s*)?(?:people|players|person|player|個人|個|人|位)?/i.exec(t)
+  const m = /(?:need|looking for|want|find|缺|找|要)\s*(\d{1,2}|one|two|three|four|five|six|[一兩二三四五六](?!起))\s*(?:more\s*)?(?:people|players|person|player|個人|個|人|位)?/i.exec(t)
     || /(\d{1,2}|[一兩二三四五六])\s*(?:個人|人|位|people|players)/i.exec(t);
   const n = m ? (/^\d+$/.test(m[1]) ? +m[1] : WORDS[m[1].toLowerCase()]) : null;
   return n >= 1 && n <= 12 ? n : format === "singles" ? 1 : 3;

@@ -3,7 +3,7 @@ import Icon from "../components/Icon.jsx";
 import Mark from "../components/Mark.jsx";
 import TaskCard from "../components/TaskCard.jsx";
 import { habits } from "../club/habits.js";
-import { useTasks, plain, startPlay, startAsk, intentOf, playerOf, dismiss } from "../tasks.js";
+import { useTasks, plain, startPlay, intentOf, playerOf, dismiss } from "../tasks.js";
 import { useGameAsk, soreNow, bodyLine, input } from "../club/ask.js";
 import { seedBody, useBody } from "../club/body.js";
 import { readGame } from "../club/game.js";
@@ -81,8 +81,8 @@ export default function Agent({ club }) {
     if (kind === "best") return go(`club?tab=challenges&best=1${/doubles|partner/i.test(q) ? "&fmt=doubles" : ""}`);
     if (kind === "random") return go(`club?tab=challenges&spin=1${/doubles/i.test(q) ? "&fmt=doubles" : ""}${/weekend/i.test(q) ? "&when=weekend" : /weekday|evening/i.test(q) ? "&when=weekday" : ""}`);
     if (kind === "ranks") return go("club?tab=ranks");
-    // anything else is for your agent: it answers on Muse Glimmer from your games, bookings and body log
-    startAsk(q, input(club));
+    // anything else goes to your agent's chat: it answers there, or drafts the invite for a game you want
+    go(`messages?say=${encodeURIComponent(q)}`);
   }
 
   const needs = tasks.filter((t) => t.state === "needs"), running = tasks.filter((t) => t.state === "running"), done = tasks.filter((t) => ["done", "failed"].includes(t.state)).slice(0, 6);

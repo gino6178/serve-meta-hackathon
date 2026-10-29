@@ -38,6 +38,7 @@ const places = await import("./club/places.js");
 const pocketMod = await import("./club/pocket.js");
 const asks = await import("./agents/ask.js");
 const matchmaking = await import("./match/index.js");
+const routerMod = await import("./match/router.js");
 const ledger = await import("./core/ledger.js");
 const vision = await import("./media/vision.js");
 const asr = await import("./media/asr.js");
@@ -484,7 +485,13 @@ const gateway = http.createServer(async (req, res) => {
     if (u.pathname === "/api/players") return json(res, 200, store.players().map(({ id, name, memories, history, prefs, events, logs, games, body }) => ({ id, name, memories, history: history.slice(-20), prefs, events, logs, games, body })), o);
     // a question for your agent from the app: answered from your games, bookings and body log (body: { text, you }),
     // past the guards both ways, with the checks they made (webapi.answer)
-    if (u.pathname === "/api/agent/answer" && req.method === "POST") return json(res, 200, await webapi.answer(await bodyOf(req), agentAnswer.answer), o);
+    // (a game the player wants is not answered in words: the app drafts the invite instead, /api/agent/invite-draft; the
+    // expressions first, then the learned router, as in Messenger)
+    if (u.pathname === "/api/agent/answer" && req.method === "POST") {
+      const b = await bodyOf(req), t = String(b.text || "");
+      if (b.play !== false && (matchmaking.isPlayRequest(t) || /(想|要|來|去)?打(羽球|羽毛球|網球|桌球|籃球|排球|匹克球|球)|揪|缺.{0,3}人|找人打|一起打/.test(t) || await routerMod.isPlay(t))) return json(res, 200, { play: true }, o);
+      return json(res, 200, await webapi.answer(b, agentAnswer.answer), o);
+    }
     // play: "I want to play" -> courts, partners and invites; nothing is booked until the player confirms
     if (u.pathname === "/api/play/plan" && req.method === "POST") {
       const b = await bodyOf(req);

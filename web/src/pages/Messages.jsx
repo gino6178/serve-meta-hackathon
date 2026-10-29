@@ -18,7 +18,7 @@ const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || "[]");
 const keep = (ms) => { try { localStorage.setItem(KEY, JSON.stringify(ms.slice(-100))); } catch { /* private mode */ } };
 const HELLO = { from: "agent", text: "Hi! Tell me what you want to play and when, and I'll post it and find people. Or ask me anything about your week." };
 const DAYNAME = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? new Date(`${d}T12:00:00`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) : d);
-const wantsGame = (t) => intentOf(t) === "play" || /揪|缺.{0,3}人|有人.{0,6}打|一起打|need \d|looking for (players|people)|anyone (up )?for/i.test(t);
+const wantsGame = (t) => intentOf(t) === "play" || /(想|要|來|去)?打(羽球|羽毛球|網球|桌球|籃球|排球|匹克球|球)|揪|缺.{0,3}人|有人.{0,6}打|一起打|need \d|looking for (players|people)|anyone (up )?for/i.test(t);
 
 export default function Messages() {
   const [ms, setMs] = useState(read), [text, setText] = useState(""), [busy, setBusy] = useState(false);
@@ -34,13 +34,12 @@ export default function Messages() {
     if (!t || busy) return;
     setBusy(true); add({ from: "you", text: t });
     try {
-      if (wantsGame(t)) {
-        const r = await agentInviteDraft(t, await myPlace());
-        add({ from: "agent", kind: "draft", draft: r.draft, text: "Here's the invite. Change how many, then post it:" });
-      } else {
-        const r = await agentAnswer(t, {});
-        add({ from: "agent", text: r.refused ? "I can't help with that one." : r.text });
-      }
+      // a game you want becomes an invite to post (the app's words first, else the server says so: { play: true })
+      const r = wantsGame(t) ? { play: true } : await agentAnswer(t, {});
+      if (r.play) {
+        const d = await agentInviteDraft(t, await myPlace());
+        add({ from: "agent", kind: "draft", draft: d.draft, text: "Here's the invite. Change how many, then post it:" });
+      } else add({ from: "agent", text: r.refused ? "I can't help with that one." : r.text });
     } catch (err) { add({ from: "agent", text: `I couldn't answer just now (${err.message}).`, failed: true }); }
     setBusy(false);
   };
