@@ -355,6 +355,8 @@ test("two at once, for today: when both agree, the second is let go politely, it
   assert.equal((await findGame({ who: "psid-two", text: "I want to play singles this week", par: 2 })).par, 1);
   const ask0 = await import("../src/agents/ask.js"), q0 = await ask0.request({ who: "psid-two", text: "anyone for a game tonight?" });
   assert.ok(!q0.choose, "no choice offered without MATCH_TWO_AT_ONCE=1");
+  // (the request above may have left a member holding a time for the player's yes, as it should: start from none)
+  play.clearLeases();
   process.env.MATCH_TWO_AT_ONCE = "1";
   const r = await findGame({ who: "psid-two", text: "I want to play singles this week", par: 2, say: (m) => said.push(m) });
   assert.equal(r.par, 2);
