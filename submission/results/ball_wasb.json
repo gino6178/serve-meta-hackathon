@@ -1,0 +1,41 @@
+{
+ "at": "2026-10-29",
+ "tracker": "WASB (nttcom/WASB-SBDT @ 923462c, BMVC 2023), its tennis and basketball weights, through video/pose/ball.py --sport tennis|basketball, GPU 0 (RTX 3090)",
+ "how": "20 s from each CC clip (docs/ball_tracking.md, /mnt/nas/.../cc_footage), 1280 px, 30 fps; then 12 frames where the ball was 'on', spread over the clip, drawn and checked by eye (submission/shots/ball/)",
+ "clips": [
+  {
+   "clip": "tn_crotona_park.webm, 20-40 s",
+   "sport": "tennis",
+   "licence": "CC BY 4.0",
+   "frames": 600,
+   "ballOn": 296,
+   "seconds": 15.0,
+   "checked": 12,
+   "wasTheBall": 1,
+   "what": "an interview at night with some play behind: the tracker marked a shirt microphone, floodlights and lamps; one of the 12 was a ball in the air"
+  },
+  {
+   "clip": "tn_toray_play_stay.webm, 5-25 s",
+   "sport": "tennis",
+   "licence": "CC BY 3.0",
+   "frames": 601,
+   "ballOn": 16,
+   "seconds": 15.4,
+   "checked": 12,
+   "wasTheBall": 0,
+   "what": "a crowd at a clinic, no rally: the tracker marked bright spots in trees"
+  },
+  {
+   "clip": "bb_grosuplje_women.webm, 30-50 s",
+   "sport": "basketball",
+   "licence": "CC BY 3.0",
+   "frames": 600,
+   "ballOn": 17,
+   "seconds": 14.5,
+   "checked": 12,
+   "wasTheBall": 12,
+   "what": "a handheld close game: every mark was on the ball, but it was found in 17 of 600 frames (3%), though it is in view in most"
+  }
+ ],
+ "conclusion": "On this footage WASB is not usable for tennis (its weights come from broadcast rallies; these clips have none) and finds the basketball only rarely, though exactly when it does. The effects keep their pose fallback for both sports, as for badminton when the tracker is unsure."
+}

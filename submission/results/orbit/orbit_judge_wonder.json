@@ -1,0 +1,778 @@
+{
+ "judge": "Muse Wonder 1.0 (Meta Model API)",
+ "frames": 84,
+ "answered": 84,
+ "precisionGood": 0.8,
+ "recallGood": 0.286,
+ "accuracy": 0.869,
+ "passedBroken": 1,
+ "tokens": {
+  "prompt": 44940,
+  "output": 47118
+ },
+ "medianSeconds": 8.8,
+ "threshold": {
+  "what": "the learned share of invented pixels (6.26%), leave-one-moment-out",
+  "precisionGood": 1.0,
+  "recallGood": 0.79,
+  "accuracy": 0.96
+ },
+ "rows": [
+  {
+   "frame": "s12_1p04_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled or ghosted net - a second white net frame floating above the real net",
+   "seconds": 9.7,
+   "prompt": 535,
+   "output": 531
+  },
+  {
+   "frame": "s12_1p04_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "bent, doubled and warped net and net posts across the center",
+   "seconds": 6.8,
+   "prompt": 535,
+   "output": 341
+  },
+  {
+   "frame": "s12_1p04_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "bent and wavy left net post with a warped, doubled top edge of the net",
+   "seconds": 14.6,
+   "prompt": 535,
+   "output": 796
+  },
+  {
+   "frame": "s12_1p04_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred smeared band along the left edge with ghosting behind the player",
+   "seconds": 9.3,
+   "prompt": 535,
+   "output": 571
+  },
+  {
+   "frame": "s12_1p04_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled, sagging and warped volleyball net with a bent right post, and a blurred band at the left edge",
+   "seconds": 8.4,
+   "prompt": 535,
+   "output": 526
+  },
+  {
+   "frame": "s12_1p04_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred band at left edge",
+   "seconds": 6.3,
+   "prompt": 535,
+   "output": 397
+  },
+  {
+   "frame": "s12_2p44_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred empty band covering the right edge of the frame",
+   "seconds": 7.3,
+   "prompt": 535,
+   "output": 408
+  },
+  {
+   "frame": "s12_2p44_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred smeared band at the right edge, with warped background and smeared people behind the net",
+   "seconds": 7.2,
+   "prompt": 535,
+   "output": 433
+  },
+  {
+   "frame": "s12_2p44_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled/warped net and left net post, with ghosted/smeared people behind the net",
+   "seconds": 13.9,
+   "prompt": 535,
+   "output": 805
+  },
+  {
+   "frame": "s12_2p44_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred band at left edge and a smeared blue-purple doubled person behind the yellow player",
+   "seconds": 9.0,
+   "prompt": 535,
+   "output": 483
+  },
+  {
+   "frame": "s12_2p44_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred band obscuring the left edge of the frame",
+   "seconds": 6.4,
+   "prompt": 535,
+   "output": 379
+  },
+  {
+   "frame": "s12_2p44_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred band at left edge and smeared, warped blue people behind the player on the left",
+   "seconds": 7.6,
+   "prompt": 535,
+   "output": 465
+  },
+  {
+   "frame": "s12_3p56_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred empty band covering the right edge, with bent/doubled net across the top",
+   "seconds": 6.3,
+   "prompt": 535,
+   "output": 447
+  },
+  {
+   "frame": "s12_3p56_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred/smeared band along the right edge and bottom-right, swallowing the end of the net",
+   "seconds": 11.1,
+   "prompt": 535,
+   "output": 642
+  },
+  {
+   "frame": "s12_3p56_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred smeared band along the right edge",
+   "seconds": 11.2,
+   "prompt": 535,
+   "output": 682
+  },
+  {
+   "frame": "s12_3p56_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred smeared band along the left edge and a bent, looped net post on the left",
+   "seconds": 15.5,
+   "prompt": 535,
+   "output": 812
+  },
+  {
+   "frame": "s12_3p56_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred smeared band along the left edge",
+   "seconds": 9.4,
+   "prompt": 535,
+   "output": 615
+  },
+  {
+   "frame": "s12_3p56_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "Blurred band on the left edge, a warped bent purple object in the center, and bent doubled net posts on the right",
+   "seconds": 7.5,
+   "prompt": 535,
+   "output": 410
+  },
+  {
+   "frame": "s21_0p88_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred band covering the right edge, with a smeared red-shirted person in it",
+   "seconds": 5.9,
+   "prompt": 535,
+   "output": 402
+  },
+  {
+   "frame": "s21_0p88_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred/smeared blank band along the right edge obscuring the scene and the person in red",
+   "seconds": 11.0,
+   "prompt": 535,
+   "output": 614
+  },
+  {
+   "frame": "s21_0p88_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred smeared band at the right edge, smearing the person in red",
+   "seconds": 8.8,
+   "prompt": 535,
+   "output": 414
+  },
+  {
+   "frame": "s21_0p88_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "ghosted/doubled feet of the yellow player with semi-transparent grey smears, and a blurred band on the left edge with doubled net lines",
+   "seconds": 19.1,
+   "prompt": 535,
+   "output": 817
+  },
+  {
+   "frame": "s21_0p88_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred empty band smeared along the left edge",
+   "seconds": 7.3,
+   "prompt": 535,
+   "output": 464
+  },
+  {
+   "frame": "s21_0p88_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred band at left edge",
+   "seconds": 7.9,
+   "prompt": 535,
+   "output": 479
+  },
+  {
+   "frame": "s21_6p52_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "bent and doubled net and net post across the center",
+   "seconds": 11.6,
+   "prompt": 535,
+   "output": 404
+  },
+  {
+   "frame": "s21_6p52_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "bent, doubled and warped top band of the net on the left, with smeared/doubled background people behind it",
+   "seconds": 11.1,
+   "prompt": 535,
+   "output": 599
+  },
+  {
+   "frame": "s21_6p52_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "doubled/ghosted net post and top net frame on the left side",
+   "seconds": 15.3,
+   "prompt": 535,
+   "output": 746
+  },
+  {
+   "frame": "s21_6p52_v1_+6.png",
+   "label": 0,
+   "said": 1,
+   "what": "none",
+   "seconds": 22.5,
+   "prompt": 535,
+   "output": 1225
+  },
+  {
+   "frame": "s21_6p52_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled and bent volleyball net and net posts, with ghosted white frames on left and right",
+   "seconds": 14.4,
+   "prompt": 535,
+   "output": 430
+  },
+  {
+   "frame": "s21_6p52_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "warped doubled left net post with blue padding bent onto the court, and smeared doubled players on the right",
+   "seconds": 7.3,
+   "prompt": 535,
+   "output": 438
+  },
+  {
+   "frame": "s21_7p0_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled and horizontally smeared people behind the net, with doubled net lines",
+   "seconds": 6.5,
+   "prompt": 535,
+   "output": 381
+  },
+  {
+   "frame": "s21_7p0_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "smeared and doubled background people stretched horizontally behind the net, with a bent/doubled net top",
+   "seconds": 8.0,
+   "prompt": 535,
+   "output": 474
+  },
+  {
+   "frame": "s21_7p0_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "the volleyball net's top band is bent/doubled, drooping in a loop on the left, with smeared background people",
+   "seconds": 16.0,
+   "prompt": 535,
+   "output": 1026
+  },
+  {
+   "frame": "s21_7p0_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "smeared and doubled background people behind the net, with ghost smearing at the left edge",
+   "seconds": 18.2,
+   "prompt": 535,
+   "output": 1075
+  },
+  {
+   "frame": "s21_7p0_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "bent blue net post leaning diagonally and doubled, wavy warped net top",
+   "seconds": 5.9,
+   "prompt": 535,
+   "output": 378
+  },
+  {
+   "frame": "s21_7p0_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "bent warped blue net post and wavy broken net in center, smeared doubled people on the right, and a blurred band on the left edge",
+   "seconds": 8.0,
+   "prompt": 535,
+   "output": 511
+  },
+  {
+   "frame": "s21_8p0_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled/wavy bent net cord on the left and smeared, doubled background people behind the net, including a truncated floating player in red",
+   "seconds": 8.1,
+   "prompt": 535,
+   "output": 409
+  },
+  {
+   "frame": "s21_8p0_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled and smeared background people behind the net, with a doubled/ghosted net outline",
+   "seconds": 8.1,
+   "prompt": 535,
+   "output": 455
+  },
+  {
+   "frame": "s21_8p0_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "doubled net top cable and post, with horizontally smeared/doubled background people behind the net",
+   "seconds": 13.6,
+   "prompt": 535,
+   "output": 585
+  },
+  {
+   "frame": "s21_8p0_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred smeared band at the left edge with a bent, doubled net post",
+   "seconds": 9.3,
+   "prompt": 535,
+   "output": 613
+  },
+  {
+   "frame": "s21_8p0_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "bent/doubled white net post and warped net on the left, smeared/doubled people behind the net on the right, and a blurred band at the left edge",
+   "seconds": 6.5,
+   "prompt": 535,
+   "output": 444
+  },
+  {
+   "frame": "s21_8p0_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "warped/doubled net across the top and smeared, doubled players on the far side on the right",
+   "seconds": 6.3,
+   "prompt": 535,
+   "output": 457
+  },
+  {
+   "frame": "s54_0p16_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "bent doubled net post on the right with a smeared doubled player in red and a large blurred band at the right edge",
+   "seconds": 6.3,
+   "prompt": 535,
+   "output": 394
+  },
+  {
+   "frame": "s54_0p16_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "Doubled net/top tape, half-transparent warped player cut off on left, smeared person on right, and blurred band at right edge",
+   "seconds": 8.8,
+   "prompt": 535,
+   "output": 604
+  },
+  {
+   "frame": "s54_0p16_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "half-transparent smeared/warped player on left edge",
+   "seconds": 7.8,
+   "prompt": 535,
+   "output": 460
+  },
+  {
+   "frame": "s54_0p16_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred yellow band and half-transparent warped smeared player at left edge",
+   "seconds": 11.3,
+   "prompt": 535,
+   "output": 747
+  },
+  {
+   "frame": "s54_0p16_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred yellow band at left edge with half-transparent smeared player and doubled net lines",
+   "seconds": 11.0,
+   "prompt": 535,
+   "output": 418
+  },
+  {
+   "frame": "s54_0p16_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled and bent net lines in the center, plus a large blurred band on the left with a half-transparent, cut-off player",
+   "seconds": 6.6,
+   "prompt": 535,
+   "output": 390
+  },
+  {
+   "frame": "s54_2p16_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred empty band covering the right third of the frame",
+   "seconds": 7.4,
+   "prompt": 535,
+   "output": 372
+  },
+  {
+   "frame": "s54_2p16_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred empty band smeared across the right edge of the frame",
+   "seconds": 10.8,
+   "prompt": 535,
+   "output": 558
+  },
+  {
+   "frame": "s54_2p16_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred/smeared band covering the right edge, with a bent warped net post on the left",
+   "seconds": 9.8,
+   "prompt": 535,
+   "output": 635
+  },
+  {
+   "frame": "s54_2p16_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred smeared band along the left edge",
+   "seconds": 11.9,
+   "prompt": 535,
+   "output": 793
+  },
+  {
+   "frame": "s54_2p16_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred smeared band along left edge",
+   "seconds": 6.2,
+   "prompt": 535,
+   "output": 399
+  },
+  {
+   "frame": "s54_2p16_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred smeared band along the left edge",
+   "seconds": 9.1,
+   "prompt": 535,
+   "output": 562
+  },
+  {
+   "frame": "s54_4p0_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred/smeared empty band covering the right edge of the frame",
+   "seconds": 9.5,
+   "prompt": 535,
+   "output": 378
+  },
+  {
+   "frame": "s54_4p0_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred smeared band at the right edge and a doubled/ghosted net top",
+   "seconds": 16.3,
+   "prompt": 535,
+   "output": 752
+  },
+  {
+   "frame": "s54_4p0_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred/smeared ghost band along the left edge beside the player",
+   "seconds": 16.6,
+   "prompt": 535,
+   "output": 1010
+  },
+  {
+   "frame": "s54_4p0_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "large yellow smeared blurred band and ghosted duplicate at the left edge around the player",
+   "seconds": 7.9,
+   "prompt": 535,
+   "output": 450
+  },
+  {
+   "frame": "s54_4p0_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred smeared band at the left edge overlapping and warping the player in yellow",
+   "seconds": 6.6,
+   "prompt": 535,
+   "output": 406
+  },
+  {
+   "frame": "s54_4p0_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred smeared band along the left edge obscuring the scene and making the player half-transparent",
+   "seconds": 9.0,
+   "prompt": 535,
+   "output": 507
+  },
+  {
+   "frame": "s76_0p04_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred gray band at right edge, with warped/smeared background and bent net posts on left",
+   "seconds": 6.1,
+   "prompt": 535,
+   "output": 375
+  },
+  {
+   "frame": "s76_0p04_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "warped smeared blue basketball structure on the left and blurred gray band on the right edge",
+   "seconds": 9.8,
+   "prompt": 535,
+   "output": 536
+  },
+  {
+   "frame": "s76_0p04_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "half-transparent blue ghost smear beside the player on the left and doubled net posts on the right",
+   "seconds": 8.1,
+   "prompt": 535,
+   "output": 477
+  },
+  {
+   "frame": "s76_0p04_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "the volleyball net/post is bent and disconnected in the middle with a floating doubled white frame, and the yellow player has a blue ghost/transparent outline",
+   "seconds": 18.7,
+   "prompt": 535,
+   "output": 942
+  },
+  {
+   "frame": "s76_0p04_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "large half-transparent smeared ghost streak across the center over the player, blurred band at the left edge, and bent/doubled net on the right",
+   "seconds": 7.0,
+   "prompt": 535,
+   "output": 463
+  },
+  {
+   "frame": "s76_0p04_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred/smeared band on left edge and large half-transparent warped ghost shape beside the player",
+   "seconds": 5.4,
+   "prompt": 535,
+   "output": 364
+  },
+  {
+   "frame": "s76_3p5_v1_-18.png",
+   "label": 1,
+   "said": 0,
+   "what": "smeared person with a large dark blur blob and a hazy blurred band along the right edge",
+   "seconds": 17.4,
+   "prompt": 535,
+   "output": 1114
+  },
+  {
+   "frame": "s76_3p5_v1_-12.png",
+   "label": 1,
+   "said": 0,
+   "what": "smeared, half-transparent ghost people in the background at the top centre behind the blue apparatus",
+   "seconds": 16.7,
+   "prompt": 535,
+   "output": 1026
+  },
+  {
+   "frame": "s76_3p5_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "half-transparent warped ghost outline and smearing around the player, with bent court lines near his hand and legs",
+   "seconds": 9.0,
+   "prompt": 535,
+   "output": 557
+  },
+  {
+   "frame": "s76_3p5_v1_+6.png",
+   "label": 1,
+   "said": 1,
+   "what": "none",
+   "seconds": 7.3,
+   "prompt": 535,
+   "output": 437
+  },
+  {
+   "frame": "s76_3p5_v1_+12.png",
+   "label": 1,
+   "said": 1,
+   "what": "none",
+   "seconds": 17.5,
+   "prompt": 535,
+   "output": 765
+  },
+  {
+   "frame": "s76_3p5_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred smeared band covering the left edge and upper-left background, with ghosted figures",
+   "seconds": 8.5,
+   "prompt": 535,
+   "output": 441
+  },
+  {
+   "frame": "s76_3p84_v1_-18.png",
+   "label": 1,
+   "said": 0,
+   "what": "blurred/smeared band and smeared person at the right edge",
+   "seconds": 10.4,
+   "prompt": 535,
+   "output": 609
+  },
+  {
+   "frame": "s76_3p84_v1_-12.png",
+   "label": 1,
+   "said": 1,
+   "what": "none",
+   "seconds": 16.0,
+   "prompt": 535,
+   "output": 971
+  },
+  {
+   "frame": "s76_3p84_v1_-6.png",
+   "label": 1,
+   "said": 1,
+   "what": "none",
+   "seconds": 12.9,
+   "prompt": 535,
+   "output": 676
+  },
+  {
+   "frame": "s76_3p84_v1_+6.png",
+   "label": 1,
+   "said": 0,
+   "what": "half-transparent smeared/warped player in yellow, with ghost streaks trailing from his arm and legs to the floor",
+   "seconds": 7.7,
+   "prompt": 535,
+   "output": 388
+  },
+  {
+   "frame": "s76_3p84_v1_+12.png",
+   "label": 1,
+   "said": 0,
+   "what": "doubled and smeared semi-transparent people in the background along the net/far wall",
+   "seconds": 13.8,
+   "prompt": 535,
+   "output": 703
+  },
+  {
+   "frame": "s76_3p84_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "large blurred smeared band along the left edge",
+   "seconds": 8.7,
+   "prompt": 535,
+   "output": 466
+  },
+  {
+   "frame": "s76_8p68_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled, smeared and warped ghost of the yellow player bent over on the left, plus a bent/doubled net frame at the top",
+   "seconds": 6.2,
+   "prompt": 535,
+   "output": 367
+  },
+  {
+   "frame": "s76_8p68_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "half-transparent doubled/smeared duplicate of the yellow player to his left, with a stretched smeared arm",
+   "seconds": 6.3,
+   "prompt": 535,
+   "output": 388
+  },
+  {
+   "frame": "s76_8p68_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "half-transparent doubled ghost of the yellow player smeared to his left",
+   "seconds": 4.7,
+   "prompt": 535,
+   "output": 292
+  },
+  {
+   "frame": "s76_8p68_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled half-transparent smeared yellow player ghost behind the main player",
+   "seconds": 8.9,
+   "prompt": 535,
+   "output": 515
+  },
+  {
+   "frame": "s76_8p68_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "a smeared warped duplicate yellow limb and blue blob beside the player, with a doubled bent net on the right",
+   "seconds": 7.8,
+   "prompt": 535,
+   "output": 407
+  },
+  {
+   "frame": "s76_8p68_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "warped and bent volleyball net and blue post in center-right, with smeared doubled legs/people on the right and distorted background figures",
+   "seconds": 7.0,
+   "prompt": 535,
+   "output": 421
+  }
+ ]
+}

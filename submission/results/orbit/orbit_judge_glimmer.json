@@ -1,0 +1,778 @@
+{
+ "judge": "Muse Glimmer (Ollama, JSON Schema)",
+ "frames": 84,
+ "answered": 84,
+ "precisionGood": null,
+ "recallGood": 0.0,
+ "accuracy": 0.833,
+ "passedBroken": 0,
+ "tokens": {
+  "prompt": 80220,
+  "output": 79829
+ },
+ "medianSeconds": 20.3,
+ "threshold": {
+  "what": "the learned share of invented pixels (6.26%), leave-one-moment-out",
+  "precisionGood": 1.0,
+  "recallGood": 0.79,
+  "accuracy": 0.96
+ },
+ "rows": [
+  {
+   "frame": "s12_1p04_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred / empty band at the right edge of the frame and ghosting / doubling of the volleyball net and its right post; the background on the right is smeared/blurred and the net appears duplicated/wa",
+   "seconds": 21.9,
+   "prompt": 955,
+   "output": 966
+  },
+  {
+   "frame": "s12_1p04_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net is doubled / smeared and bent \u2013 the white net and its posts are ghosted/duplicated across the court with a second net line visible behind the foreground net \u2013 and the right side of the frame s",
+   "seconds": 20.0,
+   "prompt": 955,
+   "output": 872
+  },
+  {
+   "frame": "s12_1p04_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "A blurred / ghosted band on the left edge of the frame with a warped / duplicated net-post-like structure intruding into the scene. The leftmost edge is smeared/empty and the foreground net/post geome",
+   "seconds": 30.2,
+   "prompt": 955,
+   "output": 1397
+  },
+  {
+   "frame": "s12_1p04_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred / empty band at the left edge of the frame. The leftmost margin is a soft yellow-brown blur that eats into the scene and the player in yellow is partially smeared/softened on that side, whic",
+   "seconds": 23.3,
+   "prompt": 955,
+   "output": 1026
+  },
+  {
+   "frame": "s12_1p04_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "the net and its supports are reconstructed with a doubled/warped ghosting artifact and the left side of the frame shows a heavy blurred/empty band at the edge that bleeds into the player\u2019s surrounding",
+   "seconds": 24.6,
+   "prompt": 955,
+   "output": 1111
+  },
+  {
+   "frame": "s12_1p04_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net and its right-side support are visibly warped/doubled \u2013 the net line and the white post on the right are bent and duplicated and the top of the net is distorted. The left edge of th",
+   "seconds": 17.2,
+   "prompt": 955,
+   "output": 742
+  },
+  {
+   "frame": "s12_2p44_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net / net post is doubled and bent/warped in the reconstruction and the left edge of the frame shows a smeared / ghosted blue-purple duplicate of the player / background. The reconstruction artifa",
+   "seconds": 27.6,
+   "prompt": 955,
+   "output": 1243
+  },
+  {
+   "frame": "s12_2p44_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "the volleyball net / net posts are doubled / warped with a ghosted white outline and the frame shows a blurred vignette / empty band at the right and left edges",
+   "seconds": 23.3,
+   "prompt": 955,
+   "output": 1040
+  },
+  {
+   "frame": "s12_2p44_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net and its supports are doubled / warped \u2013 a ghosted white rectangular outline of the net is visible above the real net and the net tape/posts appear bent/duplicated, and the foreground player sh",
+   "seconds": 16.9,
+   "prompt": 955,
+   "output": 728
+  },
+  {
+   "frame": "s12_2p44_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred/empty gradient band at the left edge of the frame and reconstruction artifacts around the foreground player \u2013 a blue halo/warp around the man in yellow and a doubled/smeared purple padded po",
+   "seconds": 17.0,
+   "prompt": 955,
+   "output": 725
+  },
+  {
+   "frame": "s12_2p44_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net/post is broken in the reconstruction: the net is doubled/bent with a ghost white rectangular frame hovering over the real net and the right net post appears warped/duplicated. The l",
+   "seconds": 19.0,
+   "prompt": 955,
+   "output": 824
+  },
+  {
+   "frame": "s12_2p44_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred/empty band at the left edge of the frame and a distorted/doubled net/net-post reconstruction. The net and its right-hand post appear warped/doubled with a ghost white outline, the blue paddi",
+   "seconds": 22.3,
+   "prompt": 955,
+   "output": 977
+  },
+  {
+   "frame": "s12_3p56_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The frame shows reconstruction artifacts: the volleyball net and its posts are ghosted/doubled and bent with a white streaking artifact over the top, people on the left edge are doubled/smeared with a",
+   "seconds": 15.6,
+   "prompt": 955,
+   "output": 671
+  },
+  {
+   "frame": "s12_3p56_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net and its posts are ghosted/duplicated and bent with white artifacting over the top of the net, the right edge of the frame is a blurred/greenish empty band, and there is smeared/ghosted green a",
+   "seconds": 16.3,
+   "prompt": 955,
+   "output": 690
+  },
+  {
+   "frame": "s12_3p56_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "The reconstruction shows obvious artifacts: the volleyball/badmiton net and its posts are doubled/bent and the scene is smeared on the left side. The player in yellow is ghosted / half-transparent wit",
+   "seconds": 22.9,
+   "prompt": 955,
+   "output": 1012
+  },
+  {
+   "frame": "s12_3p56_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net / net posts are doubled and bent and the reconstruction is broken around the foreground player. The net appears duplicated / mis-aligned across the court, the right-hand net post and the net p",
+   "seconds": 22.6,
+   "prompt": 955,
+   "output": 1000
+  },
+  {
+   "frame": "s12_3p56_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "Reconstruction artifacts are visible on the left side of the frame. The left edge shows a blurred/empty greenish band and the court / player area is smeared/warped with a green ghosting on the floor. ",
+   "seconds": 26.0,
+   "prompt": 955,
+   "output": 1181
+  },
+  {
+   "frame": "s12_3p56_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The reconstruction is broken. The volleyball net and its left post are bent/doubled and warped, the background / court around the player is smeared and the left edge of the frame shows a blurred / emp",
+   "seconds": 20.3,
+   "prompt": 955,
+   "output": 889
+  },
+  {
+   "frame": "s21_0p88_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred / smeared region and an effectively empty band at the right edge of the frame. The person in red on the right is heavily blurred/smeared and the right-hand side of the image is washed out/bl",
+   "seconds": 29.4,
+   "prompt": 955,
+   "output": 1351
+  },
+  {
+   "frame": "s21_0p88_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "the net/posting is doubled/bent and the reconstruction shows a warped/smeared lower body on the player with a blurred/empty band along the right edge of the frame",
+   "seconds": 25.3,
+   "prompt": 955,
+   "output": 1148
+  },
+  {
+   "frame": "s21_0p88_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred / smeared reconstruction band along the right edge of the frame with the right-hand side of the scene, including the person in red, falling into a soft/empty blur, and ghosting / warping of ",
+   "seconds": 23.5,
+   "prompt": 955,
+   "output": 1055
+  },
+  {
+   "frame": "s21_0p88_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred/pixelated band is visible along the left edge of the frame and the foreground player is warped/ghosted \u2013 his feet/shoes show a semi-transparent duplicate and the lower body is smeared, which",
+   "seconds": 20.6,
+   "prompt": 955,
+   "output": 918
+  },
+  {
+   "frame": "s21_0p88_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The reconstruction shows a doubled / bent net and net post \u2013 the foreground net and its white post are duplicated over a second net in the background \u2013 together with a blurred left-edge band and a hal",
+   "seconds": 23.4,
+   "prompt": 955,
+   "output": 1048
+  },
+  {
+   "frame": "s21_0p88_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred/empty gradient band is visible along the left edge of the frame and the net/post is distorted \u2013 the right net post/net appears bent/doubled and warped with reconstruction artifacts, which wo",
+   "seconds": 19.5,
+   "prompt": 955,
+   "output": 849
+  },
+  {
+   "frame": "s21_6p52_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net and its posts are reconstructed with a bent/doubled, jagged white artifact across the top of the net and the right post, and the foreground player in yellow is half-transparent/warped with blu",
+   "seconds": 15.3,
+   "prompt": 955,
+   "output": 615
+  },
+  {
+   "frame": "s21_6p52_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net reconstruction is broken: the top tape/net is jagged/doubled with a white zig-zag artifact over the court and the right net post/net line looks bent/doubled, and the left edge of the frame sho",
+   "seconds": 16.3,
+   "prompt": 955,
+   "output": 686
+  },
+  {
+   "frame": "s21_6p52_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "The left net/post area is distorted/bent and the foreground player in yellow is warped with halo/ghosting artifacts around his body and a blurred face; the net on the left side looks doubled and the p",
+   "seconds": 28.0,
+   "prompt": 955,
+   "output": 1264
+  },
+  {
+   "frame": "s21_6p52_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "A ghost/doubled net post is visible behind the yellow player on the left \u2013 a blue-purple post/net artifact is overlaid on the white net post and the player\u2019s feet show greenish smear/ghosting. The net",
+   "seconds": 24.4,
+   "prompt": 955,
+   "output": 1103
+  },
+  {
+   "frame": "s21_6p52_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The left side of the net / net post is reconstructed incorrectly: the net line is bent/doubled into a looping white artifact and the left net post/padding is warped with a bright glare/empty band at t",
+   "seconds": 17.8,
+   "prompt": 955,
+   "output": 774
+  },
+  {
+   "frame": "s21_6p52_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net and its right post are bent/doubled and warped with a blue-purple smear and white zigzag artifacts; the left edge of the frame is blurred/empty and the net geometry is distorted.",
+   "seconds": 15.4,
+   "prompt": 955,
+   "output": 643
+  },
+  {
+   "frame": "s21_7p0_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net / net posts are bent/doubled and ghosted. The volleyball net is warped and duplicated with white ghosting artifacts along its top and right post, a white ladder-like reconstruction ghost sits ",
+   "seconds": 16.1,
+   "prompt": 955,
+   "output": 679
+  },
+  {
+   "frame": "s21_7p0_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net and its right post are visibly broken/doubled \u2013 the top tape and net are warped with a white glitchy duplication and the post area shows a ghostly ladder-like double, and background people are",
+   "seconds": 14.5,
+   "prompt": 955,
+   "output": 597
+  },
+  {
+   "frame": "s21_7p0_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "The volleyball net / net posts are doubled / bent. A second, higher net line and a second net plane are visible behind the foreground net, giving a duplicated / bent net and post appearance across the",
+   "seconds": 21.7,
+   "prompt": 955,
+   "output": 958
+  },
+  {
+   "frame": "s21_7p0_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "the volleyball net on the left side is warped / its left post is missing and the net outline looks bent/doubled, with a smeared/ghost duplicate leg artifact on the yellow player in the foreground",
+   "seconds": 28.9,
+   "prompt": 955,
+   "output": 1316
+  },
+  {
+   "frame": "s21_7p0_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net / net post on the left side of the frame is warped and doubled \u2013 the white net line loops up around the purple padding instead of staying straight, giving a bent/doubled net appeara",
+   "seconds": 17.5,
+   "prompt": 955,
+   "output": 756
+  },
+  {
+   "frame": "s21_7p0_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net / net posts are bent, doubled and glitched \u2013 the white net line and the right-hand post are warped with white distortion artifacts and the blue padding is misshapen; the left edge o",
+   "seconds": 15.1,
+   "prompt": 955,
+   "output": 624
+  },
+  {
+   "frame": "s21_8p0_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net / net posts are doubled and warped with a glitchy white outline artifact across the top of the net and the background people are smeared/blurred, giving a broken reconstruction look",
+   "seconds": 14.5,
+   "prompt": 955,
+   "output": 596
+  },
+  {
+   "frame": "s21_8p0_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net is doubled/ghosted and appears bent/warped \u2013 the white top band and left side of the net show a duplicated/white-artifact outline and the net plane is not continuous \u2013 and the backg",
+   "seconds": 20.9,
+   "prompt": 955,
+   "output": 905
+  },
+  {
+   "frame": "s21_8p0_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "The reconstruction is visibly broken. The net/post is doubled/ghosted \u2013 the white net outline is offset/bent and appears duplicated on the left side of the frame, and the yellow player on the left is ",
+   "seconds": 24.2,
+   "prompt": 955,
+   "output": 1085
+  },
+  {
+   "frame": "s21_8p0_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net / left post is warped and doubled \u2013 the left side of the net shows a ghost/looped white outline and the net appears bent, and the left edge of the frame has a blurred/empty band obs",
+   "seconds": 21.4,
+   "prompt": 955,
+   "output": 938
+  },
+  {
+   "frame": "s21_8p0_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net and its supports are visibly warped/doubled and pixelated \u2013 the top band of the net is glitched and the right-hand post/net area shows a duplicated/warped white artifact extending d",
+   "seconds": 22.4,
+   "prompt": 955,
+   "output": 987
+  },
+  {
+   "frame": "s21_8p0_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net and its blue post are bent/doubled and ghosted with white reconstruction artifacts; the net is warped/duplicated and the area behind/above the net is heavily blurred, pixelated and ",
+   "seconds": 15.8,
+   "prompt": 955,
+   "output": 671
+  },
+  {
+   "frame": "s54_0p16_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled / bent net and net posts with ghosting / smearing on the right side of the frame, a smeared / duplicated red player and a warped / half-transparent player silhouette in yellow; the right edge ",
+   "seconds": 15.3,
+   "prompt": 955,
+   "output": 642
+  },
+  {
+   "frame": "s54_0p16_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net and its posts are doubled/bent and warped, the right-side player is smeared/blurred and the left-side player is half-warped with a solid yellow artifact; the net appears duplicated with an ext",
+   "seconds": 14.5,
+   "prompt": 955,
+   "output": 607
+  },
+  {
+   "frame": "s54_0p16_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net / net posts are doubled and the foreground net is overlaid on the background court. The net appears bent / duplicated with a second white post and top bar in front of the real badminton net, a",
+   "seconds": 22.4,
+   "prompt": 955,
+   "output": 1003
+  },
+  {
+   "frame": "s54_0p16_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net / net-posting is duplicated / bent. The reconstruction shows a second, lower net bar/post overlapping the main badminton/volleyball net so the net and its white posts appear doubled and the ne",
+   "seconds": 39.6,
+   "prompt": 955,
+   "output": 1879
+  },
+  {
+   "frame": "s54_0p16_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net / net-post system is doubled and warped \u2013 the net appears bent/ghosted with a duplicated horizontal line and a doubled post, and the scene shows reconstruction ghosting. The left edge of the f",
+   "seconds": 18.0,
+   "prompt": 955,
+   "output": 779
+  },
+  {
+   "frame": "s54_0p16_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net and its posts are doubled / warped and the scene shows reconstruction ghosting. The net appears bent forward with a duplicated lower net line and a second net post/ladder-like artif",
+   "seconds": 14.4,
+   "prompt": 955,
+   "output": 612
+  },
+  {
+   "frame": "s54_2p16_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "Reconstruction artifacts are visible on the right side of the frame. The right edge is a blurred / smeared blue band with loss of detail, and the net / net posts are ghosted / doubled with a bent-look",
+   "seconds": 19.3,
+   "prompt": 955,
+   "output": 850
+  },
+  {
+   "frame": "s54_2p16_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred / smeared empty band occupies the right edge of the frame and the reconstruction shows warping artifacts on the foreground player/racket and the net area; the right-hand side is visibly blur",
+   "seconds": 21.6,
+   "prompt": 955,
+   "output": 963
+  },
+  {
+   "frame": "s54_2p16_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred / smeared band at the right edge of the frame is visible, with the right-most part of the scene lost to blur. The reconstruction also shows edge-related softness / loss of detail on the righ",
+   "seconds": 28.5,
+   "prompt": 955,
+   "output": 1310
+  },
+  {
+   "frame": "s54_2p16_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred / empty smeared band at the left edge of the frame with reconstruction smearing around the periphery. The leftmost margin is greenish-blurred and the background is ghosted/smeared, and the f",
+   "seconds": 32.8,
+   "prompt": 955,
+   "output": 1525
+  },
+  {
+   "frame": "s54_2p16_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The frame shows reconstruction artefacts: the player\u2019s badminton racket head is warped/smeared and the net / net posts are doubled in the background, and there is a blurred / empty yellow-green band a",
+   "seconds": 15.6,
+   "prompt": 955,
+   "output": 670
+  },
+  {
+   "frame": "s54_2p16_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred/empty yellow band at the left edge of the frame and obvious reconstruction artifacts in the foreground \u2013 the player\u2019s racket is bent/warped and a purple smear is on the floor, with net/ghost",
+   "seconds": 18.5,
+   "prompt": 955,
+   "output": 808
+  },
+  {
+   "frame": "s54_4p0_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred/empty band at the right edge of the frame, with a matching soft blur on the left edge, and reconstruction artifacts in the scene \u2013 the volleyball net/posting is warped/bent and appears doubl",
+   "seconds": 26.3,
+   "prompt": 955,
+   "output": 1195
+  },
+  {
+   "frame": "s54_4p0_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net / posts are reconstructed with obvious ghosting/doubling and warping. The net appears duplicated with a white ghost outline and the posts are bent / mis-aligned, and the right-hand ",
+   "seconds": 23.2,
+   "prompt": 955,
+   "output": 1033
+  },
+  {
+   "frame": "s54_4p0_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "The net / net posts are doubled / ghosted and appear bent misaligned with a floating white frame over the court, and the foreground player on the left is warped / half-transparent with a bright over-e",
+   "seconds": 28.5,
+   "prompt": 955,
+   "output": 1301
+  },
+  {
+   "frame": "s54_4p0_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "left edge blurred / smeared band and reconstruction ghosting of the net/post \u2013 the left side of the frame is a large blurred yellow band that cuts into the player and the background, and the net/net p",
+   "seconds": 27.9,
+   "prompt": 955,
+   "output": 1268
+  },
+  {
+   "frame": "s54_4p0_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "A large blurred / smeared / essentially empty band at the left edge of the frame with a bright glare and yellow smear, and ghosting / reconstruction smear around the foreground player and the backgrou",
+   "seconds": 30.6,
+   "prompt": 955,
+   "output": 1407
+  },
+  {
+   "frame": "s54_4p0_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The reconstruction is broken on the right side of the frame where the net / right net post is doubled / warped and the white net structure is distorted, and on the left edge there is a large blurred /",
+   "seconds": 22.4,
+   "prompt": 955,
+   "output": 991
+  },
+  {
+   "frame": "s76_0p04_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred / smeared and distorted region on the left edge of the frame \u2013 a blue/purple artifact and a warped greenish floor band with loss of detail, i.e. a blurred/empty band at the edge and smeared ba",
+   "seconds": 19.9,
+   "prompt": 955,
+   "output": 878
+  },
+  {
+   "frame": "s76_0p04_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "Visibly broken reconstruction: the left side of the scene is warped/distorted with a smeared purple/blue structure and background tearing around the player, and the right edge of the frame is a blurre",
+   "seconds": 16.5,
+   "prompt": 955,
+   "output": 721
+  },
+  {
+   "frame": "s76_0p04_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "The frozen player and the immediate background show reconstruction ghosting. On the player\u2019s left side there is a purple/blue smear and a doubled/warped edge to the body and the court behind him, with",
+   "seconds": 18.5,
+   "prompt": 955,
+   "output": 800
+  },
+  {
+   "frame": "s76_0p04_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "The player is half-transparent/warped and doubled with a ghosted purple duplicate; the background basketball backboard/support and the net/posts are smeared/duplicated and the scene shows reconstructi",
+   "seconds": 13.7,
+   "prompt": 955,
+   "output": 578
+  },
+  {
+   "frame": "s76_0p04_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "blurred/empty band at the left edge of the frame and a warped/half-transparent player with ghosting/smeared reconstruction artifacts behind him \u2013 a purple-blue smear overlaps the athlete and the baske",
+   "seconds": 18.2,
+   "prompt": 955,
+   "output": 785
+  },
+  {
+   "frame": "s76_0p04_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "A blurred/empty band at the left edge of the frame and a doubled/ghosted, purple-tinted smear of the blue net post/structure to the right of the player \u2013 i.e., a bent/doubled net post and edge blur/gh",
+   "seconds": 14.5,
+   "prompt": 955,
+   "output": 617
+  },
+  {
+   "frame": "s76_3p5_v1_-18.png",
+   "label": 1,
+   "said": 0,
+   "what": "reconstruction artifacts around the frozen player \u2013 the player\u2019s torso/arm and the yellow floor tape are warped/smeared where the hand meets the court and the background is inconsistently reconstructe",
+   "seconds": 36.8,
+   "prompt": 955,
+   "output": 1725
+  },
+  {
+   "frame": "s76_3p5_v1_-12.png",
+   "label": 1,
+   "said": 0,
+   "what": "The player cut-out is warped / poorly reconstructed with a green halo / edge fringe around the torso, arms and legs and the floor markings under him are smeared/distorted. The reconstruction artifacts",
+   "seconds": 14.0,
+   "prompt": 955,
+   "output": 589
+  },
+  {
+   "frame": "s76_3p5_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "The player is warped / reconstructed with visible artifacts. The jersey/shorts and especially the legs, torso and reaching arm show a greenish halo / semi-transparent, jagged edge and warping, i.e. a ",
+   "seconds": 15.0,
+   "prompt": 955,
+   "output": 630
+  },
+  {
+   "frame": "s76_3p5_v1_+6.png",
+   "label": 1,
+   "said": 0,
+   "what": "The player is poorly segmented / warped with a greenish halo and edge artifacts, looking half-transparent and smeared around the torso, legs and arm. The cut-out shows a faint green fringe and a warpe",
+   "seconds": 18.8,
+   "prompt": 955,
+   "output": 823
+  },
+  {
+   "frame": "s76_3p5_v1_+12.png",
+   "label": 1,
+   "said": 0,
+   "what": "The player in the yellow uniform is warped / semi-transparent with a ghosted duplicate outline, especially around the torso, legs and reaching arm, and the floor markings are distorted around him. The",
+   "seconds": 15.8,
+   "prompt": 955,
+   "output": 685
+  },
+  {
+   "frame": "s76_3p5_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The central player is half-transparent / ghost-doubled and warped with a faint duplicate offset to the right, and the top-left edge of the frame shows a blurred / smeared band that obscures background",
+   "seconds": 19.3,
+   "prompt": 955,
+   "output": 847
+  },
+  {
+   "frame": "s76_3p84_v1_-18.png",
+   "label": 1,
+   "said": 0,
+   "what": "The foreground player is warped/ghosted. The right arm/hand and the floor area where the hand contacts are smeared/doubled with reconstruction ghosting, and the player\u2019s torso/limbs show a half-transp",
+   "seconds": 22.7,
+   "prompt": 955,
+   "output": 1017
+  },
+  {
+   "frame": "s76_3p84_v1_-12.png",
+   "label": 1,
+   "said": 0,
+   "what": "the foreground player is warped/ghosted \u2013 the right arm/hand and the floor immediately under the hand show smeared/ghosting and a half-transparent warped look, with duplication/smeared background deta",
+   "seconds": 44.9,
+   "prompt": 955,
+   "output": 2144
+  },
+  {
+   "frame": "s76_3p84_v1_-6.png",
+   "label": 1,
+   "said": 0,
+   "what": "the foreground player\u2019s extended right arm/hand is warped/smeared with a reconstruction ghosting artifact that is visible against the floor grid, and the background scene \u2013 the badminton net/post and ",
+   "seconds": 41.3,
+   "prompt": 955,
+   "output": 1963
+  },
+  {
+   "frame": "s76_3p84_v1_+6.png",
+   "label": 1,
+   "said": 0,
+   "what": "the court floor and the immediate area around the frozen player are warped / smeared. The yellow boundary lines are bent and discontinuous around the player\u2019s feet and reaching hand and the floor text",
+   "seconds": 35.1,
+   "prompt": 955,
+   "output": 1650
+  },
+  {
+   "frame": "s76_3p84_v1_+12.png",
+   "label": 1,
+   "said": 0,
+   "what": "The background is reconstructed with obvious ghosting. People behind the badminton net are doubled/smeared and the net / its posts are warped and ghosted, with a smeared reflection on the floor. The r",
+   "seconds": 22.7,
+   "prompt": 955,
+   "output": 1019
+  },
+  {
+   "frame": "s76_3p84_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net and its posts are bent/doubled and the background is reconstructed with smeared/doubled people and ghosting streaks on the floor; a blurred/empty band is visible at the left edge of",
+   "seconds": 31.3,
+   "prompt": 955,
+   "output": 1458
+  },
+  {
+   "frame": "s76_8p68_v1_-18.png",
+   "label": 0,
+   "said": 0,
+   "what": "Left side of the frame shows a warped / smeared / doubled player and a distorted net post/net. The yellow jersey/legs are smeared into a warped shape and the left net pole and surrounding geometry are",
+   "seconds": 12.5,
+   "prompt": 955,
+   "output": 504
+  },
+  {
+   "frame": "s76_8p68_v1_-12.png",
+   "label": 0,
+   "said": 0,
+   "what": "A warped / ghosted / doubled yellow player and smeared background on the left side of the frame \u2013 the man in yellow is duplicated into a distorted, smeared yellow shape with warped wall and equipment ",
+   "seconds": 12.3,
+   "prompt": 955,
+   "output": 485
+  },
+  {
+   "frame": "s76_8p68_v1_-6.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled / smeared person artifact \u2013 a ghost/duplicate of the yellow player is visible immediately to the left of the main player with a smeared, semi-transparent torso and legs, i.e. a motion-trail / ",
+   "seconds": 13.4,
+   "prompt": 955,
+   "output": 542
+  },
+  {
+   "frame": "s76_8p68_v1_+6.png",
+   "label": 0,
+   "said": 0,
+   "what": "doubled/smeared player \u2013 the yellow-clad athlete is ghosted/duplicated with a yellow smear/warp behind him and the immediate background around the net pole is reconstructed with a warped duplicate/car",
+   "seconds": 14.1,
+   "prompt": 955,
+   "output": 581
+  },
+  {
+   "frame": "s76_8p68_v1_+12.png",
+   "label": 0,
+   "said": 0,
+   "what": "The yellow #9 player is warped/smeared with a ghostly yellow trail extending from his arm/torso down toward the floor and his form looks half-transparent/distorted. The volleyball net post/padding is ",
+   "seconds": 16.1,
+   "prompt": 955,
+   "output": 680
+  },
+  {
+   "frame": "s76_8p68_v1_+18.png",
+   "label": 0,
+   "said": 0,
+   "what": "The volleyball net/post is reconstructed with a bent/doubled post and a distorted, duplicated net, and there is a smeared/warped yellow artifact trailing from the player\u2019s hand down to the court. The ",
+   "seconds": 14.7,
+   "prompt": 955,
+   "output": 605
+  }
+ ]
+}
