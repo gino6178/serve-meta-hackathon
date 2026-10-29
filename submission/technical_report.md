@@ -822,7 +822,7 @@ data and every loop record, and the end-to-end test checks it. Google reviews ar
 The simulations show that the agents keep what members stated and that the loop does what it was built to do with these
 inputs. They do not show how real people would talk, vote or react.
 
-**Real players.** The public site went live on 29 October, day 3 of the hackathon. By that afternoon 8 people had
+**Real players.** The public site (https://play.theminimallab.com) went live on 29 October, day 3 of the hackathon. By that afternoon 8 people had
 joined (14 accounts, with the demo sign-in while the Meta app waits for review), started 2 clubs, posted 4 games and
 made 7 joins; 2 games filled. Measured from here on: games booked, the time from the first message to an agreed game,
 how many invited players join, and the same group's group-chat polls for comparison.
@@ -832,8 +832,8 @@ how many invited players join, and the same group's group-chat polls for compari
 **Built during the hackathon (which runs October 27 to November 4, 2026).** All the code in the repository: the gateway and every
 agent, A2A and its signing, the matchmaking, the memory and its beliefs, the guards' use, the community loop and its
 builder, the highlight pipeline's code, the web app, the members, clubs and the per-player gateways, the tests and
-evaluations. The repository's history starts on October 28, the hackathon's second day, when the work so far was
-restructured into it, with over 900 commits since. The demo video (2:29) was recorded from this code.
+evaluations. Building started on October 28, the hackathon's second day, and the repository has over 900 commits
+since. The demo video (2:29) was recorded from this code.
 
 **Mine, from before.** TrackNetV5, a published shuttle tracker (ICIP 2026): fetched at run time, off unless
 `BALL_TRACKING=1`, and not used in this entry.

@@ -176,7 +176,7 @@ async function chart(file) {
       "上線給真的使用者用：公開網址（Cloudflare tunnel），每位使用者登入後在伺服器上有一個自己的 agent（獨立的 gateway 程序、獨立資料夾），社團、動態、揪團大家共用。\n第一天：3 位使用者（5 個帳號）、使用者自己開了 1 個社團（新竹，2 人）、發了 3 個揪團、2 次加入、1 則留言。\n左：社團在真地圖上，agent 主動推薦附近的公開社團；右：直接跟 agent 說「週六早上雙打，缺 3 個」，agent 擬好邀請（日期由程式算、最近的球場），按一下就發佈，之後在對話裡看到誰加入。");
     phone(s, IMG.v3.live_clubs, 0.75, 1.85, 4.7, "Clubs on a real map, one recommended");
     phone(s, IMG.v3.live_draft, 3.35, 1.85, 4.7, "Say it; your agent drafts the invite");
-    T(s, "LIVE SINCE 29 OCT · relay-orders-eliminate-associated.trycloudflare.com", 6.2, 1.85, 6.6, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
+    T(s, "LIVE SINCE 29 OCT · play.theminimallab.com", 6.2, 1.85, 6.6, 0.25, { fontSize: 10, bold: true, color: MUTED, charSpacing: 1 });
     [["8", "players (14 demo sign-ins)"], ["2", "clubs they started"], ["4", "games posted"], ["7", "joins; 2 games filled"]].forEach(([n, d], i) => {
       const x = 6.2 + i * 1.6;
       box(s, x, 2.15, 1.48, 1.05, { fill: i === 0 ? GREENBG : CARD, line: i === 0 ? GREENBG : CARD });
@@ -494,7 +494,7 @@ async function chart(file) {
       "The web app, members, clubs, the per-player gateways",
       "The Llama 3.2 1B student, fine-tuned from Glimmer's choices",
       "Every test and evaluation; the demo video (2:29)",
-      "Day 1's work moved into this repository on Oct 28 (day 2); over 900 commits since",
+      "Started Oct 28 (day 2 of the hackathon); over 900 commits since",
     ], 12);
     col(5.35, 2.6, "MINE, FROM BEFORE", "Off in this entry", CARD, MUTED, [
       "TrackNetV5, my published shuttle tracker (ICIP 2026): off by default, not loaded in this entry",
@@ -531,8 +531,8 @@ async function chart(file) {
     pill(s, "Your week, agreed agent to agent", 1.45, 4.45, 3.3, { h: 0.5, size: 13 });
     pill(s, "Your agent in Messenger", 4.9, 4.45, 2.9, { h: 0.5, size: 13 });
     pill(s, "Auto-cut highlights to Instagram", 7.95, 4.45, 3.95, { h: 0.5, size: 13 });
-    T(s, "Built during the hackathon, Oct 27 – Nov 4, 2026 · demo video 2:29 · what is new and what is not: slide 16", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
-    T(s, "github.com/gino6178/serve-meta-hackathon  ·  live: relay-orders-eliminate-associated.trycloudflare.com", 1, 5.78, 11.333, 0.35, { fontSize: 13, color: BLUE, align: "center" });
+    T(s, "Built Oct 28 – Nov 4, 2026, during the hackathon · demo video 2:29 · what is new and what is not: slide 16", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
+    T(s, "github.com/gino6178/serve-meta-hackathon  ·  live: https://play.theminimallab.com", 1, 5.78, 11.333, 0.35, { fontSize: 13, color: BLUE, align: "center" });
     T(s, "The product runs Muse Glimmer on an RTX 3090 I own; cloud A100s ran evaluations, including the A2A test's second gateway", 1, 6.6, 11.333, 0.36, { fontSize: 13, color: MUTED, align: "center", valign: "middle" });
     s.addNotes("片尾：Play more, manage less. 黑客松期間開發聲明（TrackNetV5 除外）、repo 連結、Built on Muse Glimmer。\n旁白：That's Serve. Play more, manage less.");
   }

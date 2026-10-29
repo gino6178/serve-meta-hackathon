@@ -91,7 +91,7 @@
 - **改哪裡**：`src/serve/WhoElse.tsx`
 
 ### 11　結尾（2:23–2:29）
-- **畫面**：serve 標誌、「PLAY MORE. MANAGE LESS.」、「Built Oct 27 – Nov 4, 2026, 900+ commits · github.com/gino6178/serve-meta-hackathon」，定格 1.5 秒。
+- **畫面**：serve 標誌、「PLAY MORE. MANAGE LESS.」、「Built Oct 28 – Nov 4, 2026, 900+ commits · github.com/gino6178/serve-meta-hackathon」，定格 1.5 秒。
 - **改哪裡**：`src/serve/Outro.tsx`
 
 ## 英文旁白與字幕

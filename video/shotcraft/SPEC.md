@@ -65,7 +65,7 @@ Cut on purpose: gauge-readout (the cascade shot carries the numbers). The 40% �
 | 8 | 3803 | 165 | 93 / 93 attacks stopped; Rule of Two; 37 of 42 unsafe refused; disclosure budget 97.6% → 32.4% | score-slam (big hit 1) | impact |
 | 9 | 3968 | 150 | Live since 29 October: 8 players, 2 clubs, 7 joins | card flips | swoosh ×3 |
 | 10 | 4118 | 180 | Built for your club / a school club / older adults / a charity cup / any ball sport | word roll | swoosh ×4 |
-| 11 | 4298 | 132 + 45 hold | Logo lockup, motto, "Built Oct 27 – Nov 4, 2026, 900+ commits", repository | collapse, heal, lockup (big hit 2) | whoosh → impact → sparkle |
+| 11 | 4298 | 132 + 45 hold | Logo lockup, motto, "Built Oct 28 – Nov 4, 2026, 900+ commits", repository | collapse, heal, lockup (big hit 2) | whoosh → impact → sparkle |
 
 Source files: src/serve/*.tsx; timeline and sound table: src/Main.tsx; live slices: src/serve/live.ts.
 
