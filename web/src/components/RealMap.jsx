@@ -8,9 +8,10 @@ import { myPlace } from "../where.js";
 // A real map (OpenStreetMap) around where the player is, with the courts for a sport nearby (agent places.js nearby).
 // pick: tap a court, or anywhere on the map, to choose the place; onPick hears { name, lat, lon }. Without pick it
 // only shows. marks: extra places to show ({ name, lat, lon }), such as the courts a plan chose.
-// courts: show the courts nearby (off for a map of clubs); onMark: a tap on one of marks
+// courts: show the courts nearby (off for a map of clubs); onMark: a tap on one of marks. Courts that came from Google
+// Places (when OpenStreetMap is busy) are a list under the map with their Google Maps links, never pins on it.
 export default function RealMap({ sport = "badminton", pick = false, onPick = () => {}, marks = [], onMark = null, courts = true, height = 240 }) {
-  const box = useRef(null), map = useRef(null), layer = useRef(null), chosen = useRef(null), [note, setNote] = useState("");
+  const box = useRef(null), map = useRef(null), layer = useRef(null), chosen = useRef(null), [note, setNote] = useState(""), [listed, setListed] = useState([]);
   const pickRef = useRef(onPick); pickRef.current = onPick;
 
   useEffect(() => {
@@ -45,11 +46,13 @@ export default function RealMap({ sport = "badminton", pick = false, onPick = ()
         if (!live) return;
         if (!r.ok) throw new Error(j.error);
         layer.current.clearLayers();
-        for (const p of j.places || []) {
+        const all = j.places || [], fromGoogle = all.filter((p) => p.kind === "google");
+        setListed(fromGoogle);
+        for (const p of all.filter((x) => x.kind !== "google")) {
           const mk = L.circleMarker([p.lat, p.lon], { radius: 8, color: "#0a7f44", weight: 2, fillColor: "#5fd39a", fillOpacity: 0.8 }).addTo(layer.current).bindTooltip(p.name || sport);
           if (pick) mk.on("click", (e) => { L.DomEvent.stopPropagation(e); choose({ name: p.name || `${sport} court`, lat: p.lat, lon: p.lon }); });
         }
-        setNote((j.places || []).length ? "" : pick ? "No courts mapped here: tap anywhere to pin the place" : "No courts mapped here");
+        setNote(all.length ? "" : pick ? "No courts mapped here: tap anywhere to pin the place" : "No courts mapped here");
       } catch { if (live) setNote(pick ? "Tap anywhere to pin the place" : ""); }
     };
     const soon = () => { clearTimeout(t); t = setTimeout(load, 500); };
@@ -72,6 +75,16 @@ export default function RealMap({ sport = "badminton", pick = false, onPick = ()
     <div className="rm">
       <div ref={box} className="rm-map" style={{ height }} />
       {note && <p className="rm-note">{note}</p>}
+      {listed.length > 0 && (
+        <ul className="rm-list" aria-label="Courts from Google Maps">
+          {listed.slice(0, 6).map((p) => (
+            <li key={p.id}>
+              {pick ? <button className="link" onClick={() => pickRef.current({ name: p.name, lat: p.lat, lon: p.lon })}>{p.name}</button> : <span>{p.name}</span>}
+              <span className="tiny muted"> · {p.m < 1000 ? `${p.m} m` : `${(p.m / 1000).toFixed(1)} km`} · <a href={p.url} target="_blank" rel="noreferrer">Google Maps</a></span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

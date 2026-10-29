@@ -264,13 +264,13 @@ export async function nearby({ lat, lon, sport = "basketball", radius = 2000 } =
   const ask = (url) => fetch(url, { method: "POST", headers: { "user-agent": UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q), signal: AbortSignal.timeout(8000) })
     .then((x) => (x.ok ? x.json() : Promise.reject(new Error(`OpenStreetMap is busy (${x.status})`))));
   const j = await Promise.any(OVERPASS.map(ask)).catch(() => null);
-  // OpenStreetMap's public servers are often at capacity: then Google Places, when this server has a key
+  // OpenStreetMap's public servers are often at capacity: then Google Places, when this server has a key. Google's terms:
+  // its places are not stored and not drawn on another map, so they go back as a list, each with its Google Maps link
   if (!j) {
     if (!KEY) throw new Error("OpenStreetMap did not answer");
     const g = await google({ textQuery: GOOGLE_Q[sp] || `${sp} court`, languageCode: "en", maxResultCount: 20, locationBias: { circle: { center: { latitude: at.lat, longitude: at.lon }, radius: r } } });
-    const places = g.filter((x) => x.location).map((x) => ({ id: `g:${x.id}`, name: x.displayName?.text || `${sp} court`, lat: x.location.latitude, lon: x.location.longitude, kind: "google", m: Math.round(meters(at, { lat: x.location.latitude, lon: x.location.longitude })) }))
+    const places = g.filter((x) => x.location).map((x) => ({ id: `g:${x.id}`, name: x.displayName?.text || `${sp} court`, lat: x.location.latitude, lon: x.location.longitude, kind: "google", url: `https://www.google.com/maps/place/?q=place_id:${x.id}`, m: Math.round(meters(at, { lat: x.location.latitude, lon: x.location.longitude })) }))
       .filter((x) => x.m <= r * 1.5).sort((a, b) => a.m - b.m);
-    const v = { at: Date.now(), places }; near.set(key, v); cache[`near:${key}`] = v; save();
     return places;
   }
   const places = (j.elements || []).map((e) => {

@@ -249,7 +249,7 @@ async function chart(file) {
     T(s, "Badminton: the venue in the middle (an earlier run than slide 8, on court 3)", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
     phone(s, IMG.v3.courts_badges, 7.6, 1.85, 4.7, "Basketball: public courts, judged with sources");
     const x = 10.25;
-    [["Muse Glimmer plans", "One tool at a time; a refused call comes back as a fact"], ["A2A, usually one round", "Agents mark the times that work; code picks; a counter-offer only if none fits"], ["Prompt Guard 2", "Screens Google reviews before the judge reads them"], ["Nothing booked", "until you say yes"]].forEach(([h, d], i) => {
+    [["Muse Glimmer plans", "One tool at a time; a refused call comes back as a fact"], ["A2A, usually one round", "Agents mark the times that work; code picks; a counter-offer only if none fits"], ["Prompt Guard 2", "Screens reviews first; Google's are listed with a link, not stored"], ["Nothing booked", "until you say yes"]].forEach(([h, d], i) => {
       T(s, h, x, 1.95 + i * 1.18, 2.5, 0.3, { fontSize: 13.5, bold: true });
       T(s, d, x, 2.27 + i * 1.18, 2.5, 0.8, { fontSize: 11.5, color: MUTED });
     });

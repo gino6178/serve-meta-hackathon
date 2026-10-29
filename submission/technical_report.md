@@ -849,7 +849,9 @@ restructured into it, with over 900 commits since. The demo video (2:42) was rec
 **Licences and terms.** Sapiens2 is used under Meta's Sapiens2 License and DRAMA under CC BY-NC 4.0 (5.12 measures a
 commercial-use alternative). Google Places reviews follow Google's terms: read at request time and not stored, shown
 with their author and a link to the place on Google Maps and never on another map; Glimmer reads them only to judge
-the court, behind Prompt Guard, and a review it quotes must match the review word for word.
+the court, behind Prompt Guard, and a review it quotes must match the review word for word. Courts found through
+Google Places, when OpenStreetMap is busy, are listed under the map with their Google Maps links, never pinned on it,
+and not stored.
 
 ## 8. How to reproduce
 
