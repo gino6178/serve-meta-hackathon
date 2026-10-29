@@ -34,8 +34,11 @@
 .ch-done { justify-self: center; display: inline-flex; align-items: center; gap: 8px; font: 700 14px/1.3 var(--font); color: var(--agent); padding: 10px 16px; border-radius: 14px; background: color-mix(in srgb, var(--agent) 10%, transparent); }
 @media (max-width: 760px) {
   .chats { grid-template-columns: minmax(0, 1fr); height: auto; border: 0; border-radius: 0; }
-  .ch-list { border-right: 0; border-bottom: 1px solid var(--rule); max-height: 220px; }
+  .ch-list { border-right: 0; }
+  .chats.picked .ch-list, .chats:not(.picked) .ch-thread { display: none; }
   .ch-msg { max-width: 88%; }
 }
-@media (max-width: 760px) { .ch-head { grid-template-columns: auto minmax(0, 1fr); } .ch-head .ch-badge { grid-column: 1 / -1; justify-self: start; } }
+@media (max-width: 760px) { .ch-head { grid-template-columns: auto auto minmax(0, 1fr); } .ch-head .ch-badge { grid-column: 1 / -1; justify-self: start; } }
+.ch-back { display: none; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--ink); cursor: pointer; }
+@media (max-width: 760px) { .ch-back { display: grid; } }
 .ch-face.pic { padding: 0; object-fit: cover; background: #fff; }

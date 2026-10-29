@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Icon from "../components/Icon.jsx";
 import { agentFetch } from "../agent.js";
 
@@ -50,8 +51,8 @@ export default function Poster({ c, from, club, sport = "badminton", onClose }) 
     save();
   };
   const save = async () => { const a = document.createElement("a"); a.href = URL.createObjectURL(await blob()); a.download = `serve-${c.id}.png`; a.click(); };
-  return (
-    <div className="story-scrim" onClick={onClose}>
+  return createPortal(
+    <div className="poster-scrim" onClick={onClose}>
       <div className="poster-sheet" role="dialog" aria-modal="true" aria-label={`Poster: ${first(from.name)} vs you`} onClick={(e) => e.stopPropagation()}>
         <canvas ref={canvas} width={W} height={H} className={state} aria-hidden="true" />
         {state === "loading" && <p className="poster-wait"><span className="dots"><i /><i /><i /></span>Muse Image is drawing it</p>}
@@ -62,7 +63,8 @@ export default function Poster({ c, from, club, sport = "badminton", onClose }) 
           <button className="btn ghost sm" onClick={onClose}>Close</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 const DAYS = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday" };

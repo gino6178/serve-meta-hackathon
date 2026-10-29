@@ -29,6 +29,7 @@ export default function Social({ club }) {
 export function Join() {
   const [p, setP] = useState(null), [name, setName] = useState(""), [busy, setBusy] = useState(false), [err, setErr] = useState(() => decodeURIComponent((/[?&]error=([^&]+)/.exec(location.hash) || [])[1] || ""));
   useEffect(() => { providers().then(setP, () => setErr("Your server did not answer.")); }, []);
+  const noMeta = "Facebook and Instagram sign-in need this server's Meta app" + (p?.demo ? ": try the demo account below." : ".");
   const tryDemo = async (e) => { e.preventDefault(); setBusy(true); try { await demo(name); location.hash = "/social"; } catch (x) { setErr(x.message); } setBusy(false); };
   return (
     <div className="page join">
@@ -37,12 +38,12 @@ export function Join() {
         <h1>Join your club on Serve</h1>
         <p className="muted">Play more. Manage less.</p>
         <div className="join-buttons">
-          <a className={`join-btn fb ${p?.facebook ? "" : "off"}`} href={p?.facebook ? startUrl("facebook") : undefined} aria-disabled={!p?.facebook}>
+          <a className="join-btn fb" href={p?.facebook ? startUrl("facebook") : "#/join"} onClick={p?.facebook ? undefined : (e) => { e.preventDefault(); setErr(noMeta); }}>
             <img src="/brand/facebook.svg" alt="" />Continue with Facebook</a>
-          <a className={`join-btn ig ${p?.instagram ? "" : "off"}`} href={p?.instagram ? startUrl("instagram") : undefined} aria-disabled={!p?.instagram}>
+          <a className="join-btn ig" href={p?.instagram ? startUrl("instagram") : "#/join"} onClick={p?.instagram ? undefined : (e) => { e.preventDefault(); setErr(noMeta); }}>
             <img src="/brand/instagram.svg" alt="" />Continue with Instagram</a>
         </div>
-        {p && !p.facebook && !p.instagram && <p className="join-note">Facebook and Instagram sign-in aren't set up on this server yet.</p>}
+        {p && !p.demo && !p.facebook && !p.instagram && <p className="join-note">{noMeta}</p>}
         {p?.demo && (
           <form className="join-demo" onSubmit={tryDemo}>
             <span className="join-or">or</span>

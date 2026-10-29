@@ -38,7 +38,8 @@ export default function Chats({ club }) {
     </div>
   );
   return (
-    <div className="page chats">
+    // on a phone, as in Messenger: the list, then one conversation with a way back
+    <div className={`page chats${sel ? " picked" : ""}`}>
       <aside className="ch-list" aria-label="Agent chats">
         <h1 className="ch-title">Agent chats</h1>
         <ul>
@@ -57,6 +58,7 @@ export default function Chats({ club }) {
       {cur && (
         <section className="ch-thread" aria-label="Conversation">
           <header className="ch-head">
+            <button className="ch-back" onClick={() => setSel(null)} aria-label="All agent chats"><Icon name="back" size={20} /></button>
             <span className="ch-stack">{cur.who.slice(0, 3).map((m) => (agentFace(m.id) ? <img key={m.id} className="ch-face pic" src={agentFace(m.id)} alt="" /> : <span key={m.id} className="ch-face">{initials(m.name)}</span>))}</span>
             <span className="ch-row"><b>{cur.who.map((m) => first(m.name)).join(", ")}</b><span className="ch-sub">{JOB[cur.t.kind] || "Agent to agent"}</span></span>
             <span className="ch-badge"><Icon name="verify" size={14} />Agent Cards verified</span>
