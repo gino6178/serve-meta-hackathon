@@ -420,10 +420,11 @@ export async function book({ option, invites = {}, you = {} } = {}) {
   // proof of consent (a2a/consent.js): every player's agent signed this same game, the player's own on this yes; a
   // record changed since, or a signature by another key, is refused (members on a peer gateway confirm there, below)
   if (option?.consent?.length || consentMod.required()) {
-    const pc = consentMod.verify(option, [...(option.consent || []), consentMod.sign("you", option)]);
+    const sigs = [...(option.consent || []).filter((s) => s.by !== "you"), consentMod.sign("you", option)], pc = consentMod.verify(option, sigs);
     const missing = pc.missing.filter((id) => !consentMod.remote(id));
     if (pc.bad.length || missing.length) { mine.forEach((r) => release(r)); return { error: pc.bad.length ? "This game's record no longer matches what the players' agents agreed. Ask again for a fresh option." : "Not every player's agent has agreed to this game yet.", consent: { ...pc, missing } }; }
-    option.proof = { signed: pc.signed, of: pc.of };
+    // the booking keeps every signature, the player's own included, so anyone can check it again later (verify)
+    option.consent = sigs; option.proof = { signed: pc.signed, of: pc.of };
   }
   // partners whose agents are on a peer gateway confirm there, all or nothing, just before the game is booked here (and
   // a refusal lets this talk's holds go): hooks.confirm, a2a.js

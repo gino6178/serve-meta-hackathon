@@ -4,7 +4,10 @@
 // records, both counted by code from what happened, never from opinions:
 //   The person (show-up): after a game, the players say who came (one tap each); someone most of the others say didn't
 //   come counts as a miss. Leaving a game in its last six hours counts as a late drop. Rate = came / games; under three
-//   games the person is "new", and a new person is never scored down for it.
+//   games the person is "new", and a new person is never scored down for it. What a gate compares fades with time: each
+//   game weighs 0.5^(age / HALF_LIFE_DAYS), so last spring's misses count for less than last week's, and the record is
+//   read as Beta(1 + came, 1 + missed) on those weights: its mean, and a 90% range (low..high) that is wide while the
+//   record is short. Others only ever see words made from it, never the counts.
 //   The agent (kept promises): every time a member's agent says yes for them in a huddle (huddle.js) and the person is
 //   then asked, the agent made a promise; the person's yes keeps it, a no breaks it. Rate = kept / said; under three it
 //   is new. Two more marks against an agent: asking too many people's agents in a day (a prober walking the area's
@@ -40,7 +43,9 @@ function carry() {
 }
 const save = () => writeJSON(FILE(), data());
 const HOUR = 3600e3, DAY = 24 * HOUR;
-export const NEW_UNDER = 3, LATE_HOURS = 6, PROBE_ASKS = 30, AGENT_MIN = 0.8;
+export const NEW_UNDER = 3, LATE_HOURS = 6, PROBE_ASKS = 30, AGENT_MIN = 0.8, HALF_LIFE_DAYS = 60, RANGE = 0.9;
+// how much an entry still counts, by its age
+export const weight = (at, now = Date.now()) => 0.5 ** (Math.max(0, now - at) / (HALF_LIFE_DAYS * DAY));
 export const GENESIS = "0".repeat(64);
 // a subject is an HMAC of the member's id under this server's own secret (data/trust.secret, made once, mode 600, never
 // committed): a member's id can be seen in the app, so a plain hash of it could be worked back to them; this cannot
@@ -107,9 +112,9 @@ export function verify(chain = data().chain, heads = data().heads) {
 }
 // the records, worked out from the chain
 function replay(now = Date.now()) {
-  if (state && state.at > now - 60e3) return state;
+  if (state && Math.abs(state.at - now) < 60e3) return state;
   const people = {}, agents = {}, gone = new Set();
-  const P = (w) => (people[w] ||= { games: 0, came: 0, missed: 0, late: 0, level: { ok: 0, off: 0 } }), A = (w) => (agents[w] ||= { said: 0, kept: 0, asks: [], probe: 0, sig: [], hosts: new Set() });
+  const P = (w) => (people[w] ||= { games: 0, came: 0, missed: 0, late: 0, cw: 0, mw: 0, level: { ok: 0, off: 0 } }), A = (w) => (agents[w] ||= { said: 0, kept: 0, asks: [], probe: 0, sig: [], hosts: new Set() });
   const pair = new Map(); // a promise counts once a week per host and member: two accounts of one person can't pump it
   for (const e of data().chain) {
     const w = e.who, d = e.d || {};
@@ -123,9 +128,9 @@ function replay(now = Date.now()) {
     }
     if (e.kind === "asked") { const a = A(w); a.asks = [...a.asks.filter((x) => e.at - x.at < DAY), { at: e.at, n: d.n }]; if (a.asks.reduce((s, x) => s + x.n, 0) > PROBE_ASKS) a.probe = e.at; }
     if (e.kind === "sig") A(w).sig.push({ at: e.at, why: d.why });
-    if (e.kind === "late") { const p = P(w); p.late++; p.games++; }
-    if (e.kind === "game") { const p = P(w); p.games++; if (d.came) p.came++; else p.missed++; for (const l of d.level || []) p.level[l]++; }
-    if (e.kind === "seed" || e.kind === "carried") { if (d.person) Object.assign(P(w), d.person); if (d.agent) { Object.assign(A(w), d.agent); A(w).hosts.add("seed-a").add("seed-b"); } }
+    if (e.kind === "late") { const p = P(w); p.late++; p.games++; p.mw += weight(e.at, now); }
+    if (e.kind === "game") { const p = P(w); p.games++; if (d.came) { p.came++; p.cw += weight(e.at, now); } else { p.missed++; p.mw += weight(e.at, now); } for (const l of d.level || []) p.level[l]++; }
+    if (e.kind === "seed" || e.kind === "carried") { if (d.person) { const p = Object.assign(P(w), d.person), k = weight(e.at, now); p.cw = (p.came || 0) * k; p.mw = Math.max(0, (p.games || 0) - (p.came || 0)) * k; } if (d.agent) { Object.assign(A(w), d.agent); A(w).hosts.add("seed-a").add("seed-b"); } }
   }
   return (state = { at: now, people, agents });
 }
@@ -195,12 +200,36 @@ export function pending(me, now = Date.now()) {
 
 // ---- what anyone sees ----
 const rate = (a, b) => (b ? a / b : null);
+// the regularized incomplete beta I_x(a, b) (a continued fraction, Numerical Recipes' betacf), and its inverse by bisection
+const lnGamma = (z) => { const c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5]; let y = z, t = z + 5.5, s = 1.000000000190015; t -= (z + 0.5) * Math.log(t); for (const k of c) s += k / ++y; return -t + Math.log((2.5066282746310005 * s) / z); };
+function betacf(x, a, b) {
+  let c = 1, d = 1 - ((a + b) * x) / (a + 1); d = 1 / (Math.abs(d) < 1e-30 ? 1e-30 : d); let h = d;
+  for (let m = 1; m <= 200; m++) {
+    for (const aa of [(m * (b - m) * x) / ((a + 2 * m - 1) * (a + 2 * m)), (-(a + m) * (a + b + m) * x) / ((a + 2 * m) * (a + 2 * m + 1))]) {
+      d = 1 + aa * d; d = 1 / (Math.abs(d) < 1e-30 ? 1e-30 : d); c = 1 + aa / c; if (Math.abs(c) < 1e-30) c = 1e-30; h *= d * c;
+    }
+    if (Math.abs(d * c - 1) < 1e-10) break;
+  }
+  return h;
+}
+export function betaCdf(x, a, b) {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  const f = Math.exp(lnGamma(a + b) - lnGamma(a) - lnGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+  return x < (a + 1) / (a + b + 2) ? (f * betacf(x, a, b)) / a : 1 - (f * betacf(1 - x, b, a)) / b;
+}
+export function betaQuantile(q, a, b) { let lo = 0, hi = 1; for (let i = 0; i < 50; i++) { const m = (lo + hi) / 2; if (betaCdf(m, a, b) < q) lo = m; else hi = m; } return (lo + hi) / 2; }
+// a show-up record (the faded weights of came and missed) as Beta(1 + came, 1 + missed): its mean and its middle RANGE
+export function reliability(cw = 0, mw = 0) {
+  const a = 1 + cw, b = 1 + mw, t = (1 - RANGE) / 2, r2 = (x) => +x.toFixed(2);
+  return { mean: r2(a / (a + b)), low: r2(betaQuantile(t, a, b)), high: r2(betaQuantile(1 - t, a, b)) };
+}
 export function badge(id, now = Date.now()) {
   const s = replay(now), w = subject(id);
   const p = s.people[w] || { games: 0, came: 0, late: 0, level: { ok: 0, off: 0 } }, a = s.agents[w] || { said: 0, kept: 0, probe: 0, sig: [] };
   const show = rate(p.came, p.games), kept = rate(a.kept, a.said);
   return {
-    show: { rate: show == null ? null : +show.toFixed(2), games: p.games, late: p.late, new: p.games < NEW_UNDER, levelOk: p.level.ok + p.level.off ? +(p.level.ok / (p.level.ok + p.level.off)).toFixed(2) : null },
+    show: { rate: show == null ? null : +show.toFixed(2), games: p.games, late: p.late, new: p.games < NEW_UNDER, cw: +(p.cw || 0).toFixed(3), mw: +(p.mw || 0).toFixed(3), ...reliability(p.cw, p.mw), levelOk: p.level.ok + p.level.off ? +(p.level.ok / (p.level.ok + p.level.off)).toFixed(2) : null },
     agent: { rate: kept == null ? null : +kept.toFixed(2), said: a.said, new: a.said < NEW_UNDER || (a.hosts?.size ?? 0) < 2, probe: !!a.probe && now - a.probe < 7 * DAY, badSig: a.sig.filter((x) => now - x.at < 30 * DAY).length },
   };
 }
@@ -210,6 +239,8 @@ export const mine = (id) => { const w = subject(id); return { subject: w, entrie
 export const publicChain = ({ after = -1, n = 500 } = {}) => ({ entries: data().chain.filter((e) => e.n > after).slice(0, Math.min(2000, n)), heads: data().heads, genesis: GENESIS, length: data().chain.length,
   how: "hash = sha256(JSON.stringify([n, at, kind, who, d, prev])); each prev is the hash before it; heads are signed as 'serve-trust-head:<day>:<n>:<hash>' with the Ed25519 key at /a2a/keys.json" });
 export const showText = (b) => (b.show.new ? `new · ${b.show.games} game${b.show.games === 1 ? "" : "s"}` : `shows up ${Math.round(b.show.rate * 100)}% · ${b.show.games} games`);
+// the range, in words (no counts): "likely 78-96%"; a new record can't tell yet
+export const rangeText = (b) => (b.show.new ? "too soon to tell" : `likely ${Math.round(b.show.low * 100)}-${Math.round(b.show.high * 100)}%`);
 export const agentText = (b) => (b.agent.probe ? "agent paused" : b.agent.badSig ? "agent being checked" : b.agent.new ? "agent new" : `agent right ${Math.round(b.agent.rate * 100)}%`);
 // a game's gate: { minShow (0..1, 0 = anyone), agentMin (0..1) }; the verdict for one person:
 //   ok        their agent may answer for them
@@ -217,13 +248,14 @@ export const agentText = (b) => (b.agent.probe ? "agent paused" : b.agent.badSig
 //   waitlist  under the game's show-up rate (new people are let in unless the gate says otherwise)
 // a 90% gate wants people with a record (new people wait); at 75% new people are let in
 export function gateOf(g = {}) { const m = Math.max(0, Math.min(1, +g.minShow || 0)), minShow = Math.round(m * 100) / 100; return { minShow, agentMin: g.agentMin === 0 ? 0 : AGENT_MIN, newOk: g.newOk == null ? minShow < 0.9 : g.newOk !== false }; }
-// the rate a gate compares: smoothed toward 85% by two games, so one miss in a short record doesn't shut someone out
-export const gateRate = (b) => (b.show.rate * b.show.games + 1.7) / (b.show.games + 2);
+// the rate a gate compares: the faded record, smoothed toward 85% by two games, so one miss in a short record doesn't shut
+// someone out
+export const gateRate = (b) => (b.show.cw + 1.7) / (b.show.cw + b.show.mw + 2);
 // the cut-offs and the way back, in words an agent can pass on
 export function explain(id, now = Date.now()) {
   const b = badge(id, now), out = [];
   if (b.show.new) out.push(`Shows up: new (${b.show.games} of ${NEW_UNDER} games counted). Games at 90% wait-list new people; at 75% or less they let you in.`);
-  else { const came = Math.round(b.show.rate * b.show.games), need = (r) => Math.max(0, Math.ceil((r * (b.show.games + 2) - came - 1.7) / (1 - r))); out.push(`Shows up ${Math.round(b.show.rate * 100)}% (${came} of ${b.show.games}). A game's gate compares ${Math.round(gateRate(b) * 100)}% (your record, smoothed). To clear 75%: ${need(0.75) ? `${need(0.75)} more game${need(0.75) > 1 ? "s" : ""} you turn up to` : "you do"}; 90%: ${need(0.9) ? `${need(0.9)} more` : "you do"}.`); }
+  else { const came = Math.round(b.show.rate * b.show.games), n = b.show.cw + b.show.mw, need = (r) => Math.max(0, Math.ceil((r * (n + 2) - b.show.cw - 1.7) / (1 - r) - 1e-9)); out.push(`Shows up ${Math.round(b.show.rate * 100)}% (${came} of ${b.show.games}). A game's gate compares ${Math.round(gateRate(b) * 100)}% (your record, recent games counting most, smoothed); ${rangeText(b)}. To clear 75%: ${need(0.75) ? `${need(0.75)} more game${need(0.75) > 1 ? "s" : ""} you turn up to` : "you do"}; 90%: ${need(0.9) ? `${need(0.9)} more` : "you do"}.`); }
   if (b.agent.probe) out.push("Your agent asked too many people's agents today: nearby asks pause for a day; your clubs still work.");
   if (b.agent.badSig) out.push("Requests with your agent's key failed their check in the last 30 days: for now you are asked directly. Check the key's signing (see /llms.txt).");
   if (b.agent.new) out.push(`Your agent: new (${b.agent.said} yes${b.agent.said === 1 ? "" : "es"} counted; it needs ${NEW_UNDER} from two different hosts).`);

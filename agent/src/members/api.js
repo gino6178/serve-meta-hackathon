@@ -167,7 +167,7 @@ async function channel(req, res, p, send) {
     // joining commits the person: the same permission as a yes (taste.js delegate), with its limits
     if (b.on !== undefined && typeof b.on !== "boolean") return send(400, { error: "on is true (join) or false (leave)." });
     if (b.on !== false) { const ok = H.mayAgentSayYes(owner, { post: String(b.post || "") }); if (ok.error) return send(ok.code || 403, ok); }
-    return out(P.join(owner, String(b.post || ""), b.on !== false));
+    return out(P.join(owner, String(b.post || ""), b.on !== false, { agent: true }));
   }
   // the huddle routes, signed with the member's own agent key; committing them (a yes, joining a game) needs the
   // member's standing permission (taste.js delegate), with its limits
