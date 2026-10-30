@@ -1,5 +1,5 @@
-// Serve's own A2A extensions (A2A v1.0, spec 4.6): a proposal and a hold, each a versioned URI under the gateway's base
-// that a member's card declares with required: true. A client that does not name both in A2A-Extensions is refused by
+// Serve's own A2A extensions (A2A v1.0, spec 4.6): a proposal and a hold, each a versioned URI under the public address
+// (PUBLIC_URL, else the gateway's base) that a member's card declares with required: true; a client matches them by path. A client that does not name both in A2A-Extensions is refused by
 // the SDK with ExtensionSupportRequiredError (JSON-RPC -32008) before any agent reads its message; the one a message
 // uses is said back as activated. serve.likely (match/likely.js) stays optional.
 export const PROPOSAL_PATH = "/a2a/ext/proposal/v1", HOLD_PATH = "/a2a/ext/hold/v1";

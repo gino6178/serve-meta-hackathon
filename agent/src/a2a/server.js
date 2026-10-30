@@ -236,7 +236,7 @@ export function cardFor(base, m, club) {
     version: "1.0.0",
     // the proposal and the hold, as required A2A extensions (ext.js); serve.likely as an optional one (a member who opted
     // out declares it not and has no such skill)
-    capabilities: { streaming: false, pushNotifications: false, extensions: [...ext.declare(BASE()), ...(m.shares?.likely === false ? [] : [likely.extension(BASE(), m)])], extendedAgentCard: false },
+    capabilities: { streaming: false, pushNotifications: false, extensions: [...ext.declare(process.env.PUBLIC_URL || BASE()), ...(m.shares?.likely === false ? [] : [likely.extension(BASE(), m)])], extendedAgentCard: false },
     // (in the A2A JSON form a client reads: the SDK serves the card as it is given)
     ...(required() || peer.on() ? {
       securitySchemes: { ...(required() ? { bearer: { httpAuthSecurityScheme: { description: "The gateway's token (AGENT_TOKEN), as Authorization: Bearer <token>.", scheme: "Bearer", bearerFormat: "" } } } : {}),
