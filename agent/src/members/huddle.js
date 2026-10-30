@@ -404,13 +404,14 @@ async function book(h) {
   if (h.fill && P.find(h.fill)) {
     h.status = "on"; h.post = h.fill;
     for (const id of h.players) if (id !== h.host) P.join(id, h.fill, true, { via: null }); // (their yes is signed already)
+    spareWait(h, h.fill, o);
     line(h, "host", `Everyone said yes: they're in your game, ${when(o)} at ${o.where}.`, { who: first(h.host), agreed: true });
     return;
   }
   const r = await P.post(h.host, { fromHuddle: h.id, text: `Our agents agreed this one: ${o.where}${o.each ? `, ${D.CURRENCY}${o.each} each` : ""}.`, invite: { sport: h.sport, day: o.date, start: o.start, where: o.where.slice(0, 60), spots: h.need - 1, at: o.at, gate: h.gate, each: o.kind === "venue" ? o.each : 0 }, room: h.club }).catch((e) => ({ error: e.message }));
   h.status = "on";
   Tr.expect(r?.post?.id || h.id, h.players, startMs(o)); // after the game, the players say who came
-  if (r?.post?.id) { h.post = r.post.id; for (const id of h.players) if (id !== h.host) P.join(id, h.post, true, { via: null }); }
+  if (r?.post?.id) { h.post = r.post.id; for (const id of h.players) if (id !== h.host) P.join(id, h.post, true, { via: null }); spareWait(h, h.post, o); }
   if (!r?.post) line(h, "host", `Everyone said yes: ${when(o)} at ${o.where} is on. It couldn't go on the feed (${String(r?.error || "the feed refused it").slice(0, 120)})${h.players.length < h.need ? `, so the open spot${h.need - h.players.length > 1 ? "s aren't" : " isn't"} listed: post the game yourself to fill ${h.need - h.players.length > 1 ? "them" : "it"}` : ""}.`, { who: first(h.host), agreed: true });
   else line(h, "host", `Everyone said yes. ${when(o)} at ${o.where} is on${h.players.length < h.need ? `; ${h.need - h.players.length} spot${h.need - h.players.length > 1 ? "s are" : " is"} open in the feed` : ""}.`, { who: first(h.host), agreed: true });
   if (!r?.post) for (const id of h.players) P.notify(id, "gameon", `Game on: ${h.sport} ${when(o)} at ${o.where}. ${names(h.players.filter((x) => x !== id).map(first))} ${h.players.length > 2 ? "are" : "is"} in.`, { huddle: h.id });
@@ -474,6 +475,14 @@ const fillOf = (h) => (h.fill ? P.find(h.fill)?.invite || null : null);
 // a member's agreed games that aren't on the feed (yet), for the feed's join not to double-book them
 P.busyFrom((id, post) => data().huddles.filter((h) => ["asking", "on"].includes(h.status) && h.pick && h.players.includes(id) && h.post !== post && h.fill !== post && !(h.status === "on" && h.post)).map((h) => ({ at: startMs(h.pick), what: `${h.sport} ${when(h.pick)} (the agents agreed it)`, huddle: h.id })));
 // a player who leaves the posted game is no longer one of the game's yeses
+// the game is on and posted: its spares go on the post's waitlist in their order, so a spot someone gives up is offered
+// to them (with the feed's deadline and notices), as the agreed message said
+function spareWait(h, post, o) {
+  for (const id of (h.alternates || []).filter((x) => !h.players.includes(x) && !h.out.includes(x) && freeAt(x, h, o))) {
+    const r = P.join(id, post, true, { via: null });
+    if (r?.waitlisted) P.notify(id, "huddle", `${h.sport} ${when(o)} at ${o.where} is on and full; you're first in line if a spot opens.`, { huddle: h.id });
+  }
+}
 P.whenLeft((id, post) => { let any = false; for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && x.status === "on" && x.players.includes(id) && id !== x.host)) { h.players = h.players.filter((x) => x !== id); delete h.answers[id]; line(h, id, `${first(id)} left the game.`, { who: first(id) }); any = true; } if (any) save(); });
 // someone who joins the posted game straight from the feed (or takes a spot back) is one of its players too
 P.whenJoined((id, post) => {

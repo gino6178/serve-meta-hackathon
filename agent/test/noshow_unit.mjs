@@ -234,6 +234,24 @@ test("a huddle's spare is kept and moved in when a spot opens, even if another h
   assert.deepEqual(h.alternates, []);
 });
 
+test("once a huddle's game is on and posted, its spares are next in line: a spot given up is offered to them", async () => {
+  const H = await import("../src/members/huddle.js");
+  const gina = M.demo("Gina Ho").member, pete = M.demo("Pete Lo").member, quin = M.demo("Quin Ye").member, raj = M.demo("Raj Oh").member;
+  const date = localDay(Date.now() + 3 * DAY), pick = { date, start: "19:30", where: "Gym", place: { name: "Gym" }, km: {}, at: null, each: 0 };
+  const file = path.join(tmp, "huddles-on.json");
+  fs.writeFileSync(file, JSON.stringify({ nudged: {}, huddles: [{ id: "h-on", host: gina.id, sport: "badminton", need: 3, status: "asking", pick: { ...pick }, players: [gina.id, pete.id, quin.id],
+    answers: { [gina.id]: "yes", [pete.id]: "yes" }, invited: [pete.id, quin.id], out: [], talk: [], alternates: [raj.id], created: Date.now() }] }));
+  process.env.HUDDLE_FILE = file;
+  await H.reply(quin.id, "h-on", true);
+  const h = H.find("h-on");
+  assert.equal(h.status, "on", JSON.stringify(h.talk.at(-1)));
+  const post = S.data().posts.find((q) => q.id === h.post);
+  assert.ok(post, "posted"); assert.deepEqual(post.invite.waitlist, [raj.id], "the spare waits first in line");
+  assert.ok(notices(raj.id, "huddle").some((n) => /first in line/.test(n.text)));
+  P.join(pete.id, h.post, false);
+  assert.ok(notices(raj.id, "moved-up").some((n) => /say yes by/.test(n.text)), "the spare is offered the spot");
+});
+
 // ---- what the host and the waitlist are told ----
 test("the host hears once when a player's account leaves Serve, and once when the waitlist moves up the day before", async () => {
   const amy = M.demo("Amy Wu").member, ken = M.demo("Ken Hsu").member, cat = M.demo("Cat Ho").member, bob = M.demo("Bob Li").member, dee = M.demo("Dee Fox").member;
