@@ -244,14 +244,14 @@ async function drafts(msgs, timeoutMs) {
   const [a, b] = await Promise.all([chatJSON(msgs, MEMBER_REPLY, opts), chatJSON(msgs, MEMBER_REPLY, opts)]);
   return a.value && b.value && agreeKey(a.value) === agreeKey(b.value) ? a.value : null;
 }
-// The one-pass decider (A2A_DECIDER=raw, off by default; decider.js, docs/decider.md): when the proposed time does not
+// The one-pass decider (on by default, A2A_DECIDER=off turns it off; decider.js, docs/decider.md): when the proposed time does not
 // work and two or more listed times do, Muse Glimmer's next-token probabilities over the times (one letter each, Z not
 // this week) pick the counter in one pass, with no reasoning. Its pick stands when its probability reaches
 // A2A_DECIDER_SURE; a lower one, or Z, goes to the full answer. The times that work are the ones code kept.
 // 0.85 is the conformal threshold for a 5% risk of a changed answer (0.843 on the calibration members, rounded up):
 // it answers about 8% of these choices. Off, because it agrees with the full answer less than the full answer
 // agrees with itself (docs/decider.md).
-const deciderOn = () => process.env.A2A_DECIDER === "raw", DECIDER_SURE = () => +(process.env.A2A_DECIDER_SURE || 0.85);
+const deciderOn = () => process.env.A2A_DECIDER !== "off", DECIDER_SURE = () => +(process.env.A2A_DECIDER_SURE || 0.85);
 // the question in the full answer's words: the member's profile, the rule, the proposed time and why it does not work
 export const deciderQuestion = (m, cur, times, why, format, sport) => ({ profile: profile(m), rule: DECIDE(first(m.name)), them: first(m.name), sport, format, cur: cur.text, why, times });
 async function decided(m, cur, choices, all, why, format, sport) {
@@ -280,7 +280,7 @@ export async function fullAnswer(m, cur, choices, log, format, sport, minutes = 
       return { ...j, text: sentence(them, j, cur) };
     }
     // a choice between times: the student first (A2A_STUDENT, on by default; student.js), then the one-pass decider
-    // (A2A_DECIDER=raw), the full answer when neither is sure
+    // (on unless A2A_DECIDER=off), the full answer when neither is sure
     if (studentOn() && curBad && choices.length > 1) { const s = await studentAnswer(m, cur, choices, all, { minutes, format, sport, profile: profile(m) }); if (s) return { ...s, text: sentence(them, s, cur) }; }
     if (deciderOn() && curBad && choices.length > 1) { const d = await decided(m, cur, choices, all, curBad, format, sport); if (d) return d; }
   }

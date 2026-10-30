@@ -1,4 +1,4 @@
-// Unit tests for the one-pass decider (src/agents/decider.js, A2A_DECIDER=raw in a2a.js), on a stand-in for Ollama that answers
+// Unit tests for the one-pass decider (src/agents/decider.js, on by default in a2a.js), on a stand-in for Ollama that answers
 // /api/generate with the next token's probabilities and /api/chat with a full answer: no model, no GPU.
 //   node --test test/decider_unit.mjs        (npm test runs it with test/unit.mjs)
 import { test } from "node:test";
@@ -87,7 +87,7 @@ test("not sure, or not this week: the full answer decides", async () => {
   delete process.env.A2A_DECIDER_SURE;
 });
 
-test("the decider is asked only for a choice between times, and only when on", async () => {
+test("the decider is asked only for a choice between times; on by default, A2A_DECIDER=off turns it off", async () => {
   process.env.A2A_DECIDER = "raw";
   reset([[" B", 0.95]]);
   const yes = await fullAnswer(mira, a, [a, b, c, d, e], [], "singles", "badminton", 90);
@@ -95,7 +95,11 @@ test("the decider is asked only for a choice between times, and only when on", a
   const one = await fullAnswer(mira, b, [b, c, d], [], "singles", "badminton", 90);
   assert.equal(one.intent, "counter"); assert.equal(one.tier, "rules");
   assert.equal(seen.generate.length, 0, "what the facts decide is not asked");
-  delete process.env.A2A_DECIDER;
+  process.env.A2A_DECIDER = "off";
   const j = await ask();
-  assert.equal(j.tier, "agent"); assert.equal(seen.generate.length, 0, "off by default");
+  assert.equal(j.tier, "agent"); assert.equal(seen.generate.length, 0, "A2A_DECIDER=off turns it off");
+  delete process.env.A2A_DECIDER;
+  reset([[" B", 0.95]]);
+  const k = await ask();
+  assert.equal(k.tier, "decider", "on by default");
 });

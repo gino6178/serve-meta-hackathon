@@ -1,4 +1,4 @@
-// The one-pass decider (A2A_DECIDER=raw in a2a.js): a member's choice between listed times, read from Muse Glimmer's
+// The one-pass decider (on by default in a2a.js; A2A_DECIDER=off): a member's choice between listed times, read from Muse Glimmer's
 // probabilities in one pass instead of from a reasoned answer. The same facts the full answer reads (the member's
 // profile, the proposed time and why it does not work, the listed times that do) are written as plain text that ends
 // in an answer cue, each time one letter (A to L) and Z not this week. Sent raw (no chat template, so no reasoning
@@ -60,7 +60,7 @@ export function readOptions(top, opts) {
 // one question, one pass: { pick (an option: x is the time, null for Z), p, mass, dist, prompt tokens, seconds }.
 // With orders 2 (A2A_DECIDER_ORDERS), the times are also read in the reverse order, in a second pass at the same time,
 // and each time's probability is the mean of the two (a letter's place in the list moves its probability).
-export async function decideRaw(q, { site = "a2a.decide", timeoutMs = +(process.env.A2A_DECIDER_TIMEOUT_MS || 30000) } = {}) {
+export async function decideRaw(q, { site = "a2a.decide", timeoutMs = +(process.env.A2A_DECIDER_TIMEOUT_MS || 8000) } = {}) {
   const orders = Math.min(2, Math.max(1, +(q.orders || process.env.A2A_DECIDER_ORDERS || 1)));
   const runs = await Promise.all(Array.from({ length: orders }, async (_, k) => {
     const { text, opts } = decisionPrompt(k ? { ...q, times: [...q.times].reverse() } : q);
