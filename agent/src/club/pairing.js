@@ -1,7 +1,8 @@
 // Best match, and your agent talking to theirs.
-// best(): your agent ranks every member for a game this week. Code scores what has to be exact: a fair game by club
-//   rating (a win chance near 50%), a shared free time, the trip to the venue in the middle, format and health limits,
-//   and history.
+// best(): your agent ranks every member for a game this week. Code scores what has to be exact: a fair game by skill
+//   (mu and sigma from rated competitive games, skill.js; the club rating for anyone not rated yet: a win chance near
+//   50%), and while a level is uncertain a close game that settles it, a shared free time, the trip to the venue in the
+//   middle, format and health limits, and history.
 //   Muse Glimmer explains the top pick, and every number it uses must come from the scores.
 // talk(): your agent proposes a game to the other member's agent. Each side's message is written by Muse Glimmer: yours
 //   from your calendar and the courts, theirs from what that member shares with their agent (free times, preferences,
@@ -15,6 +16,7 @@ import { demoVenues, helpers } from "./play.js";
 import { negotiate, okNums, PRONOUN } from "../a2a/talk.js";
 import * as fb from "../agents/freebusy.js";
 import { privateFor } from "../safety/privacy.js";
+import * as Sk from "./skill.js";
 
 const { windows, travelMin, kmBetween, ymd, hm, toMin, dateOf, readVenues, DAYS } = helpers;
 const first = (n) => n.split(" ")[0];
@@ -58,11 +60,13 @@ function court(slot, start, minutes, people, venues) {
 }
 
 // ---- best match -------------------------------------------------------------------------------------------------
-export async function best({ you = {}, ratings = {}, played = {}, format = "singles", onStep } = {}) {
+export async function best({ you = {}, ratings = {}, played = {}, format = "singles", sport = "badminton", skills = null, onStep } = {}) {
   const tell = (s) => onStep?.({ type: "step", ...s }), work = (step) => onStep?.({ type: "working", step });
   const club = readClub(), venues = readVenues(), me = { id: "you", name: "You", area: club.you.area, free: club.you.free }, priv = await privateFor("app");
   const r = (id) => ratings[id] ?? (id === "you" ? club.you.rating : club.members.find((m) => m.id === id)?.rating ?? 1500);
   const limit = you.limit || null;
+  // mu and sigma from rated competitive games (skill.js), for whoever has them; the rest by club rating (Elo)
+  const sk = skills || Sk.store().table(["you", ...club.members.map((m) => m.id)], sport);
   tell({ step: "Read your profile", tool: "profile", detail: `club rating ${r("you")}${limit ? `, health limit: ${limit}` : ""}` });
   work(`Scoring ${club.members.length} members`);
   const rows = [];
@@ -71,10 +75,13 @@ export async function best({ you = {}, ratings = {}, played = {}, format = "sing
     const times = priv ? probed(club.you.free, m) : shared(club.you.free, m.free);
     if (!times.length) { rows.push({ m, out: "no shared free time this week" }); continue; }
     const t0 = times[0], c = court(t0, t0.from, 90, [me, m], venues);
-    const p = expect(r("you"), r(m.id)), fair = 1 - Math.abs(0.5 - p) * 2;
+    const both = sk.you && sk[m.id], p = both ? Sk.winChance([sk.you], [sk[m.id]]) : expect(r("you"), r(m.id)), fair = 1 - Math.abs(0.5 - p) * 2;
+    // while either level is still uncertain, a close game is worth more: it settles them fastest
+    const unsure = both && Math.max(sk.you.sigma, sk[m.id].sigma) > Sk.SIGMA * 0.6, learnt = unsure ? Sk.learn(sk.you, sk[m.id]) : 0;
     const n = played[m.id] || 0;
     const parts = [
       { k: "fair", w: 3 * fair, text: `win chance ${Math.round(p * 100)}%` },
+      unsure && { k: "learn", w: 5 * learnt, text: "a close game settles a level still uncertain" },
       { k: "time", w: Math.min(1, times.length / 3), text: `both free ${t0.day} ${hm(t0.from)}–${hm(t0.to)}${times.length > 1 ? ` and ${times.length - 1} more` : ""}` },
       { k: "trip", w: c ? -0.04 * c.longest : -1, text: c ? `${c.v.name}: you ${c.travel.find((x) => x.id === "you")?.min} min, ${first(m.name)} ${c.travel.find((x) => x.id === m.id)?.min} min` : "no free court then" },
       { k: "format", w: plays ? 0.5 : -2, text: plays ? `likes ${format}` : `prefers ${m.prefers}` },
@@ -86,7 +93,7 @@ export async function best({ you = {}, ratings = {}, played = {}, format = "sing
   }
   const ranked = rows.filter((x) => x.score != null).sort((a, b) => b.score - a.score);
   const max = ranked[0]?.score ?? 1, min = ranked.at(-1)?.score ?? 0;
-  const top = ranked.slice(0, 3).map((x) => ({ id: x.m.id, name: x.m.name, level: x.m.level, rating: r(x.m.id), chance: x.chance,
+  const top = ranked.slice(0, 3).map((x) => ({ id: x.m.id, name: x.m.name, level: x.m.level, rating: r(x.m.id), ...(sk[x.m.id] ? { mu: +sk[x.m.id].mu.toFixed(1), sigma: +sk[x.m.id].sigma.toFixed(1) } : {}), chance: x.chance,
     fit: Math.round(60 + 40 * ((x.score - min) / Math.max(0.01, max - min))), parts: x.parts.sort((a, b) => b.w - a.w).map(({ k, text, w }) => ({ k, text, good: w > 0 })) }));
   tell({ step: "Scored every member", tool: "score", detail: `${ranked.length} of ${club.members.length} share a free time with you; scored on a fair game by rating, the trip, format, health and history` });
   if (!top.length) return { top, why: "Nobody shares a free time with you this week.", by: "rules" };
