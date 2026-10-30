@@ -59,6 +59,8 @@ function Story({ items, at, onClose, onMove }) {
 
 export default function Agent({ club }) {
   const tasks = useTasks();
+  // a signed-in member (the public site): their own agent's cards, not the demo club's player
+  const member = useMemo(() => { try { return !!localStorage.getItem(SESSION_KEY); } catch { return false; } }, []);
   const [text, setText] = useState("");
   const [story, setStory] = useState(null), [talk, setTalk] = useState(false); // talk: the live voice line (voice/LiveTalk.jsx)
   const [seen, setSeen] = useState(() => { try { return JSON.parse(localStorage.getItem("serve.stories.v1")) || []; } catch { return []; } });
@@ -95,7 +97,7 @@ export default function Agent({ club }) {
   const asked = (club?.incoming || []).filter((c) => !g.arena?.answered?.[c.id]).map((c) => ({ ...c, m: club.members.find((x) => x.id === c.from) })).filter((c) => c.m);
 
   // stories: members who posted in the club
-  const stories = !club ? [] : [
+  const stories = !club || member ? [] : [
     ...club.feed.slice(0, 4).map((f) => { const mm = club.members.find((x) => x.id === f.who); return mm && { id: f.id, name: mm.name, sub: `${f.ago} · ${club.name}`, color: "var(--agent)", text: f.text,
       actions: <><button className="btn primary sm" onClick={() => { setStory(null); go(`play?task=${startPlay(`Doubles this week with ${first(mm.name)}`, you)}`); }}>Play with {first(mm.name)}</button><a className="btn ghost sm" href="#/club?tab=feed">See the club</a></> }; }).filter(Boolean),
   ];
@@ -133,8 +135,11 @@ export default function Agent({ club }) {
           </section>
 
           {/* a signed-in member: their own agent's cards (huddles, questions, games near them, quiet hours) */}
-          {(() => { try { return localStorage.getItem(SESSION_KEY); } catch { return null; } })() && <ForYou />}
+          {member && <ForYou />}
+          {member && <a className="agent-demo-link" href="#/club?tab=feed">Try the demo club too: simulated members, so you can see a whole week of agents at work <Icon name="next" size={14} /></a>}
 
+          {/* the demo club's player (Mia, simulated): only when nobody is signed in, so a real member sees only their own agent */}
+          {!member && <>
           {club && (() => {
             const h = habits(club.you.history || []).slice(0, 2), sore = soreNow(body.log || club.you.body || []);
             const talk = tasks.find((t) => t.messages?.length && t.state !== "running"), ap = tasks.find((x) => x.kind === "autopilot");
@@ -228,9 +233,10 @@ export default function Agent({ club }) {
               <p><b>Nothing running yet.</b> Tell your agent when you'd like to play. It works in the background, shows each step it takes, and checks back when it needs you.</p>
             </div>
           )}
+          </>}
         </div>
 
-        <aside className="agent-side" aria-label="Your week">
+        {!member && <aside className="agent-side" aria-label="Your week">
           <section className="panel side-card">
             <h2 className="panel-h">Up next</h2>
             {next ? (
@@ -250,7 +256,7 @@ export default function Agent({ club }) {
             </dl>
             <a className="btn ghost sm" href="#/goals">Open goals</a>
           </section>
-        </aside>
+        </aside>}
       </div>
       {story != null && <Story items={stories} at={story} onClose={() => setStory(null)} onMove={move} />}
       {talk && club && <LiveTalk facts={input(club)} onClose={() => setTalk(false)} />}

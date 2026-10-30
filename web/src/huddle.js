@@ -24,6 +24,7 @@ export const reset = () => call("/api/huddle/reset", {});
 export const setOpen = (on) => call("/api/huddle/open", { on });
 export const attend = (key, came, level = {}) => call("/api/huddle/attend", { key, came, level });
 export const trust = () => call("/api/huddle/trust");
+export const needs = () => call("/api/huddle/needs");
 // the member's rough area, from the browser (they can say no); the gateway keeps it rounded to about 1 km
 export async function shareHome() {
   const p = await myPlace({ timeoutMs: 10000 });

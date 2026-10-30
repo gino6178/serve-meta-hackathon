@@ -273,6 +273,14 @@ export async function retryHeld({ now = Date.now() } = {}) {
   return out;
 }
 export const pending = (player) => Object.values(db.pending).filter((p) => p.who === whoOf(player));
+// a suggestion from the members' agents (members/needs.js): a fixed sentence written by code about what they keep
+// running into, so nothing personal to screen; it joins the members' shared items and is clustered and voted on with them
+export function fromAgents({ kind, text, area = "other", aspect = "other" }, { now = Date.now() } = {}) {
+  if (!text) return null;
+  const item = { id: `I-${now.toString(36)}${crypto.randomBytes(3).toString("hex")}`, who: whoOf(`agents:${kind}`), text: String(text).slice(0, 200), kind: "agents", source: "agents", at: now, group: null, band: null, area: AREAS.includes(area) ? area : "other", aspect: ASPECTS.includes(aspect) ? aspect : "other", guard: { made: "code" }, ok: true };
+  db.items.push(item); save();
+  return item;
+}
 export const items = ({ since = 0 } = {}) => db.items.filter((x) => x.at >= since);
 
 // /forget: everything the loop holds about the player, found by recomputing their who

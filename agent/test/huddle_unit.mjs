@@ -64,3 +64,16 @@ test("after a game, most of the others decide who came; leaving late counts", ()
   Tr.promise("e", true); Tr.promise("e", false); Tr.promise("e", true);
   assert.equal(Tr.badge("e").agent.rate, 0.67);
 });
+
+process.env.NEEDS_FILE = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "needs-")), "needs.json");
+const N = await import("../src/members/needs.js");
+test("what the agents keep running into goes to the club's ideas after three huddles, once", async () => {
+  const sent = [];
+  const suggest = async (kind) => { sent.push(kind); return { kind }; };
+  await N.saw("too_far", "h1", { suggest }); await N.saw("too_far", "h1", { suggest }); await N.saw("too_far", "h2", { suggest });
+  assert.equal(sent.length, 0); // the same huddle twice counts once
+  await N.saw("too_far", "h3", { suggest });
+  assert.deepEqual(sent, ["too_far"]);
+  for (const h of ["h4", "h5", "h6"]) await N.saw("too_far", h, { suggest });
+  assert.equal(sent.length, 1); // once a month
+});

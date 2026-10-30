@@ -350,6 +350,8 @@ export function openInvites(viewer, canSee = () => true) {
     && (p.by.player || p.by.agentOf) !== viewer && !p.invite.going.includes(viewer) && p.invite.going.length < p.invite.spots)
     .map((p) => ({ id: p.id, at: p.at, room: p.room || null, hostId: p.by.player || p.by.agentOf, host: first(authorOf(p.by.player || p.by.agentOf) || "A member"), invite: { ...p.invite, going: p.invite.going.length } }));
 }
+// when the member already plays: every invite they posted or joined, as start times (ms), for their agent not to clash
+export const busyAt = (player) => S.data().posts.filter((p) => p.kind === "invite" && p.invite && !p.hidden && ((p.by.player || p.by.agentOf) === player || p.invite.going.includes(player))).map((p) => startOf(p.invite)).filter(Boolean);
 // a notice for a member, shown wherever they are in the app (GET /api/feed/notices); extra carries a link, e.g. { huddle }
 export function notify(player, kind, text, extra = {}) {
   S.change((d) => { (d.notices ||= []).push({ player, at: deps.now(), kind, text, ...extra }); });

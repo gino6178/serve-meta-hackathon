@@ -55,6 +55,11 @@ export default function ForYou() {
             <p className="hd-fine">A sample price: the venue hasn't joined Serve yet.</p>
             <div className="cta-row"><a className="btn primary sm" href={`#/huddle?sport=${encodeURIComponent(d.sport)}&date=${d.date}&start=${d.start}&place=${encodeURIComponent(d.place.id)}`}>Get a game then</a><a className="link" href="#/huddle?tab=courts">All courts near you</a></div>
           </div>); }
+        if (c.kind === "alone") return (
+          <div key={i} className="fy-card"><span className="fy-kick">Nobody near you yet</span>
+            <p>Nobody within about 5 km who plays {c.alone.sport} has let other agents ask theirs yet. Post a game and share its link: the first friend needs no account. Or start a club and invite people.</p>
+            <div className="cta-row"><a className="btn primary sm" href="#/social">Post a game</a><a className="btn ghost sm" href="#/club">Start a club</a>{!c.alone.open && <a className="link" href="#/huddle?tab=taste">Let nearby people ask you</a>}</div>
+          </div>);
         if (c.kind === "club") return (
           <div key={i} className="fy-card"><span className="fy-kick">{c.club.name}</span>
             <p>Want a {c.club.sport} game this week? Your agent asks the other {c.club.members - 1} members' agents and finds who fits, and when.</p>

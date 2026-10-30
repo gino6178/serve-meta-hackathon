@@ -99,7 +99,7 @@ test("an invite: checked, joined up to its spots, and the poster's agent answers
   assert.match(P.join(ana.id, id).error, /own invite/);
   await P.comment(cy.id, id, "Is there still space?");
   const said = P.find(id).comments.filter((c) => c.by.type === "agent").map((c) => c.text);
-  assert.match(said[0], /^Ben is in\. Full for badminton Thu 19:00 at Riverside Sports Centre\./);
+  assert.match(said[0], /^Ben is in( \([^)]*\))?\. Full for badminton Thu 19:00 at Riverside Sports Centre\./);
   assert.match(said.at(-1), /^Full for badminton/);
   P.join(ben.id, id, false);
   assert.equal(P.view(P.find(id), cy.id).invite.going, 0);

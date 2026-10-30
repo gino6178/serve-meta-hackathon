@@ -170,6 +170,59 @@ async function chart(file) {
     T(s, "Less screen time, more court time: any ball sport that needs people, a time and a place.", 4.6, 6.78, 8.1, 0.3, { fontSize: 11, color: MUTED, italic: true });
   }
 
+  // 3· · The problem as a picture: everyone has an agent that alone knows their preferences, and agents have nowhere
+  // to meet; Serve is that place, with trust on two tracks, owned keys, and rules that change with what agents need
+  {
+    const s = content("Impact", "IMPACT · THE PROBLEM", "Everyone will have an agent, with nowhere to meet",
+      "示意圖：每個人都有自己的 agent，因為隱私，偏好只有 agent 知道（幾點有空、願意跑多遠、願意付多少），不會攤在群組裡。\n左邊是今天：每個 agent 只認識自己的主人，也只能找通訊錄裡的人；朋友沒空就沒有下一步，而陌生人的 agent 又不知道能不能信。\n右邊是 Serve：一個讓人和 agent 都能進出的地方。agent 帶著主人的偏好來揪團、找附近的夥伴，彼此只交換「可以／不行／原因」，偏好不離開 agent。\n下面三個支柱：AI trust（真人出席率＋agent 守信率，每個 agent 有自己的金鑰、每則訊息都簽章）；Web3 的精神但不用區塊鏈（金鑰在你手上、資料留在你的 agent、社團可以跨伺服器聯盟）；會進化的平台（agent 一直撞到的牆會變成社團的提案，大家投票，經過安全關卡後上線，平台跟著 agent 的需求改變）。");
+    // left: today, each agent alone with its person's preferences
+    box(s, 0.6, 1.8, 5.55, 3.55, { fill: CARD, line: CARD });
+    T(s, "TODAY", 0.85, 1.95, 3, 0.28, { fontSize: 11, bold: true, color: RED, charSpacing: 1 });
+    const unit = (x, y, who, knows) => {
+      s.addShape(pres.shapes.OVAL, { x, y, w: 0.62, h: 0.62, fill: { color: WHITE }, line: { color: LINE, width: 1.25 } });
+      T(s, who, x, y, 0.62, 0.62, { fontSize: 13, bold: true, align: "center", valign: "middle" });
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x + 0.72, y: y - 0.02, w: 1.72, h: 0.66, rectRadius: 0.1, fill: { color: GREENBG }, line: { color: GREEN, width: 1 } });
+      T(s, [{ text: "Agent · private\n", options: { bold: true, color: GREEN, fontSize: 10 } }, { text: knows, options: { fontSize: 9.5, color: INK } }], x + 0.82, y + 0.02, 1.58, 0.6, { valign: "middle" });
+    };
+    unit(0.85, 2.45, "A", "Thu evenings · within 3 km");
+    unit(3.4, 2.45, "B", "Weekends · under NT$100");
+    unit(0.85, 3.75, "C", "Quiet courts · any day");
+    unit(3.4, 3.75, "D", "Early mornings · near work");
+    // the dashed links that go nowhere
+    s.addShape(pres.shapes.LINE, { x: 2.43, y: 3.13, w: 0, h: 0.58, line: { color: RED, width: 1.25, dashType: "dash" } });
+    s.addShape(pres.shapes.LINE, { x: 4.98, y: 3.13, w: 0, h: 0.58, line: { color: RED, width: 1.25, dashType: "dash" } });
+    T(s, "?", 2.55, 3.27, 0.3, 0.3, { fontSize: 14, bold: true, color: RED });
+    T(s, "?", 5.1, 3.27, 0.3, 0.3, { fontSize: 14, bold: true, color: RED });
+    T(s, "Only each agent knows its person's times, distance and price: that stays private. But an agent can only message its own contacts, and has no way to know which strangers' agents to trust.", 0.85, 4.55, 5.1, 0.75, { fontSize: 11, color: MUTED });
+    arrow(s, 6.22, 3.55, 0.45, 0, { color: GREEN, width: 2.5 });
+    // right: Serve, the place where agents meet
+    box(s, 6.75, 1.8, 5.95, 3.55, { fill: GREENBG, line: GREENBG });
+    T(s, "SERVE: A PLACE WHERE PEOPLE AND THEIR AGENTS MEET", 7.0, 1.95, 5.6, 0.28, { fontSize: 11, bold: true, color: GREEN, charSpacing: 1 });
+    const cx = 9.72, cy = 3.5;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: cx - 1.25, y: cy - 0.62, w: 2.5, h: 1.24, rectRadius: 0.18, fill: { color: WHITE }, line: { color: GREEN, width: 2 } });
+    T(s, [{ text: "Huddle\n", options: { bold: true, fontSize: 15 } }, { text: "find partners nearby · agree a time and a court · check trust · ask the venue", options: { fontSize: 9.5, color: MUTED } }], cx - 1.12, cy - 0.55, 2.24, 1.1, { align: "center", valign: "middle" });
+    [["A", 7.25, cy - 0.45], ["B", 11.57, cy - 0.45], ["C", 7.25, cy + 0.45], ["D", 11.57, cy + 0.45]].forEach(([who, x, yc]) => {
+      s.addShape(pres.shapes.OVAL, { x, y: yc - 0.31, w: 0.62, h: 0.62, fill: { color: GREEN }, line: { color: GREEN } });
+      T(s, who, x, yc - 0.31, 0.62, 0.62, { fontSize: 13, bold: true, color: WHITE, align: "center", valign: "middle" });
+      const left = x < cx, x0 = left ? x + 0.66 : cx + 1.29, x1 = left ? cx - 1.29 : x - 0.04;
+      s.addShape(pres.shapes.LINE, { x: x0, y: yc, w: x1 - x0, h: 0, line: { color: GREEN, width: 1.5, beginArrowType: "triangle", endArrowType: "triangle" } });
+    });
+    T(s, "Agents trade only yes, no and why. The preferences never leave the agent.", 7.0, 4.82, 5.5, 0.4, { fontSize: 11, bold: true, color: GREEN, align: "center" });
+    // three pillars
+    const pillars = [
+      ["AI TRUST", "Two records, counted by code: does the person show up, does their agent keep its yeses. Every agent has its own key and signs every message.", GREEN, GREENBG],
+      ["WEB3-STYLE, NO CHAIN NEEDED", "You own your agent's key and your data stays with it. Clubs can federate across servers, and members govern the rules.", BLUE, BLUEBG],
+      ["EVOLVES WITH ITS AGENTS", "What agents keep running into becomes a club idea: members vote, it's built and passes the safety gates, and the platform adapts to its agents.", AMBER, AMBERBG],
+    ];
+    pillars.forEach(([k, d, c, bg], i) => {
+      const x = 0.6 + i * 4.07;
+      box(s, x, 5.55, 3.92, 1.1, { fill: bg, line: bg });
+      T(s, k, x + 0.2, 5.65, 3.6, 0.26, { fontSize: 10.5, bold: true, color: c, charSpacing: 1 });
+      T(s, d, x + 0.2, 5.93, 3.6, 0.7, { fontSize: 10.5 });
+    });
+    T(s, "Ball games come first because they are hard to arrange: several people, a court, the weather. The same place works for any group that meets in person.", 0.6, 6.78, 12.1, 0.28, { fontSize: 10.5, color: MUTED, italic: true });
+  }
+
   // 3a · The next wall: an agent that can only ask your friends, and the trust it needs to ask anyone else
   {
     const s = content("Impact", "IMPACT · BEYOND YOUR FRIENDS", "Beyond your friends, people flake and agents lie",
@@ -303,7 +356,7 @@ async function chart(file) {
       "規劃與球場：\n左：中心點球場地圖（技術報告第 4 頁那張）——每個人的通勤時間、共同空檔，agent 一輪談好。\n右：手機版找球場——Prompt Guard 2 先過濾 Google 評論，Muse Glimmer 同時判斷四個球場，每個理由都引用來源，程式檢查。\n旁白：Then it plans my week, and agrees it with three friends' agents at once, over A2A. Any ball sport works.");
     s.addImage({ data: IMG.venue, x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406 });
     s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406, fill: { type: "none" }, line: { color: LINE, width: 1 } });
-    T(s, "Badminton: the venue in the middle (an earlier run than slide 10, on court 3)", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
+    T(s, "Badminton: the venue in the middle (an earlier run than slide 11, on court 3)", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
     phone(s, IMG.v3.courts_badges, 7.6, 1.85, 4.7, "Basketball: public courts, judged with sources");
     const x = 10.25;
     [["Muse Glimmer plans", "One tool at a time; a refused call comes back as a fact"], ["A2A, usually one round", "Agents mark the times that work; code picks; a counter-offer only if none fits"], ["Prompt Guard 2", "Screens reviews first; Google's are listed with a link, not stored"], ["Nothing booked", "until you say yes"]].forEach(([h, d], i) => {
@@ -551,7 +604,7 @@ async function chart(file) {
       pill(s, t, x, 4.35, 0.8, { fill: GREEN, line: GREEN, color: WHITE, size: 11 });
       T(s, d, x, 4.8, 3.9, 0.8, { fontSize: 12.5 });
     });
-    T(s, "Every speed-up is labelled on screen. The video shows only what this deck lists as built during the hackathon (slide 17).", 0.6, 6.3, 12.1, 0.4, { fontSize: 12, color: MUTED, italic: true });
+    T(s, "Every speed-up is labelled on screen. The video shows only what this deck lists as built during the hackathon (slide 18).", 0.6, 6.3, 12.1, 0.4, { fontSize: 12, color: MUTED, italic: true });
   }
 
   // 24 · End
@@ -564,7 +617,7 @@ async function chart(file) {
     pill(s, "Your week, agreed agent to agent", 1.45, 4.45, 3.3, { h: 0.5, size: 13 });
     pill(s, "Your agent in Messenger", 4.9, 4.45, 2.9, { h: 0.5, size: 13 });
     pill(s, "Auto-cut highlights to Instagram", 7.95, 4.45, 3.95, { h: 0.5, size: 13 });
-    T(s, "Built Oct 28 – Nov 4, 2026, during the hackathon · demo video 2:27 · what is new and what is not: slide 17", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
+    T(s, "Built Oct 28 – Nov 4, 2026, during the hackathon · demo video 2:27 · what is new and what is not: slide 18", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
     T(s, "github.com/gino6178/serve-meta-hackathon  ·  live: https://play.theminimallab.com", 1, 5.78, 11.333, 0.35, { fontSize: 13, color: BLUE, align: "center" });
     T(s, "The product runs Muse Glimmer on an RTX 3090 I own; cloud A100s ran evaluations, including the A2A test's second gateway", 1, 6.6, 11.333, 0.36, { fontSize: 13, color: MUTED, align: "center", valign: "middle" });
     s.addNotes("片尾：Play more, manage less. 黑客松期間開發聲明（TrackNetV5 除外）、repo 連結、Built on Muse Glimmer。\n旁白：That's Serve. Play more, manage less.");

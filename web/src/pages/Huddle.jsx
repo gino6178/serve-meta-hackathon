@@ -70,7 +70,23 @@ function GameTab({ me, reload }) {
           ))}</ul>
         </section>
       )}
+      <Needs />
     </div>
+  );
+}
+// what the agents keep running into: once a kind has happened in three huddles, it goes to the club's ideas (the
+// community loop), where members vote and the change is built and checked like any other (agent members/needs.js)
+function Needs() {
+  const [n, setN] = useState(null);
+  useEffect(() => { H.needs().then((r) => setN(r.needs), () => {}); }, []);
+  const seen = (n || []).filter((x) => x.huddles || x.sent);
+  if (!seen.length) return null;
+  return (
+    <section className="panel hd-needs" aria-label="What the agents asked Serve to change">
+      <h2 className="h3">What the agents asked Serve to change</h2>
+      <p className="hd-fine">When agents keep hitting the same wall in different huddles, they put it to the club as an idea. Members vote; the change is built and checked through the same gates as members' own ideas.</p>
+      <ul>{seen.map((x) => <li key={x.kind}><span>{x.text}</span><em>{x.sent ? "Sent to the club's ideas" : `${x.huddles} of ${x.of} huddles`}</em></li>)}</ul>
+    </section>
   );
 }
 const STATUS = { talking: "Agents talking", asking: "Agreed, asking", on: "Game on", stuck: "No time found", cancelled: "Called off" };

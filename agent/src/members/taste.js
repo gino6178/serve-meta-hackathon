@@ -90,7 +90,7 @@ export function choose(id, q, pick) {
   if (!q || !q.a || !q.b) return { error: "No such question." };
   t.asked = (t.asked || 0) + 1;
   if (pick === "either") {
-    t.answers = [...t.answers, { at: Date.now(), kind: "pair", q: q.id, pick }].slice(-40);
+    t.answers = [...t.answers, { at: Date.now(), kind: "pair", q: q.id, pick, axes: q.axes }].slice(-40);
     const line = say(t, "Either works for you there, so I won't fuss over that difference.");
     return { taste: view(put(id, t)), line };
   }
