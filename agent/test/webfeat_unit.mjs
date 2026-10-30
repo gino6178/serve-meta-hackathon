@@ -182,6 +182,17 @@ test("the camera effect: what was chosen and why, in the player's words", () => 
   for (const s of [orbit, zoom, hold]) assert.ok(!/SAM 2\.1|MapAnything|Sapiens/.test(JSON.stringify(s.why)), "no model names in the reasons");
   assert.equal(reel.effectsReady(), false, "not set up without REEL_EFFECTS_SCRIPT");
 });
+test("the reel script: REEL_SCRIPT, else this checkout's video/pose/reel.py", () => {
+  const was = process.env.REEL_SCRIPT;
+  try {
+    delete process.env.REEL_SCRIPT;
+    const def = reel.script();
+    assert.equal(path.basename(def), "reel.py"); assert.equal(path.basename(path.dirname(def)), "pose"); assert.equal(path.basename(path.dirname(path.dirname(def))), "video");
+    assert.ok(fs.existsSync(def), "the repository's reel.py is there");
+    process.env.REEL_SCRIPT = "/elsewhere/reel.py";
+    assert.equal(reel.script(), "/elsewhere/reel.py");
+  } finally { if (was === undefined) delete process.env.REEL_SCRIPT; else process.env.REEL_SCRIPT = was; }
+});
 
 // ---- the builder's runs for the maintainer ----------------------------------------------------------------------------
 const PDIR = path.join(process.env.LOOP_DIR, "proposals");

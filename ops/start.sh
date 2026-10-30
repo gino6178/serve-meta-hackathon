@@ -2,13 +2,15 @@
 # Bring up Serve's server side, leaving alone whatever already runs: Muse Glimmer on its own Ollama (GPU 1, port 11435),
 # Llama Guard 3 1B on a CPU Ollama (port 11436) when ollama/guard.sh is there, and the
 # agent gateway on port 8790.
-# The script goes in the deployment's root, beside ollama/, agent/ and pose/:
+# The script goes in the deployment's root, beside ollama/, agent/ and video/:
 #   ./start.sh          start what is not running yet
 #   ./start.sh stop     stop these services (an `ollama pull` that is still going stops with them)
 # What differs from one machine to the next comes from the environment, or from start.env next to this script, which
 # is read first when it is there: NODE_BIN (the node binary; default: node on the PATH), REEL_PYTHON (a Python with
 # torch and transformers, for highlight reels; unset, reels stay off) and REEL_HF_CACHE (the Hugging Face cache for the
-# reel and memory models; unset, Hugging Face's own default).
+# reel and memory models; unset, Hugging Face's own default). The reel is video/pose/reel.py (REEL_SCRIPT to run another;
+# the old pose/ folder is no longer used), and it reads PERSON_DETECTOR, PERSON_DETECTOR_MODEL, BALL_TRACKING and
+# RALLY_CLIP from start.env too (docs/person_detector.md).
 set -o nounset # an unset variable stops the script rather than reading as empty
 ROOT="$(cd -- "$(dirname -- "$0")" && pwd)"
 if [ -f "$ROOT/start.env" ]; then . "$ROOT/start.env"; fi
@@ -44,7 +46,9 @@ fi
   cd "$ROOT/agent" || exit 1
   export PORT=8790 LLM_URL=http://127.0.0.1:11435/v1 LLM_MODEL=muse-glimmer LLM_DEVICE="RTX 3090 (CUDA)"
   export EMBED_URL=http://127.0.0.1:11434 ALLOW_ORIGINS=http://127.0.0.1:5191,http://localhost:5191 MEMBERS_APP_URL="${MEMBERS_APP_URL:-http://127.0.0.1:5191}" LLM_FALLBACK="${LLM_FALLBACK:-on}" VOICE_TTS_PYTHON="${VOICE_TTS_PYTHON:-$HOME/shuttlecoach/tts/env/bin/python}" VOICE_TTS_MODELS="${VOICE_TTS_MODELS:-$HOME/shuttlecoach/tts/models}"
-  export REEL_PYTHON="${REEL_PYTHON:-}" REEL_SCRIPT="$ROOT/pose/reel.py" REEL_GPU=0 REEL_HF_CACHE="${REEL_HF_CACHE:-}"
+  export REEL_PYTHON="${REEL_PYTHON:-}" REEL_SCRIPT="${REEL_SCRIPT:-$ROOT/video/pose/reel.py}" REEL_GPU=0 REEL_HF_CACHE="${REEL_HF_CACHE:-}"
+  # the ball tracker (BALL_TRACKING=1) runs in its own Python, which has TrackNetV5's requirements (pandas, parse, ...)
+  export BALL_PYTHON="${BALL_PYTHON:-$ROOT/orbit/venv/bin/python}"
   # the highlight's camera effect (zoom and cut, a short orbit): docs/web_features.md
   export REEL_EFFECTS_SCRIPT="${REEL_EFFECTS_SCRIPT:-$ROOT/orbit/orbit.py}" REEL_EFFECTS_PYTHON="${REEL_EFFECTS_PYTHON:-$ROOT/orbit/venv/bin/python}"
   export ORBIT_MAPANYTHING="${ORBIT_MAPANYTHING:-$ROOT/orbit/weights/map-anything-apache}"

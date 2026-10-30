@@ -1,8 +1,9 @@
 // Your own video, made into a highlight reel. The app sends the clip to this gateway on your own GPU server;
-// video/pose/reel.py finds you (Meta's DETR), reads your pose (Sapiens2), cuts you out (SAM 2.1) and finds your smash,
+// video/pose/reel.py finds you (RT-DETRv2; Meta's DETR with PERSON_DETECTOR=detr), reads your pose (Sapiens2), cuts you out (SAM 2.1) and finds your smash,
 // and its steps stream back to the app as they finish. The clip and the working files are deleted as soon as the
-// result is sent. Set REEL_PYTHON and REEL_SCRIPT (ops/start.sh does), and optionally REEL_GPU, REEL_HF_CACHE and
-// REEL_MAX_MB (default 300).
+// result is sent. Set REEL_PYTHON (ops/start.sh does, from start.env), and optionally REEL_SCRIPT (default: this
+// checkout's video/pose/reel.py), REEL_GPU, REEL_HF_CACHE and REEL_MAX_MB (default 300). The reel reads its own
+// settings from the environment too (PERSON_DETECTOR, PERSON_DETECTOR_MODEL, BALL_TRACKING, RALLY_CLIP: docs/person_detector.md).
 // The camera effect, an optional step (effects: the app's "Add a camera effect"): video/pose/orbit.py decides, for your
 // moment, between a zoom and cut (the default), a short orbit (time stops and the camera moves round you, only when the
 // footage carries it) and no effect, and renders it. Every effect needs its target in frame: orbit.py's exists check
@@ -14,10 +15,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const MAX = +(process.env.REEL_MAX_MB || 300) * 1e6;
 let busy = false; // one reel at a time: the GPU reads one video at a time
-export const ready = () => !!(process.env.REEL_PYTHON && process.env.REEL_SCRIPT && fs.existsSync(process.env.REEL_SCRIPT));
+// the reel script: REEL_SCRIPT, else the repository's video/pose/reel.py beside this agent/ (not an older copy elsewhere)
+export const script = () => process.env.REEL_SCRIPT || fileURLToPath(new URL("../../../video/pose/reel.py", import.meta.url));
+export const ready = () => !!(process.env.REEL_PYTHON && fs.existsSync(script()));
 export const effectsReady = () => ready() && !!(process.env.REEL_EFFECTS_SCRIPT && fs.existsSync(process.env.REEL_EFFECTS_SCRIPT));
 const gpuEnv = () => ({ CUDA_VISIBLE_DEVICES: process.env.REEL_GPU || "0", ...(process.env.REEL_HF_CACHE ? { HF_HUB_CACHE: process.env.REEL_HF_CACHE } : {}) });
 
@@ -38,7 +42,7 @@ export async function make(req, send, sport = "badminton", { effects = false } =
     await new Promise((ok, bad) => {
       const env = { ...process.env, ...(process.env.REEL_GPU ? { CUDA_VISIBLE_DEVICES: process.env.REEL_GPU } : {}), ...(process.env.REEL_HF_CACHE ? { HF_HUB_CACHE: process.env.REEL_HF_CACHE } : {}) };
       // at the lowest CPU priority on a shared server (REEL_NICE=off runs it as it is)
-      const args = [process.env.REEL_SCRIPT, src, out, String(sport || "badminton").replace(/[^a-z ]/gi, "").slice(0, 20) || "badminton"];
+      const args = [script(), src, out, String(sport || "badminton").replace(/[^a-z ]/gi, "").slice(0, 20) || "badminton"];
       const nice = process.platform !== "win32" && process.env.REEL_NICE !== "off";
       const p = nice ? spawn("nice", ["-n", "19", process.env.REEL_PYTHON, ...args], { env }) : spawn(process.env.REEL_PYTHON, args, { env });
       let buf = "", err = "";
