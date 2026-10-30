@@ -13,7 +13,7 @@ async function call(path, body) {
   try {
     r = await agentFetch(path, body instanceof Blob ? { method: "POST", headers: { "content-type": body.type || "application/octet-stream" }, body }
       : body ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) } : {});
-  } catch { throw new FeedError("offline", "Your server did not answer."); }
+  } catch { throw new FeedError("offline", "Can't reach Serve right now — try again in a moment."); }
   const j = await r.json().catch(() => null);
   if (r.status === 404 && !j?.error) throw new FeedError("missing", "This server does not have the club feed yet.");
   if (r.status === 401 || r.status === 403) throw new FeedError("auth", j?.error || "The gateway refused the token.");
@@ -42,7 +42,7 @@ export const feedApi = {
   async reel(file, sport, onStep) {
     let r;
     try { r = await agentFetch(`/api/feed/reel?sport=${encodeURIComponent(sport || "badminton")}`, { method: "POST", headers: { "content-type": file.type || "video/mp4" }, body: file }); }
-    catch { throw new FeedError("offline", "Your server did not answer."); }
+    catch { throw new FeedError("offline", "Can't reach Serve right now — try again in a moment."); }
     if (!r.ok || !r.body) { const j = await r.json().catch(() => null); throw new FeedError(r.status === 413 ? "limit" : "server", j?.error || `The gateway answered ${r.status}.`); }
     const rd = r.body.getReader(), dec = new TextDecoder();
     let buf = "";
@@ -69,7 +69,7 @@ export const feedApi = {
 async function asMaintainer(token, path, body) {
   let r;
   try { r = await fetch(AGENT_URL + path, body ? { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify(body) } : { headers: { authorization: `Bearer ${token}` } }); }
-  catch { throw new FeedError("offline", "Your server did not answer."); }
+  catch { throw new FeedError("offline", "Can't reach Serve right now — try again in a moment."); }
   const j = await r.json().catch(() => null);
   if (r.status === 401 || r.status === 403) throw new FeedError("auth", j?.error || "The gateway refused the maintainer's token.");
   if (r.status === 404 && !j?.error) throw new FeedError("missing", "This server does not have the club feed's reports yet.");
