@@ -5,7 +5,7 @@ server, called by the agent gateway (agent/src/media/reel.js) for a video the pl
   soccer: your fastest kick
   python reel.py <in.mp4> <out.json> [sport]
 Prints one JSON line per step ({"step", "detail"}) for the gateway to stream to the app.
-- Meta's DETR finds the people on every second frame. The largest person who stays in the picture is you; the next
+- Meta's DETR (or RT-DETR, PERSON_DETECTOR=rtdetr) finds the people on every second frame. The largest person who stays in the picture is you; the next
   one is the other player.
 - Meta's Sapiens2 reads both players' pose and SAM 2.1 cuts each one out, every second frame, and every frame in the
   two and a half seconds around the smash, for the slow motion.
@@ -35,12 +35,29 @@ def say(step, detail=""):
     print(json.dumps({"step": step, "detail": detail}), flush=True)
 
 
-# DETR's no-timm weights: its config has dilation null, which Transformers 5 refuses; it means no dilation
-cfg = json.load(open(hf_hub_download("facebook/detr-resnet-50", "config.json", revision="no_timm")))
-cfg["dilation"] = bool(cfg.get("dilation"))
-detr_cfg = DetrConfig(**{k: v for k, v in cfg.items() if not k.startswith("_") and k not in ("architectures", "transformers_version", "model_type")})
-dp = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
-dm = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm", config=detr_cfg).to(dev).eval()
+# The person detector, swappable: PERSON_DETECTOR=detr (the default: Meta's DETR, whose repository is archived) or
+# rtdetr (RT-DETRv2, Apache 2.0, opt-in until it has run on the server). Either gives the same thing: per frame, the
+# person boxes [[x0, y0, x1, y1], ...] scoring at least PERSON_THRESHOLD (0.8 unless set). PERSON_DETECTOR_MODEL
+# picks another checkpoint of the same family (for RT-DETR v1: PekingU/rtdetr_r50vd).
+DETECTOR = os.environ.get("PERSON_DETECTOR", "detr").lower()
+THRESH = float(os.environ.get("PERSON_THRESHOLD", "0.8"))
+if DETECTOR == "rtdetr":
+    from transformers import AutoImageProcessor, AutoModelForObjectDetection
+    _ckpt = os.environ.get("PERSON_DETECTOR_MODEL", "PekingU/rtdetr_v2_r50vd")
+    dp = AutoImageProcessor.from_pretrained(_ckpt)
+    dm = AutoModelForObjectDetection.from_pretrained(_ckpt).to(dev).eval()
+    DETECTOR_NAME = "RT-DETR"
+elif DETECTOR == "detr":
+    # DETR's no-timm weights: its config has dilation null, which Transformers 5 refuses; it means no dilation
+    cfg = json.load(open(hf_hub_download("facebook/detr-resnet-50", "config.json", revision="no_timm")))
+    cfg["dilation"] = bool(cfg.get("dilation"))
+    detr_cfg = DetrConfig(**{k: v for k, v in cfg.items() if not k.startswith("_") and k not in ("architectures", "transformers_version", "model_type")})
+    dp = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
+    dm = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm", config=detr_cfg).to(dev).eval()
+    DETECTOR_NAME = "Meta's DETR"
+else:
+    sys.exit(f"PERSON_DETECTOR must be detr or rtdetr, not {DETECTOR!r}")
+PERSON = {i for i, name in dm.config.id2label.items() if name == "person"}
 sp = Sapiens2ImageProcessor.from_pretrained("facebook/sapiens2-pose-0.4b")
 sm = Sapiens2ForPoseEstimation.from_pretrained("facebook/sapiens2-pose-0.4b", torch_dtype=torch.bfloat16).to(dev).eval()
 qp = Sam2Processor.from_pretrained("facebook/sam2.1-hiera-large")
@@ -76,8 +93,8 @@ def frames(want):
 def detect(batch):
     x = dp(images=[im for _, im in batch], return_tensors="pt").to(dev)
     o = dm(**x)
-    rs = dp.post_process_object_detection(o, threshold=0.8, target_sizes=[(H, W)] * len(batch))
-    return [[b.tolist() for s, l, b in zip(r["scores"], r["labels"], r["boxes"]) if dm.config.id2label[l.item()] == "person"] for r in rs]
+    rs = dp.post_process_object_detection(o, threshold=THRESH, target_sizes=[(H, W)] * len(batch))
+    return [[b.tolist() for s, l, b in zip(r["scores"], r["labels"], r["boxes"]) if l.item() in PERSON] for r in rs]
 
 
 # 1 everyone, every second frame
@@ -119,11 +136,11 @@ if not tracks:
     json.dump({"error": "no player"}, open(out, "w"))
     sys.exit(0)
 players = tracks[:2]
-say("Found you", f"Meta's DETR found {len(players)} player{'s' if len(players) > 1 else ''} in {len(boxes)} frames; you are the nearer one")
+say("Found you", f"{DETECTOR_NAME} found {len(players)} player{'s' if len(players) > 1 else ''} in {len(boxes)} frames; you are the nearer one")
 
 
 def box_at(t, i):
-    """a track's box on frame i, between its neighbours when DETR missed it"""
+    """a track's box on frame i, between its neighbours when the detector missed it"""
     bs = t["boxes"]
     if i in bs:
         return bs[i]
