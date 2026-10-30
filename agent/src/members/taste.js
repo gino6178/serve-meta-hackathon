@@ -127,7 +127,8 @@ export function hardNos(t, o) {
     const tt = { ...t, windows: k === "windows" ? t.windows : [], limitKm: k === "km" ? t.limitKm : null, limitEach: k === "each" ? t.limitEach : null, busyAt: k === "busy" ? t.busyAt : [], declined: k === "declined" ? t.declined : [], maxKm: 1e9, priceCap: 1e9 };
     const r = one(tt); if (r && !out.includes(r)) out.push(r);
   }
-  const soft = hardNo({ ...t, windows: [], limitKm: null, limitEach: null, busyAt: [], declined: [] }, o); if (soft && !out.includes(soft)) out.push(soft);
+  // the learned soft lines, except where the person set a hard limit of their own (as in hardNo)
+  const soft = hardNo({ ...t, windows: [], limitKm: null, limitEach: null, busyAt: [], declined: [], ...(t.limitKm ? { maxKm: 1e9 } : {}), ...(t.limitEach != null ? { priceCap: 1e9 } : {}) }, o); if (soft && !out.includes(soft)) out.push(soft);
   return out;
 }
 export function hardNo(t, o) {

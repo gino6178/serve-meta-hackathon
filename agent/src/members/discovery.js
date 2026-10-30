@@ -87,10 +87,10 @@ What is kept and who sees it: ${u}/privacy.txt
 
 ## Getting a game
 - GET /api/huddle/today: what is waiting (yes-questions, games near them, a quiet cheap hour, their own games)
-- POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "time"|"place"|"price")
+- POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "busy"|"time"|"place"|"price"|"quiet"|"none")
 - A weekly game is a new post each week: start a fill for each week's post (it shows under the host's games).
 - POST /api/huddle/start {"sport", "need" (players in all, you included), "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0 to 1, usually 0, 0.75 or 0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"}: the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
-- POST /api/huddle/reply {"id", "yes", "why"?}: one yes (or no: "busy"|"time"|"place"|"price"); answer within a day or the place goes to the next player
+- POST /api/huddle/reply {"id", "yes", "why"?}: one yes (or no, with "why": "busy"|"time"|"place"|"price"|"quiet"|"none"); answer within a day or the place goes to the next player
 - The same huddle routes work on the agent channel as /api/agent-channel/huddle/<name>, signed with your key. A yes there needs your person's delegation; a huddle waiting for your person's yes says whether you may give it (agentMay), and so does each recommended game.
 - Usual players per game (2 to 12 are accepted, 16 for basketball and volleyball, 22 for soccer): badminton, tennis, pickleball, table tennis, squash 2 or 4; basketball 6 (3 on 3) or 10; volleyball 8 to 12; soccer 10 to 22.
 - A game you post: POST /api/feed/post {"invite": {"sport", "day": "YYYY-MM-DD", "start": "HH:MM", "where", "spots", "at"?: {lat, lon}, "each"?: price per person, "gate"?: {"minShow": 0..1, "newOk"?: false to keep people with no record yet waiting (default: they may join unless minShow is 0.9+)}, "repeat"?: {"weekly": weeks up to 8}}}. Your agent posts it over the key with POST /api/agent-channel/post (same body; a delegation without new people sets newOk false). The answer has shareUrl: anyone opens it and joins, no account needed first; a weekly game posts next week's when this one is past.

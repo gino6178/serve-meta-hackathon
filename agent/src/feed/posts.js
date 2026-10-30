@@ -234,6 +234,7 @@ export function join(player, postId, on = true) {
       return { post: view(p, player), waitlisted: true, why: c.why };
     }
   }
+  if (!on && was) onLeft(player, p.id);
   // a late drop: leaving in the last six hours after being in for more than half an hour (a quick mistake is not one)
   const late = !on && deps.now() - ((v.joinedAt || {})[player] || 0) > 30 * 60e3 && Tr.left(player, startOf(v));
   S.change(() => {
@@ -372,6 +373,8 @@ export function remove(player, postId, cid = null) {
     return { deleted: true };
   }
   if (!(p.by.player === player || p.by.agentOf === player)) return { error: "Only its author can delete that post.", code: 403 };
+  // a deleted game: everyone in it or waiting for it hears it's off
+  if (p.invite) { const host = first(authorOf(p.by.player || p.by.agentOf) || "The host"); for (const x of [...p.invite.going, ...(p.invite.waitlist || [])]) if (x !== player) notify(x, "called-off", `${host} called off ${p.invite.sport} ${dayWords(p.invite.day)} ${p.invite.start} at ${p.invite.where}.`, { post: p.id }); }
   S.change((d) => { S.dropMedia(p.media); d.posts = d.posts.filter((x) => x !== p); });
   onRemoved(p.id);
   return { deleted: true };
@@ -379,6 +382,9 @@ export function remove(player, postId, cid = null) {
 // the games the agents agreed (or are asking about) that aren't a feed post: {at, what, huddle}; members/huddle.js sets it
 let huddleBusy = () => [];
 export const busyFrom = (f) => { huddleBusy = f; };
+// someone left a game: the agents' record of who said yes follows (members/huddle.js sets it)
+let onLeft = () => {};
+export const whenLeft = (f) => { onLeft = f; };
 // a deleted game: the agents filling it stop too (members/huddle.js registers this)
 let onRemoved = () => {};
 export const whenRemoved = (f) => { onRemoved = f; };

@@ -227,7 +227,7 @@ async function run(h, now = new Date()) {
   }
   if (!agreed && bestTry && (bestTry.players.length >= 2 || direct.length)) {
     agreed = bestTry;
-    line(h, "host", h.fill ? `${agreed.players.length - 1} of the ${h.need - 1} open spots found people whose agents said yes; the other ${h.need - agreed.players.length} stay open in your game.` : `No time suits all ${h.need} this week. ${when(opts[agreed.k])} suits the most of you (${agreed.players.length}); the other ${h.need - agreed.players.length} spot${h.need - agreed.players.length > 1 ? "s" : ""} will be open to the club.`, { who: hostName });
+    line(h, "host", h.fill ? `${agreed.players.length - 1} of the ${h.need - 1} open spots found people whose agents said yes; the other ${h.need - agreed.players.length} stay open in your game.` : agreed.players.length - 1 >= others.length ? `Everyone who could be asked said yes to ${when(opts[agreed.k])}, but that's ${agreed.players.length} of the ${h.need} players: the other ${h.need - agreed.players.length} spot${h.need - agreed.players.length > 1 ? "s" : ""} will be open to the club.` : `No time suits all ${h.need} this week. ${when(opts[agreed.k])} suits the most of you (${agreed.players.length}); the other ${h.need - agreed.players.length} spot${h.need - agreed.players.length > 1 ? "s" : ""} will be open to the club.`, { who: hostName });
   }
   if (!agreed && direct.length && short.length) agreed = { k: short[0], players: [host] };
   // a time the host picked themself: the agents' guesses don't block it; the best-suited people are asked directly
@@ -427,8 +427,13 @@ export function cancel(me, id) {
 const fillOf = (h) => (h.fill ? P.find(h.fill)?.invite || null : null);
 // a member's agreed games that aren't on the feed (yet), for the feed's join not to double-book them
 P.busyFrom((id, post) => data().huddles.filter((h) => ["asking", "on"].includes(h.status) && h.pick && h.players.includes(id) && h.post !== post && h.fill !== post && !(h.status === "on" && h.post)).map((h) => ({ at: startMs(h.pick), what: `${h.sport} ${when(h.pick)} (the agents agreed it)`, huddle: h.id })));
+// a player who leaves the posted game is no longer one of the game's yeses
+P.whenLeft((id, post) => { let any = false; for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && x.status === "on" && x.players.includes(id) && id !== x.host)) { h.players = h.players.filter((x) => x !== id); delete h.answers[id]; line(h, id, `${first(id)} left the game.`, { who: first(id) }); any = true; } if (any) save(); });
 // a posted game deleted while the agents fill it: the fill stops, and those asked hear it's off
-P.whenRemoved((post) => { for (const h of data().huddles.filter((x) => x.fill === post && ["talking", "asking"].includes(x.status))) { h.status = "cancelled"; line(h, "host", `${first(h.host)} deleted the game, so it's off.`, { who: first(h.host) }); for (const id of h.players.filter((x) => x !== h.host)) { P.dropNotices(id, h.id); P.notify(id, "huddle", `${first(h.host)} deleted the ${h.sport} game ${h.pick ? when(h.pick) : ""}: it's off.`, { huddle: h.id }); } } save(); });
+P.whenRemoved((post) => {
+  // a game that was on and posted: it's off with its post (the feed already told the players)
+  for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && x.status === "on")) { h.status = "cancelled"; line(h, "host", `${first(h.host)} deleted the game, so it's off.`, { who: first(h.host) }); }
+  for (const h of data().huddles.filter((x) => x.fill === post && ["talking", "asking"].includes(x.status))) { h.status = "cancelled"; line(h, "host", `${first(h.host)} deleted the game, so it's off.`, { who: first(h.host) }); for (const id of h.players.filter((x) => x !== h.host)) { P.dropNotices(id, h.id); P.notify(id, "huddle", `${first(h.host)} deleted the ${h.sport} game ${h.pick ? when(h.pick) : ""}: it's off.`, { huddle: h.id }); } } save(); });
 // the host's card for a posted game shows its live fill: talking, or agreed and waiting for yeses
 P.onFill((post) => { const h = data().huddles.filter((x) => x.fill === post && ["talking", "asking"].includes(x.status)).at(-1); if (!h) return null; const others = h.players.filter((x) => x !== h.host); return { huddle: h.id, status: h.status, asked: others.length, yes: others.filter((x) => h.answers[x] === "yes").length }; });
 export function view(h, me) {

@@ -247,7 +247,8 @@ function HuddleView({ id, onBack, onChange = () => {} }) {
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const dayOf = (date) => { const [y, m, d] = date.split("-").map(Number); return new Date(y, m - 1, d); };
 function CourtsTab({ me }) {
-  const [sport, setSport] = useState(me.taste.sports[0] || "badminton"), [r, setR] = useState(null), [err, setErr] = useState("");
+  // the sport they asked for in their own words first, then the ones set for them
+  const [sport, setSport] = useState(() => [...H.SPORTS].sort((a, b) => b.length - a.length).find((x) => new RegExp(x, "i").test(saidWords())) || me.taste.sports[0] || "badminton"), [r, setR] = useState(null), [err, setErr] = useState("");
   useEffect(() => {
     let live = true, t = null;
     const load = () => H.places(sport).then((x) => { if (!live) return; setR(x); if (x.looking) t = setTimeout(load, 4000); }, (e) => setErr(e.message));
@@ -262,7 +263,7 @@ function CourtsTab({ me }) {
       {r && !r.home && <p className="muted">Share your area first.</p>}
       {(!r || r.looking) && r?.home !== false && <p className="muted hd-looking"><i className="hd-wait" />Looking at the map around you (OpenStreetMap can take up to a minute)…</p>}
       {r?.places?.map((p) => <Place key={p.id} p={p} sport={sport} />)}
-      {r && !r.looking && r.home && !r.places.length && <p className="muted">{r.note || `No ${sport} courts found near you on the map.`}</p>}
+      {r && !r.looking && r.home && !r.places.length && <p className="muted">{r.note ? "The map of courts isn't answering right now. When you post a game, type its place yourself, or try again in ten minutes." : `No ${sport} courts found near you on the map.`}</p>}
     </div>
   );
 }
