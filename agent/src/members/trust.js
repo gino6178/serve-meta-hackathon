@@ -201,7 +201,7 @@ export const mine = (id) => { const w = subject(id); return { subject: w, entrie
 export const publicChain = ({ after = -1, n = 500 } = {}) => ({ entries: data().chain.filter((e) => e.n > after).slice(0, Math.min(2000, n)), heads: data().heads, genesis: GENESIS, length: data().chain.length,
   how: "hash = sha256(JSON.stringify([n, at, kind, who, d, prev])); each prev is the hash before it; heads are signed as 'serve-trust-head:<day>:<n>:<hash>' with the Ed25519 key at /a2a/keys.json" });
 export const showText = (b) => (b.show.new ? `new · ${b.show.games} game${b.show.games === 1 ? "" : "s"}` : `shows up ${Math.round(b.show.rate * 100)}% · ${b.show.games} games`);
-export const agentText = (b) => (b.agent.probe ? "asks too many agents" : b.agent.badSig ? "signature problems" : b.agent.new ? "agent new" : `agent keeps ${Math.round(b.agent.rate * 100)}% of its yeses`);
+export const agentText = (b) => (b.agent.probe ? "agent paused" : b.agent.badSig ? "agent being checked" : b.agent.new ? "agent new" : `agent right ${Math.round(b.agent.rate * 100)}%`);
 // a game's gate: { minShow (0..1, 0 = anyone), agentMin (0..1) }; the verdict for one person:
 //   ok        their agent may answer for them
 //   confirm   they can play, but their agent can't say yes for them: they are asked themself
@@ -218,7 +218,7 @@ export function explain(id, now = Date.now()) {
   if (b.agent.probe) out.push("Your agent asked too many people's agents today: nearby asks pause for a day; your clubs still work.");
   if (b.agent.badSig) out.push("Requests with your agent's key failed their check in the last 30 days: for now you are asked directly. Check the key's signing (see /llms.txt).");
   if (b.agent.new) out.push(`Your agent: new (${b.agent.said} yes${b.agent.said === 1 ? "" : "es"} counted; it needs ${NEW_UNDER} from two different hosts).`);
-  else { const kept = Math.round(b.agent.rate * b.agent.said), n = Math.max(0, Math.ceil((AGENT_MIN * b.agent.said - kept) / (1 - AGENT_MIN))); out.push(`Your agent keeps ${Math.round(b.agent.rate * 100)}% of its yeses (${kept} of ${b.agent.said}). ${b.agent.rate >= AGENT_MIN ? `It may answer for you while it stays at ${AGENT_MIN * 100}% or more.` : `Under ${AGENT_MIN * 100}% it can't say yes for you, so you're asked directly; each time you answer the way it would have, it counts. ${n} more like that and it answers for you again.`}`); }
+  else { const kept = Math.round(b.agent.rate * b.agent.said), n = Math.max(0, Math.ceil((AGENT_MIN * b.agent.said - kept) / (1 - AGENT_MIN))); out.push(`Your agent was right ${Math.round(b.agent.rate * 100)}% of the time it said yes for you (${kept} of ${b.agent.said}). ${b.agent.rate >= AGENT_MIN ? `It may answer for you while it stays at ${AGENT_MIN * 100}% or more.` : `Under ${AGENT_MIN * 100}% it can't say yes for you, so you're asked directly; each time you answer the way it would have, it counts. ${n} more like that and it answers for you again.`}`); }
   return out;
 }
 export function check(id, gate = {}, now = Date.now()) {

@@ -17,7 +17,8 @@ export default function ForYou() {
   useEffect(() => { if (!r?.looking) return; const t = setTimeout(load, 5000); return () => clearTimeout(t); }, [r?.looking]);
   if (!r || r.failed) return null;
   const note = (k, line) => setSaid((s) => ({ ...s, [k]: line }));
-  const act = async (k, fn) => { setBusy(true); try { const x = await fn(); note(k, x.line || "Done."); load(); } catch (e) { note(k, e.message); } setBusy(false); };
+  const [last, setLast] = useState("");
+  const act = async (k, fn) => { setBusy(true); try { const x = await fn(); note(k, x.line || "Done."); setLast(x.line || "Done."); load(); } catch (e) { note(k, e.message); setLast(e.message); } setBusy(false); };
   const t = r.taste;
   return (
     <section className="fy" aria-labelledby="fy-h">
@@ -25,6 +26,7 @@ export default function ForYou() {
         <div><b id="fy-h">Your agent, for you</b><p>{t.answers ? t.summary : "It learns how you like to play from a few answers, then answers for you when friends' agents ask."}</p></div>
         <a className="btn ghost sm" href="#/huddle?tab=taste">How you play</a>
       </div>
+      {last && <p className="fy-last" role="status">{last}</p>}
       {!r.home && (
         <div className="fy-card needs"><span className="fy-kick">To find courts near you</span><p>Share your rough area (about 1 km, never an address) and your agent can look for games and quiet courts around you.</p>
           <div className="cta-row"><button className="btn primary sm" disabled={busy} onClick={() => act("home", H.shareHome)}>Share my area</button></div>{said.home && <p className="tq-said">{said.home}</p>}</div>
@@ -40,8 +42,8 @@ export default function ForYou() {
           </div>); }
         if (c.kind === "mine") return (
           <div key={i} className="fy-card"><span className="fy-kick">Your games</span>
-            <ul className="fy-mine">{c.games.map((g) => <li key={g.post}><b>{cap(g.sport)} {g.when}</b><span>{g.where}{g.club ? ` · ${g.club}` : ""} · {g.waiting ? "you're on the waitlist" : g.mine ? `${g.going} of ${g.spots} joined` : `with ${g.host}, ${g.going} of ${g.spots} in`}</span>
-              {!g.mine && <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, false); return { line: g.waiting ? "Off the waitlist." : "You've left that game." }; })}>{g.waiting ? "Leave the waitlist" : "Can't make it"}</button>}</li>)}</ul>
+            <ul className="fy-mine">{c.games.map((g) => <li key={g.post}><b>{cap(g.sport)} {g.when}</b><span>{g.where}{g.club ? ` · ${g.club}` : ""} · {g.agreed ? `agreed; ${g.going} of ${g.spots} said yes, waiting for the rest` : g.waiting ? "you're on the waitlist" : g.mine ? `${g.going} of ${g.spots} joined` : `with ${g.host}, ${g.going} of ${g.spots} in`}</span>
+              {g.agreed ? <a className="link" href={`#/huddle?id=${g.huddle}`}>See it</a> : !g.mine && <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, false); return { line: g.waiting ? "Off the waitlist." : "You've left that game." }; })}>{g.waiting ? "Leave the waitlist" : "Can't make it"}</button>}</li>)}</ul>
             {Object.entries(said).filter(([k]) => k.startsWith("m")).map(([k, v]) => <p key={k} className="tq-said">{v}</p>)}
           </div>);
         if (c.kind === "attend") return <Attend key={c.attend.key} a={c.attend} onDone={load} />;

@@ -28,13 +28,15 @@ import Huddle from "./pages/Huddle.jsx";
 // Serve's shell: a sidebar on a computer and a tab bar on a phone, the way a social app has them. Five tabs (the
 // feed, your agent, the club, play and you), Messenger as the inbox, and the rest under More. Pages are picked by the
 // address (#/club?tab=ranks); every page reads the demo club, which ships with the app (public/data/club.json).
+// (#/i/<id>, an older form of a game's link, opens the invite page)
+if (/^#\/i\/[\w-]+/.test(location.hash)) location.hash = `/invite?id=${location.hash.split("/")[2]}`;
 const route = () => location.hash.replace(/^#\/?/, "").split("?")[0] || "home";
 export function go(path) { location.hash = "/" + path; window.scrollTo(0, 0); }
 
 const TABS = [
   { k: "social", label: "Feed", icon: "live", on: ["social", "join"] },
   { k: "home", label: "Agent", icon: "spark", on: ["home", "autopilot", "chats"] },
-  { k: "huddle", label: "Huddle", icon: "shared", on: ["huddle"] },
+  { k: "huddle", label: "Games", icon: "shared", on: ["huddle"] },
   { k: "club", label: "Club", icon: "coaches", on: ["club"] },
   { k: "play", label: "Play", icon: "book", on: ["play", "courts"] },
   { k: "you", label: "You", icon: "you", on: ["you", "body", "memory", "highlights", "match"] },
@@ -96,7 +98,7 @@ function Shell({ page, club }) {
           ))}
         </nav>
         <div className="side-tools">
-          <a className="btn primary side-new" href="#/play" title="Find a game: your agent finds the court and the people"><Icon name="book" size={18} /><span className="lbl">Find a game</span></a>
+          <a className="btn primary side-new" href={memberNow() ? "#/huddle" : "#/play"} title="Find a game: your agent finds the court and the people"><Icon name="book" size={18} /><span className="lbl">Find a game</span></a>
           <AskOutLoud />
           <a className="icon-btn side-inbox" href="#/messages" aria-label="Messenger" aria-current={cur(INBOX)}><Icon name="send" size={20} /></a>
           <div className="side-more" ref={moreBox}>
@@ -140,6 +142,7 @@ function GameOn() {
     return () => { live = false; clearInterval(t); removeEventListener("visibilitychange", ask); };
   }, []);
   const n = notes[0];
+  useEffect(() => { if (!n?.nudge) return; const t = setTimeout(() => setNotes((x) => x.slice(1)), 9000); return () => clearTimeout(t); }, [n]);
   if (!n) return null;
   return (
     <div className="toast checkback gameon" role="status">
@@ -179,7 +182,7 @@ function CheckBack() {
 // (#/match was the old address of the highlight reel: it opens Highlights)
 const PAGES = {
   home: (c) => <Agent club={c} />, about: () => <Landing />, club: (c) => (/[?&](tab|demo)=/.test(location.hash) ? <Club club={c} /> : <Clubs />), goals: (c) => <Goals club={c} />,
-  play: (c) => <Play data={c} />, you: (c) => <You club={c} />, autopilot: (c) => <Autopilot data={c} />, body: () => <Body />,
+  play: (c) => (memberNow() ? <Huddle /> : <Play data={c} />), you: (c) => <You club={c} />, autopilot: (c) => <Autopilot data={c} />, body: () => <Body />,
   courts: () => <Courts />, huddle: () => <Huddle />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, "messenger-setup": () => <MessengerSetup />, maintain: () => <Maintain />, social: (c) => <Social club={c} />, chats: (c) => <Chats club={c} />, join: () => <Join />, invite: () => <InviteLink />,
 };
 

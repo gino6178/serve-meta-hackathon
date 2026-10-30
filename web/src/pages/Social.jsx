@@ -99,8 +99,8 @@ function SocialHome({ club, me, agents, reload }) {
 }
 
 // starting a game anyone in the club can join
-export function InviteComposer({ onPosted, room = null, sport = "badminton", highlight = true }) {
-  const [open, setOpen] = useState(false), [v, setV] = useState({ sport, day: "Thu", start: "19:00", where: "", spots: 3, text: "" }), [busy, setBusy] = useState(false), [err, setErr] = useState("");
+export function InviteComposer({ onPosted, room = null, sport = "badminton", highlight = true, gentle = false }) {
+  const [open, setOpen] = useState(false), [v, setV] = useState({ sport, day: gentle ? "Tue" : "Thu", start: gentle ? "09:00" : "19:00", where: "", spots: 3, text: "" }), [busy, setBusy] = useState(false), [err, setErr] = useState("");
   const set = (k) => (e) => setV({ ...v, [k]: e.target.value });
   const send = async (e) => {
     e.preventDefault(); setBusy(true); setErr("");

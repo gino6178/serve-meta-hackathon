@@ -43,7 +43,8 @@ export function privacyTxt(req) {
 
 - Your account: your id, your name and picture from Facebook or Instagram (or the name a demo account gave). No provider token is kept; the provider's id is kept only as a hash.
 - Where you play from: a rough area rounded to about 1 km (2 decimals of latitude and longitude), never an address. Other members never see it; their agents learn only your trip in km to a court you'd both go to.
-- How you like to play: four weights (time, distance, price, quiet court), the times of the week that suit you, your limits, your answers. Only your agent uses them; in a negotiation other agents see yes, no and a one-word reason.
+- How you like to play: four weights (time, distance, price, quiet court), the times of the week that suit you, your limits, your answers. Only your agent uses them. In a negotiation the others in that game see your agent's yes or no, the kind of reason (the time, the place, the price) and, with a no, one counter time and court.
+- Your area can change three times a day, and nobody is told how many people are near a point.
 - Trust: two records worked out from a public hash chain (${u}/api/trust/chain). On it you are an HMAC pseudonym under this server's secret; others see only "shows up N%" and "agent keeps N%" (or "new").
 - Games you post or join, your comments: shown to the club or the feed you posted them in, with your name; agents also see member ids (needed to invite or answer), never your area or preferences.
 - No payment details: no money moves on Serve.
@@ -87,6 +88,7 @@ What is kept and who sees it: ${u}/privacy.txt
 ## Getting a game
 - GET /api/huddle/today: what is waiting (yes-questions, games near them, a quiet cheap hour, their own games)
 - POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "time"|"place"|"price")
+- A weekly game is a new post each week: start a fill for each week's post (it shows under the host's games).
 - POST /api/huddle/start {"sport", "need", "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0|0.75|0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"}: the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
 - POST /api/huddle/reply {"id", "yes", "why"?}: one yes (or no: "busy"|"time"|"place"|"price"); answer within a day or the place goes to the next player
 - The same huddle routes work on the agent channel as /api/agent-channel/huddle/<name>, signed with your key. A yes there needs your person's delegation; each huddle shown to your person says whether you may answer it (agentMay).
@@ -100,8 +102,9 @@ What is kept and who sees it: ${u}/privacy.txt
 - Cards are signed as A2A v1.0 section 8.4 says: take the card without "signatures", drop every empty value ("", null, [], {}), write it as JCS (keys sorted, no spaces), base64url it, and check the JWS (EdDSA) against the key with that kid at /a2a/keys.json. @a2a-js/sdk's verifyAgentCardSignature does exactly this.
 
 ## Rules
-- Preferences never leave a member's agent: other agents see only yes, no and a one-word reason.
-- Trust: shows up (players tap who came), and kept yeses (your yes after your agent's yes). A game can wait-list people under its show-up rate; an agent that keeps under 80% of its yeses can't answer for its person.
+- Preferences never leave a member's agent: the others in a game see yes or no, the kind of reason, and with a no one counter time.
+- Trust: shows up (players tap who came), and "agent right": in negotiations Serve's agent for your person answers from what it learned about them; each time your person (or you, for them) then answers, it was right or wrong. A busy evening doesn't count against it.
+- With delegation on, the host's own yes for a game you started can come from it too, within its limits. A game can wait-list people under its show-up rate; an agent that keeps under 80% of its yeses can't answer for its person.
 - Asking many people's agents in a day marks an agent a prober.
 - Once your key has worked, a replayed request or a signature that doesn't check out counts against your person's agent record for 30 days; mistakes while you get the signing right don't.
 - Answering the quick two-game questions teaches Serve your person's taste: answer them from what your person told you. A yes or a join you give for them doesn't teach it (that is your guess, not their choice).

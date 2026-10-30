@@ -148,7 +148,8 @@ export async function post(player, { text = "", media = null, invite = null, age
     if (photo) d.uploads = d.uploads.filter((u) => u.id !== photo.id);
     return p;
   });
-  return { post: view(x, player), ...(m.down ? { held: true, why: `The safety check${photo ? " for photos" : ""} isn't answering right now. Your post shows once it is checked; only you can see it until then.` } : {}) };
+  const clash = x.invite ? busyAt(player).some((t) => t !== startOf(x.invite) && Math.abs(t - startOf(x.invite)) < 3 * 3600e3) : false;
+  return { post: view(x, player), ...(clash ? { warning: "You already have a game within three hours of this one." } : {}), ...(m.down ? { held: true, why: `The safety check${photo ? " for photos" : ""} isn't answering right now. Your post shows once it is checked; only you can see it until then.` } : {}) };
 }
 function dropUpload(player, id) {
   S.change((d) => { const u = d.uploads.find((x) => x.id === id && x.player === player); if (u) S.dropMedia(u); d.uploads = d.uploads.filter((x) => x !== u); });
@@ -440,7 +441,7 @@ export function view(p, viewer) {
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),
-    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/i/${p.id}`, joinedAt: undefined, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots } } : {}),
+    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots } } : {}),
     ...(p.simulated ? { simulated: true } : {}), ...(p.held ? { held: true } : {}), ...(p.hidden ? { hidden: true } : {}),
     likes: p.likes.length, liked: p.likes.includes(viewer),
     comments: p.comments.filter((c) => (!c.held && !c.hidden) || c.by.player === viewer).map((c) => commentView(c, viewer)),

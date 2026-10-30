@@ -23,7 +23,7 @@ export default function Huddle() {
   return (
     <div className="page huddle">
       <header className="hd-head">
-        <h1 className="h1">Huddle</h1>
+        <h1 className="h1">Games</h1>
         <p className="hd-sub">Your agent and theirs work out when and where. You say yes once.</p>
       </header>
       <div className="seg hd-tabs" role="tablist">
@@ -352,9 +352,10 @@ function Chain({ c }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="hd-chain">
-      <p><span className={c.ok ? "hd-ok" : "hd-bad"}>{c.ok ? "✓ Chain verified" : `✗ Chain broken at entry ${c.at}`}</span> {c.ok ? `${c.n} entries; the last hash is ${String(c.head).slice(0, 12)}…` : c.why}</p>
+      <p><span className={c.ok ? "hd-ok" : "hd-bad"}>{c.ok ? "✓ Your records can't be quietly changed" : "✗ Something in the records doesn't check out"}</span></p>
       <p className="hd-fine">Your records are worked out from a chain no one can quietly change: every entry carries the hash of the one before it, and the server signs the chain's end each day with its own key. You appear on it only as {c.subject}, never by name. Anyone can check it at <a href={`${AGENT_URL}/api/trust/chain`} target="_blank" rel="noreferrer">/api/trust/chain</a>.</p>
-      {c.entries.length > 0 && <button className="link" onClick={() => setOpen(!open)}>{open ? "Hide" : "Show"} your {c.entries.length} entr{c.entries.length === 1 ? "y" : "ies"}</button>}
+      <button className="link" onClick={() => setOpen(!open)}>{open ? "Hide the details" : "Details"}</button>
+      {open && <p className="hd-fine">{c.ok ? `${c.n} entries on the chain; the last hash is ${String(c.head).slice(0, 12)}…` : c.why}</p>}
       {open && <ol className="hd-lines">{c.entries.map((e) => <li key={e.n}>#{e.n} · {new Date(e.at).toLocaleDateString()} · {(KIND[e.kind] || (() => e.kind))(e.d || {})} <code>{e.hash.slice(0, 10)}</code></li>)}</ol>}
     </div>
   );

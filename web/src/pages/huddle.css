@@ -186,3 +186,8 @@
 .hd-home-acts form { width: 100%; }
 .hd-home-acts input { min-width: 0; flex: 1; }
 @media (max-width: 560px) { .hd-note { display: grid; } .huddle { overflow-x: hidden; } }
+
+.hd-talk p { color: var(--ink); }
+.hd-talk .t-me p { color: var(--agent-ink); }
+
+.fy-last { margin: 0; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--agent) 10%, var(--bg)); color: var(--agent); font-weight: 600; font-size: 14px; }

@@ -53,8 +53,11 @@ export function setLimits(id, b = {}) {
     if (!days.length || !HM.test(x.from) || !HM.test(x.to) || x.from >= x.to) return { error: "Each window needs days (Sun..Sat) and from < to as HH:MM.", code: 400 };
     windows.push({ days: [...new Set(days)], from: x.from, to: x.to });
   }
-  const limitKm = b.maxKm == null ? t.limitKm : +b.maxKm > 0 ? Math.min(30, +b.maxKm) : null;
-  const limitEach = b.maxEach == null ? t.limitEach : +b.maxEach >= 0 ? Math.min(5000, Math.round(+b.maxEach)) : null;
+  const num = (x) => (typeof x === "number" || (typeof x === "string" && x.trim() !== "")) && isFinite(+x) ? +x : NaN;
+  if (b.maxKm !== undefined && b.maxKm !== null && !(num(b.maxKm) > 0)) return { error: "maxKm is a number of km above 0, or null to clear it.", code: 400 };
+  if (b.maxEach !== undefined && b.maxEach !== null && !(num(b.maxEach) >= 0)) return { error: "maxEach is a price of 0 or more, or null to clear it.", code: 400 };
+  const limitKm = b.maxKm === undefined ? t.limitKm : b.maxKm === null ? null : Math.min(30, num(b.maxKm));
+  const limitEach = b.maxEach === undefined ? t.limitEach : b.maxEach === null ? null : Math.min(5000, Math.round(num(b.maxEach)));
   const n = { ...t, windows, limitKm, limitEach };
   if (limitKm) n.maxKm = Math.min(n.maxKm, limitKm);
   if (limitEach != null) n.priceCap = Math.min(n.priceCap, Math.max(60, limitEach));
@@ -71,9 +74,10 @@ export function setDelegate(id, b = {}) {
 export const openNear = (at, sport, maxKm = 5) => !at ? [] : Object.entries(data().members).filter(([, t]) => t.open && t.home && km(at, t.home) <= maxKm && (!t.sports?.length || t.sports.includes(sport))).map(([id, t]) => ({ id, km: +km(at, t.home).toFixed(1) }));
 // the member's rough area (about 1 km), for courts near them and the middle of a group; never an address
 export function setHome(id, at) {
-  const lat = +at?.lat, lon = +at?.lon;
+  const lat = +at?.lat, lon = +at?.lon, t0 = get(id), moves = (t0.homeMoves || []).filter((x) => Date.now() - x < 864e5);
+  if (t0.home && moves.length >= 3) return { error: "Your area can change three times a day: try again tomorrow.", code: 429 };
   if (!isFinite(lat) || !isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return { error: "That is not a place on the map." };
-  return { taste: view(put(id, { ...get(id), home: { lat: +lat.toFixed(2), lon: +lon.toFixed(2) } })) };
+  return { taste: view(put(id, { ...get(id), home: { lat: +lat.toFixed(2), lon: +lon.toFixed(2) }, homeMoves: [...moves, Date.now()] })) };
 }
 const SPORTS = ["badminton", "tennis", "pickleball", "table tennis", "basketball", "volleyball", "soccer", "squash"];
 export function setSports(id, sports) {
@@ -117,6 +121,15 @@ const nudgeCell = (t, cell, d) => {
 const remember = (t, list, o) => { t[list] = [...(t[list] || []).filter((x) => x.date >= ymd(new Date())), { date: o.date, start: o.start }].slice(-30); };
 const near = (a, b) => a.date === b.date && Math.abs(+a.start.slice(0, 2) + +a.start.slice(3) / 60 - (+b.start.slice(0, 2) + +b.start.slice(3) / 60)) < 2;
 // a hard no, whatever the weights say: busy then, already turned down, far over the price or the distance they gave
+export function hardNos(t, o) {
+  const out = [], one = (x) => { const r = hardNo(x, o); return r; };
+  for (const k of ["windows", "km", "each", "busy", "declined"]) {
+    const tt = { ...t, windows: k === "windows" ? t.windows : [], limitKm: k === "km" ? t.limitKm : null, limitEach: k === "each" ? t.limitEach : null, busyAt: k === "busy" ? t.busyAt : [], declined: k === "declined" ? t.declined : [], maxKm: 1e9, priceCap: 1e9 };
+    const r = one(tt); if (r && !out.includes(r)) out.push(r);
+  }
+  const soft = hardNo({ ...t, windows: [], limitKm: null, limitEach: null, busyAt: [], declined: [] }, o); if (soft && !out.includes(soft)) out.push(soft);
+  return out;
+}
 export function hardNo(t, o) {
   if (t.windows?.length) { const d = DAYS[dateOf(o.date).getDay()], end = (() => { const m = +o.start.slice(0, 2) * 60 + +o.start.slice(3) + (o.minutes || 90); return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`; })(); if (!t.windows.some((w) => w.days.includes(d) && w.from <= o.start && end <= w.to)) return "time"; }
   if (t.limitKm && o.km != null && o.km > t.limitKm) return "place";

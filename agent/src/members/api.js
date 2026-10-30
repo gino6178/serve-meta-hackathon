@@ -135,6 +135,11 @@ async function channel(req, res, p, send) {
   const out = (r) => send(r.error ? r.code || 400 : 200, r);
   if (p === "/api/agent-channel/me" && req.method === "GET") return send(200, { member: M.view(M.get(owner)), agent: M.view(ag), audience: M.AUDIENCE });
   if (p === "/api/agent-channel/feed" && req.method === "GET") return send(200, P.feed(owner, { n: 20 }));
+  if (p === "/api/agent-channel/post" && req.method === "POST" && b.invite) {
+    const t = T.get(owner), v = b.invite, date = /^\d{4}-/.test(String(v.day)) ? v.day : null;
+    const why = date && /^\d{2}:\d{2}$/.test(String(v.start)) ? T.hardNos(t, { date, start: v.start, km: t.home && v.at ? +T.km(t.home, v.at).toFixed(1) : null, each: +v.each || 0 }) : [];
+    if (why.length) return send(403, { error: `That game is outside what your person set (${why.map((x) => T.NO[x] || x).join(", ")}); your person can post it themself.`, needs: "person" });
+  }
   if (p === "/api/agent-channel/post" && req.method === "POST") return out(await P.post(ag.id, { text: b.text, invite: b.invite || null, agent: { id: ag.id, owner } }));
   if (p === "/api/agent-channel/comment" && req.method === "POST") return out(await P.comment(ag.id, String(b.post || ""), b.text, { agent: { id: ag.id, owner } }));
   if (p === "/api/agent-channel/join" && req.method === "POST") {
@@ -198,8 +203,8 @@ async function huddle(req, res, p, q, me, send, given = null) {
     const looking = D.loading(t.home, sport);
     return send(200, { home: true, sport, currency: D.CURRENCY, looking, ...(looking ? { retryAfter: 20 } : {}), places: places.map((x) => {
       const k = +T.km(t.home, x).toFixed(1), qt = D.quietest(x);
-      const good = qt.grid.map((g) => ({ ...g, s: T.worth(t, { ...g, km: k, each: 0 }) + (1 - g.busy) })).sort((a1, b1) => b1.s - a1.s)[0];
-      return { id: x.id, name: x.name, kind: x.kind, indoor: x.kind === "venue", km: k, lat: x.lat, lon: x.lon, quiet: qt.quiet, grid: qt.grid, ...(x.kind === "venue" ? { list: x.list, sample: true, offer: good && D.talk(x, { date: good.date, start: good.start, players: 4, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }), at: good } : {}) };
+      const good = qt.grid.filter((g) => !T.hardNo(t, { ...g, km: k, each: x.kind === "venue" ? D.guessEach(x, g.date, g.start, 4) : 0 })).map((g) => ({ ...g, s: T.worth(t, { ...g, km: k, each: 0 }) + (1 - g.busy) })).sort((a1, b1) => b1.s - a1.s)[0];
+      return { id: x.id, name: x.name, kind: x.kind, indoor: x.kind === "venue", km: k, lat: x.lat, lon: x.lon, quiet: qt.quiet, grid: qt.grid, ...(x.kind === "venue" ? { list: x.list, sample: true, offer: good && (() => { const o = D.talk(x, { date: good.date, start: good.start, players: 4, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }); return t.limitEach != null && o.each > t.limitEach ? { ...o, overLimit: true } : o; })(), at: good } : {}) };
     }) });
   }
   if (p === "/api/huddle/deal" && post) {
