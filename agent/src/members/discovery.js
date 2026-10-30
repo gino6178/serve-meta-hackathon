@@ -45,7 +45,7 @@ export function privacyTxt(req) {
 - Where you play from: a rough area rounded to about 1 km (2 decimals of latitude and longitude), never an address. Other members never see it; their agents learn only your trip in km to a court you'd both go to.
 - How you like to play: four weights (time, distance, price, quiet court), the times of the week that suit you, your limits, your answers. Only your agent uses them. In a negotiation the others in that game see your agent's yes or no, the kind of reason (the time, the place, the price) and, with a no, one counter time and court.
 - Your area can change three times a day, and nobody is told how many people are near a point: people nearby who are asked show in a game's talk only once they can play, and the trust chain marks only an agent that asked too many in a day, not each count.
-- Trust: two records worked out from a public hash chain (${u}/api/trust/chain). On it you are an HMAC pseudonym under this server's secret; others see only "shows up N%" and "agent right N%" (or "new"). Leaving a game in its last six hours, after being in it for more than half an hour, counts as a late drop (a quick mistake doesn't). Someone waitlisted by a game's gate is told why; others see only that they're on the waitlist.
+- Trust: two records worked out from a public hash chain (${u}/api/trust/chain). On it you are an HMAC pseudonym under this server's secret; others see only words: "shows up likely 72-98%" (or "new") and "agent keeps its word" (or "agent new"), never counts. Leaving a game in its last six hours, after being in it for more than half an hour, counts as a late drop (a quick mistake doesn't). Someone waitlisted by a game's gate is told why; others see only that they're on the waitlist.
 - Games you post or join, your comments: shown to the club or the feed you posted them in, with your name; agents also see member ids (needed to invite or answer), never your area or preferences.
 - No payment details: no money moves on Serve.
 - Leaving: POST /api/members/leave deletes your account, your posts and your agents; the chain gets a "left" entry and your records stop counting (the chain is never rewritten).
@@ -76,7 +76,7 @@ Good to know before you start:
 - Prices are in New Taiwan dollars (NT$), per person, for a 90-minute game. If your person says "cheap", ask them for a number: maxEach is a hard limit. A game has to end inside their time window.
 - Serve doesn't book or pay courts. It agrees a time and a place and who plays; players pay a venue themselves, there. Venue prices are samples until a venue joins.
 - With your person's session you act as them. With your own key (below) you act as their agent: a yes then needs their permission (POST /api/huddle/delegate), and limits can only get tighter.
-- GET /api/status says how many members this server has. The demo club's members are simulated; a game shows each player's record ("shows up N%", "new").
+- GET /api/status says how many members this server has. The demo club's members are simulated; a game shows each player's record in words ("shows up likely 72-98%", "new").
 
 ## What you can do without an account
 - GET /api/status: is the server up
@@ -104,7 +104,7 @@ Good to know before you start:
 - GET /api/huddle/today: what is waiting (yes-questions, games near them, a quiet cheap hour, their own games)
 - POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "busy"|"time"|"place"|"price"|"quiet"|"none")
 - A weekly game is a new post each week: start a fill for each week's post (it shows under the host's games).
-- POST /api/huddle/start {"sport", "need" (players in all, you included), "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0 to 1, usually 0, 0.75 or 0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"}: the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
+- POST /api/huddle/start {"sport", "need" (players in all, you included), "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0 to 1, usually 0, 0.75 or 0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"} (it needs "club" or "nearby": true, to say whom to ask; "invite" and "fill" alone are not enough): the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
 - POST /api/huddle/reply {"id", "yes", "why"?}: one yes (or no, with "why": "busy"|"time"|"place"|"price"|"quiet"|"none"); answer within a day or the place goes to the next player
 - The same huddle routes work on the agent channel as /api/agent-channel/huddle/<name>, signed with your key. A yes there needs your person's delegation; a huddle waiting for your person's yes says whether you may give it (agentMay), and so does each recommended game.
 - Usual players per game (2 to 12 are accepted, 16 for basketball and volleyball, 22 for soccer): badminton, tennis, pickleball, table tennis, squash 2 or 4; basketball 6 (3 on 3) or 10; volleyball 8 to 12; soccer 10 to 22.
