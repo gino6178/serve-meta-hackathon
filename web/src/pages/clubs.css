@@ -47,3 +47,6 @@
 .pg-total { display: flex; gap: 16px; font-size: 20px; font-weight: 700; }
 .pg-gentle p { color: var(--ink-2); font-size: 14px; }
 .pg-row input[type="time"] { width: 132px; }
+.cl-invite { display: grid; gap: 8px; justify-items: start; }
+.cl-invite-link { display: grid; gap: 4px; width: 100%; }
+.cl-invite-link input { width: 100%; min-width: 0; }
