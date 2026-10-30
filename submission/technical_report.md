@@ -436,6 +436,34 @@ Every rule below is code; no model decides who plays when.
 playing within one turn of each other, a draw of seven players (three balanced teams, one waiting, three matches, no
 clash) and of sixteen (28 matches on three courts), and who may see and change what.
 
+### 3.20 Games beyond friends: members' agents, venues and a trust chain
+
+`agent/src/members/huddle.js`, `taste.js`, `deals.js`, `trust.js`, `discovery.js`; `web/src/pages/Huddle.jsx`.
+Every member has their own agent, and only it knows how they like to play.
+
+- **Taste from a few answers.** About five "which of these two games?" questions (made-up games, no real court named)
+  fit four weights (time, distance, price, a quiet court) with a logistic step per answer, plus a time-of-week grid.
+  A person's own words ("weekday mornings", "under NT$200") nudge it; an answer their agent gives for them does not.
+- **Hard limits and a standing yes.** Times, farthest and most per person are hard: no option outside them is ever
+  proposed. A person may let their agent say yes for them, within a price and with people who have a record. Over its
+  own key an agent can only tighten limits.
+- **The talk.** For each candidate time and court, each invited agent says yes or no with the kind of reason and one
+  counter (only a time it would itself accept). Code picks the option where the worst-off player is best off (then the
+  mean), so nobody's preferences are averaged away. People asked directly (their agent isn't trusted to answer, or a
+  time the host pinned) are asked last, those the host named first. One no keeps the game with an open spot; someone
+  who left can take it back; a posted game that fills from the feed stops the agents.
+- **Venues and quiet courts.** A place's usual busyness covers the whole 90-minute game; the group's agent asks a
+  venue's agent for a quiet-hour price for at most three rounds, and a deal still over someone's limit after two venues
+  stops. Public courts come with their quietest hours. Serve takes no money; venue prices are samples until a venue joins.
+- **Two records on a chain.** "Shows up N%" (players mark who came) and "agent right N%" (an agent's yes against its
+  person's answer, counted once per host and week) are worked out from a hash chain. Each entry is
+  `sha256(JSON.stringify([n, at, kind, who, d, prev]))`; members are HMAC pseudonyms; each day's head is signed with the
+  gateway's Ed25519 key and anyone can recompute the chain from `/api/trust/chain`. A failed signature counts against
+  the agent only after its key has worked, and never against the person. Others see only the badge words.
+- **A way in for any agent.** The site's own HTML, `/llms.txt` (opening with a six-call quick start), the Agent Card and
+  OpenAPI give an agent that knows nothing the steps: the person signs in, the agent registers an Ed25519 key, and
+  each request on `/api/agent-channel/...` carries a compact JWS over method, path and a hash of the body.
+
 ## 4. Meta models and tools
 
 Only what is wired into the code. 15 Meta models in all: 10 open-weights models on my GPU server, and 5 on the Meta Model API, of which
@@ -768,6 +796,18 @@ How a pick-up game is usually set up today, a poll in a group chat, against Serv
 On the live site (29 October), the first player was in 1, 6 and 46 minutes after a game was posted, and two games
 filled: badminton 3 of 3 within 76 minutes, basketball 2 of 2 within 46.
 
+### 5.18 Testing with AI agents, 25 rounds
+
+On October 29 and 30, 153 AI testers used Serve the way its users would, each with only a persona and the address:
+new agents arriving cold, member agents hosting and answering games with test accounts, and web users clicking on a
+phone or a laptop. Six testers ran per round on a fresh local copy; every request was logged (16,713 in all). Between
+rounds we fixed what they found, ran the tests, checked the pages and deployed. Reported bugs per round ran 5 to 19
+until round 20; from round 21 a bug meant a core-flow fault (a game, a yes or no, joining, calling off, limits,
+permission, privacy, trust, money), and rounds 21 to 25 found 2, 2, 3, 4 and 0. The last round came back clean from
+all six testers. Three further agents given only an address scored the way in 8, 8 and 9 out of 10, the last after a
+quick start was added to `/llms.txt`. Every report, the per-round tables and what the testers did not cover are in
+`submission/agent_testing.md` and `submission/agent_trial*/`.
+
 ## 6. Safety and privacy
 
 Meta's **Agents Rule of Two** [23]: within one session an agent holds at most two of untrusted input, private data and
@@ -818,6 +858,7 @@ data and every loop record, and the end-to-end test checks it. Google reviews ar
 | Courts from OpenStreetMap (the demo town sits on Taipei); real forecasts | The loop's messages (twelve ideas in phrasings I wrote) and how members answer; its clock |
 | Messenger on a real Page; the end-to-end test uses a fake Graph API | The sample health export, labelled as a sample |
 | Highlights and orbits on real footage (a CC BY 3.0 clip) | The attacks, poisoned reviews and unsafe messages, written by me as labelled tests |
+| The 153 testers' requests against the real gateway code, every one logged (5.18) | The testers themselves: AI models with personas, not people; the local copies' members never answered in real time |
 
 The simulations show that the agents keep what members stated and that the loop does what it was built to do with these
 inputs. They do not show how real people would talk, vote or react.

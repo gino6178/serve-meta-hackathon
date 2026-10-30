@@ -279,6 +279,11 @@ to end 52 of 52 checks (A100, `submission/results/e2e.log`; on the final code 46
   as a voice note), a health export, a scoreboard photo, `/report`, a violent threat refused and a self-harm message
   given the helpline, the loop's `/improve on`, `/idea` and Share, feedback, `/forget` (which deletes the loop's data
   too), and the token and cross-site checks.
+- **Tested by AI agents, 25 rounds** (`submission/agent_testing.md`). 153 AI testers used Serve as new agents arriving
+  with only the address, as members' agents hosting and answering games, and as people on a phone or a laptop; 16,713
+  requests were logged. We fixed what each round found before the next. From round 21 only core-flow faults counted
+  (a game, a yes or no, joining, calling off, limits, permission, privacy, trust, money): 2, 2, 3, 4, then 0, with all
+  six testers of the last round clean. The testers were models, not people.
 - Messenger is live on a real Facebook Page through a signed webhook. The webhook has its own local port, so only it
   is reachable through the tunnel.
 
