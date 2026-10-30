@@ -28,7 +28,10 @@
 //   GET  /api/huddle/question                the agent's next quick question (two games; pick one)
 //   POST /api/huddle/answer {q, pick}        a or b or either: the agent learns from it and says what it learned
 //   POST /api/huddle/reset                   forget what the agent learned
-//   POST /api/huddle/start {sport, need, invite, club, pin}   the agents work out a time and a place
+//   POST /api/huddle/open {on}               let nearby people's agents ask theirs for a game (about 5 km)
+//   POST /api/huddle/attend {key, came, level}   after a game: who came ({ <id>: came|missed }), and who played at their level
+//   GET  /api/huddle/trust                   the member's own two records: shows up, and their agent's kept promises
+//   POST /api/huddle/start {sport, need, invite, club, nearby, gate, pin}   the agents work out a time and a place
 //   GET  /api/huddle/one?id=                 one game being worked out: the agents' talk, the pick, who said yes
 //   POST /api/huddle/reply {id, yes, why}    the member's one yes (or no, and why)
 //   POST /api/huddle/cancel {id}             the host calls it off
@@ -46,6 +49,7 @@ import * as C from "./clubs.js";
 import * as H from "./huddle.js";
 import * as T from "./taste.js";
 import * as D from "./deals.js";
+import * as Tr from "./trust.js";
 
 const readRaw = (req, max = 64e3) => new Promise((ok) => { const parts = []; let n = 0, over = false; req.on("data", (c) => { n += c.length; if (n > max) over = true; else parts.push(c); }); req.on("end", () => ok(over ? null : Buffer.concat(parts))); req.on("error", () => ok(null)); });
 const redirect = (res, url) => { res.writeHead(302, { location: url, "cache-control": "no-store" }); res.end(); return true; };
@@ -137,6 +141,9 @@ async function huddle(req, res, p, q, me, send) {
   if (p === "/api/huddle/nudge" && get) return send(200, H.nudge(me));
   if (p === "/api/huddle/home" && post) return out(T.setHome(me, b));
   if (p === "/api/huddle/sports" && post) return out(T.setSports(me, b.sports));
+  if (p === "/api/huddle/open" && post) return out(T.setOpen(me, b.on === true));
+  if (p === "/api/huddle/attend" && post) return out(Tr.vote(me, String(b.key || ""), b.came || {}, b.level || {}));
+  if (p === "/api/huddle/trust" && get) return send(200, { trust: H.trustOf(me) });
   if (p === "/api/huddle/reset" && post) return send(200, { taste: T.view(T.reset(me)) });
   // the question is rebuilt from the member's state, so the answer carries the two games it showed
   if (p === "/api/huddle/question" && get) { const t = T.get(me); const places = t.home ? (await D.placesNear(t.home, t.sports[0] || "badminton", { wait: false })).map((x) => ({ ...x, km: +T.km(t.home, x).toFixed(1) })) : []; return send(200, { question: T.question(me, { places, force: true }) }); }

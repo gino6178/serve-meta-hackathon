@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import TasteQuestion from "./TasteQuestion.jsx";
+import TrustBadge from "./TrustBadge.jsx";
 import * as H from "../huddle.js";
 import { cap, pct, WHY } from "../huddle.js";
 import "../pages/huddle.css";
@@ -35,12 +36,14 @@ export default function ForYou() {
               <a className="link" href={`#/huddle?id=${h.id}`}>See the talk</a></div>
             {said[i] && <p className="tq-said">{said[i]}</p>}
           </div>); }
+        if (c.kind === "attend") return <Attend key={c.attend.key} a={c.attend} onDone={load} />;
         if (c.kind === "question") return (
           <div key={i} className="fy-card"><span className="fy-kick">Help your agent answer for you</span><TasteQuestion q={c.question} onAnswered={() => setTimeout(load, 900)} /></div>);
         if (c.kind === "game") { const g = c.game; return (
           <div key={i} className="fy-card"><span className="fy-kick">A game near you{g.club ? ` · ${g.club}` : ""}</span>
             <p><b>{cap(g.sport)} {g.when}</b> at {g.where}, with {g.host}. {g.left} spot{g.left > 1 ? "s" : ""} left.</p>
             <div className="fy-why">{g.why.map((w) => <span key={w}>{w}</span>)}</div>
+            <div className="fy-host"><span>{g.host}:</span><TrustBadge t={g.hostTrust} compact />{g.gate?.minShow ? <em>Gate: shows up {Math.round(g.gate.minShow * 100)}%+</em> : null}</div>
             <div className="cta-row"><button className="btn primary sm" disabled={busy} onClick={() => act(i, () => H.game(g.post, true))}>Join</button>
               <button className="btn ghost sm" disabled={busy} onClick={() => act(i, () => H.game(g.post, false, "time"))}>Not a good time</button>
               <button className="btn ghost sm" disabled={busy} onClick={() => act(i, () => H.game(g.post, false, "place"))}>Too far</button></div>
@@ -60,5 +63,21 @@ export default function ForYou() {
         return null;
       })}
     </section>
+  );
+}
+
+// after a game: one tap per player, came or didn't (their show-up record), and whether they played at the level they said
+function Attend({ a, onDone }) {
+  const [came, setCame] = useState(Object.fromEntries(a.players.map((p) => [p.id, "came"]))), [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  return (
+    <div className="fy-card needs"><span className="fy-kick">After your game · {a.when}</span>
+      <p>Who came? It builds everyone's show-up record, the one other agents check before letting someone in.</p>
+      <ul className="fy-attend">{a.players.map((p) => (
+        <li key={p.id}><span>{p.name}</span>
+          <div className="seg sm" role="radiogroup" aria-label={`Did ${p.name} come`}>{[["came", "Came"], ["missed", "Didn't come"]].map(([k, l]) => <button key={k} role="radio" aria-checked={came[p.id] === k} onClick={() => setCame({ ...came, [p.id]: k })}>{l}</button>)}</div></li>
+      ))}</ul>
+      {err && <p className="join-err" role="alert">{err}</p>}
+      <div className="cta-row"><button className="btn primary sm" disabled={busy} onClick={async () => { setBusy(true); try { await H.attend(a.key, came); onDone(); } catch (e) { setErr(e.message); } setBusy(false); }}>Send</button></div>
+    </div>
   );
 }

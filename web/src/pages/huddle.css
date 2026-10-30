@@ -128,3 +128,28 @@
 .fy-why { display: flex; flex-wrap: wrap; gap: 6px; }
 .fy-why span { font-size: 12px; padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--agent) 10%, var(--bg)); color: var(--agent); font-weight: 600; }
 @media (max-width: 560px) { .tq-pair { grid-template-columns: 1fr; } .hd-note { flex-wrap: wrap; } }
+
+/* two records (TrustBadge.jsx), the gate, after-game check */
+.trust { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.tr-pill { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+.trust.sm .tr-pill { font-size: 11px; padding: 2px 7px; }
+.tr-pill.good { background: color-mix(in srgb, var(--good) 14%, var(--bg)); color: var(--good); }
+.tr-pill.ok { background: color-mix(in srgb, var(--warn) 14%, var(--bg)); color: var(--warn); }
+.tr-pill.low { background: color-mix(in srgb, var(--bad) 13%, var(--bg)); color: var(--bad); }
+.hd-talk li .trust { padding-left: 4px; }
+.hd-players li { flex-wrap: wrap; }
+.hd-check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.hd-check input { margin-top: 4px; accent-color: var(--agent); }
+.hd-check span { display: grid; gap: 2px; }
+.hd-check em { font-style: normal; font-size: 13px; color: var(--ink-2); }
+.hd-gate { border: 1px solid var(--rule); border-radius: 12px; margin: 0; padding: 10px 12px; display: grid; gap: 10px; }
+.hd-gate legend { font-size: 13px; font-weight: 600; color: var(--ink-2); padding: 0 4px; }
+.hd-gate .seg { justify-self: start; }
+.hd-talk .t-gate p { background: color-mix(in srgb, var(--warn) 12%, var(--bg)); }
+.hd-talk .g-waitlist p { background: color-mix(in srgb, var(--bad) 10%, var(--bg)); }
+.hd-found { display: grid; gap: 6px; padding: 12px 14px; border-radius: 14px; border: 1px dashed color-mix(in srgb, var(--agent) 50%, transparent); }
+.hd-found p { margin: 0; }
+.fy-host { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--ink-2); }
+.fy-host em { font-style: normal; color: var(--ink-3); }
+.fy-attend { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.fy-attend li { display: flex; justify-content: space-between; align-items: center; gap: 10px; }

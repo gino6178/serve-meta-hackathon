@@ -39,3 +39,28 @@ test("a venue's agent never goes under its floor, and a full hour is the list pr
   if (D.busy(v, "2026-11-04", "19:00") >= 0.85) assert.equal(full.price, full.list);
   assert.ok(full.price >= quiet.price);
 });
+
+process.env.TRUST_FILE = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "trust-")), "trust.json");
+const Tr = await import("../src/members/trust.js");
+test("the gate: low show-up waits, an agent that breaks its yeses can't answer, new people get in", () => {
+  Tr.seed("bob", { person: { games: 3, came: 1 } });
+  Tr.seed("dan", { agent: { said: 25, kept: 13 } });
+  const gate = { minShow: 0.9 };
+  assert.equal(Tr.check("bob", gate).verdict, "waitlist");
+  assert.equal(Tr.check("dan", gate).verdict, "confirm");
+  assert.equal(Tr.check("newcomer", gate).verdict, "ok");
+  assert.equal(Tr.check("bob", {}).verdict, "ok"); // no show-up gate: anyone plays
+});
+test("after a game, most of the others decide who came; leaving late counts", () => {
+  const start = Date.now() - 2 * 3600e3;
+  Tr.expect("g1", ["a", "b", "c"], start);
+  Tr.vote("a", "g1", { b: "came", c: "missed" });
+  Tr.vote("b", "g1", { a: "came", c: "missed" });
+  Tr.vote("c", "g1", { a: "came", b: "came" });
+  assert.equal(Tr.badge("c").show.games, 1);
+  assert.equal(Tr.badge("a").show.games, 1);
+  assert.equal(Tr.left("d", Date.now() + 2 * 3600e3), true);
+  assert.equal(Tr.left("d", Date.now() + 30 * 3600e3), false);
+  Tr.promise("e", true); Tr.promise("e", false); Tr.promise("e", true);
+  assert.equal(Tr.badge("e").agent.rate, 0.67);
+});

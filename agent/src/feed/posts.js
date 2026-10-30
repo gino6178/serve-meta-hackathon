@@ -11,6 +11,7 @@
 //   me" a 👎: counts only, and only for members with /improve on (loop/signals.js decides).
 // A player is a Messenger id or "app" (the club's web app); the gateway's token is the club's own machine.
 import { deps, guardRules } from "./deps.js";
+import * as Tr from "../members/trust.js";
 import * as S from "./store.js";
 import * as T from "./text.js";
 import { perWeekFor, isQuestion, answer } from "./papers.js";
@@ -115,7 +116,9 @@ export function inviteOf(x) {
   if (!(spots >= 1 && spots <= 12)) return { error: "Between 1 and 12 spots." };
   // the place on the map, when it was picked there (rounded to about 10 m)
   const lat = +x.at?.lat, lon = +x.at?.lon, at = isFinite(lat) && isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat: +lat.toFixed(4), lon: +lon.toFixed(4) } : null;
-  return { invite: { sport, day, start, where, spots, ...(at ? { at } : {}), going: [] } };
+  // a gate (members/trust.js): people under its show-up rate wait; agents that keep too few promises can't answer
+  const gate = x.gate ? Tr.gateOf(x.gate) : null;
+  return { invite: { sport, day, start, where, spots, ...(at ? { at } : {}), ...(gate && (gate.minShow || gate.agentMin) ? { gate } : {}), going: [] } };
 }
 export async function post(player, { text = "", media = null, invite = null, agent = null, room = null } = {}) {
   const t = T.tidy(text, 600);
@@ -193,17 +196,38 @@ export function join(player, postId, on = true) {
   if ((p.by.player || p.by.agentOf) === player) return { error: "It's your own invite.", code: 400 };
   const v = p.invite, was = v.going.includes(player);
   if (on && !was && v.going.length >= v.spots) return { error: "That game is full.", code: 409 };
-  if (on === was) return { post: view(p, player) };
-  S.change(() => { v.going = on ? [...v.going, player] : v.going.filter((x) => x !== player); });
-  inviteReply(p, `${on ? `${first(authorOf(player) || "A member")} is in.` : `${first(authorOf(player) || "A member")} can't make it.`} ${spotsLine(p)}`, player);
+  if (on === was && !(on && (v.waitlist || []).includes(player))) return { post: view(p, player) };
+  const nm = first(authorOf(player) || "A member");
+  // the game's gate: someone under its show-up rate goes on the waitlist, and the poster's agent says why
+  if (on && v.gate) {
+    const c = Tr.check(player, v.gate);
+    if (c.verdict === "waitlist") {
+      if (!(v.waitlist || []).includes(player)) { S.change(() => { v.waitlist = [...(v.waitlist || []), player]; }); inviteReply(p, `${nm} is on the waitlist: ${c.why}. If a spot is still open the day before, it's ${nm}'s.`, player); }
+      return { post: view(p, player), waitlisted: true, why: c.why };
+    }
+  }
+  const late = !on && Tr.left(player, startOf(v));
+  S.change(() => { v.going = on ? [...v.going, player] : v.going.filter((x) => x !== player); if (!on) v.waitlist = (v.waitlist || []).filter((x) => x !== player); });
+  inviteReply(p, `${on ? `${nm} is in (${Tr.showText(Tr.badge(player))}).` : `${nm} can't make it${late ? " (a late drop, under six hours before the start)" : ""}.`} ${spotsLine(p)}`, player);
   if (on && v.going.length >= v.spots) gameOn(p);
   return { post: view(p, player) };
 }
 // the last spot taken: the game is on, and everyone in it hears so wherever they are in the app (GET /api/feed/notices)
+// when an invite's game starts: its date (or the next of its weekday) and time, in ms
+export function startOf(v) {
+  if (!v?.start) return null;
+  const [h, m] = v.start.split(":").map(Number);
+  let d;
+  if (/^\d{4}-/.test(v.day)) { const [y, mo, da] = v.day.split("-").map(Number); d = new Date(y, mo - 1, da); }
+  else { d = new Date(deps.now()); d.setHours(0, 0, 0, 0); const want = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(v.day); for (let i = 0; i < 7 && d.getDay() !== want; i++) d.setDate(d.getDate() + 1); }
+  d.setHours(h, m || 0, 0, 0);
+  return d.getTime();
+}
 function gameOn(p) {
   const v = p.invite, host = p.by.player || p.by.agentOf, game = `${v.sport} ${v.day} ${v.start}${v.where ? ` at ${v.where}` : ""}`;
   const names = (xs) => xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : xs[0] || "";
   inviteReply(p, `Game on: all ${v.spots} spots are taken. See you ${v.day} ${v.start}.`);
+  Tr.expect(p.id, [host, ...v.going], startOf(v)); // after the game, the players say who came
   S.change((d) => {
     d.notices ||= [];
     d.notices.push({ player: host, at: deps.now(), kind: "gameon", post: p.id, text: `Game on: your ${game} is full. ${names(v.going.map((x) => first(authorOf(x) || "A member")))} ${v.going.length > 1 ? "are" : "is"} in.` });
@@ -324,7 +348,7 @@ export function publicInvite(id, canSee = () => true) {
 export function openInvites(viewer, canSee = () => true) {
   return S.data().posts.filter((p) => p.kind === "invite" && p.invite && !p.held && !p.hidden && visible(p, viewer) && (!p.room || canSee(p.room))
     && (p.by.player || p.by.agentOf) !== viewer && !p.invite.going.includes(viewer) && p.invite.going.length < p.invite.spots)
-    .map((p) => ({ id: p.id, at: p.at, room: p.room || null, host: first(authorOf(p.by.player || p.by.agentOf) || "A member"), invite: { ...p.invite, going: p.invite.going.length } }));
+    .map((p) => ({ id: p.id, at: p.at, room: p.room || null, hostId: p.by.player || p.by.agentOf, host: first(authorOf(p.by.player || p.by.agentOf) || "A member"), invite: { ...p.invite, going: p.invite.going.length } }));
 }
 // a notice for a member, shown wherever they are in the app (GET /api/feed/notices); extra carries a link, e.g. { huddle }
 export function notify(player, kind, text, extra = {}) {
@@ -362,7 +386,7 @@ export function view(p, viewer) {
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),
-    ...(p.invite ? { invite: { ...p.invite, going: p.invite.going.length, names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots } } : {}),
+    ...(p.invite ? { invite: { ...p.invite, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots } } : {}),
     ...(p.simulated ? { simulated: true } : {}), ...(p.held ? { held: true } : {}), ...(p.hidden ? { hidden: true } : {}),
     likes: p.likes.length, liked: p.likes.includes(viewer),
     comments: p.comments.filter((c) => (!c.held && !c.hidden) || c.by.player === viewer).map((c) => commentView(c, viewer)),

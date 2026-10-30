@@ -170,6 +170,39 @@ async function chart(file) {
     T(s, "Less screen time, more court time: any ball sport that needs people, a time and a place.", 4.6, 6.78, 8.1, 0.3, { fontSize: 11, color: MUTED, italic: true });
   }
 
+  // 3a · The next wall: an agent that can only ask your friends, and the trust it needs to ask anyone else
+  {
+    const s = content("Impact", "IMPACT · BEYOND YOUR FRIENDS", "Beyond your friends, people flake and agents lie",
+      "痛點二：人人都會有懂自己的 agent，但沒有一個人和 agent 都能出入的公共場所，agent 只能找通訊錄裡的老朋友；老朋友沒空，你還是打不成。\n一旦走出朋友圈，馬上有兩個風險：真人會不會放鳥（人的風險）、對方的 agent 會不會替主人亂答應，或一直問人來拼湊別人的行程（agent 的風險）。\nServe 的解法：願意的人可以讓附近 5 公里內的 agent 來問；每個人有兩份紀錄，都由程式從實際發生的事算出：出席率（賽後球友一鍵確認誰有到，開打前 6 小時內退出算臨時放鳥），和 agent 守信率（agent 替你說 yes 之後你本人也說 yes 的比例），加上「一天問太多 agent」和「簽章失敗」兩個警示。\n每場球可以設門檻：出席率不到的人排候補；守信率太低的 agent 不能替主人答應，改問本人。Serve 不收訂金、不經手錢。\n右邊的情境是用測試帳號在本機跑出來的真實對話：Dan 的 agent 守信率 52%，所以直接問 Dan 本人；Bob 出席率 33%（3 場），進候補；Leo、Hana、Kenji 的 agent 談好週六 21:00，場館 agent 從 NT$410 談到 NT$280。正式站的紀錄從零開始累積。");
+    box(s, 0.6, 1.85, 5.6, 4.75, { fill: REDBG, line: REDBG });
+    T(s, "THE PAIN", 0.9, 2.05, 5, 0.3, { fontSize: 11, bold: true, color: RED, charSpacing: 1 });
+    [["An agent with nowhere to go", "Soon everyone has an agent that knows their week. With no shared place where people and agents meet, it can only message your contacts; when they're busy, you're still not playing."],
+      ["Trust breaks first", "Asking beyond your friends brings two risks: the person who doesn't turn up, and the agent that says yes for its person when they'd say no, or keeps asking to map everyone's week."]].forEach(([h, d], i) => {
+      const y = 2.45 + i * 1.75;
+      T(s, h, 0.9, y, 5.1, 0.4, { fontSize: 17, bold: true });
+      T(s, d, 0.9, y + 0.45, 5.05, 1.2, { fontSize: 12.5, color: INK });
+    });
+    T(s, "Serve never takes a deposit: low trust means the waitlist, or asking the person.", 0.9, 6.05, 5.1, 0.45, { fontSize: 11, color: MUTED, italic: true });
+    // the scenario, as the app shows the agents' talk
+    T(s, "SAT DOUBLES · NEED 3 · SHOWS UP 90%+ · PEOPLE NEARBY", 6.55, 1.85, 6.2, 0.3, { fontSize: 10, bold: true, color: GREEN, charSpacing: 1 });
+    const rows = [
+      ["Dan", "Agent keeps 52% of its yeses", "Dan's agent can't say yes for Dan, so Dan is asked directly.", AMBER, AMBERBG],
+      ["Bob", "Shows up 33% · 3 games", "On the waitlist: this game needs 90%.", RED, REDBG],
+      ["Leo · Hana · Kenji", "100% · 8 games · 100% · 12 games · new", "Their agents agree Sat 21:00; the venue's agent goes from NT$410 to NT$280.", GREEN, GREENBG],
+    ];
+    rows.forEach(([who, rec, out, c, bg], i) => {
+      const y = 2.25 + i * 1.22;
+      box(s, 6.55, y, 6.15, 1.08, { fill: bg, line: bg });
+      T(s, who, 6.75, y + 0.12, 2.6, 0.32, { fontSize: 15, bold: true });
+      T(s, rec, 9.25, y + 0.14, 3.3, 0.3, { fontSize: 11, bold: true, color: c, align: "right" });
+      T(s, out, 6.75, y + 0.5, 5.8, 0.5, { fontSize: 12.5 });
+    });
+    box(s, 6.55, 5.95, 6.15, 0.65, { fill: WHITE, line: LINE });
+    T(s, [{ text: "Two records, counted by code. ", options: { bold: true } }, { text: "Shows up: players tap who came after each game; leaving in the last 6 hours is a late drop. Agent keeps: your yes after your agent's yes." }],
+      6.7, 5.95, 5.9, 0.65, { fontSize: 10.5, valign: "middle" });
+    T(s, "The scenario ran in the app with test accounts. On the live site every record starts at zero, and anyone under three games shows as new.", 0.6, 6.72, 12.1, 0.3, { fontSize: 10.5, color: MUTED, italic: true });
+  }
+
   // 3b · Live: invited players on the public site, each with an agent of their own
   {
     const s = content("Impact", "LIVE · INVITED PLAYERS", "Real players, each with an agent of their own",
@@ -270,7 +303,7 @@ async function chart(file) {
       "規劃與球場：\n左：中心點球場地圖（技術報告第 4 頁那張）——每個人的通勤時間、共同空檔，agent 一輪談好。\n右：手機版找球場——Prompt Guard 2 先過濾 Google 評論，Muse Glimmer 同時判斷四個球場，每個理由都引用來源，程式檢查。\n旁白：Then it plans my week, and agrees it with three friends' agents at once, over A2A. Any ball sport works.");
     s.addImage({ data: IMG.venue, x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406 });
     s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 1.85, w: 6.1, h: 6.1 * 1120 / 1406, fill: { type: "none" }, line: { color: LINE, width: 1 } });
-    T(s, "Badminton: the venue in the middle (an earlier run than slide 9, on court 3)", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
+    T(s, "Badminton: the venue in the middle (an earlier run than slide 10, on court 3)", 0.6, 6.83, 6.1, 0.25, { fontSize: 10.5, color: MUTED });
     phone(s, IMG.v3.courts_badges, 7.6, 1.85, 4.7, "Basketball: public courts, judged with sources");
     const x = 10.25;
     [["Muse Glimmer plans", "One tool at a time; a refused call comes back as a fact"], ["A2A, usually one round", "Agents mark the times that work; code picks; a counter-offer only if none fits"], ["Prompt Guard 2", "Screens reviews first; Google's are listed with a link, not stored"], ["Nothing booked", "until you say yes"]].forEach(([h, d], i) => {
@@ -518,7 +551,7 @@ async function chart(file) {
       pill(s, t, x, 4.35, 0.8, { fill: GREEN, line: GREEN, color: WHITE, size: 11 });
       T(s, d, x, 4.8, 3.9, 0.8, { fontSize: 12.5 });
     });
-    T(s, "Every speed-up is labelled on screen. The video shows only what this deck lists as built during the hackathon (slide 16).", 0.6, 6.3, 12.1, 0.4, { fontSize: 12, color: MUTED, italic: true });
+    T(s, "Every speed-up is labelled on screen. The video shows only what this deck lists as built during the hackathon (slide 17).", 0.6, 6.3, 12.1, 0.4, { fontSize: 12, color: MUTED, italic: true });
   }
 
   // 24 · End
@@ -531,7 +564,7 @@ async function chart(file) {
     pill(s, "Your week, agreed agent to agent", 1.45, 4.45, 3.3, { h: 0.5, size: 13 });
     pill(s, "Your agent in Messenger", 4.9, 4.45, 2.9, { h: 0.5, size: 13 });
     pill(s, "Auto-cut highlights to Instagram", 7.95, 4.45, 3.95, { h: 0.5, size: 13 });
-    T(s, "Built Oct 28 – Nov 4, 2026, during the hackathon · demo video 2:27 · what is new and what is not: slide 16", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
+    T(s, "Built Oct 28 – Nov 4, 2026, during the hackathon · demo video 2:27 · what is new and what is not: slide 17", 1, 5.4, 11.333, 0.35, { fontSize: 13, bold: true, align: "center" });
     T(s, "github.com/gino6178/serve-meta-hackathon  ·  live: https://play.theminimallab.com", 1, 5.78, 11.333, 0.35, { fontSize: 13, color: BLUE, align: "center" });
     T(s, "The product runs Muse Glimmer on an RTX 3090 I own; cloud A100s ran evaluations, including the A2A test's second gateway", 1, 6.6, 11.333, 0.36, { fontSize: 13, color: MUTED, align: "center", valign: "middle" });
     s.addNotes("片尾：Play more, manage less. 黑客松期間開發聲明（TrackNetV5 除外）、repo 連結、Built on Muse Glimmer。\n旁白：That's Serve. Play more, manage less.");

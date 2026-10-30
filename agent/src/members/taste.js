@@ -36,11 +36,14 @@ export const cellWord = (cell) => cellWords(cell).replace(/s$/, "");
 const rad = (d) => (d * Math.PI) / 180;
 export const km = (a, b) => { const h = Math.sin(rad(b.lat - a.lat) / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lon - a.lon) / 2) ** 2; return 12742 * Math.asin(Math.sqrt(h)); };
 
-const blank = () => ({ home: null, sports: [], raw: { time: 0, place: 0, price: 0, quiet: 0 }, cells: {}, maxKm: 5, priceCap: 250, answers: [], learned: [], asked: 0 });
+const blank = () => ({ home: null, sports: [], open: false, raw: { time: 0, place: 0, price: 0, quiet: 0 }, cells: {}, maxKm: 5, priceCap: 250, answers: [], learned: [], asked: 0 });
 export const get = (id) => ({ ...blank(), ...(data().members[id] || {}) });
 const put = (id, t) => { data().members[id] = t; save(); return t; };
 export function forget(id) { if (data().members[id]) { delete data().members[id]; save(); } }
-export function reset(id) { const t = get(id); return put(id, { ...blank(), home: t.home, sports: t.sports }); }
+export function reset(id) { const t = get(id); return put(id, { ...blank(), home: t.home, sports: t.sports, open: t.open }); }
+// open to people nearby: other members' agents may ask this member's agent for a game (huddle.js), within about 5 km
+export function setOpen(id, on) { const t = get(id); if (on && !t.home) return { error: "Share your rough area first, so people nearby can find you.", code: 400 }; return { taste: view(put(id, { ...t, open: !!on })) }; }
+export const openNear = (at, sport, maxKm = 5) => !at ? [] : Object.entries(data().members).filter(([, t]) => t.open && t.home && km(at, t.home) <= maxKm && (!t.sports?.length || t.sports.includes(sport))).map(([id, t]) => ({ id, km: +km(at, t.home).toFixed(1) }));
 // the member's rough area (about 1 km), for courts near them and the middle of a group; never an address
 export function setHome(id, at) {
   const lat = +at?.lat, lon = +at?.lon;
@@ -181,7 +184,7 @@ export function summary(t) {
 export function view(t) {
   const w = weights(t), pairs = t.answers.filter((a) => a.kind === "pair").length;
   const grid = Object.fromEntries(DAYS.flatMap((d) => PARTS.map((p) => [`${d} ${p}`, +timeFit(t, `${d} ${p}`).toFixed(2)])));
-  return { home: t.home, sports: t.sports, weights: Object.fromEntries(FACTORS.map((k) => [k, +w[k].toFixed(2)])), grid, maxKm: +t.maxKm.toFixed(1), priceCap: Math.round(t.priceCap),
+  return { home: t.home, sports: t.sports, open: !!t.open, weights: Object.fromEntries(FACTORS.map((k) => [k, +w[k].toFixed(2)])), grid, maxKm: +t.maxKm.toFixed(1), priceCap: Math.round(t.priceCap),
     answers: t.answers.length, pairs, sure: Math.min(1, t.answers.length / SURE_AT), summary: summary(t), learned: t.learned.slice(-8).reverse() };
 }
 export const isSure = (t) => t.answers.length >= SURE_AT;

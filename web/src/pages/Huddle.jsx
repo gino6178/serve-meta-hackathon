@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Icon from "../components/Icon.jsx";
 import TasteQuestion from "../components/TasteQuestion.jsx";
+import TrustBadge from "../components/TrustBadge.jsx";
 import * as H from "../huddle.js";
 import { cap, pct, FACTOR, WHY } from "../huddle.js";
 import "./huddle.css";
@@ -79,12 +80,13 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
   const [who, setWho] = useState(club0 ? `club:${club0.id}` : "pick"), [picked, setPicked] = useState([]);
   const [sport, setSport] = useState(sport0 || club0?.sport || me.taste.sports[0] || "badminton"), [need, setNeed] = useState(4);
   const [busy, setBusy] = useState(false), [err, setErr] = useState("");
-  if (!me.clubs.length) return (
-    <div className="panel hd-empty"><b>Your agent gets games with people in your clubs.</b><p>Join a club near you, or start one, then come back: the agents will find who fits and when.</p><a className="btn primary sm" href="#/club">Find a club</a></div>
+  const [nearby, setNearby] = useState(!me.clubs.length), [minShow, setMinShow] = useState(0), [agentMin, setAgentMin] = useState(true);
+  if (!me.clubs.length && !me.taste.home) return (
+    <div className="panel hd-empty"><b>Your agent gets games with people in your clubs, and with people nearby who are open to it.</b><p>Join a club near you, or share your rough area, then come back: the agents will find who fits and when.</p><a className="btn primary sm" href="#/club">Find a club</a></div>
   );
   const go = async (e) => {
     e.preventDefault(); setBusy(true); setErr("");
-    try { const r = await H.start({ sport, need, ...(who.startsWith("club:") ? { club: who.slice(5) } : { invite: picked }), ...(pin ? { pin } : {}) }); onStarted(r.huddle); } catch (x) { setErr(x.message); }
+    try { const r = await H.start({ sport, need, ...(who.startsWith("club:") ? { club: who.slice(5) } : who === "pick" ? { invite: picked } : {}), nearby, gate: { minShow, agentMin: agentMin ? 0.8 : 0 }, ...(pin ? { pin } : {}) }); onStarted(r.huddle); } catch (x) { setErr(x.message); }
     setBusy(false);
   };
   return (
@@ -103,6 +105,15 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
             <span><b>Anyone in {c.name}</b><em>{c.members - 1} other{c.members === 2 ? "" : "s"}: the agents pick who fits best</em></span></label>
         ))}
         <label className={who === "pick" ? "on" : ""}><input type="radio" name="who" checked={who === "pick"} onChange={() => setWho("pick")} /><span><b>People I pick</b><em>Everyone you pick has to agree</em></span></label>
+        {me.taste.home && <label className={who === "none" ? "on" : ""}><input type="radio" name="who" checked={who === "none"} onChange={() => { setWho("none"); setNearby(true); }} /><span><b>Only people nearby</b><em>Strangers within about 5 km who let agents ask theirs</em></span></label>}
+      </fieldset>
+      {me.taste.home && <label className="hd-check"><input type="checkbox" checked={nearby} onChange={(e) => setNearby(e.target.checked)} /><span><b>Also ask people nearby</b><em>Within about 5 km, who said other agents may ask theirs</em></span></label>}
+      <fieldset className="hd-gate"><legend>Who gets in</legend>
+        <div className="seg sm" role="radiogroup" aria-label="Shows up at least">
+          {[[0, "Anyone"], [0.75, "Shows up 75%+"], [0.9, "Shows up 90%+"]].map(([k, l]) => <button type="button" key={k} role="radio" aria-checked={minShow === k} onClick={() => setMinShow(k)}>{l}</button>)}
+        </div>
+        <label className="hd-check"><input type="checkbox" checked={agentMin} onChange={(e) => setAgentMin(e.target.checked)} /><span><b>Only reliable agents answer for their person</b><em>An agent that keeps under 80% of its yeses can't say yes for them: they're asked themself</em></span></label>
+        <p className="hd-fine">Below the show-up rate, people go on the waitlist. New people (under three games) are let in. Serve never asks anyone for a deposit.</p>
       </fieldset>
       {who === "pick" && (
         <div className="hd-people">
@@ -115,7 +126,7 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
       )}
       <p className="hd-how">Each person's agent answers for them from what it has learned: the time, how far, the price, a quiet court. Nobody shares a calendar or an address.</p>
       {err && <p className="join-err" role="alert">{err}</p>}
-      <button className="btn primary" disabled={busy || (who === "pick" && !picked.length)}><Icon name="spark" size={18} />{busy ? "Starting…" : "Let the agents work it out"}</button>
+      <button className="btn primary" disabled={busy || (who === "pick" && !picked.length && !nearby)}><Icon name="spark" size={18} />{busy ? "Starting…" : "Let the agents work it out"}</button>
     </form>
   );
 }
@@ -138,6 +149,10 @@ function HuddleView({ id, onBack }) {
         <span className={`hd-status s-${h.status}`}>{STATUS[h.status]}</span>
       </div>
       <h2 className="h3">{cap(h.sport)}, {h.need} players{h.club ? ` · anyone in ${h.club}` : ""}</h2>
+      {h.found && h.status !== "on" && (
+        <div className="hd-found"><span className="fy-kick">Already open nearby</span><p><b>{cap(h.found.sport)} {h.found.when}</b> at {h.found.where}, with {h.found.host}: {h.found.left} spot{h.found.left > 1 ? "s" : ""} left.</p>
+          <TrustBadge t={h.found.hostTrust} compact /><a className="link" href="#/">Join it from your agent's cards</a></div>
+      )}
       {pk && (
         <div className="hd-pick">
           <div className="hd-pick-main"><b>{pk.when}</b><span>{pk.where}</span></div>
@@ -147,7 +162,8 @@ function HuddleView({ id, onBack }) {
             {pk.km != null && <li>Your trip {pk.km} km</li>}
           </ul>
           {pk.sample && <p className="hd-fine">The venue hasn't joined Serve yet: its list price is a sample, and nothing is paid here.</p>}
-          <ul className="hd-players">{h.players.map((x, i) => <li key={i} className={x.answer === "yes" ? "yes" : ""}>{x.answer === "yes" ? <Icon name="check" size={14} /> : <i className="hd-wait" />}{x.name}{x.host ? " (asked)" : ""}</li>)}</ul>
+          <ul className="hd-players">{h.players.map((x, i) => <li key={i} className={x.answer === "yes" ? "yes" : ""}>{x.answer === "yes" ? <Icon name="check" size={14} /> : <i className="hd-wait" />}<span>{x.name}{x.host ? " (asked)" : x.direct ? " (asked directly)" : ""}</span>{x.name !== "You" && <TrustBadge t={x.trust} compact />}</li>)}</ul>
+          {h.waitlist?.length > 0 && <p className="hd-fine">Waitlist: {h.waitlist.join(", ")}.</p>}
           {h.ask && (
             <div className="hd-yes">
               <p><b>Your agent said yes for you.</b> Is it a yes from you too?</p>
@@ -161,9 +177,10 @@ function HuddleView({ id, onBack }) {
       {said && <p className="hd-learned" role="status"><Icon name="memory" size={16} />{said}</p>}
       <ol className="hd-talk">
         {h.talk.map((l, i) => (
-          <li key={i} className={`t-${l.from}${l.venue ? " t-venue" : ""}${l.agreed ? " t-agreed" : ""}`}>
-            <span className="hd-who-l">{l.from === "me" ? "Your agent" : l.venue ? `${l.who}'s agent` : `${l.who}'s agent`}{l.yes === true ? " · yes" : l.yes === false ? " · no" : ""}</span>
+          <li key={i} className={`t-${l.from}${l.venue ? " t-venue" : ""}${l.agreed ? " t-agreed" : ""}${l.gate ? ` t-gate g-${l.gate}` : ""}`}>
+            <span className="hd-who-l">{l.from === "me" ? "Your agent" : `${l.who}'s agent`}{l.yes === true ? " · yes" : l.yes === false ? " · no" : ""}</span>
             <p>{l.text}</p>
+            {l.trust && <TrustBadge t={l.trust} compact />}
           </li>
         ))}
         {h.status === "talking" && <li className="t-host t-typing"><span className="hd-who-l">Agents</span><p><i /><i /><i /></p></li>}
@@ -232,9 +249,9 @@ function Place({ p, sport }) {
 // ---- how you play ----
 const PARTS = ["early", "morning", "afternoon", "evening"];
 function TasteTab({ me, reload }) {
-  const [q, setQ] = useState(null), [t, setT] = useState(me.taste), [busy, setBusy] = useState(false);
+  const [q, setQ] = useState(null), [t, setT] = useState(me.taste), [busy, setBusy] = useState(false), [mine, setMine] = useState(null), [err, setErr] = useState("");
   const ask = () => H.question().then((r) => setQ(r.question), () => {});
-  useEffect(() => { ask(); }, []);
+  useEffect(() => { ask(); H.trust().then((r) => setMine(r.trust), () => {}); }, []);
   const w = t.weights;
   return (
     <div className="hd-taste">
@@ -255,6 +272,14 @@ function TasteTab({ me, reload }) {
           {DAYS.map((d) => <div className="hh-row" key={d}><span>{d}</span>{PARTS.map((x) => <span key={x} className="hh-c good" style={{ "--b": t.grid[`${d} ${x}`] }} title={`${d} ${x}: ${pct(t.grid[`${d} ${x}`])}`} />)}</div>)}
         </div>
         <p className="hd-fine">Darker is better for you. Until you answer, your agent assumes what suits most people who work or study: weekday evenings and weekend mornings.</p>
+      </section>
+      <section className="panel hd-set" aria-label="Your records">
+        <h2 className="h3">What other agents see about you</h2>
+        {mine && <TrustBadge t={mine} />}
+        <p className="hd-fine">Shows up: after each game the other players tap who came; leaving in the last six hours counts as a late drop. Your agent: how often you said yes when it had said yes for you. Both stay "new" until there are three to count.</p>
+        <label className="hd-check"><input type="checkbox" checked={!!t.open} onChange={async (e) => { setErr(""); try { const r = await H.setOpen(e.target.checked); setT(r.taste); } catch (x) { setErr(x.message); } }} />
+          <span><b>Let people nearby ask my agent</b><em>Other members' agents within about 5 km can ask yours for a game; your agent answers the way you would, and you say yes once</em></span></label>
+        {err && <p className="join-err" role="alert">{err}</p>}
       </section>
       <section className="panel hd-set">
         <h2 className="h3">Sports you play</h2>

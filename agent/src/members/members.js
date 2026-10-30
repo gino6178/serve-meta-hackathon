@@ -23,6 +23,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
 import { checkToken, kidOf, HEADER } from "../a2a/peer.js";
+import { badSignature } from "./trust.js";
 
 const FILE = () => path.resolve(process.env.MEMBERS_FILE || "data/members.json");
 const KEYFILE = () => path.resolve(process.env.MEMBERS_KEY_FILE || "data/members.key");
@@ -175,7 +176,11 @@ export function checkAgent(req, body, p, now = Date.now()) {
   if (!token) return logged({ ok: false, why: "unsigned", message: `every agent-channel request needs its ${HEADER} header` }, p);
   const r = checkToken(token, { method: req.method, path: p, body, now, audience: AUDIENCE, seen,
     keyFor: (kid) => { const m = Object.values(data().members).find((x) => x.kind === "agent" && x.kid === kid && !x.revoked); return m ? { peer: m.id, key: { x: m.x } } : null; } });
-  if (!r.ok) return logged(r, p);
+  if (!r.ok) {
+    // a known agent's key on a request that failed the check counts against that agent (trust.js)
+    try { const kid = JSON.parse(Buffer.from(String(token).split(".")[0], "base64url").toString()).kid; const m = Object.values(data().members).find((x) => x.kind === "agent" && x.kid === kid); if (m?.owner) badSignature(m.owner, r.why); } catch { /* not a token we can read */ }
+    return logged(r, p);
+  }
   const m = get(r.peer);
   if (!get(m.owner)) return logged({ ok: false, why: "no-owner", message: "the agent's member has left" }, p);
   return { ok: true, agent: m };
