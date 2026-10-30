@@ -49,8 +49,8 @@ place or one sport.
 **Putting quiet courts to use.** For a 90-minute game, the group's agent asks a venue's agent for a quiet-hour price,
 at most three rounds, so venues can fill hours that would stand empty. Venue prices are samples until a venue joins.
 
-**Used by real players.** During the hackathon we introduced Serve to a badminton club: more than 10 people used it,
-and within three days it brought about two games.
+**Used by real players.** During the hackathon we introduced Serve to a real badminton club: more than 10 people used
+it, and within three days it led to two games that were played.
 
 **How it was validated in nine days.** A long trial with real players is not possible in a nine-day build, so Serve
 was also checked by agents. Over 25 rounds, a fresh set of independent AI agents used it each round (six a round, five
@@ -271,8 +271,9 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 - **Built during the hackathon.** Building started on October 27, the hackathon's first day. The code was written
   with an AI coding agent (Claude Code), credited in the repository's commits. The one earlier piece is TrackNetV5, our published shuttle
   tracker, fetched at run time and off unless `BALL_TRACKING=1`.
-- **Real and simulated.** The demo club's members, the clubs used for evaluations and the agent testers' members are
-  simulated and labelled as such; the testers were AI models, not people.
+- **Real and simulated.** The badminton club above is real people. Separately, the built-in demo club that a new
+  visitor sees, the clubs used for evaluations and the members the agent testers met are simulated and labelled as
+  such; the testers were AI models, not people.
 - **Code:** https://github.com/gino6178/serve-meta-hackathon. The full evaluation write-up is in `README.md` and `docs/`.
 
 ## References
