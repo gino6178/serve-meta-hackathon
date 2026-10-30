@@ -231,7 +231,7 @@ function InviteBox({ p, patch, say }) {
         {v.minPlayers ? <span className="tiny muted">Needs {v.minPlayers} players, host included, or it's called off 3 hours before</span> : null}
         {v.confirmBy ? <span className="tiny muted">A spot opened for you: say yes by {new Date(v.confirmBy).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })} or it goes to the next in line</span> : null}
         {v.gate?.minShow ? <span className="tiny muted"><Icon name="lock" size={12} /> Joins straight in at shows up {Math.round(v.gate.minShow * 100)}%+{v.waitlist ? ` · ${v.waitlist} waiting` : ""}</span> : null}</span>
-      {v.full && (p.mine || v.joined) ? <span className="task-state done">Game on</span> : p.mine ? <span className="fd-inv-mine">{v.filling ? <a className="btn primary sm" href={`#/huddle?id=${v.filling.huddle}`}><Icon name="spark" size={14} />{v.filling.status === "talking" ? "Agents talking…" : `Agreed: ${v.filling.yes} of ${v.filling.asked} said yes`}</a> : <a className="btn primary sm" href={`#/huddle?fill=${p.id}&need=${Math.max(2, v.spots - v.going + 1)}&sport=${encodeURIComponent(v.sport)}`}><Icon name="spark" size={14} />Let the agents fill it</a>}<button className="btn ghost sm" onClick={share}><Icon name="share" size={14} />Share link</button></span> : v.joined ? (v.confirmBy ? <span className="fd-inv-mine"><button className="btn primary sm" disabled={busy} onClick={() => join(true)}>Yes, I'm in</button><button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Can't make it</button></span> : <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button>)
+      {v.full && p.mine ? <span className="task-state done">Game on</span> : v.full && v.joined && !v.confirmBy ? <span className="fd-inv-mine"><span className="task-state done">Game on</span><button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button></span> : p.mine ? <span className="fd-inv-mine">{v.filling ? <a className="btn primary sm" href={`#/huddle?id=${v.filling.huddle}`}><Icon name="spark" size={14} />{v.filling.status === "talking" ? "Agents talking…" : `Agreed: ${v.filling.yes} of ${v.filling.asked} said yes`}</a> : <a className="btn primary sm" href={`#/huddle?fill=${p.id}&need=${Math.max(2, v.spots - v.going + 1)}&sport=${encodeURIComponent(v.sport)}`}><Icon name="spark" size={14} />Let the agents fill it</a>}<button className="btn ghost sm" onClick={share}><Icon name="share" size={14} />Share link</button></span> : v.joined ? (v.confirmBy ? <span className="fd-inv-mine"><button className="btn primary sm" disabled={busy} onClick={() => join(true)}>Yes, I'm in</button><button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Can't make it</button></span> : <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button>)
         : v.waiting ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>On the waitlist · leave</button> : <span className="fd-inv-mine"><button className="btn primary sm" disabled={busy} onClick={() => join(true)}>{v.full || v.going + (v.offered || 0) >= v.spots ? "Join the waitlist" : "Join"}</button><button className="btn ghost sm" onClick={share} aria-label="Share this game"><Icon name="share" size={14} /></button></span>}
       {shown && (shown.startsWith("link:")
         ? <label className="fd-inv-link tiny">Copy this link to share it<input readOnly value={shown.slice(5)} onFocus={(e) => e.target.select()} /></label>
@@ -260,7 +260,11 @@ function PostCard({ p, club, member, joined, perWeek, onJoin, onChallenge, patch
     setMenu(false);
     try {
       if (what === "hide") { await feedApi.notForMe(p.id); drop(); say("Hidden from your feed."); }
-      if (what === "delete") { await feedApi.remove(p.id); drop(); say("Deleted."); }
+      if (what === "delete") {
+        const game = !!p.invite, going = game ? p.invite.going || 0 : 0;
+        if (game && !confirm(`Call off ${cap(p.invite.sport)} ${p.invite.day} ${p.invite.start}?${going ? ` ${going === 1 ? "The person" : `All ${going} people`} in it will be told.` : ""}`)) return;
+        await feedApi.remove(p.id); drop(); say(game ? "Called off. Everyone in it is told." : "Deleted.");
+      }
     } catch (e) { say(e.message); }
   };
   const meta = [paper ? cap(p.sport || "sport") : p.kind === "highlight" ? [p.game?.sport && cap(p.game.sport), p.game?.format].filter(Boolean).join(" · ") || "Highlight" : p.kind === "recap" ? "Game recap" : null, ago(p.at)].filter(Boolean).join(" · ");
@@ -281,7 +285,7 @@ function PostCard({ p, club, member, joined, perWeek, onJoin, onChallenge, patch
               <div className="fd-menu" role="menu">
                 {!p.mine && <button role="menuitem" onClick={() => act("hide")}><FIcon name="hide" size={18} />Not for me</button>}
                 {!p.mine && <button role="menuitem" onClick={() => { setMenu(false); onReport(); }}><FIcon name="flag" size={18} />Report</button>}
-                {p.mine && <button role="menuitem" className="danger" onClick={() => act("delete")}><FIcon name="trash" size={18} />Delete</button>}
+                {p.mine && <button role="menuitem" className="danger" onClick={() => act("delete")}><FIcon name="trash" size={18} />{p.invite ? "Call off the game" : "Delete"}</button>}
               </div>
             )}
           </div>
@@ -377,7 +381,8 @@ function Comments({ p, input, patch, say, onReport }) {
       )}
       <form className="fd-reply" onSubmit={send}>
         <label htmlFor={`cm-${p.id}`} className="sr-only">{paper ? "Reply, or ask about the paper" : "Add a comment"}</label>
-        <input id={`cm-${p.id}`} ref={input} value={text} maxLength={400} onChange={(e) => setText(e.target.value)} placeholder={paper ? "Reply, or ask about the paper" : "Add a comment"} />
+        <input id={`cm-${p.id}`} ref={input} value={text} maxLength={400} onChange={(e) => setText(e.target.value)} placeholder={paper ? "Reply, or ask about the paper" : "Add a comment"}
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { if (!busy) send(e); else e.preventDefault(); } }} enterKeyHint="send" />
         <button className="icon-btn sm" aria-label="Send" disabled={busy || !text.trim()}><Icon name="send" size={16} /></button>
       </form>
       {paper && /\?\s*$/.test(text) && <p className="tiny muted">Your agent will answer from the paper's abstract, with the link.</p>}

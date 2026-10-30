@@ -12,22 +12,24 @@ const feedJoin = (post, on) => agentFetch("/api/feed/join", { method: "POST", he
 // would sell cheap, and a nudge to get a game going in their club. Shown on the agent home for a signed-in member.
 export default function ForYou() {
   // every hook before the first return: React needs them in the same order on every render
-  const [r, setR] = useState(null), [said, setSaid] = useState({}), [busy, setBusy] = useState(false), [last, setLast] = useState("");
+  const [r, setR] = useState(null), [said, setSaid] = useState({}), [busy, setBusy] = useState(false), [last, setLast] = useState({ k: null, line: "" });
   const load = () => H.today().then(setR, () => setR({ cards: [], failed: true }));
   useEffect(() => { load(); const on = () => load(); addEventListener("serve:notices", on); return () => removeEventListener("serve:notices", on); }, []);
   useEffect(() => { if (!r?.looking) return; const t = setTimeout(load, 5000); return () => clearTimeout(t); }, [r?.looking]);
   if (!r || r.failed) return null;
   // one note at a time: a newer answer replaces what an older card said (a leave after a join, say)
   const note = (k, line) => setSaid({ [k]: line });
-  const act = async (k, fn) => { setBusy(true); try { const x = await fn(); note(k, x.line || "Done."); setLast(x.line || "Done."); load(); } catch (e) { note(k, e.message); setLast(e.message); } setBusy(false); };
+  const act = async (k, fn) => { setBusy(true); try { const x = await fn(); note(k, x.line || "Done."); setLast({ k, line: x.line || "Done." }); load(); } catch (e) { note(k, e.message); setLast({ k, line: e.message }); } setBusy(false); };
   const t = r.taste;
+  // a game's answer shows on that game while it is still listed; once it is gone (left), at the top only
+  const listed = new Set(r.cards.filter((c) => c.kind === "mine").flatMap((c) => c.games.map((g) => `m${g.post}`)));
   return (
     <section className="fy" aria-labelledby="fy-h">
       <div className="fy-head"><img src="/agents/you.png" alt="" />
         <div><b id="fy-h">Your agent, for you</b><p>{t.answers ? t.summary : "It learns how you like to play from a few answers, then answers for you when friends' agents ask."}</p></div>
         <a className="btn ghost sm" href="#/huddle?tab=taste">How you play</a>
       </div>
-      {last && <p className="fy-last" role="status">{last}</p>}
+      {last.line && !listed.has(last.k) && <p className="fy-last" role="status">{last.line}</p>}
       {!r.home && (
         <div className="fy-card needs"><span className="fy-kick">To find courts near you</span><p>Share your rough area (about 1 km, never an address) and your agent can look for games and quiet courts around you.</p>
           <div className="cta-row"><button className="btn primary sm" disabled={busy} onClick={() => act("home", H.shareHome)}>Share my area</button></div>{said.home && <p className="tq-said">{said.home}</p>}</div>
@@ -44,8 +46,7 @@ export default function ForYou() {
         if (c.kind === "mine") return (
           <div key={i} className="fy-card"><span className="fy-kick">Your games</span>
             <ul className="fy-mine">{c.games.map((g) => <li key={g.post}><b>{cap(g.sport)} {g.when}</b><span>{g.where}{g.club ? ` · ${g.club}` : ""} · {g.agreed ? (g.on ? `game on, ${g.going} of you` : `proposed; ${g.going} of ${g.spots} said yes, waiting for the rest`) : g.confirmBy ? `a spot is offered to you: say yes by ${new Date(g.confirmBy).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })}` : g.waiting ? "you're on the waitlist" : g.mine ? `${g.going} of ${g.spots} joined` : `with ${g.host}, ${g.going} of ${g.spots} in`}</span>
-              {g.agreed ? <a className="link" href={`#/huddle?id=${g.huddle}`}>See it</a> : g.confirmBy ? <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, true); return { line: "You're in: the spot is yours." }; })}>Yes, I'm in</button> : null}{!g.agreed && !g.mine && <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, false); return { line: g.waiting ? "Off the waitlist." : "You've left that game." }; })}>{g.waiting ? "Leave the waitlist" : "Can't make it"}</button>}</li>)}</ul>
-            {Object.entries(said).filter(([k]) => k.startsWith("m")).map(([k, v]) => <p key={k} className="tq-said">{v}</p>)}
+              {g.agreed ? <a className="link" href={`#/huddle?id=${g.huddle}`}>See it</a> : g.confirmBy ? <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, true); return { line: "You're in: the spot is yours." }; })}>Yes, I'm in</button> : null}{!g.agreed && !g.mine && <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, false); return { line: g.waiting ? "Off the waitlist." : "You've left that game." }; })}>{g.waiting ? "Leave the waitlist" : "Can't make it"}</button>}{said[`m${g.post}`] && <p className="tq-said" role="status">{said[`m${g.post}`]}</p>}</li>)}</ul>
           </div>);
         if (c.kind === "attend") return <Attend key={c.attend.key} a={c.attend} onDone={load} />;
         if (c.kind === "question") return (

@@ -106,18 +106,24 @@ function SocialHome({ club, me, agents, reload }) {
 
 // starting a game anyone in the club can join
 export function InviteComposer({ onPosted, room = null, sport = "badminton", highlight = true, gentle = false }) {
-  const [open, setOpen] = useState(false), [v, setV] = useState({ sport, day: gentle ? "Tue" : "Thu", start: gentle ? "09:00" : "19:00", where: "", spots: 3, text: "" }), [busy, setBusy] = useState(false), [err, setErr] = useState("");
-  const set = (k) => (e) => setV({ ...v, [k]: e.target.value });
+  const fresh = () => ({ sport, day: gentle ? "Tue" : "Thu", start: gentle ? "09:00" : "19:00", where: "", spots: 3, text: "" });
+  const [open, setOpen] = useState(false), [v, setV] = useState(fresh), [busy, setBusy] = useState(false), [err, setErr] = useState(""), [done, setDone] = useState("");
+  const set = (k) => (e) => { const x = e.target.value; setV((o) => ({ ...o, [k]: x })); };
   const send = async (e) => {
-    e.preventDefault(); setBusy(true); setErr("");
-    try { await feedApi.post(v.text, null, { sport: v.sport, day: v.day, start: v.start, where: v.where, spots: +v.spots, ...(v.at ? { at: v.at } : {}) }, room); setOpen(false); setV({ ...v, where: "", text: "" }); onPosted(); }
-    catch (x) { setErr(x.message); }
+    e.preventDefault(); if (busy) return; setBusy(true); setErr("");
+    try {
+      await feedApi.post(v.text, null, { sport: v.sport, day: v.day, start: v.start, where: v.where, spots: +v.spots, ...(v.at ? { at: v.at } : {}) }, room);
+      // posted: the form closes and starts fresh next time
+      setBusy(false); setOpen(false); setV(fresh()); setDone("Posted: your game is in the feed."); onPosted();
+      return;
+    } catch (x) { setErr(x.message); }
     setBusy(false);
   };
   if (!open) return (
     <div className="so-starts">
-      <button className="so-start" onClick={() => setOpen(true)}><Icon name="plus" size={18} />Start a game anyone can join</button>
+      <button className="so-start" onClick={() => { setDone(""); setErr(""); setOpen(true); }}><Icon name="plus" size={18} />Start a game anyone can join</button>
       {highlight && <a className="so-start hl" href="#/highlights"><Icon name="play" size={18} />Auto highlight: your video, cut by your agent</a>}
+      {done && <p className="tiny muted" role="status">{done}</p>}
     </div>
   );
   return (
@@ -127,7 +133,7 @@ export function InviteComposer({ onPosted, room = null, sport = "badminton", hig
         <label>Sport<select value={v.sport} onChange={set("sport")}>{SPORTS.map((s) => <option key={s}>{s}</option>)}</select></label>
         <label>Day<select value={v.day} onChange={set("day")}>{DAYS.map((d) => <option key={d}>{d}</option>)}</select></label>
         <label>Time<input type="time" value={v.start} onChange={set("start")} required /></label>
-        <label>Others needed (besides you)<select value={v.spots} onChange={set("spots")}>{Array.from({ length: 12 }, (_, k) => <option key={k + 1} value={k + 1}>{k + 1} · {k + 2} players with you</option>)}</select></label>
+        <label>Players<select value={v.spots} onChange={set("spots")}>{Array.from({ length: 12 }, (_, k) => <option key={k + 1} value={k + 1}>{k + 2} players in all (you + {k + 1})</option>)}</select></label>
         <div className="wide so-where">
           <span className="so-where-l">Where: tap a court or a spot</span>
           <RealMap sport={v.sport} pick height={220} onPick={(p) => setV((x) => ({ ...x, at: { lat: p.lat, lon: p.lon }, where: p.name || x.where }))} />
@@ -136,7 +142,7 @@ export function InviteComposer({ onPosted, room = null, sport = "badminton", hig
         <label className="wide">A note (optional)<input value={v.text} onChange={set("text")} placeholder="All levels welcome" maxLength={200} /></label>
       </div>
       {err && <p className="join-err" role="alert">{err}</p>}
-      <div className="cta-row"><button className="btn primary sm" disabled={busy}>{busy ? "Posting…" : "Post the invite"}</button><button type="button" className="btn ghost sm" onClick={() => setOpen(false)}>Cancel</button></div>
+      <div className="cta-row"><button className="btn primary sm" disabled={busy}>{busy ? "Posting…" : "Post the invite"}</button><button type="button" className="btn ghost sm" onClick={() => { setOpen(false); setErr(""); }}>Cancel</button></div>
     </form>
   );
 }

@@ -94,6 +94,40 @@ function StartClub({ onDone }) {
   );
 }
 
+// the club's own invite (agent: GET /api/clubs/:id/invite -> { url or link, code }): a link to copy or share, and its
+// code. A server without the route (404) or that refuses it shows no button.
+const fullLink = (u) => (!u ? "" : /^https?:/.test(u) ? u : u.startsWith("#") ? `${location.origin}${location.pathname}${u}` : `${location.origin}${u.startsWith("/") ? "" : "/"}${u}`);
+function ClubInvite({ id, name }) {
+  const [inv, setInv] = useState(null), [open, setOpen] = useState(false), [said, setSaid] = useState("");
+  useEffect(() => {
+    let live = true; setInv(null); setOpen(false);
+    agentFetch(`/api/clubs/${encodeURIComponent(id)}/invite`).then(async (r) => {
+      if (!r.ok) return;
+      const j = await r.json().catch(() => null), url = fullLink(j?.url || j?.link || j?.invite?.url || j?.invite?.link), code = j?.code || j?.invite?.code || "";
+      if (live && (url || code)) setInv({ url, code });
+    }).catch(() => { /* no invite on this server */ });
+    return () => { live = false; };
+  }, [id]);
+  if (!inv) return null;
+  const copy = async () => { try { await navigator.clipboard.writeText(inv.url || inv.code); setSaid(inv.url ? "Link copied." : "Code copied."); } catch { setSaid("Select the link and copy it."); } };
+  const share = async () => { try { await navigator.share({ title: "Serve", text: `Join ${name} on Serve${inv.code ? ` (code ${inv.code})` : ""}`, ...(inv.url ? { url: inv.url } : {}) }); setSaid("Shared."); } catch (e) { if (e?.name !== "AbortError") copy(); } };
+  return (
+    <section className={`cl-invite${open ? " panel" : ""}`} aria-label="Invite people">
+      {!open ? <button className="btn primary sm" onClick={() => { setSaid(""); setOpen(true); }}><Icon name="share" size={16} />Invite people</button> : <>
+        <b>Invite people to {name}</b>
+        {inv.url && <label className="cl-invite-link tiny">Anyone with this link can join<input readOnly value={inv.url} onFocus={(e) => e.target.select()} /></label>}
+        {inv.code && <p className="tiny">Or give them the code <b className="mono">{inv.code}</b></p>}
+        <div className="cta-row">
+          <button className="btn primary sm" onClick={copy}>{inv.url ? "Copy link" : "Copy code"}</button>
+          {typeof navigator.share === "function" && <button className="btn ghost sm" onClick={share}><Icon name="share" size={14} />Share</button>}
+          <button className="btn ghost sm" onClick={() => setOpen(false)}>Done</button>
+        </div>
+        {said && <p className="tiny muted" role="status">{said}</p>}
+      </>}
+    </section>
+  );
+}
+
 function ClubRoom({ id }) {
   const [c, setC] = useState(null), [err, setErr] = useState(""), [n, setN] = useState(0), [busy, setBusy] = useState(false);
   const load = async () => {
@@ -115,6 +149,7 @@ function ClubRoom({ id }) {
           : c.asked ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Asked · cancel</button>
           : <button className="btn primary sm" disabled={busy} onClick={() => join(true)}>{c.privacy === "private" ? "Ask to join" : "Join"}</button>}
       </header>
+      {c.joined && <ClubInvite id={c.id} name={c.name} />}
       <RealMap courts={false} height={180} marks={[{ id: c.id, name: c.where, lat: c.at.lat, lon: c.at.lon }]} />
       {c.requests?.length > 0 && (
         <section className="panel cl-requests" aria-label="Asked to join">
