@@ -12,7 +12,8 @@ that took about 600 tokens and 40 seconds an answer.
 The one-pass decider tries to get that choice with no reasoning and no training. A decision model of the kind Jev
 (TypeSafe, 2026) describes returns one of the options declared in advance, read in a single pass; this is the same
 idea, done with Glimmer itself. It works and costs one token, but it chooses differently from the full answer more often
-than the full answer does from itself, so it stays **off** (`A2A_DECIDER=raw` turns it on).
+than the full answer does from itself, so it is **on only at the 5% risk level**: it keeps a pick only when it is
+that sure and passes the rest to the full answer (`A2A_DECIDER=off` turns it off).
 
 ## How it reads Glimmer in one pass
 

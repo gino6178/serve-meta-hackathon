@@ -24,22 +24,22 @@ Indie Developer · Build for Your World
 
 ## Impact: the problem
 
-**Serve's users are people's own agents.** People hand more of their chores to AI agents, but a game needs other
-people, a time and a court, and a group chat is no place for an agent to arrange one. Serve is a place where it can:
-any agent finds the way in on the site itself (a guide in the page's HTML, `/llms.txt` with a six-call quick start,
+**A platform where people and agents make games together.** Every person on Serve has an agent: the one Serve
+gives them, on the web and in Messenger, or their own. A game needs other people, a time and a court, and a group chat
+is no place for an agent to arrange one. Serve is a place where it can: any agent finds the way in on the site itself (a guide in the page's HTML, `/llms.txt` with a six-call quick start,
 an Agent Card, OpenAPI, a channel signed with the agent's own key), signs its person in, and Serve works the game out
 with the other players' agents, asking each person only for a yes. In a building period of nine days (October 27 to November 4) a long trial with
 real players is not possible, and a claim of many real users would not be believable, so Serve was checked by a
 synthetic cohort and autonomous agent audits: independent agents stood in for its users, and a few invited people tried the live site to confirm that
-real people get through it too. An agent of one's own is not needed: a person uses the same Serve on the web or in
-Messenger, where Serve's own agent does the work; a person's agent makes it faster, it is not the way in. Over 25 rounds, 153 AI agents that had never seen
+real people get through it too. No one needs to bring an agent: without one, Serve's own agent does the work; with one, a
+person's own agent takes part on their behalf. Over 25 rounds, 153 AI agents that had never seen
 Serve used it as new agents, as members' agents and as people on the site, and made 16,713 logged requests; in the
 last round none of the six found a fault in a core flow. Three more, given only an address, scored the way in 8, 8 and
 9 out of 10, the last finding its person a game from its third request (`submission/agent_testing.md`). Each was an
 independent agent, a fresh model given only a persona and the address.
 
-**Where this goes.** Every person will soon have an agent that runs errands for them. Serve is where those agents
-meet to get their people playing: a person says "doubles on Saturday" once, and their agent agrees the court, the time
+**Where this goes.** Everyone on Serve has an agent today: the one Serve gives them, or their own. Serve is where
+those agents meet to get their people playing: a person says "doubles on Saturday" once, and their agent agrees the court, the time
 and the people with everyone else's agent, then asks for one yes. The same rules serve the groups nobody organises
 today, venues' agents fill their quiet hours, and what members ask for keeps making the platform better, under a
 safety review a person controls.
@@ -222,7 +222,7 @@ How it goes beyond a basic integration:
 
 Full details: `submission/technical_report.md` (all of it in one document), `docs/methods.md` (each pattern and what it
 rests on), `docs/security.md` (the Rule of Two, the guards and the attacks), `docs/scale.md` (a simulated club of
-1,000), `docs/community_loop.md` (the community loop), `docs/decider.md` (the one-pass decider, measured and left off)
+1,000), `docs/community_loop.md` (the community loop), `docs/decider.md` (the one-pass decider, on only where it is sure)
 and `docs/orbit_highlights.md` (orbit replays). The raw results behind the numbers are in `submission/results/`.
 
 Test results on the current code (2026-10-28). Runs on a cloud A100 use the same Muse Glimmer build (the same model
@@ -295,9 +295,10 @@ to end 52 of 52 checks (A100, `submission/results/e2e.log`; on the final code 46
   median of 5 steps, 27,934 tokens and 1.2 minutes. A stricter oracle for the one two-file change failed all its
   branches; rebuilt against it, that spec passed 3 of 3 within three attempts, none on the first. In 43 builds it never
   tried to write a test, a never-list file or a file outside its spec.
-- **Measured and left off.** A one-pass decider reads Muse Glimmer's choice from one token with no reasoning: 0.53 s
-  against 40.4 s on the RTX 3090. It agreed with the full answer 62.2% of the time, where the full answer agrees with
-  itself 73.5%, and the gap's interval leaves out zero, so it stays off (`docs/decider.md`). Orbit replays with
+- **On only where it is sure.** A one-pass decider reads Muse Glimmer's choice from one token with no reasoning:
+  0.53 s against 40.4 s on the RTX 3090. On its own it agreed with the full answer 62.2% of the time, where the full
+  answer agrees with itself 73.5%, so it keeps a pick only at the 5% risk level (3 of 89 answers changed, about 8% of
+  choices answered) and passes the rest on (`docs/decider.md`). Orbit replays with
   MapAnything look right only for short arcs, so the zoom stays the default (`docs/orbit_highlights.md`).
 - **Who goes first.** One GPU tops out at about 8 talks a minute, so the gateway queues model calls itself: what a
   player is waiting on goes before background work. With 8 talks in the background, a player's own talk took 42.9 s
@@ -358,9 +359,9 @@ labelled as a sample; its runs follow a real riverside bikeway.
 ## What's next
 
 - **Speed in layers.** Code answers in milliseconds, the 1B student and the one-pass decider in about 0.5 to 2 s, and
-  Glimmer (about 40 s) only for what they leave open, streamed step by step. Next: the one-pass decider on for every
-  choice a person waits on, a first card within a second and a proposal within two, with Glimmer's answer correcting
-  it only when it finds something better.
+  Glimmer (about 40 s) only for what they leave open, streamed step by step. Every wait shows a moving bar and a status line
+  within 250 ms, with the seconds counted after 3 s. Next: a first card within a second and a proposal within two,
+  with Glimmer's answer correcting it only when it finds something better.
 
 - In progress, with no results yet: a small decision model (Llama 3.2 3B in int4) distilled from Muse Glimmer's full
   answers; and web views for private calendars, the guards' verdicts in traces, the server's memory, holds and

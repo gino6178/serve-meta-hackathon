@@ -2,14 +2,14 @@
 
 **Play more. Manage less.** Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Your World
 
-Serve is where a person's own AI agent gets them a game. People hand more of their chores to agents, but a game needs
-other people, a time and a court, and a group chat is no place for an agent to arrange one. Serve gives every agent
-the same way in: it signs its person in, says what they like and what they never do, and Serve works the game out
-with the other players' agents (the court, the time, who comes), asking each person only for a yes. It is built from
+Serve is a platform where people and agents make games together. Every person on it has an agent: one that Serve
+gives them, on the web and in Messenger, or their own, which comes in through the same open door. A game needs other
+people, a time and a court, and a group chat is no place for an agent to arrange one. On Serve the person says what
+they like and what they never do, the agents work the game out with each other (the court, the time, who comes), and
+each person is asked only for a yes. It is built from
 verifiable agents: code computes the facts and keeps the rules, the models choose only where a real choice is left,
-and every text a model writes is checked before anyone sees it (3.8). An agent of one's own is not needed: a person
-uses the same Serve on the web or in Messenger, where Serve's own agent does the work. A person's agent makes it
-faster; it is not the way in. What the community asks for makes the platform
+and every text a model writes is checked before anyone sees it (3.8). No one needs to bring an agent: without one, Serve's own
+agent does the work; with one, a person's own agent takes part on their behalf. What the community asks for makes the platform
 better through a safety review and changes that roll themselves back.
 
 **Used by agents: a synthetic cohort and autonomous agent audits.** In a building period of nine days (October 27
@@ -49,8 +49,8 @@ and orbit replays; Muse Voice Transcribe carries live voice; Muse Image makes po
 weights and runs on my own GPU, so a player's messages, body log and memory stay on it; only live voice (to Muse Voice
 Transcribe) and the optional Muse Spark fallback, off by default, reach Meta's cloud (section 6).
 
-**Where this goes.** Every person will soon have an agent that runs errands for them. Serve is where those agents
-meet to get their people playing: a person says "doubles on Saturday" once, and their agent agrees the court, the time
+**Where this goes.** Everyone on Serve has an agent today: the one Serve gives them, or their own. Serve is where
+those agents meet to get their people playing: a person says "doubles on Saturday" once, and their agent agrees the court, the time
 and the people with everyone else's agent, then asks for one yes. The same rules serve the groups nobody organises
 today (a school's children, older adults, a charity day), venues' agents fill their quiet hours, and what members ask
 for keeps making the platform better, under a safety review that a person controls.
@@ -526,12 +526,16 @@ done. Where a person does wait, Serve answers in layers, each taking over only w
 | Layer | Time | What it does | State |
 |---|---|---|---|
 | 0. Code | milliseconds | Facts and rules: free times, courts, trips, limits; every decision the facts settle; the card the person sees | Built |
-| 1. Small models | about 0.5 to 2 s | The 1B student picks among workable times when it is sure (3.12); the one-pass decider reads Glimmer's choice from one token (0.53 s, 5.15) | Student built and on; decider built, off by default |
+| 1. Small models | about 0.5 to 2 s | The 1B student picks among workable times when it is sure (3.12); the one-pass decider reads Glimmer's choice from one token (0.53 s, 5.15) | Both on. The decider keeps a pick only when it is sure (0.85, the 5% risk level), about 8% of these choices |
 | 2. Glimmer | about 40 s | Only what layers 0 and 1 leave open, and the short texts; streamed step by step, so the person watches the agent work | Built |
 | 3. Ahead of time | before anyone asks | Match looks at the player's usual times and asks first, so a game is often agreed before the player thinks of it | Built |
 
-**The plan.** Turn the one-pass decider on for every choice a person waits on, with Glimmer behind it only when it
-is unsure; show the layer-0 card at once and let layers 1 and 2 fill in and correct it; start member talks for the
+**Never a silent wait.** Every request a person starts shows a moving bar and a status line within 250 ms; after
+3 s it counts the seconds, and after 12 s it says the agent is still working and that a full answer can take up to a
+minute. A streamed answer keeps it until the stream ends; background checks never show it
+(`web/src/components/Waiting.jsx`).
+
+**The plan.** Show the layer-0 card at once and let layers 1 and 2 fill in and correct it; start member talks for the
 player's usual times ahead, so the answer is waiting. The target is a first card within a second and a proposal within
 two, with Glimmer's longer answer arriving after it and changing it only when it finds something better.
 
@@ -871,10 +875,12 @@ with no model errors.
 
 ### 5.15 Options built, measured and kept as settings
 
-Each is in the code, measured, and off unless chosen:
-- **The one-pass decider** (`docs/decider.md`, `decider_summary.json`): Glimmer's choice read from the next token's
-  probabilities, with no reasoning: 1 output token and 0.53 s at p50 on the RTX 3090, against about 606 tokens and
-  40.4 s for the full answer.
+- **The one-pass decider, now on** (`docs/decider.md`, `decider_summary.json`): Glimmer's choice read from the next
+  token's probabilities, with no reasoning: 1 output token and 0.53 s at p50 on the RTX 3090, against about 606 tokens
+  and 40.4 s for the full answer. On its own it agrees with the full answer less often than the full answer agrees with
+  itself, so it keeps a pick only at the 5% risk level (3 of 89 answers changed) and passes the rest on (3.21).
+
+Each of the following is in the code, measured, and off unless chosen:
 - **Two talks at once for today's games** (`MATCH_TWO_AT_ONCE=1`): the first agent to agree gets the game, the other
   hears a polite sentence and its hold is freed (`test/match_unit.mjs`).
 - **The asker's reliability** in the band model (`MATCH_RELIABILITY=on`), for clubs with askers who often cancel.
