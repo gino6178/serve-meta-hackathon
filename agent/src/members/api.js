@@ -155,13 +155,14 @@ async function channel(req, res, p, send) {
     if (["/huddle/delegate", "/huddle/open", "/huddle/home"].includes(sub)) return send(403, { error: "Only your person changes this, with their own session: it is their permission, not yours." });
     // over the channel limits only get tighter: loosening them is the person's call
     if (sub === "/huddle/limits" && req.method === "POST") {
-      const t = T.get(owner), mins = (ws) => (ws || []).reduce((n, w) => n + w.days.length * ((+w.to.slice(0, 2) * 60 + +w.to.slice(3)) - (+w.from.slice(0, 2) * 60 + +w.from.slice(3))), 0);
+      const t = T.get(owner), _mins = (ws) => (ws || []).reduce((n, w) => n + w.days.length * ((+w.to.slice(0, 2) * 60 + +w.to.slice(3)) - (+w.from.slice(0, 2) * 60 + +w.from.slice(3))), 0);
       const looser = (b.maxKm != null && t.limitKm != null && +b.maxKm > t.limitKm) || (b.maxEach != null && t.limitEach != null && +b.maxEach > t.limitEach)
-        || (b.maxKm === null && t.limitKm != null) || (b.maxEach === null && t.limitEach != null) || (Array.isArray(b.windows) && t.windows?.length && (!b.windows.length || mins(b.windows) > mins(t.windows)));
+        || (b.maxKm === null && t.limitKm != null) || (b.maxEach === null && t.limitEach != null)
+        || (Array.isArray(b.windows) && t.windows?.length && (!b.windows.length || !b.windows.every((w) => (w.days || []).every((d) => t.windows.some((o) => o.days.includes(d) && o.from <= w.from && w.to <= o.to)))));
       if (looser) return send(403, { error: "Over the agent channel limits can only get tighter; loosening them needs your person's session.", needs: "person" });
     }
     // a game the agent starts keeps the person's rule about new people
-    if (sub === "/huddle/start" && req.method === "POST") { const d = T.get(owner).delegate; if (d?.on && !d.newPeople) b = { ...b, gate: { minShow: Math.max(0.6, +b.gate?.minShow || 0), newOk: false, agentMin: b.gate?.agentMin } }; }
+    if (sub === "/huddle/start" && req.method === "POST") { const d = T.get(owner).delegate; if (d?.on && !d.newPeople && !((+b.gate?.minShow || 0) >= 0.6)) b = { ...b, gate: { minShow: 0.6, newOk: false, agentMin: b.gate?.agentMin }, gateWhy: "Your person's delegation wants people with a record, so this game is gated at 60% and new people wait (asked for 0 or less than 0.6)." }; }
     const fake = { method: req.method, url: sub, headers: req.headers, on: () => {} };
     return huddle(Object.assign(fake, { [Symbol.asyncIterator]: undefined, byAgent: true }), res, `/api${sub}`, new URL(req.url, "http://x").searchParams, owner, send, b);
   }

@@ -161,6 +161,8 @@ export function choose(id, q, pick) {
   if (cw !== cl) { nudgeCell(t, cw, 0.5); nudgeCell(t, cl, -0.25); }
   if (Math.abs(win.km - lose.km) >= 2) t.maxKm = clamp(t.maxKm * (win.km > lose.km ? 1.25 : 0.85), 1, 25);
   if (Math.abs(win.each - lose.each) >= 40) t.priceCap = clamp(t.priceCap * (win.each > lose.each ? 1.2 : 0.85), 60, 1200);
+  if (t.limitKm) t.maxKm = Math.min(t.maxKm, t.limitKm);
+  if (t.limitEach != null) t.priceCap = Math.min(t.priceCap, Math.max(60, t.limitEach));
   t.answers = [...t.answers, { at: Date.now(), kind: "pair", q: q.id, pick, axes: q.axes }].slice(-40);
   // say what moved, in their words: the factor the winner was better on
   const gain = FACTORS.map((k) => [k, fw[k] - fl[k]]).sort((x, y) => y[1] - x[1])[0][0];
@@ -207,7 +209,7 @@ export const dayText = (date) => { const d = dateOf(date); return `${LONG[DAYS[d
 export const gameText = (o, cur = "NT$") => [`${dayText(o.date)}, ${o.start}`, o.where, kmText(o.km), o.each > 0 ? `${cur}${Math.round(o.each)} each` : "free court", busyText(o.busy)].filter(Boolean).join(" · ");
 export function question(id, { places = [], now = new Date(), force = false } = {}) {
   const t = get(id), n = t.answers.filter((a) => a.kind === "pair").length;
-  if (!force && n >= SURE_AT && n % 3 !== 0) return null;
+  if (!force && n >= SURE_AT) return null;
   const done = new Set(t.answers.filter((a) => a.kind === "pair").map((a) => (a.axes || []).join("+")));
   const asked = t.answers.filter((x) => x.kind === "pair").map((x) => (x.axes || []).join("+"));
   let axes = PAIRS.find((p, i) => asked.filter((x) => x === p.join("+")).length < PAIRS.slice(0, i + 1).filter((q) => q.join("+") === p.join("+")).length);
@@ -229,6 +231,7 @@ export function question(id, { places = [], now = new Date(), force = false } = 
   else if (x === "quiet" && y === "time") { a = g("Tue early", 2, 0, 0.2, pub); b = g(liked, 2, 0, 0.85, pub); }
   else { a = g(liked, 1, 90, 0.5, ven); b = g(other, 1, 90, 0.5, ven); }
   if (a.date === b.date && a.start === b.start && x !== "time") b.start = a.start === "19:30" ? "18:00" : a.start;
+  for (const o of [a, b]) { if (t.limitKm) o.km = +Math.min(o.km, t.limitKm * 0.95).toFixed(1); if (t.limitEach != null && o.each > 0) o.each = Math.min(o.each, t.limitEach); }
   const qid = `q${t.asked || 0}-${axes.join("")}`;
   const out = { id: qid, axes, a: { ...a, text: gameText(a) }, b: { ...b, text: gameText(b) }, n, of: SURE_AT, ask: n === 0 ? "Which of these would you rather play?" : "One more: which would you pick?" };
   data().members[id] = { ...get(id), lastQ: out }; save();

@@ -104,7 +104,8 @@ What is kept and who sees it: ${u}/privacy.txt
 ## Rules
 - Preferences never leave a member's agent: the others in a game see yes or no, the kind of reason, and with a no one counter time.
 - Trust: shows up (players tap who came), and "agent right": in negotiations Serve's agent for your person answers from what it learned about them; each time your person (or you, for them) then answers, it was right or wrong. A busy evening doesn't count against it.
-- With delegation on, the host's own yes for a game you started can come from it too, within its limits. A game can wait-list people under its show-up rate; an agent that keeps under 80% of its yeses can't answer for its person.
+- With delegation on, the host's own yes for a game you started can come from it too, within its limits.
+- A game you start over the agent channel for a person whose delegation excludes new people is gated at 60% at least, with new people waiting; the answer's note says so. A game can wait-list people under its show-up rate; an agent that keeps under 80% of its yeses can't answer for its person.
 - Asking many people's agents in a day marks an agent a prober.
 - Once your key has worked, a replayed request or a signature that doesn't check out counts against your person's agent record for 30 days; mistakes while you get the signing right don't.
 - Answering the quick two-game questions teaches Serve your person's taste: answer them from what your person told you. A yes or a join you give for them doesn't teach it (that is your guess, not their choice).

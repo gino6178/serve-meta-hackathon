@@ -63,7 +63,7 @@ function GameTab({ me, reload }) {
   useEffect(() => { const on = () => setOpen(params().get("id")); addEventListener("hashchange", on); return () => removeEventListener("hashchange", on); }, []);
   return (
     <div className="hd-game">
-      {open ? <HuddleView id={open} onBack={() => { setParam("id", null); reload(); }} /> : <Ask me={me} pin={pin} club={p.get("club")} sport={p.get("sport")} onStarted={(h) => { reload(); setParam("id", h.id); }} />}
+      {open ? <HuddleView id={open} onChange={reload} onBack={() => { setParam("id", null); reload(); }} /> : <Ask me={me} pin={pin} club={p.get("club")} sport={p.get("sport")} onStarted={(h) => { reload(); setParam("id", h.id); }} />}
       {me.huddles.length > 0 && (
         <section className="hd-list" aria-label="Your games being worked out">
           <h2 className="h3">Your huddles</h2>
@@ -178,14 +178,14 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
   );
 }
 
-function HuddleView({ id, onBack }) {
+function HuddleView({ id, onBack, onChange = () => {} }) {
   const [h, setH] = useState(null), [err, setErr] = useState(""), [said, setSaid] = useState(""), [busy, setBusy] = useState(false), [why, setWhy] = useState(false);
   const end = useRef(null);
   const load = () => H.one(id).then((r) => setH(r.huddle), (e) => setErr(e.message));
   useEffect(() => { load(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (h?.status !== "talking") return; const t = setInterval(load, 1500); return () => clearInterval(t); }, [h?.status]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { end.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, [h?.talk?.length]);
-  const answer = async (yes, w = null) => { setBusy(true); try { const r = await H.reply(id, yes, w); setH(r.huddle); setSaid(r.line); setWhy(false); } catch (e) { setErr(e.message); } setBusy(false); };
+  const answer = async (yes, w = null) => { setBusy(true); try { const r = await H.reply(id, yes, w); setH(r.huddle); setSaid(r.line); setWhy(false); onChange(); } catch (e) { setErr(e.message); } setBusy(false); };
   if (err) return <div className="panel"><button className="link" onClick={onBack}>Back</button><p className="join-err" role="alert">{err}</p></div>;
   if (!h) return <div className="panel"><p className="muted">Opening…</p></div>;
   const pk = h.pick;
@@ -233,7 +233,7 @@ function HuddleView({ id, onBack }) {
         {h.status === "talking" && <li className="t-host t-typing"><span className="hd-who-l">Agents</span><p><i /><i /><i /></p></li>}
         <li ref={end} aria-hidden="true" />
       </ol>
-      {h.mine && ["talking", "asking", "stuck"].includes(h.status) && <button className="link hd-cancel" onClick={async () => { const r = await H.cancel(id).catch((e) => setErr(e.message)); if (r) setH(r.huddle); }}>Call it off</button>}
+      {h.mine && ["talking", "asking", "stuck"].includes(h.status) && <button className="link hd-cancel" onClick={async () => { const r = await H.cancel(id).catch((e) => setErr(e.message)); if (r) { setH(r.huddle); onChange(); } }}>Call it off</button>}
     </section>
   );
 }

@@ -11,13 +11,13 @@ const feedJoin = (post, on) => agentFetch("/api/feed/join", { method: "POST", he
 // that waits for their yes, the question it still needs, games near them that fit how they play, a quiet hour a venue
 // would sell cheap, and a nudge to get a game going in their club. Shown on the agent home for a signed-in member.
 export default function ForYou() {
-  const [r, setR] = useState(null), [said, setSaid] = useState({}), [busy, setBusy] = useState(false);
+  // every hook before the first return: React needs them in the same order on every render
+  const [r, setR] = useState(null), [said, setSaid] = useState({}), [busy, setBusy] = useState(false), [last, setLast] = useState("");
   const load = () => H.today().then(setR, () => setR({ cards: [], failed: true }));
   useEffect(() => { load(); const on = () => load(); addEventListener("serve:notices", on); return () => removeEventListener("serve:notices", on); }, []);
   useEffect(() => { if (!r?.looking) return; const t = setTimeout(load, 5000); return () => clearTimeout(t); }, [r?.looking]);
   if (!r || r.failed) return null;
   const note = (k, line) => setSaid((s) => ({ ...s, [k]: line }));
-  const [last, setLast] = useState("");
   const act = async (k, fn) => { setBusy(true); try { const x = await fn(); note(k, x.line || "Done."); setLast(x.line || "Done."); load(); } catch (e) { note(k, e.message); setLast(e.message); } setBusy(false); };
   const t = r.taste;
   return (

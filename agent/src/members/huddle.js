@@ -97,7 +97,7 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   const job = run(h, now).catch((e) => { h.status = "stuck"; line(h, "agent", `Something went wrong while the agents talked (${e.message}).`); save(); });
   const fillNote = fill ? `Filling ${need - 1} open spot${need - 1 > 1 ? "s" : ""} (with you, ${need} players).` : null;
   const self = Tr.check(me, h.gate), gateNote = self.verdict === "waitlist" ? `Your own record (${Tr.showText(self.badge)}) is under this gate: others' games with it would wait-list you.` : null;
-  const note = [b.nearby && !near.length ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet, so only your club${club ? "" : "s"} were asked.` : null, fillNote, gateNote].filter(Boolean).join(" ") || null;
+  const note = [b.gateWhy || null, b.nearby && !near.length ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet, so only your club${club ? "" : "s"} were asked.` : null, fillNote, gateNote].filter(Boolean).join(" ") || null;
   return wait ? job.then(() => ({ huddle: view(h, me), ...(note ? { note } : {}) })) : { huddle: view(h, me), ...(note ? { note } : {}) };
 }
 // when the host wants to play: some days (YYYY-MM-DD or Mon..Sun) and parts of the day (early, morning, afternoon, evening)
@@ -362,14 +362,23 @@ export function mayAgentSayYes(me, { huddle = null, post = null } = {}) {
   if (huddle) {
     const h = find(huddle);
     if (!h || !h.pick) return { error: "No such game to answer.", code: 404 };
-    if (d.maxEach != null && h.pick.each > d.maxEach) return { error: `NT$${h.pick.each} each is over the NT$${d.maxEach} your person allowed: ask them.`, code: 403, needs: "person" };
-    if (!d.newPeople && h.players.some((x) => x !== me && Tr.badge(x).show.new)) return { error: "Someone new is in this game, and your person wants to decide those: ask them.", code: 403, needs: "person" };
+    const why = [];
+    if (d.maxEach != null && h.pick.each > d.maxEach) why.push(`NT$${h.pick.each} each is over the NT$${d.maxEach} your person allowed`);
+    if (!d.newPeople && h.players.some((x) => x !== me && Tr.badge(x).show.new)) why.push("someone new is in it");
+    const lim = T.hardNos(T.get(me), { date: h.pick.date, start: h.pick.start, km: h.pick.km?.[me] ?? null, each: h.pick.each });
+    if (lim.length) why.push(`it's outside their limits (${lim.map((x) => T.NO[x] || x).join(", ")})`);
+    if (why.length) return { error: `Ask your person: ${why.join("; ")}.`, code: 403, needs: "person", reasons: why };
   }
   if (post) {
     const g = P.openInvites(me, (room) => C.canSee(room, me)).find((x) => x.id === post);
-    if (g && d.maxEach != null && (g.invite.each ?? 0) > d.maxEach) return { error: `NT$${g.invite.each} each is over the NT$${d.maxEach} your person allowed: ask them.`, code: 403, needs: "person" };
-    if (g && !d.newPeople && Tr.badge(g.hostId).show.new) return { error: "The host is new, and your person wants to decide those: ask them.", code: 403, needs: "person" };
-    if (g) { const t = T.get(me), dt = dateFor(g.invite.day, new Date()), hn = T.hardNo(t, { date: dt, start: g.invite.start, km: g.km ?? null, each: g.invite.each ?? 0 }); if (hn) { const all = T.hardNos(t, { date: dt, start: g.invite.start, km: g.km ?? null, each: g.invite.each ?? 0 }); return { error: `That game is outside what your person set (${all.map((x) => T.NO[x] || x).join(", ")}).`, code: 403, needs: "person" }; } }
+    if (g) {
+      const why = [], t = T.get(me), dt = dateFor(g.invite.day, new Date());
+      if (d.maxEach != null && (g.invite.each ?? 0) > d.maxEach) why.push(`NT$${g.invite.each} each is over the NT$${d.maxEach} your person allowed`);
+      if (!d.newPeople && Tr.badge(g.hostId).show.new) why.push("the host is new");
+      const lim = T.hardNos(t, { date: dt, start: g.invite.start, km: g.km ?? null, each: g.invite.each ?? 0 });
+      if (lim.length) why.push(`it's outside their limits (${lim.map((x) => T.NO[x] || x).join(", ")})`);
+      if (why.length) return { error: `Ask your person: ${why.join("; ")}.`, code: 403, needs: "person", reasons: why };
+    }
   }
   return { ok: true };
 }
@@ -389,7 +398,7 @@ export function cancel(me, id) {
 export function view(h, me) {
   const o = h.pick;
   return { id: h.id, sport: h.sport, need: h.need, club: h.clubName, host: first(h.host), mine: h.host === me, status: h.status, created: h.created, post: h.post || null,
-    invited: h.invited.length, talk: h.talk.map((l) => ({ at: l.at, from: l.from === me ? "me" : l.from === "host" ? (h.host === me ? "me" : "host") : l.from === "venue" ? "venue" : l.from === "agent" ? "agent" : "other", who: l.who, text: l.plain && h.host !== me ? l.plain : l.text, ...(l.agent ? { agent: true } : {}), ...(l.venue ? { venue: true } : {}), ...(l.agreed ? { agreed: true } : {}), ...(l.yes != null ? { yes: l.yes } : {}), ...(l.trust ? { trust: l.trust } : {}), ...(l.gate ? { gate: l.gate } : {}) })),
+    ...(h.host === me ? { invited: h.invited.length } : {}), talk: h.talk.map((l) => ({ at: l.at, from: l.from === me ? "me" : l.from === "host" ? (h.host === me ? "me" : "host") : l.from === "venue" ? "venue" : l.from === "agent" ? "agent" : "other", who: l.who, text: l.plain && h.host !== me ? l.plain : l.text, ...(l.agent ? { agent: true } : {}), ...(l.venue ? { venue: true } : {}), ...(l.agreed ? { agreed: true } : {}), ...(l.yes != null ? { yes: l.yes } : {}), ...(l.trust ? { trust: l.trust } : {}), ...(l.gate ? { gate: l.gate } : {}) })),
     ...(o ? { pick: { date: o.date, start: o.start, when: when(o), where: o.where, kind: o.kind, each: o.each, price: o.price, list: o.list, off: o.off, busy: o.busy, sample: o.sample, km: o.km[me] ?? null, at: o.at } } : {}),
     players: h.players.map((id) => ({ id, name: id === me ? "You" : first(id), answer: h.answers[id] || null, host: id === h.host, direct: (h.direct || []).includes(id), new: Tr.badge(id).show.new, known: id === me || C.mine(me).some((c) => c.members.some((m) => m.id === id)), trust: trustOf(id) })),
     ...(h.status === "asking" && h.players.includes(me) && !h.answers[me] ? { agentMay: mayAgentSayYes(me, { huddle: h.id }) } : {}),
@@ -484,11 +493,25 @@ export function nudge(me, { now = new Date() } = {}) {
 // the member's answer to a game their agent recommended: join it, or say why not (their agent learns either way)
 export function answerGame(me, postId, yes, why = null, { now = new Date(), byAgent = false } = {}) {
   const g = gamesFor(me, { now, n: 50 }).find((x) => x.post === postId);
+  if (!g && !yes) {
+    const open = P.openInvites(me, (room) => C.canSee(room, me)).find((x) => x.id === postId);
+    if (!open) return { error: "That game isn't open any more.", code: 404 };
+    const date = dateFor(open.invite.day, now), r = byAgent ? { line: "Passed on it for your person." } : T.reply(me, { date, start: open.invite.start, km: null, each: open.invite.each ?? 0, busy: 0.5 }, false, why);
+    P.notForMe(me, postId);
+    return { line: r.line, taste: T.view(T.get(me)) };
+  }
   if (!g) {
     const open = P.openInvites(me, (room) => C.canSee(room, me)).find((x) => x.id === postId);
     if (!open) return { error: "That game isn't open any more.", code: 404 };
     if (open.invite.gate && Tr.check(me, open.invite.gate).verdict === "waitlist") return { error: `Its host wants people who show up ${Math.round(open.invite.gate.minShow * 100)}% or more; you'd go on the waitlist.`, code: 409 };
-    return { error: "It clashes with a game you're already in.", code: 409 };
+    // say the real reason it isn't one of theirs: the sport, their own limits, a clash, the date
+    const t = T.get(me), v = open.invite, date = dateFor(v.day, now), at0 = startMs({ date, start: v.start });
+    const sports = t.sports.length ? t.sports : [...new Set(C.mine(me).map((c) => c.sport))];
+    if (sports.length && !sports.includes(v.sport)) return { error: `It's ${v.sport}, which isn't among the sports set for you (${sports.join(", ")}). Add it with POST /api/huddle/sports, or join it from the feed.`, code: 409 };
+    const at = v.at || (open.room ? C.find(open.room)?.at : null), lim = T.hardNos(t, { date, start: v.start, km: t.home && at ? +T.km(t.home, at).toFixed(1) : null, each: v.each ?? 0 });
+    if (lim.length) return { error: `It's outside the limits set for you (${lim.map((x) => T.NO[x] || x).join(", ")}).`, code: 409 };
+    if (P.busyAt(me).some((x) => Math.abs(x - at0) < 3 * 3600e3)) return { error: "It clashes with a game you're already in.", code: 409 };
+    return { error: "It has already started, or it is too far from your area.", code: 409 };
   }
   const r = byAgent ? { line: "", taste: T.view(T.get(me)) } : T.reply(me, { date: g.date, start: g.start, km: g.km ?? 3, each: g.each ?? 0, busy: 0.5 }, yes, why);
   if (yes) {
