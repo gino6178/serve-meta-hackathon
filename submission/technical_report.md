@@ -4,7 +4,7 @@
 
 | For | What was measured | Real people |
 |---|---|---|
-| Anyone who plays a ball sport for fun, and groups nobody organises (a school's children, older adults, a charity day) | An agent given only the address found its person a game from its third request; 153 independent agents ended with a round with no core-flow fault (5.18) | Invited people on the live site since 29 October: 8 people, 2 clubs they started, 2 games filled, the first player in 1 to 46 minutes after a game was posted (5.17, 7) |
+| Anyone who plays a ball sport for fun, and groups nobody organises (a school's children, older adults, a charity day) | An agent given only the address found its person a game from its third request; over 25 rounds 153 independent agents tested it, and the six of the last round found no core-flow fault (5.18) | Invited people on the live site since 29 October: 8 people, 2 clubs they started, 2 games filled, the first player in 1 to 46 minutes after a game was posted (5.17, 7) |
 
 Serve is a platform where people and agents make games together. Every person on it has an agent: one that Serve
 gives them, on the web and in Messenger, or their own, which comes in through the same open door. A game needs other
@@ -34,7 +34,7 @@ performance. It is not a medical tool: it gives no diagnosis, treatment or dosag
 is a scheduling constraint (doubles instead of singles, a shorter game, one game fewer), and a highlight is a clip to
 share with friends.
 
-Every number below names the file it comes from; section 2 gives the hardware.
+Every number below names the file it comes from, except the guard results, whose raw output stayed on the server (5.5); section 2 gives the hardware.
 
 **What surprised us.** Three findings from running Meta's models in a product, each measured:
 - **A pitfall: Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
@@ -444,7 +444,7 @@ done. Where a person does wait, Serve answers in layers, each taking over only w
 | Layer | Time | What it does | State |
 |---|---|---|---|
 | 0. Code | milliseconds | Facts and rules: free times, courts, trips, limits; every decision the facts settle; the card the person sees | Built |
-| 1. Small models | about 0.5 to 2 s | Two different things, tried in this order. The student, a separate Llama 3.2 1B model on the CPU, answers when it is sure: 96% of ordinary choices, 73% of the hardest (3.12). The one-pass decider, Glimmer itself read from one token with no reasoning (0.53 s), takes some of what the student leaves (5.15) | Both on. The decider keeps a pick only at the 5% risk level, about 8% of what reaches it |
+| 1. Small models | about 0.5 to 2 s | Two different things, tried in this order. The student, a separate Llama 3.2 1B model on the CPU, answers when it is sure: 96% of the 500 test cases, 73% of the 196 hardest (3.12). The one-pass decider, Glimmer itself read from one token with no reasoning (0.53 s), takes some of what the student leaves (5.15) | Both on. The decider answers about 8% of the choices that reach it, and only at the 5% risk level; in the measured run that changed 3 of 89 answers from what the full answer would have given |
 | 2. Glimmer | about 40 s | Only what layers 0 and 1 leave open, and the short texts; streamed step by step, so the person watches the agent work | Built |
 | 3. Ahead of time | before anyone asks | Match looks at the player's usual times and asks first, so a game is often agreed before the player thinks of it | Built |
 
