@@ -13,6 +13,7 @@ import { Models, MODELS_DURATION } from './serve/Models';
 import { Safety, SAFETY_DURATION } from './serve/Safety';
 import { LiveNumbers, LIVE_NUMBERS_DURATION } from './serve/LiveNumbers';
 import { Outro, OUTRO_DURATION } from './serve/Outro';
+import { Swarm, SWARM_DURATION } from './serve/Swarm';
 
 const Live: React.FC = () => <LiveFrame segs={LIVE} />;
 
@@ -30,6 +31,7 @@ export const Root: React.FC = () => (
     <Composition id="Models" component={Models} durationInFrames={MODELS_DURATION} fps={30} width={1920} height={1080} />
     <Composition id="Safety" component={Safety} durationInFrames={SAFETY_DURATION} fps={30} width={1920} height={1080} />
     <Composition id="LiveNumbers" component={LiveNumbers} durationInFrames={LIVE_NUMBERS_DURATION} fps={30} width={1920} height={1080} />
+    <Composition id="Swarm" component={Swarm} durationInFrames={SWARM_DURATION} fps={30} width={1920} height={1080} />
     <Composition id="Outro" component={Outro} durationInFrames={OUTRO_DURATION} fps={30} width={1920} height={1080} />
   </>
 );
