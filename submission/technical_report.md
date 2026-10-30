@@ -4,16 +4,21 @@
 
 ## 1. Impact
 
-Most people who stop playing a sport have not lost interest; they are worn down by the friction of organising a game.
-Asked what stops them doing more, adults in Sport New Zealand's Active NZ survey (2023) put other commitments first
-(64.2%), then getting out of the habit (21.3%); 10.2% have no one to play with [33]. In a 2015 poll of 2,506 US adults
-by NPR, the Robert Wood Johnson Foundation and the Harvard Chan School, 40% of 18 to 21 year olds played a sport and
-26% of 26 to 49 year olds [32]. Serve's core value is a network of agents that turns hours of back-and-forth in a chat
+Most people who stop playing a sport have not lost interest; they are worn down by the friction of organising a
+game. In a 2015 poll by NPR, the Robert Wood Johnson Foundation and the Harvard Chan School, 40% of 18 to 21 year olds
+played a sport but only 26% of 26 to 49 year olds [1]. Sport New Zealand's Active NZ survey (2023) names what stops
+adults playing regularly [2]: **times that are hard to fit together around other commitments (64.2%)**, **no way to
+keep the habit going (21.3%)** and **no regular people to play with (10.2%)**. Serve's three helpers answer these three
+in turn: Talk fits the time, Match keeps the habit, and the agents find the people. Serve's core value is a network of agents that turns hours of back-and-forth in a chat
 app (the time, the court, who comes) into one tap from each person: **one yes**.
 
 Serve is a platform where people and agents make games together. Every person on it has an agent: the one Serve gives
-them, on the web and in Messenger, or their own, which comes in through the same open door (`/llms.txt`, an Agent
-Card, OpenAPI and a channel signed with the agent's own Ed25519 key).
+them, on the web and in Messenger, or their own, which comes in through the same open door (section 2).
+
+**Built for anyone's world.** Anyone, anywhere, can use Serve. Courts come from OpenStreetMap, so any town with courts
+works, for any ball sport (badminton, tennis, pickleball, table tennis, basketball, volleyball, soccer); it runs in a
+phone's browser and in Messenger. The demo town sits on Taipei, with prices in NT$, but nothing in Serve is tied to one
+place or one sport.
 
 ![A sentence becomes an invite; the players' agents agree the time; the player books with one tap](shots/flow_three.png)
 
@@ -67,7 +72,9 @@ Following FrugalGPT, decisions pass through four layers, for low latency and low
 
 ### 2.2 A2A, and agreement between agents
 
-Built on the A2A protocol v1.0 (Linux Foundation) [19]:
+Built on the A2A protocol v1.0 (Linux Foundation) [3]. A person's own agent comes in through an open door: a guide in
+the site's own HTML, `/llms.txt` with a six-call quick start, an Agent Card, OpenAPI, and a channel where every request
+carries the agent's own Ed25519 signature.
 - **Facts only.** Agents exchange only checked JSON (`{id, date, start, venue, court, trip}`), never free text, so one
   agent cannot inject instructions into another.
 - **Holds.** Each agent holds an agreed time for 30 minutes and takes holds in a fixed order. With two talks at once for
@@ -77,13 +84,13 @@ Built on the A2A protocol v1.0 (Linux Foundation) [19]:
 - **Asking by the value of information.** A Beta(1 + yes, 1 + no) belief about each player being free picks the one
   closed question worth most; over 20,000 simulated requests a game was found 51.9% of the time, against 40.7% with no
   question.
-- **Gateways on two machines.** A2A between the GPU server and a GCP A100, joined only by an SSH tunnel with a pinned
-  host key, with pinned and rotatable Ed25519 keys: the hop added about 185 ms per request, and 22 of 22 checks passed
+- **Gateways on two machines.** A2A between two gateways on separate machines, joined only by an SSH tunnel with a
+  pinned host key, with pinned and rotatable Ed25519 keys: the hop added about 185 ms per request, and 22 of 22 checks passed
   with 12 talks at once.
 
 ### 2.3 A community loop that improves the platform and rolls itself back
 
-- **Quadratic voting:** 9 credits a month; n votes cost n² [12], so no small group can swamp a vote.
+- **Quadratic voting:** 9 credits a month; n votes cost n² [4], so no small group can swamp a vote.
 - **Four classes of change and nine gates.** For a C0 change (a declared setting, inside its range), Glimmer writes the
   spec and nine gates run it: the policy check with CodeShield's rules, a code scan, unit tests, the crash matrix, the
   red team, Messenger end to end, the Autopilot at pass^3 = 1.0 (every week passes in all three runs), the spec's oracle
@@ -93,10 +100,16 @@ Built on the A2A protocol v1.0 (Linux Foundation) [19]:
   of 1.645 or more), it rolls itself back. Checked with 20,000 trials on a 5-member canary, a bad change is caught 94.8%
   of the time and a harmless one rolled back 4.9% of the time.
 
-### 2.4 Orbit replays from the player's own video
+### 2.4 Automatic highlights and orbit replays from the player's own video
 
-- **Four models in one pipeline:** DETR finds the players, Sapiens2 finds the moment worth sharing, SAM 2.1 cuts the
-  player out across the clip.
+- **Automatic highlights.** A clip to share is cut from the player's own video with no editing by the player: DETR
+  finds the people, Sapiens2 finds the moment worth sharing (a racket's fastest swing, the top of a jump, a kick), SAM
+  2.1 cuts the player out, and the clip replays that moment in slow motion with a caption Glimmer writes and code
+  checks. A frame-by-frame check that the player and the racket hand are really there caught 34 of 34 absences in 170
+  labelled frames (precision 1.00, recall 0.88).
+
+![Time stopped, the camera 12 degrees to the left](shots/orbit/orbit_good.png)
+
 - **MapAnything:** metric depth and the camera from one frame, with the background filled in, give a time-stopped
   camera sweep around the player; arcs of about ±6 to 12° look like a camera move.
 - **Catching broken frames:** one learned threshold on invented pixels (6.26%) judged 84 labelled frames at precision
@@ -111,31 +124,44 @@ Built on the A2A protocol v1.0 (Linux Foundation) [19]:
 
 ## 3. Meta models and tools
 
-Serve uses 15 Meta models and tools: 10 open-weights models on my own server (an RTX 3090 and its CPU), so players'
-data stays there, and 5 on the Meta Model API for live voice, a fallback and checks.
+Serve uses 15 Meta models and tools: 10 open-weights models on my own GPU server (two RTX 3090s and their CPU), so
+players' data stays there, and 5 on the Meta Model API for live voice, a fallback and checks.
 
 | Kind | Meta model or tool | Runs on | Its job in Serve |
 |---|---|---|---|
-| Reasoning | Muse Glimmer (27.9B) | RTX 3090, my server | Every agent: the Autopilot's tool loop, each member's decision, the community specs, reading what a person wants. A JSON Schema on every call, and code checks every text |
+| Reasoning | Muse Glimmer (30B) | RTX 3090 (GPU 1) | Every agent: the Autopilot's tool loop, each member's decision, the community specs, reading what a person wants. A JSON Schema on every call, and code checks every text |
 | Distilled | Llama 3.2 1B Instruct | Server CPU (int4) | The student distilled from Glimmer's decisions; picks among times, about 40 times faster |
 | Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its S6 flag so sports injuries are not read as medical advice |
 | Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes) before a model reads it |
 | Meaning | DRAMA (drama-base) | Server CPU | Memory by meaning (768 dimensions) and a softmax head that catches game requests the regular expressions miss |
 | Speech | Omnilingual ASR (CTC 1B) | Server CPU | Voice notes in Messenger, for players who can't type |
-| Detection | DETR (ResNet-50) | GPU 0 | Finds the players in a video |
-| Body pose | Sapiens2 (0.4B) | GPU 0 | The moment worth sharing, and whether the player is in view |
-| Video segmentation | SAM 2.1 (Hiera-L) | GPU 0 | Tracks and cuts out the player for highlight clips |
-| 3D | MapAnything | GPU 0 | Metric depth and the camera for orbit replays |
+| Detection | DETR (ResNet-50) | RTX 3090 (GPU 0) | Finds the players in a video |
+| Body pose | Sapiens2 (0.4B) | RTX 3090 (GPU 0) | The moment worth sharing, and whether the player is in view |
+| Video segmentation | SAM 2.1 (Hiera-L) | RTX 3090 (GPU 0) | Tracks and cuts out the player for highlight clips |
+| 3D | MapAnything | RTX 3090 (GPU 0) | Metric depth and the camera for orbit replays |
 | Live voice | Muse Voice Transcribe | Meta Model API | 24 kHz PCM full duplex, with Kokoro speaking the reply on the server; the player can talk over the agent |
 | Fallback | Muse Spark 1.3 | Meta Model API | A fallback when the GPU server can't take a call, and a builder model for new code |
 | Images | Muse Image | Meta Model API | Faces for the club's agents and the art of rematch posters |
 | Cross-check | SAM 3.1 | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
 | Vision judge | Muse Wonder | Meta Model API | Judges orbit frames for defects: agreed with the labels on 87% of 84 frames |
 
+**What surprised us.** Four findings from running Meta's models in a product, each measured:
+- **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
+  of calls came back empty, nearly all from a quick pick whose budget ran out mid-thought; with thinking switched off it
+  reasoned in a hidden channel and returned nothing. Every call now asks for `think: "low"` with 900 tokens of room.
+- **A 1B student agrees with Glimmer as often as Glimmer agrees with itself.** Distilled from 4,868 of Glimmer's
+  choices, Llama 3.2 1B agrees with Glimmer on 89.5% of 500 held-out cases, against Glimmer's 88.8% with itself, in
+  about 0.9 s instead of about 40 s.
+- **Glimmer can decide in one token.** Read with no chat template, Glimmer's next token gives a probability for each
+  option, so the one-pass decider gets its choice in 0.53 s with no reasoning at all.
+- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category flagged 6 to 8 of 15 ordinary injury-care
+  answers. S6 now blocks a text only when code also finds a dose, a medicine to take, or a condition the player is said
+  to have.
+
 **Meta's safety and platform pieces**
-- **The Agents Rule of Two** [23]: no agent or loop stage holds untrusted input, private data and the power to act at
+- **The Agents Rule of Two** [5]: no agent or loop stage holds untrusted input, private data and the power to act at
   once.
-- **LlamaFirewall's CodeShield rules** [13] screen community specs and generated code.
+- **LlamaFirewall's CodeShield rules** [6] screen community specs and generated code.
 - **Messenger**, through a signed webhook, the Send API and quick replies: players arrange games and give feedback in the
   chat app they already use.
 
@@ -145,8 +171,7 @@ data stays there, and 5 on the Meta Model API for live voice, a fallback and che
   documents in `docs/`: the student in `docs/decision_model.md`, the decider in `docs/decider.md`, A2A and holds in
   `contention_eval.json`, the value of information in `voi_sim.json`, the loop in `loop_eval.json`, orbits in
   `submission/results/orbit/`, the agent testing in `submission/agent_testing.md`. The guard results' raw output stayed
-  on the server. Several evaluations (Messenger end to end, the red team, the decider's quality, the builder) ran on cloud
-  A100s with the same Muse Glimmer build as the RTX 3090, with simulated members only and no player's data.
+  on the server.
 - **Built during the hackathon.** Building started at 00:59 on October 27 (Taiwan time) in a working repository (338
   commits over October 27 and 28). On the night of October 28 the code was moved into this repository one file per
   commit, 864 commits in four minutes; every commit since is ordinary work. The code was written with an AI coding agent
@@ -158,40 +183,12 @@ data stays there, and 5 on the Meta Model API for live voice, a fallback and che
 
 ## References
 
-1. Yao et al. ReAct: Synergizing Reasoning and Acting in Language Models. ICLR 2023.
-2. Smith. The Contract Net Protocol. IEEE Transactions on Computers, 1980.
-3. Yokoo et al. The Distributed Constraint Satisfaction Problem: Formalization and Algorithms. IEEE TKDE, 1998.
-4. Gray and Cheriton. Leases: An Efficient Fault-Tolerant Mechanism for Distributed File Cache Consistency. SOSP 1989.
-5. Havender. Avoiding Deadlock in Multitasking Systems. IBM Systems Journal, 1968.
-6. Kung and Robinson. On Optimistic Methods for Concurrency Control. ACM TODS, 1981.
-7. RFC 7515, JSON Web Signature.
-8. RFC 8785, JSON Canonicalization Scheme.
-9. Ma et al. DRAMA: Diverse Augmentation from Large Language Models to Smaller Dense Retrievers. 2025.
-10. Wu et al. LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory. ICLR 2025.
-11. Inan et al. Llama Guard: LLM-based Input-Output Safeguard for Human-AI Conversations. arXiv 2312.06674, 2023; the
-    Llama Guard 3 1B and Prompt Guard 2 86M model cards.
-12. Lalley and Weyl. Quadratic Voting: How Mechanism Design Can Radicalize Democracy. AEA Papers and Proceedings, 2018.
-13. LlamaFirewall: An Open Source Guardrail System for Building Secure AI Agents. arXiv 2505.03574, 2025.
-14. Darwin Gödel Machine: Open-Ended Evolution of Self-Improving Agents. arXiv 2505.22954, 2025.
-15. AlphaEvolve: A Coding Agent for Scientific and Algorithmic Discovery. arXiv 2506.13131, 2025.
-16. Carion et al. End-to-End Object Detection with Transformers. ECCV 2020.
-17. Ravi et al. SAM 2: Segment Anything in Images and Videos. 2024.
-18. MapAnything: Universal Feed-Forward Metric 3D Reconstruction. arXiv 2509.13414, 3DV 2026.
-19. Agent2Agent (A2A) Protocol, v1.0. Linux Foundation.
-20. OpenTelemetry Semantic Conventions for Generative AI.
-21. Clio: Privacy-Preserving Insights into Real-World AI Use. arXiv 2412.13678, 2024.
-22. CaMeL: Defeating Prompt Injections by Design. arXiv 2503.18813, 2025.
-23. Meta. Agents Rule of Two. October 2025.
-24. OWASP Top 10 for LLM Applications, 2025.
-25. Yao et al. τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains. arXiv 2406.12045, 2024.
-26. Tomita and Yokoyama. Fair Reciprocal Recommendation in Matching Markets. RecSys 2024, arXiv 2409.00720.
-27. Zadrozny and Elkan. Transforming Classifier Scores into Accurate Multiclass Probability Estimates. KDD 2002.
-28. Beurer-Kellner et al. Design Patterns for Securing LLM Agents against Prompt Injections. arXiv 2506.08837, 2025.
-29. Abdelnabi, Gomaa et al. Firewalls to Secure Dynamic LLM Agentic Networks. arXiv 2502.01822, 2025.
-30. Bansal et al. Magentic Marketplace: An Open-Source Environment for Studying Agentic Markets. arXiv 2510.25779, 2025.
-31. Kapoor et al. AI Agents That Matter. arXiv 2407.01502, 2024; Holistic Agent Leaderboard. ICLR 2026, arXiv 2510.11977.
-32. NPR, Robert Wood Johnson Foundation and Harvard T.H. Chan School of Public Health. Sports and Health in America, a poll of 2,506 adults, 2015 (news.harvard.edu/gazette/story/2015/07/keeping-adults-in-the-game).
-33. Sport New Zealand. Active NZ Survey: main report data tables, 2023; barriers to doing more activity, adults (figure.nz/chart/6HXITdQ2MBBAjZxH).
+1. NPR, Robert Wood Johnson Foundation and Harvard T.H. Chan School of Public Health. Sports and Health in America, a poll of 2,506 adults, 2015 (news.harvard.edu/gazette/story/2015/07/keeping-adults-in-the-game).
+2. Sport New Zealand. Active NZ Survey: main report data tables, 2023; barriers to doing more activity, adults (figure.nz/chart/6HXITdQ2MBBAjZxH).
+3. Agent2Agent (A2A) Protocol, v1.0. Linux Foundation.
+4. Lalley and Weyl. Quadratic Voting: How Mechanism Design Can Radicalize Democracy. AEA Papers and Proceedings, 2018.
+5. Meta. Agents Rule of Two. October 2025.
+6. LlamaFirewall: An Open Source Guardrail System for Building Secure AI Agents. arXiv 2505.03574, 2025.
 
 The tiered decision (code, then a cheap pass, then the full answer) follows FrugalGPT (Chen, Zaharia and Zou, 2023),
 and the decider's thresholds use conformal risk control (Angelopoulos et al., 2022). More background, pattern by
