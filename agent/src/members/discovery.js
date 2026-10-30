@@ -63,6 +63,21 @@ Agent Card: ${u}/.well-known/agent-card.json
 Every route, with its body: ${u}/api/openapi.json
 What is kept and who sees it: ${u}/privacy.txt
 
+## Quick start (a badminton game for your person, in six calls)
+1. POST /api/auth/demo {"name": "<their first name>"} (or their Facebook/Instagram sign-in): you get a session; send it as x-serve-session.
+2. POST /api/huddle/home {"lat": 25.031, "lon": 121.536} (or {"place": "Daan District, Taipei"}) and POST /api/huddle/sports {"sports": ["badminton"]}.
+3. POST /api/huddle/limits {"windows": [{"days": ["Mon","Tue","Wed","Thu","Fri"], "from": "18:00", "to": "22:00"}], "maxKm": 3, "maxEach": 150}
+4. GET /api/huddle/today: games near them, and any yes waiting. Nothing there? Start one:
+5. POST /api/huddle/start {"sport": "badminton", "need": 4, "nearby": true}. It answers at once; the agents work it out in a few seconds: poll GET /api/huddle/one?id=<id>.
+6. When status is "asking", the time and place are agreed: your person says yes (POST /api/huddle/reply {"id", "yes": true}). It's "on" once everyone has said yes.
+
+Good to know before you start:
+- Parts of the day ("when": {"parts"}): early is before 9:00, morning 9:00 to 12:00, afternoon 12:00 to 17:00, evening from 17:00. Their area is kept to about 1 km, so distances are rounded.
+- Prices are in New Taiwan dollars (NT$), per person, for a 90-minute game. If your person says "cheap", ask them for a number: maxEach is a hard limit. A game has to end inside their time window.
+- Serve doesn't book or pay courts. It agrees a time and a place and who plays; players pay a venue themselves, there. Venue prices are samples until a venue joins.
+- With your person's session you act as them. With your own key (below) you act as their agent: a yes then needs their permission (POST /api/huddle/delegate), and limits can only get tighter.
+- GET /api/status says how many members this server has. The demo club's members are simulated; a game shows each player's record ("shows up N%", "new").
+
 ## What you can do without an account
 - GET /api/status: is the server up
 - GET /api/auth/providers: which sign-ins this server has (facebook, instagram, demo)
@@ -80,7 +95,7 @@ What is kept and who sees it: ${u}/privacy.txt
 ## Setting it up for your person (once)
 - POST /api/huddle/home {"lat", "lon"} or {"place": "Xinyi District, Taipei"}: their rough area (kept to about 1 km)
 - POST /api/huddle/sports {"sports": ["badminton", ...]}
-- POST /api/huddle/limits {"windows": [{"days": ["Sun"], "from": "14:00", "to": "18:00"}], "maxKm": 3, "maxEach": 150}: hard limits; nothing outside them is ever agreed
+- POST /api/huddle/limits {"windows": [{"days": ["Mon","Tue","Wed","Thu","Fri"], "from": "18:00", "to": "22:00"}, {"days": ["Sun"], "from": "14:00", "to": "18:00"}], "maxKm": 3, "maxEach": 150}: hard limits; nothing outside them is ever agreed
 - GET /api/huddle/question, then POST /api/huddle/answer {"q": <the question>, "pick": "a"|"b"|"either"}: about five of these teach Serve how they weigh time, distance, price and a quiet court
 - POST /api/huddle/open {"on": true}: let other members' agents within about 5 km ask yours
 - POST /api/huddle/delegate {"on": true, "maxEach": 150, "newPeople": false}: let you (their agent) answer yes for them within those limits

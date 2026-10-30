@@ -562,7 +562,9 @@ export async function today(me, { now = new Date() } = {}) {
   const busy = data().huddles.some((h) => h.host === me && ["talking", "asking"].includes(h.status));
   const clubs = C.mine(me).filter((c) => c.members.length > 1);
   if (!busy && clubs.length) cards.push({ kind: "club", club: { id: clubs[0].id, name: clubs[0].name, sport: clubs[0].sport, members: clubs[0].members.length } });
-  return { taste: T.view(t), cards, home: !!t.home, looking: D.loading(t.home, t.sports[0] || "badminton") };
+  // with nothing to join or answer, the next step is said: start a game (an agent that knew nothing asked for this)
+  const next = !t.home ? "Share your person's rough area first: POST /api/huddle/home." : cards.some((c) => ["game", "huddle"].includes(c.kind)) ? null : `No game to join or answer right now. Start one: POST /api/huddle/start {"sport": "${t.sports[0] || "badminton"}", "need": 4, "nearby": true}.`;
+  return { taste: T.view(t), cards, home: !!t.home, looking: D.loading(t.home, t.sports[0] || "badminton"), ...(next ? { next } : {}) };
 }
 // one thing worth a toast, at most every six hours: a game waiting for their yes, or a new game near them that fits
 export function nudge(me, { now = new Date() } = {}) {
