@@ -80,7 +80,8 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   const mine = C.mine(me), club = b.club ? mine.find((c) => c.id === b.club || c.name.toLowerCase() === String(b.club).toLowerCase()) : null;
   if (b.club && !club) return { error: `You're not in a club "${String(b.club).slice(0, 40)}". Your clubs: ${mine.map((c) => `${c.name} (${c.id})`).join(", ") || "none yet"}.`, code: 403 };
   const can = new Set(mine.flatMap((c) => c.members.map((m) => m.id)));
-  let invited = club ? club.members.map((m) => m.id) : (Array.isArray(b.invite) ? b.invite.map(String) : []);
+  // named people (within the club, when one is given) are the ones asked; a club on its own asks all its members
+  let invited = Array.isArray(b.invite) && b.invite.length ? b.invite.map(String).filter((id) => !club || club.members.some((m) => m.id === id)) : club ? club.members.map((m) => m.id) : [];
   invited = [...new Set(invited.filter((id) => id !== me && can.has(id)))];
   // people nearby who said other agents may ask theirs (taste.js open), within about 5 km of the host
   const home = T.get(me).home;
@@ -137,10 +138,11 @@ async function run(h, now = new Date()) {
   if (h.pin?.place && !pinned) pinned = (await D.placesNear(taste[host].home || center, h.sport, { venues: 4, courts: 4 })).find((p) => p.id === h.pin.place) || null;
   if (h.pin?.place && !pinned) { h.status = "stuck"; line(h, "host", "I can't find the court you picked near the group. Pick it again from Courts & prices, or leave the court to the agents.", { who: hostName }); return save(); }
   if (h.status === "cancelled") return;
+  let outdoor = []; // (an indoor game's outdoor courts, kept for when no hall fits the host)
   if (pinned) places = [pinned];
   else {
     // badminton, table tennis and squash are indoor games: an outdoor court only when there is no hall nearby
-    if (INDOOR.includes(h.sport) && places.some((p) => p.kind === "venue")) places = places.filter((p) => p.kind === "venue");
+    if (INDOOR.includes(h.sport) && places.some((p) => p.kind === "venue")) { outdoor = places.filter((p) => p.kind !== "venue"); places = places.filter((p) => p.kind === "venue"); }
     if (club?.at && !INDOOR.includes(h.sport) && !places.some((p) => T.km(p, club.at) < 0.3)) places.push({ id: `club:${club.id}`, name: club.where || club.name, lat: club.at.lat, lon: club.at.lon, kind: "public", sport: h.sport });
   }
   if (!places.length) { h.status = "stuck"; line(h, "host", D.lookupFailed(center, h.sport) || D.lookupFailed(taste[host].home, h.sport) ? `The map of courts isn't answering right now, so I can't pick a ${h.sport} court. Post the game with its place (then let the agents fill it), or try again in ten minutes.` : `I found no ${h.sport} courts near the group on the map. Post the game with its place, then let the agents fill it.`, { who: hostName }); N.saw("no_courts", h.id); return save(); }
@@ -171,9 +173,9 @@ async function run(h, now = new Date()) {
   const opts = [], hostBusy = busyOf(host, h.id, fillAt), hostRuled = {};
   // (a pinned time, such as a posted game being filled, is its own day, even more than a week ahead)
   const dates = h.pin ? [h.pin.date] : Array.from({ length: 7 }, (_, i) => { const d = new Date(now); d.setDate(d.getDate() + i); return T.ymd(d); });
-  for (const date of dates) {
+  const build = (list) => { for (const date of dates) {
     for (const start of h.pin ? [h.pin.start] : STARTS) {
-      for (const place of places) {
+      for (const place of list) {
         if (!h.pin && (!opensFor(place, start) || !inWhen(h.when, date, start))) continue;
         const o = { date, start, place, busy: D.busy(place, date, start, games), each: h.fill ? (P.find(h.fill)?.invite.each ?? 0) : D.guessEach(place, date, start, h.need) };
         o.best = h.fill ? o.each : D.bestEach(place, date, start, h.need);
@@ -184,7 +186,10 @@ async function run(h, now = new Date()) {
         opts.push(o);
       }
     }
-  }
+  } };
+  build(places);
+  // no hall fits the host's limits: an outdoor court for an indoor game beats no game
+  if (!opts.length && outdoor.length) { build(outdoor); if (opts.length) line(h, "host", `No ${h.sport} hall fits your limits, so I looked at outdoor courts too.`, { who: hostName }); }
   const ruled = Object.entries(hostRuled).sort((a, b) => b[1] - a[1])[0]?.[0];
   if (!opts.length && ruled) { h.status = "stuck"; line(h, "host", ruled === "busy" ? `Every time that fits clashes with a game you already have. Your games are under Your games on the home page.` : `Every option is outside your own limits (${{ place: "the courts are farther than your distance limit", price: "the courts cost more than your price limit", time: "no time in your windows", busy: "you already have a game at those times" }[ruled] || ruled}). ${ruled === "busy" ? "Your games are under Your games on the home page." : "Widen your limits, or ask a club nearer you."}`, { who: hostName }); return save(); }
   if (!opts.length) { h.status = "stuck"; line(h, "host", h.when && !h.pin ? "No court time fits the days and times you asked for, at least three hours from now." : h.pin ? `${when(h.pin)} doesn't work: it's too soon, or you already play then.` : "There's no time left that I haven't already tried this week.", { who: hostName }); return save(); }
@@ -424,19 +429,21 @@ export function mayAgentSayYes(me, { huddle = null, post = null } = {}) {
   }
   return { ok: true };
 }
-export function cancel(me, id) {
+// calling off: a game of the agents' own (agreed, or on and posted) is off, and its post goes. Filling a posted game is two
+// things: stopping the agents (the game stands, with whoever is in it), or, with game: true, calling the game off too
+export function cancel(me, id, { game: alsoGame = false } = {}) {
   const h = find(id);
   if (!h) return { error: "No such game.", code: 404 };
   if (h.host !== me) return { error: "Only the person who asked can call it off.", code: 403 };
   if (!["talking", "asking", "stuck", "on"].includes(h.status)) return { error: "It's already called off.", code: 409 };
-  if (h.pick && h.players.some((x) => x !== me && h.answers[x] === "yes")) Tr.left(me, startMs(h.pick));
-  // the game itself: the posted game when on, or the host's own posted game being filled ("call it off" means it's off)
-  const wasOn = h.status === "on", game = (wasOn && h.post) || h.fill || null, inPost = game ? [...(P.find(game)?.invite.going || [])] : [];
-  h.status = "cancelled"; line(h, "host", `${first(me)} called it off.`, { who: first(me) });
-  // a game that's on and posted (also a posted game the agents filled): it goes from the feed, and the feed tells
-  // everyone in it or waiting, also those who joined it straight from the feed
+  const fillOnly = !!h.fill && !alsoGame;
+  if (!fillOnly && h.pick && h.players.some((x) => x !== me && h.answers[x] === "yes")) Tr.left(me, startMs(h.pick));
+  const wasOn = h.status === "on", game = fillOnly ? null : (h.fill || (wasOn && h.post) || null), inPost = [...(P.find(h.fill || h.post)?.invite.going || [])];
+  h.status = "cancelled";
+  line(h, "host", fillOnly ? `${first(me)} stopped the agents filling the game; the game itself stands.` : `${first(me)} called it off.`, { who: first(me) });
+  // the game goes from the feed, and the feed tells everyone in it or waiting (also those who joined from the feed)
   if (game && P.find(game)) P.remove(me, game);
-  for (const x of h.players) if (x !== me && !inPost.includes(x)) P.notify(x, "huddle", `${first(me)} called off ${h.sport} ${h.pick ? when(h.pick) : ""}.`.replace(/ \.$/, "."), { huddle: h.id });
+  for (const x of h.players) if (x !== me && !inPost.includes(x)) P.notify(x, "huddle", fillOnly ? `${first(me)} stopped looking for players for ${h.sport} ${h.pick ? when(h.pick) : ""}: you're not needed for it after all.`.replace(/ :/, ":") : `${first(me)} called off ${h.sport} ${h.pick ? when(h.pick) : ""}.`.replace(/ \.$/, "."), { huddle: h.id });
   save();
   return { huddle: view(h, me) };
 }
@@ -450,7 +457,17 @@ P.busyFrom((id, post) => data().huddles.filter((h) => ["asking", "on"].includes(
 // a player who leaves the posted game is no longer one of the game's yeses
 P.whenLeft((id, post) => { let any = false; for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && x.status === "on" && x.players.includes(id) && id !== x.host)) { h.players = h.players.filter((x) => x !== id); delete h.answers[id]; line(h, id, `${first(id)} left the game.`, { who: first(id) }); any = true; } if (any) save(); });
 // someone who joins the posted game straight from the feed (or takes a spot back) is one of its players too
-P.whenJoined((id, post) => { let any = false; for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && ["on", "asking"].includes(x.status) && !x.players.includes(id))) { if (h.status === "on") { h.players.push(id); h.answers[id] = "yes"; } line(h, id, `${first(id)} joined the game${h.status === "asking" ? " straight from the feed" : ""}.`, { who: first(id) }); any = true; } if (any) save(); });
+P.whenJoined((id, post) => {
+  // the posted game filled straight from the feed while the agents were still filling it: they stop, and whoever they
+  // asked and hasn't joined hears they're not needed (so nobody can say yes into a full game)
+  const v = P.find(post)?.invite, full = v && (v.going.includes(id) ? v.going.length : v.going.length + 1) >= v.spots;
+  if (full) for (const h of data().huddles.filter((x) => x.fill === post && ["talking", "asking"].includes(x.status))) {
+    h.status = "on"; h.post = post;
+    line(h, "host", "The game filled straight from the feed, so the agents stop here.", { who: first(h.host) });
+    for (const x of h.players.filter((p) => p !== h.host && p !== id && !v.going.includes(p))) { P.dropNotices(x, h.id); P.notify(x, "huddle", `${first(h.host)}'s ${h.sport} game ${h.pick ? when(h.pick) : ""} filled up from the feed, so you're not needed for it after all.`.replace(/ ,/, ","), { huddle: h.id }); }
+    h.players = h.players.filter((p) => p === h.host || p === id || v.going.includes(p));
+  }
+  let any = false; for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && ["on", "asking"].includes(x.status) && !x.players.includes(id))) { if (h.status === "on") { h.players.push(id); h.answers[id] = "yes"; } line(h, id, `${first(id)} joined the game${h.status === "asking" ? " straight from the feed" : ""}.`, { who: first(id) }); any = true; } if (any) save(); });
 // a posted game deleted while the agents fill it: the fill stops, and those asked hear it's off
 P.whenRemoved((post) => {
   // a game that was on and posted: it's off with its post (the feed already told the players)

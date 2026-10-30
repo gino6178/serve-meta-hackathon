@@ -241,7 +241,9 @@ function HuddleView({ id, onBack, onChange = () => {} }) {
         {h.status === "talking" && <li className="t-host t-typing"><span className="hd-who-l">Agents</span><p><i /><i /><i /></p></li>}
         <li ref={end} aria-hidden="true" />
       </ol>
-      {h.mine && ["talking", "asking", "stuck"].includes(h.status) && <button className="link hd-cancel" onClick={async () => { const r = await H.cancel(id).catch((e) => setErr(e.message)); if (r) { setH(r.huddle); onChange(); } }}>{h.fill ? "Call off the game (it leaves the feed; everyone in it is told)" : "Call it off"}</button>}
+      {h.mine && ["talking", "asking", "stuck"].includes(h.status) && (() => { const off = async (game) => { const r = await H.cancel(id, game).catch((e) => setErr(e.message)); if (r) { setH(r.huddle); onChange(); } }; return h.fill
+        ? <span className="hd-cancel-row"><button className="link hd-cancel" onClick={() => off(false)}>Stop the agents filling it (the game stays)</button><button className="link hd-cancel" onClick={() => off(true)}>Call off the game (it leaves the feed; everyone in it is told)</button></span>
+        : <button className="link hd-cancel" onClick={() => off(false)}>Call it off</button>; })()}
     </section>
   );
 }

@@ -241,7 +241,7 @@ async function huddle(req, res, p, q, me, send, given = null) {
   if (p === "/api/huddle/start" && post) { const r = H.start(me, b); if (!r.error && !req.byAgent && (b.when || b.wantEach != null)) T.askedFor(me, b.when, b.wantEach); return out(r); }
   if (p === "/api/huddle/one" && get) { await H.sweep(); const h = H.find(String(q.get("id") || "")); return h && (h.host === me || h.invited.includes(me)) ? send(200, { huddle: H.view(h, me) }) : send(404, { error: "No such game." }); }
   if (p === "/api/huddle/reply" && post) return out(await H.reply(me, String(b.id || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
-  if (p === "/api/huddle/cancel" && post) return out(H.cancel(me, String(b.id || "")));
+  if (p === "/api/huddle/cancel" && post) { if (b.game !== undefined && typeof b.game !== "boolean") return send(400, { error: "game is true or false." }); return out(H.cancel(me, String(b.id || ""), { game: b.game === true })); }
   if (p === "/api/huddle/game" && post) return out(H.answerGame(me, String(b.post || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
   if (p === "/api/huddle/places" && get) {
     const t = T.get(me), sport = String(q.get("sport") || t.sports[0] || "badminton").toLowerCase();

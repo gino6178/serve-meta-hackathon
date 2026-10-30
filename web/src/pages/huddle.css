@@ -205,3 +205,4 @@
 .hd-limits .btn { justify-self: start; }
 .hh-c.off { background: repeating-linear-gradient(45deg, var(--surface), var(--surface) 3px, var(--line) 3px, var(--line) 5px); }
 .hd-offer { margin: 0; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--agent) 8%, var(--bg)); font-size: 14px; }
+.hd-cancel-row { display: flex; flex-wrap: wrap; gap: 6px 16px; }

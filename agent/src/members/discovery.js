@@ -134,7 +134,7 @@ const HUDDLE = {
   "/huddle/start": ["post", op("Get a game together", { body: { sport: S, need: N, club: S, invite: A, nearby: B, gate: O, pin: O, when: O, fill: S, hostYes: B } })],
   "/huddle/one": ["get", op("One huddle: the talk, the pick, who said yes", { query: { id: "huddle id" } })],
   "/huddle/reply": ["post", op("One yes, or no and why", { body: { id: S, yes: B, why: S } })],
-  "/huddle/cancel": ["post", op("The host calls it off", { body: { id: S } })],
+  "/huddle/cancel": ["post", op("The host calls it off: an agreed game is off and its post goes. For a fill of a posted game this only stops the agents (the game stands); add game: true to call the game off too", { body: { id: S, game: B } })],
   "/huddle/game": ["post", op("Join a recommended game, or say why not", { body: { post: S, yes: B, why: S } })],
   "/huddle/places": ["get", op("Courts near them, quiet hours, venue offers", { query: { sport: "sport" } })],
   "/huddle/deal": ["post", op("Ask a venue's agent for a price (place: a court id from /api/huddle/places for that sport; a quote; outside lists any of the member's limits it breaks)", { body: { place: S, sport: S, date: S, start: S, players: N, weekly: B } })],
