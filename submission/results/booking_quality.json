@@ -1,0 +1,1709 @@
+{
+ "simulated": true,
+ "note": "Simulated users and venues (agent/test/sim_users, web/public/data/venues.json); no real person. Trips in minutes, as play.js travelMin.",
+ "at": "2026-10-30T10:33:30.320Z",
+ "horizon": "the week from each run's first day; half-hour starts; 90-minute games; a court free in the sample timetable, less the run's other bookings",
+ "runs": [
+  "v2s2",
+  "v2s3",
+  "v3s4"
+ ],
+ "aggregate": {
+  "games": 12,
+  "played": 5,
+  "excessLongest": {
+   "mean": 0,
+   "max": 0,
+   "zero": 12
+  },
+  "excessTotal": {
+   "mean": 2.3,
+   "max": 11,
+   "zero": 8
+  },
+  "excessAtBookedTime": {
+   "longestMean": 0,
+   "totalMean": 2.3,
+   "games": 12
+  },
+  "fairness": {
+   "mean": 0.729,
+   "min": 0.292
+  },
+  "minimaxCourtAgrees": 12
+ },
+ "messages": {
+  "v2s2": {
+   "games": 5,
+   "booked": 5,
+   "gameMessages": 20,
+   "gameMessagesPerBooking": 4,
+   "allMessagesPerBooking": 18.6,
+   "baselineMessagesPerBooking": 12,
+   "giniInvited": 0.706
+  },
+  "v2s3": {
+   "games": 3,
+   "booked": 3,
+   "gameMessages": 45,
+   "gameMessagesPerBooking": 15,
+   "allMessagesPerBooking": 44.3,
+   "baselineMessagesPerBooking": 13,
+   "giniInvited": 0.85
+  },
+  "v3s4": {
+   "games": 4,
+   "booked": 4,
+   "gameMessages": 23,
+   "gameMessagesPerBooking": 5.8,
+   "allMessagesPerBooking": 25.3,
+   "baselineMessagesPerBooking": 8.5,
+   "giniInvited": 0.875
+  }
+ },
+ "rules": {
+  "bookedAtBookedTime": {
+   "minimax": {
+    "n": 12,
+    "totalMean": 31.8,
+    "longestMean": 16.8,
+    "worstTrip": 25,
+    "fairnessMean": 0.729
+   },
+   "sum": {
+    "n": 12,
+    "totalMean": 29.6,
+    "longestMean": 17.3,
+    "worstTrip": 25,
+    "fairnessMean": 0.589
+   },
+   "nash": {
+    "n": 12,
+    "totalMean": 29.6,
+    "longestMean": 17.3,
+    "worstTrip": 25,
+    "fairnessMean": 0.582
+   },
+   "minimaxVsSum": {
+    "cases": 12,
+    "differ": 4,
+    "extraTotalMinutes": 27,
+    "extraTotalOnTies": 4,
+    "extraTotalPerCase": 2.3,
+    "worstTripSavedPerCase": 0.5,
+    "worstTripSavedMax": 4
+   }
+  },
+  "bookedAnyTime": {
+   "minimax": {
+    "n": 12,
+    "totalMean": 31.8,
+    "longestMean": 16.8,
+    "worstTrip": 25,
+    "fairnessMean": 0.729
+   },
+   "sum": {
+    "n": 12,
+    "totalMean": 29.6,
+    "longestMean": 17.3,
+    "worstTrip": 25,
+    "fairnessMean": 0.589
+   },
+   "nash": {
+    "n": 12,
+    "totalMean": 29.7,
+    "longestMean": 17.5,
+    "worstTrip": 25,
+    "fairnessMean": 0.574
+   },
+   "minimaxVsSum": {
+    "cases": 12,
+    "differ": 4,
+    "extraTotalMinutes": 27,
+    "extraTotalOnTies": 4,
+    "extraTotalPerCase": 2.3,
+    "worstTripSavedPerCase": 0.5,
+    "worstTripSavedMax": 4
+   }
+  },
+  "allPairs": {
+   "minimax": {
+    "n": 108,
+    "totalMean": 26.2,
+    "longestMean": 15.3,
+    "worstTrip": 25,
+    "fairnessMean": 0.733
+   },
+   "sum": {
+    "n": 108,
+    "totalMean": 25.7,
+    "longestMean": 15.8,
+    "worstTrip": 25,
+    "fairnessMean": 0.669
+   },
+   "nash": {
+    "n": 108,
+    "totalMean": 25.9,
+    "longestMean": 16.9,
+    "worstTrip": 35,
+    "fairnessMean": 0.594
+   },
+   "minimaxVsSum": {
+    "cases": 108,
+    "differ": 18,
+    "extraTotalMinutes": 50,
+    "extraTotalOnTies": 4,
+    "extraTotalPerCase": 0.5,
+    "worstTripSavedPerCase": 0.5,
+    "worstTripSavedMax": 5
+   }
+  }
+ },
+ "exposure": {
+  "giniInvitedSimRuns": {
+   "v2s2": 0.706,
+   "v2s3": 0.85,
+   "v3s4": 0.875
+  },
+  "giniAsksMatchEval": {
+   "match_eval_a2a_model": {
+    "requests": 24,
+    "arms": {
+     "play.js": 0.787,
+     "bands": 0.808
+    }
+   },
+   "match_eval_n300_defaults": {
+    "requests": 300,
+    "arms": {
+     "play.js": 0.418,
+     "bands": 0.41,
+     "bands-alt": 0.403,
+     "exact": 0.411
+    }
+   },
+   "match_eval_n300_followups": {
+    "requests": 300,
+    "arms": {
+     "play.js": 0.418,
+     "bands": 0.402,
+     "bands-v1": 0.417,
+     "exact": 0.543,
+     "two": 0.29
+    }
+   },
+   "match_eval_n300_section7": {
+    "requests": 300,
+    "arms": {
+     "play.js": 0.42,
+     "bands": 0.31
+    }
+   },
+   "match_eval_today_model": {
+    "requests": 16,
+    "arms": {
+     "bands": 0.599,
+     "two": 0.481
+    }
+   }
+  }
+ },
+ "games": [
+  {
+   "run": "v2s2",
+   "key": "RI-3OVU",
+   "format": "doubles",
+   "date": "2026-11-05",
+   "start": "20:00",
+   "venue": "riverside",
+   "players": [
+    "u14",
+    "u04",
+    "u08",
+    "u09"
+   ],
+   "played": false,
+   "mins": [
+    7,
+    20,
+    8,
+    24
+   ],
+   "longest": 24,
+   "total": 59,
+   "fairness": 0.292,
+   "candidates": 10,
+   "candidatesAtBookedTime": 5,
+   "optimum": {
+    "longest": 24,
+    "total": 59
+   },
+   "optimumAtBookedTime": {
+    "longest": 24,
+    "total": 59
+   },
+   "excess": {
+    "longest": 0,
+    "total": 0
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 0
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       7,
+       20,
+       8,
+       24
+      ],
+      "longest": 24,
+      "total": 59,
+      "fairness": 0.292
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       7,
+       20,
+       8,
+       24
+      ],
+      "longest": 24,
+      "total": 59,
+      "fairness": 0.292
+     },
+     "court": "riverside"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       7,
+       20,
+       8,
+       24
+      ],
+      "longest": 24,
+      "total": 59,
+      "fairness": 0.292
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       7,
+       20,
+       8,
+       24
+      ],
+      "longest": 24,
+      "total": 59,
+      "fairness": 0.292
+     },
+     "court": "riverside"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       7,
+       20,
+       8,
+       24
+      ],
+      "longest": 24,
+      "total": 59,
+      "fairness": 0.292
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       7,
+       20,
+       8,
+       24
+      ],
+      "longest": 24,
+      "total": 59,
+      "fairness": 0.292
+     },
+     "court": "riverside"
+    }
+   }
+  },
+  {
+   "run": "v2s2",
+   "key": "RI-JVPU",
+   "format": "doubles",
+   "date": "2026-11-07",
+   "start": "09:00",
+   "venue": "riverside",
+   "players": [
+    "u19",
+    "u20",
+    "u14",
+    "u10"
+   ],
+   "played": true,
+   "mins": [
+    22,
+    8,
+    7,
+    12
+   ],
+   "longest": 22,
+   "total": 49,
+   "fairness": 0.318,
+   "candidates": 8,
+   "candidatesAtBookedTime": 4,
+   "optimum": {
+    "longest": 22,
+    "total": 49
+   },
+   "optimumAtBookedTime": {
+    "longest": 22,
+    "total": 49
+   },
+   "excess": {
+    "longest": 0,
+    "total": 0
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 0
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "09:00",
+      "venue": "riverside",
+      "mins": [
+       22,
+       8,
+       7,
+       12
+      ],
+      "longest": 22,
+      "total": 49,
+      "fairness": 0.318
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "09:00",
+      "venue": "riverside",
+      "mins": [
+       22,
+       8,
+       7,
+       12
+      ],
+      "longest": 22,
+      "total": 49,
+      "fairness": 0.318
+     },
+     "court": "riverside"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "09:00",
+      "venue": "riverside",
+      "mins": [
+       22,
+       8,
+       7,
+       12
+      ],
+      "longest": 22,
+      "total": 49,
+      "fairness": 0.318
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "09:00",
+      "venue": "riverside",
+      "mins": [
+       22,
+       8,
+       7,
+       12
+      ],
+      "longest": 22,
+      "total": 49,
+      "fairness": 0.318
+     },
+     "court": "riverside"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "09:00",
+      "venue": "riverside",
+      "mins": [
+       22,
+       8,
+       7,
+       12
+      ],
+      "longest": 22,
+      "total": 49,
+      "fairness": 0.318
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "09:00",
+      "venue": "riverside",
+      "mins": [
+       22,
+       8,
+       7,
+       12
+      ],
+      "longest": 22,
+      "total": 49,
+      "fairness": 0.318
+     },
+     "court": "riverside"
+    }
+   }
+  },
+  {
+   "run": "v2s2",
+   "key": "RI-33W",
+   "format": "singles",
+   "date": "2026-11-07",
+   "start": "14:00",
+   "venue": "riverside",
+   "players": [
+    "u13",
+    "u08"
+   ],
+   "played": false,
+   "mins": [
+    9,
+    8
+   ],
+   "longest": 9,
+   "total": 17,
+   "fairness": 0.889,
+   "candidates": 57,
+   "candidatesAtBookedTime": 5,
+   "optimum": {
+    "longest": 9,
+    "total": 17
+   },
+   "optimumAtBookedTime": {
+    "longest": 9,
+    "total": 17
+   },
+   "excess": {
+    "longest": 0,
+    "total": 0
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 0
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "court": "riverside"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "court": "riverside"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "court": "riverside"
+    }
+   }
+  },
+  {
+   "run": "v2s2",
+   "key": "WE-F8LY",
+   "format": "singles",
+   "date": "2026-11-06",
+   "start": "19:00",
+   "venue": "westgate",
+   "players": [
+    "u12",
+    "u04"
+   ],
+   "played": true,
+   "mins": [
+    18,
+    9
+   ],
+   "longest": 18,
+   "total": 27,
+   "fairness": 0.5,
+   "candidates": 36,
+   "candidatesAtBookedTime": 3,
+   "optimum": {
+    "longest": 18,
+    "total": 27
+   },
+   "optimumAtBookedTime": {
+    "longest": 18,
+    "total": 27
+   },
+   "excess": {
+    "longest": 0,
+    "total": 0
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 0
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-06",
+      "start": "19:00",
+      "venue": "westgate",
+      "mins": [
+       18,
+       9
+      ],
+      "longest": 18,
+      "total": 27,
+      "fairness": 0.5
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "westgate",
+      "mins": [
+       18,
+       9
+      ],
+      "longest": 18,
+      "total": 27,
+      "fairness": 0.5
+     },
+     "court": "westgate"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-06",
+      "start": "19:00",
+      "venue": "westgate",
+      "mins": [
+       18,
+       9
+      ],
+      "longest": 18,
+      "total": 27,
+      "fairness": 0.5
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "westgate",
+      "mins": [
+       18,
+       9
+      ],
+      "longest": 18,
+      "total": 27,
+      "fairness": 0.5
+     },
+     "court": "westgate"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-06",
+      "start": "19:00",
+      "venue": "westgate",
+      "mins": [
+       18,
+       9
+      ],
+      "longest": 18,
+      "total": 27,
+      "fairness": 0.5
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "riverside",
+      "mins": [
+       8,
+       20
+      ],
+      "longest": 20,
+      "total": 28,
+      "fairness": 0.4
+     },
+     "court": "westgate"
+    }
+   }
+  },
+  {
+   "run": "v2s2",
+   "key": "MI-DRUZ",
+   "format": "singles",
+   "date": "2026-11-07",
+   "start": "15:00",
+   "venue": "midtown",
+   "players": [
+    "u17",
+    "u05"
+   ],
+   "played": true,
+   "mins": [
+    10,
+    10
+   ],
+   "longest": 10,
+   "total": 20,
+   "fairness": 1,
+   "candidates": 74,
+   "candidatesAtBookedTime": 5,
+   "optimum": {
+    "longest": 10,
+    "total": 20
+   },
+   "optimumAtBookedTime": {
+    "longest": 10,
+    "total": 20
+   },
+   "excess": {
+    "longest": 0,
+    "total": 0
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 0
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "15:00",
+      "venue": "midtown",
+      "mins": [
+       10,
+       10
+      ],
+      "longest": 10,
+      "total": 20,
+      "fairness": 1
+     },
+     "anyTime": {
+      "date": "2026-11-06",
+      "start": "19:00",
+      "venue": "midtown",
+      "mins": [
+       10,
+       10
+      ],
+      "longest": 10,
+      "total": 20,
+      "fairness": 1
+     },
+     "court": "midtown"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "15:00",
+      "venue": "midtown",
+      "mins": [
+       10,
+       10
+      ],
+      "longest": 10,
+      "total": 20,
+      "fairness": 1
+     },
+     "anyTime": {
+      "date": "2026-11-06",
+      "start": "19:00",
+      "venue": "midtown",
+      "mins": [
+       10,
+       10
+      ],
+      "longest": 10,
+      "total": 20,
+      "fairness": 1
+     },
+     "court": "midtown"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "15:00",
+      "venue": "midtown",
+      "mins": [
+       10,
+       10
+      ],
+      "longest": 10,
+      "total": 20,
+      "fairness": 1
+     },
+     "anyTime": {
+      "date": "2026-11-06",
+      "start": "19:00",
+      "venue": "midtown",
+      "mins": [
+       10,
+       10
+      ],
+      "longest": 10,
+      "total": 20,
+      "fairness": 1
+     },
+     "court": "midtown"
+    }
+   }
+  },
+  {
+   "run": "v2s3",
+   "key": "NO-27MS",
+   "format": "singles",
+   "date": "2026-11-07",
+   "start": "08:00",
+   "venue": "north",
+   "players": [
+    "u19",
+    "u01"
+   ],
+   "played": false,
+   "mins": [
+    25,
+    12
+   ],
+   "longest": 25,
+   "total": 37,
+   "fairness": 0.48,
+   "candidates": 14,
+   "candidatesAtBookedTime": 3,
+   "optimum": {
+    "longest": 25,
+    "total": 33
+   },
+   "optimumAtBookedTime": {
+    "longest": 25,
+    "total": 33
+   },
+   "excess": {
+    "longest": 0,
+    "total": 4
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 4
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "08:00",
+      "venue": "north",
+      "mins": [
+       25,
+       12
+      ],
+      "longest": 25,
+      "total": 37,
+      "fairness": 0.48
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "08:00",
+      "venue": "north",
+      "mins": [
+       25,
+       12
+      ],
+      "longest": 25,
+      "total": 37,
+      "fairness": 0.48
+     },
+     "court": "north"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "08:00",
+      "venue": "lakeside",
+      "mins": [
+       8,
+       25
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "08:00",
+      "venue": "lakeside",
+      "mins": [
+       8,
+       25
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "court": "lakeside"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "08:00",
+      "venue": "lakeside",
+      "mins": [
+       8,
+       25
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "08:00",
+      "venue": "lakeside",
+      "mins": [
+       8,
+       25
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "court": "lakeside"
+    }
+   }
+  },
+  {
+   "run": "v2s3",
+   "key": "RI-GLSJ",
+   "format": "singles",
+   "date": "2026-11-05",
+   "start": "19:00",
+   "venue": "riverside",
+   "players": [
+    "u09",
+    "u04"
+   ],
+   "played": true,
+   "mins": [
+    24,
+    20
+   ],
+   "longest": 24,
+   "total": 44,
+   "fairness": 0.833,
+   "candidates": 38,
+   "candidatesAtBookedTime": 5,
+   "optimum": {
+    "longest": 24,
+    "total": 33
+   },
+   "optimumAtBookedTime": {
+    "longest": 24,
+    "total": 33
+   },
+   "excess": {
+    "longest": 0,
+    "total": 11
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 11
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "riverside",
+      "mins": [
+       24,
+       20
+      ],
+      "longest": 24,
+      "total": 44,
+      "fairness": 0.833
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "riverside",
+      "mins": [
+       24,
+       20
+      ],
+      "longest": 24,
+      "total": 44,
+      "fairness": 0.833
+     },
+     "court": "riverside"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "north",
+      "mins": [
+       8,
+       25
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "north",
+      "mins": [
+       8,
+       25
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "court": "north"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "north",
+      "mins": [
+       8,
+       25
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "north",
+      "mins": [
+       8,
+       25
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "court": "north"
+    }
+   }
+  },
+  {
+   "run": "v2s3",
+   "key": "MI-G4NR",
+   "format": "singles",
+   "date": "2026-11-07",
+   "start": "14:00",
+   "venue": "midtown",
+   "players": [
+    "u13",
+    "u18"
+   ],
+   "played": false,
+   "mins": [
+    14,
+    14
+   ],
+   "longest": 14,
+   "total": 28,
+   "fairness": 1,
+   "candidates": 30,
+   "candidatesAtBookedTime": 5,
+   "optimum": {
+    "longest": 14,
+    "total": 27
+   },
+   "optimumAtBookedTime": {
+    "longest": 14,
+    "total": 27
+   },
+   "excess": {
+    "longest": 0,
+    "total": 1
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 1
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "midtown",
+      "mins": [
+       14,
+       14
+      ],
+      "longest": 14,
+      "total": 28,
+      "fairness": 1
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "midtown",
+      "mins": [
+       14,
+       14
+      ],
+      "longest": 14,
+      "total": 28,
+      "fairness": 1
+     },
+     "court": "midtown"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       18
+      ],
+      "longest": 18,
+      "total": 27,
+      "fairness": 0.5
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       18
+      ],
+      "longest": 18,
+      "total": 27,
+      "fairness": 0.5
+     },
+     "court": "riverside"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "lakeside",
+      "mins": [
+       19,
+       8
+      ],
+      "longest": 19,
+      "total": 27,
+      "fairness": 0.421
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "lakeside",
+      "mins": [
+       19,
+       8
+      ],
+      "longest": 19,
+      "total": 27,
+      "fairness": 0.421
+     },
+     "court": "lakeside"
+    }
+   }
+  },
+  {
+   "run": "v3s4",
+   "key": "MI-CE2Z",
+   "format": "singles",
+   "date": "2026-11-07",
+   "start": "14:00",
+   "venue": "midtown",
+   "players": [
+    "u18",
+    "u17"
+   ],
+   "played": false,
+   "mins": [
+    14,
+    10
+   ],
+   "longest": 14,
+   "total": 24,
+   "fairness": 0.714,
+   "candidates": 40,
+   "candidatesAtBookedTime": 5,
+   "optimum": {
+    "longest": 14,
+    "total": 24
+   },
+   "optimumAtBookedTime": {
+    "longest": 14,
+    "total": 24
+   },
+   "excess": {
+    "longest": 0,
+    "total": 0
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 0
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "midtown",
+      "mins": [
+       14,
+       10
+      ],
+      "longest": 14,
+      "total": 24,
+      "fairness": 0.714
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "midtown",
+      "mins": [
+       14,
+       10
+      ],
+      "longest": 14,
+      "total": 24,
+      "fairness": 0.714
+     },
+     "court": "midtown"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "midtown",
+      "mins": [
+       14,
+       10
+      ],
+      "longest": 14,
+      "total": 24,
+      "fairness": 0.714
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "midtown",
+      "mins": [
+       14,
+       10
+      ],
+      "longest": 14,
+      "total": 24,
+      "fairness": 0.714
+     },
+     "court": "midtown"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "midtown",
+      "mins": [
+       14,
+       10
+      ],
+      "longest": 14,
+      "total": 24,
+      "fairness": 0.714
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "midtown",
+      "mins": [
+       14,
+       10
+      ],
+      "longest": 14,
+      "total": 24,
+      "fairness": 0.714
+     },
+     "court": "midtown"
+    }
+   }
+  },
+  {
+   "run": "v3s4",
+   "key": "RI-79SI",
+   "format": "singles",
+   "date": "2026-11-05",
+   "start": "20:00",
+   "venue": "riverside",
+   "players": [
+    "u12",
+    "u08"
+   ],
+   "played": false,
+   "mins": [
+    8,
+    8
+   ],
+   "longest": 8,
+   "total": 16,
+   "fairness": 1,
+   "candidates": 10,
+   "candidatesAtBookedTime": 5,
+   "optimum": {
+    "longest": 8,
+    "total": 16
+   },
+   "optimumAtBookedTime": {
+    "longest": 8,
+    "total": 16
+   },
+   "excess": {
+    "longest": 0,
+    "total": 0
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 0
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       8,
+       8
+      ],
+      "longest": 8,
+      "total": 16,
+      "fairness": 1
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       8,
+       8
+      ],
+      "longest": 8,
+      "total": 16,
+      "fairness": 1
+     },
+     "court": "riverside"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       8,
+       8
+      ],
+      "longest": 8,
+      "total": 16,
+      "fairness": 1
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       8,
+       8
+      ],
+      "longest": 8,
+      "total": 16,
+      "fairness": 1
+     },
+     "court": "riverside"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       8,
+       8
+      ],
+      "longest": 8,
+      "total": 16,
+      "fairness": 1
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "20:00",
+      "venue": "riverside",
+      "mins": [
+       8,
+       8
+      ],
+      "longest": 8,
+      "total": 16,
+      "fairness": 1
+     },
+     "court": "riverside"
+    }
+   }
+  },
+  {
+   "run": "v3s4",
+   "key": "RI-2BYM",
+   "format": "singles",
+   "date": "2026-11-05",
+   "start": "19:00",
+   "venue": "riverside",
+   "players": [
+    "u04",
+    "u09"
+   ],
+   "played": true,
+   "mins": [
+    20,
+    24
+   ],
+   "longest": 24,
+   "total": 44,
+   "fairness": 0.833,
+   "candidates": 38,
+   "candidatesAtBookedTime": 5,
+   "optimum": {
+    "longest": 24,
+    "total": 33
+   },
+   "optimumAtBookedTime": {
+    "longest": 24,
+    "total": 33
+   },
+   "excess": {
+    "longest": 0,
+    "total": 11
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 11
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "riverside",
+      "mins": [
+       20,
+       24
+      ],
+      "longest": 24,
+      "total": 44,
+      "fairness": 0.833
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "riverside",
+      "mins": [
+       20,
+       24
+      ],
+      "longest": 24,
+      "total": 44,
+      "fairness": 0.833
+     },
+     "court": "riverside"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "north",
+      "mins": [
+       25,
+       8
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "north",
+      "mins": [
+       25,
+       8
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "court": "north"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "north",
+      "mins": [
+       25,
+       8
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "anyTime": {
+      "date": "2026-11-05",
+      "start": "19:00",
+      "venue": "north",
+      "mins": [
+       25,
+       8
+      ],
+      "longest": 25,
+      "total": 33,
+      "fairness": 0.32
+     },
+     "court": "north"
+    }
+   }
+  },
+  {
+   "run": "v3s4",
+   "key": "RI-7MAQ",
+   "format": "singles",
+   "date": "2026-11-07",
+   "start": "14:00",
+   "venue": "riverside",
+   "players": [
+    "u13",
+    "u08"
+   ],
+   "played": false,
+   "mins": [
+    9,
+    8
+   ],
+   "longest": 9,
+   "total": 17,
+   "fairness": 0.889,
+   "candidates": 58,
+   "candidatesAtBookedTime": 5,
+   "optimum": {
+    "longest": 9,
+    "total": 17
+   },
+   "optimumAtBookedTime": {
+    "longest": 9,
+    "total": 17
+   },
+   "excess": {
+    "longest": 0,
+    "total": 0
+   },
+   "excessAtBookedTime": {
+    "longest": 0,
+    "total": 0
+   },
+   "minimaxCourtAgrees": true,
+   "rules": {
+    "minimax": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "court": "riverside"
+    },
+    "sum": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "court": "riverside"
+    },
+    "nash": {
+     "atBookedTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "anyTime": {
+      "date": "2026-11-07",
+      "start": "14:00",
+      "venue": "riverside",
+      "mins": [
+       9,
+       8
+      ],
+      "longest": 9,
+      "total": 17,
+      "fairness": 0.889
+     },
+     "court": "riverside"
+    }
+   }
+  }
+ ]
+}
