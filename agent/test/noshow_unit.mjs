@@ -179,3 +179,32 @@ test("each yes is signed and chained: a changed, re-signed-by-another or removed
   fs.writeFileSync(f, text);
   assert.equal(C.verifyLog().ok, true);
 });
+
+test("whoever is promoted can act on the notice: the offer is confirmable by the feed or the agent's game answer, and the host's count shows it", async () => {
+  const H = await import("../src/members/huddle.js");
+  const amy = M.demo("Amy Wu").member, ken = M.demo("Ken Hsu").member, cat = M.demo("Cat Ho").member, bob = M.demo("Bob Li").member;
+  const id = (await P.post(amy.id, { invite: { sport: "badminton", day: localDay(Date.now() + 3 * DAY), start: "15:00", where: "Amy court", spots: 2 } })).post.id;
+  P.join(ken.id, id); P.join(cat.id, id);
+  assert.ok(P.join(bob.id, id).waitlisted);
+  P.join(ken.id, id, false);
+  assert.match(notices(bob.id, "moved-up")[0].text, /say yes by/);
+  assert.match(notices(amy.id, "left").at(-1).text, /1 of 2 spots left \(1 offered from the waitlist\)/, "the host hears the spot is offered, not taken or free");
+  assert.equal(P.gamesOf(bob.id).find((g) => g.post === id).confirmBy, P.find(id).invite.offered[bob.id], "the own card says it's an offer");
+  const r = H.answerGame(bob.id, id, true);
+  assert.ok(r.confirmed && !r.error, JSON.stringify(r));
+  assert.ok(P.view(P.find(id), bob.id).invite.full);
+  assert.ok(P.find(id).comments.some((c) => c.text.startsWith("Game on: all 2 spots are taken")));
+  // a player leaving Serve frees their spot the same way: an offer, with a notice that can be answered
+  const solo = (await P.post(amy.id, { invite: { sport: "badminton", day: localDay(Date.now() + 5 * DAY), start: "10:00", where: "Amy court", spots: 1 } })).post.id;
+  P.join(ken.id, solo); assert.ok(P.join(cat.id, solo).waitlisted);
+  assert.ok(P.find(solo).comments.some((c) => c.text.startsWith("Game on: the spot is taken")), "one spot reads naturally");
+  P.forget(ken.id);
+  assert.ok(P.find(solo).invite.offered[cat.id], "Cat is offered Ken's spot");
+  assert.ok(notices(cat.id, "moved-up").some((n) => n.post === solo));
+  assert.ok(P.join(cat.id, solo, true).confirmed);
+  // a no to the offer through the agent's answer passes it on
+  const third = (await P.post(amy.id, { invite: { sport: "badminton", day: localDay(Date.now() + 6 * DAY), start: "10:00", where: "Amy court", spots: 1 } })).post.id;
+  P.join(cat.id, third); assert.ok(P.join(bob.id, third).waitlisted); P.join(cat.id, third, false);
+  assert.ok(!H.answerGame(bob.id, third, false).error);
+  assert.ok(!P.find(third).invite.going.includes(bob.id));
+});

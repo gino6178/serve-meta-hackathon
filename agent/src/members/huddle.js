@@ -589,6 +589,11 @@ export function nudge(me, { now = new Date() } = {}) {
 }
 // the member's answer to a game their agent recommended: join it, or say why not (their agent learns either way)
 export function answerGame(me, postId, yes, why = null, { now = new Date(), byAgent = false } = {}) {
+  // a spot offered to them from the waitlist: the yes (or no) answers the offer
+  if (P.find(postId)?.invite?.offered?.[me]) {
+    const j = P.join(me, postId, yes, { via: "ask", agent: byAgent }); if (j.error) return j;
+    return { line: yes ? "You're in: the spot is yours." : "Passed on it: the spot goes to the next in line.", taste: T.view(T.get(me)), ...(yes ? { confirmed: true } : {}) };
+  }
   const g = gamesFor(me, { now, n: 50 }).find((x) => x.post === postId);
   if (!g && !yes) {
     const open = P.openInvites(me, (room) => C.canSee(room, me)).find((x) => x.id === postId);

@@ -118,7 +118,7 @@ function Joined({ id }) {
   const share = async () => { if ((await shareInvite(id, `${v.sport} ${v.day} ${v.start}: join me on Serve`)) === "copied") setCopied(true); };
   return (
     <div className="mc-joined">
-      {v.full ? <span className="mc-gameon"><b>Game on.</b> All {v.spots} spots are taken: {v.names.join(", ")}.</span>
+      {v.full ? <span className="mc-gameon"><b>Game on.</b> {v.spots === 1 ? "The spot is taken" : `All ${v.spots} spots are taken`}: {v.names.join(", ")}.</span>
         : <span>{v.going ? `${v.going} of ${v.spots} joined: ${v.names.join(", ")}` : `0 of ${v.spots} joined yet`}</span>}
       {!v.full && <button className="btn ghost sm" onClick={share}>{copied ? "Link copied" : "Share link"}</button>}
     </div>

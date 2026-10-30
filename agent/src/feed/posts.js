@@ -289,8 +289,8 @@ export function join(player, postId, on = true, { via = "feed", agent = false } 
   if (on && via) signYes(player, p, via, agent);
   inviteReply(p, `${on ? `${nm} is in.` : `${nm} can't make it${late ? " (a late drop, under six hours before the start)" : ""}.`} ${spotsLine(p)}`, player);
   if (!on) {
+    promote(p); // the first on the waitlist is offered the spot (first, so the host's count shows the offer)
     notify(host, "left", `${nm} can't make your ${v.sport} ${dayWords(v.day)} ${v.start}. ${spotsLine(p)}`, { post: p.id });
-    promote(p); // the first on the waitlist takes the spot
   }
   if (on && full(v)) gameOn(p);
   return { post: view(p, player) };
@@ -381,7 +381,7 @@ export function startOf(v) {
 function gameOn(p) {
   const v = p.invite, host = p.by.player || p.by.agentOf, game = `${v.sport} ${dayWords(v.day)} ${v.start}${v.where ? ` at ${v.where}` : ""}`;
   const names = (xs) => xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : xs[0] || "";
-  inviteReply(p, `Game on: all ${v.spots} spots are taken. See you ${dayWords(v.day)} ${v.start}.`);
+  inviteReply(p, `Game on: ${v.spots === 1 ? "the spot is" : `all ${v.spots} spots are`} taken. See you ${dayWords(v.day)} ${v.start}.`);
   Tr.expect(p.id, [host, ...v.going], startOf(v)); // after the game, the players say who came
   S.change((d) => {
     d.notices ||= [];
@@ -525,7 +525,7 @@ export function openInvites(viewer, canSee = () => true) {
 export function gamesOf(player, now = deps.now()) {
   return S.data().posts.filter((p) => p.kind === "invite" && p.invite && !p.hidden && ((p.by.player || p.by.agentOf) === player || p.invite.going.includes(player) || (p.invite.waitlist || []).includes(player)) && (startOf(p.invite) || 0) > now)
     .sort((a, b) => startOf(a.invite) - startOf(b.invite)).slice(0, 6)
-    .map((p) => ({ post: p.id, sport: p.invite.sport, day: p.invite.day, start: p.invite.start, where: p.invite.where, going: p.invite.going.length, spots: p.invite.spots, room: p.room || null, mine: (p.by.player || p.by.agentOf) === player, waiting: (p.invite.waitlist || []).includes(player), host: first(authorOf(p.by.player || p.by.agentOf) || "A member") }));
+    .map((p) => ({ post: p.id, sport: p.invite.sport, day: p.invite.day, start: p.invite.start, where: p.invite.where, going: inGame(p.invite).length, confirmBy: p.invite.offered?.[player] || null, spots: p.invite.spots, room: p.room || null, mine: (p.by.player || p.by.agentOf) === player, waiting: (p.invite.waitlist || []).includes(player), host: first(authorOf(p.by.player || p.by.agentOf) || "A member") }));
 }
 // the notices about one huddle, once the member has answered it (so nothing keeps asking for a yes already given)
 export function dropNotices(player, huddle) { S.change((d) => { d.notices = (d.notices || []).filter((x) => !(x.player === player && x.huddle === huddle)); }); }
@@ -591,6 +591,7 @@ export function feed(viewer, { before = Infinity, n = 30, room = null } = {}) {
 // ---- /forget ----
 export function forget(player) {
   const out = { posts: 0, comments: 0, likes: 0, reports: 0, drafts: 0, media: 0 };
+  const freed = []; // games they were in: the waitlist is offered their spot
   S.change((d) => {
     for (const p of d.posts.filter((x) => x.by.player === player || x.by.agentOf === player)) { if (p.media) { S.dropMedia(p.media); out.media++; } }
     const n = d.posts.length;
@@ -599,6 +600,7 @@ export function forget(player) {
     for (const p of d.posts) {
       // (and an agent's line that names them: "Mia is in")
       const mine = new Set(p.comments.filter((c) => c.by.player === player || c.by.agentOf === player || c.about === player).map((c) => c.id));
+      if (p.invite?.going.includes(player)) freed.push(p);
       if (p.invite) { p.invite.going = p.invite.going.filter((x) => x !== player); if (p.invite.waitlist) p.invite.waitlist = p.invite.waitlist.filter((x) => x !== player); if (p.invite.joinedAt) delete p.invite.joinedAt[player]; if (p.invite.offered) delete p.invite.offered[player]; }
       const before = p.comments.length;
       p.comments = p.comments.filter((c) => !mine.has(c.id) && !mine.has(c.reply));
@@ -617,6 +619,7 @@ export function forget(player) {
     if (d.limits) delete d.limits[player];
     for (const a of d.audit || []) if (a.author === player) { a.author = null; a.authorName = "a member who left"; }
   });
+  for (const p of freed) if (S.data().posts.includes(p)) promote(p);
   return out;
 }
 // what the feed holds about one player, for /forget's check and the tests: counts only
