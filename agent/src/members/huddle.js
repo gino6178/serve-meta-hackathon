@@ -444,7 +444,7 @@ export function cancel(me, id, { game: alsoGame = false } = {}) {
   line(h, "host", fillOnly ? `${first(me)} stopped the agents filling the game; the game itself stands.` : `${first(me)} called it off.`, { who: first(me) });
   // the game goes from the feed, and the feed tells everyone in it or waiting (also those who joined from the feed)
   if (game && P.find(game)) P.remove(me, game);
-  for (const x of h.players) if (x !== me && !inPost.includes(x)) P.notify(x, "huddle", fillOnly ? `${first(me)} stopped looking for players for ${h.sport} ${h.pick ? when(h.pick) : ""}: you're not needed for it after all.`.replace(/ :/, ":") : `${first(me)} called off ${h.sport} ${h.pick ? when(h.pick) : ""}.`.replace(/ \.$/, "."), { huddle: h.id });
+  for (const x of h.players) if (x !== me && !inPost.includes(x)) P.notify(x, "huddle", fillOnly ? `${first(me)} stopped asking players for ${h.sport} ${h.pick ? when(h.pick) : ""}. The game is still open in the feed if you'd like to join it.`.replace(/ \./, ".") : `${first(me)} called off ${h.sport} ${h.pick ? when(h.pick) : ""}.`.replace(/ \.$/, "."), { huddle: h.id });
   save();
   return { huddle: view(h, me) };
 }
