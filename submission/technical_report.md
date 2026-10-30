@@ -50,7 +50,11 @@ place or one sport.
 at most three rounds, so venues can fill hours that would stand empty. Venue prices are samples until a venue joins.
 
 **Used by real players.** During the hackathon we introduced Serve to a real badminton club: more than 10 people used
-it, and within three days it led to two games that were played.
+it, and of the 3 game invites sent through it, 2 became games that were played, within three days. Two players, in
+their own words (translated from Chinese):
+
+- *"It's actually really handy. You just talk to the agent."* (Player A)
+- *"I think the way it suggests games first can make people more motivated to play."* (Player B)
 
 **How it was validated in nine days.** A long trial with real players is not possible in a nine-day build, so Serve
 was also checked by agents. Over 25 rounds, a fresh set of independent AI agents used it each round (six a round, five
@@ -180,8 +184,10 @@ agents have often agreed a game before anyone waits at all.
 We trained our own model. A member's agent spends most of its time on one judgment: which of several workable times
 its person would like best. We had Muse Glimmer make that choice 4,868 times through the real agent call, then
 distilled its choices into **Llama 3.2 1B Instruct** with LoRA and quantized it to int4, so it runs on the server's CPU
-and takes no GPU memory from Glimmer. It returns a probability for each option, so it never writes text that could
-break a rule, and every option it sees already keeps the person's hard rules.
+and takes no GPU memory from Glimmer. It works the way TypeSafe's Jev decision models do [20]: the options are declared in
+advance and scored together in a single read, instead of an answer generated token by token. So it returns a
+probability for each option and never writes text that could break a rule, and every option it sees already keeps the
+person's hard rules.
 
 | | Muse Glimmer, full answer | Our 1B student |
 |---|---|---|
@@ -255,7 +261,7 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 | 3D | MapAnything | RTX 3090 (GPU 0) | Metric depth and the camera for orbit replays |
 
 #### Meta's safety and platform pieces
-- **The Agents Rule of Two** [20]: no agent or loop stage holds untrusted input, private data and the power to act at
+- **The Agents Rule of Two** [21]: no agent or loop stage holds untrusted input, private data and the power to act at
   once.
 - **LlamaFirewall's CodeShield rules** [11] screen community specs and generated code.
 - **Messenger**, through a signed webhook, the Send API and quick replies: players arrange games and give feedback in the
@@ -297,7 +303,8 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 17. Ravi et al. SAM 2: Segment Anything in Images and Videos. 2024.
 18. Carion et al. End-to-End Object Detection with Transformers. ECCV 2020.
 19. Chen, Zaharia and Zou. FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance. arXiv 2305.05176, 2023.
-20. Meta. Agents Rule of Two. October 2025.
+20. TypeSafe. Jev: decision models that score declared options in one pass. 2026.
+21. Meta. Agents Rule of Two. October 2025.
 
 The decider's thresholds use conformal risk control (Angelopoulos et al., 2022). More background, pattern by
 pattern, is in `docs/methods.md` and `docs/community_loop.md`.
