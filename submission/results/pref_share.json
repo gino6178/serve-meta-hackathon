@@ -1,0 +1,51 @@
+{
+ "simulated": true,
+ "label": "Shared preferences (voi.js PREF_SHARE) on simulated members: prediction at hours never asked about, and games found with one question",
+ "trials": 6000,
+ "club": "population(600, seed 3): free lists of the first 300 make the prior; members drawn from the other 300; 10% of hours flipped",
+ "seen": "1 to 4 past answers per member at the player's free hours; requests at the player's free hours",
+ "predict": {
+  "before": {
+   "brier": 0.2228,
+   "logLoss": 0.6376
+  },
+  "flat": {
+   "brier": 0.25,
+   "logLoss": 0.6931
+  },
+  "population": {
+   "brier": 0.2228,
+   "logLoss": 0.6376
+  },
+  "shared": {
+   "brier": 0.2001,
+   "logLoss": 0.585
+  },
+  "structural": {
+   "brier": 0.2179,
+   "logLoss": 0.6251
+  }
+ },
+ "game": {
+  "before": {
+   "noQuestion": 0.6888,
+   "oneQuestion": 0.7508
+  },
+  "flat": {
+   "noQuestion": 0.7151,
+   "oneQuestion": 0.7631
+  },
+  "population": {
+   "noQuestion": 0.7254,
+   "oneQuestion": 0.7769
+  },
+  "shared": {
+   "noQuestion": 0.7365,
+   "oneQuestion": 0.7917
+  },
+  "structural": {
+   "noQuestion": 0.726,
+   "oneQuestion": 0.7882
+  }
+ }
+}

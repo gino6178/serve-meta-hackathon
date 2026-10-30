@@ -436,6 +436,29 @@ FrugalGPT, the A2A spec and others) gave thirteen ranked improvements. All are i
 - **Video:** the person detector is RT-DETRv2 by default (`PERSON_DETECTOR=detr` for DETR), and with ball
   tracking a highlight can start and end with the rally (`RALLY_CLIP=1`).
 
+## Four agent upgrades from the literature, measured
+
+Four ideas from 2024–2026 papers, each built and measured against what ran before. One helped; three did not, and stay
+off or unbuilt, with the numbers.
+
+- **Shared preferences (on).** One answer now counts as evidence about the hours like it (`match/voi.js` PREF_SHARE:
+  borrowed Beta counts, weighted by how hours go together in the club's free lists, after Pep and VPL), the prior counts
+  for 0.5 answers instead of 2, and a window's last hour no longer counts as free when a 90-minute game can't start
+  then. On simulated members whose seeds were not used to choose any of it (`test/pref_sim.mjs`,
+  `submission/results/pref_share.json`): Brier score 0.223 to 0.200 and log loss 0.638 to 0.585; the chance the first
+  talk lands, 68.9% to 73.7%, and with one value-of-information question first, 75.1% to 79.2%.
+- **Ranking times by the chance everyone accepts, with a least-misery floor (off).** `match/timerank.js`, A2A_RANK=prob.
+  No difference in the requests that find a time (`test/rank_sim.mjs`: 88.4% singles, 26.3% doubles in round 1 either
+  way), because twelve listed times a round and three rounds already cover nearly every hour a player offers.
+- **Early exit from Glimmer's reasoning (off).** `agents/early.js`, A2A_EARLY=on, after DEER: read the options at each
+  break in the reasoning and stop when sure. Read after the fact (119 cases), at 0.98 an answer would come 17% sooner
+  and differ 2.5% of the time; run for real on the one RTX 3090, the reads compete with the answer for the GPU, and the
+  answer took as long (22.3 s off, 22.9 s on, 30 cases), though Glimmer wrote 34% fewer tokens
+  (`submission/results/early_exit*.json`).
+- **Conformal cascade and soft labels for the 1B student (not built).** A conformal set-size-one rule sits on the same
+  risk–coverage curve as the 0.6 threshold (5% risk: 83% answered, 5.3% differing, as the curve gives at 0.9), and the
+  student is already trained on the distribution of Glimmer's three answers per case.
+
 ## What is where
 
 | Folder | What it holds |

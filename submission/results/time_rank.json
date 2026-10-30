@@ -1,0 +1,43 @@
+{
+ "simulated": true,
+ "label": "The order of the listed times (match/timerank.js) with private calendars: requests that find a time in round 1 and within 3 rounds",
+ "trials": 4000,
+ "club": "population(600): free lists, 10% of hours flipped",
+ "seen": "0 to 6 past answers per member at the player's free hours",
+ "singles": {
+  "counts": {
+   "round1": 0.8835,
+   "round1Ci": [
+    0.8736,
+    0.8934
+   ],
+   "within3": 0.8878
+  },
+  "prob": {
+   "round1": 0.8835,
+   "round1Ci": [
+    0.8736,
+    0.8934
+   ],
+   "within3": 0.8878
+  }
+ },
+ "doubles": {
+  "counts": {
+   "round1": 0.2625,
+   "round1Ci": [
+    0.2489,
+    0.2761
+   ],
+   "within3": 0.2625
+  },
+  "prob": {
+   "round1": 0.2625,
+   "round1Ci": [
+    0.2489,
+    0.2761
+   ],
+   "within3": 0.2625
+  }
+ }
+}

@@ -259,6 +259,47 @@ export async function pick(messages, ids, { site = siteOf(), temperature = 0, bu
   return { pick: ids.includes(picked) ? picked : null, p: p == null ? null : +p.toFixed(3), confidence: p == null ? null : +Math.max(0, (p - 1 / n) / (1 - 1 / n)).toFixed(3), dist: sum ? Object.fromEntries(Object.entries(mass).map(([k, v]) => [k, +(v / sum).toFixed(3)])) : null };
 }
 
+// A chat whose reasoning is read as it arrives (Ollama only; null from another server): onThinking(textSoFar) is
+// called with the whole reasoning so far after each piece, and a caller that has heard enough calls stop(), which ends
+// the generation at once (the request is aborted, and the server stops writing). Returns { text, thinking, stopped }.
+// early.js reads the reasoning at its breaks and stops the answer when the options are already sure.
+export function chatStream(messages, { maxTokens = 120, temperature = 0.3, site = siteOf(), format = null, think = null, budget: own = null, timeoutMs = TIMEOUT, onThinking = () => {} } = {}) {
+  return callSpan(site, { "gen_ai.request.temperature": temperature, "gen_ai.request.max_tokens": maxTokens, "serve.stream": true }, async () => {
+    if (API !== "ollama") return null;
+    const prio = priorityOf(), w0 = Date.now(), release = await acquire(prio, timeoutMs), q = { queuedMs: Date.now() - w0, priority: prio ? "background" : "now" };
+    if (q.queuedMs >= timeoutMs) { release(); throw slotError(timeoutMs); }
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), timeoutMs - q.queuedMs), t0 = begin();
+    const level = levelOf(think), budget = level === false ? 0 : budgetOf(site, own);
+    let thinking = "", text = "", last = null, stopped = false;
+    const stop = () => { stopped = true; ctl.abort(); };
+    try {
+      const r = await send(`${ROOT}/api/chat`, { signal: ctl.signal,
+        body: JSON.stringify({ model: MODEL, messages, stream: true, think: level, keep_alive: "24h", ...(format ? { format } : {}), options: { num_predict: maxTokens + budget, temperature } }) });
+      const dec = new TextDecoder();
+      let buf = "";
+      try {
+        for await (const chunk of r.body) {
+          buf += dec.decode(chunk, { stream: true });
+          for (let nl; (nl = buf.indexOf("\n")) >= 0;) {
+            const line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 1);
+            if (!line) continue;
+            const j = JSON.parse(line);
+            if (j.done) last = j;
+            if (j.message?.content) text += j.message.content;
+            if (j.message?.thinking) { thinking += j.message.thinking; onThinking(thinking, stop); }
+          }
+          if (stopped) break;
+        }
+      } catch (e) { if (!stopped) throw e; }
+      const secs = (Date.now() - t0) / 1000;
+      // (a stopped answer has no final counts: its output is estimated at four characters a token)
+      const j = last || { prompt_eval_count: 0, eval_count: Math.round(thinking.length / 4), message: { thinking, content: text } };
+      ledgerRow(site, { ...j, message: { thinking, content: text } }, secs, { budget, format: !!format, ...q, ...(stopped ? { stopped: true } : {}) });
+      return { text: text.replace(THINK, "").trim(), thinking, stopped };
+    } finally { clearTimeout(t); end(t0); release(); }
+  });
+}
+
 // One pass, nothing generated: a prompt of plain text, sent through Ollama's /api/generate with raw on (no chat
 // template, so no reasoning channel), for one token at temperature 0, and the `top` most likely next tokens with their
 // log probabilities. The caller reads its options' probabilities from them (decider.js). Ollama only: another server

@@ -77,3 +77,16 @@ export async function decideRaw(q, { site = "a2a.decide", timeoutMs = +(process.
   if (!runs.every((x) => x.read.mass)) return { pick: null, p: null, mass: 0, dist: {}, ...cost };
   return { pick: best, p: +p.get(key(best)).toFixed(4), mass: +(runs.reduce((a, x) => a + x.read.mass, 0) / orders).toFixed(4), dist: Object.fromEntries(first.map((o) => [o.id, +p.get(key(o)).toFixed(4)]).filter(([, v]) => v)), ...cost };
 }
+
+// The same question read part way through the full answer's reasoning (early.js): the reasoning so far goes in before
+// the cue, as what the member's agent has thought so far, and the next token's probabilities are read as before.
+export function withNotes(prompt, them, notes) {
+  if (!notes?.trim()) return prompt;
+  const cut = prompt.lastIndexOf("\n");
+  return `${prompt.slice(0, cut)}\n${them}'s agent has thought it over:\n${notes.trim()}\n${prompt.slice(cut + 1)}`;
+}
+export async function decideAfter(q, notes, { site = "a2a.early", timeoutMs = +(process.env.A2A_DECIDER_TIMEOUT_MS || 8000) } = {}) {
+  const { text, opts } = decisionPrompt({ ...q, variant: "habits" });
+  const r = await nextToken(withNotes(text, q.them, notes), { site, timeoutMs });
+  return r ? { ...readOptions(r.top, opts), seconds: r.seconds } : { pick: null, p: null };
+}

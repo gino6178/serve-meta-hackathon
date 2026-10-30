@@ -1,0 +1,106 @@
+{
+ "label": "Early exit from Muse Glimmer's reasoning (after DEER): the options' probabilities read at each break in the full answer's reasoning, stopping at the first that is sure enough",
+ "cases": 119,
+ "reasoningChars": 1695,
+ "checkpointsPerCase": 13.454,
+ "full": {
+  "seconds": 41.306,
+  "median": 40.477
+ },
+ "curve": [
+  {
+   "tau": 0.6,
+   "early": 1,
+   "changed": 0.303,
+   "seconds": 9.012,
+   "median": 5.354
+  },
+  {
+   "tau": 0.7,
+   "early": 1,
+   "changed": 0.286,
+   "seconds": 14.701,
+   "median": 9.034
+  },
+  {
+   "tau": 0.8,
+   "early": 1,
+   "changed": 0.185,
+   "seconds": 20.969,
+   "median": 15.263
+  },
+  {
+   "tau": 0.85,
+   "early": 1,
+   "changed": 0.168,
+   "seconds": 23.597,
+   "median": 25.355
+  },
+  {
+   "tau": 0.9,
+   "early": 0.992,
+   "changed": 0.126,
+   "seconds": 27.727,
+   "median": 28.987
+  },
+  {
+   "tau": 0.95,
+   "early": 0.958,
+   "changed": 0.05,
+   "seconds": 31.924,
+   "median": 33.008
+  },
+  {
+   "tau": 0.97,
+   "early": 0.933,
+   "changed": 0.034,
+   "seconds": 33.572,
+   "median": 33.386
+  },
+  {
+   "tau": 0.98,
+   "early": 0.908,
+   "changed": 0.025,
+   "seconds": 34.473,
+   "median": 34.459
+  },
+  {
+   "tau": 0.99,
+   "early": 0.782,
+   "changed": 0.017,
+   "seconds": 35.718,
+   "median": 35.275
+  },
+  {
+   "tau": 0.995,
+   "early": 0.672,
+   "changed": 0.017,
+   "seconds": 36.525,
+   "median": 35.532
+  },
+  {
+   "tau": 1.01,
+   "early": 0,
+   "changed": 0,
+   "seconds": 41.306,
+   "median": 40.477
+  }
+ ],
+ "conformal": {
+  "risk": 0.05,
+  "halves": 200,
+  "tauChosen": {
+   "0.95": 92,
+   "0.97": 54,
+   "0.98": 34,
+   "0.99": 20
+  },
+  "heldOut": {
+   "early": 0.921,
+   "changed": 0.047,
+   "seconds": 33.113,
+   "median": 33.515
+  }
+ },
+ "note": "Times are wall seconds on the RTX 3090 with two full answers streaming at once; a probe's seconds were measured after the stream, alone, and are added to its checkpoint's time."
+}

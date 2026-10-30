@@ -104,7 +104,7 @@ test("VoI prior: the club's share free at that weekday-hour and sport, with a ps
   const members = [{ free: ["Thu 18-22"], sports: ["badminton"] }, { free: ["Thu 19-21"], sports: ["badminton"] }, { free: ["Sat 09-12"], sports: ["badminton"] }, { free: ["Sun 06-09"], sports: ["tennis"] }];
   const prior = voi.populationPrior({ members, sport: "badminton" });
   const thu = prior("Thu 19:00"), sun = prior("Sun 07:00");
-  assert.ok(Math.abs(thu.a + thu.b - voi.PSEUDO) < 1e-9, "the pseudo-count is the prior's weight");
+  assert.ok(Math.abs(thu.a + thu.b - voi.PSEUDO()) < 1e-9, "the pseudo-count is the prior's weight");
   assert.ok(Math.abs(thu.a / (thu.a + thu.b) - 3 / 5) < 1e-9, "2 of 3 badminton players free: (2+1)/(3+2)");
   assert.ok(Math.abs(sun.a / (sun.a + sun.b) - 1 / 5) < 1e-9, "the tennis player doesn't count for badminton");
   assert.ok(voi.posterior(null, THU, prior).p > voi.posterior(null, SUN, prior).p, "a cold member at a busy club hour is likelier free");
@@ -116,11 +116,30 @@ test("VoI prior: the club's share free at that weekday-hour and sport, with a ps
   assert.ok(seen.p < 0.3);
   // private calendars: the pooled answers the player's agent has seen
   const pooled = voi.populationPrior({ members: [], mems: [{ yes: { "Thu 19:00": 3 } }, { no: { "Thu 19:00": 1 } }] });
-  assert.ok(Math.abs(pooled("Thu 19:00").a / 2 - 4 / 6) < 1e-9);
+  assert.ok(Math.abs(pooled("Thu 19:00").a / voi.PSEUDO() - 4 / 6) < 1e-9);
   assert.deepEqual(pooled("Mon 09:00"), { a: 1, b: 1 });
   // the question reads the prior: a cold member is tried at the likelier hour, and asked about the uncertain one
   const q = voi.bestQuestion({ members: [{ id: "a", chance: 0.8, mem: null }], slots: [THU, SUN], prior });
   assert.equal(q.slot.start, "07:00"); assert.ok(Math.abs(q.p - 0.2) < 1e-9 && Math.abs(q.before - 0.48) < 1e-9, "P0 = 0.8 x 3/5 at Thursday 19:00");
+  // a window's last hour is not free when a 90-minute game can't start then
+  assert.ok(Math.abs(prior("Thu 21:00").a / voi.PSEUDO() - 1 / 5) < 1e-9, "Thursday 21:00: no 90-minute game fits either window");
+});
+
+test("Shared preferences: a no at one hour lowers the hours like it, never other days' or the hour's own count", () => {
+  const TUE19 = { date: "2026-11-03", start: "19:00" }, TUE20 = { date: "2026-11-03", start: "20:00" }, SAT9 = { date: "2026-11-07", start: "09:00" };
+  const prior = voi.populationPrior({ members: [], sport: "badminton" }); // no lists: the structural rho
+  const mem = { yes: {}, no: { "Tue 19:00": 2 }, asked: {} };
+  const p = (s, env) => { const old = process.env.PREF_SHARE; process.env.PREF_SHARE = env; try { return voi.posterior(mem, s, prior).p; } finally { if (old == null) delete process.env.PREF_SHARE; else process.env.PREF_SHARE = old; } };
+  assert.ok(p(TUE20, "on") < p(TUE20, "off"), "Tuesday 20:00 borrows the noes at 19:00");
+  assert.equal(p(SAT9, "on"), p(SAT9, "off"), "Saturday morning is not like Tuesday evening");
+  assert.equal(p(TUE19, "on"), p(TUE19, "off"), "an hour's own answers are not counted twice");
+  assert.equal(voi.structuralRho("Tue 19:00", "Tue 20:00"), 0.7);
+  assert.equal(voi.structuralRho("Sat 09:00", "Sun 09:00"), 0.5);
+  assert.equal(voi.structuralRho("Tue 19:00", "Sat 19:00"), 0);
+  // with 8 or more free lists, rho is their correlation: two hours always free together correlate at 1
+  const lists = Array.from({ length: 10 }, (_, i) => ({ free: [i % 2 ? "Mon 18-22" : "Wed 18-22"], sports: ["badminton"] }));
+  const k = voi.populationPrior({ members: lists }).kernel;
+  assert.ok(Math.abs(k("Mon 19:00", "Mon 20:00") - 1) < 1e-9 && k("Mon 19:00", "Wed 19:00") < 0);
 });
 
 // ---- calendars ----

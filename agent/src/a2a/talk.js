@@ -29,6 +29,9 @@ import { limitAnswer } from "../safety/disclosure.js";
 import { annotate } from "../agents/talk_meta.js";
 import { proposed, decided as noteAnswer, released as noteReleased } from "../match/hooks.js";
 import { studentOn, studentAnswer } from "../agents/student.js";
+import { timeScore } from "../match/timerank.js";
+import { earlyOn, streamed } from "../agents/early.js";
+import { populationPrior } from "../match/voi.js";
 import * as critic from "./critic.js";
 import * as consent from "./consent.js";
 import * as peer from "./peer.js";
@@ -273,6 +276,19 @@ async function decided(m, cur, choices, all, why, format, sport) {
   const j = { intent: "counter", date: r.pick.x.slot.date, start: hm(r.pick.x.start), ...(all.some((x) => x.id) ? { works: choices.map((x) => x.id).filter(Boolean) } : {}), tier: "decider", confidence: r.p };
   return { ...j, text: sentence(them, j, cur) };
 }
+// the full answer's messages: the member's profile, the rule, the proposed time (and why it does not work), the times
+// that keep the member's calendar and rules, and the talk so far as facts (test/early_exit_eval.mjs reads them too)
+export function answerMessages(m, cur, choices, log, format, sport, curBad) {
+  const them = first(m.name);
+  const sys = `${profile(m)}
+You are agreeing a ${sport} ${format} game for ${them} with another player's agent. The proposed time is ${cur.text}.${curBad ? ` It does not work for ${them} (${curBad}).` : ""} ${DECIDE(them)}
+Times that fit everyone's calendar this week: ${choices.map((x) => `${x.id ? `${x.id}: ` : ""}${x.slot.date} ${hm(x.start)} = ${x.text}`).join(" | ")}.
+Return JSON only: {"intent": "accept" | "counter" | "decline", "date": "YYYY-MM-DD", "start": "HH:MM"${choices.some((x) => x.id) ? `, "works": [ids]` : ""}}. For "counter", date and start must be one of the times above.${choices.some((x) => x.id) ? ` In "works", list the id of every time above that works for ${them} (by the rule's first test: it works, whether or not it is the one ${them} likes best); an empty list if none does.` : ""}`;
+  // the talk so far as facts: what was proposed, and what this agent decided (no free text from either side)
+  const msgs = [{ role: "system", content: sys }, ...log.map((x) => (x.from === "you" ? { role: "user", content: `Proposal: ${sport} ${format}, ${x.when}.` } : { role: "assistant", content: JSON.stringify({ intent: x.intent, ...(x.intent === "counter" && x.when ? { asked: x.when } : {}) }) }))];
+  if (!log.length || log.at(-1).from !== "you") msgs.push({ role: "user", content: `Proposal: ${sport} ${format}, ${cur.text}.` });
+  return msgs;
+}
 export async function fullAnswer(m, cur, choices, log, format, sport, minutes = 90) {
   const them = first(m.name), all = choices;
   let curBad = null;
@@ -295,19 +311,24 @@ export async function fullAnswer(m, cur, choices, log, format, sport, minutes = 
     if (studentOn() && curBad && choices.length > 1) { const s = await studentAnswer(m, cur, choices, all, { minutes, format, sport, profile: profile(m) }); if (s) return { ...s, text: sentence(them, s, cur) }; }
     if (deciderOn() && curBad && choices.length > 1) { const d = await decided(m, cur, choices, all, curBad, format, sport); if (d) return d; }
   }
-  const sys = `${profile(m)}
-You are agreeing a ${sport} ${format} game for ${them} with another player's agent. The proposed time is ${cur.text}.${curBad ? ` It does not work for ${them} (${curBad}).` : ""} ${DECIDE(them)}
-Times that fit everyone's calendar this week: ${choices.map((x) => `${x.id ? `${x.id}: ` : ""}${x.slot.date} ${hm(x.start)} = ${x.text}`).join(" | ")}.
-Return JSON only: {"intent": "accept" | "counter" | "decline", "date": "YYYY-MM-DD", "start": "HH:MM"${choices.some((x) => x.id) ? `, "works": [ids]` : ""}}. For "counter", date and start must be one of the times above.${choices.some((x) => x.id) ? ` In "works", list the id of every time above that works for ${them} (by the rule's first test: it works, whether or not it is the one ${them} likes best); an empty list if none does.` : ""}`;
-  // the talk so far as facts: what was proposed, and what this agent decided (no free text from either side)
-  const msgs = [{ role: "system", content: sys }, ...log.map((x) => (x.from === "you" ? { role: "user", content: `Proposal: ${sport} ${format}, ${x.when}.` } : { role: "assistant", content: JSON.stringify({ intent: x.intent, ...(x.intent === "counter" && x.when ? { asked: x.when } : {}) }) }))];
-  if (!log.length || log.at(-1).from !== "you") msgs.push({ role: "user", content: `Proposal: ${sport} ${format}, ${cur.text}.` });
+  const msgs = answerMessages(m, cur, choices, log, format, sport, curBad);
   // the reply in MEMBER_REPLY's format, asked once more if it does not fit; an agent that never answers in it has not
   // said yes (it was once taken as a yes, which could book a member who never agreed)
   // two tries, each within half of what your agent waits for an A2A answer (and the model call's own limit)
   const perTry = Math.max(30000, Math.min(+(process.env.LLM_TIMEOUT_MS || 180000), Math.floor((+(process.env.A2A_TIMEOUT_MS || 270000) - 20000) / 2)));
-  const drafted = await drafts(msgs, perTry);
-  const { value } = drafted ? { value: drafted } : await chatJSON(msgs, MEMBER_REPLY, { maxTokens: 120, temperature: 0.3, site: "a2a.answer", timeoutMs: perTry });
+  // early exit (A2A_EARLY=on; early.js): a choice between times the rules left is streamed, and stopped as soon as a
+  // read of the options with the reasoning so far is sure enough; a full reply that streamed to its end is used as is
+  let streamedValue = null;
+  if (earlyOn() && rulesInCode() && curBad && choices.length > 1) {
+    const s = await streamed(msgs, deciderQuestion(m, cur, choices, curBad, format, sport), { schema: MEMBER_REPLY, timeoutMs: perTry }).catch(() => null);
+    if (s?.early) {
+      const x = s.early.pick.x, j = { intent: "counter", date: x.slot.date, start: hm(x.start), ...(all.some((y) => y.id) ? { works: choices.map((y) => y.id).filter(Boolean) } : {}), tier: "early", confidence: s.early.p };
+      return { ...j, text: sentence(them, j, cur) };
+    }
+    if (s?.text) { try { const v = JSON.parse(s.text); if (!validate(MEMBER_REPLY, v).length) streamedValue = v; } catch { /* asked again below */ } }
+  }
+  const drafted = streamedValue ? null : await drafts(msgs, perTry);
+  const { value } = streamedValue ? { value: streamedValue } : drafted ? { value: drafted } : await chatJSON(msgs, MEMBER_REPLY, { maxTokens: 120, temperature: 0.3, site: "a2a.answer", timeoutMs: perTry });
   if (!value) return { intent: "none", text: `${them}'s agent did not answer.`, tier: "agent" };
   const j = { ...value, tier: drafted ? "draft" : "agent" };
   if (j.intent === "counter" && j.date === cur.slot.date && toMin(j.start || "00:00") === cur.start) j.intent = "accept";
@@ -554,8 +575,12 @@ async function rounds({ id = `neg-${crypto.randomUUID().slice(0, 13)}`, me, memb
   const ps = prefer && times.find((s) => !exclude.includes(s.date) && s.day === prefer.day && s.from <= toMin(prefer.start) && toMin(prefer.start) + minutes <= s.to);
   if (ps && !choices.some((x) => x.slot.date === ps.date && x.start === toMin(prefer.start))) { const x = offer(ps, toMin(prefer.start)); if (x) choices.push(x); }
   if (!choices.length) return done({ agreed: null, reason: times.length ? "no court is free when everyone is" : `${names.join(" and ")} and you have no free time in common this week`, rounds: 0, log: [] });
-  // what we know about these agents goes first: their past yeses up, their past noes down
-  const score = (x) => members.reduce((s, m) => { const mm = memoryOf(m.id, now.getTime()), k = slotKey(x.slot.date, x.start); return s + (mm ? 2 * ((mm.yes[k] || 0) + (mm.asked[k] || 0)) - 3 * (mm.no[k] || 0) : 0); }, 0);
+  // what we know about these agents goes first: the time likeliest to work for every one of them (timerank.js: the
+  // product of each member's posterior, none of them very unlikely) with A2A_RANK=prob; by default past yeses up and
+  // past noes down, which found as many games in test/rank_sim.mjs
+  const mems = members.map((m) => memoryOf(m.id, now.getTime()));
+  const prior = populationPrior({ members: privateCalendars ? [] : members, sport, mems: privateCalendars ? mems.filter(Boolean) : [] });
+  const score = (x) => timeScore(x, mems, prior);
   // with private calendars, the hours people usually play go first (weekday evenings, weekend mornings to early
   // afternoon): a prior about clubs, not about these members, whose weeks your agent does not see
   const usual = (x) => (!privateCalendars ? 0 : ["Sat", "Sun"].includes(x.slot.day) ? (x.start >= 9 * 60 && x.start <= 14 * 60 ? 3 : 0) : x.start >= 18 * 60 && x.start <= 20 * 60 ? 3 : 0);
