@@ -10,6 +10,8 @@ const SEED = [
 ];
 
 const now = () => new Date().toISOString();
+const signedIn = () => { try { return !!localStorage.getItem("serve.session"); } catch { return false; } };
+const visible = (list) => (signedIn() ? list.filter((m) => m.source !== "demo") : list);
 let listeners = new Set();
 
 function read() {
@@ -22,12 +24,13 @@ function read() {
 function write(list) {
   try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { /* private mode: keep in memory only */ }
   cache = list;
-  listeners.forEach((f) => f(list));
+  listeners.forEach((f) => f(visible(list)));
 }
 let cache = read();
 
 export const memory = {
-  all: () => cache,
+  // a signed-in member starts with their own notes only: the demo's sample notes are the demo persona's
+  all: () => visible(cache),
   add(text, kind = "note", source = "user") {
     const t = text.trim();
     if (!t) return;

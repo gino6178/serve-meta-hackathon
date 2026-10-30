@@ -135,7 +135,16 @@ function replay(now = Date.now()) {
 // asked; kept is their answer; host is whose game it was (a promise counts once a week per host)
 export function promise(id, kept, host = null) { add("promise", id, { kept: !!kept, ...(host ? { host: subject(host) } : {}) }); }
 // the agent asked `n` people's agents at once (a huddle); too many in a day marks it a prober for a week
-export function asked(id, n, now = Date.now()) { if (n > 0) add("asked", id, { n }, now); }
+// The day's tally stays off the chain (each count would tell how many people are open near a point); only the mark itself,
+// once the day's asks pass the limit, goes on it
+const tally = new Map();
+export function asked(id, n, now = Date.now()) {
+  if (!(n > 0)) return;
+  const t = tally.get(id) || { asks: [], marked: 0 };
+  t.asks = [...t.asks.filter((x) => now - x.at < DAY), { at: now, n }]; tally.set(id, t);
+  const sum = t.asks.reduce((s, x) => s + x.n, 0);
+  if (sum > PROBE_ASKS && now - t.marked > DAY) { t.marked = now; add("asked", id, { n: sum }, now); }
+}
 // a request with the agent's key that failed the check (replayed, changed, expired)
 export function badSignature(id, why, now = Date.now()) { add("sig", id, { why: String(why || "bad") }, now); }
 
@@ -225,7 +234,7 @@ export function check(id, gate = {}, now = Date.now()) {
   const g = gateOf(gate), b = badge(id, now);
   if (g.minShow && (b.show.new ? !g.newOk : gateRate(b) < g.minShow)) return { verdict: "waitlist", badge: b, why: b.show.new ? "new, and this game wants people with a record" : `${showText(b)}; this game needs ${Math.round(g.minShow * 100)}%` };
   if (b.agent.probe) return { verdict: "confirm", badge: b, why: "their agent asked too many people's agents today" };
-  if (b.agent.badSig) return { verdict: "confirm", badge: b, why: "requests with their agent's key failed the signature check" };
+  if (b.agent.badSig) return { verdict: "confirm", badge: b, why: "their agent is being checked" };
   if (g.agentMin && !b.agent.new && b.agent.rate < g.agentMin) return { verdict: "confirm", badge: b, why: `their agent keeps only ${Math.round(b.agent.rate * 100)}% of its yeses` };
   return { verdict: "ok", badge: b };
 }

@@ -196,8 +196,11 @@ export function reply(id, o, yes, why = null) {
 }
 
 // the member asked, in their own words, for these days and parts of the day: they count a little more from now on
-export function askedFor(id, w) {
-  const t = get(id), days = (w?.days || []).map((d) => (/^\d{4}-/.test(d) ? DAYS[dateOf(d).getDay()] : d)).filter((d) => DAYS.includes(d)), parts = (w?.parts || []).filter((p) => PARTS.includes(p));
+export function askedFor(id, w, each = null) {
+  const t = get(id);
+  // a price they named ("under NT$200") is what the agent aims under from now on (their hard limit stays as they set it)
+  if (each != null && +each >= 0) { t.priceCap = clamp(Math.min(t.priceCap, Math.max(60, +each)), 60, 1200); put(id, t); }
+  const days = (w?.days || []).map((d) => (/^\d{4}-/.test(d) ? DAYS[dateOf(d).getDay()] : d)).filter((d) => DAYS.includes(d)), parts = (w?.parts || []).filter((p) => PARTS.includes(p));
   if (!parts.length) return;
   for (const d of days.length ? [...new Set(days)] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]) for (const p of parts) nudgeCell(t, `${d} ${p}`, days.length ? 0.3 : 0.15);
   put(id, t);

@@ -8,7 +8,9 @@ export const inviteLink = (id) => `${location.origin}${location.pathname}#/invit
 export async function shareInvite(id, text = "Join my game on Serve") {
   const url = inviteLink(id);
   if (navigator.share) { try { await navigator.share({ title: "Serve", text, url }); return "shared"; } catch (e) { if (e?.name === "AbortError") return null; } }
-  try { await navigator.clipboard.writeText(url); return "copied"; } catch { window.prompt("Copy this link", url); return "copied"; }
+  try { await navigator.clipboard.writeText(url); return "copied"; } catch { /* no clipboard here */ }
+  // no clipboard and no prompt (some browsers): the caller shows the link to copy by hand
+  try { window.prompt("Copy this link", url); return "copied"; } catch { return `link:${url}`; }
 }
 
 export const pendingInvite = {

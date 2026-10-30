@@ -131,6 +131,7 @@ async function channel(req, res, p, send) {
   const c = M.checkAgent(req, raw, p);
   if (!c.ok) return send(401, { error: `refused: ${c.message}`, why: c.why, docs: "/llms.txt" });
   const ag = c.agent, owner = ag.owner;
+  if (p === "/api/agent-channel/feed/post") p = "/api/agent-channel/post"; // the feed's own path, under the channel
   let b = {}; try { b = JSON.parse(raw.toString() || "{}"); } catch { return send(400, { error: "the body is not JSON" }); }
   const out = (r) => send(r.error ? r.code || 400 : 200, r);
   if (p === "/api/agent-channel/me" && req.method === "GET") return send(200, { member: M.view(M.get(owner)), agent: M.view(ag), audience: M.AUDIENCE });
@@ -203,7 +204,7 @@ async function huddle(req, res, p, q, me, send, given = null) {
   // the question is rebuilt from the member's state, so the answer carries the two games it showed
   if (p === "/api/huddle/question" && get) { const t = T.get(me); const places = t.home ? (await D.placesNear(t.home, t.sports[0] || "badminton", { wait: false })).map((x) => ({ ...x, km: +T.km(t.home, x).toFixed(1) })) : []; return send(200, { question: T.question(me, { places, force: true }) }); }
   if (p === "/api/huddle/answer" && post) { if (!["a", "b", "either"].includes(b.pick)) return send(400, { error: "pick is a, b or either" }); return out(T.choose(me, b.q ?? b.id, b.pick)); }
-  if (p === "/api/huddle/start" && post) { const r = H.start(me, b); if (!r.error && !req.byAgent && b.when) T.askedFor(me, b.when); return out(r); }
+  if (p === "/api/huddle/start" && post) { const r = H.start(me, b); if (!r.error && !req.byAgent && (b.when || b.wantEach != null)) T.askedFor(me, b.when, b.wantEach); return out(r); }
   if (p === "/api/huddle/one" && get) { await H.sweep(); const h = H.find(String(q.get("id") || "")); return h && (h.host === me || h.invited.includes(me)) ? send(200, { huddle: H.view(h, me) }) : send(404, { error: "No such game." }); }
   if (p === "/api/huddle/reply" && post) return out(await H.reply(me, String(b.id || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
   if (p === "/api/huddle/cancel" && post) return out(H.cancel(me, String(b.id || "")));
@@ -215,7 +216,8 @@ async function huddle(req, res, p, q, me, send, given = null) {
     const looking = D.loading(t.home, sport);
     // only the courts inside the member's distance limit
     const inKm = (x) => t.limitKm == null || T.km(t.home, x) <= t.limitKm;
-    return send(200, { home: true, sport, currency: D.CURRENCY, looking, ...(looking ? { retryAfter: 20 } : {}), places: places.filter(inKm).map((x) => {
+    const down = !looking && !places.length && D.lookupFailed(t.home, sport);
+    return send(200, { home: true, sport, currency: D.CURRENCY, looking, ...(looking ? { retryAfter: 20 } : {}), ...(down ? { note: "The map of courts isn't answering right now. Name the place yourself (pin: {place}) or try again in ten minutes." } : {}), places: places.filter(inKm).map((x) => {
       const k = +T.km(t.home, x).toFixed(1), qt0 = D.quietest(x, { n: 50 });
       // the quietest hours shown are ones the member can play at, when they set time windows
       const okTime = (g) => !t.windows?.length || !T.hardNo({ ...t, limitKm: null, limitEach: null, busyAt: [], declined: [] }, { ...g, km: null, each: 0 });

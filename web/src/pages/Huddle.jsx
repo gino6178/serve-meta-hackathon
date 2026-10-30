@@ -105,6 +105,8 @@ const WHEN = {
   mornings: { label: "Weekday mornings", v: { days: WEEKDAYS, parts: ["early", "morning"] } },
   ...Object.fromEntries([0, 1, 2, 3, 4, 5, 6].map((i) => { const d = ymdIn(i), dn = DAYNAMES[new Date(d + "T12:00").getDay()]; return [`day${i}`, { label: i === 0 ? "Today" : i === 1 ? `Tomorrow (${dn})` : `${dn} ${d.slice(8)}`, v: { days: [d] } }]; })),
 };
+// a price named in their words: "under NT$200", "200元以下", "below 200 each"
+const eachFromText = (t) => { const m = String(t).match(/(?:under|below|less than|max|up to|<)\s*(?:NT\$|\$)?\s*(\d{2,4})|(\d{2,4})\s*(?:元|塊)?\s*(?:以下|以內)/i); return m ? +(m[1] || m[2]) : null; };
 function whenFromText(t) {
   const part = /morning|早上/i.test(t) ? ["early", "morning"] : /afternoon|下午/i.test(t) ? ["afternoon"] : /evening|tonight|night|晚上/i.test(t) ? ["evening"] : null;
   const d = DAYNAMES.findIndex((n) => new RegExp(`\\b${n}`, "i").test(t));
@@ -119,7 +121,7 @@ const STATUS = { talking: "Agents talking", asking: "Agreed, asking", on: "Game 
 function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
   const club0 = me.clubs.find((c) => c.id === clubId) || me.clubs[0] || null;
   const [who, setWho] = useState(club0 ? `club:${club0.id}` : "pick"), [picked, setPicked] = useState([]);
-  const [sport, setSport] = useState(sport0 || club0?.sport || me.taste.sports[0] || "badminton"), [need, setNeed] = useState(4);
+  const [sport, setSport] = useState(params().get("sport") || sport0 || club0?.sport || me.taste.sports[0] || "badminton"), [need, setNeed] = useState(() => Math.max(2, +params().get("need") || 4));
   const [busy, setBusy] = useState(false), [err, setErr] = useState("");
   const [nearby, setNearby] = useState(!me.clubs.length || (club0?.members ?? 0) < 4), [minShow, setMinShow] = useState(0), [agentMin, setAgentMin] = useState(true);
   const [whenK, setWhenK] = useState(() => whenFromText(params().get("say") || "")), fill = params().get("fill");
@@ -128,7 +130,7 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
   );
   const go = async (e) => {
     e.preventDefault(); setBusy(true); setErr("");
-    try { const r = await H.start({ sport, need, ...(who.startsWith("club:") ? { club: who.slice(5) } : who === "pick" ? { invite: picked } : {}), nearby, gate: { minShow, agentMin: agentMin ? 0.8 : 0 }, ...(pin ? { pin, hostYes: true } : {}), ...(fill ? { fill } : !pin && WHEN[whenK]?.v ? { when: WHEN[whenK].v } : {}) }); onStarted(r.huddle); } catch (x) { setErr(x.message); }
+    try { const r = await H.start({ sport, need, ...(who.startsWith("club:") ? { club: who.slice(5) } : who === "pick" ? { invite: picked } : {}), nearby, gate: { minShow, agentMin: agentMin ? 0.8 : 0 }, ...(pin ? { pin, hostYes: true } : {}), ...(fill ? { fill } : !pin && WHEN[whenK]?.v ? { when: WHEN[whenK].v } : {}), ...(eachFromText(params().get("say") || "") != null ? { wantEach: eachFromText(params().get("say")) } : {}) }); onStarted(r.huddle); } catch (x) { setErr(x.message); }
     setBusy(false);
   };
   return (
@@ -257,7 +259,7 @@ function CourtsTab({ me }) {
       {r && !r.home && <p className="muted">Share your area first.</p>}
       {(!r || r.looking) && r?.home !== false && <p className="muted hd-looking"><i className="hd-wait" />Looking at the map around you (OpenStreetMap can take up to a minute)…</p>}
       {r?.places?.map((p) => <Place key={p.id} p={p} sport={sport} />)}
-      {r && !r.looking && r.home && !r.places.length && <p className="muted">No {sport} courts found near you on the map.</p>}
+      {r && !r.looking && r.home && !r.places.length && <p className="muted">{r.note || `No ${sport} courts found near you on the map.`}</p>}
     </div>
   );
 }
@@ -295,6 +297,51 @@ function Place({ p, sport }) {
 
 // ---- how you play ----
 const PARTS = ["early", "morning", "afternoon", "evening"];
+// the person's hard limits and their standing yes: set here, by them (their agent can only tighten limits)
+const WIN = {
+  any: { label: "Any time", v: null },
+  evenings: { label: "Weekday evenings (18:00–22:00)", v: [{ days: WEEKDAYS, from: "18:00", to: "22:00" }] },
+  mornings: { label: "Weekday mornings (07:00–12:00)", v: [{ days: WEEKDAYS, from: "07:00", to: "12:00" }] },
+  weekends: { label: "Weekends (08:00–20:00)", v: [{ days: ["Sat", "Sun"], from: "08:00", to: "20:00" }] },
+  both: { label: "Weekday evenings and weekends", v: [{ days: WEEKDAYS, from: "18:00", to: "22:00" }, { days: ["Sat", "Sun"], from: "08:00", to: "20:00" }] },
+};
+const winKey = (ws) => (!ws?.length ? "any" : Object.keys(WIN).find((k) => JSON.stringify(WIN[k].v) === JSON.stringify(ws.map((w) => ({ days: w.days, from: w.from, to: w.to })))) || "keep");
+function Limits({ t, onSaved }) {
+  const d = t.delegate;
+  const [win, setWin] = useState(winKey(t.windows)), [km, setKm] = useState(t.limitKm ?? ""), [each, setEach] = useState(t.limitEach ?? "");
+  const [on, setOn] = useState(!!d?.on), [dEach, setDEach] = useState(d?.maxEach ?? ""), [newPeople, setNewPeople] = useState(!!d?.newPeople);
+  const [busy, setBusy] = useState(false), [said, setSaid] = useState(""), [err, setErr] = useState("");
+  const save = async (e) => {
+    e.preventDefault(); setBusy(true); setErr(""); setSaid("");
+    try {
+      await H.setLimits({ ...(win === "keep" ? {} : { windows: WIN[win].v }), maxKm: km === "" ? null : +km, maxEach: each === "" ? null : +each });
+      const r = await H.setDelegate(on ? { on: true, maxEach: dEach === "" ? null : +dEach, newPeople } : { on: false });
+      setSaid("Saved. Nothing outside these is ever agreed for you."); onSaved(r.taste);
+    } catch (x) { setErr(x.message); }
+    setBusy(false);
+  };
+  return (
+    <form className="panel hd-limits" aria-label="Your limits" onSubmit={save}>
+      <h2 className="h3">Your limits</h2>
+      <p className="hd-fine">Hard limits: your agent never agrees to a game outside them.</p>
+      <label>Times<select value={win} onChange={(e) => setWin(e.target.value)}>{win === "keep" && <option value="keep">As set before</option>}{Object.entries(WIN).map(([k, x]) => <option key={k} value={k}>{x.label}</option>)}</select></label>
+      <label>Farthest<span className="hd-unit"><input type="number" min="1" max="30" step="0.5" inputMode="decimal" placeholder="no limit" value={km} onChange={(e) => setKm(e.target.value)} />km</span></label>
+      <label>Most per person<span className="hd-unit">NT$<input type="number" min="0" max="5000" step="10" inputMode="numeric" placeholder="no limit" value={each} onChange={(e) => setEach(e.target.value)} /></span></label>
+      <h3 className="h4">Your agent saying yes for you</h3>
+      <label className="hd-check"><input type="checkbox" checked={on} onChange={(e) => setOn(e.target.checked)} />Let my agent say yes for me, within my limits</label>
+      {on && <>
+        <label>Only games up to<span className="hd-unit">NT$<input type="number" min="0" max="5000" step="10" inputMode="numeric" placeholder="any price" value={dEach} onChange={(e) => setDEach(e.target.value)} />each</span></label>
+        <label className="hd-check"><input type="checkbox" checked={newPeople} onChange={(e) => setNewPeople(e.target.checked)} />Also with people who are new (no record yet)</label>
+      </>}
+      <button className="btn primary sm" disabled={busy}>{busy ? "Saving…" : "Save"}</button>
+      {said && <p className="tq-said" role="status">{said}</p>}
+      {err && <p className="join-err" role="alert">{err}</p>}
+    </form>
+  );
+}
+// a part of the day inside the person's time limits (none set: all of it)
+const PART_HOURS = { early: ["06:00", "09:00"], morning: ["09:00", "12:00"], afternoon: ["12:00", "17:00"], evening: ["17:00", "23:00"] };
+const inWins = (ws, d, part) => !ws?.length || ws.some((w) => w.days.includes(d) && w.from < PART_HOURS[part][1] && w.to > PART_HOURS[part][0]);
 function TasteTab({ me, reload }) {
   const [q, setQ] = useState(null), [t, setT] = useState(me.taste), [busy, setBusy] = useState(false), [mine, setMine] = useState(null), [err, setErr] = useState("");
   const ask = () => H.question().then((r) => setQ(r.question), () => {});
@@ -314,13 +361,14 @@ function TasteTab({ me, reload }) {
         {Object.keys(FACTOR).map((k) => <div key={k} className="hw-row"><span>{FACTOR[k]}</span><span className="hw-bar"><i style={{ width: pct(w[k]) }} /></span><b>{pct(w[k])}</b></div>)}
         <p className="hd-fine">Within about {t.maxKm} km{w.price > 0.2 ? `, aiming under NT$${t.priceCap} each` : ""}.</p>
       </section>
+      <Limits t={t} onSaved={(x) => { setT(x); reload(); }} />
       <section className="panel" aria-label="Your times">
         <h2 className="h3">Your times</h2>
         <div className="hd-heat hd-week">
           <div className="hh-row hh-head"><span />{PARTS.map((x) => <span key={x}>{x}</span>)}</div>
-          {DAYS.map((d) => <div className="hh-row" key={d}><span>{d}</span>{PARTS.map((x) => <span key={x} className="hh-c good" style={{ "--b": t.grid[`${d} ${x}`] }} title={`${d} ${x}: ${pct(t.grid[`${d} ${x}`])}`} />)}</div>)}
+          {DAYS.map((d) => <div className="hh-row" key={d}><span>{d}</span>{PARTS.map((x) => inWins(t.windows, d, x) ? <span key={x} className="hh-c good" style={{ "--b": t.grid[`${d} ${x}`] }} title={`${d} ${x}: ${pct(t.grid[`${d} ${x}`])}`} /> : <span key={x} className="hh-c off" title={`${d} ${x}: outside your limits`} />)}</div>)}
         </div>
-        <p className="hd-fine">Darker is better for you. Until you answer, your agent assumes what suits most people who work or study: weekday evenings and weekend mornings.</p>
+        <p className="hd-fine">Darker is better for you{t.windows?.length ? "; grey is outside your limits" : ""}. Until you answer, your agent assumes what suits most people who work or study: weekday evenings and weekend mornings.</p>
       </section>
       <section className="panel hd-set" aria-label="Your records">
         <h2 className="h3">What other agents see about you</h2>

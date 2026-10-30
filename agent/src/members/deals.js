@@ -28,16 +28,19 @@ const hourOf = (start) => +String(start).slice(0, 2) + (+String(start).slice(3, 
 const pending = new Map(), got = new Map();
 const areaKey = (at, sport) => `${(+at.lat).toFixed(2)},${(+at.lon).toFixed(2)},${sport}`;
 export const loading = (at, sport) => !!at && pending.has(areaKey(at, sport));
+// a lookup the map didn't answer: not tried again for ten minutes, and said so instead of "still looking"
+const failed = new Map(), FAIL_WAIT = 10 * 60e3;
+export const lookupFailed = (at, sport) => !!at && Date.now() - (failed.get(areaKey(at, sport)) || 0) < FAIL_WAIT;
 export async function placesNear(at, sport = "badminton", { venues = 3, courts = 3, radius = 4000, wait = true } = {}) {
   if (!at) return [];
   let key = areaKey(at, sport);
   // an area already looked up within 2.5 km covers this one too (the search reaches 4 km): no new wait on the map
   if (!got.has(key)) for (const k of got.keys()) { const [la, lo, sp] = k.split(","); if (sp === sport && km({ lat: +la, lon: +lo }, at) < 2.5) { key = k; break; } }
   if (!got.has(key)) { const c = cachedNear(at, sport, 2.5); if (c) got.set(key, c); }
-  if (!got.has(key) && !pending.has(key)) {
+  if (!got.has(key) && !pending.has(key) && !lookupFailed(at, sport)) {
     // the area rounded to about 1 km, so nearby members share the cached answer
     const job = nearby({ lat: +(+at.lat).toFixed(2), lon: +(+at.lon).toFixed(2), sport, radius, wait: 60000 }).catch(() => null)
-      .then((found) => { pending.delete(key); if (found) got.set(key, found); return found || []; });
+      .then((found) => { pending.delete(key); if (found) got.set(key, found); else failed.set(key, Date.now()); return found || []; });
     pending.set(key, job);
   }
   const found = got.get(key) || (wait ? await pending.get(key) : []);

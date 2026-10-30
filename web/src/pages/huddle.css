@@ -195,3 +195,12 @@
 .hd-talk .t-me.t-gate p { background: color-mix(in srgb, var(--warn) 14%, var(--bg)); color: var(--ink); }
 .hd-talk .t-me.g-waitlist p { background: color-mix(in srgb, var(--bad) 10%, var(--bg)); color: var(--ink); }
 .tq-why { margin: -4px 0 2px; font-size: 13px; color: var(--ink-2); }
+.hd-limits { display: grid; gap: 10px; }
+.hd-limits label { display: grid; gap: 4px; font-size: 14px; font-weight: 600; }
+.hd-limits select, .hd-limits input[type=number] { font: inherit; font-weight: 400; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-width: 0; }
+.hd-limits .hd-unit { display: flex; align-items: center; gap: 6px; font-weight: 400; }
+.hd-limits .hd-unit input { width: 8em; }
+.hd-limits .hd-check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+.hd-limits .h4 { margin: 6px 0 0; font-size: 15px; }
+.hd-limits .btn { justify-self: start; }
+.hh-c.off { background: repeating-linear-gradient(45deg, var(--surface), var(--surface) 3px, var(--line) 3px, var(--line) 5px); }
