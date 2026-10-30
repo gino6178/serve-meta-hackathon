@@ -109,3 +109,19 @@ The two bugs the first runs showed are fixed. A point dropped as a lone one coul
 last stretch of at least 0.3 s where the ball is there. On the three clips the rally ends at frames 699, 629 and 639.
 
 Tennis and basketball: see the status at the top (measured once, not usable on these clips).
+
+## The rally's in and out points (`RALLY_CLIP=1`, off by default)
+
+With `BALL_TRACKING=1` and `RALLY_CLIP=1`, `reel.py` adds `clip: {in, out, from: "ball"}` (seconds) to its output:
+the rally around the moment, from the ball (`ball.rally_clip`).
+- **In and out.** Starting from the frame where the ball is "on" nearest the moment (within 1 s), the stretch is
+  grown while the next "on" frame is at most 1 s away (a tracker loses a shuttle mid-rally). Its first and last
+  frames are the rally's start and stop; the stop is cut at `rally_end` when that falls inside it, after the moment.
+- **Margins.** 0.3 s before, 0.4 s after (as the orbit effect's cut). The moment is always inside the clip.
+- **No clip** when the flag is off, the ball was not tracked, there is no moment, or the ball is not on within 1 s of
+  it: then the output has no `clip` field and is exactly as before.
+
+Checked on synthetic "on" tracks (joined and unjoined gaps, a rally end inside the stretch, the clip's edges, no ball
+near the moment), not on a real track yet. The gateway (`agent/src/media/reel.js`) does not read `clip` yet; it still
+cuts around the moment, so the flag changes nothing the member sees until the gateway uses it. Given TrackNetV5's
+recall on phone footage (0.31, above), a stretch can end early where the tracker lost the shuttle for over a second.

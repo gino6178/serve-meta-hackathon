@@ -241,7 +241,7 @@ and your health data are read there and nowhere else; what you share in Messenge
 | **Omnilingual ASR** (open weights, CTC 1B) | Our GPU server's CPU | Voice notes in Messenger to text (1,600+ languages per its model card; we tested English) |
 | **Sapiens2** (pose, 0.4B) | Our GPU server, Hugging Face Transformers | Every player's pose on every frame of a highlight; finds the moment (fastest swing, top of the jump, the kick) |
 | **SAM 2.1** (Hiera-L) | Our GPU server, Hugging Face Transformers | Each player's outline, for the reel's spotlight and its drawn view |
-| **DETR** (ResNet-50) | Our GPU server, Hugging Face Transformers | Finds the people in your own video, so the reel follows you |
+| **DETR** (ResNet-50) | Our GPU server, Hugging Face Transformers | Finds the people in your own video, so the reel follows you (RT-DETRv2 is an untested option, `PERSON_DETECTOR=rtdetr`: [docs/person_detector.md](docs/person_detector.md)) |
 | **MapAnything** (Apache 2.0 weights) | Our GPU server; in the app as an optional camera effect | Metric depth and the camera for orbit replays of your moment ([docs/orbit_highlights.md](docs/orbit_highlights.md)) |
 | **Muse Spark 1.3** (Meta Model API) | The fallback, when switched on (`LLM_FALLBACK=on`) | When the GPU server can't answer, the same call goes once to Muse Spark; checked live (`submission/results/fallback_live.json`); also the builder's model for new code (one C3 spec built on its first attempt) |
 | **SAM 3.1** (Meta Model API) | One call | Checked on the smash's frame against SAM 2.1: the same player, box IoU 0.97 (`submission/results/sam31_smash.json`) |
@@ -522,7 +522,8 @@ licenses, listed in [CREDITS.md](CREDITS.md) and below.
 
 - Pose, outlines and detection: [Sapiens2](https://huggingface.co/facebook/sapiens2-pose-0.4b) (Meta, Sapiens2
   License), [SAM 2.1](https://huggingface.co/facebook/sam2.1-hiera-large) (Meta, Apache 2.0),
-  [DETR](https://huggingface.co/facebook/detr-resnet-50) (Meta, Apache 2.0), through Hugging Face Transformers
+  [DETR](https://huggingface.co/facebook/detr-resnet-50) (Meta, Apache 2.0), or optionally
+  [RT-DETRv2](https://huggingface.co/PekingU/rtdetr_v2_r50vd) (Apache 2.0), through Hugging Face Transformers
   (Apache 2.0).
 - Orbit replays: [MapAnything](https://huggingface.co/facebook/map-anything-apache) (Meta, the Apache 2.0 weights),
   with SAM 2.1 as a video tracker. Its footage is credited in `CREDITS.md`.
