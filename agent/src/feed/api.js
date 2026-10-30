@@ -56,7 +56,7 @@ export async function handle(req, res, u, { cors = {}, maintainer = false, as = 
       if (q("room") && !(await import("../members/clubs.js")).canSee(q("room"), player)) return send(200, { posts: [], more: false, notices: [], private: true });
       const f = P.feed(player, { before: +(q("before") || Infinity) || Infinity, n: +(q("n") || 30), room: q("room") || null });
       const club = deps.club(), w = papers.weekCap();
-      return send(200, { ...f, drafts: H.drafts(player), recaps: R.pendingFor(player), paused: P.paused(player), club: { name: club.name || "Your club" }, papers: { perWeek: papers.perWeekFor(player), club: w.club }, simulated: S.data().posts.some((x) => x.simulated) });
+      return send(200, { ...f, drafts: H.drafts(player), recaps: R.pendingFor(player), paused: P.paused(player), club: { name: (q("room") && (await import("../members/clubs.js")).find(q("room"))?.name) || club.name || "Your club" }, papers: { perWeek: papers.perWeekFor(player), club: w.club }, simulated: S.data().posts.some((x) => x.simulated) });
     }
     if (p === "/api/feed/notices" && !post) return send(200, { notices: P.takeNotices(player) });
     if (p === "/api/feed/post" && !post) { const x = P.find(String(q("id") || "")); return x && !(x.held && x.by.player !== player) ? send(200, { post: P.view(x, player) }) : send(404, { error: "That post is not in the feed any more." }); }

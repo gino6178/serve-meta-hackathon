@@ -35,6 +35,8 @@ const save = () => writeJSON(FILE(), data());
 // doesn't tell, starts by 19:30. A time picked from Courts & prices is used as it is.
 export const STARTS = ["07:00", "09:00", "10:30", "12:00", "14:00", "16:00", "17:00", "18:00", "19:00", "19:30", "20:30"];
 const opensFor = (place, start) => (place.kind === "public" ? start <= "19:30" : start <= "20:30");
+// two games clash when they overlap: a game runs 90 minutes (the feed refuses the same)
+const CLASH = 90 * 60e3;
 const MINUTES = 90, ROUNDS = 4, TRIES = 2, INDOOR = ["badminton", "table tennis", "squash"];
 const SPORTS = ["badminton", "tennis", "pickleball", "table tennis", "basketball", "volleyball", "soccer", "squash"];
 const first = (id) => String(P.authorOf(id) || "A member").split(" ")[0];
@@ -91,7 +93,7 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   const pin = b.pin && /^\d{4}-\d{2}-\d{2}$/.test(b.pin.date) && /^\d{2}:\d{2}$/.test(b.pin.start) ? { date: b.pin.date, start: b.pin.start, place: b.pin.place ? String(b.pin.place) : null } : null;
   if (pin) { const hn = T.hardNo(T.get(me), { date: pin.date, start: pin.start, km: null, each: 0 }); if (hn === "time" || hn === "busy") return { error: `${when(pin)} is outside the times you set (or you're busy then). Change your limits, or pick another time.`, code: 400 }; }
   const h = { id: `h-${crypto.randomUUID().slice(0, 8)}`, host: me, sport, need, club: club?.id || null, clubName: club?.name || null, invited, created: Date.now(), status: "talking",
-    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, picked: (Array.isArray(b.invite) ? b.invite.map(String) : club ? [] : invited).filter((id) => invited.includes(id) && !near.includes(id)), excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat ?? (fill.room ? C.find(fill.room)?.at?.lat : undefined), lon: fill.invite.at?.lon ?? (fill.room ? C.find(fill.room)?.at?.lon : undefined), kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}), hostYes: b.hostYes === true && !!pin };
+    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, picked: (Array.isArray(b.invite) ? b.invite.map(String) : club ? [] : invited).filter((id) => invited.includes(id) && !near.includes(id)), excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat ?? (fill.room ? C.find(fill.room)?.at?.lat : undefined), lon: fill.invite.at?.lon ?? (fill.room ? C.find(fill.room)?.at?.lon : undefined), kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}), hostYes: (b.hostYes === true && !!pin) || !!fill }; // (filling your own posted game: you're in it)
   data().huddles.push(h); save();
   Tr.asked(me, near.length); // asking everyone nearby, again and again, is what a prober does (your clubs are fine)
   const job = run(h, now).catch((e) => { console.error("huddle run", e.stack); h.status = "stuck"; line(h, "agent", "Something went wrong on Serve's side while the agents talked, so this game is stuck. Start it again in a minute; if it keeps happening, the club's ideas page hears about it."); save(); });
@@ -176,7 +178,7 @@ async function run(h, now = new Date()) {
         const o = { date, start, place, busy: D.busy(place, date, start, games), each: h.fill ? (P.find(h.fill)?.invite.each ?? 0) : D.guessEach(place, date, start, h.need) };
         o.best = h.fill ? o.each : D.bestEach(place, date, start, h.need);
         if (startMs(o) - now.getTime() < 3 * 3600e3 || h.excluded.some((x) => matches(x, o))) continue;
-        if (hostBusy.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3)) { hostRuled.busy = (hostRuled.busy || 0) + 1; continue; }
+        if (hostBusy.some((x) => Math.abs(x - startMs(o)) < CLASH)) { hostRuled.busy = (hostRuled.busy || 0) + 1; continue; }
         const hn = T.hardNo(taste[host], { date, start, km: taste[host].home ? +T.km(taste[host].home, place).toFixed(1) : null, each: o.best });
         if (hn) { hostRuled[hn] = (hostRuled[hn] || 0) + 1; continue; } // the host's own limits
         opts.push(o);
@@ -187,7 +189,7 @@ async function run(h, now = new Date()) {
   if (!opts.length && ruled) { h.status = "stuck"; line(h, "host", ruled === "busy" ? `Every time that fits clashes with a game you already have. Your games are under Your games on the home page.` : `Every option is outside your own limits (${{ place: "the courts are farther than your distance limit", price: "the courts cost more than your price limit", time: "no time in your windows", busy: "you already have a game at those times" }[ruled] || ruled}). ${ruled === "busy" ? "Your games are under Your games on the home page." : "Widen your limits, or ask a club nearer you."}`, { who: hostName }); return save(); }
   if (!opts.length) { h.status = "stuck"; line(h, "host", h.when && !h.pin ? "No court time fits the days and times you asked for, at least three hours from now." : h.pin ? `${when(h.pin)} doesn't work: it's too soon, or you already play then.` : "There's no time left that I haven't already tried this week.", { who: hostName }); return save(); }
   const game = (id, o) => ({ date: o.date, start: o.start, km: kmFor(id, o.place), each: o.each, busy: o.busy });
-  const hard = Object.fromEntries(everyone.map((id) => { const b = busyOf(id, h.id, fillAt); return [id, opts.map((o) => (b.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3) ? "busy" : T.hardNo(taste[id], { ...game(id, o), each: o.best ?? o.each })))]; }));
+  const hard = Object.fromEntries(everyone.map((id) => { const b = busyOf(id, h.id, fillAt); return [id, opts.map((o) => (b.some((x) => Math.abs(x - startMs(o)) < CLASH) ? "busy" : T.hardNo(taste[id], { ...game(id, o), each: o.best ?? o.each })))]; }));
   const U = Object.fromEntries(everyone.map((id) => [id, opts.map((o, k) => (hard[id][k] ? -1 : T.worth(taste[id], game(id, o))))]));
   // with a show-up gate, among those who said yes the reliable come first (someone new counts as middling)
   const pickScore = (id, k) => U[id][k] + (h.gate?.minShow ? 0.2 * (Tr.badge(id).show.rate ?? 0.6) : 0);
@@ -199,7 +201,8 @@ async function run(h, now = new Date()) {
   const short = ranked.slice(0, 30).map((x) => x.k), bonus = {}, tried = new Set();
   const bar = (id, r) => { const us = short.map((k) => U[id][k]).sort((a, b) => a - b); return us[Math.floor(us.length * (T.isSure(taste[id]) ? 0.55 : 0.4))] - 0.04 * r; };
   // a counter is an option not tried yet that the agent would say yes to: never one already turned down
-  const bestOf = (id) => short.filter((k) => !tried.has(k) && U[id][k] >= 0.45).reduce((b, k) => (b == null || U[id][k] > U[id][b] ? k : b), null);
+  const willSay = (id, k, r) => U[id][k] >= bar(id, r) && U[id][k] >= 0.45 && T.timeFit(taste[id], T.cellOf(opts[k].date, opts[k].start)) >= 0.4;
+  const bestOf = (id, r = 0) => short.filter((k) => !tried.has(k) && willSay(id, k, r + 1)).reduce((b, k) => (b == null || U[id][k] > U[id][b] ? k : b), null);
   let agreed = null, bestTry = null;
   for (let r = 0; r < ROUNDS && !agreed; r++) {
     const k = short.filter((x) => !tried.has(x)).sort((a, b) => (score(b) + (bonus[b] || 0)) - (score(a) + (bonus[a] || 0)))[0];
@@ -217,7 +220,7 @@ async function run(h, now = new Date()) {
         const why = { time: "the time", place: "the place", price: "the price", quiet: "a quiet court" }[top];
         line(h, id, `${nm} can do that (${why}).`, { who: nm, agent: true, yes: true, trust: trustOf(id) });
       } else {
-        const b = bestOf(id), why = hard[id][k] === "busy" ? "busy" : hard[id][k] || T.mainWhy(taste[id], game(id, o), game(id, opts[b ?? k]));
+        const b = bestOf(id, r), why = hard[id][k] === "busy" ? "busy" : hard[id][k] || T.mainWhy(taste[id], game(id, o), game(id, opts[b ?? k]));
         if (b != null) bonus[b] = (bonus[b] || 0) + 0.06;
         if (!isNear(h, id)) line(h, id, `Not that one for ${nm} (${{ busy: "the time", time: "the time", place: "the place", price: "the price", quiet: "too busy" }[why]}).${b != null && b !== k ? ` A counter: ${when(opts[b])} at ${opts[b].place.name}.` : ""}`, { who: nm, agent: true, yes: false, why, trust: trustOf(id) });
       }
@@ -227,7 +230,7 @@ async function run(h, now = new Date()) {
   }
   if (!agreed && bestTry && (bestTry.players.length >= 2 || direct.length)) {
     agreed = bestTry;
-    line(h, "host", h.fill ? `${agreed.players.length - 1} of the ${h.need - 1} open spots found people whose agents said yes; the other ${h.need - agreed.players.length} stay open in your game.` : agreed.players.length - 1 >= others.length ? `Everyone who could be asked said yes to ${when(opts[agreed.k])}, but that's ${agreed.players.length} of the ${h.need} players: the other ${h.need - agreed.players.length} spot${h.need - agreed.players.length > 1 ? "s" : ""} will be open to the club.` : `No time suits all ${h.need} this week. ${when(opts[agreed.k])} suits the most of you (${agreed.players.length}); the other ${h.need - agreed.players.length} spot${h.need - agreed.players.length > 1 ? "s" : ""} will be open to the club.`, { who: hostName });
+    line(h, "host", h.fill ? `${agreed.players.length - 1} of the ${h.need - 1} open spots found people whose agents said yes; the other ${h.need - agreed.players.length} stay open in your game.` : agreed.players.length - 1 >= others.length && !direct.length ? `Everyone who could be asked said yes to ${when(opts[agreed.k])}, but that's ${agreed.players.length} of the ${h.need} players: the other ${h.need - agreed.players.length} spot${h.need - agreed.players.length > 1 ? "s" : ""} will be open to the club.` : `No time suits all ${h.need} this week. ${when(opts[agreed.k])} suits the most of you (${agreed.players.length}); the other ${h.need - agreed.players.length} spot${h.need - agreed.players.length > 1 ? "s" : ""} will be open to the club.`, { who: hostName });
   }
   if (!agreed && direct.length && short.length) agreed = { k: short[0], players: [host] };
   // a time the host picked themself: the agents' guesses don't block it; the best-suited people are asked directly
@@ -283,12 +286,18 @@ async function run(h, now = new Date()) {
 export async function reply(me, id, yes, why = null, { now = new Date(), wait = false, byAgent = false } = {}) {
   const h = find(id);
   // someone who gave up their spot can take it back while the game still has room (and they aren't busy then)
-  if (h && yes && !h.players.includes(me) && h.invited.includes(me) && h.status === "asking" && h.pick && h.players.length < h.need && !busyOf(me, h.id).some((t) => Math.abs(t - startMs(h.pick)) < 3 * 3600e3)) {
+  if (h && yes && !h.players.includes(me) && h.invited.includes(me) && h.status === "asking" && h.pick && h.players.length < h.need && !busyOf(me, h.id).some((t) => Math.abs(t - startMs(h.pick)) < CLASH)) {
     h.players.push(me); h.out = h.out.filter((x) => x !== me); (h.askedOf ||= {})[me] = now.getTime();
     { const home = T.get(me).home; h.pick.km[me] = home && h.pick.at ? +T.km(home, h.pick.at).toFixed(1) : null; }
     line(h, me, `${first(me)} is back in.`, { who: first(me) });
   }
   if (!h || !h.players.includes(me)) return { error: "That game isn't one you're in.", code: 404 };
+  if (h.status === "on" && !h.post && !yes && h.players.includes(me) && me !== h.host) {
+    h.players = h.players.filter((x) => x !== me); delete h.answers[me];
+    line(h, me, `${first(me)} can't make it after all.`, { who: first(me) });
+    P.notify(h.host, "huddle", `${first(me)} can't make ${h.sport} ${when(h.pick)} after all.`, { huddle: h.id });
+    save(); return { huddle: view(h, me), line: "You're out of that game; the host was told." };
+  }
   if (h.status !== "asking") return { error: { talking: "The agents are still talking: answer once they agree.", on: "It's settled: the game is on.", stuck: "The agents couldn't settle this one.", cancelled: "It was called off." }[h.status] || "It's settled.", code: 409 };
   const o = h.pick, mine = { date: o.date, start: o.start, km: o.km[me] ?? 3, each: o.each, busy: o.busy };
   // the person's own answer teaches their agent; an answer their agent gave for them does not (it's the agent's guess)
@@ -320,7 +329,7 @@ async function drop(h, me, why, now = new Date(), wait = false) {
   if (why === "place") N.saw("too_far", h.id);
   if (why === "price") N.saw("too_dear", h.id);
   h.players = h.players.filter((x) => x !== me); delete h.answers[me];
-  const next = (h.alternates || []).find((x) => !h.players.includes(x) && !h.out.includes(x) && !busyOf(x, h.id).some((t) => Math.abs(t - startMs(o)) < 3 * 3600e3));
+  const next = (h.alternates || []).find((x) => !h.players.includes(x) && !h.out.includes(x) && !busyOf(x, h.id).some((t) => Math.abs(t - startMs(o)) < CLASH));
   if (next) {
     h.alternates = h.alternates.filter((x) => x !== next);
     h.players.push(next); h.promised = [...(h.promised || []), next]; (h.askedOf ||= {})[next] = now.getTime();
@@ -477,7 +486,7 @@ export function gamesFor(me, { now = new Date(), n = 3 } = {}) {
     if (t.home && at && k > Math.max(t.maxKm * 2, 8)) return null;
     // not when they already play within three hours of it
     const at0 = startMs({ date, start: g.invite.start });
-    if (mine.some((x) => Math.abs(x - at0) < 3 * 3600e3)) return null;
+    if (mine.some((x) => Math.abs(x - at0) < CLASH)) return null;
     return { post: g.id, agentMay: mayAgentSayYes(me, { post: g.id }), host: g.host, hostTrust: trustOf(g.hostId), gate: g.invite.gate || null, sport: g.invite.sport, date, start: g.invite.start, when: when(gm), where: g.invite.where, left: g.invite.spots - g.invite.going, km: at && t.home ? k : null, each: gm.each, score: +T.worth(t, { ...gm, each: gm.each ?? 0 }).toFixed(2), why: reasons(t, gm), club: g.room ? C.find(g.room)?.name || null : null };
   }).filter(Boolean).filter((g) => (t.sports.length ? t.sports : [...new Set(C.mine(me).map((c) => c.sport))]).includes(g.sport) || (!t.sports.length && !C.mine(me).length)).sort((a, b) => b.score - a.score).slice(0, n);
 }
@@ -504,7 +513,7 @@ export async function today(me, { now = new Date() } = {}) {
   await sweep(now); P.promoteDue(now.getTime());
   const t = T.get(me), cards = [];
   for (const h of data().huddles.filter((x) => x.status === "asking" && x.players.includes(me) && !x.answers[me])) cards.push({ kind: "huddle", huddle: view(h, me) });
-  const waitingFor = data().huddles.filter((h) => h.pick && h.players.includes(me) && ((h.status === "asking" && h.answers[me] === "yes" && !(h.fill && (h.host === me || fillOf(h)?.going.includes(me)))) || (h.status === "on" && !h.post))).map((h) => ({ post: `huddle:${h.id}`, huddle: h.id, sport: h.sport, day: h.pick.date, start: h.pick.start, where: h.pick.where, going: h.players.filter((x) => h.answers[x] === "yes").length, spots: h.players.length, mine: h.host === me, waiting: false, agreed: true, on: h.status === "on", host: first(h.host) }));
+  const waitingFor = data().huddles.filter((h) => h.pick && h.players.includes(me) && ((h.status === "asking" && h.answers[me] === "yes" && !(h.fill && (h.host === me || fillOf(h)?.going.includes(me)))) || (h.status === "on" && !h.post))).map((h) => ({ post: `huddle:${h.id}`, huddle: h.id, sport: h.sport, day: h.pick.date, start: h.pick.start, where: h.pick.where, going: h.players.filter((x) => h.answers[x] === "yes").length, spots: h.need, mine: h.host === me, waiting: false, agreed: true, on: h.status === "on", host: first(h.host) }));
   const games = [...waitingFor, ...P.gamesOf(me, now.getTime())];
   if (games.length) cards.push({ kind: "mine", games: games.map((g) => ({ ...g, when: when({ date: dateFor(g.day, now), start: g.start }), club: g.room ? C.find(g.room)?.name || null : null })) });
   for (const c of Tr.pending(me, now.getTime())) { const d = new Date(c.at); cards.push({ kind: "attend", attend: { key: c.key, when: when({ date: T.ymd(d), start: d.toTimeString().slice(0, 5) }), players: c.players.map((id) => ({ id, name: first(id) })) } }); }
@@ -554,7 +563,7 @@ export function answerGame(me, postId, yes, why = null, { now = new Date(), byAg
     if (sports.length && !sports.includes(v.sport)) return { error: `It's ${v.sport}, which isn't among the sports set for you (${sports.join(", ")}). Add it with POST /api/huddle/sports, or join it from the feed.`, code: 409 };
     const at = v.at || (open.room ? C.find(open.room)?.at : null), lim = T.hardNos(t, { date, start: v.start, km: t.home && at ? +T.km(t.home, at).toFixed(1) : null, each: v.each ?? 0 });
     if (lim.length) return { error: `It's outside the limits set for you (${lim.map((x) => T.NO[x] || x).join(", ")}).`, code: 409 };
-    if (P.busyAt(me).some((x) => Math.abs(x - at0) < 3 * 3600e3)) return { error: "It clashes with a game you're already in.", code: 409 };
+    if (P.busyAt(me).some((x) => Math.abs(x - at0) < CLASH)) return { error: "It clashes with a game you're already in.", code: 409 };
     return { error: "It has already started, or it is too far from your area.", code: 409 };
   }
   const r = byAgent ? { line: "", taste: T.view(T.get(me)) } : T.reply(me, { date: g.date, start: g.start, km: g.km ?? 3, each: g.each ?? 0, busy: 0.5 }, yes, why);

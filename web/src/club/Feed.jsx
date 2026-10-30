@@ -306,7 +306,7 @@ function PostCard({ p, club, member, joined, perWeek, onJoin, onChallenge, patch
             <button className={`fd-act like ${p.liked ? "on" : ""}`} aria-pressed={p.liked} aria-label={`Like, ${p.likes}`} onClick={like}><Icon name="heart" size={22} /><span>{p.likes || ""}</span></button>
             <button className="fd-act" aria-label={`Comment, ${p.comments.length}`} onClick={() => input.current?.focus()}><Icon name="chat" size={22} /><span>{p.comments.length || ""}</span></button>
             {canShare ? <button className="fd-act" aria-label="Share outside the club" onClick={onShare}><Icon name="share" size={22} /></button>
-              : <span className="fd-act-note tiny muted">Members' posts stay in the club</span>}
+              : <span className="fd-act-note tiny muted">{p.room ? "Stays in this club" : "Stays on Serve"}</span>}
           </div>
           <Comments p={p} input={input} patch={patch} say={say} onReport={onReport} />
         </>

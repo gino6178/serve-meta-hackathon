@@ -110,8 +110,10 @@ const WHEN = {
 };
 // a price named in their words: "under NT$200", "200元以下", "below 200 each"
 const eachFromText = (t) => { const m = String(t).match(/(?:under|below|less than|max|up to|<)\s*(?:NT\$|\$)?\s*(\d{2,4})|(\d{2,4})\s*(?:元|塊)?\s*(?:以下|以內)/i); return m ? +(m[1] || m[2]) : null; };
+// a clock time in their words ("9am", "9:00", "21:00") says the part of the day too
+const partOfClock = (t) => { const m = String(t).match(/\b(\d{1,2})(?::\d{2})?\s*(am|pm)?\b/i); if (!m || (!m[2] && !/:/.test(m[0]))) return null; let h = +m[1]; if (/pm/i.test(m[2] || "") && h < 12) h += 12; return h > 23 ? null : h < 9 ? ["early"] : h < 12 ? ["morning"] : h < 17 ? ["afternoon"] : ["evening"]; };
 function whenFromText(t) {
-  const part = /morning|早上/i.test(t) ? ["early", "morning"] : /afternoon|下午/i.test(t) ? ["afternoon"] : /evening|tonight|night|晚上/i.test(t) ? ["evening"] : null;
+  const part = /morning|早上/i.test(t) ? ["early", "morning"] : /afternoon|下午/i.test(t) ? ["afternoon"] : /evening|tonight|night|晚上/i.test(t) ? ["evening"] : partOfClock(t);
   const d = DAYNAMES.findIndex((n) => new RegExp(`\\b${n}`, "i").test(t));
   if (d >= 0) for (let i = 0; i < 7; i++) { const ymd = ymdIn(i); if (new Date(ymd + "T12:00").getDay() === d) { WHEN.said = { label: `${DAYNAMES[d]} ${ymd.slice(8)}${part ? `, ${part.at(-1)}` : ""} (as you said)`, v: { days: [ymd], ...(part ? { parts: part } : {}) } }; return "said"; } }
   if (/today|tonight|今天/i.test(t)) { WHEN.said = { label: `Today${part ? `, ${part.at(-1)}` : ""} (as you said)`, v: { days: [ymdIn(0)], ...(part ? { parts: part } : {}) } }; return "said"; }

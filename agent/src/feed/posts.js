@@ -234,7 +234,7 @@ export function join(player, postId, on = true) {
       return { post: view(p, player), waitlisted: true, why: c.why };
     }
   }
-  if (!on && was) onLeft(player, p.id);
+  if (!on && was) { onLeft(player, p.id); S.change((d) => { d.notices = (d.notices || []).filter((x) => !(x.player === player && x.post === p.id)); }); } // (its "Game on" is stale now)
   // a late drop: leaving in the last six hours after being in for more than half an hour (a quick mistake is not one)
   const late = !on && deps.now() - ((v.joinedAt || {})[player] || 0) > 30 * 60e3 && Tr.left(player, startOf(v));
   S.change(() => {
@@ -473,7 +473,7 @@ export const onFill = (f) => { fillInfo = f; };
 export function view(p, viewer) {
   const mine = p.by.player === viewer || p.by.agentOf === viewer;
   return {
-    id: p.id, kind: p.kind, at: p.at, by: whoView(p.by, viewer, p.simulated), text: p.kind === "recap" && p.crew ? lineFor({ players: p.crew, game: p.game }, viewer) : p.text, mine, ...(p.crew ? { crew: p.crew.length } : {}),
+    id: p.id, kind: p.kind, at: p.at, room: p.room || null, by: whoView(p.by, viewer, p.simulated), text: p.kind === "recap" && p.crew ? lineFor({ players: p.crew, game: p.game }, viewer) : p.text, mine, ...(p.crew ? { crew: p.crew.length } : {}),
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),

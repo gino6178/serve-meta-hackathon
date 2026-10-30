@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { memory } from "../memory.js";
 import ServerMemory from "../components/ServerMemory.jsx";
+const memberSignedIn = () => { try { return !!localStorage.getItem("serve.session"); } catch { return false; } };
 
 const KINDS = [["note", "Note"], ["goal", "Goal"], ["body", "Body / injury"], ["routine", "Routine"], ["preference", "Preference"]];
 // how the list is grouped: the things that change your plans most come first
@@ -35,7 +36,8 @@ export default function Memory() {
         </div>
       </header>
 
-      <ServerMemory />
+      {/* a member's agent plans games from How you play (times, limits, taste), not these notes (the club's own planner reads them) */}
+      {memberSignedIn() ? <section className="panel"><h2 className="panel-h">What your agent goes by</h2><p>Your agent arranges games from your times, limits and answers in <a href="#/huddle?tab=taste">Games › How you play</a>. To keep a night free, take it out of your times there.</p></section> : <ServerMemory />}
 
       <h2 className="sec-label sm-device-h">On this device</h2>
       <div className="mem-grid">
