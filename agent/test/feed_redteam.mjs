@@ -17,7 +17,7 @@ export async function feedCases() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-feed-rt-"));
   // the feed's files, and the flags' (a run here sets feed.papers.perWeek), all in a folder of its own
   const keep = Object.fromEntries(["LOOP_FLAGS_FILE", "LOOP_HISTORY_FILE", "LOOP_NOTES_FILE", "FFMPEG"].map((k) => [k, process.env[k]]));
-  Object.assign(process.env, { FEED_FILE: `${tmp}/feed.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_CACHE_FILE: `${tmp}/cache.json`, FEED_POLITE: "0", FEED_DEMO: "off",
+  Object.assign(process.env, { FEED_FILE: `${tmp}/feed.json`, TRUST_FILE: `${tmp}/trust.json`, NEEDS_FILE: `${tmp}/needs.json`, TASTE_FILE: `${tmp}/taste.json`, HUDDLE_FILE: `${tmp}/huddles.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_CACHE_FILE: `${tmp}/cache.json`, FEED_POLITE: "0", FEED_DEMO: "off",
     LOOP_FLAGS_FILE: `${tmp}/flags.json`, LOOP_HISTORY_FILE: `${tmp}/history.json`, LOOP_NOTES_FILE: `${tmp}/notes.json` });
   const { use } = await import("../src/feed/deps.js");
   const S = await import("../src/feed/store.js");

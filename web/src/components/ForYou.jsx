@@ -4,6 +4,8 @@ import TrustBadge from "./TrustBadge.jsx";
 import * as H from "../huddle.js";
 import { cap, pct, WHY } from "../huddle.js";
 import "../pages/huddle.css";
+import { agentFetch } from "../agent.js";
+const feedJoin = (post, on) => agentFetch("/api/feed/join", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ post, on }) }).then((r) => r.json());
 
 // The member's own agent, working without being asked (agent src/members/huddle.js today): a game the agents agreed
 // that waits for their yes, the question it still needs, games near them that fit how they play, a quiet hour a venue
@@ -36,12 +38,18 @@ export default function ForYou() {
               <a className="link" href={`#/huddle?id=${h.id}`}>See the talk</a></div>
             {said[i] && <p className="tq-said">{said[i]}</p>}
           </div>); }
+        if (c.kind === "mine") return (
+          <div key={i} className="fy-card"><span className="fy-kick">Your games</span>
+            <ul className="fy-mine">{c.games.map((g) => <li key={g.post}><b>{cap(g.sport)} {g.when}</b><span>{g.where}{g.club ? ` · ${g.club}` : ""} · {g.waiting ? "you're on the waitlist" : g.mine ? `${g.going} of ${g.spots} joined` : `with ${g.host}, ${g.going} of ${g.spots} in`}</span>
+              {!g.mine && <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, false); return { line: g.waiting ? "Off the waitlist." : "You've left that game." }; })}>{g.waiting ? "Leave the waitlist" : "Can't make it"}</button>}</li>)}</ul>
+            {Object.entries(said).filter(([k]) => k.startsWith("m")).map(([k, v]) => <p key={k} className="tq-said">{v}</p>)}
+          </div>);
         if (c.kind === "attend") return <Attend key={c.attend.key} a={c.attend} onDone={load} />;
         if (c.kind === "question") return (
           <div key={i} className="fy-card"><span className="fy-kick">Help your agent answer for you</span><TasteQuestion q={c.question} onAnswered={() => setTimeout(load, 900)} /></div>);
         if (c.kind === "game") { const g = c.game; return (
           <div key={i} className="fy-card"><span className="fy-kick">A game near you{g.club ? ` · ${g.club}` : ""}</span>
-            <p><b>{cap(g.sport)} {g.when}</b> at {g.where}, with {g.host}. {g.left} spot{g.left > 1 ? "s" : ""} left.</p>
+            <p><b>{cap(g.sport)} {g.when}</b> at {g.where}, with {g.host}. {g.left} spot{g.left > 1 ? "s" : ""} left{g.each > 0 ? `, NT$${g.each} each` : ""}.</p>
             <div className="fy-why">{g.why.map((w) => <span key={w}>{w}</span>)}</div>
             <div className="fy-host"><span>{g.host}:</span><TrustBadge t={g.hostTrust} compact />{g.gate?.minShow ? <em>Gate: shows up {Math.round(g.gate.minShow * 100)}%+</em> : null}</div>
             <div className="cta-row"><button className="btn primary sm" disabled={busy} onClick={() => act(i, () => H.game(g.post, true))}>Join</button>

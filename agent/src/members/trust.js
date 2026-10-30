@@ -22,6 +22,7 @@
 // keeps too few promises, or is marked a prober, cannot say yes for its person, so the person is asked themself. No
 // money is ever involved: no deposits, no fees.
 //   data/trust.json (TRUST_FILE): { chain: [...entries], heads: [...signed heads], checks: {...games waiting for votes} }
+import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
@@ -41,7 +42,19 @@ const save = () => writeJSON(FILE(), data());
 const HOUR = 3600e3, DAY = 24 * HOUR;
 export const NEW_UNDER = 3, LATE_HOURS = 6, PROBE_ASKS = 30, AGENT_MIN = 0.8;
 export const GENESIS = "0".repeat(64);
-export const subject = (id) => crypto.createHash("sha256").update(`serve-trust:${id}`).digest("hex").slice(0, 16);
+// a subject is an HMAC of the member's id under this server's own secret (data/trust.secret, made once, mode 600, never
+// committed): a member's id can be seen in the app, so a plain hash of it could be worked back to them; this cannot
+const SECRET_FILE = () => path.resolve(process.env.TRUST_SECRET_FILE || path.join(path.dirname(FILE()), "trust.secret"));
+let secret = null, secretFrom = null;
+function key() {
+  if (secret && secretFrom === SECRET_FILE()) return secret;
+  const f = SECRET_FILE();
+  try { secret = fs.readFileSync(f, "utf8").trim(); } catch { secret = null; }
+  if (!secret) { secret = crypto.randomBytes(32).toString("hex"); fs.mkdirSync(path.dirname(f), { recursive: true }); try { fs.writeFileSync(f, secret, { mode: 0o600, flag: "wx" }); } catch { secret = fs.readFileSync(f, "utf8").trim(); } }
+  secretFrom = f;
+  return secret;
+}
+export const subject = (id) => crypto.createHmac("sha256", key()).update(`serve-trust:${id}`).digest("hex").slice(0, 16);
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 export const hashOf = (e) => sha(JSON.stringify([e.n, e.at, e.kind, e.who, e.d, e.prev]));
 // the gateway's signature on a head; tests pass their own signer
@@ -96,24 +109,31 @@ export function verify(chain = data().chain, heads = data().heads) {
 function replay(now = Date.now()) {
   if (state && state.at > now - 60e3) return state;
   const people = {}, agents = {}, gone = new Set();
-  const P = (w) => (people[w] ||= { games: 0, came: 0, missed: 0, late: 0, level: { ok: 0, off: 0 } }), A = (w) => (agents[w] ||= { said: 0, kept: 0, asks: [], probe: 0, sig: [] });
+  const P = (w) => (people[w] ||= { games: 0, came: 0, missed: 0, late: 0, level: { ok: 0, off: 0 } }), A = (w) => (agents[w] ||= { said: 0, kept: 0, asks: [], probe: 0, sig: [], hosts: new Set() });
+  const pair = new Map(); // a promise counts once a week per host and member: two accounts of one person can't pump it
   for (const e of data().chain) {
     const w = e.who, d = e.d || {};
     if (e.kind === "left") { gone.add(w); delete people[w]; delete agents[w]; continue; }
     if (gone.has(w)) continue;
-    if (e.kind === "promise") { const a = A(w); a.said++; if (d.kept) a.kept++; }
+    if (e.kind === "promise") {
+      const k = `${d.host || "?"}>${w}`;
+      if (d.host && pair.has(k) && e.at - pair.get(k) < 7 * DAY) continue;
+      pair.set(k, e.at);
+      const a = A(w); a.said++; if (d.kept) a.kept++; if (d.host) a.hosts.add(d.host);
+    }
     if (e.kind === "asked") { const a = A(w); a.asks = [...a.asks.filter((x) => e.at - x.at < DAY), { at: e.at, n: d.n }]; if (a.asks.reduce((s, x) => s + x.n, 0) > PROBE_ASKS) a.probe = e.at; }
     if (e.kind === "sig") A(w).sig.push({ at: e.at, why: d.why });
     if (e.kind === "late") { const p = P(w); p.late++; p.games++; }
     if (e.kind === "game") { const p = P(w); p.games++; if (d.came) p.came++; else p.missed++; for (const l of d.level || []) p.level[l]++; }
-    if (e.kind === "seed" || e.kind === "carried") { if (d.person) Object.assign(P(w), d.person); if (d.agent) Object.assign(A(w), d.agent); }
+    if (e.kind === "seed" || e.kind === "carried") { if (d.person) Object.assign(P(w), d.person); if (d.agent) { Object.assign(A(w), d.agent); A(w).hosts.add("seed-a").add("seed-b"); } }
   }
   return (state = { at: now, people, agents });
 }
 
 // ---- the agent's record ----
-// a promise: the agent said yes for its person, and the person was asked; kept is their answer
-export function promise(id, kept) { add("promise", id, { kept: !!kept }); }
+// a promise: the agent said (or, for a person asked directly, would have said) yes for its person, and the person was
+// asked; kept is their answer; host is whose game it was (a promise counts once a week per host)
+export function promise(id, kept, host = null) { add("promise", id, { kept: !!kept, ...(host ? { host: subject(host) } : {}) }); }
 // the agent asked `n` people's agents at once (a huddle); too many in a day marks it a prober for a week
 export function asked(id, n, now = Date.now()) { if (n > 0) add("asked", id, { n }, now); }
 // a request with the agent's key that failed the check (replayed, changed, expired)
@@ -134,6 +154,8 @@ export function expect(key, players, startMs) {
   else data().checks[key] = { at: startMs, players: [...players], votes: {}, settled: false };
   save();
 }
+// someone who left a game before it started is off its after-game check
+export function unexpect(key, id) { const c = data().checks[key]; if (c && !c.settled) { c.players = c.players.filter((x) => x !== id); delete c.votes[id]; save(); } }
 // one player's answers: { <player>: "came" | "missed" }, and optionally whether each played at the level they said
 export function vote(me, key, came = {}, level = {}, now = Date.now()) {
   const c = data().checks[key];
@@ -170,7 +192,7 @@ export function badge(id, now = Date.now()) {
   const show = rate(p.came, p.games), kept = rate(a.kept, a.said);
   return {
     show: { rate: show == null ? null : +show.toFixed(2), games: p.games, late: p.late, new: p.games < NEW_UNDER, levelOk: p.level.ok + p.level.off ? +(p.level.ok / (p.level.ok + p.level.off)).toFixed(2) : null },
-    agent: { rate: kept == null ? null : +kept.toFixed(2), said: a.said, new: a.said < NEW_UNDER, probe: !!a.probe && now - a.probe < 7 * DAY, badSig: a.sig.filter((x) => now - x.at < 30 * DAY).length },
+    agent: { rate: kept == null ? null : +kept.toFixed(2), said: a.said, new: a.said < NEW_UNDER || (a.hosts?.size ?? 0) < 2, probe: !!a.probe && now - a.probe < 7 * DAY, badSig: a.sig.filter((x) => now - x.at < 30 * DAY).length },
   };
 }
 // a member's own entries on the chain, for them to check
@@ -184,7 +206,8 @@ export const agentText = (b) => (b.agent.probe ? "asks too many agents" : b.agen
 //   ok        their agent may answer for them
 //   confirm   they can play, but their agent can't say yes for them: they are asked themself
 //   waitlist  under the game's show-up rate (new people are let in unless the gate says otherwise)
-export function gateOf(g = {}) { const minShow = [0, 0.75, 0.9].includes(+g.minShow) ? +g.minShow : 0; return { minShow, agentMin: g.agentMin === 0 ? 0 : AGENT_MIN, newOk: g.newOk !== false }; }
+// a 90% gate wants people with a record (new people wait); at 75% new people are let in
+export function gateOf(g = {}) { const minShow = [0, 0.75, 0.9].includes(+g.minShow) ? +g.minShow : 0; return { minShow, agentMin: g.agentMin === 0 ? 0 : AGENT_MIN, newOk: g.newOk == null ? minShow < 0.9 : g.newOk !== false }; }
 export function check(id, gate = {}, now = Date.now()) {
   const g = gateOf(gate), b = badge(id, now);
   if (g.minShow && (b.show.new ? !g.newOk : b.show.rate < g.minShow)) return { verdict: "waitlist", badge: b, why: b.show.new ? "new, and this game wants people with a record" : `${showText(b)}; this game needs ${Math.round(g.minShow * 100)}%` };

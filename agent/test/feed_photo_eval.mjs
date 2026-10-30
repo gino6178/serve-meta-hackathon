@@ -8,7 +8,7 @@ import os from "node:os";
 import path from "node:path";
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-feed-photos-"));
-Object.assign(process.env, { FEED_FILE: `${tmp}/feed.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_DEMO: "off", LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, LOOP_DIR: `${tmp}/loop`, STORE_FILE: `${tmp}/players.json`, LOOP_WATCH: "off" });
+Object.assign(process.env, { FEED_FILE: `${tmp}/feed.json`, TRUST_FILE: `${tmp}/trust.json`, NEEDS_FILE: `${tmp}/needs.json`, TASTE_FILE: `${tmp}/taste.json`, HUDDLE_FILE: `${tmp}/huddles.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_DEMO: "off", LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, LOOP_DIR: `${tmp}/loop`, STORE_FILE: `${tmp}/players.json`, LOOP_WATCH: "off" });
 const S = await import("../src/feed/store.js");
 const P = await import("../src/feed/posts.js");
 const guard = await import("../src/safety/guard.js");

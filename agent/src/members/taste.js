@@ -66,7 +66,7 @@ export function weights(t) {
 // study: weekday evenings and weekend mornings, not weekday mornings and afternoons
 const PRIOR = { "weekday early": 0, "weekday morning": -0.8, "weekday afternoon": -0.7, "weekday evening": 0.4, "weekend early": -0.2, "weekend morning": 0.4, "weekend afternoon": 0.2, "weekend evening": 0 };
 export function timeFit(t, cell) {
-  const g = groupOf(cell), v = (t.cells[cell] || 0) + 0.5 * (t.cells[g] || 0) + PRIOR[g];
+  const g = groupOf(cell), v = (t.cells[cell] || 0) + 0.5 * (t.cells[g] || 0) + 0.35 * (t.cells[`any ${cell.split(" ")[1]}`] || 0) + PRIOR[g];
   return 0.5 + 0.5 * Math.tanh(v);
 }
 // a game: { date, start, km, each (price per person, 0 for a public court), busy (0..1, how full the place usually is) }
@@ -82,7 +82,23 @@ export function mainWhy(t, o, best) {
 
 // ---- learning ----
 const say = (t, text) => { t.learned = [...t.learned, { at: Date.now(), text }].slice(-30); return text; };
-const nudgeCell = (t, cell, d) => { t.cells[cell] = clamp((t.cells[cell] || 0) + d, -2, 2); const g = groupOf(cell); t.cells[g] = clamp((t.cells[g] || 0) + d / 2, -2, 2); };
+const nudgeCell = (t, cell, d) => {
+  t.cells[cell] = clamp((t.cells[cell] || 0) + d, -2, 2);
+  const g = groupOf(cell), a = `any ${cell.split(" ")[1]}`;
+  t.cells[g] = clamp((t.cells[g] || 0) + d / 2, -2, 2);
+  t.cells[a] = clamp((t.cells[a] || 0) + d / 2.5, -2, 2);
+};
+// the games a member said no to, and the times they said they were busy: their agent never says yes to those again
+const remember = (t, list, o) => { t[list] = [...(t[list] || []).filter((x) => x.date >= ymd(new Date())), { date: o.date, start: o.start }].slice(-30); };
+const near = (a, b) => a.date === b.date && Math.abs(+a.start.slice(0, 2) + +a.start.slice(3) / 60 - (+b.start.slice(0, 2) + +b.start.slice(3) / 60)) < 2;
+// a hard no, whatever the weights say: busy then, already turned down, far over the price or the distance they gave
+export function hardNo(t, o) {
+  if ((t.busyAt || []).some((x) => near(x, o))) return "busy";
+  if ((t.declined || []).some((x) => x.date === o.date && x.start === o.start)) return "time";
+  if (o.each > 0 && o.each > t.priceCap * 1.15 && (t.raw.price || 0) > 0.2) return "price";
+  if (o.km != null && o.km > t.maxKm * 1.6) return "place";
+  return null;
+}
 // a pick between two games: a logistic step on the weights (the chosen game should be worth more), then the time and
 // the distance and price of what they picked
 export function choose(id, q, pick) {
@@ -118,12 +134,13 @@ export function reply(id, o, yes, why = null) {
     if (o.km > t.maxKm * 0.8) t.maxKm = clamp(t.maxKm * 1.1, 1, 25);
     line = `You said yes to ${cellWord(cell)}: I'll count ${cellWords(cell)} a bit more.`;
   } else if (why === "busy") {
-    nudgeCell(t, cell, -0.15);
+    nudgeCell(t, cell, -0.15); remember(t, "busyAt", o);
     line = `You were busy that ${cellWord(cell)}. One busy day doesn't mean you dislike it, so I only moved it a little.`;
   } else if (FACTORS.includes(why)) {
     t.raw[why] = clamp(t.raw[why] + 0.45, -3, 3);
+    remember(t, "declined", o);
     if (why === "time") { nudgeCell(t, cell, -0.6); line = `Not ${cellWords(cell)}, then. I'll weigh the time more and that slot less.`; }
-    if (why === "place") { t.maxKm = clamp(Math.min(t.maxKm, (o.km || t.maxKm) * 0.85), 1, 25); line = `Too far: I'll keep games within about ${t.maxKm.toFixed(0)} km of you.`; }
+    if (why === "place") { t.maxKm = clamp(Math.min(t.maxKm, Math.max((o.km || t.maxKm) * 0.9, t.maxKm * 0.7)), 1, 25); line = `Too far: I'll keep games within about ${t.maxKm.toFixed(0)} km of you.`; }
     if (why === "price") { if (o.each > 0) t.priceCap = clamp(Math.min(t.priceCap, o.each * 0.9), 60, 1200); line = `Too dear: I'll aim under ${Math.round(t.priceCap)} each and push venues harder on price.`; }
     if (why === "quiet") line = "Too crowded: I'll look for quieter hours.";
   } else { nudgeCell(t, cell, -0.25); line = `Not that one. I'll count ${cellWords(cell)} a bit less.`; }
@@ -136,7 +153,9 @@ export function reply(id, o, yes, why = null) {
 // the next question, when the agent still needs one: two games that pull two factors apart, built around the member's
 // own area and sport (named places when the caller passes courts near them). Before SURE_AT answers it asks every
 // time; after that, now and then, on the pair of factors it is least sure about.
-const PAIRS = [["time", "place"], ["price", "time"], ["quiet", "place"], ["time", "time"], ["price", "place"], ["quiet", "time"]];
+const PAIRS = [["time", "place"], ["price", "time"], ["quiet", "place"], ["time", "time"], ["price", "place"], ["quiet", "time"], ["time", "time"]];
+// the times asked about against each other, a different pair each time: weekday evenings, weekend mornings and evenings, early starts
+const TIME_PAIRS = [["Thu evening", "Sat morning"], ["Sat evening", "Wed early"], ["Sun morning", "Tue evening"], ["Fri evening", "Sun afternoon"], ["Mon early", "Sat afternoon"]];
 const STARTS = { early: "07:00", morning: "09:00", afternoon: "14:00", evening: "19:30" };
 const nextDate = (now, day) => { const d = new Date(now); d.setHours(0, 0, 0, 0); do d.setDate(d.getDate() + 1); while (d.getDay() !== day); return ymd(d); };
 const kmText = (k) => (k < 1 ? `${Math.round(k * 10) * 100} m` : `${k.toFixed(k < 10 ? 1 : 0)} km`);
@@ -147,10 +166,11 @@ export function question(id, { places = [], now = new Date(), force = false } = 
   const t = get(id), n = t.answers.filter((a) => a.kind === "pair").length;
   if (!force && n >= SURE_AT && n % 3 !== 0) return null;
   const done = new Set(t.answers.filter((a) => a.kind === "pair").map((a) => (a.axes || []).join("+")));
-  let axes = PAIRS.find((p) => !done.has(p.join("+")));
+  const asked = t.answers.filter((x) => x.kind === "pair").map((x) => (x.axes || []).join("+"));
+  let axes = PAIRS.find((p, i) => asked.filter((x) => x === p.join("+")).length < PAIRS.slice(0, i + 1).filter((q) => q.join("+") === p.join("+")).length);
   if (!axes) { const w = weights(t), fs = [...FACTORS].sort((a, b) => w[b] - w[a]); axes = [fs[0], fs[1]]; }
   // the member's best-liked time so far, and a contrasting one
-  const liked = Object.entries(t.cells).filter(([k]) => /^\w{3} /.test(k)).sort((a, b) => b[1] - a[1])[0]?.[0] || "Thu evening";
+  const liked = Object.entries(t.cells).filter(([k]) => /^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) /.test(k)).sort((a, b) => b[1] - a[1])[0]?.[0] || "Thu evening";
   const [ld, lp] = liked.split(" "), other = lp === "evening" ? "Sat morning" : "Wed evening";
   const [od, op] = other.split(" ");
   const pub = places.filter((p) => p.kind === "public"), ven = places.filter((p) => p.kind === "venue");
@@ -161,9 +181,9 @@ export function question(id, { places = [], now = new Date(), force = false } = 
   if (x === "time" && y === "place") { a = g(liked, Math.max(t.maxKm * 1.1, 4), 90, 0.5, ven); b = g(other, 0.8, 90, 0.5, ven); }
   else if (x === "price" && y === "time") { a = g(other, 2, 40, 0.5, ven); b = g(liked, 2, 160, 0.5, ven); }
   else if (x === "quiet" && y === "place") { a = g(liked, Math.max(t.maxKm, 4), 0, 0.2, pub); b = g(liked, 0.8, 0, 0.85, pub); }
-  else if (x === "time" && y === "time") { a = g("Thu evening", 2, 90, 0.5, ven); b = g("Sat morning", 2, 90, 0.5, ven); }
+  else if (x === "time" && y === "time") { const v = TIME_PAIRS[(t.asked || 0) % TIME_PAIRS.length]; a = g(v[0], 2, 90, 0.5, ven); b = g(v[1], 2, 90, 0.5, ven); }
   else if (x === "price" && y === "place") { a = g(liked, 5, 40, 0.5, ven); b = g(liked, 1, 150, 0.5, ven); }
-  else if (x === "quiet" && y === "time") { a = g(other, 2, 0, 0.2, pub); b = g(liked, 2, 0, 0.85, pub); }
+  else if (x === "quiet" && y === "time") { a = g("Tue early", 2, 0, 0.2, pub); b = g(liked, 2, 0, 0.85, pub); }
   else { a = g(liked, 1, 90, 0.5, ven); b = g(other, 1, 90, 0.5, ven); }
   if (a.date === b.date && a.start === b.start && x !== "time") b.start = a.start === "19:30" ? "18:00" : a.start;
   const qid = `q${t.asked || 0}-${axes.join("")}`;
@@ -173,8 +193,8 @@ export function question(id, { places = [], now = new Date(), force = false } = 
 // ---- what the member sees ----
 export function summary(t) {
   const w = weights(t), order = [...FACTORS].sort((a, b) => w[b] - w[a]), n = t.answers.length;
-  const likes = Object.entries(t.cells).filter(([k, v]) => /^\w{3} /.test(k) && v > 0.3).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => cellWords(k));
-  const avoid = Object.entries(t.cells).filter(([k, v]) => /^\w{3} /.test(k) && v < -0.3).sort((a, b) => a[1] - b[1]).slice(0, 2).map(([k]) => cellWords(k));
+  const likes = Object.entries(t.cells).filter(([k, v]) => /^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) /.test(k) && v > 0.3).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => cellWords(k));
+  const avoid = Object.entries(t.cells).filter(([k, v]) => /^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) /.test(k) && v < -0.3).sort((a, b) => a[1] - b[1]).slice(0, 2).map(([k]) => cellWords(k));
   if (!n) return "I don't know how you like to play yet. Answer a few quick questions and I'll negotiate for you the way you would.";
   const even = w[order[0]] - w[order[3]] < 0.08;
   return [even ? "So far you weigh time, distance, price and a quiet court about the same." : `${SAY[order[0]][0].toUpperCase() + SAY[order[0]].slice(1)} matters most to you, then ${SAY[order[1]]}.`,

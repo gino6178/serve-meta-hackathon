@@ -158,7 +158,7 @@ async function huddle(req, res, p, q, me, send) {
   if (p === "/api/huddle/question" && get) { const t = T.get(me); const places = t.home ? (await D.placesNear(t.home, t.sports[0] || "badminton", { wait: false })).map((x) => ({ ...x, km: +T.km(t.home, x).toFixed(1) })) : []; return send(200, { question: T.question(me, { places, force: true }) }); }
   if (p === "/api/huddle/answer" && post) { if (!["a", "b", "either"].includes(b.pick)) return send(400, { error: "pick is a, b or either" }); return out(T.choose(me, b.q, b.pick)); }
   if (p === "/api/huddle/start" && post) return out(H.start(me, b));
-  if (p === "/api/huddle/one" && get) { const h = H.find(String(q.get("id") || "")); return h && (h.host === me || h.invited.includes(me)) ? send(200, { huddle: H.view(h, me) }) : send(404, { error: "No such game." }); }
+  if (p === "/api/huddle/one" && get) { await H.sweep(); const h = H.find(String(q.get("id") || "")); return h && (h.host === me || h.invited.includes(me)) ? send(200, { huddle: H.view(h, me) }) : send(404, { error: "No such game." }); }
   if (p === "/api/huddle/reply" && post) return out(await H.reply(me, String(b.id || ""), b.yes === true, b.why ? String(b.why) : null));
   if (p === "/api/huddle/cancel" && post) return out(H.cancel(me, String(b.id || "")));
   if (p === "/api/huddle/game" && post) return out(H.answerGame(me, String(b.post || ""), b.yes === true, b.why ? String(b.why) : null));
@@ -177,7 +177,8 @@ async function huddle(req, res, p, q, me, send) {
     if (!t.home) return send(400, { error: "Share your rough area first." });
     const x = (await D.placesNear(t.home, sport, { venues: 4, courts: 4 })).find((y) => y.id === b.place);
     if (!x || x.kind !== "venue") return send(404, { error: "That venue isn't near you." });
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || !/^\d{2}:\d{2}$/.test(b.start)) return send(400, { error: "Say the date and the time." });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(b.start)) return send(400, { error: "Say the date and the time (HH:MM)." });
+    { const [y, mo, d] = b.date.split("-").map(Number), [hh, mm] = b.start.split(":").map(Number), t = new Date(y, mo - 1, d, hh, mm).getTime(); if (!(t > Date.now() && t < Date.now() + 30 * 864e5)) return send(400, { error: "Pick a time in the next 30 days." }); if (hh < 6 || hh * 60 + mm + 90 > 22 * 60) return send(400, { error: "Venues here open 06:00 to 22:00; pick a 90-minute game inside that." }); }
     return send(200, { deal: D.talk(x, { date: b.date, start: b.start, players: Math.min(12, Math.max(2, +b.players || 4)), weekly: !!b.weekly, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }), currency: D.CURRENCY });
   }
   return send(404, { error: "no such route" });

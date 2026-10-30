@@ -10,7 +10,7 @@ import os from "node:os";
 import path from "node:path";
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-feed-"));
-Object.assign(process.env, { FEED_FILE: `${tmp}/feed.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_CACHE_FILE: `${tmp}/cache.json`, FEED_POLITE: "0", FEED_DEMO: "off",
+Object.assign(process.env, { FEED_FILE: `${tmp}/feed.json`, TRUST_FILE: `${tmp}/trust.json`, NEEDS_FILE: `${tmp}/needs.json`, TASTE_FILE: `${tmp}/taste.json`, HUDDLE_FILE: `${tmp}/huddles.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_CACHE_FILE: `${tmp}/cache.json`, FEED_POLITE: "0", FEED_DEMO: "off",
   LOOP_DIR: `${tmp}/loop`, STORE_FILE: `${tmp}/players.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, GUARD: "off", LLM_URL: "http://127.0.0.1:9/v1", MEMORY_EMBED: "bm25", LOOP_WATCH: "off" });
 const { deps, use } = await import("../src/feed/deps.js");
 const S = await import("../src/feed/store.js");

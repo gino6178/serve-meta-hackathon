@@ -47,8 +47,9 @@ test("the gate: low show-up waits, an agent that breaks its yeses can't answer, 
   Tr.seed("dan", { agent: { said: 25, kept: 13 } });
   const gate = { minShow: 0.9 };
   assert.equal(Tr.check("bob", gate).verdict, "waitlist");
-  assert.equal(Tr.check("dan", gate).verdict, "confirm");
-  assert.equal(Tr.check("newcomer", gate).verdict, "ok");
+  assert.equal(Tr.check("dan", { minShow: 0.75 }).verdict, "confirm");
+  assert.equal(Tr.check("newcomer", gate).verdict, "waitlist"); // a 90% gate wants a record
+  assert.equal(Tr.check("newcomer", { minShow: 0.75 }).verdict, "ok"); // at 75% new people get in
   assert.equal(Tr.check("bob", {}).verdict, "ok"); // no show-up gate: anyone plays
 });
 test("after a game, most of the others decide who came; leaving late counts", () => {

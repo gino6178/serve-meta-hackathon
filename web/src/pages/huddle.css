@@ -165,3 +165,8 @@
 .hd-chain p { margin: 0; font-size: 14px; }
 .hd-ok { color: var(--good); font-weight: 700; } .hd-bad { color: var(--bad); font-weight: 700; }
 .hd-chain code { font-size: 12px; color: var(--ink-3); }
+
+.fy-mine { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.fy-mine li { display: grid; gap: 2px; font-size: 14px; }
+.fy-mine span { color: var(--ink-2); font-size: 13px; }
+.fy-mine .link { justify-self: start; font-size: 13px; }

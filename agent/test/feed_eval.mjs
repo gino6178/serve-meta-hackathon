@@ -8,7 +8,7 @@ import path from "node:path";
 
 const D = path.resolve("data/feed-eval");
 fs.rmSync(D, { recursive: true, force: true }); fs.mkdirSync(D, { recursive: true });
-Object.assign(process.env, { FEED_FILE: `${D}/feed.json`, FEED_CACHE_FILE: process.env.FEED_CACHE_FILE || path.resolve("data/feed-eval-cache.json"), FEED_DEMO: "off",
+Object.assign(process.env, { FEED_FILE: `${D}/feed.json`, TRUST_FILE: `${D}/trust.json`, NEEDS_FILE: `${D}/needs.json`, FEED_CACHE_FILE: process.env.FEED_CACHE_FILE || path.resolve("data/feed-eval-cache.json"), FEED_DEMO: "off",
   LOOP_DIR: `${D}/loop`, STORE_FILE: `${D}/players.json`, LEDGER_FILE: `${D}/ledger.jsonl`, TRACE_FILE: `${D}/traces.jsonl`, LOOP_WATCH: "off" });
 const papers = await import("../src/feed/papers.js");
 const S = await import("../src/feed/store.js");

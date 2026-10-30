@@ -10,7 +10,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-members-"));
-Object.assign(process.env, { MEMBERS_FILE: `${tmp}/members.json`, MEMBERS_KEY_FILE: `${tmp}/members.key`, FEED_FILE: `${tmp}/feed.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_DEMO: "off",
+Object.assign(process.env, { MEMBERS_FILE: `${tmp}/members.json`, MEMBERS_KEY_FILE: `${tmp}/members.key`, FEED_FILE: `${tmp}/feed.json`, TRUST_FILE: `${tmp}/trust.json`, NEEDS_FILE: `${tmp}/needs.json`, TASTE_FILE: `${tmp}/taste.json`, HUDDLE_FILE: `${tmp}/huddles.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_DEMO: "off",
   LOOP_DIR: `${tmp}/loop`, STORE_FILE: `${tmp}/players.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, GUARD: "off", LLM_URL: "http://127.0.0.1:9/v1", LOOP_WATCH: "off" });
 delete process.env.FB_APP_ID; delete process.env.IG_APP_ID;
 const M = await import("../src/members/members.js");
@@ -95,15 +95,14 @@ test("an invite: checked, joined up to its spots, and the poster's agent answers
   const id = r.post.id;
   const j = P.join(ben.id, id);
   assert.equal(j.post.invite.going, 1); assert.ok(j.post.invite.full);
-  assert.match(P.join(cy.id, id).error, /full/);
+  assert.ok(P.join(cy.id, id).waitlisted, "a full game puts the next person on its waitlist");
   assert.match(P.join(ana.id, id).error, /own invite/);
   await P.comment(cy.id, id, "Is there still space?");
   const said = P.find(id).comments.filter((c) => c.by.type === "agent").map((c) => c.text);
   assert.match(said[0], /^Ben is in( \([^)]*\))?\. Full for badminton Thu 19:00 at Riverside Sports Centre\./);
   assert.match(said.at(-1), /^Full for badminton/);
   P.join(ben.id, id, false);
-  assert.equal(P.view(P.find(id), cy.id).invite.going, 0);
-  P.join(cy.id, id);
+  assert.ok(P.view(P.find(id), cy.id).invite.joined, "the spot Ben gave up goes to Cy, first on the waitlist");
   P.forget(cy.id);
   assert.equal(P.find(id).invite.going.length, 0, "a member who leaves is out of the invite");
   assert.ok(!P.find(id).comments.some((c) => /Cy is in/.test(c.text)), "and the agent's line naming them is gone");

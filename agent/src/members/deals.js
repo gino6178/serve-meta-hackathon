@@ -11,7 +11,7 @@
 //   (60% of list for an empty hour, the full list once it is 85% full), and it knocks a little more off for a group
 //   that books the same hour every week. The group's agent opens low, both sides move toward each other, and the deal
 //   is the first offer the venue's rule accepts. Code does all of it; nothing is booked or paid here.
-import { nearby } from "../club/places.js";
+import { nearby, cachedNear } from "../club/places.js";
 import { km, dateOf, ymd, DAYS } from "./taste.js";
 
 export const CURRENCY = "NT$";
@@ -30,7 +30,10 @@ const areaKey = (at, sport) => `${(+at.lat).toFixed(2)},${(+at.lon).toFixed(2)},
 export const loading = (at, sport) => !!at && pending.has(areaKey(at, sport));
 export async function placesNear(at, sport = "badminton", { venues = 3, courts = 3, radius = 4000, wait = true } = {}) {
   if (!at) return [];
-  const key = areaKey(at, sport);
+  let key = areaKey(at, sport);
+  // an area already looked up within 2.5 km covers this one too (the search reaches 4 km): no new wait on the map
+  if (!got.has(key)) for (const k of got.keys()) { const [la, lo, sp] = k.split(","); if (sp === sport && km({ lat: +la, lon: +lo }, at) < 2.5) { key = k; break; } }
+  if (!got.has(key)) { const c = cachedNear(at, sport, 2.5); if (c) got.set(key, c); }
   if (!got.has(key) && !pending.has(key)) {
     // the area rounded to about 1 km, so nearby members share the cached answer
     const job = nearby({ lat: +(+at.lat).toFixed(2), lon: +(+at.lon).toFixed(2), sport, radius, wait: 60000 }).catch(() => null)
@@ -38,8 +41,8 @@ export async function placesNear(at, sport = "badminton", { venues = 3, courts =
     pending.set(key, job);
   }
   const found = got.get(key) || (wait ? await pending.get(key) : []);
-  // one of each name (a big park maps as several pitches)
-  const one = (list) => list.filter((p, i) => list.findIndex((q) => q.name === p.name) === i);
+  // one of each place: the same name, or two entries under 150 m apart (a hall mapped twice, a park as several pitches)
+  const one = (list) => list.filter((p, i) => list.findIndex((q) => q.name === p.name || km(q, p) < 0.15) === i);
   const v = one(found.filter((p) => p.kind === "sports_centre")).slice(0, venues), c = one(found.filter((p) => p.kind !== "sports_centre")).slice(0, courts);
   return [...v, ...c].map((p) => {
     const venue = p.kind === "sports_centre";
@@ -99,12 +102,12 @@ export function talk(place, { date, start, players = 4, minutes = 90, weekly = f
     return { price: list, each: Math.ceil(list / players), list, off: 0, busy: t.busy, courts, lines, sample: true };
   }
   let ours = round10(list * (0.62 - 0.12 * push + 0.15 * t.busy)), theirs = round10(list * (0.9 + 0.08 * t.busy));
-  lines.push({ from: us, text: `${ask} It's usually only ${pct}% full then. Would you take ${C}${ours}?` });
+  lines.push({ from: us, text: `${ask} It's usually ${t.busy < 0.5 ? "only " : ""}${pct}% full then. Would you take ${C}${ours}?` });
   for (let r = 0; r < 3; r++) {
     if (ours >= floor) { lines.push({ from: them, text: `Deal at ${C}${ours}.` }); return done(ours); }
     theirs = Math.max(floor, round10(theirs - (theirs - ours) * 0.4));
     const low = theirs === floor ? `, and that's as low as I go for that hour` : "";
-    lines.push({ from: them, text: r === 0 ? `List is ${C}${list}. For a quiet hour I can do ${C}${theirs}${low}.` : `${C}${theirs}${low}.` });
+    lines.push({ from: them, text: r === 0 ? `List is ${C}${list} for ${minutes} minutes. ${t.busy < 0.5 ? "For a quiet hour" : "For that hour"} I can do ${C}${theirs}${low}.` : `${C}${theirs}${low}.` });
     if (theirs === floor || r === 2) { lines.push({ from: us, text: `${C}${theirs} it is.` }); return done(theirs); }
     ours = round10(ours + (theirs - ours) * (0.35 + 0.3 * (1 - push)));
     lines.push({ from: us, text: `Meet us at ${C}${ours}?` });

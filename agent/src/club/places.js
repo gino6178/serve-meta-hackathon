@@ -281,6 +281,15 @@ export async function nearby({ lat, lon, sport = "basketball", radius = 2000, wa
   near.set(key, v); cache[`near:${key}`] = v; save();
   return places;
 }
+// courts already looked up (in the last month) around a point within `maxKm`, for the same sport: no new wait on the map
+export function cachedNear(at, sport = "basketball", maxKm = 2.5) {
+  const sp = String(sport).toLowerCase(), now = Date.now();
+  for (const [k, v] of [...near.entries(), ...Object.entries(cache).filter(([x]) => x.startsWith("near:")).map(([x, y]) => [x.slice(5), y])]) {
+    const [la, lo, , s] = k.split(",");
+    if (s === sp && v?.places && now - v.at < 30 * 864e5 && meters(at, { lat: +la, lon: +lo }) <= maxKm * 1000) return v.places;
+  }
+  return null;
+}
 export async function where(q) {
   const wait = Math.max(0, lastGeo + 1100 - Date.now()); if (wait) await new Promise((ok) => setTimeout(ok, wait)); lastGeo = Date.now();
   const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(String(q).slice(0, 120))}`, { headers: { "user-agent": UA, "accept-language": "en" }, signal: AbortSignal.timeout(15000) });

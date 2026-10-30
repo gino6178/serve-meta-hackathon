@@ -183,7 +183,7 @@ function HuddleView({ id, onBack }) {
           {h.waitlist?.length > 0 && <p className="hd-fine">Waitlist: {h.waitlist.join(", ")}.</p>}
           {h.ask && (
             <div className="hd-yes">
-              <p><b>Your agent said yes for you.</b> Is it a yes from you too?</p>
+              <p><b>Your agent said yes for you.</b> Is it a yes from you too?{h.due ? <span className="hd-fine"> Answer by {new Date(h.due).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" })}, or your place goes to the next player.</span> : null}</p>
               <div className="cta-row"><button className="btn primary sm" disabled={busy} onClick={() => answer(true)}>Yes, I'm in</button><button className="btn ghost sm" disabled={busy} onClick={() => setWhy(!why)}>I can't</button></div>
               {why && <div className="hd-why" role="group" aria-label="Why not">{WHY.map(([k, l]) => <button key={k} className="btn ghost sm" disabled={busy} onClick={() => answer(false, k)}>{l}</button>)}</div>}
             </div>
@@ -250,7 +250,7 @@ function Place({ p, sport }) {
       <p className="hd-quiet">Quietest: {p.quiet.map((q) => `${DAYS[dayOf(q.date).getDay()]} ${q.start} (${pct(q.busy)})`).join(", ")}</p>
       {o && (
         <div className="hd-offer">
-          <p><b>{o.off ? `NT$${o.price} instead of NT$${o.list}` : `NT$${o.list}, the list price`}</b> for a court, {DAYS[dayOf(p.at.date).getDay()]} {p.at.start} ({pct(o.busy)} full usually){o.each ? `, NT$${o.each} each for 4` : ""}.</p>
+          <p><b>{o.off ? `NT$${o.price} instead of NT$${o.list}` : `NT$${o.list}, the list price`}</b> for a court for 90 minutes, {DAYS[dayOf(p.at.date).getDay()]} {p.at.start} ({pct(o.busy)} full usually){o.each ? `, NT$${o.each} each for 4` : ""}. List NT${p.list} an hour.</p>
           <div className="cta-row">
             <a className="btn primary sm" href={`#/huddle?sport=${encodeURIComponent(sport)}&date=${p.at.date}&start=${p.at.start}&place=${encodeURIComponent(p.id)}`}>Get a game then</a>
             <button className="btn ghost sm" onClick={() => setShow(!show)}>{show ? "Hide the talk" : "How the agents got there"}</button>
