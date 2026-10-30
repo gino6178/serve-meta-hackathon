@@ -95,7 +95,9 @@ start, an Agent Card, OpenAPI, and a channel where every request carries the age
   take times off the list before any model sees it.
 - **The fairest venue.** For each time, code picks the venue whose longest trip is shortest, from home areas, never
   addresses; when one player has had the longest trip in two of their last three games, a time that gives them the
-  longest trip again by more than 10 minutes is refused.
+  longest trip again by more than 10 minutes is refused. Over 12 simulated games, no booked game gave anyone a longer
+  longest trip than the best venue possible, at a cost of 2.3 minutes more total travel per game; the fairness score
+  was 0.73, against 0.59 for the shortest total trip and 0.58 for a Nash product.
 - **Holds, all or nothing.** An agreed time is held by every player's agent for 30 minutes, asked in a fixed order:
   leases [6] with resource ordering [7]. With two talks at once for one member, 11 of 12 pairs booked the member
   twice without holds and 0 of 12 with them.
@@ -105,6 +107,8 @@ start, an Agent Card, OpenAPI, and a channel where every request carries the age
 - **Across machines.** Two gateways on separate machines, joined only by an SSH tunnel with a pinned host key, with
   pinned and rotatable Ed25519 keys: the hop added about 185 ms per request, and 22 of 22 checks passed with 12 talks
   at once.
+- **To the standard.** Agent Cards point to their keys with `jku`, the proposal and hold extensions are declared and
+  required, and errors use the protocol's own codes (-32700 for a body that is not JSON, -32005, -32008).
 
 ### 2.2 Active querying by the value of information
 
@@ -122,6 +126,9 @@ free-or-busy channel with a disclosure budget, and talks again only on a yes.
 | **The question worth most (value of information)** | **51.9%** |
 
 With 20,000 requests each, every rate is good to about 0.7 points either way, so each step in the table is real.
+A new player starts from what the agent has seen across all players rather than a blank belief. Every free-or-busy
+question is charged to the same disclosure budget as a proposal, so an agent that keeps asking learns at most 24 of
+112 weekly hours in 28 days, and what A tells B never reaches C. No one is asked more than 3 times a week.
 
 ### 2.3 A community that evolves the platform, with automatic rollback
 
@@ -146,8 +153,11 @@ gates → canary of members → kept, or rolled back by itself** (bigger changes
    stop at the first failure.
 5. **Ship, watch, roll back.** A C0 change ships to under 20% of members for 7 days. A booking without a yes, a double
    booking or the privacy marker leaving turns it off at once. It also rolls itself back when thumbs down on it rise by
-   10 points or more and the rise is statistically real (a one-sided two-proportion z of 1.645 or more). Checked with
-   20,000 trials on a 5-member canary, a bad change is caught 94.8% of the time and a harmless one rolled back 4.9%.
+   10 points or more and the rise is statistically real under an anytime-valid test (an e-process [22], E of 20 or
+   more), so the monitor can look every 5 minutes without false alarms piling up. In 20,000 simulated 7-day canaries
+   of 5 members, looked at every 5 minutes, a harmless change was rolled back 0.6% of the time, against 22% for a
+   z-test checked at every look; the price is caution, as a bad change (thumbs down from 25% to 60%) was caught in
+   61% of canaries.
 6. **A person for anything bigger.** A C1 to C3 change waits for a maintainer; then the builder agent, Glimmer in a
    tool loop, writes it on a branch in its own git worktree, never reading community text, with the tests read-only
    and no network, and a person merges it.
@@ -172,11 +182,12 @@ For a highlight, Serve can stop time and move the camera round the player, from 
   with the labels 87% of the time, and it names what it rejects ("doubled ghost net outline above the net"), which a
   pixel count cannot.
 - **Never an empty shot.** A frame-by-frame check that the player and the racket hand are there (SAM 2.1 as a video
-  tracker, DETR [18] and Sapiens2) caught every frame where they were missing. A moment takes 19.9 s on the RTX 3090
+  tracker, RT-DETR [18] and Sapiens2) caught every frame where they were missing. A moment takes 19.9 s on the RTX 3090
   once the models are loaded.
 
-- **Automatic highlights.** A clip to share is cut from the player's own video with no editing by the player: DETR
-  finds the people, Sapiens2 finds the moment worth sharing (a racket's fastest swing, the top of a jump, a kick), SAM
+- **Automatic highlights.** A clip to share is cut from the player's own video with no editing by the player: RT-DETR
+  finds the people (about 4 boxes a frame against DETR's 15 to 20, about 2× faster, and the right player on all three
+  test clips), Sapiens2 finds the moment worth sharing (a racket's fastest swing, the top of a jump, a kick), SAM
   2.1 cuts the player out, and the clip replays that moment in slow motion with a caption Glimmer writes and code
   checks. The presence check above keeps the zoom on the player.
 
@@ -220,6 +231,9 @@ calendars on), with no rule broken. When it is unsure, busy for
 8 s or silent for 20 s, Glimmer answers instead. With 500 cases each agreement rate is good to about 3 points either
 way, so the student matches Glimmer as closely as Glimmer matches itself, about 44 times faster than its full answer.
 
+Its confidence can be trusted: over the 500 held-out cases its expected calibration error is 0.052, and at 0.8 sure it
+answers 89% of them and differs from Glimmer on only 7%.
+
 **Why distil, when the one-pass decider takes 0.53 s?** The decider is still Glimmer, so it needs the GPU that every
 agent's reasoning and the video models share, and it keeps a pick only when it is that sure (about 8% of choices). The
 student runs on the CPU, answers 96% of the 500 test cases on its own, and leaves the GPU free for the work only Glimmer
@@ -241,7 +255,12 @@ can do.
 ### 2.7 Security, and a failure the agents found
 
 - **Attacks and crashes.** 93 attack cases, named by OWASP LLM Top 10 risk, were all stopped; the crash and recovery
-  checks are in 2.1.
+  checks are in 2.1. Prompt Guard 2 now reads every post and comment first, before Llama Guard 3 and code.
+- **A signed record of every yes.** Each consent is appended to a log in which every entry is signed and carries the
+  hash of the one before, so a yes cannot be changed or removed afterwards without it showing.
+- **No-shows, with no money.** A player's show-up record fades with a 60-day half-life and is shown as a range in
+  words, never a score; a game short of its minimum players is called off 3 hours before; a freed spot is offered to
+  the waitlist with 12 hours to confirm.
 - **A failure, and the fix.** During the agent rounds, a tester working as a host found it could work out how
   many people nearby were open to being asked, first from a count and then from the talk. Now nearby people appear only
   once they can actually play, and everyone else sees only published badge words; later rounds re-checked it and found
@@ -269,10 +288,10 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 |---|---|---|---|
 | Our model | Llama 3.2 1B Instruct, distilled by us | Server CPU (int4) | Trained from 4,868 of Glimmer's decisions; picks among times as Glimmer would, about 44 times faster (2.6) |
 | Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its S6 flag so sports injuries are not read as medical advice |
-| Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes) before a model reads it |
+| Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes, every post and comment) before a model reads it |
 | Meaning | DRAMA (drama-base) | Server CPU | Memory by meaning (768 dimensions) and a softmax head that catches game requests the regular expressions miss |
 | Speech | Omnilingual ASR (CTC 1B) | Server CPU | Voice notes in Messenger, for players who can't type |
-| Detection | DETR (ResNet-50) | RTX 3090 (GPU 0) | Finds the players in a video |
+| Detection | DETR (ResNet-50) | RTX 3090 (GPU 0) | The fallback person detector; RT-DETR (not Meta's) is now the default, as it follows the right player (2.4) |
 | Body pose | Sapiens2 (0.4B) | RTX 3090 (GPU 0) | The moment worth sharing, and whether the player is in view |
 | Video segmentation | SAM 2.1 (Hiera-L) | RTX 3090 (GPU 0) | Tracks and cuts out the player for highlight clips |
 | 3D | MapAnything | RTX 3090 (GPU 0) | Metric depth and the camera for orbit replays |
@@ -300,8 +319,7 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 - **Where the numbers come from.** Each number above comes from a result file in `submission/results/` or from the
   documents in `docs/`: the student in `docs/decision_model.md`, the decider in `docs/decider.md`, A2A and holds in
   `contention_eval.json`, the value of information in `voi_sim.json`, the loop in `loop_eval.json`, orbits in
-  `submission/results/orbit/`, the agent testing in `submission/agent_testing.md`. The guard results' raw output stayed
-  on the server.
+  `submission/results/orbit/`, and the agent testing in `submission/agent_testing.md`.
 - **Built during the hackathon.** Building started on October 27, the hackathon's first day. We designed Serve and
   decided what it does and how; an AI coding agent (Claude Code) wrote code to our instructions, credited in the
   repository's commits, and every change went through the tests. The one earlier piece is TrackNetV5, our published shuttle
@@ -309,7 +327,7 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 - **Real and simulated.** The badminton club above is real people. Separately, the built-in demo club that a new
   visitor sees, the clubs used for evaluations and the members the agent testers met are simulated and labelled as
   such; the testers were AI models, not people.
-- **Code:** https://github.com/gino6178/serve-meta-hackathon. The full evaluation write-up is in `README.md` and `docs/`.
+- **Code:** https://github.com/gino6178/serve-meta-hackathon, with the full evaluation in `README.md` and `docs/`.
 
 ## References
 
@@ -330,10 +348,10 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 15. CaMeL: Defeating Prompt Injections by Design. arXiv 2503.18813, 2025.
 16. MapAnything: Universal Feed-Forward Metric 3D Reconstruction. arXiv 2509.13414, 3DV 2026.
 17. Ravi et al. SAM 2: Segment Anything in Images and Videos. 2024.
-18. Carion et al. End-to-End Object Detection with Transformers. ECCV 2020.
+18. Zhao et al. DETRs Beat YOLOs on Real-time Object Detection (RT-DETR). CVPR 2024.
 19. Chen, Zaharia and Zou. FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance. arXiv 2305.05176, 2023.
 20. TypeSafe. Jev: decision models that score declared options in one pass. 2026.
 21. Meta. Agents Rule of Two. October 2025.
+22. Ramdas, Grünwald, Vovk and Shafer. Game-Theoretic Statistics and Safe Anytime-Valid Inference. Statistical Science, 2023.
 
-The decider's thresholds use conformal risk control (Angelopoulos et al., 2022). More background, pattern by
-pattern, is in `docs/methods.md` and `docs/community_loop.md`.
+The decider's thresholds use conformal risk control (Angelopoulos et al., 2022); more in `docs/methods.md`.
