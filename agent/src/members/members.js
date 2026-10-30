@@ -156,7 +156,7 @@ export function addAgent(owner, { name, jwk }, now = Date.now()) {
   const id = `ag-${hash(kid).slice(0, 12)}`;
   d.members[id] = { id, kind: "agent", provider: "key", name: String(name).trim(), owner, kid, x: jwk.x, joined: now };
   save();
-  return { agent: view(d.members[id]), audience: AUDIENCE, how: "Sign each request on /api/agent-channel/... with a compact JWS in the serve-signature header: alg EdDSA, typ serve-request+jwt, kid as here; claims aud (this audience), method, path, bh (base64url SHA-256 of the body), iat, exp (60 s at most), jti (random, once). Guide: /llms.txt" };
+  return { agent: view(d.members[id]), audience: AUDIENCE, how: "Sign each request on /api/agent-channel/... with a compact JWS in the serve-signature header: header {alg: EdDSA, typ: serve-request+jwt, kid (as here)}; claims {iss: the same kid, aud: this audience, method, path, body: base64url of the SHA-256 of the exact body bytes (of the empty string for a GET), iat, exp (60 s at most), jti (16 to 64 random characters, once)}. Guide: /llms.txt" };
 }
 export function revokeAgent(owner, id) {
   const m = get(id);
@@ -179,11 +179,12 @@ export function checkAgent(req, body, p, now = Date.now()) {
   if (!r.ok && r.why === "wrong-audience") r.message = `aud must be "${AUDIENCE}"`;
   if (!r.ok) {
     // a known agent's key on a request that failed the check counts against that agent (trust.js)
-    try { const kid = JSON.parse(Buffer.from(String(token).split(".")[0], "base64url").toString()).kid; const m = Object.values(data().members).find((x) => x.kind === "agent" && x.kid === kid); if (m?.owner) badSignature(m.owner, r.why); } catch { /* not a token we can read */ }
+    try { const kid = JSON.parse(Buffer.from(String(token).split(".")[0], "base64url").toString()).kid; const m = Object.values(data().members).find((x) => x.kind === "agent" && x.kid === kid); if (m?.owner && m.worked && ["replay", "bad-signature"].includes(r.why)) badSignature(m.owner, r.why); } catch { /* not a token we can read */ }
     return logged(r, p);
   }
   const m = get(r.peer);
   if (!get(m.owner)) return logged({ ok: false, why: "no-owner", message: "the agent's member has left" }, p);
+  if (!m.worked) { m.worked = now; save(); } // from now on, failed checks with this key count against the agent
   return { ok: true, agent: m };
 }
 function logged(r, p) {

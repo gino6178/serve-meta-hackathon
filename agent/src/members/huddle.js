@@ -54,6 +54,15 @@ export function people(me) {
 
 // ---- 1. asking ----
 export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
+  // filling a game the host posted: its sport, time and place are fixed, and the spots still open are what's needed
+  const fill = b.fill ? P.find(String(b.fill)) : null;
+  if (b.fill && (!fill || fill.kind !== "invite" || (fill.by.player || fill.by.agentOf) !== me)) return { error: "That isn't a game you posted.", code: 403 };
+  if (fill) {
+    const v = fill.invite, open = v.spots - v.going.length;
+    if (open < 1) return { error: "That game is already full.", code: 409 };
+    b = { ...b, sport: v.sport, need: open + 1, club: b.club ?? fill.room ?? undefined, pin: { date: /^\d{4}-/.test(v.day) ? v.day : null, start: v.start, place: null }, gate: b.gate || v.gate };
+    if (!b.pin.date) return { error: "Give the game a date first (YYYY-MM-DD).", code: 400 };
+  }
   const sport = String(b.sport || "badminton").toLowerCase(), need = Math.round(+b.need || 4);
   if (!SPORTS.includes(sport)) return { error: `The sport must be one of: ${SPORTS.join(", ")}.`, code: 400 };
   const most = sport === "soccer" ? 22 : 12;
@@ -71,24 +80,33 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   const home = T.get(me).home;
   if (b.nearby && !home) return { error: "Share your rough area first, so your agent can look nearby.", code: 400 };
   const near = b.nearby ? T.openNear(home, sport, 5).map((x) => x.id).filter((id) => id !== me && !invited.includes(id)) : [];
-  invited = [...invited, ...near].slice(0, 24);
+  invited = [...invited, ...near].filter((id) => !fill?.invite.going.includes(id)).slice(0, 24); // those already in the game aren't asked again
   if (!invited.length) return { error: b.nearby ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet. Start a club, or post the game and share its link: the first friend needs no account.` : club ? "Nobody else is in that club yet." : !mine.length && !home ? "Share your rough area so your agent can ask people nearby, or join a club." : !mine.length ? "Tick \"Also ask people nearby\", or join a club." : "Pick who to play with, or a club.", code: 400 };
   if (invited.length < need - 1 && !club && !b.nearby) return { error: `You asked for ${need} players but picked ${invited.length + 1} people with you. Pick more, or fewer players.`, code: 400 };
   if (data().huddles.filter((h) => h.host === me && ["talking", "asking"].includes(h.status)).length >= 3) return { error: "You have three games being worked out already.", code: 429 };
   const pin = b.pin && /^\d{4}-\d{2}-\d{2}$/.test(b.pin.date) && /^\d{2}:\d{2}$/.test(b.pin.start) ? { date: b.pin.date, start: b.pin.start, place: b.pin.place ? String(b.pin.place) : null } : null;
+  if (pin) { const hn = T.hardNo(T.get(me), { date: pin.date, start: pin.start, km: null, each: 0 }); if (hn === "time" || hn === "busy") return { error: `${when(pin)} is outside the times you set (or you're busy then). Change your limits, or pick another time.`, code: 400 }; }
   const h = { id: `h-${crypto.randomUUID().slice(0, 8)}`, host: me, sport, need, club: club?.id || null, clubName: club?.name || null, invited, created: Date.now(), status: "talking",
-    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, excluded: [], out: [], nearby: near, gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}) };
+    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat, lon: fill.invite.at?.lon, kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}) };
   data().huddles.push(h); save();
   Tr.asked(me, near.length); // asking everyone nearby, again and again, is what a prober does (your clubs are fine)
   const job = run(h, now).catch((e) => { h.status = "stuck"; line(h, "agent", `Something went wrong while the agents talked (${e.message}).`); save(); });
   const note = b.nearby && !near.length ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet, so only your club${club ? "" : "s"} were asked.` : null;
   return wait ? job.then(() => ({ huddle: view(h, me), ...(note ? { note } : {}) })) : { huddle: view(h, me), ...(note ? { note } : {}) };
 }
+// when the host wants to play: some days (YYYY-MM-DD or Mon..Sun) and parts of the day (early, morning, afternoon, evening)
+function whenOf(w) {
+  if (!w || typeof w !== "object") return null;
+  const days = (Array.isArray(w.days) ? w.days : []).map(String).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) || T.DAYS.includes(d)).slice(0, 14);
+  const parts = (Array.isArray(w.parts) ? w.parts : []).map(String).filter((p) => T.PARTS.includes(p));
+  return days.length || parts.length ? { days, parts } : null;
+}
+const inWhen = (w, date, start) => !w || ((!w.days.length || w.days.includes(date) || w.days.includes(T.DAYS[T.dateOf(date).getDay()])) && (!w.parts.length || w.parts.includes(T.partOf(start))));
 const line = (h, from, text, extra = {}) => { h.talk.push({ at: Date.now(), from, text, ...extra }); };
 // what anyone sees of a person's two records (trust.js)
 export const trustOf = (id) => { const b = Tr.badge(id); return { show: Tr.showText(b), agent: Tr.agentText(b), newShow: b.show.new, newAgent: b.agent.new, rate: b.show.new ? null : b.show.rate, kept: b.agent.new ? null : b.agent.rate, flag: b.agent.probe || !!b.agent.badSig }; };
 // when someone already plays: their feed games and the huddles they are in (ms), for nobody to be booked twice
-const busyOf = (id, except = null) => [...P.busyAt(id), ...data().huddles.filter((h) => h.id !== except && ["asking", "on"].includes(h.status) && h.pick && h.players.includes(id)).map((h) => startMs(h.pick))];
+const busyOf = (id, except = null, game = null) => [...P.busyAt(id).filter((t) => !game || t !== game), ...data().huddles.filter((h) => h.id !== except && ["asking", "on"].includes(h.status) && h.pick && h.players.includes(id)).map((h) => startMs(h.pick))];
 
 // ---- 2-4. the agents talk ----
 async function run(h, now = new Date()) {
@@ -102,7 +120,7 @@ async function run(h, now = new Date()) {
   // the courts found the first time are kept: a re-plan without someone moves the middle a little, and must not lose them
   let places = h.places?.length ? h.places : await D.placesNear(center, h.sport);
   if (places.length && !h.places?.length) h.places = places.map(({ id, name, lat, lon, kind, sport, list, sample }) => ({ id, name, lat, lon, kind, sport, ...(list ? { list, sample } : {}) }));
-  let pinned = h.pin?.place ? places.find((p) => p.id === h.pin.place) : null;
+  let pinned = h.fillPlace?.lat != null ? h.fillPlace : h.pin?.place ? places.find((p) => p.id === h.pin.place) : null;
   if (h.pin?.place && !pinned) pinned = (await D.placesNear(taste[host].home || center, h.sport, { venues: 4, courts: 4 })).find((p) => p.id === h.pin.place) || null;
   if (pinned) places = [pinned];
   else {
@@ -129,24 +147,25 @@ async function run(h, now = new Date()) {
   // what the agents run into goes to the club's ideas once it keeps happening (needs.js)
   if (h.tries === 0 && h.waitlist.length * 2 >= Object.keys(verdict).length && h.waitlist.length) N.saw("waitlist", h.id);
   if (h.tries === 0 && direct.length) N.saw("agent_unsure", h.id);
-  const kmFor = (id, p) => +T.km(taste[id].home || center, p).toFixed(1);
+  const kmFor = (id, p) => +T.km(taste[id].home || center, p).toFixed(1), knownKm = (id, p) => (taste[id].home ? kmFor(id, p) : null);
   // the options: every start in the next seven days at every place, at least three hours from now, not when the host plays
-  const opts = [], hostBusy = busyOf(host, h.id);
+  const fillAt = h.fill ? P.startOf(P.find(h.fill)?.invite) : null; // the game being filled is not a clash with itself
+  const opts = [], hostBusy = busyOf(host, h.id, fillAt);
   for (let i = 0; i < 7; i++) {
     const d = new Date(now); d.setDate(d.getDate() + i); const date = T.ymd(d);
     for (const start of h.pin ? [h.pin.start] : STARTS) {
       if (h.pin && h.pin.date !== date) continue;
       for (const place of places) {
-        if (!h.pin && !opensFor(place, start)) continue;
+        if (!h.pin && (!opensFor(place, start) || !inWhen(h.when, date, start))) continue;
         const o = { date, start, place, busy: D.busy(place, date, start, games), each: D.guessEach(place, date, start, h.need) };
         if (startMs(o) - now.getTime() < 3 * 3600e3 || h.excluded.some((x) => matches(x, o)) || hostBusy.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3)) continue;
         opts.push(o);
       }
     }
   }
-  if (!opts.length) { h.status = "stuck"; line(h, "host", h.pin ? `${when(h.pin)} doesn't work: it's too soon, or you already play then.` : "There's no time left that I haven't already tried this week.", { who: hostName }); return save(); }
+  if (!opts.length) { h.status = "stuck"; line(h, "host", h.when && !h.pin ? "No court time fits the days and times you asked for, at least three hours from now." : h.pin ? `${when(h.pin)} doesn't work: it's too soon, or you already play then.` : "There's no time left that I haven't already tried this week.", { who: hostName }); return save(); }
   const game = (id, o) => ({ date: o.date, start: o.start, km: kmFor(id, o.place), each: o.each, busy: o.busy });
-  const hard = Object.fromEntries(everyone.map((id) => { const b = busyOf(id, h.id); return [id, opts.map((o) => (b.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3) ? "busy" : T.hardNo(taste[id], game(id, o))))]; }));
+  const hard = Object.fromEntries(everyone.map((id) => { const b = busyOf(id, h.id, fillAt); return [id, opts.map((o) => (b.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3) ? "busy" : T.hardNo(taste[id], game(id, o))))]; }));
   const U = Object.fromEntries(everyone.map((id) => [id, opts.map((o, k) => (hard[id][k] ? -1 : T.worth(taste[id], game(id, o))))]));
   // with a show-up gate, among those who said yes the reliable come first (someone new counts as middling)
   const pickScore = (id, k) => U[id][k] + (h.gate?.minShow ? 0.2 * (Tr.badge(id).show.rate ?? 0.6) : 0);
@@ -200,13 +219,14 @@ async function run(h, now = new Date()) {
   const extra = direct.sort((a, b) => U[b][agreed.k] - U[a][agreed.k]).slice(0, Math.max(0, h.need - agreed.players.length));
   if (extra.length) { agreed.players = [...agreed.players, ...extra]; line(h, "host", `Asking ${names(extra.map(first))} directly, without an agent's yes.`, { who: hostName }); }
   let deal = { each: 0, price: 0 };
-  if (o.place.kind === "venue") {
+  if (o.place.kind === "venue" && h.fill) deal = { each: P.find(h.fill)?.invite.each ?? 0, price: 0, list: 0, off: 0, sample: false };
+  else if (o.place.kind === "venue") {
     const push = agreed.players.reduce((s, id) => s + T.weights(taste[id]).price, 0) / agreed.players.length;
     deal = D.talk(o.place, { date: o.date, start: o.start, players: h.need, minutes: MINUTES, push: Math.min(1, push * 2.5), games, group: hostName });
     for (const l of deal.lines) line(h, l.from.endsWith(`${hostName}'s agent`) ? "host" : "venue", l.text, { who: l.from.replace(/'s agent$/, ""), venue: l.from.startsWith(o.place.name) });
   }
   h.pick = { date: o.date, start: o.start, minutes: MINUTES, where: o.place.name, place: o.place.id, kind: o.place.kind, at: { lat: o.place.lat, lon: o.place.lon }, busy: +o.busy.toFixed(2),
-    each: deal.each || 0, price: deal.price || 0, list: deal.list || 0, off: deal.off || 0, sample: !!deal.sample, km: Object.fromEntries(agreed.players.map((id) => [id, kmFor(id, o.place)])) };
+    each: deal.each || 0, price: deal.price || 0, list: deal.list || 0, off: deal.off || 0, sample: !!deal.sample, km: Object.fromEntries(agreed.players.map((id) => [id, knownKm(id, o.place)])) };
   // the host is a yes only when the time suits them too; otherwise they are asked like everyone else
   const hostOk = T.timeFit(taste[host], T.cellOf(o.date, o.start)) >= 0.4 && U[host][agreed.k] >= 0.45;
   h.players = agreed.players; h.direct = extra; h.answers = hostOk ? { [host]: "yes" } : {}; h.status = "asking"; h.askedAt = now.getTime();
@@ -218,13 +238,14 @@ async function run(h, now = new Date()) {
 }
 
 // ---- 5. one yes from each player ----
-export async function reply(me, id, yes, why = null, { now = new Date(), wait = false } = {}) {
+export async function reply(me, id, yes, why = null, { now = new Date(), wait = false, byAgent = false } = {}) {
   const h = find(id);
   if (!h || !h.players.includes(me)) return { error: "That game isn't one you're in.", code: 404 };
   if (h.status !== "asking") return { error: "The agents are still talking, or it's settled.", code: 409 };
   const o = h.pick, mine = { date: o.date, start: o.start, km: o.km[me] ?? 3, each: o.each, busy: o.busy };
-  const r = T.reply(me, mine, yes, why);
-  keepScore(h, me, yes, why);
+  // the person's own answer teaches their agent; an answer their agent gave for them does not (it's the agent's guess)
+  const r = byAgent ? { line: yes ? "Answered yes for your person." : "Answered no for your person." } : T.reply(me, mine, yes, why);
+  if (!byAgent) keepScore(h, me, yes, why);
   P.dropNotices(me, h.id);
   if (yes) {
     h.answers[me] = "yes";
@@ -289,6 +310,12 @@ export const dueBy = (h, id = null) => (h.status === "asking" && h.pick ? (id ? 
 // everyone said yes: the game goes on the feed with them in it (the feed's own "Game on" follows)
 async function book(h) {
   const o = h.pick;
+  if (h.fill && P.find(h.fill)) {
+    h.status = "on"; h.post = h.fill;
+    for (const id of h.players) if (id !== h.host) P.join(id, h.fill, true);
+    line(h, "host", `Everyone said yes: they're in your game, ${when(o)} at ${o.where}.`, { who: first(h.host), agreed: true });
+    return;
+  }
   const r = await P.post(h.host, { text: `Our agents agreed this one: ${o.where}${o.each ? `, ${D.CURRENCY}${o.each} each` : ""}.`, invite: { sport: h.sport, day: o.date, start: o.start, where: o.where.slice(0, 60), spots: h.need - 1, at: o.at, gate: h.gate, each: o.kind === "venue" ? o.each : 0 }, room: h.club }).catch((e) => ({ error: e.message }));
   h.status = "on";
   Tr.expect(r?.post?.id || h.id, h.players, startMs(o)); // after the game, the players say who came
@@ -300,6 +327,7 @@ async function book(h) {
 // permission, within its price, and with people who have a record unless new people are allowed too
 export function mayAgentSayYes(me, { huddle = null, post = null } = {}) {
   const d = T.get(me).delegate;
+  if (d?.on && Tr.badge(me).agent.badSig) return { error: "Requests with your key failed their checks lately, so for now your person answers themself.", code: 403, needs: "person" };
   if (!d?.on) return { error: "Your person hasn't let you say yes for them. They can turn it on: POST /api/huddle/delegate {on:true, maxEach, newPeople} with their session.", code: 403, needs: "delegate" };
   if (huddle) {
     const h = find(huddle);
@@ -310,6 +338,8 @@ export function mayAgentSayYes(me, { huddle = null, post = null } = {}) {
   if (post) {
     const g = P.openInvites(me, (room) => C.canSee(room, me)).find((x) => x.id === post);
     if (g && d.maxEach != null && (g.invite.each ?? 0) > d.maxEach) return { error: `NT$${g.invite.each} each is over the NT$${d.maxEach} your person allowed: ask them.`, code: 403, needs: "person" };
+    if (g && !d.newPeople && Tr.badge(g.hostId).show.new) return { error: "The host is new, and your person wants to decide those: ask them.", code: 403, needs: "person" };
+    if (g) { const t = T.get(me), dt = dateFor(g.invite.day, new Date()), hn = T.hardNo(t, { date: dt, start: g.invite.start, km: g.km ?? null, each: g.invite.each ?? 0 }); if (hn) return { error: `That game is outside what your person set (${T.NO[hn] || hn}).`, code: 403, needs: "person" }; }
   }
   return { ok: true };
 }
@@ -334,6 +364,7 @@ export function view(h, me) {
     players: h.players.map((id) => ({ id, name: id === me ? "You" : first(id), answer: h.answers[id] || null, host: id === h.host, direct: (h.direct || []).includes(id), new: Tr.badge(id).show.new, known: id === me || C.mine(me).some((c) => c.members.some((m) => m.id === id)), trust: trustOf(id) })),
     ...(h.status === "asking" && h.players.includes(me) && !h.answers[me] ? { agentMay: mayAgentSayYes(me, { huddle: h.id }) } : {}),
     waitlist: (h.waitlist || []).map(first), gate: h.gate || null, nearby: (h.nearby || []).length, ...(h.found ? { found: h.found } : {}),
+    waiting: h.status === "asking" ? h.players.filter((x) => !h.answers[x]).map((x) => (x === me ? "You" : first(x))) : [], fill: h.fill || null,
     ask: h.status === "asking" && h.players.includes(me) && !h.answers[me], due: h.players.includes(me) ? dueBy(h, me) : dueBy(h) };
 }
 const LIVE = { asking: 0, talking: 1, on: 2, stuck: 3, cancelled: 4 };
@@ -363,7 +394,7 @@ export function gamesFor(me, { now = new Date(), n = 3 } = {}) {
     // not when they already play within three hours of it
     const at0 = startMs({ date, start: g.invite.start });
     if (mine.some((x) => Math.abs(x - at0) < 3 * 3600e3)) return null;
-    return { post: g.id, host: g.host, hostTrust: trustOf(g.hostId), gate: g.invite.gate || null, sport: g.invite.sport, date, start: g.invite.start, when: when(gm), where: g.invite.where, left: g.invite.spots - g.invite.going, km: at && t.home ? k : null, each: gm.each, score: +T.worth(t, { ...gm, each: gm.each ?? 0 }).toFixed(2), why: reasons(t, gm), club: g.room ? C.find(g.room)?.name || null : null };
+    return { post: g.id, agentMay: mayAgentSayYes(me, { post: g.id }), host: g.host, hostTrust: trustOf(g.hostId), gate: g.invite.gate || null, sport: g.invite.sport, date, start: g.invite.start, when: when(gm), where: g.invite.where, left: g.invite.spots - g.invite.going, km: at && t.home ? k : null, each: gm.each, score: +T.worth(t, { ...gm, each: gm.each ?? 0 }).toFixed(2), why: reasons(t, gm), club: g.room ? C.find(g.room)?.name || null : null };
   }).filter(Boolean).filter((g) => !t.sports.length || t.sports.includes(g.sport)).sort((a, b) => b.score - a.score).slice(0, n);
 }
 // the cheapest quiet hour near the member at a time that suits them, with what the venue's agent would take
@@ -418,7 +449,7 @@ export function nudge(me, { now = new Date() } = {}) {
   return { nudge: { kind: "game", text: `${g.sport[0].toUpperCase() + g.sport.slice(1)} ${g.when} at ${g.where}: ${g.why.join(", ")}. ${g.left} spot${g.left > 1 ? "s" : ""} left.`, post: g.post } };
 }
 // the member's answer to a game their agent recommended: join it, or say why not (their agent learns either way)
-export function answerGame(me, postId, yes, why = null, { now = new Date() } = {}) {
+export function answerGame(me, postId, yes, why = null, { now = new Date(), byAgent = false } = {}) {
   const g = gamesFor(me, { now, n: 50 }).find((x) => x.post === postId);
   if (!g) {
     const open = P.openInvites(me, (room) => C.canSee(room, me)).find((x) => x.id === postId);
@@ -426,7 +457,7 @@ export function answerGame(me, postId, yes, why = null, { now = new Date() } = {
     if (open.invite.gate && Tr.check(me, open.invite.gate).verdict === "waitlist") return { error: `Its host wants people who show up ${Math.round(open.invite.gate.minShow * 100)}% or more; you'd go on the waitlist.`, code: 409 };
     return { error: "It clashes with a game you're already in.", code: 409 };
   }
-  const r = T.reply(me, { date: g.date, start: g.start, km: g.km ?? 3, each: g.each ?? 0, busy: 0.5 }, yes, why);
+  const r = byAgent ? { line: "", taste: T.view(T.get(me)) } : T.reply(me, { date: g.date, start: g.start, km: g.km ?? 3, each: g.each ?? 0, busy: 0.5 }, yes, why);
   if (yes) {
     const j = P.join(me, postId, true); if (j.error) return j;
     if (j.waitlisted) return { line: `You're on the waitlist: ${j.why}. If a spot is open the day before, it's yours.`, taste: r.taste, waitlisted: true };

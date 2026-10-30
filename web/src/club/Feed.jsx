@@ -229,7 +229,7 @@ function InviteBox({ p, patch, say }) {
         {v.gentle && <span className="tiny muted">Gentle game · {v.gentle.format ? `${v.gentle.format}, ` : ""}{v.gentle.minutes} min</span>}
         {v.host && !p.mine && <span className="tiny muted">Host: {v.host.show} · {v.host.agent}</span>}
         {v.gate?.minShow ? <span className="tiny muted"><Icon name="lock" size={12} /> Joins straight in at shows up {Math.round(v.gate.minShow * 100)}%+{v.waitlist ? ` · ${v.waitlist} waiting` : ""}</span> : null}</span>
-      {v.full && (p.mine || v.joined) ? <span className="task-state done">Game on</span> : p.mine ? <button className="btn ghost sm" onClick={share}><Icon name="share" size={14} />Share link</button> : v.joined ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button>
+      {v.full && (p.mine || v.joined) ? <span className="task-state done">Game on</span> : p.mine ? <span className="fd-inv-mine"><a className="btn primary sm" href={`#/huddle?fill=${p.id}`}><Icon name="spark" size={14} />Let the agents fill it</a><button className="btn ghost sm" onClick={share}><Icon name="share" size={14} />Share link</button></span> : v.joined ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button>
         : v.waiting ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>On the waitlist · leave</button> : <button className="btn primary sm" disabled={busy || v.full} onClick={() => join(true)}>{v.full ? "Full" : "Join"}</button>}
     </div>
   );

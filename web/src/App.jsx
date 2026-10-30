@@ -51,7 +51,9 @@ const MORE = [
   { k: "messages", label: "Serve in Messenger", note: "Your agent, in your chats", icon: "chat" },
   { k: "about", label: "About Serve", note: "Why it exists, how it works", icon: "info" },
 ];
-const href = (k) => `#/${k === "home" ? "" : k}`;
+const memberNow = () => { try { return !!localStorage.getItem(SESSION_KEY) && !import.meta.env.VITE_AGENT_TOKEN; } catch { return false; } };
+// a signed-in member's "You" is how they play and their records (Huddle), not the demo player's page
+const href = (k) => (k === "you" && memberNow() ? "#/huddle?tab=taste" : `#/${k === "home" ? "" : k}`);
 const THEME = "serve.theme";
 
 // a menu that closes on Escape, on a click outside it and on navigation
@@ -87,7 +89,7 @@ function Shell({ page, club }) {
       <header className="side">
         <a className="brand" href="#/" aria-label="Serve, your agent"><Mark /><span>serve</span></a>
         <nav className="side-nav" aria-label="Main">
-          {[...TABS, INBOX].map((it) => (
+          {[...TABS.filter((it) => !(memberNow() && it.k === "play")), INBOX].map((it) => (
             <a key={it.k} href={href(it.k)} aria-current={cur(it)} title={it.label} className={it === INBOX ? "inbox" : ""}>
               <Icon name={it.icon} size={24} /><span className="lbl">{it.label}</span>{badge(it)}
             </a>
@@ -117,7 +119,7 @@ function Shell({ page, club }) {
         <p className="side-status" title="Every agent runs on Muse Glimmer on a GPU you own; your videos, body log and memory never leave it"><i aria-hidden="true" /><span className="lbl">Muse Glimmer · your server</span></p>
       </header>
       <nav className="tabbar" aria-label="Main">
-        {TABS.filter((it) => it.k !== "club").map((it) => <a key={it.k} href={href(it.k)} aria-current={cur(it)}><span className="tab-ic"><Icon name={it.icon} size={24} />{badge(it)}</span><span>{it.label}</span></a>)}
+        {TABS.filter((it) => (memberNow() ? !["play"].includes(it.k) : it.k !== "club")).map((it) => <a key={it.k} href={href(it.k)} aria-current={cur(it)}><span className="tab-ic"><Icon name={it.icon} size={24} />{badge(it)}</span><span>{it.label}</span></a>)}
       </nav>
     </>
   );

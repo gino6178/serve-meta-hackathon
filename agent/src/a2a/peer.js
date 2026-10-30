@@ -258,10 +258,10 @@ export function checkToken(token, { method, path: p, body, now = Date.now(), key
   let good = false;
   try { good = crypto.verify(null, Buffer.from(`${parts[0]}.${parts[1]}`), crypto.createPublicKey({ key: { kty: "OKP", crv: "Ed25519", x: k.key.x }, format: "jwk" }), Buffer.from(parts[2], "base64url")); } catch { good = false; }
   if (!good) return no("bad-signature", "the signature does not check out");
-  if (c?.iss !== h.kid) return no("bad-claims", "issuer is not the signing key");
+  if (c?.iss !== h.kid) return no("bad-claims", "the iss claim must be the signing key's kid");
   if (c.aud !== audience) return no("wrong-audience", "meant for another gateway");
   if (c.method !== String(method).toUpperCase() || c.path !== p) return no("wrong-request", "signed for another method or path");
-  if (c.body !== b64u(sha256(bytes(body)))) return no("wrong-body", "the body is not the one signed");
+  if ((c.body ?? c.bh) !== b64u(sha256(bytes(body)))) return no("wrong-body", "the body is not the one signed (claim body: base64url of the SHA-256 of the exact bytes sent)");
   const t = Math.floor(now / 1000);
   if (!Number.isInteger(c.iat) || !Number.isInteger(c.exp) || c.exp <= c.iat || c.exp - c.iat > MAX_AGE()) return no("bad-claims", "issued-at and expiry missing or too far apart");
   if (c.iat > t + SKEW() || c.exp + SKEW() < t) return no("expired", "expired, or from the future");

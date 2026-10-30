@@ -216,8 +216,8 @@ export function explain(id, now = Date.now()) {
   if (b.show.new) out.push(`Shows up: new (${b.show.games} of ${NEW_UNDER} games counted). Games at 90% wait-list new people; at 75% or less they let you in.`);
   else { const came = Math.round(b.show.rate * b.show.games), need = (r) => Math.max(0, Math.ceil((r * (b.show.games + 2) - came - 1.7) / (1 - r))); out.push(`Shows up ${Math.round(b.show.rate * 100)}% (${came} of ${b.show.games}). A game's gate compares ${Math.round(gateRate(b) * 100)}% (your record, smoothed). To clear 75%: ${need(0.75) ? `${need(0.75)} more game${need(0.75) > 1 ? "s" : ""} you turn up to` : "you do"}; 90%: ${need(0.9) ? `${need(0.9)} more` : "you do"}.`); }
   if (b.agent.probe) out.push("Your agent asked too many people's agents today: nearby asks pause for a day; your clubs still work.");
-  else if (b.agent.badSig) out.push("Requests with your agent's key failed their check in the last 30 days: for now you are asked directly. Check the key's signing (see /llms.txt).");
-  else if (b.agent.new) out.push(`Your agent: new (${b.agent.said} yes${b.agent.said === 1 ? "" : "es"} counted; it needs ${NEW_UNDER} from two different hosts).`);
+  if (b.agent.badSig) out.push("Requests with your agent's key failed their check in the last 30 days: for now you are asked directly. Check the key's signing (see /llms.txt).");
+  if (b.agent.new) out.push(`Your agent: new (${b.agent.said} yes${b.agent.said === 1 ? "" : "es"} counted; it needs ${NEW_UNDER} from two different hosts).`);
   else { const kept = Math.round(b.agent.rate * b.agent.said), n = Math.max(0, Math.ceil((AGENT_MIN * b.agent.said - kept) / (1 - AGENT_MIN))); out.push(`Your agent keeps ${Math.round(b.agent.rate * 100)}% of its yeses (${kept} of ${b.agent.said}). ${b.agent.rate >= AGENT_MIN ? "It may answer for you." : `Under ${AGENT_MIN * 100}% it can't say yes for you, so you're asked directly; each time you answer the way it would have, it counts. ${n} more like that and it answers for you again.`}`); }
   return out;
 }

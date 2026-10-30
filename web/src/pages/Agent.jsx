@@ -75,6 +75,14 @@ export default function Agent({ club }) {
     if (!q || !you) return;
     setText("");
     const kind = intentOf(q);
+    // a signed-in member: games are real (Huddle), not the demo club's player
+    if (member) {
+      if (kind === "courts") return go(`huddle?tab=courts`);
+      if (kind === "highlight") return go("highlights");
+      const sp = (q.match(/badminton|tennis|pickleball|table tennis|basketball|volleyball|soccer|squash|羽球|網球|籃球|排球/i) || [""])[0].toLowerCase();
+      const sport = { 羽球: "badminton", 網球: "tennis", 籃球: "basketball", 排球: "volleyball" }[sp] || sp;
+      return go(`huddle?say=${encodeURIComponent(q)}${sport ? `&sport=${encodeURIComponent(sport)}` : ""}`);
+    }
     // a game you want: your agent drafts the invite in its chat, posts it on your yes and finds people
     if (kind === "play") return go(`messages?say=${encodeURIComponent(q)}`);
     if (kind === "goals") return go("goals");

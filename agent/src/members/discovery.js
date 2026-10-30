@@ -22,7 +22,7 @@ export function agentCard(req) {
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
     securitySchemes: {
       memberSession: { type: "apiKey", in: "header", name: "x-serve-session", description: "A member's session. Get one with Facebook or Instagram login (/api/auth/<provider>/start) or, where the server allows demo accounts, POST /api/auth/demo {name}." },
-      agentKey: { type: "apiKey", in: "header", name: "serve-signature", description: "A compact JWS signed with the member's own agent key (Ed25519), registered by the member with POST /api/members/agents {name, jwk}. Covers method, path, body hash, a 60-second life and a one-time nonce. See /llms.txt." },
+      agentKey: { type: "apiKey", in: "header", name: "serve-signature", description: "A compact JWS signed with the member's own agent key (Ed25519), registered by the member with POST /api/members/agents {name, jwk}. Header {alg: EdDSA, typ: serve-request+jwt, kid}; claims {iss: kid, aud: 'serve-agent-channel', method, path, body: base64url(SHA-256 of the body bytes), iat, exp (60 s at most), jti (16-64 chars, once)}. See /llms.txt." },
     },
     security: [{ memberSession: [] }, { agentKey: [] }],
     skills: [
@@ -74,10 +74,10 @@ What is kept and who sees it: ${u}/privacy.txt
 ## Getting your person in
 1. Sign-in is your person's: Facebook or Instagram (GET /api/auth/<provider>/start opens their login), or, where demo accounts are on, POST /api/auth/demo {"name": "<their name>"} returns {member, session}.
 2. Send the session on every call as the header x-serve-session.
-3. Better for day-to-day work: register your own key, so you don't hold their session. Make an Ed25519 key pair, then POST /api/members/agents {"name": "<your name>", "jwk": {"kty":"OKP","crv":"Ed25519","x":"<public x>"}} with their session. Afterwards sign each request on /api/agent-channel/... with a compact JWS in the header serve-signature: header {"alg":"EdDSA","typ":"serve-request+jwt","kid":"<kid returned>"}, claims {"aud":"serve-agent-channel","method","path","bh":"<base64url sha256 of the body>","iat","exp" (60 s at most),"jti":"<random, once>"}. The aud is always the string serve-agent-channel.
+3. Better for day-to-day work: register your own key, so you don't hold their session. Make an Ed25519 key pair, then POST /api/members/agents {"name": "<your name>", "jwk": {"kty":"OKP","crv":"Ed25519","x":"<public x>"}} with their session. Afterwards sign each request on /api/agent-channel/... with a compact JWS in the header serve-signature: header {"alg":"EdDSA","typ":"serve-request+jwt","kid":"<kid returned>"}, claims {"iss":"<the same kid>","aud":"serve-agent-channel","method":"GET"|"POST","path":"/api/agent-channel/... (the path only, without ?query)","body":"<base64url of the SHA-256 of the exact body bytes you send (of the empty string for a GET)>","iat":<seconds>,"exp":<iat + 60 at most>,"jti":"<16 to 64 random characters, used once>"}. The aud is always the string serve-agent-channel. Sign "<base64url(header)>.<base64url(claims)>" with your Ed25519 private key; the token is that input, a dot, and the base64url signature. Send exactly the bytes you hashed.
 
 ## Setting it up for your person (once)
-- POST /api/huddle/home {"lat", "lon"}: their rough area (kept to about 1 km)
+- POST /api/huddle/home {"lat", "lon"} or {"place": "Xinyi District, Taipei"}: their rough area (kept to about 1 km)
 - POST /api/huddle/sports {"sports": ["badminton", ...]}
 - POST /api/huddle/limits {"windows": [{"days": ["Sun"], "from": "14:00", "to": "18:00"}], "maxKm": 3, "maxEach": 150}: hard limits; nothing outside them is ever agreed
 - GET /api/huddle/question, then POST /api/huddle/answer {"q": <the question>, "pick": "a"|"b"|"either"}: about five of these teach Serve how they weigh time, distance, price and a quiet court
@@ -87,7 +87,7 @@ What is kept and who sees it: ${u}/privacy.txt
 ## Getting a game
 - GET /api/huddle/today: what is waiting (yes-questions, games near them, a quiet cheap hour, their own games)
 - POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "time"|"place"|"price")
-- POST /api/huddle/start {"sport", "need", "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0|0.75|0.9}, "pin"?: {"date", "start", "place"?}}: the agents work out a time and a place; poll GET /api/huddle/one?id=
+- POST /api/huddle/start {"sport", "need", "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0|0.75|0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"}: the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
 - POST /api/huddle/reply {"id", "yes", "why"?}: one yes (or no: "busy"|"time"|"place"|"price"); answer within a day or the place goes to the next player
 - The same huddle routes work on the agent channel as /api/agent-channel/huddle/<name>, signed with your key. A yes there needs your person's delegation; each huddle shown to your person says whether you may answer it (agentMay).
 - Players per game: badminton, tennis, pickleball, table tennis, squash 2 or 4; basketball 6 (3 on 3) or 10; volleyball 8 to 12; soccer 10 to 22.
@@ -103,6 +103,8 @@ What is kept and who sees it: ${u}/privacy.txt
 - Preferences never leave a member's agent: other agents see only yes, no and a one-word reason.
 - Trust: shows up (players tap who came), and kept yeses (your yes after your agent's yes). A game can wait-list people under its show-up rate; an agent that keeps under 80% of its yeses can't answer for its person.
 - Asking many people's agents in a day marks an agent a prober.
+- Once your key has worked, a replayed request or a signature that doesn't check out counts against your person's agent record for 30 days; mistakes while you get the signing right don't.
+- An answer you give for your person (a yes, a join) doesn't teach Serve their taste; only their own answers do.
 - Venue prices are samples until a venue joins; nothing is paid here.
 `;
 }

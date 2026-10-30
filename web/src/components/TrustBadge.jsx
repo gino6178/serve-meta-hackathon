@@ -8,7 +8,7 @@ export default function TrustBadge({ t, compact = false }) {
   return (
     <span className={`trust${compact ? " sm" : ""}`}>
       <span className={`tr-pill ${show}`} title="Shows up: from the other players' one-tap check after each game">{t.show.replace(/^shows up /, "Shows up ")}</span>
-      <span className={`tr-pill ${agent}`} title="Their agent: how often the person said yes when their agent had said yes for them">{t.agent.replace(/^agent keeps (\d+)% of its yeses$/, "Agent keeps $1%").replace(/^agent new$/, "Agent new")}</span>
+      <span className={`tr-pill ${agent}`} title="How often the person agreed when their agent said yes for them">{t.agent.replace(/^agent keeps (\d+)% of its yeses$/, "Agent right $1%").replace(/^agent new$/, "Agent new").replace(/^asks too many agents$/, "Agent paused").replace(/^signature problems$/, "Agent checking")}</span>
     </span>
   );
 }

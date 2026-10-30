@@ -23,7 +23,7 @@
 //   GET  /api/huddle/me                      what the agent knows about the member, their games being worked out, who they can ask
 //   GET  /api/huddle/today                   what the agent puts in front of them now: yes-questions, a question, games near them, a deal
 //   GET  /api/huddle/nudge                   at most one toast every six hours: a new game near them that fits
-//   POST /api/huddle/home {lat, lon}         their rough area (rounded to about 1 km)
+//   POST /api/huddle/home {lat, lon} | {place}   their rough area (rounded to about 1 km); a place name is looked up
 //   POST /api/huddle/sports {sports}         the sports they play
 //   GET  /api/huddle/question                the agent's next quick question (two games; pick one)
 //   POST /api/huddle/answer {q, pick}        a or b or either: the agent learns from it and says what it learned
@@ -137,15 +137,21 @@ async function channel(req, res, p, send) {
   if (p === "/api/agent-channel/feed" && req.method === "GET") return send(200, P.feed(owner, { n: 20 }));
   if (p === "/api/agent-channel/post" && req.method === "POST") return out(await P.post(ag.id, { text: b.text, invite: b.invite || null, agent: { id: ag.id, owner } }));
   if (p === "/api/agent-channel/comment" && req.method === "POST") return out(await P.comment(ag.id, String(b.post || ""), b.text, { agent: { id: ag.id, owner } }));
-  if (p === "/api/agent-channel/join" && req.method === "POST") return out(P.join(owner, String(b.post || ""), b.on !== false));
+  if (p === "/api/agent-channel/join" && req.method === "POST") {
+    // joining commits the person: the same permission as a yes (taste.js delegate), with its limits
+    if (b.on !== false) { const ok = H.mayAgentSayYes(owner, { post: String(b.post || "") }); if (ok.error) return send(403, ok); }
+    return out(P.join(owner, String(b.post || ""), b.on !== false));
+  }
   // the huddle routes, signed with the member's own agent key; committing them (a yes, joining a game) needs the
   // member's standing permission (taste.js delegate), with its limits
   if (p.startsWith("/api/agent-channel/huddle/")) {
     const sub = p.replace("/api/agent-channel", "");
     if (["/huddle/reply", "/huddle/game"].includes(sub) && b.yes === true) { const ok = H.mayAgentSayYes(owner, sub === "/huddle/reply" ? { huddle: String(b.id || "") } : { post: String(b.post || "") }); if (ok.error) return send(403, ok); }
     if (["/huddle/delegate", "/huddle/open", "/huddle/home"].includes(sub)) return send(403, { error: "Only your person changes this, with their own session: it is their permission, not yours." });
+    // a game the agent starts keeps the person's rule about new people
+    if (sub === "/huddle/start" && req.method === "POST") { const d = T.get(owner).delegate; if (d?.on && !d.newPeople) b = { ...b, gate: { minShow: Math.max(0.6, +b.gate?.minShow || 0), newOk: false, agentMin: b.gate?.agentMin } }; }
     const fake = { method: req.method, url: sub, headers: req.headers, on: () => {} };
-    return huddle(Object.assign(fake, { [Symbol.asyncIterator]: undefined }), res, `/api${sub}`, new URL(req.url, "http://x").searchParams, owner, send, b);
+    return huddle(Object.assign(fake, { [Symbol.asyncIterator]: undefined, byAgent: true }), res, `/api${sub}`, new URL(req.url, "http://x").searchParams, owner, send, b);
   }
   return send(404, { error: "no such route", docs: "/llms.txt" });
 }
@@ -158,7 +164,10 @@ async function huddle(req, res, p, q, me, send, given = null) {
   if (p === "/api/huddle/me" && get) return send(200, { taste: T.view(T.get(me)), huddles: H.mineFor(me), ...H.people(me) });
   if (p === "/api/huddle/today" && get) return send(200, await H.today(me));
   if (p === "/api/huddle/nudge" && get) return send(200, H.nudge(me));
-  if (p === "/api/huddle/home" && post) return out(T.setHome(me, b));
+  if (p === "/api/huddle/home" && post) {
+    if (b.place && b.lat == null) { const pl = await import("../club/places.js"); try { const at = await pl.where(String(b.place).slice(0, 120)); const r = T.setHome(me, at); return out(r.error ? r : { ...r, found: at.name }); } catch (e) { return send(404, { error: `No place called "${String(b.place).slice(0, 60)}" found. Try a district and a city, e.g. "Xinyi District, Taipei".` }); } }
+    return out(T.setHome(me, b));
+  }
   if (p === "/api/huddle/sports" && post) return out(T.setSports(me, b.sports));
   if (p === "/api/huddle/open" && post) return out(T.setOpen(me, b.on === true));
   if (p === "/api/huddle/limits" && post) return out(T.setLimits(me, b));
@@ -172,9 +181,9 @@ async function huddle(req, res, p, q, me, send, given = null) {
   if (p === "/api/huddle/answer" && post) { if (!["a", "b", "either"].includes(b.pick)) return send(400, { error: "pick is a, b or either" }); return out(T.choose(me, b.q ?? b.id, b.pick)); }
   if (p === "/api/huddle/start" && post) return out(H.start(me, b));
   if (p === "/api/huddle/one" && get) { await H.sweep(); const h = H.find(String(q.get("id") || "")); return h && (h.host === me || h.invited.includes(me)) ? send(200, { huddle: H.view(h, me) }) : send(404, { error: "No such game." }); }
-  if (p === "/api/huddle/reply" && post) return out(await H.reply(me, String(b.id || ""), b.yes === true, b.why ? String(b.why) : null));
+  if (p === "/api/huddle/reply" && post) return out(await H.reply(me, String(b.id || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
   if (p === "/api/huddle/cancel" && post) return out(H.cancel(me, String(b.id || "")));
-  if (p === "/api/huddle/game" && post) return out(H.answerGame(me, String(b.post || ""), b.yes === true, b.why ? String(b.why) : null));
+  if (p === "/api/huddle/game" && post) return out(H.answerGame(me, String(b.post || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
   if (p === "/api/huddle/places" && get) {
     const t = T.get(me), sport = String(q.get("sport") || t.sports[0] || "badminton").toLowerCase();
     if (!t.home) return send(200, { places: [], home: false });
