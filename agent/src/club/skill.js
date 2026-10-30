@@ -4,6 +4,9 @@
 //   Only games marked competitive move ratings. A casual game, a gentle game, a children's session and a charity
 //   programme (members/programs.js) never do, whatever they are marked: counts() says which.
 //   A new member starts at mu 25, sigma 25/3; ordinal (mu - 3 sigma) is the cautious number to show.
+//   A result counts only once every named player other than the reporter has confirmed their own part in it (nobody
+//   is rated for a game they didn't play); while one waits, another for the same sport and players is refused, and the
+//   same result twice on one day counts once. Any named player can turn a waiting one down.
 //   Pairing reads mu and sigma (pairing.js): a close mu makes a fair game, and a high sigma prefers a close game, the
 //   kind that settles a level fastest (learn()).
 //   SKILL_FILE (data/skill.json). A store can also live in memory only (the tests: createSkill()).
@@ -52,7 +55,7 @@ export function learn(a, b, beta = BETA) {
 
 export function createSkill(file = null) {
   const db = file ? readJSON(file, { members: {}, pending: {} }) : { members: {}, pending: {} };
-  db.members ||= {}; db.pending ||= {};
+  db.members ||= {}; db.pending ||= {}; db.done ||= [];
   const save = () => { if (file) writeJSON(file, db); };
   const get = (id, sport = "badminton") => ({ ...(db.members[id]?.[sport] || fresh()) });
   const known = (id, sport = "badminton") => !!db.members[id]?.[sport];
@@ -69,29 +72,53 @@ export function createSkill(file = null) {
     save();
     return { rated: true, sport, ratings: Object.fromEntries(teams.flat().map((id) => [id, get(id, sport)])) };
   }
-  // a result one side reports waits for someone on another team to confirm it (one member can't rate a game alone)
+  // a result's players, sport and outcome, as keys: the same players in any order are the same game
+  const players = (g) => [...new Set((g.teams || []).flat().map(String))].sort();
+  const who = (g) => `${String(g.sport || "badminton")}|${players(g).join(",")}`;
+  const same = (g) => `${who(g)}|${(g.teams || []).map((t, i) => `${[...t].map(String).sort().join(",")}=${Array.isArray(g.ranks) ? g.ranks[i] : i === +g.winner ? 0 : 1}`).sort().join("/")}`;
+  const dayOf = (ms) => { const d = new Date(ms); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+  // a result the reporter gives waits until every other named player confirms their own part in it
   function report(by, game, now = Date.now()) {
     const ok = counts(game);
     if (!ok.ok) return { rated: false, why: ok.why };
     if (!(game.teams || []).some((t) => (t || []).map(String).includes(by))) return { error: "Report only a game you played in.", code: 403 };
-    const id = `g${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-    db.pending[id] = { ...game, by, at: now };
+    if (players(game).length !== (game.teams || []).flat().length) return { error: "A player can be on one team only.", code: 400 };
     for (const [k, g] of Object.entries(db.pending)) if (now - g.at > 14 * 864e5) delete db.pending[k];
+    db.done = db.done.filter((d) => now - d.at < 2 * 864e5);
+    if (Object.values(db.pending).some((g) => who(g) === who(game))) return { error: "A result for these players in this sport is already waiting to be confirmed (GET /api/members/result/pending).", code: 409 };
+    if (db.done.some((d) => d.key === same(game) && d.day === dayOf(now))) return { error: "That result was already confirmed today.", code: 409 };
+    const id = `g${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+    db.pending[id] = { ...game, by, at: now, yes: [] };
     save();
-    return { pending: id };
+    return { pending: id, waiting: players(game).length - 1 };
   }
-  function confirm(by, id) {
+  // a named player confirms their own part; the last one rates it. The answer holds the confirmer's rating only
+  function confirm(by, id, now = Date.now()) {
     const g = db.pending[id];
-    if (!g) return { error: "No such result waiting.", code: 404 };
-    const mine = (g.teams || []).findIndex((t) => t.map(String).includes(by)), theirs = g.teams.findIndex((t) => t.map(String).includes(g.by));
-    if (mine < 0 || mine === theirs) return { error: "Someone on the other side confirms it.", code: 403 };
+    if (!g || !players(g).includes(by)) return { error: "No such result waiting.", code: 404 };
+    if (by === g.by) return { error: "You reported it: the other players confirm it.", code: 403 };
+    g.yes = [...new Set([...(g.yes || []), by])];
+    const left = players(g).filter((x) => x !== g.by && !g.yes.includes(x)).length;
+    if (left) { save(); return { confirmed: true, rated: false, waiting: left }; }
     delete db.pending[id];
-    return rate(g);
+    const r = rate(g);
+    if (r.rated) db.done.push({ key: same(g), day: dayOf(now), at: now });
+    save();
+    return r.rated ? { rated: true, sport: r.sport, rating: get(by, r.sport) } : r;
   }
+  // a named player (or the reporter) turns a waiting result down: it goes, nobody is rated
+  function decline(by, id) {
+    const g = db.pending[id];
+    if (!g || !players(g).includes(by)) return { error: "No such result waiting.", code: 404 };
+    delete db.pending[id]; save();
+    return { declined: true };
+  }
+  // the results waiting that name this member: to confirm, turn down, or (their own) see
+  const pendingFor = (me) => Object.entries(db.pending).filter(([, g]) => players(g).includes(me)).map(([id, g]) => ({ id, sport: String(g.sport || "badminton"), teams: g.teams, winner: g.winner, at: g.at, by: g.by, mine: g.by === me, confirmed: me === g.by || (g.yes || []).includes(me), waiting: players(g).filter((x) => x !== g.by && !(g.yes || []).includes(x)).length }));
   // mu and sigma for pairing: only members with a rated game in this sport (the rest fall back to the club rating)
   const table = (ids, sport = "badminton") => Object.fromEntries(ids.filter((id) => known(id, sport)).map((id) => [id, get(id, sport)]));
-  const forget = (id) => { if (db.members[id]) { delete db.members[id]; save(); } };
-  return { get, known, rate, report, confirm, table, forget, view: (id) => Object.fromEntries(Object.entries(db.members[id] || {}).map(([s, r]) => [s, { ...r, ordinal: +ordinal(r).toFixed(2) }])) };
+  const forget = (id) => { delete db.members[id]; for (const [k, g] of Object.entries(db.pending)) if (players(g).includes(id)) delete db.pending[k]; save(); };
+  return { get, known, rate, report, confirm, decline, pendingFor, table, forget, view: (id) => Object.fromEntries(Object.entries(db.members[id] || {}).map(([s, r]) => [s, { ...r, ordinal: +ordinal(r).toFixed(2) }])) };
 }
 let shared = null;
 export const store = () => (shared ||= createSkill(path.resolve(process.env.SKILL_FILE || path.join("data", "skill.json"))));

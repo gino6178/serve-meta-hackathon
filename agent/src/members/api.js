@@ -15,7 +15,10 @@
 //   GET  /api/members/skill                  the member's skill ratings per sport: mu, sigma, games (club/skill.js)
 //   POST /api/members/result {sport, teams, winner, mode, club}   a game's result; only a competitive one, outside
 //                                            gentle games, children's sessions and charity programmes, waits to be rated
-//   POST /api/members/result/confirm {id}    someone on the other side confirms it, and the ratings move
+//   POST /api/members/result/confirm {id}    a named player confirms their own part; once all the others have, the
+//                                            ratings move (the answer holds the confirmer's own rating only)
+//   POST /api/members/result/decline {id}    a named player turns a waiting result down: nobody is rated
+//   GET  /api/members/result/pending         the waiting results that name the member, to confirm or see
 //   GET  /api/clubs?lat=&lon=                the clubs members started, nearest first (clubs.js)
 //   POST /api/clubs {name, sport, about, where, at, privacy}    start one, public or private
 //   POST /api/clubs/answer {club, member, yes}   the owner of a private club answers someone who asked to join
@@ -141,14 +144,18 @@ export async function route(req, res, u, { json, o, forget }) {
     if (b.weeks !== undefined && !(Number.isInteger(+b.weeks) && +b.weeks >= 1 && +b.weeks <= 12)) return send(400, { error: "weeks is a whole number from 1 to 12." });
     const r = K.freeFrom(b.ics, { tz: b.tz ? String(b.tz) : Intl.DateTimeFormat().resolvedOptions().timeZone, weeks: b.weeks ?? 4 });
     if (r.error) return send(400, r);
-    if (b.save !== true) return send(200, r);
+    if (b.save !== true && b.save !== "true") return send(200, r);
+    // a broken or empty file reads as "free all week": it never replaces the member's limits
+    if (!r.events) return send(400, { ...r, error: "No events could be read from that calendar (is the file complete?), so nothing was saved." });
     if (!r.windows.length) return send(400, { ...r, error: "No free time of two hours or more inside 07:00 to 22:00 in that calendar, so nothing was saved." });
     const s = T.setLimits(me.id, { windows: r.windows });
     return s.error ? send(s.code || 400, s) : send(200, { ...r, taste: s.taste });
   }
   if (p === "/api/members/skill" && req.method === "GET") return send(200, { skill: Sk.store().view(me.id) });
-  if ((p === "/api/members/result" || p === "/api/members/result/confirm") && req.method === "POST") {
+  if (p === "/api/members/result/pending" && req.method === "GET") { const nm = (id) => (id === me.id ? "You" : M.nameOf(id) || "A member"); return send(200, { pending: Sk.store().pendingFor(me.id).map((g) => ({ ...g, by: nm(g.by), teams: g.teams.map((t) => t.map((id) => ({ id, name: nm(id) }))) })) }); }
+  if (["/api/members/result", "/api/members/result/confirm", "/api/members/result/decline"].includes(p) && req.method === "POST") {
     if (p === "/api/members/result/confirm") { const r = Sk.store().confirm(me.id, String(b.id || "")); return send(r.error ? r.code || 400 : 200, r); }
+    if (p === "/api/members/result/decline") { const r = Sk.store().decline(me.id, String(b.id || "")); return send(r.error ? r.code || 400 : 200, r); }
     const teams = b.teams;
     if (!Array.isArray(teams) || teams.length !== 2 || teams.some((t) => !Array.isArray(t) || !t.length || t.length > 4 || t.some((id) => typeof id !== "string"))) return send(400, { error: "teams is two lists of member ids (1 to 4 each)." });
     if (![0, 1].includes(b.winner)) return send(400, { error: "winner is 0 or 1 (the team that won)." });

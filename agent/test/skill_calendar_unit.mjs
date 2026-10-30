@@ -240,3 +240,79 @@ test("ics privacy: titles, descriptions, places and attendees never leave the pa
   const comp = await call("/api/members/result", { teams: [[member.id], [bo.id]], winner: 0, mode: "competitive" });
   assert.ok(comp.body.pending);
 });
+
+test("skill: every named player but the reporter confirms their own part; a stranger named in it is never rated", () => {
+  const s = Sk.createSkill(), comp = (teams, winner = 0, sport = "padel") => ({ sport, teams, winner, mode: "competitive" });
+  // ravi names leo as his partner; zed, the accomplice, confirms: not enough, leo never said yes
+  const { pending, waiting } = s.report("ravi", comp([["ravi", "leo"], ["zed"]]));
+  assert.equal(waiting, 2);
+  const z = s.confirm("zed", pending);
+  assert.deepEqual([z.confirmed, z.rated, z.waiting], [true, false, 1]);
+  assert.equal(s.known("leo", "padel"), false, "leo isn't rated for a game he didn't confirm");
+  assert.equal(s.confirm("ravi", pending).code, 403, "the reporter doesn't confirm");
+  assert.equal(s.confirm("maya", pending).code, 404, "nor someone not in it, who isn't told it exists");
+  assert.equal(s.pendingFor("leo")[0].id, pending, "leo sees it waiting for him");
+  assert.equal(s.pendingFor("leo")[0].confirmed, false);
+  assert.deepEqual(s.decline("leo", pending), { declined: true }, "and turns it down");
+  assert.equal(s.confirm("leo", pending).code, 404);
+  assert.equal(s.known("zed", "padel") || s.known("ravi", "padel"), false, "nobody rated");
+  // a real one: once the last player confirms, the answer holds only their own rating
+  const g = s.report("ann", comp([["ann", "bo"], ["cy", "dee"]], 0, "tennis")).pending;
+  s.confirm("cy", g); s.confirm("bo", g);
+  const last = s.confirm("dee", g);
+  assert.equal(last.rated, true);
+  assert.deepEqual(Object.keys(last), ["rated", "sport", "rating"]);
+  assert.deepEqual(last.rating, s.get("dee", "tennis"));
+  assert.ok(s.get("ann", "tennis").games === 1 && s.get("bo", "tennis").mu > Sk.MU);
+});
+
+test("skill: the same game is rated once; a second report waits for the first; the same result twice in a day is refused", () => {
+  const s = Sk.createSkill(), comp = (teams, winner) => ({ sport: "squash", teams, winner, mode: "competitive" });
+  const day = new Date(2026, 9, 30, 10).getTime();
+  const a = s.report("maya", comp([["maya"], ["ravi"]], 0), day).pending;
+  assert.equal(s.report("maya", comp([["maya"], ["ravi"]], 0), day + 1).code, 409, "a retry while it waits");
+  assert.equal(s.report("ravi", comp([["ravi"], ["maya"]], 0), day + 2).code, 409, "the opposite result while it waits");
+  assert.equal(s.report("maya", { ...comp([["maya"], ["ravi"]], 0), sport: "tennis" }, day + 3).pending ? 1 : 0, 1, "another sport is another game");
+  assert.equal(s.report("maya", comp([["maya"], ["ravi"]], 0), day).code, 409);
+  assert.equal(s.report("ann", comp([["ann"], ["ann"]], 0), day).code, 400, "a player on both teams");
+  assert.equal(s.confirm("ravi", a, day + 60e3).rated, true);
+  assert.equal(s.get("maya", "squash").games, 1);
+  assert.equal(s.report("ravi", comp([["ravi"], ["maya"]], 1), day + 3600e3).code, 409, "the same result again that day, sides swapped");
+  assert.ok(s.report("ravi", comp([["ravi"], ["maya"]], 0), day + 3600e3).pending, "a rematch ravi won is another game");
+  assert.ok(s.pendingFor("maya").some((x) => !x.mine && x.waiting === 1));
+  assert.equal(s.pendingFor("eve").length, 0);
+});
+
+test("ics route: an event-less or broken file is never saved over the limits; save takes true or \"true\"", async () => {
+  const M = await import("../src/members/members.js"), api = await import("../src/members/api.js"), T = await import("../src/members/taste.js");
+  const { member } = M.demo("Calla Ng"), session = M.sessionFor(member.id);
+  const call = async (method, pathName, body) => {
+    const req = Object.assign(Readable.from(body ? [Buffer.from(JSON.stringify(body))] : []), { method, url: pathName, headers: { "x-serve-session": session } });
+    let out = null; await api.route(req, {}, new URL(`http://x${pathName}`), { json: (_res, code, b) => { out = { code, body: b }; }, o: {} });
+    return out;
+  };
+  T.setLimits(member.id, { windows: [{ days: ["Sat"], from: "09:00", to: "12:00" }] });
+  const before = JSON.stringify(T.get(member.id).windows);
+  for (const ics of ["BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n", "BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART:20261102T090000Z\r\n"]) {
+    const r = await call("POST", "/api/members/calendar/ics", { ics, tz: TZ, save: true });
+    assert.equal(r.code, 400, JSON.stringify(r.body)); assert.match(r.body.error, /No events/);
+    assert.equal(JSON.stringify(T.get(member.id).windows), before, "the limits stay");
+  }
+  const office = cal(`
+    DTSTART;TZID=Asia/Taipei:20261102T090000
+    DTEND;TZID=Asia/Taipei:20261102T180000
+    RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR`);
+  assert.equal((await call("POST", "/api/members/calendar/ics", { ics: office, tz: TZ, save: "true" })).code, 200);
+  assert.notEqual(JSON.stringify(T.get(member.id).windows), before, "the string \"true\" saves");
+  // results through the routes: pending lists them; confirm answers with the confirmer's rating alone
+  const { member: bo } = M.demo("Bo Lin"), { member: cy } = M.demo("Cy Ito");
+  const id = (await call("POST", "/api/members/result", { sport: "tennis", teams: [[member.id], [bo.id, cy.id]], winner: 0, mode: "competitive" })).body.pending;
+  assert.equal((await call("POST", "/api/members/result", { sport: "tennis", teams: [[cy.id, bo.id], [member.id]], winner: 0, mode: "competitive" })).code, 409);
+  const mine = (await call("GET", "/api/members/result/pending")).body.pending;
+  assert.equal(mine[0].id, id); assert.equal(mine[0].by, "You"); assert.equal(mine[0].teams[1][0].name, "Bo Lin");
+  const Sk2 = Sk.store();
+  assert.equal(Sk2.confirm(bo.id, id).rated, false);
+  const last = Sk2.confirm(cy.id, id);
+  assert.deepEqual(Object.keys(last), ["rated", "sport", "rating"]);
+  assert.ok(!JSON.stringify(last).includes(member.id), "no other player's rating");
+});
