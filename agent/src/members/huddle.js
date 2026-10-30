@@ -439,7 +439,8 @@ export function cancel(me, id, { game: alsoGame = false } = {}) {
   const fillOnly = !!h.fill && !alsoGame;
   if (!fillOnly && h.pick && h.players.some((x) => x !== me && h.answers[x] === "yes")) Tr.left(me, startMs(h.pick));
   const wasOn = h.status === "on", game = fillOnly ? null : (h.fill || (wasOn && h.post) || null), inPost = [...(P.find(h.fill || h.post)?.invite.going || [])];
-  h.status = "cancelled";
+  h.status = fillOnly ? "stopped" : "cancelled"; // (stopped: the agents stopped filling; the posted game itself stands)
+  for (const x of h.players) P.dropNotices(x, h.id); // earlier "one yes from you?" notices for it are stale now
   line(h, "host", fillOnly ? `${first(me)} stopped the agents filling the game; the game itself stands.` : `${first(me)} called it off.`, { who: first(me) });
   // the game goes from the feed, and the feed tells everyone in it or waiting (also those who joined from the feed)
   if (game && P.find(game)) P.remove(me, game);
@@ -465,7 +466,8 @@ P.whenJoined((id, post) => {
     h.status = "on"; h.post = post;
     line(h, "host", "The game filled straight from the feed, so the agents stop here.", { who: first(h.host) });
     for (const x of h.players.filter((p) => p !== h.host && p !== id && !v.going.includes(p))) { P.dropNotices(x, h.id); P.notify(x, "huddle", `${first(h.host)}'s ${h.sport} game ${h.pick ? when(h.pick) : ""} filled up from the feed, so you're not needed for it after all.`.replace(/ ,/, ","), { huddle: h.id }); }
-    h.players = h.players.filter((p) => p === h.host || p === id || v.going.includes(p));
+    h.players = [...new Set([h.host, ...v.going, id])]; // everyone in the game now, also those who joined from the feed
+    for (const p of h.players) h.answers[p] = "yes";
   }
   let any = false; for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && ["on", "asking"].includes(x.status) && !x.players.includes(id))) { if (h.status === "on") { h.players.push(id); h.answers[id] = "yes"; } line(h, id, `${first(id)} joined the game${h.status === "asking" ? " straight from the feed" : ""}.`, { who: first(id) }); any = true; } if (any) save(); });
 // a posted game deleted while the agents fill it: the fill stops, and those asked hear it's off
@@ -488,7 +490,7 @@ export function view(h, me) {
     waiting: h.status === "asking" ? h.players.filter((x) => !h.answers[x]).map((x) => (x === me ? "You" : first(x))) : [], fill: h.fill || null,
     ask: h.status === "asking" && h.players.includes(me) && !h.answers[me], due: h.players.includes(me) ? dueBy(h, me) : dueBy(h) };
 }
-const LIVE = { asking: 0, talking: 1, on: 2, stuck: 3, cancelled: 4 };
+const LIVE = { asking: 0, talking: 1, on: 2, stuck: 3, stopped: 4, cancelled: 4 };
 // the member's coming games the agents agreed (asking with their yes, or on), as {date, start}, for the agent chat
 export const agreedFor = (me) => data().huddles.filter((h) => h.pick && h.players.includes(me) && (h.status === "on" || (h.status === "asking" && h.answers[me] === "yes")) && !h.post && !(h.fill && (h.host === me || fillOf(h)?.going.includes(me)))).map((h) => ({ date: h.pick.date, start: h.pick.start, waiting: h.status === "asking" }));
 export const mineFor = (me) => data().huddles.filter((h) => h.host === me || h.players.includes(me)).sort((a, b) => (LIVE[a.status] - LIVE[b.status]) || b.created - a.created).slice(0, 20).map((h) => view(h, me));

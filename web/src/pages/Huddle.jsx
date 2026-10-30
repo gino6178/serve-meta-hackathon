@@ -121,7 +121,7 @@ function whenFromText(t) {
   if (part) return part[0] === "evening" ? "evenings" : part[0] === "afternoon" ? "any" : "mornings";
   return "any";
 }
-const STATUS = { talking: "Agents talking", asking: "Agreed, asking", on: "Game on", stuck: "No time found", cancelled: "Called off" };
+const STATUS = { talking: "Agents talking", asking: "Agreed, asking", on: "Game on", stuck: "No time found", stopped: "Agents stopped · game stays", cancelled: "Called off" };
 
 function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
   const club0 = me.clubs.find((c) => c.id === clubId) || me.clubs[0] || null;
