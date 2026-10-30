@@ -430,11 +430,12 @@ export function cancel(me, id) {
   if (h.host !== me) return { error: "Only the person who asked can call it off.", code: 403 };
   if (!["talking", "asking", "stuck", "on"].includes(h.status)) return { error: "It's already called off.", code: 409 };
   if (h.pick && h.players.some((x) => x !== me && h.answers[x] === "yes")) Tr.left(me, startMs(h.pick));
-  const wasOn = h.status === "on", inPost = wasOn && h.post ? [...(P.find(h.post)?.invite.going || [])] : [];
+  // the game itself: the posted game when on, or the host's own posted game being filled ("call it off" means it's off)
+  const wasOn = h.status === "on", game = (wasOn && h.post) || h.fill || null, inPost = game ? [...(P.find(game)?.invite.going || [])] : [];
   h.status = "cancelled"; line(h, "host", `${first(me)} called it off.`, { who: first(me) });
   // a game that's on and posted (also a posted game the agents filled): it goes from the feed, and the feed tells
   // everyone in it or waiting, also those who joined it straight from the feed
-  if (wasOn && h.post && P.find(h.post)) P.remove(me, h.post);
+  if (game && P.find(game)) P.remove(me, game);
   for (const x of h.players) if (x !== me && !inPost.includes(x)) P.notify(x, "huddle", `${first(me)} called off ${h.sport} ${h.pick ? when(h.pick) : ""}.`.replace(/ \.$/, "."), { huddle: h.id });
   save();
   return { huddle: view(h, me) };

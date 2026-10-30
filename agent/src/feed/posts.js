@@ -265,7 +265,7 @@ export function promote(p, { dayBefore = false } = {}) {
     if (!x) break;
     S.change(() => { v.waitlist = v.waitlist.filter((y) => y !== x); v.going = [...v.going, x]; v.joinedAt = { ...(v.joinedAt || {}), [x]: deps.now() }; });
     onJoined(x, p.id);
-    notify(x, "gameon", `A spot opened${dayBefore ? " the day before" : ""}: you're in for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}.`, { post: p.id });
+    notify(x, "moved-up", `A spot opened${dayBefore ? " the day before" : ""}: you're in for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}.`, { post: p.id });
     inviteReply(p, `${first(authorOf(x) || "A member")} moves up from the waitlist. ${spotsLine(p)}`, x);
     n++;
   }
