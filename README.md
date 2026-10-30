@@ -402,6 +402,40 @@ digest) as our RTX 3090:
     and Share, with its data keyed by an HMAC; feedback and `/forget`, which deletes the loop's data too; and the
     gateway's token and cross-site checks.
 
+## After the hackathon review: thirteen improvements from related work
+
+A survey of similar products, papers and open-source projects (Playtomic, Plei, Reclub, CalBench, Magentic Marketplace,
+FrugalGPT, the A2A spec and others) gave thirteen ranked improvements. All are in the code, each with tests:
+
+- **Booking quality, not just bookings** ([docs/booking_quality.md](docs/booking_quality.md)): each booked game against
+  every time and venue for the same players. Over 12 simulated games the longest trip was never worse than the best
+  possible (0 minutes), total trips 2.3 minutes more on average. Three venue rules side by side (`A2A_VENUE_RULE`:
+  minimax, the default and the most even; least total; Nash).
+- **Calendar privacy:** free/busy probes now charge the same rolling disclosure budget as talks, so walking dates gains
+  nothing (an attacker learns at most 24 of 112 weekly hours in 28 days); a test checks that what A tells B never
+  reaches C.
+- **A firewall for outside agents:** every post and comment passes Prompt Guard first, on its text and a normalised
+  copy (lookalike letters, hidden characters); an adaptive red team rewrites refused injections to probe it.
+- **Turning up, without money:** show-up fades with a 60-day half-life and is shown as a range in words; a game below its
+  minimum players is called off 3 h before; a waitlist place must be confirmed within 12 h, or it passes on.
+- **A signed record of each yes:** every yes (huddle, feed join, answered ask) is signed by the member's agent key into
+  a hash-chained log that anyone with the keys can verify.
+- **Canary statistics** ([docs/community_loop.md](docs/community_loop.md)): the smallest harm each canary size catches.
+  The anytime-valid test rolls a harmless change back 0.5% of the time; a z-test checked at every look does so 20 to
+  30% of the time. CI runs the offline tests on every push.
+- **The 1B student, calibrated** ([docs/decision_model.md](docs/decision_model.md)): ECE 0.052, a conformal threshold
+  near 0.8, and a risk-coverage curve.
+- **A2A v1.0:** signed cards carry `jku`; the proposal and the hold are versioned extensions marked required, refused
+  with -32008 when a client does not name them.
+- **"Match asks first", measured:** at most 3 asks a week (`ASK_WEEK_CAP`), and an optional micro-randomised trial
+  (`ASK_TRIAL_P`, off by default) with its analysis script.
+- **Skill with uncertainty:** per-sport ratings (mu, sigma) that only competitive games change, confirmed by the other
+  side; children's, gentle and charity games never count. Value-of-information questions start from the club's own
+  prior instead of a flat one.
+- **Your calendar in:** import an `.ics` file; only busy times are read, turned into weekly free windows.
+- **Video:** the person detector can be RT-DETRv2 (`PERSON_DETECTOR=rtdetr`, DETR stays the default), and with ball
+  tracking a highlight can start and end with the rally (`RALLY_CLIP=1`).
+
 ## What is where
 
 | Folder | What it holds |
