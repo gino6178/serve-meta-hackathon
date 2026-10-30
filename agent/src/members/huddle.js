@@ -26,6 +26,7 @@ import * as C from "./clubs.js";
 import * as P from "../feed/posts.js";
 import * as Tr from "./trust.js";
 import * as N from "./needs.js";
+import * as Consent from "../a2a/consent.js";
 
 const FILE = () => path.resolve(process.env.HUDDLE_FILE || "data/huddles.json");
 let db = null, from = null;
@@ -114,7 +115,7 @@ const inWhen = (w, date, start) => !w || ((!w.days.length || w.days.includes(dat
 const isNear = (h, id) => (h.nearby || []).includes(id);
 const line = (h, from, text, extra = {}) => { h.talk.push({ at: Date.now(), from, text, ...extra }); };
 // what anyone sees of a person's two records (trust.js)
-export const trustOf = (id) => { const b = Tr.badge(id); return { show: Tr.showText(b), agent: Tr.agentText(b), newShow: b.show.new, newAgent: b.agent.new, rate: b.show.new ? null : b.show.rate, kept: b.agent.new ? null : b.agent.rate, flag: b.agent.probe || !!b.agent.badSig }; };
+export const trustOf = (id) => { const b = Tr.badge(id); return { show: Tr.showText(b), range: Tr.rangeText(b), agent: Tr.agentText(b), newShow: b.show.new, newAgent: b.agent.new, rate: b.show.new ? null : b.show.rate, kept: b.agent.new ? null : b.agent.rate, flag: b.agent.probe || !!b.agent.badSig }; };
 // when someone already plays: their feed games and the huddles they are in (ms), for nobody to be booked twice
 const busyOf = (id, except = null, game = null) => [...P.busyAt(id).filter((t) => !game || t !== game), ...data().huddles.filter((h) => h.id !== except && ["asking", "on"].includes(h.status) && h.pick && h.players.includes(id)).map((h) => startMs(h.pick))];
 
@@ -313,12 +314,19 @@ export async function reply(me, id, yes, why = null, { now = new Date(), wait = 
   P.dropNotices(me, h.id);
   if (yes) {
     h.answers[me] = "yes";
+    signYes(h, me, byAgent, now);
     if (h.players.every((x) => h.answers[x] === "yes")) await book(h);
     save();
     return { huddle: view(h, me), line: r.line };
   }
   const back = await drop(h, me, why, now, wait);
   return { huddle: view(h, me), line: r.line, ...back };
+}
+// a yes in a huddle, signed by the member's agent key and chained (a2a/consent.js): the game as it stood when they said it
+function signYes(h, me, byAgent, now = new Date()) {
+  const o = h.pick;
+  try { Consent.record(me, { huddle: h.id, sport: h.sport, date: o.date, start: o.start, minutes: MINUTES, venue: o.place?.id || null, where: o.where || o.place?.name || null, players: [...h.players].map(String).sort() }, { via: "huddle", ref: h.id, agent: byAgent, now: now.getTime() }); }
+  catch (e) { console.error("consent record", e.message); }
 }
 // an agent's yes, and the person's answer, as a promise on the trust chain: once per person per huddle, never for "busy"
 // (a busy evening is not the agent's mistake), and for someone asked directly only when their agent would have said yes
@@ -386,14 +394,14 @@ async function book(h) {
   const o = h.pick;
   if (h.fill && P.find(h.fill)) {
     h.status = "on"; h.post = h.fill;
-    for (const id of h.players) if (id !== h.host) P.join(id, h.fill, true);
+    for (const id of h.players) if (id !== h.host) P.join(id, h.fill, true, { via: null }); // (their yes is signed already)
     line(h, "host", `Everyone said yes: they're in your game, ${when(o)} at ${o.where}.`, { who: first(h.host), agreed: true });
     return;
   }
   const r = await P.post(h.host, { fromHuddle: h.id, text: `Our agents agreed this one: ${o.where}${o.each ? `, ${D.CURRENCY}${o.each} each` : ""}.`, invite: { sport: h.sport, day: o.date, start: o.start, where: o.where.slice(0, 60), spots: h.need - 1, at: o.at, gate: h.gate, each: o.kind === "venue" ? o.each : 0 }, room: h.club }).catch((e) => ({ error: e.message }));
   h.status = "on";
   Tr.expect(r?.post?.id || h.id, h.players, startMs(o)); // after the game, the players say who came
-  if (r?.post?.id) { h.post = r.post.id; for (const id of h.players) if (id !== h.host) P.join(id, h.post, true); }
+  if (r?.post?.id) { h.post = r.post.id; for (const id of h.players) if (id !== h.host) P.join(id, h.post, true, { via: null }); }
   if (!r?.post) line(h, "host", `Everyone said yes: ${when(o)} at ${o.where} is on. It couldn't go on the feed (${String(r?.error || "the feed refused it").slice(0, 120)})${h.players.length < h.need ? `, so the open spot${h.need - h.players.length > 1 ? "s aren't" : " isn't"} listed: post the game yourself to fill ${h.need - h.players.length > 1 ? "them" : "it"}` : ""}.`, { who: first(h.host), agreed: true });
   else line(h, "host", `Everyone said yes. ${when(o)} at ${o.where} is on${h.players.length < h.need ? `; ${h.need - h.players.length} spot${h.need - h.players.length > 1 ? "s are" : " is"} open in the feed` : ""}.`, { who: first(h.host), agreed: true });
   if (!r?.post) for (const id of h.players) P.notify(id, "gameon", `Game on: ${h.sport} ${when(o)} at ${o.where}. ${names(h.players.filter((x) => x !== id).map(first))} ${h.players.length > 2 ? "are" : "is"} in.`, { huddle: h.id });
@@ -603,7 +611,7 @@ export function answerGame(me, postId, yes, why = null, { now = new Date(), byAg
   }
   const r = byAgent ? { line: "", taste: T.view(T.get(me)) } : T.reply(me, { date: g.date, start: g.start, km: g.km ?? 3, each: g.each ?? 0, busy: 0.5 }, yes, why);
   if (yes) {
-    const j = P.join(me, postId, true); if (j.error) return j;
+    const j = P.join(me, postId, true, { via: "ask", agent: byAgent }); if (j.error) return j;
     if (j.waitlisted) return { line: `You're on the waitlist: ${j.why}. If a spot is open the day before, it's yours.`, taste: r.taste, waitlisted: true };
     return { line: `You're in. ${r.line}`, taste: r.taste };
   }

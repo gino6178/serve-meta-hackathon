@@ -19,8 +19,12 @@ import { perWeekFor, isQuestion, answer } from "./papers.js";
 import { lineFor } from "./line.js";
 import { find as clubOf } from "../members/clubs.js";
 import { holdInvite } from "../members/programs.js";
+import * as Consent from "../a2a/consent.js";
 
-const MIN = 6e4, DAY = 864e5;
+const MIN = 6e4, DAY = 864e5, HOUR = 36e5;
+// a game short of its minPlayers this long before the start is called off; a spot offered from the waitlist waits this
+// long for a yes (never past the cut-off), then goes to the next in line
+export const CUTOFF_HOURS = 3, CONFIRM_HOURS = 12;
 // how much one member can do: [count, window]
 export const RATES = { post: [[4, 10 * MIN], [12, DAY]], comment: [[10, 10 * MIN], [60, DAY]], like: [[120, 60 * MIN]], report: [[10, DAY]], ask: [[10, DAY]], draft: [[10, DAY]], upload: [[20, DAY]] };
 export function limited(player, kind) {
@@ -134,12 +138,15 @@ export function inviteOf(x) {
   if (!(spots >= 1 && spots <= 12)) return { error: "Between 1 and 12 spots." };
   if (x.each != null && x.each !== "" && !(+x.each >= 0 && +x.each <= 5000)) return { error: "each is the price per person, from 0 to 5000." };
   if (x.gate?.minShow != null && !(+x.gate.minShow >= 0 && +x.gate.minShow <= 1)) return { error: "gate.minShow is from 0 to 1 (0.75 is 75%)." };
+  // the fewest players (the host counted) the game is worth playing with: short of it at the cut-off, it's called off
+  const minPlayers = x.minPlayers == null || x.minPlayers === "" ? null : Math.round(+x.minPlayers);
+  if (minPlayers != null && !(minPlayers >= 2 && minPlayers <= spots + 1)) return { error: `minPlayers counts the host: from 2 to ${spots + 1} for ${spots} spot${spots > 1 ? "s" : ""}.` };
   // the place on the map, when it was picked there (rounded to about 10 m)
   const lat = +x.at?.lat, lon = +x.at?.lon, at = isFinite(lat) && isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat: +lat.toFixed(4), lon: +lon.toFixed(4) } : null;
   // a gate (members/trust.js): people under its show-up rate wait; agents that keep too few promises can't answer
   const gate = x.gate ? Tr.gateOf(x.gate) : null, each = x.each == null || x.each === "" ? null : Math.round(+x.each), weeks = Math.round(+x.repeat?.weekly || 0);
   if (weeks && !/^\d{4}-/.test(day)) return { error: "A weekly game needs its first date (YYYY-MM-DD)." };
-  return { invite: { sport, day, start, where, spots, ...(at ? { at } : {}), ...(gate && (gate.minShow || gate.agentMin) ? { gate } : {}), ...(each != null && each >= 0 && each <= 5000 ? { each } : {}), ...(weeks > 0 ? { repeat: { weekly: Math.min(8, weeks) } } : {}), going: [] } };
+  return { invite: { sport, day, start, where, spots, ...(at ? { at } : {}), ...(gate && (gate.minShow || gate.agentMin) ? { gate } : {}), ...(each != null && each >= 0 && each <= 5000 ? { each } : {}), ...(weeks > 0 ? { repeat: { weekly: Math.min(8, weeks) } } : {}), ...(minPlayers ? { minPlayers } : {}), going: [] } };
 }
 export async function post(player, { text = "", media = null, invite = null, agent = null, room = null, fromHuddle = null } = {}) {
   const t = T.tidy(text, 600);
@@ -220,8 +227,10 @@ function inviteReply(p, text, about = null) {
   const owner = p.by.agentOf || p.by.player;
   S.change(() => { p.comments.push({ id: S.newId("c"), at: deps.now(), by: { type: "agent", agentOf: owner }, text, reply: true, ...(about ? { about } : {}), reports: [], checks: { made: "code" } }); });
 }
-// joining an invite (or leaving it): the poster's agent says who is in and how many spots are left
-export function join(player, postId, on = true) {
+// joining an invite (or leaving it): the poster's agent says who is in and how many spots are left. A yes is signed and
+// kept (a2a/consent.js record): via says where it was given ("feed", "ask"), agent whether their agent gave it; via null
+// when the yes was already signed elsewhere (a huddle's)
+export function join(player, postId, on = true, { via = "feed", agent = false } = {}) {
   const p = find(postId);
   if (!p || !visible(p, player) || p.kind !== "invite" || !p.invite) return { error: "That invite is not in the feed any more.", code: 404 };
   if ((p.by.player || p.by.agentOf) === player) return { error: "It's your own invite.", code: 400 };
@@ -229,6 +238,14 @@ export function join(player, postId, on = true) {
   const nm = first(authorOf(player) || "A member");
   // leaving the waitlist
   if (!on && waiting) { S.change(() => { v.waitlist = v.waitlist.filter((x) => x !== player); }); return { post: view(p, player), left: "waitlist" }; }
+  // a spot offered from the waitlist: this yes takes it
+  if (on && was && v.offered?.[player]) {
+    S.change(() => { delete v.offered[player]; });
+    if (via) signYes(player, p, "confirm", agent);
+    inviteReply(p, `${nm} is in. ${spotsLine(p)}`, player);
+    if (full(v)) gameOn(p);
+    return { post: view(p, player), confirmed: true };
+  }
   if (on === was) return { post: view(p, player) };
   if (on && p.room && !roomJoin(p.room, player)) return { error: "This club is private: ask to join it first.", code: 403 };
   // a game that overlaps one they're already in (games run about 90 minutes): not both
@@ -254,21 +271,34 @@ export function join(player, postId, on = true) {
   if (!on && was) { onLeft(player, p.id); S.change((d) => { d.notices = (d.notices || []).filter((x) => !(x.post === p.id && (x.player === player || x.kind === "gameon"))); }); }
   if (on && !was) onJoined(player, p.id); // (its "Game on" is stale now)
   // a late drop: leaving in the last six hours after being in for more than half an hour (a quick mistake is not one)
-  const late = !on && deps.now() - ((v.joinedAt || {})[player] || 0) > 30 * 60e3 && Tr.left(player, startOf(v));
+  // (turning down a spot offered from the waitlist is not one)
+  const late = !on && !v.offered?.[player] && deps.now() - ((v.joinedAt || {})[player] || 0) > 30 * 60e3 && Tr.left(player, startOf(v));
   S.change(() => {
+    if (v.offered) delete v.offered[player];
     v.going = on ? [...v.going, player] : v.going.filter((x) => x !== player);
     v.joinedAt = { ...(v.joinedAt || {}) }; if (on) v.joinedAt[player] = deps.now(); else delete v.joinedAt[player];
   });
   if (!on) Tr.unexpect(p.id, player); // off the after-game check of a game they left
+  if (on && via) signYes(player, p, via, agent);
   inviteReply(p, `${on ? `${nm} is in.` : `${nm} can't make it${late ? " (a late drop, under six hours before the start)" : ""}.`} ${spotsLine(p)}`, player);
   if (!on) {
     notify(host, "left", `${nm} can't make your ${v.sport} ${dayWords(v.day)} ${v.start}. ${spotsLine(p)}`, { post: p.id });
     promote(p); // the first on the waitlist takes the spot
   }
-  if (on && v.going.length >= v.spots) gameOn(p);
+  if (on && full(v)) gameOn(p);
   return { post: view(p, player) };
 }
-// a spot opens, or the game is a day away with spots still open: the waitlist moves up, first come first in, and is told
+// full, and nobody still to confirm a spot offered from the waitlist
+const full = (v) => v.going.length >= v.spots && !Object.keys(v.offered || {}).length;
+// the game a yes to an invite agrees to, signed by the member's agent key and chained (a2a/consent.js)
+const yesGame = (p) => ({ post: p.id, host: p.by.player || p.by.agentOf, sport: p.invite.sport, day: p.invite.day, start: p.invite.start, where: p.invite.where });
+function signYes(player, p, via, agent = false) {
+  try { return Consent.record(player, yesGame(p), { via, ref: p.id, agent, now: deps.now() }); } catch (e) { console.error("consent record", e.message); return null; }
+}
+// a spot opens, or the game is a day away with spots still open: the waitlist moves up, first come first in, and is told.
+// The spot is offered: it is theirs until confirmBy (CONFIRM_HOURS, and never past the cut-off), and with no yes by then
+// it goes to the next in line (promoteDue)
+const confirmBy = (v, now) => { const at = startOf(v), due = now + CONFIRM_HOURS * HOUR; return at ? Math.max(Math.min(due, at - CUTOFF_HOURS * HOUR), Math.min(now + HOUR, at)) : due; };
 export function promote(p, { dayBefore = false } = {}) {
   const v = p.invite;
   if (!v?.waitlist?.length || v.going.length >= v.spots) return 0;
@@ -278,22 +308,52 @@ export function promote(p, { dayBefore = false } = {}) {
   while (v.going.length < v.spots) {
     const x = v.waitlist.find(free);
     if (!x) break;
-    S.change(() => { v.waitlist = v.waitlist.filter((y) => y !== x); v.going = [...v.going, x]; v.joinedAt = { ...(v.joinedAt || {}), [x]: deps.now() }; });
+    const due = confirmBy(v, deps.now());
+    S.change(() => { v.waitlist = v.waitlist.filter((y) => y !== x); v.going = [...v.going, x]; v.joinedAt = { ...(v.joinedAt || {}), [x]: deps.now() }; v.offered = { ...(v.offered || {}), [x]: due }; });
     onJoined(x, p.id);
-    notify(x, "moved-up", `A spot opened${dayBefore ? " the day before" : ""}: you're in for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}.`, { post: p.id });
+    notify(x, "moved-up", `A spot opened${dayBefore ? " the day before" : ""} for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}. It's yours if you say yes by ${clock(due)}; after that it goes to the next in line.`, { post: p.id, confirmBy: due });
     inviteReply(p, `${first(authorOf(x) || "A member")} moves up from the waitlist. ${spotsLine(p)}`, x);
     n++;
   }
-  if (v.going.length >= v.spots) gameOn(p);
+  if (full(v)) gameOn(p);
   return n;
 }
-// the games starting within a day that still have spots: their waitlists move up (run whenever members look)
+const clock = (ms) => { const d = new Date(ms); return `${dayWords(localDay(ms))} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
+// a spot offered from the waitlist with no yes in time: it goes back, and the next in line is offered it
+function lapse(p, x) {
+  const v = p.invite;
+  S.change(() => { delete v.offered[x]; v.going = v.going.filter((y) => y !== x); if (v.joinedAt) delete v.joinedAt[x]; });
+  onLeft(x, p.id); Tr.unexpect(p.id, x);
+  notify(x, "lapsed", `No yes in time, so the spot in ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where} went to the next in line.`, { post: p.id });
+  inviteReply(p, `${first(authorOf(x) || "A member")}'s spot goes to the next in line. ${spotsLine(p)}`, x);
+  promote(p);
+}
+// a game still short of its minPlayers at the cut-off: called off, the way a host calls one off (remove), and everyone
+// who said yes (the host, those in, those waiting) told once; the post goes, so it can't be called off twice
+function callOff(p) {
+  const v = p.invite, host = p.by.player || p.by.agentOf, game = `${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}`, have = 1 + v.going.filter((x) => !v.offered?.[x]).length;
+  if (v.repeat?.weekly > 0 && !v.rolled) roll(p, deps.now()); // next week's still goes up
+  notify(host, "called-off", `Your ${game} is called off: ${have} of the ${v.minPlayers} players it needs, ${CUTOFF_HOURS} hours before.`, { post: p.id });
+  for (const x of [...new Set([...v.going, ...(v.waitlist || [])])]) if (x !== host) notify(x, "called-off", `${game} is called off: too few players ${CUTOFF_HOURS} hours before.`, { post: p.id });
+  for (const x of v.going) Tr.unexpect(p.id, x);
+  S.change((d) => { if (!v.rolled) S.dropMedia(p.media); d.posts = d.posts.filter((y) => y !== p); d.notices = (d.notices || []).filter((y) => !(y.post === p.id && y.kind !== "called-off")); }); // (next week's keeps the photo)
+  onRemoved(p.id);
+}
+// a weekly game that has passed (or was called off) posts next week's, the same host, game and gate, nobody in yet
+function roll(p, now) {
+  const [y, m, d] = p.invite.day.split("-").map(Number), x = new Date(y, m - 1, d + 7), day = `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+  S.change((db) => { p.invite.rolled = true; db.posts.push({ ...p, id: S.newId("p"), at: now, invite: { ...p.invite, day, going: [], waitlist: [], joinedAt: {}, offered: {}, rolled: false, repeat: { weekly: p.invite.repeat.weekly - 1 } }, likes: [], comments: [], reports: [] }); });
+}
+// the games starting within a day that still have spots: their waitlists move up (run whenever members look). The same
+// pass lets offered spots with no yes in time go to the next in line, and calls off games short of their minPlayers at
+// the cut-off
 export function promoteDue(now = deps.now()) {
   let n = 0;
-  // a weekly game that has passed posts next week's, the same host, game and gate, nobody in yet
-  for (const p of [...S.data().posts]) if (p.kind === "invite" && p.invite?.repeat?.weekly > 0 && !p.invite.rolled && !p.hidden && (startOf(p.invite) || Infinity) < now) {
-    const [y, m, d] = p.invite.day.split("-").map(Number), x = new Date(y, m - 1, d + 7), day = `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
-    S.change((db) => { p.invite.rolled = true; db.posts.push({ ...p, id: S.newId("p"), at: now, invite: { ...p.invite, day, going: [], waitlist: [], joinedAt: {}, rolled: false, repeat: { weekly: p.invite.repeat.weekly - 1 } }, likes: [], comments: [], reports: [] }); });
+  for (const p of [...S.data().posts]) if (p.kind === "invite" && p.invite?.repeat?.weekly > 0 && !p.invite.rolled && !p.hidden && (startOf(p.invite) || Infinity) < now) roll(p, now);
+  for (const p of [...S.data().posts]) if (p.kind === "invite" && p.invite?.offered && !p.hidden) for (const [x, due] of Object.entries(p.invite.offered)) if (now >= due && p.invite.offered[x]) lapse(p, x);
+  for (const p of [...S.data().posts]) if (p.kind === "invite" && p.invite?.minPlayers && !p.hidden) {
+    const t = startOf(p.invite), have = 1 + p.invite.going.filter((x) => !p.invite.offered?.[x]).length;
+    if (t && t > now && t - now <= CUTOFF_HOURS * HOUR && have < p.invite.minPlayers) callOff(p);
   }
   for (const p of S.data().posts) if (p.kind === "invite" && p.invite?.waitlist?.length && !p.hidden) { const t = startOf(p.invite); if (t && t > now && t - now < 864e5) n += promote(p, { dayBefore: true }); }
   return n;
@@ -505,7 +565,7 @@ export function view(p, viewer) {
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),
-    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: sameApart(p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member")))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots, ...(mine && fillInfo(p.id) ? { filling: fillInfo(p.id) } : {}) } } : {}),
+    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, offered: undefined, confirmBy: p.invite.offered?.[viewer] || null, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), range: Tr.rangeText(b), agent: Tr.agentText(b) }; })(), names: sameApart(p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member")))), joined: p.invite.going.includes(viewer), full: full(p.invite), ...(mine && fillInfo(p.id) ? { filling: fillInfo(p.id) } : {}) } } : {}),
     ...(p.simulated ? { simulated: true } : {}), ...(p.held ? { held: true } : {}), ...(p.hidden ? { hidden: true } : {}),
     likes: p.likes.length, liked: p.likes.includes(viewer),
     comments: p.comments.filter((c) => (!c.held && !c.hidden) || c.by.player === viewer).map((c) => commentView(c, viewer)),
@@ -532,7 +592,7 @@ export function forget(player) {
     for (const p of d.posts) {
       // (and an agent's line that names them: "Mia is in")
       const mine = new Set(p.comments.filter((c) => c.by.player === player || c.by.agentOf === player || c.about === player).map((c) => c.id));
-      if (p.invite) { p.invite.going = p.invite.going.filter((x) => x !== player); if (p.invite.waitlist) p.invite.waitlist = p.invite.waitlist.filter((x) => x !== player); if (p.invite.joinedAt) delete p.invite.joinedAt[player]; }
+      if (p.invite) { p.invite.going = p.invite.going.filter((x) => x !== player); if (p.invite.waitlist) p.invite.waitlist = p.invite.waitlist.filter((x) => x !== player); if (p.invite.joinedAt) delete p.invite.joinedAt[player]; if (p.invite.offered) delete p.invite.offered[player]; }
       const before = p.comments.length;
       p.comments = p.comments.filter((c) => !mine.has(c.id) && !mine.has(c.reply));
       out.comments += before - p.comments.length;

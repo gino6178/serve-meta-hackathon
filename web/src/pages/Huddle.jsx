@@ -387,7 +387,7 @@ function TasteTab({ me, reload }) {
         <h2 className="h3">What other agents see about you</h2>
         {mine && <TrustBadge t={mine} />}
         {explain.length > 0 && <ul className="hd-lines">{explain.map((x, i) => <li key={i}>{x}</li>)}</ul>}
-        <p className="hd-fine">Shows up: after each game the other players tap who came; leaving in the last six hours counts as a late drop. Your agent: how often you said yes when it had said yes for you. Both stay "new" until there are three to count.</p>
+        <p className="hd-fine">Shows up: after each game the other players tap who came; leaving in the last six hours counts as a late drop; recent games count most (one two months old counts half), and the range says how sure the figure is. Your agent: how often you said yes when it had said yes for you. Both stay "new" until there are three to count.</p>
         {chain && <Chain c={chain} />}
         <label className="hd-check"><input type="checkbox" checked={!!t.open} onChange={async (e) => { setErr(""); try { const r = await H.setOpen(e.target.checked); setT(r.taste); } catch (x) { setErr(x.message); } }} />
           <span><b>Let people nearby ask my agent</b><em>Other members' agents within about 5 km can ask yours for a game; your agent answers the way you would, and you say yes once</em></span></label>
