@@ -30,9 +30,6 @@ their own words (translated from Chinese):
 | Someone not in the group | Has to be added to the chat first | Opens the link and joins |
 | Who is in | Read back from the votes and replies | On the card; the agent posts each join in the thread |
 
-On the live site, the first player joined 1, 6 and 46 minutes after a game was posted, and the two games filled within
-76 and 46 minutes.
-
 Serve is a platform where people and agents make games together. Every person on it has an agent: the one Serve gives
 them, on the web and in Messenger, or their own, which comes in through the same open door (section 2). Behind the
 agents runs Muse Glimmer and **our own model, a Llama 3.2 1B we distilled from Glimmer**, which makes Glimmer's choice
@@ -73,6 +70,10 @@ tennis game, free, 2.6 km away.
 
 Serve keeps one rule throughout: **code computes the facts and keeps the hard rules; the models choose only among the
 real preferences left.** That keeps a model's mistake from turning into a wrong booking or a clash.
+
+**Terms used below.** *One yes*: the single tap each person gives before anything is booked. *The student*: our
+own Llama 3.2 1B, distilled from Muse Glimmer (2.6). *The decider*: Glimmer itself, read from a single token with no
+reasoning.
 
 **The four parts that matter most:** a standard A2A protocol with a distributed negotiation engine (2.1), active
 querying by the value of information (2.2), a community that evolves the platform with automatic rollback (2.3), and
@@ -126,6 +127,10 @@ With 20,000 requests each, every rate is good to about 0.7 points either way, so
 
 What members ask for becomes changes to the platform, through a pipeline in which code makes every decision and the
 models only write short sentences that code checks:
+
+**unmet request → one sentence, shared only with a yes → screened → idea and quadratic vote → spec and class → nine
+gates → canary of members → kept, or rolled back by itself** (bigger changes go to a person).
+
 1. **Signals and one yes.** A member's agent counts unmet requests and thumbs, with no words and no player id (an
    HMAC). Glimmer paraphrases an unmet request as one sentence; code checks it (no names, numbers, links or body
    terms), and the member taps Share or Don't. Prompt Guard 2, Llama Guard 3 and code screen it again.
@@ -133,7 +138,7 @@ models only write short sentences that code checks:
    a proposal only with support on weekdays and weekends. Votes are quadratic [10]: 9 credits a month, n votes cost
    n², so no small group can swamp a vote.
 3. **A spec and its class.** Glimmer drafts a spec from a summary alone; code writes the counts, the class, the oracle
-   and the privacy line. The class comes from what the change does, never from the draft: C0 a declared setting inside
+   (a test of the change written from the spec, which the builder never sees) and the privacy line. The class comes from what the change does, never from the draft: C0 a declared setting inside
    its range, C1 wording, C2 a tool parameter, C3 anything else. A never-list (booking without a yes, data off the
    server, a diagnosis or dose, editing the tests or the guard) is checked with CodeShield's rules [11].
 4. **Nine gates.** Policy, a code scan, unit tests, the crash matrix, the red team, Messenger end to end, the Autopilot
@@ -151,15 +156,17 @@ It draws on the Darwin Gödel Machine [12], which hacked its own evaluation (so 
 AlphaEvolve [13] (keep a change only when evaluators pass it), Clio [14] (minimum cluster sizes for privacy) and
 CaMeL [15] (the model that reads untrusted text is not the code that acts).
 
-### 2.4 3D reconstruction from a phone video
+### 2.4 3D reconstruction and automatic highlights from a phone video
 
 For a highlight, Serve can stop time and move the camera round the player, from one ordinary phone video:
 - **Reconstruction.** MapAnything [16] reads metric depth and the camera from the moment's frame; SAM 2.1 [17] cuts the
   player out, and the court behind them is filled in from neighbouring frames. The scene is then re-rendered from a
   camera swung around the player.
 - **Knowing how far to go.** Arcs of about ±6 to 12° look like a real camera move; wider ones bend posts and double the
-  net. One learned threshold on invented pixels (6.26%) picks the widest arc that still looks right, or falls back to a
-  zoom: on 84 labelled frames it reached precision 1.00 and recall 0.79, against 0.45 and 0.64 for the first rule.
+  net. Seen from a new angle, part of the frame was never filmed, and the renderer has to make those
+  pixels up. One learned threshold on that share of invented pixels (6.26% of the frame) picks the widest arc that still
+  looks right, or falls back to a zoom: on 84 labelled frames it reached precision 1.00 and recall 0.79, against 0.45
+  and 0.64 for our first rule (a budget on invented patches at low resolution).
   From 14 moments of one clip it chose 4 orbits, 6 zooms and 4 holds.
 - **A second opinion that says why.** The threshold decides; Muse Wonder explains. On the same 84 frames it agreed
   with the labels 87% of the time, and it names what it rejects ("doubled ghost net outline above the net"), which a
@@ -168,14 +175,22 @@ For a highlight, Serve can stop time and move the camera round the player, from 
   tracker, DETR [18] and Sapiens2) caught every frame where they were missing. A moment takes 19.9 s on the RTX 3090
   once the models are loaded.
 
+- **Automatic highlights.** A clip to share is cut from the player's own video with no editing by the player: DETR
+  finds the people, Sapiens2 finds the moment worth sharing (a racket's fastest swing, the top of a jump, a kick), SAM
+  2.1 cuts the player out, and the clip replays that moment in slow motion with a caption Glimmer writes and code
+  checks. A frame-by-frame check makes sure the player and the racket hand are really in the shot: on 170 labelled
+  frames it caught every frame where they were missing (34 of 34), so the camera never aims at an empty spot.
+
+![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](shots/highlight_strip.png)
+
 ### 2.5 A tiered decision engine, and a booking step by step
 
 Following FrugalGPT [19], decisions pass through three layers, each taking only what the one before could not settle:
 - **Layer 0, code (milliseconds):** free times, calendar clashes, trips and every hard rule. The game's card comes from
   this layer: on a local copy it appeared 7 ms after the request at the median (97 ms at most, 9 runs).
 - **Layer 1, our own distilled model (about 0.9 s):** the Llama 3.2 1B we trained from Muse Glimmer (2.6) answers when
-  it is at least 0.6 sure. The one-pass decider (Glimmer read from one token, 0.53 s) takes part of what is left, only
-  at the 5% risk level.
+  it is at least 0.6 sure. The decider (0.53 s) then takes some of what is left: it keeps its pick only when the
+  chance that it differs from Glimmer's full answer is under 5%, which is true for about 8% of the choices it sees.
 - **Layer 2, Muse Glimmer (about 40 s):** only the few choices still open and the short texts, streamed to the screen
   step by step (NDJSON). Every wait the person starts shows a moving bar and a status line within 250 ms.
 Before any of them, Match works ahead of time: it asks about the player's usual times before the player does, so the
@@ -197,7 +212,7 @@ person's hard rules.
 
 | | Muse Glimmer, full answer | Our 1B student |
 |---|---|---|
-| Agreement with Glimmer on 500 held-out cases | 88.8% (with itself) | **89.5%** |
+| Agreement with Glimmer on all 500 held-out cases (every case answered; always taking the first listed time: 82.7%) | 88.8% (with itself) | **89.5%** (88.5% after int4) |
 | Time per choice | about 40 s, on the RTX 3090 | **about 0.9 s, on the CPU** |
 | Cases it answers at 0.6 sure | all | 96% of 500; 73% of the 196 hardest (the asked time breaks a rule, calendars shared) |
 
@@ -207,7 +222,7 @@ calendars on), with no rule broken. When it is unsure, busy for
 way, so the student matches Glimmer as closely as Glimmer matches itself, about 44 times faster than its full answer.
 
 **Why distil, when the one-pass decider takes 0.53 s?** The decider is still Glimmer, so it needs the GPU that every
-agent's reasoning and the video models share, and it keeps a pick only at the 5% risk level (about 8% of choices). The
+agent's reasoning and the video models share, and it keeps a pick only when it is that sure (about 8% of choices). The
 student runs on the CPU, answers 96% of the 500 test cases on its own, and leaves the GPU free for the work only Glimmer
 can do.
 
@@ -224,23 +239,14 @@ can do.
   answers. S6 now blocks a text only when code also finds a dose, a medicine to take, or a condition the player is said
   to have.
 
-### 2.7 Automatic highlights from the player's own video
+### 2.7 Security, and a failure the agents found
 
-- **Automatic highlights.** A clip to share is cut from the player's own video with no editing by the player: DETR
-  finds the people, Sapiens2 finds the moment worth sharing (a racket's fastest swing, the top of a jump, a kick), SAM
-  2.1 cuts the player out, and the clip replays that moment in slow motion with a caption Glimmer writes and code
-  checks. A frame-by-frame check makes sure the player and the racket hand are really in the shot: on 170 labelled
-  frames it caught every frame where they were missing (34 of 34), so the camera never aims at an empty spot.
-
-![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](shots/highlight_strip.png)
-
-
-### 2.8 Agent audits and resilience
-
-- **Independent agents, cold:** 25 rounds of fresh agents (153 in all, six a round from round 6), 16,713 logged
-  requests, fixes between rounds; the six agents of the last round found no fault in a core flow.
-- **Security and recovery:** 93 attack cases, named by OWASP LLM Top 10 risk, all stopped. The gateway was killed at
-  five points in a booking; all 20 recovery checks passed and no game was booked twice.
+- **Attacks and crashes.** 93 attack cases, named by OWASP LLM Top 10 risk, were all stopped; the crash and recovery
+  checks are in 2.1.
+- **A failure, and the fix.** During the agent rounds, a tester working as a host found it could work out how
+  many people nearby were open to being asked, first from a count and then from the talk. Now nearby people appear only
+  once they can actually play, and everyone else sees only published badge words; later rounds re-checked it and found
+  nothing.
 
 ## 3. Meta models and tools
 
@@ -286,6 +292,8 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 - **The slow path still exists.** When the small models are unsure, Glimmer takes about 40 s. The person sees the steps
   stream in and a moving status line, but it is still a wait.
 - **Venues are samples.** No venue has joined yet, so quiet-hour prices are sample prices.
+- **The community loop has not run on real members.** An idea shows only once 5 different members ask for it, so
+  with one small real club it has so far run on a simulated club.
 - **Orbit replays are short.** Only arcs of about ±6 to 12° look right; otherwise Serve falls back to a zoom.
 
 ## 5. Sources and notes
