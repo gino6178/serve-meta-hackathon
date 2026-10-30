@@ -1,0 +1,36 @@
+# The offline tests on every push and pull request, and the never-list on the builder's branches.
+# No secrets, no model, no network beyond the checkout and npm. (.github/ is on the builder's never-list: it can't
+# change this file.)
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: agent/package-lock.json
+      # ffmpeg for the video test; the builder's sandbox test runs as it does on the server (Linux)
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+      - name: offline tests
+        working-directory: agent
+        run: npm ci && npm test
+      # The never-list (agent/test/policy.mjs, docs/never.md) on what a loop/ branch changes against its base: exit 1
+      # refuses. Maintainers' branches change the tests and the loop by design, so only the builder's are held to it.
+      - name: never-list
+        if: startsWith(github.head_ref || github.ref_name, 'loop/')
+        env:
+          BASE: ${{ github.base_ref || 'main' }}
+        run: |
+          git fetch --no-tags origin "$BASE"
+          git diff "origin/$BASE...HEAD" > "$RUNNER_TEMP/loop.diff"
+          node agent/test/policy.mjs "$RUNNER_TEMP/loop.diff"
