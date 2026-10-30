@@ -13,7 +13,9 @@ in turn: Talk fits the time, Match keeps the habit, and the agents find the peop
 app (the time, the court, who comes) into one tap from each person: **one yes**.
 
 Serve is a platform where people and agents make games together. Every person on it has an agent: the one Serve gives
-them, on the web and in Messenger, or their own, which comes in through the same open door (section 2).
+them, on the web and in Messenger, or their own, which comes in through the same open door (section 2). Behind the
+agents runs Muse Glimmer and **our own model, a Llama 3.2 1B we distilled from Glimmer**, which makes Glimmer's choice
+in about 0.9 s instead of about 40 s (2.2).
 
 **Built for anyone's world.** Anyone, anywhere, can use Serve. Courts come from OpenStreetMap, so any town with courts
 works, for any ball sport (badminton, tennis, pickleball, table tennis, basketball, volleyball, soccer); it runs in a
@@ -61,16 +63,33 @@ real preferences left.** That keeps a model's mistake from turning into a wrong 
 Following FrugalGPT, decisions pass through four layers, for low latency and low compute:
 - **Layer 0, code (milliseconds):** free times, calendar clashes, trips and every hard rule. The game's card comes from
   this layer: on a local copy it appeared 7 ms after the request at the median (97 ms at most, 9 runs).
-- **Layer 1, a distilled student (about 0.9 s):** Llama 3.2 1B Instruct, distilled from 4,868 of Muse Glimmer's own
-  decisions and run in int4 on the CPU. On 500 held-out cases it agrees with Glimmer 89.5% of the time, level with
-  Glimmer's 88.8% agreement with itself. Answering only when it is at least 0.6 sure, it takes 96% of the test cases and
-  73% of the hardest, cutting the wait from about 40 s to about 0.9 s and Glimmer's member answers by 54 to 67%. The
-  one-pass decider (Glimmer read from one token, 0.53 s) takes part of what is left, only at the 5% risk level.
+- **Layer 1, our own distilled model (about 0.9 s):** the Llama 3.2 1B we trained from Muse Glimmer (2.2) answers when
+  it is at least 0.6 sure. The one-pass decider (Glimmer read from one token, 0.53 s) takes part of what is left, only
+  at the 5% risk level.
 - **Layer 2, Muse Glimmer (about 40 s):** only the few choices still open and the short texts, streamed to the screen
   step by step (NDJSON). Every wait the person starts shows a moving bar and a status line within 250 ms.
 - **Layer 3, ahead of time:** Match asks before the player does, so the agents often agree a game before anyone asks.
 
-### 2.2 A2A, and agreement between agents
+### 2.2 Our own model: a Llama 3.2 1B distilled from Muse Glimmer
+
+We trained our own model. A member's agent spends most of its time on one judgment: which of several workable times
+its person would like best. We had Muse Glimmer make that choice 4,868 times through the real agent call, then
+distilled its choices into **Llama 3.2 1B Instruct** with LoRA and quantized it to int4, so it runs on the server's CPU
+and takes no GPU memory from Glimmer. It returns a probability for each option, so it never writes text that could
+break a rule, and every option it sees already keeps the person's hard rules.
+
+| | Muse Glimmer, full answer | Our 1B student |
+|---|---|---|
+| Agreement with Glimmer on 500 held-out cases | 88.8% (with itself) | **89.5%** |
+| Time per choice | about 40 s, on the RTX 3090 | **about 0.9 s, on the CPU** |
+| Cases it answers at 0.6 sure | all | 96% of 500; 73% of the 196 hardest |
+| Keeps the member's stated preference (32 cases) | 27 | **29**, as served |
+
+In talks with the simulated club it cut Glimmer's member answers by 54 to 67% with no rule broken. When it is unsure, busy for
+8 s or silent for 20 s, Glimmer answers instead. With 500 cases each agreement rate is good to about 3 points either
+way, so the student matches Glimmer as closely as Glimmer matches itself, about 44 times faster (`docs/decision_model.md`).
+
+### 2.3 A2A, and agreement between agents
 
 Built on the A2A protocol v1.0 (Linux Foundation) [3]. A person's own agent comes in through an open door: a guide in
 the site's own HTML, `/llms.txt` with a six-call quick start, an Agent Card, OpenAPI, and a channel where every request
@@ -88,7 +107,7 @@ carries the agent's own Ed25519 signature.
   pinned host key, with pinned and rotatable Ed25519 keys: the hop added about 185 ms per request, and 22 of 22 checks passed
   with 12 talks at once.
 
-### 2.3 A community loop that improves the platform and rolls itself back
+### 2.4 A community loop that improves the platform and rolls itself back
 
 - **Quadratic voting:** 9 credits a month; n votes cost n² [4], so no small group can swamp a vote.
 - **Four classes of change and nine gates.** For a C0 change (a declared setting, inside its range), Glimmer writes the
@@ -100,13 +119,15 @@ carries the agent's own Ed25519 signature.
   of 1.645 or more), it rolls itself back. Checked with 20,000 trials on a 5-member canary, a bad change is caught 94.8%
   of the time and a harmless one rolled back 4.9% of the time.
 
-### 2.4 Automatic highlights and orbit replays from the player's own video
+### 2.5 Automatic highlights and orbit replays from the player's own video
 
 - **Automatic highlights.** A clip to share is cut from the player's own video with no editing by the player: DETR
   finds the people, Sapiens2 finds the moment worth sharing (a racket's fastest swing, the top of a jump, a kick), SAM
   2.1 cuts the player out, and the clip replays that moment in slow motion with a caption Glimmer writes and code
   checks. A frame-by-frame check that the player and the racket hand are really there caught 34 of 34 absences in 170
   labelled frames (precision 1.00, recall 0.88).
+
+![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](shots/highlight_strip.png)
 
 ![Time stopped, the camera 12 degrees to the left](shots/orbit/orbit_good.png)
 
@@ -115,7 +136,7 @@ carries the agent's own Ed25519 signature.
 - **Catching broken frames:** one learned threshold on invented pixels (6.26%) judged 84 labelled frames at precision
   1.00 and recall 0.79, dropping the frames where posts bend or the net doubles.
 
-### 2.5 Agent audits and resilience
+### 2.6 Agent audits and resilience
 
 - **153 independent agents, cold:** 25 rounds on fresh local copies, 16,713 logged requests, fixes between rounds; the
   six agents of the last round found no fault in a core flow.
@@ -130,7 +151,7 @@ players' data stays there, and 5 on the Meta Model API for live voice, a fallbac
 | Kind | Meta model or tool | Runs on | Its job in Serve |
 |---|---|---|---|
 | Reasoning | Muse Glimmer (30B) | RTX 3090 (GPU 1) | Every agent: the Autopilot's tool loop, each member's decision, the community specs, reading what a person wants. A JSON Schema on every call, and code checks every text |
-| Distilled | Llama 3.2 1B Instruct | Server CPU (int4) | The student distilled from Glimmer's decisions; picks among times, about 40 times faster |
+| Our model | Llama 3.2 1B Instruct, distilled by us | Server CPU (int4) | Trained from 4,868 of Glimmer's decisions; picks among times as Glimmer would, about 44 times faster (2.2) |
 | Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its S6 flag so sports injuries are not read as medical advice |
 | Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes) before a model reads it |
 | Meaning | DRAMA (drama-base) | Server CPU | Memory by meaning (768 dimensions) and a softmax head that catches game requests the regular expressions miss |
