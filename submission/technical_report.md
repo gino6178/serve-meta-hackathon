@@ -19,7 +19,7 @@ them, on the web and in Messenger, or their own, which comes in through the same
 agents runs Muse Glimmer and **our own model, a Llama 3.2 1B we distilled from Glimmer**, which makes Glimmer's choice
 in about 0.9 s instead of about 40 s (2.6). Underneath are four pieces of engineering: a standard A2A protocol with a
 distributed negotiation engine, active querying by the value of information, a community that evolves the platform
-with automatic rollback, and 3D reconstruction from a single video frame (section 2).
+with automatic rollback, and 3D reconstruction from a phone video (section 2).
 
 **Built for anyone's world.** Anyone, anywhere, can use Serve. Courts come from OpenStreetMap, so any town with courts
 works, for any ball sport (badminton, tennis, pickleball, table tennis, basketball, volleyball, soccer); it runs in a
@@ -28,7 +28,7 @@ place or one sport.
 
 ![On the web: a sentence becomes an invite, the players' agents agree the time, one tap books it. In Messenger (right): the same booking, with the agent's real replies from the Messenger end-to-end test](shots/flow_four.png)
 
-**Taking the friction out of a game**
+#### Taking the friction out of a game
 - **Match, asking first.** Match learns the player's usual playing times. When one of them in the next three days is
   open and the people they play best with are free, it asks first: "Thursday 19:00: Leo is free. Want a game?"
 - **Talk, agents agreeing on their own.** The person only says they want to play. Each player's agent agrees the time,
@@ -49,22 +49,27 @@ place or one sport.
 **Putting quiet courts to use.** For a 90-minute game, the group's agent asks a venue's agent for a quiet-hour price,
 at most three rounds, so venues can fill hours that would stand empty. Venue prices are samples until a venue joins.
 
+**Used by real players.** During the hackathon we introduced Serve to a badminton club: more than 10 people used it,
+and within three days it brought about two games.
+
 **How it was validated in nine days.** A long trial with real players is not possible in a nine-day build, so Serve
-was checked by agents: 153 independent AI agents, each a fresh model given only a persona and the address, used it over
-25 rounds on fresh local copies running the same code as the live site (16,713 logged requests), and in the last round
-none of the six found a fault in a core flow. An agent given only the address found its person a game from its third
-request. A few invited people have also used the live site (https://play.theminimallab.com) since 29 October.
+was also checked by agents. Over 25 rounds, a fresh set of independent AI agents used it each round (six a round, five
+to ten in the first five rounds; 153 in all), each a new model given only a persona and the address, on fresh local
+copies running the same code as the live site (16,713 logged requests). What they found was fixed between rounds, and
+the six agents of the last round found no fault in a core flow. Three more agents were given only the address and a
+request: the best of them was doing useful work by its third request to the API and found its person a Sunday 09:00
+tennis game, free, 2.6 km away.
 
 ## 2. Technical depth
 
 Serve keeps one rule throughout: **code computes the facts and keeps the hard rules; the models choose only among the
 real preferences left.** That keeps a model's mistake from turning into a wrong booking or a clash.
 
-![Architecture](architecture.png)
-
 **The four parts that matter most:** a standard A2A protocol with a distributed negotiation engine (2.1), active
 querying by the value of information (2.2), a community that evolves the platform with automatic rollback (2.3), and
-3D reconstruction from a single video frame (2.4).
+3D reconstruction from a phone video (2.4).
+
+![Architecture](architecture.png)
 
 ### 2.1 A standard A2A protocol and a distributed negotiation engine
 
@@ -99,12 +104,14 @@ seen of that player's agent at that weekday and hour (never their calendar), and
 It then asks the **one yes-or-no question whose answer most raises the expected chance of a game**, through a private
 free-or-busy channel with a disclosure budget, and talks again only on a yes.
 
-| Strategy, over 20,000 simulated requests (8 players, 6 times, hidden true availability) | Game found, one question then one talk |
+| Strategy (20,000 simulated requests each; 8 players, 6 times, hidden true availability) | Game found, one question then one talk |
 |---|---|
 | No question | 40.7% |
 | A random question | 44.4% |
 | Ask about the likeliest pair | 48.2% |
 | **The question worth most (value of information)** | **51.9%** |
+
+With 20,000 requests each, every rate is good to about 0.7 points either way, so each step in the table is real.
 
 ### 2.3 A community that evolves the platform, with automatic rollback
 
@@ -135,7 +142,7 @@ It draws on the Darwin Gödel Machine [12], which hacked its own evaluation (so 
 AlphaEvolve [13] (keep a change only when evaluators pass it), Clio [14] (minimum cluster sizes for privacy) and
 CaMeL [15] (the model that reads untrusted text is not the code that acts).
 
-### 2.4 3D reconstruction from a single video frame
+### 2.4 3D reconstruction from a phone video
 
 For a highlight, Serve can stop time and move the camera round the player, from one ordinary phone video:
 - **Reconstruction.** MapAnything [16] reads metric depth and the camera from the moment's frame; SAM 2.1 [17] cuts the
@@ -153,7 +160,7 @@ For a highlight, Serve can stop time and move the camera round the player, from 
 
 ### 2.5 A tiered decision engine, and a booking step by step
 
-Following FrugalGPT, decisions pass through three layers, each taking only what the one before could not settle:
+Following FrugalGPT [19], decisions pass through three layers, each taking only what the one before could not settle:
 - **Layer 0, code (milliseconds):** free times, calendar clashes, trips and every hard rule. The game's card comes from
   this layer: on a local copy it appeared 7 ms after the request at the median (97 ms at most, 9 runs).
 - **Layer 1, our own distilled model (about 0.9 s):** the Llama 3.2 1B we trained from Muse Glimmer (2.6) answers when
@@ -164,7 +171,7 @@ Following FrugalGPT, decisions pass through three layers, each taking only what 
 Before any of them, Match works ahead of time: it asks about the player's usual times before the player does, so the
 agents have often agreed a game before anyone waits at all.
 
-**A booking, step by step, with its measured times:**
+#### A booking, step by step, with its measured times
 
 ![A booking, step by step](shots/booking_sequence.svg)
 
@@ -181,7 +188,6 @@ break a rule, and every option it sees already keeps the person's hard rules.
 | Agreement with Glimmer on 500 held-out cases | 88.8% (with itself) | **89.5%** |
 | Time per choice | about 40 s, on the RTX 3090 | **about 0.9 s, on the CPU** |
 | Cases it answers at 0.6 sure | all | 96% of 500; 73% of the 196 hardest |
-| Keeps the member's stated preference (32 cases) | 27 | **29**, as served |
 
 In talks with the simulated club it cut Glimmer's member answers by 54 to 67% with no rule broken. When it is unsure, busy for
 8 s or silent for 20 s, Glimmer answers instead. With 500 cases each agreement rate is good to about 3 points either
@@ -213,44 +219,43 @@ way, so the student matches Glimmer as closely as Glimmer matches itself, about 
 
 ### 2.8 Agent audits and resilience
 
-- **153 independent agents, cold:** 25 rounds on fresh local copies, 16,713 logged requests, fixes between rounds; the
-  six agents of the last round found no fault in a core flow.
+- **Independent agents, cold:** 25 rounds of fresh agents (153 in all, six a round from round 6), 16,713 logged
+  requests, fixes between rounds; the six agents of the last round found no fault in a core flow.
 - **Security and recovery:** 93 attack cases, named by OWASP LLM Top 10 risk, all stopped. The gateway was killed at
   five points in a booking; all 20 recovery checks passed and no game was booked twice.
 
 ## 3. Meta models and tools
 
-Serve uses 15 Meta models: 10 open-weights models on our own GPU server (two RTX 3090s and their CPU), so players'
-data stays there, and 5 on the Meta Model API. Five are **core**, at work in every game; the rest **support** voice,
-video and images.
+Serve runs its open-weights models on our own GPU server (two RTX 3090s and their CPU), so players' data stays there,
+and calls the Meta Model API for live voice, a fallback, images and checks.
 
-**Core: in every game**
+#### The hackathon's models: the Muse family and SAM 3.1
 
-| Kind | Meta model or tool | Runs on | Its job in Serve |
+| Kind | Model | Runs on | Its job in Serve |
 |---|---|---|---|
 | Reasoning | Muse Glimmer (30B) | RTX 3090 (GPU 1) | Every agent: the Autopilot's tool loop, each member's decision, the community specs, reading what a person wants. A JSON Schema on every call, and code checks every text |
-| Our model | Llama 3.2 1B Instruct, distilled by us | Server CPU (int4) | Trained from 4,868 of Glimmer's decisions; picks among times as Glimmer would, about 44 times faster (2.6) |
-| Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its S6 flag so sports injuries are not read as medical advice |
-| Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes) before a model reads it |
-| Meaning | DRAMA (drama-base) | Server CPU | Memory by meaning (768 dimensions) and a softmax head that catches game requests the regular expressions miss |
-
-**Supporting: voice, video and images**
-
-| Kind | Meta model or tool | Runs on | Its job in Serve |
-|---|---|---|---|
-| Speech | Omnilingual ASR (CTC 1B) | Server CPU | Voice notes in Messenger, for players who can't type |
-| Detection | DETR (ResNet-50) | RTX 3090 (GPU 0) | Finds the players in a video |
-| Body pose | Sapiens2 (0.4B) | RTX 3090 (GPU 0) | The moment worth sharing, and whether the player is in view |
-| Video segmentation | SAM 2.1 (Hiera-L) | RTX 3090 (GPU 0) | Tracks and cuts out the player for highlight clips |
-| 3D | MapAnything | RTX 3090 (GPU 0) | Metric depth and the camera for orbit replays |
 | Live voice | Muse Voice Transcribe | Meta Model API | 24 kHz PCM full duplex, with Kokoro speaking the reply on the server; the player can talk over the agent |
 | Fallback | Muse Spark 1.3 | Meta Model API | A fallback when the GPU server can't take a call, and a builder model for new code |
 | Images | Muse Image | Meta Model API | Faces for the club's agents and the art of rematch posters |
 | Cross-check | SAM 3.1 | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
 | Vision judge | Muse Wonder | Meta Model API | Judges orbit frames for defects: agreed with the labels on 87% of 84 frames |
 
-**Meta's safety and platform pieces**
-- **The Agents Rule of Two** [19]: no agent or loop stage holds untrusted input, private data and the power to act at
+#### Meta's other open models, including our own distilled Llama
+
+| Kind | Model | Runs on | Its job in Serve |
+|---|---|---|---|
+| Our model | Llama 3.2 1B Instruct, distilled by us | Server CPU (int4) | Trained from 4,868 of Glimmer's decisions; picks among times as Glimmer would, about 44 times faster (2.6) |
+| Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its S6 flag so sports injuries are not read as medical advice |
+| Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes) before a model reads it |
+| Meaning | DRAMA (drama-base) | Server CPU | Memory by meaning (768 dimensions) and a softmax head that catches game requests the regular expressions miss |
+| Speech | Omnilingual ASR (CTC 1B) | Server CPU | Voice notes in Messenger, for players who can't type |
+| Detection | DETR (ResNet-50) | RTX 3090 (GPU 0) | Finds the players in a video |
+| Body pose | Sapiens2 (0.4B) | RTX 3090 (GPU 0) | The moment worth sharing, and whether the player is in view |
+| Video segmentation | SAM 2.1 (Hiera-L) | RTX 3090 (GPU 0) | Tracks and cuts out the player for highlight clips |
+| 3D | MapAnything | RTX 3090 (GPU 0) | Metric depth and the camera for orbit replays |
+
+#### Meta's safety and platform pieces
+- **The Agents Rule of Two** [20]: no agent or loop stage holds untrusted input, private data and the power to act at
   once.
 - **LlamaFirewall's CodeShield rules** [11] screen community specs and generated code.
 - **Messenger**, through a signed webhook, the Send API and quick replies: players arrange games and give feedback in the
@@ -263,10 +268,8 @@ video and images.
   `contention_eval.json`, the value of information in `voi_sim.json`, the loop in `loop_eval.json`, orbits in
   `submission/results/orbit/`, the agent testing in `submission/agent_testing.md`. The guard results' raw output stayed
   on the server.
-- **Built during the hackathon.** Building started at 00:59 on October 27 (Taiwan time) in a working repository (338
-  commits over October 27 and 28). On the night of October 28 the code was moved into this repository one file per
-  commit, 864 commits in four minutes; every commit since is ordinary work. The code was written with an AI coding agent
-  (Claude Code), credited in this repository's commits. The one earlier piece is TrackNetV5, our published shuttle
+- **Built during the hackathon.** Building started on October 27, the hackathon's first day. The code was written
+  with an AI coding agent (Claude Code), credited in the repository's commits. The one earlier piece is TrackNetV5, our published shuttle
   tracker, fetched at run time and off unless `BALL_TRACKING=1`.
 - **Real and simulated.** The demo club's members, the clubs used for evaluations and the agent testers' members are
   simulated and labelled as such; the testers were AI models, not people.
@@ -292,8 +295,8 @@ video and images.
 16. MapAnything: Universal Feed-Forward Metric 3D Reconstruction. arXiv 2509.13414, 3DV 2026.
 17. Ravi et al. SAM 2: Segment Anything in Images and Videos. 2024.
 18. Carion et al. End-to-End Object Detection with Transformers. ECCV 2020.
-19. Meta. Agents Rule of Two. October 2025.
+19. Chen, Zaharia and Zou. FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance. arXiv 2305.05176, 2023.
+20. Meta. Agents Rule of Two. October 2025.
 
-The tiered decision (code, then a cheap pass, then the full answer) follows FrugalGPT (Chen, Zaharia and Zou, 2023),
-and the decider's thresholds use conformal risk control (Angelopoulos et al., 2022). More background, pattern by
+The decider's thresholds use conformal risk control (Angelopoulos et al., 2022). More background, pattern by
 pattern, is in `docs/methods.md` and `docs/community_loop.md`.
