@@ -176,6 +176,8 @@ test("a club's invite link: members share it, a public club is joined by it, a p
   assert.equal((await route("GET", `/api/clubs/${pub.id}/invite`, undefined, as(ana))).body.code, link.body.code, "the same link each time");
   assert.equal((await route("GET", `/api/clubs/${pub.id}/invite`, undefined, as(ben))).code, 403, "only members share it");
   assert.equal((await route("GET", `/api/clubs/${priv.id}/invite`, undefined, as(ben))).code, 404, "a private club's, not to outsiders");
+  const seen = (await route("GET", "/api/clubs", undefined, as(ben))).body.clubs.find((c) => c.id === priv.id);
+  assert.deepEqual(seen.names, [], "a private club's members, not to outsiders"); assert.equal(seen.members, 1);
   // what the link shows before sign-in: the club, never who is in it
   const pre = await route("GET", `/api/clubs/invite?code=${link.body.code}`);
   assert.equal(pre.code, 200); assert.equal(pre.body.club.name, "Riverside Smash"); assert.equal(pre.body.club.members, 1);

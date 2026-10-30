@@ -45,7 +45,8 @@ export function view(c, viewer, from = null) {
   const inIt = c.members.some((m) => m.id === viewer), mine = c.owner === viewer;
   return { id: c.id, name: c.name, sport: c.sport, about: c.about, where: c.where, at: c.at, members: c.members.length, privacy: c.privacy || "public", ...programView(c, viewer, inIt),
     asked: !inIt && (c.requests || []).some((r) => r.id === viewer), ...(mine ? { requests: (c.requests || []).map((r) => ({ id: r.id, name: r.name })) } : {}),
-    names: c.members.slice(0, 8).map((m) => (m.id === viewer ? "You" : m.name.split(" ")[0])), joined: c.members.some((m) => m.id === viewer), mine: c.owner === viewer,
+    // a private club's members are seen only by its members (children's sessions are always private)
+    names: (c.privacy === "private" && !inIt && !mine) ? [] : c.members.slice(0, 8).map((m) => (m.id === viewer ? "You" : m.name.split(" ")[0])), joined: c.members.some((m) => m.id === viewer), mine: c.owner === viewer,
     ...(from ? { km: +km(from, c.at).toFixed(1) } : {}) };
 }
 // the clubs near a point (the member's own first), or every club when there is no point
