@@ -295,7 +295,8 @@ export default function Highlights() {
       const made = s.reel ? await fetch(`/media/samples/${s.reel}`).then((r) => (r.ok ? r.json() : null)).catch(() => null) : null;
       if (!made?.result) return await choose(new File([b], s.file, { type: "video/mp4" }), s);
       if (clip?.url) URL.revokeObjectURL(clip.url);
-      const steps = [...made.steps, { step: "Made earlier on our GPU", detail: `the same pipeline took ${Math.round(made.seconds / 60) || 1} min on ${made.made}; a video of your own runs live` }];
+      // (a sample's steps are about the sample, not the person's own video)
+      const steps = [...made.steps.map((x) => ({ ...x, step: String(x.step).replace(/your video/gi, "the sample video"), detail: x.detail && String(x.detail).replace(/your own server/gi, "our server") })), { step: "Made earlier on our GPU", detail: `the same pipeline took ${Math.round(made.seconds / 60) || 1} min on ${made.made}; a video of your own runs live` }];
       setClip({ url: URL.createObjectURL(b), state: "ready", steps, working: null, data: { ...made.result, sample: { credit: creditOf(s) } } });
       setFile(null); setCap(null); setMsg("");
     } catch (e) { setMsg(`The sample could not be loaded (${e.message}).`); }
@@ -369,7 +370,7 @@ export default function Highlights() {
       <section className={`hl-grid ${fmt} ${ready || file ? "has-clip" : ""}`}>
         <div className="panel">
           <div className={`own-card ${clip ? clip.state : ""}`}>
-            <div className="own-h"><b>{ready ? `Your ${kind}, from your video` : "Choose a video"}</b>
+            <div className="own-h"><b>{ready ? (clip?.data?.sample ? `The sample's ${kind}` : `Your ${kind}, from your video`) : "Choose a video"}</b>
               {clip && state === "idle" && <button className="link" onClick={clear}>{ready ? "Use another video" : "Cancel"}</button>}</div>
             {!clip && (
               <div className="own-row">

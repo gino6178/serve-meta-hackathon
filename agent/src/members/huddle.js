@@ -240,7 +240,7 @@ async function run(h, now = new Date()) {
   }
   { const nos = h.talk.filter((l) => l.yes === false).map((l) => l.why); if (nos.filter((w) => w === "place").length >= 2) N.saw("too_far", h.id); if (nos.filter((w) => w === "price").length >= 2) N.saw("too_dear", h.id); }
   if (!agreed || agreed.players.length < h.need) N.saw("no_time", h.id);
-  if (!agreed) { h.status = "stuck"; line(h, "host", "The agents couldn't find a time that suits enough of you this week. Try fewer players, or more people.", { who: hostName }); return save(); }
+  if (!agreed) { h.status = "stuck"; line(h, "host", h.afterNo ? `After ${h.afterNo} couldn't make it, no other time this week suits enough of you. Try fewer players, or more people.` : "The agents couldn't find a time that suits enough of you this week. Try fewer players, or more people.", { who: hostName }); if (h.afterNo) P.notify(h.host, "huddle", `No other time this week suits enough of you for ${h.sport}, after ${h.afterNo} couldn't make it.`, { huddle: h.id }); return save(); }
   const o = opts[agreed.k];
   h.promised = agreed.asked ? [] : agreed.players.filter((id) => id !== host); // their agents said yes for them: a promise each (trust.js)
   h.alternates = agreed.alternates || []; h.altAsked = !!agreed.asked; // spares (their agents' yeses, or people to ask directly): the first takes a spot someone gives up
@@ -357,6 +357,9 @@ async function drop(h, me, why, now = new Date(), wait = false) {
   }
   h.status = "talking"; h.answers = { [h.host]: "yes" }; h.players = []; delete h.pick;
   line(h, "host", `Nobody else is left in that time, so the agents look for a new one, with what ${nm}'s agent just learned; everyone is asked again.`, { who: first(h.host) });
+  // the host had been told it was agreed: they hear why it's open again
+  P.notify(h.host, "huddle", `${nm} can't make ${h.sport} ${when(o)}${why && T.NO[why] ? ` (${T.NO[why]})` : ""}. The agents are looking for another time.`, { huddle: h.id });
+  h.afterNo = nm;
   save();
   const job = run(h, now).catch((e) => { console.error("huddle run", e.stack); h.status = "stuck"; line(h, "agent", "Something went wrong on Serve's side, so this game is stuck. Start it again in a minute."); save(); });
   if (wait) await job;
@@ -438,6 +441,8 @@ const fillOf = (h) => (h.fill ? P.find(h.fill)?.invite || null : null);
 P.busyFrom((id, post) => data().huddles.filter((h) => ["asking", "on"].includes(h.status) && h.pick && h.players.includes(id) && h.post !== post && h.fill !== post && !(h.status === "on" && h.post)).map((h) => ({ at: startMs(h.pick), what: `${h.sport} ${when(h.pick)} (the agents agreed it)`, huddle: h.id })));
 // a player who leaves the posted game is no longer one of the game's yeses
 P.whenLeft((id, post) => { let any = false; for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && x.status === "on" && x.players.includes(id) && id !== x.host)) { h.players = h.players.filter((x) => x !== id); delete h.answers[id]; line(h, id, `${first(id)} left the game.`, { who: first(id) }); any = true; } if (any) save(); });
+// someone who joins the posted game straight from the feed (or takes a spot back) is one of its players too
+P.whenJoined((id, post) => { let any = false; for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && x.status === "on" && !x.players.includes(id))) { h.players.push(id); h.answers[id] = "yes"; line(h, id, `${first(id)} joined the game.`, { who: first(id) }); any = true; } if (any) save(); });
 // a posted game deleted while the agents fill it: the fill stops, and those asked hear it's off
 P.whenRemoved((post) => {
   // a game that was on and posted: it's off with its post (the feed already told the players)

@@ -56,6 +56,8 @@ const MORE = [
 // pages that show the demo player's own made-up week (their streak, body log, plan, chats): a member doesn't get them,
 // and "Courts near you" is their own Courts & prices
 const DEMO_ONLY = ["chats", "autopilot", "goals", "body"];
+// a member's "You" page is how they play and their records; the old #/you is the demo player's profile
+if (/^#\/you(\?|$)/.test(location.hash) && (() => { try { return !!localStorage.getItem("serve.session"); } catch { return false; } })()) location.hash = "/huddle?tab=taste";
 const memberNow = () => { try { return !!localStorage.getItem(SESSION_KEY) && !import.meta.env.VITE_AGENT_TOKEN; } catch { return false; } };
 // a signed-in member's "You" is how they play and their records (Huddle), not the demo player's page
 const href = (k) => (k === "you" && memberNow() ? "#/huddle?tab=taste" : k === "courts" && memberNow() ? "#/huddle?tab=courts" : `#/${k === "home" ? "" : k}`);
@@ -196,7 +198,7 @@ export default function App() {
   const [club, setClub] = useState(null);
   const [err, setErr] = useState(null);
   useEffect(() => {
-    const on = () => setPage(route());
+    const on = () => { if (route() === "you" && memberNow()) { location.hash = "/huddle?tab=taste"; return; } setPage(route()); };
     addEventListener("hashchange", on);
     loadClub().then(setClub).catch((e) => setErr(`The club could not be loaded (${e.message}).`));
     return () => removeEventListener("hashchange", on);

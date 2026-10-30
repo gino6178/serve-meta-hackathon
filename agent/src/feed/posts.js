@@ -234,7 +234,9 @@ export function join(player, postId, on = true) {
       return { post: view(p, player), waitlisted: true, why: c.why };
     }
   }
-  if (!on && was) { onLeft(player, p.id); S.change((d) => { d.notices = (d.notices || []).filter((x) => !(x.player === player && x.post === p.id)); }); } // (its "Game on" is stale now)
+  // leaving: the leaver's notices for it go, and nobody keeps a "Game on: it's full" that's no longer true
+  if (!on && was) { onLeft(player, p.id); S.change((d) => { d.notices = (d.notices || []).filter((x) => !(x.post === p.id && (x.player === player || x.kind === "gameon"))); }); }
+  if (on && !was) onJoined(player, p.id); // (its "Game on" is stale now)
   // a late drop: leaving in the last six hours after being in for more than half an hour (a quick mistake is not one)
   const late = !on && deps.now() - ((v.joinedAt || {})[player] || 0) > 30 * 60e3 && Tr.left(player, startOf(v));
   S.change(() => {
@@ -382,8 +384,9 @@ export function remove(player, postId, cid = null) {
 // the games the agents agreed (or are asking about) that aren't a feed post: {at, what, huddle}; members/huddle.js sets it
 let huddleBusy = () => [];
 export const busyFrom = (f) => { huddleBusy = f; };
-// someone left a game: the agents' record of who said yes follows (members/huddle.js sets it)
-let onLeft = () => {};
+// someone left or joined a game: the agents' record of who's in follows (members/huddle.js sets it)
+let onLeft = () => {}, onJoined = () => {};
+export const whenJoined = (f) => { onJoined = f; };
 export const whenLeft = (f) => { onLeft = f; };
 // a deleted game: the agents filling it stop too (members/huddle.js registers this)
 let onRemoved = () => {};
@@ -470,6 +473,8 @@ export const mediaView = (m) => (m.static ? { static: true, src: m.src, posterSr
 // how the agents filling a posted game are getting on (members/huddle.js registers it; the feed can't import it)
 let fillInfo = () => null;
 export const onFill = (f) => { fillInfo = f; };
+// two people with the same first name in one game: told apart as "Ana", "Ana (2)"
+const sameApart = (list) => { const seen = {}; return list.map((n) => { seen[n] = (seen[n] || 0) + 1; return seen[n] > 1 && n !== "You" ? `${n} (${seen[n]})` : n; }); };
 export function view(p, viewer) {
   const mine = p.by.player === viewer || p.by.agentOf === viewer;
   return {
@@ -477,7 +482,7 @@ export function view(p, viewer) {
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),
-    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots, ...(mine && fillInfo(p.id) ? { filling: fillInfo(p.id) } : {}) } } : {}),
+    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: sameApart(p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member")))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots, ...(mine && fillInfo(p.id) ? { filling: fillInfo(p.id) } : {}) } } : {}),
     ...(p.simulated ? { simulated: true } : {}), ...(p.held ? { held: true } : {}), ...(p.hidden ? { hidden: true } : {}),
     likes: p.likes.length, liked: p.likes.includes(viewer),
     comments: p.comments.filter((c) => (!c.held && !c.hidden) || c.by.player === viewer).map((c) => commentView(c, viewer)),

@@ -505,7 +505,7 @@ const gateway = http.createServer(async (req, res) => {
       if (b.play !== false && (matchmaking.isPlayRequest(t) || /(想|要|來|去)?打(羽球|羽毛球|網球|桌球|籃球|排球|匹克球|球)|揪|缺.{0,3}人|找人打|一起打/.test(t) || await routerMod.isPlay(t))) return json(res, 200, { play: true }, o);
       // a signed-in member: their own coming games (posted, joined, waited for), not the demo club's
       const mem = membersApi.member(req);
-      if (mem) { const H = await import("./members/huddle.js"); b.you = { ...(b.you || {}), upcoming: [...feedPosts.gamesOf(mem.id).filter((g) => /^\d{4}-/.test(g.day) && !g.waiting).map((g) => ({ date: g.day, start: g.start, with: [] })), ...H.agreedFor(mem.id).map((g) => ({ ...g, with: [], title: g.waiting ? "agreed by the agents, still waiting for yeses" : "" }))], history: [] }; }
+      if (mem) { const H = await import("./members/huddle.js"); b.you = { ...(b.you || {}), upcoming: [...feedPosts.gamesOf(mem.id).filter((g) => !g.waiting).map((g) => { const ms = feedPosts.startOf({ day: g.day, start: g.start }), d = ms ? new Date(ms) : null; return d ? { date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`, start: g.start, with: [] } : null; }).filter(Boolean), ...H.agreedFor(mem.id).map((g) => ({ ...g, with: [], title: g.waiting ? "agreed by the agents, still waiting for yeses" : "" }))], history: [] }; }
       return json(res, 200, await webapi.answer(b, agentAnswer.answer), o);
     }
     // play: "I want to play" -> courts, partners and invites; nothing is booked until the player confirms

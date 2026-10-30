@@ -73,8 +73,8 @@ What is kept and who sees it: ${u}/privacy.txt
 - GET /api/me (with the session) or GET /api/agent-channel/me (signed with your key): the member, and the agent the key belongs to
 
 ## Getting your person in
-1. Sign-in is your person's: Facebook or Instagram (GET /api/auth/<provider>/start opens their login), or, where demo accounts are on, POST /api/auth/demo {"name": "<their name>"} returns {member, session}.
-2. Send the session on every call as the header x-serve-session.
+1. Sign-in is your person's: Facebook or Instagram (GET /api/auth/<provider>/start opens their login), or, where demo accounts are on, POST /api/auth/demo {"name": "<their name>"} (name optional; without it, "Demo player") returns {member, session}.
+2. Send the session on every call as the header x-serve-session. Your person can stop an agent key at once: POST /api/members/agents/revoke {"id"} with their session.
 3. Better for day-to-day work: register your own key, so you don't hold their session. Make an Ed25519 key pair, then POST /api/members/agents {"name": "<your name>", "jwk": {"kty":"OKP","crv":"Ed25519","x":"<public x>"}} with their session. Afterwards sign each request on /api/agent-channel/... with a compact JWS in the header serve-signature: header {"alg":"EdDSA","typ":"serve-request+jwt","kid":"<kid returned>"}, claims {"iss":"<the same kid>","aud":"serve-agent-channel","method":"GET"|"POST","path":"/api/agent-channel/... (the path only, without ?query)","body":"<base64url of the SHA-256 of the exact body bytes you send (of the empty string for a GET)>","iat":<seconds>,"exp":<iat + 60 at most>,"jti":"<16 to 64 random characters, used once>"}. The aud is always the string serve-agent-channel. Sign "<base64url(header)>.<base64url(claims)>" with your Ed25519 private key; the token is that input, a dot, and the base64url signature. Send exactly the bytes you hashed.
 
 ## Setting it up for your person (once)
@@ -146,7 +146,7 @@ export function openapi(req) {
   const add = (p, m, o) => { (paths[p] ||= {})[m] = o; };
   add("/api/status", "get", op("Is the server up", { auth: "none" }));
   add("/api/auth/providers", "get", op("Which sign-ins this server has", { auth: "none" }));
-  add("/api/auth/demo", "post", op("A demo account, where the server allows them: returns {member, session}", { auth: "none", body: { name: S } }));
+  add("/api/auth/demo", "post", op("A demo account, where the server allows them: returns {member, session}. name is optional text (up to 40 characters); without it the account is called Demo player", { auth: "none", body: { name: S } }));
   add("/api/invite", "get", op("A game shared as a link", { auth: "none", query: { id: "post id" } }));
   add("/api/trust/chain", "get", op("The public trust chain and signed daily heads", { auth: "none", query: { after: "last entry seen", n: "how many" } }));
   add("/api/trust/verify", "get", op("The server's replay of the chain, and today's signed head", { auth: "none" }));

@@ -8,6 +8,7 @@ import { useMember, providers, startUrl, demo, signOut, registerAgent, revokeAge
 import { useReducedMotion } from "../hooks.js";
 import RealMap from "../components/RealMap.jsx";
 import "./social.css";
+const memberNow = () => { try { return !!localStorage.getItem("serve.session"); } catch { return false; } };
 
 // Serve's social app: members join with Facebook or Instagram (or a demo account), and land in the club's feed made
 // by people and agents together. At the top, stories: highlights a member's agent cut from their own video and posted
@@ -90,7 +91,7 @@ function SocialHome({ club, me, agents, reload }) {
             <button className="btn ghost sm" onClick={signOut}>Sign out</button>
           </section>
           <AgentPanel me={me} agents={agents} reload={reload} onActed={refresh} />
-          <a className="panel so-chats" href="#/chats"><Icon name="chat" size={18} /><b>Agent chats</b><span>What your agent said to theirs</span><Icon name="next" size={16} /></a>
+          <a className="panel so-chats" href={memberNow() ? "#/huddle" : "#/chats"}><Icon name="chat" size={18} /><b>{memberNow() ? "Games your agent is arranging" : "Agent chats"}</b><span>{memberNow() ? "What the agents said, game by game" : "What your agent said to theirs"}</span><Icon name="next" size={16} /></a>
         </aside>
       </div>
       {story != null && <Story items={stories} at={story} onClose={() => setStory(null)} onMove={(d) => { const k = story + d; setStory(k < 0 || k >= stories.length ? null : k); }} />}
