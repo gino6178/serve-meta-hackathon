@@ -43,16 +43,17 @@ export default function Huddle() {
 }
 
 function ShareHome({ onDone }) {
-  const [busy, setBusy] = useState(false), [err, setErr] = useState(""), [place, setPlace] = useState("");
+  const [busy, setBusy] = useState(""), [err, setErr] = useState(""), [place, setPlace] = useState(""); // busy: "locate" | "set"
+  const setArea = async (e) => { e.preventDefault(); if (!place.trim() || busy) return; setBusy("set"); setErr(""); try { await H.call("/api/huddle/home", { place }); onDone(); } catch (x) { setErr(x.message); } setBusy(""); };
   return (
     <div className="hd-note">
       <Icon name="pin" size={20} />
       <div><b>Where do you usually play from?</b><p>Your rough area (about 1 km, never an address) lets the agents find courts in the middle of the group and work out each person's trip.</p>
         {err && <p className="join-err" role="alert">{err}</p>}</div>
       <div className="hd-home-acts">
-        <button className="btn primary sm" disabled={busy} onClick={async () => { setBusy(true); setErr(""); try { await H.shareHome(); onDone(); } catch (e) { setErr(`${e.message} Or type your area below.`); } setBusy(false); }}>{busy ? "Asking…" : "Use my location"}</button>
-        <form onSubmit={async (e) => { e.preventDefault(); if (!place.trim()) return; setBusy(true); setErr(""); try { await H.call("/api/huddle/home", { place }); onDone(); } catch (x) { setErr(x.message); } setBusy(false); }}>
-          <input value={place} onChange={(e) => setPlace(e.target.value)} placeholder="or type it: Xinyi District, Taipei" aria-label="Your area" /><button className="btn ghost sm" disabled={busy || !place.trim()}>Set</button>
+        <button type="button" className="btn primary sm" disabled={!!busy} onClick={async () => { setBusy("locate"); setErr(""); try { await H.shareHome(); onDone(); } catch (e) { setErr(`${e.message} Or type your area below.`); } setBusy(""); }}>{busy === "locate" ? "Asking…" : "Use my location"}</button>
+        <form onSubmit={setArea}>
+          <input value={place} onChange={(e) => setPlace(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) setArea(e); }} enterKeyHint="done" placeholder="or type it: Xinyi District, Taipei" aria-label="Your area" /><button className="btn ghost sm" disabled={!!busy || !place.trim()}>{busy === "set" ? "Setting…" : "Set"}</button>
         </form>
       </div>
     </div>
@@ -123,10 +124,13 @@ function whenFromText(t) {
 }
 const STATUS = { talking: "Agents talking", asking: "Agreed, asking", on: "Game on", stuck: "No time found", stopped: "Agents stopped · game stays", cancelled: "Called off" };
 
+// what the person picked in the form, kept for this visit: setting the area redraws the page, and the form keeps it
+const picks = {};
 function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
   const club0 = me.clubs.find((c) => c.id === clubId) || me.clubs[0] || null;
   const [who, setWho] = useState(club0 ? `club:${club0.id}` : "pick"), [picked, setPicked] = useState([]);
-  const [sport, setSport] = useState(params().get("sport") || sport0 || club0?.sport || me.taste.sports[0] || "badminton"), [need, setNeed] = useState(() => Math.max(2, +params().get("need") || 4));
+  const [sport, setSport] = useState(params().get("sport") || sport0 || club0?.sport || me.taste.sports[0] || "badminton"), [need, setNeed0] = useState(() => Math.max(2, +params().get("need") || picks.need || 4));
+  const setNeed = (n) => { picks.need = n; setNeed0(n); };
   const [busy, setBusy] = useState(false), [err, setErr] = useState("");
   const [nearby, setNearby] = useState(!me.clubs.length || (club0?.members ?? 0) < 4), [minShow, setMinShow] = useState(0), [agentMin, setAgentMin] = useState(true);
   const [whenK, setWhenK] = useState(() => whenFromText(params().get("say") || "")), fill = params().get("fill");
