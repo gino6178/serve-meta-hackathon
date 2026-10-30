@@ -31,8 +31,8 @@ export const dateOf = (s) => { const [y, m, d] = String(s).split("-").map(Number
 export const partOf = (start) => { const h = +String(start).slice(0, 2); return h < 9 ? "early" : h < 12 ? "morning" : h < 17 ? "afternoon" : "evening"; };
 export const cellOf = (date, start) => `${DAYS[dateOf(date).getDay()]} ${partOf(start)}`;
 const groupOf = (cell) => { const [d, p] = cell.split(" "); return `${d === "Sat" || d === "Sun" ? "weekend" : "weekday"} ${p}`; };
-export const cellWords = (cell) => { const [d, p] = cell.split(" "); return p === "early" ? `early ${LONG[d]}s` : `${LONG[d]} ${p}s`; };
-export const cellWord = (cell) => cellWords(cell).replace(/s$/, "");
+export const cellWords = (cell) => { const [d, p] = cell.split(" "); return p === "early" ? `${LONG[d]}s before 9` : `${LONG[d]} ${p}s`; }; // ("early" read as a morning beside "mornings")
+export const cellWord = (cell) => { const [d, p] = cell.split(" "); return p === "early" ? `${LONG[d]} before 9` : `${LONG[d]} ${p}`; };
 const rad = (d) => (d * Math.PI) / 180;
 export const km = (a, b) => { const h = Math.sin(rad(b.lat - a.lat) / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lon - a.lon) / 2) ** 2; return 12742 * Math.asin(Math.sqrt(h)); };
 
@@ -136,8 +136,9 @@ export function hardNo(t, o) {
   if (t.limitEach != null && o.each > t.limitEach) return "price";
   if ((t.busyAt || []).some((x) => near(x, o))) return "busy";
   if ((t.declined || []).some((x) => x.date === o.date && x.start === o.start)) return "time";
-  if (o.each > 0 && o.each > t.priceCap * 1.15 && (t.raw.price || 0) > 0.2) return "price";
-  if (o.km != null && o.km > t.maxKm * 1.6) return "place";
+  // the learned soft lines, only where the person hasn't set a hard limit of their own (theirs decides)
+  if (t.limitEach == null && o.each > 0 && o.each > t.priceCap * 1.15 && (t.raw.price || 0) > 0.2) return "price";
+  if (t.limitKm == null && o.km != null && o.km > t.maxKm * 1.6) return "place";
   return null;
 }
 // a pick between two games: a logistic step on the weights (the chosen game should be worth more), then the time and
@@ -272,7 +273,7 @@ export function summary(t) {
   const even = w[order[0]] - w[order[3]] < 0.08;
   return [even ? "So far you weigh time, distance, price and a quiet court about the same." : `${SAY[order[0]][0].toUpperCase() + SAY[order[0]].slice(1)} matters most to you, then ${SAY[order[1]]}.`,
     likes.length ? `You like ${likes.join(", ").replace(/, ([^,]+)$/, " and $1")}.` : "", avoid.length ? `You'd rather not play ${avoid.join(" or ")}.` : "",
-    `You'll go about ${t.maxKm.toFixed(0)} km${w.price > 0.2 ? ` and aim to pay under ${Math.round(t.priceCap)} each` : ""}.`].filter(Boolean).join(" ");
+    `${t.limitKm ? `You'll go up to ${t.limitKm} km (your limit)` : `You'll go about ${t.maxKm.toFixed(0)} km`}${w.price > 0.2 ? ` and aim to pay under ${Math.round(t.priceCap)} each` : ""}.`].filter(Boolean).join(" ");
 }
 export function view(t) {
   const w = weights(t), pairs = t.answers.filter((a) => a.kind === "pair").length;

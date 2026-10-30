@@ -184,7 +184,7 @@ async function run(h, now = new Date()) {
     }
   }
   const ruled = Object.entries(hostRuled).sort((a, b) => b[1] - a[1])[0]?.[0];
-  if (!opts.length && ruled) { h.status = "stuck"; line(h, "host", `Every option is outside your own limits (${{ place: "the courts are farther than your distance limit", price: "the courts cost more than your price limit", time: "no time in your windows", busy: "you already have a game at those times" }[ruled] || ruled}). ${ruled === "busy" ? "Your games are under Your games on the home page." : "Widen your limits, or ask a club nearer you."}`, { who: hostName }); return save(); }
+  if (!opts.length && ruled) { h.status = "stuck"; line(h, "host", ruled === "busy" ? `Every time that fits clashes with a game you already have. Your games are under Your games on the home page.` : `Every option is outside your own limits (${{ place: "the courts are farther than your distance limit", price: "the courts cost more than your price limit", time: "no time in your windows", busy: "you already have a game at those times" }[ruled] || ruled}). ${ruled === "busy" ? "Your games are under Your games on the home page." : "Widen your limits, or ask a club nearer you."}`, { who: hostName }); return save(); }
   if (!opts.length) { h.status = "stuck"; line(h, "host", h.when && !h.pin ? "No court time fits the days and times you asked for, at least three hours from now." : h.pin ? `${when(h.pin)} doesn't work: it's too soon, or you already play then.` : "There's no time left that I haven't already tried this week.", { who: hostName }); return save(); }
   const game = (id, o) => ({ date: o.date, start: o.start, km: kmFor(id, o.place), each: o.each, busy: o.busy });
   const hard = Object.fromEntries(everyone.map((id) => { const b = busyOf(id, h.id, fillAt); return [id, opts.map((o) => (b.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3) ? "busy" : T.hardNo(taste[id], { ...game(id, o), each: o.best ?? o.each })))]; }));
@@ -240,7 +240,7 @@ async function run(h, now = new Date()) {
   if (!agreed) { h.status = "stuck"; line(h, "host", "The agents couldn't find a time that suits enough of you this week. Try fewer players, or more people.", { who: hostName }); return save(); }
   const o = opts[agreed.k];
   h.promised = agreed.asked ? [] : agreed.players.filter((id) => id !== host); // their agents said yes for them: a promise each (trust.js)
-  h.alternates = agreed.alternates || []; // others whose agents said yes: the first takes a spot someone gives up
+  h.alternates = agreed.alternates || []; h.altAsked = !!agreed.asked; // spares (their agents' yeses, or people to ask directly): the first takes a spot someone gives up
   // for the people asked directly, what their agent would have said: a right guess counts for the agent (trust.js)
   h.shadow = Object.fromEntries(direct.map((id) => [id, U[id][agreed.k] >= bar(id, 0)]));
   // spots the agents couldn't fill go to the people asked directly, best-suited first
@@ -274,7 +274,7 @@ async function run(h, now = new Date()) {
   const short_ = h.need - agreed.players.length, price = deal.each ? `, ${D.CURRENCY}${deal.each} each` : h.fill ? "" : ", a free court";
   line(h, "host", short_ > 0 && !h.fill
     ? `Best time so far: ${when(o)} at ${o.place.name}${price}. Only ${agreed.players.length} of the ${h.need} players fit it: asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes. Once they say yes it's posted with ${short_} open spot${short_ > 1 ? "s" : ""} for others to join; or ask for fewer players.`
-    : `Agreed: ${when(o)} at ${o.place.name}${price}. Asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes.${h.alternates.length ? ` ${names(h.alternates.filter((id) => !isNear(h, id)).map(first)) || "Someone else"}'s agent said yes too: first in line if a spot opens.` : ""}`, { who: hostName, agreed: short_ <= 0 || !!h.fill });
+    : `Agreed: ${when(o)} at ${o.place.name}${price}. Asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes.${h.alternates.length ? (agreed.asked ? ` If a spot opens, ${names(h.alternates.filter((id) => !isNear(h, id)).map(first)) || "someone else"} ${h.alternates.length > 1 ? "are" : "is"} asked next.` : ` ${names(h.alternates.filter((id) => !isNear(h, id)).map(first)) || "Someone else"}'s agent said yes too: first in line if a spot opens.`) : ""}`, { who: hostName, agreed: short_ <= 0 || !!h.fill });
   for (const id of agreed.players) if (id !== host) P.notify(id, "huddle", `Your agent and ${hostName}'s agreed ${h.sport} ${when(o)} at ${o.place.name}. One yes from you?`, { huddle: h.id });
   save();
 }
@@ -325,7 +325,7 @@ async function drop(h, me, why, now = new Date(), wait = false) {
     h.alternates = h.alternates.filter((x) => x !== next);
     h.players.push(next); h.promised = [...(h.promised || []), next]; (h.askedOf ||= {})[next] = now.getTime();
     { const home = T.get(next).home; o.km[next] = home && o.at ? +T.km(home, o.at).toFixed(1) : null; }
-    line(h, "host", `${first(next)}'s agent had said yes too, so ${first(next)} takes the spot; everyone else's yes stands.`, { who: first(h.host) });
+    line(h, "host", h.altAsked ? `${first(next)} is asked next for the spot; everyone else's yes stands.` : `${first(next)}'s agent had said yes too, so ${first(next)} takes the spot; everyone else's yes stands.`, { who: first(h.host) });
     P.notify(next, "huddle", `A spot opened: your agent and ${first(h.host)}'s agreed ${h.sport} ${when(o)} at ${o.where}. One yes from you?`, { huddle: h.id });
     if (h.players.every((x) => h.answers[x] === "yes")) await book(h);
     save();
@@ -375,7 +375,8 @@ async function book(h) {
   h.status = "on";
   Tr.expect(r?.post?.id || h.id, h.players, startMs(o)); // after the game, the players say who came
   if (r?.post?.id) { h.post = r.post.id; for (const id of h.players) if (id !== h.host) P.join(id, h.post, true); }
-  line(h, "host", `Everyone said yes. ${when(o)} at ${o.where} is on${h.players.length < h.need ? `; ${h.need - h.players.length} spot${h.need - h.players.length > 1 ? "s are" : " is"} open in the feed` : ""}.`, { who: first(h.host), agreed: true });
+  if (!r?.post) line(h, "host", `Everyone said yes: ${when(o)} at ${o.where} is on. It couldn't go on the feed (${String(r?.error || "the feed refused it").slice(0, 120)})${h.players.length < h.need ? `, so the open spot${h.need - h.players.length > 1 ? "s aren't" : " isn't"} listed: post the game yourself to fill ${h.need - h.players.length > 1 ? "them" : "it"}` : ""}.`, { who: first(h.host), agreed: true });
+  else line(h, "host", `Everyone said yes. ${when(o)} at ${o.where} is on${h.players.length < h.need ? `; ${h.need - h.players.length} spot${h.need - h.players.length > 1 ? "s are" : " is"} open in the feed` : ""}.`, { who: first(h.host), agreed: true });
   if (!r?.post) for (const id of h.players) P.notify(id, "gameon", `Game on: ${h.sport} ${when(o)} at ${o.where}. ${names(h.players.filter((x) => x !== id).map(first))} ${h.players.length > 2 ? "are" : "is"} in.`, { huddle: h.id });
 }
 // may the member's own agent (its key, not the member's session) say yes for them here: only with the member's standing

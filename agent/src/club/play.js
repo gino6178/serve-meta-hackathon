@@ -118,11 +118,20 @@ export function spotsIn(text, format) {
   const n = m ? (/^\d+$/.test(m[1]) ? +m[1] : WORDS[m[1].toLowerCase()]) : null;
   return n >= 1 && n <= 12 ? n : format === "singles" ? 1 : 3;
 }
+const clockIn = (text) => {
+  const t = String(text), m = t.match(/\b(\d{1,2}):([0-5]\d)\s*(am|pm)?/i) || t.match(/\b(\d{1,2})\s*(am|pm)\b/i) || t.match(/(\d{1,2})\s*點(半)?/);
+  if (!m) return null;
+  let h = +m[1]; const min = m[2] && /^\d+$/.test(m[2]) ? +m[2] : m[2] === "半" ? 30 : 0, ap = (m[3] || (/am|pm/i.test(m[2] || "") ? m[2] : "") || "").toLowerCase();
+  if (ap === "pm" && h < 12) h += 12; if (ap === "am" && h === 12) h = 0;
+  if (!ap && h < 12 && /evening|night|tonight|晚上|今晚|明晚/i.test(t)) h += 12;
+  return h <= 23 ? `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}` : null;
+};
 export async function inviteDraft(text, { near = null, now = new Date() } = {}) {
   const it = await readIntent(String(text).slice(0, 300), [], now), i = it.intent;
   // the day from the words by code first (the next Saturday, tomorrow, 週六), the model's reading only when code finds none
   const day = ruleIntent(text, [], now).days[0] || i.days[0] || (() => { const d = new Date(now); d.setDate(d.getDate() + 1); return ymd(d); })();
-  const start = i.from || "19:00";
+  // a clock time the player wrote ("9:00", "7pm", "8點") wins over the part of the day's usual start
+  const start = clockIn(text) || i.from || "19:00";
   let where = null, at = null;
   if (near && isFinite(+near.lat) && isFinite(+near.lon)) {
     at = { lat: +(+near.lat).toFixed(4), lon: +(+near.lon).toFixed(4) };

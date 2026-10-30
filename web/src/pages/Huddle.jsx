@@ -177,7 +177,7 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
         </div>
       )}
       <p className="hd-how">Each person's agent answers for them from what it has learned: the time, how far, the price, a quiet court. Nobody shares a calendar or an address.</p>
-      {err && <p className="join-err" role="alert">{err}</p>}
+      {err && <p className="join-err" role="alert" ref={(el) => el?.scrollIntoView({ block: "center", behavior: "smooth" })}>{err}</p>}
       <button className="btn primary" disabled={busy || (who === "pick" && !picked.length && !nearby)}><Icon name="spark" size={18} />{busy ? "Starting…" : "Let the agents work it out"}</button>
     </form>
   );

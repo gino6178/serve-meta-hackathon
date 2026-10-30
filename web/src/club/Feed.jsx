@@ -218,7 +218,7 @@ function DraftCard({ d, onDone, say }) {
 // an invite anyone can join: the game, who is in, and the spots left (the poster's agent says so in the comments)
 function InviteBox({ p, patch, say }) {
   const v = p.invite, [busy, setBusy] = useState(false), [shown, setShown] = useState(""); // shown: what sharing did, on the card
-  const join = async (on) => { setBusy(true); setShown(""); try { const r = await feedApi.join(p.id, on); patch(() => r.post); } catch (e) { say(e.message); setShown(`! ${e.message}`); } setBusy(false); };
+  const join = async (on) => { setBusy(true); setShown(""); try { const r = await feedApi.join(p.id, on); patch(() => r.post); if (r.note) setShown(r.note); } catch (e) { say(e.message); setShown(`! ${e.message}`); } setBusy(false); };
   const share = async () => { const r = await shareInvite(p.id, `${cap(v.sport)} ${v.day} ${v.start}: join me on Serve`); const note = r === "copied" ? "Link copied. Anyone can open it, also without an account." : r === "shared" ? "Shared." : r?.startsWith("link:") ? r.slice(5) : ""; if (note) { say(r?.startsWith("link:") ? `Copy this link to share it: ${note}` : note); setShown(r?.startsWith("link:") ? `link:${note}` : note); } };
   return (
     <div className="fd-invite">

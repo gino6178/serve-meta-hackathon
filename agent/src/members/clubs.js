@@ -68,6 +68,7 @@ export async function start(member, b, moderate) {
   const m = await moderate([name, about, where, cause].filter(Boolean).join("\n"), member.id);
   if (m?.refused || m?.helpline) return { refused: true, why: m.why || "The club's name or line was not allowed." };
   // children's sessions are always private: the organiser lets in the parents and helpers
+  if (b.privacy !== undefined && !["public", "private"].includes(b.privacy)) return { error: "privacy is public or private.", code: 400 };
   const privacy = kind === "youth" || b.privacy === "private" ? "private" : "public";
   const c = { id: `c-${crypto.randomUUID().slice(0, 8)}`, name, sport, about, where: where || name, at, privacy, kind, ...(kind === "charity" ? { program: { cause, entrants: [] } } : kind === "youth" ? { program: { roster: [] } } : {}),
     owner: member.id, members: [{ id: member.id, name: member.name, at: Date.now() }], requests: [], created: Date.now() };
