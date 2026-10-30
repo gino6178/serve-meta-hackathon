@@ -105,7 +105,7 @@ function SocialHome({ club, me, agents, reload }) {
 }
 
 // starting a game anyone in the club can join
-export function InviteComposer({ onPosted, room = null, sport = "badminton", highlight = true, gentle = false }) {
+export function InviteComposer({ onPosted, room = null, sport = "badminton", highlight = true, gentle = false, privateClub = false }) {
   const fresh = () => ({ sport, day: gentle ? "Tue" : "Thu", start: gentle ? "09:00" : "19:00", where: "", spots: 3, text: "" });
   const [open, setOpen] = useState(false), [v, setV] = useState(fresh), [busy, setBusy] = useState(false), [err, setErr] = useState(""), [done, setDone] = useState("");
   const set = (k) => (e) => { const x = e.target.value; setV((o) => ({ ...o, [k]: x })); };
@@ -121,7 +121,7 @@ export function InviteComposer({ onPosted, room = null, sport = "badminton", hig
   };
   if (!open) return (
     <div className="so-starts">
-      <button className="so-start" onClick={() => { setDone(""); setErr(""); setOpen(true); }}><Icon name="plus" size={18} />Start a game anyone can join</button>
+      <button className="so-start" onClick={() => { setDone(""); setErr(""); setOpen(true); }}><Icon name="plus" size={18} />{privateClub ? "Start a game for the club" : "Start a game anyone can join"}</button>
       {highlight && <a className="so-start hl" href="#/highlights"><Icon name="play" size={18} />Auto highlight: your video, cut by your agent</a>}
       {done && <p className="tiny muted" role="status">{done}</p>}
     </div>

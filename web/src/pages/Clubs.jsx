@@ -192,7 +192,7 @@ function ClubRoom({ id }) {
       {/* a public club: everyone sees the games and posts, and posting joins; a private one: its members only */}
       {shut ? <p className="cl-empty">A private club: its games and posts are for members. {c.asked ? "The owner will answer your ask." : "Ask to join."}</p> : <>
         <Program c={c} onChange={(x) => setC({ ...c, ...x })} />
-        {(c.kind !== "youth" || c.mine) && <InviteComposer room={c.id} sport={c.sport} gentle={c.kind === "seniors"} highlight={false} onPosted={() => { setN((k) => k + 1); load(); }} />}
+        {(c.kind !== "youth" || c.mine) && <InviteComposer room={c.id} sport={c.sport} gentle={c.kind === "seniors"} privateClub={c.privacy === "private"} highlight={false} onPosted={() => { setN((k) => k + 1); load(); }} />}
         <Feed key={n} room={c.id} club={null} members={[]} />
       </>}
     </div>

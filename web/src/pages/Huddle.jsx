@@ -247,7 +247,7 @@ function HuddleView({ id, onBack, onChange = () => {} }) {
       </ol>
       {h.mine && ["talking", "asking", "stuck"].includes(h.status) && (() => { const off = async (game) => { const r = await H.cancel(id, game).catch((e) => setErr(e.message)); if (r) { setH(r.huddle); onChange(); } }; return h.fill
         ? <span className="hd-cancel-row"><button className="link hd-cancel" onClick={() => off(false)}>Stop the agents filling it (the game stays)</button><button className="link hd-cancel" onClick={() => off(true)}>Call off the game (it leaves the feed; everyone in it is told)</button></span>
-        : <button className="link hd-cancel" onClick={() => off(false)}>Call it off</button>; })()}
+        : <button className="link hd-cancel" onClick={() => { if (confirm("Call off this game? Everyone in it is told.")) off(false); }}>Call it off</button>; })()}
     </section>
   );
 }
