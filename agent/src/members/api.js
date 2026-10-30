@@ -144,25 +144,25 @@ async function channel(req, res, p, send) {
   if (p === "/api/agent-channel/comment" && req.method === "POST") return out(await P.comment(ag.id, String(b.post || ""), b.text, { agent: { id: ag.id, owner } }));
   if (p === "/api/agent-channel/join" && req.method === "POST") {
     // joining commits the person: the same permission as a yes (taste.js delegate), with its limits
-    if (b.on !== false) { const ok = H.mayAgentSayYes(owner, { post: String(b.post || "") }); if (ok.error) return send(403, ok); }
+    if (b.on !== false) { const ok = H.mayAgentSayYes(owner, { post: String(b.post || "") }); if (ok.error) return send(ok.code || 403, ok); }
     return out(P.join(owner, String(b.post || ""), b.on !== false));
   }
   // the huddle routes, signed with the member's own agent key; committing them (a yes, joining a game) needs the
   // member's standing permission (taste.js delegate), with its limits
   if (p.startsWith("/api/agent-channel/huddle/")) {
     const sub = p.replace("/api/agent-channel", "");
-    if (["/huddle/reply", "/huddle/game"].includes(sub) && b.yes === true) { const ok = H.mayAgentSayYes(owner, sub === "/huddle/reply" ? { huddle: String(b.id || "") } : { post: String(b.post || "") }); if (ok.error) return send(403, ok); }
+    if (["/huddle/reply", "/huddle/game"].includes(sub) && b.yes === true) { const ok = H.mayAgentSayYes(owner, sub === "/huddle/reply" ? { huddle: String(b.id || "") } : { post: String(b.post || "") }); if (ok.error) return send(ok.code || 403, ok); }
     if (["/huddle/delegate", "/huddle/open", "/huddle/home"].includes(sub)) return send(403, { error: "Only your person changes this, with their own session: it is their permission, not yours." });
     // over the channel limits only get tighter: loosening them is the person's call
     if (sub === "/huddle/limits" && req.method === "POST") {
       const t = T.get(owner), _mins = (ws) => (ws || []).reduce((n, w) => n + w.days.length * ((+w.to.slice(0, 2) * 60 + +w.to.slice(3)) - (+w.from.slice(0, 2) * 60 + +w.from.slice(3))), 0);
       const looser = (b.maxKm != null && t.limitKm != null && +b.maxKm > t.limitKm) || (b.maxEach != null && t.limitEach != null && +b.maxEach > t.limitEach)
         || (b.maxKm === null && t.limitKm != null) || (b.maxEach === null && t.limitEach != null)
-        || (Array.isArray(b.windows) && t.windows?.length && (!b.windows.length || !b.windows.every((w) => (w.days || []).every((d) => t.windows.some((o) => o.days.includes(d) && o.from <= w.from && w.to <= o.to)))));
+        || (b.windows === null && t.windows?.length) || (Array.isArray(b.windows) && t.windows?.length && (!b.windows.length || !b.windows.every((w) => (w.days || []).every((d) => t.windows.some((o) => o.days.includes(d) && o.from <= w.from && w.to <= o.to)))));
       if (looser) return send(403, { error: "Over the agent channel limits can only get tighter; loosening them needs your person's session.", needs: "person" });
     }
     // a game the agent starts keeps the person's rule about new people
-    if (sub === "/huddle/start" && req.method === "POST") { const d = T.get(owner).delegate; if (d?.on && !d.newPeople && !((+b.gate?.minShow || 0) >= 0.6)) b = { ...b, gate: { minShow: 0.6, newOk: false, agentMin: b.gate?.agentMin }, gateWhy: "Your person's delegation wants people with a record, so this game is gated at 60% and new people wait (asked for 0 or less than 0.6)." }; }
+    if (sub === "/huddle/start" && req.method === "POST") { const d = T.get(owner).delegate; if (d?.on && !d.newPeople) { const asked = +b.gate?.minShow || 0; b = { ...b, gate: { minShow: Math.max(0.6, asked), newOk: false, agentMin: b.gate?.agentMin }, gateWhy: `Your person's delegation wants people with a record, so new people wait${asked < 0.6 ? " and the game is gated at 60%" : ""}.` }; } }
     const fake = { method: req.method, url: sub, headers: req.headers, on: () => {} };
     return huddle(Object.assign(fake, { [Symbol.asyncIterator]: undefined, byAgent: true }), res, `/api${sub}`, new URL(req.url, "http://x").searchParams, owner, send, b);
   }
@@ -202,8 +202,13 @@ async function huddle(req, res, p, q, me, send, given = null) {
     if (!t.home) return send(200, { places: [], home: false });
     const places = await D.placesNear(t.home, sport, { venues: 4, courts: 4, wait: false });
     const looking = D.loading(t.home, sport);
-    return send(200, { home: true, sport, currency: D.CURRENCY, looking, ...(looking ? { retryAfter: 20 } : {}), places: places.map((x) => {
-      const k = +T.km(t.home, x).toFixed(1), qt = D.quietest(x);
+    // only the courts inside the member's distance limit
+    const inKm = (x) => t.limitKm == null || T.km(t.home, x) <= t.limitKm;
+    return send(200, { home: true, sport, currency: D.CURRENCY, looking, ...(looking ? { retryAfter: 20 } : {}), places: places.filter(inKm).map((x) => {
+      const k = +T.km(t.home, x).toFixed(1), qt0 = D.quietest(x, { n: 50 });
+      // the quietest hours shown are ones the member can play at, when they set time windows
+      const okTime = (g) => !t.windows?.length || !T.hardNo({ ...t, limitKm: null, limitEach: null, busyAt: [], declined: [] }, { ...g, km: null, each: 0 });
+      const qt = { grid: qt0.grid, quiet: qt0.quiet.filter(okTime).slice(0, 3) };
       const good = qt.grid.filter((g) => !T.hardNo(t, { ...g, km: k, each: x.kind === "venue" ? D.guessEach(x, g.date, g.start, 4) : 0 })).map((g) => ({ ...g, s: T.worth(t, { ...g, km: k, each: 0 }) + (1 - g.busy) })).sort((a1, b1) => b1.s - a1.s)[0];
       return { id: x.id, name: x.name, kind: x.kind, indoor: x.kind === "venue", km: k, lat: x.lat, lon: x.lon, quiet: qt.quiet, grid: qt.grid, ...(x.kind === "venue" ? { list: x.list, sample: true, offer: good && (() => { const o = D.talk(x, { date: good.date, start: good.start, players: 4, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }); return t.limitEach != null && o.each > t.limitEach ? { ...o, overLimit: true } : o; })(), at: good } : {}) };
     }) });
@@ -216,7 +221,10 @@ async function huddle(req, res, p, q, me, send, given = null) {
     if (!x) return send(404, { error: "That venue isn't among the courts near you (GET /api/huddle/places lists them)." });
     if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(b.start)) return send(400, { error: "Say the date and the time (HH:MM)." });
     { const [y, mo, d] = b.date.split("-").map(Number), [hh, mm] = b.start.split(":").map(Number), t = new Date(y, mo - 1, d, hh, mm).getTime(); if (!(t > Date.now() && t < Date.now() + 30 * 864e5)) return send(400, { error: "Pick a time in the next 30 days." }); if (hh < 6 || hh * 60 + mm + 90 > 22 * 60) return send(400, { error: "Venues here open 06:00 to 22:00; pick a 90-minute game inside that." }); }
-    return send(200, { deal: D.talk(x, { date: b.date, start: b.start, players: Math.min(12, Math.max(2, +b.players || 4)), weekly: !!b.weekly, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }), currency: D.CURRENCY });
+    // a quote commits nobody, so it is given; what it breaks of the member's own limits is said with it
+    const deal = D.talk(x, { date: b.date, start: b.start, players: Math.min(12, Math.max(2, +b.players || 4)), weekly: !!b.weekly, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" });
+    const outside = T.hardNos({ ...t, busyAt: [], declined: [] }, { date: b.date, start: b.start, km: +T.km(t.home, x).toFixed(1), each: deal.each || 0 }).filter((r) => ["time", "place", "price"].includes(r) && (r !== "place" || t.limitKm != null) && (r !== "price" || t.limitEach != null) && (r !== "time" || t.windows?.length));
+    return send(200, { deal, currency: D.CURRENCY, ...(outside.length ? { outside, note: `A quote only: it is outside your limits (${outside.map((r) => T.NO[r] || r).join(", ")}), so no game is agreed there.` } : {}) });
   }
   return send(404, { error: "no such route" });
 }

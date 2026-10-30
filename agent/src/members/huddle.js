@@ -168,7 +168,7 @@ async function run(h, now = new Date()) {
       if (h.pin && h.pin.date !== date) continue;
       for (const place of places) {
         if (!h.pin && (!opensFor(place, start) || !inWhen(h.when, date, start))) continue;
-        const o = { date, start, place, busy: D.busy(place, date, start, games), each: D.guessEach(place, date, start, h.need) };
+        const o = { date, start, place, busy: D.busy(place, date, start, games), each: h.fill ? (P.find(h.fill)?.invite.each ?? 0) : D.guessEach(place, date, start, h.need) };
         if (startMs(o) - now.getTime() < 3 * 3600e3 || h.excluded.some((x) => matches(x, o))) continue;
         if (hostBusy.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3)) { hostRuled.busy = (hostRuled.busy || 0) + 1; continue; }
         const hn = T.hardNo(taste[host], { date, start, km: taste[host].home ? +T.km(taste[host].home, place).toFixed(1) : null, each: o.each });
@@ -220,7 +220,7 @@ async function run(h, now = new Date()) {
   }
   if (!agreed && bestTry && (bestTry.players.length >= 2 || direct.length)) {
     agreed = bestTry;
-    line(h, "host", `No time suits all ${h.need} this week. ${when(opts[agreed.k])} suits the most of you (${agreed.players.length}); the other ${h.need - agreed.players.length} spot${h.need - agreed.players.length > 1 ? "s" : ""} will be open to the club.`, { who: hostName });
+    line(h, "host", h.fill ? `${agreed.players.length - 1} of the ${h.need - 1} open spots found people whose agents said yes; the other ${h.need - agreed.players.length} stay open in your game.` : `No time suits all ${h.need} this week. ${when(opts[agreed.k])} suits the most of you (${agreed.players.length}); the other ${h.need - agreed.players.length} spot${h.need - agreed.players.length > 1 ? "s" : ""} will be open to the club.`, { who: hostName });
   }
   if (!agreed && direct.length && short.length) agreed = { k: short[0], players: [host] };
   // a time the host picked themself: the agents' guesses don't block it; the best-suited people are asked directly
@@ -271,7 +271,7 @@ async function run(h, now = new Date()) {
 export async function reply(me, id, yes, why = null, { now = new Date(), wait = false, byAgent = false } = {}) {
   const h = find(id);
   if (!h || !h.players.includes(me)) return { error: "That game isn't one you're in.", code: 404 };
-  if (h.status !== "asking") return { error: "The agents are still talking, or it's settled.", code: 409 };
+  if (h.status !== "asking") return { error: { talking: "The agents are still talking: answer once they agree.", on: "It's settled: the game is on.", stuck: "The agents couldn't settle this one.", cancelled: "It was called off." }[h.status] || "It's settled.", code: 409 };
   const o = h.pick, mine = { date: o.date, start: o.start, km: o.km[me] ?? 3, each: o.each, busy: o.busy };
   // the person's own answer teaches their agent; an answer their agent gave for them does not (it's the agent's guess)
   const r = byAgent ? { line: yes ? "Answered yes for your person." : "Answered no for your person." } : T.reply(me, mine, yes, why);

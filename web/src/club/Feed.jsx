@@ -222,7 +222,7 @@ function InviteBox({ p, patch, say }) {
   const share = async () => { const r = await shareInvite(p.id, `${cap(v.sport)} ${v.day} ${v.start}: join me on Serve`); if (r === "copied") say("Link copied. Anyone can open it, also without an account."); if (r === "shared") say("Shared."); };
   return (
     <div className="fd-invite">
-      <span className="fd-inv-when"><b>{v.day}</b>{v.start}</span>
+      <span className="fd-inv-when"><b>{/^\d{4}-/.test(v.day) ? new Date(`${v.day}T12:00`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) : v.day}</b>{v.start}</span>
       <span className="fd-inv-what"><b>{cap(v.sport)}</b>{v.at ? <a className="tiny muted" href={`https://www.openstreetmap.org/?mlat=${v.at.lat}&mlon=${v.at.lon}#map=17/${v.at.lat}/${v.at.lon}`} target="_blank" rel="noreferrer"><Icon name="pin" size={12} />{v.where}</a> : <span className="tiny muted"><Icon name="pin" size={12} />{v.where}</span>}
         <span className="fd-inv-spots" aria-label={`${v.going} of ${v.spots} spots taken`}>{Array.from({ length: v.spots }, (_, i) => <i key={i} className={i < v.going ? "on" : ""} />)}</span>
         <span className="tiny muted">{v.names.length ? (v.names.length === 1 && v.names[0] === "You" ? "You're in" : `${v.names.join(", ")} ${v.names.length > 1 ? "are" : "is"} in`) : "Nobody yet"} · {v.full ? "full" : `${v.spots - v.going} left`}{v.each > 0 ? ` · NT$${v.each} each` : v.each === 0 ? " · free" : ""}</span>

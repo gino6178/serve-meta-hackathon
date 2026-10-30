@@ -46,7 +46,7 @@ export function setOpen(id, on) { const t = get(id); if (on && !t.home) return {
 // hard limits an agent can set straight from what its person said: when they can play at all, how far, how much
 const HM = /^([01]\d|2[0-3]):[0-5]\d$/;
 export function setLimits(id, b = {}) {
-  const t = get(id), w = Array.isArray(b.windows) ? b.windows.slice(0, 14) : t.windows;
+  const t = get(id), w = b.windows === null ? [] : Array.isArray(b.windows) ? b.windows.slice(0, 14) : t.windows;
   const windows = [];
   for (const x of w || []) {
     const days = (Array.isArray(x.days) ? x.days : []).filter((d) => DAYS.includes(d));
@@ -185,7 +185,8 @@ export function reply(id, o, yes, why = null) {
     t.raw[why] = clamp(t.raw[why] + 0.45, -3, 3);
     remember(t, "declined", o);
     if (why === "time") { nudgeCell(t, cell, -0.6); line = `Not ${cellWords(cell)}, then. I'll weigh the time more and that slot less.`; }
-    if (why === "place") { t.maxKm = clamp(Math.min(t.maxKm, Math.max((o.km || t.maxKm) * 0.9, t.maxKm * 0.7)), 1, 25); line = `Too far: I'll keep games within about ${t.maxKm.toFixed(0)} km of you.`; }
+    if (why === "place" && o.km != null && o.km < t.maxKm * 0.5) line = "Not that place, then: I'll look at other courts.";
+    else if (why === "place") { t.maxKm = clamp(Math.min(t.maxKm, Math.max((o.km || t.maxKm) * 0.9, t.maxKm * 0.7)), 1, 25); line = `Too far: I'll keep games within about ${t.maxKm.toFixed(0)} km of you.`; }
     if (why === "price") { if (o.each > 0) t.priceCap = clamp(Math.min(t.priceCap, o.each * 0.9), 60, 1200); line = `Too dear: I'll aim under ${Math.round(t.priceCap)} each and push venues harder on price.`; }
     if (why === "quiet") line = "Too crowded: I'll look for quieter hours.";
   } else { nudgeCell(t, cell, -0.25); line = `Not that one. I'll count ${cellWords(cell)} a bit less.`; }
@@ -232,6 +233,17 @@ export function question(id, { places = [], now = new Date(), force = false } = 
   else { a = g(liked, 1, 90, 0.5, ven); b = g(other, 1, 90, 0.5, ven); }
   if (a.date === b.date && a.start === b.start && x !== "time") b.start = a.start === "19:30" ? "18:00" : a.start;
   for (const o of [a, b]) { if (t.limitKm) o.km = +Math.min(o.km, t.limitKm * 0.95).toFixed(1); if (t.limitEach != null && o.each > 0) o.each = Math.min(o.each, t.limitEach); }
+  // with time windows set, both games are at times the member can play (two different ones when the question is about time)
+  if (t.windows?.length) {
+    const slots = [];
+    for (let i = 1; i <= 7; i++) { const d = new Date(now); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + i); const date = ymd(d), day = DAYS[d.getDay()];
+      for (const w of t.windows) if (w.days.includes(day)) for (const s of [w.from, "07:00", "09:00", "10:30", "14:00", "16:00", "18:00", "19:30"]) { const end = +s.slice(0, 2) * 60 + +s.slice(3) + 90; if (s >= w.from && `${String(Math.floor(end / 60)).padStart(2, "0")}:${String(end % 60).padStart(2, "0")}` <= w.to && !slots.some((x) => x.date === date && x.start === s)) slots.push({ date, start: s }); } }
+    if (slots.length) {
+      const inWin = (o) => !hardNo({ ...t, limitKm: null, limitEach: null, busyAt: [], declined: [], maxKm: 1e9, priceCap: 1e9 }, o);
+      if (!inWin(a)) Object.assign(a, slots[0]);
+      if (!inWin(b) || (x === "time" && cellOf(a.date, a.start) === cellOf(b.date, b.start))) Object.assign(b, slots.find((sl) => cellOf(sl.date, sl.start) !== cellOf(a.date, a.start)) || slots[Math.min(1, slots.length - 1)]);
+    }
+  }
   const qid = `q${t.asked || 0}-${axes.join("")}`;
   const out = { id: qid, axes, a: { ...a, text: gameText(a) }, b: { ...b, text: gameText(b) }, n, of: SURE_AT, ask: n === 0 ? "Which of these would you rather play?" : "One more: which would you pick?" };
   data().members[id] = { ...get(id), lastQ: out }; save();

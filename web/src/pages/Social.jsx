@@ -121,7 +121,7 @@ export function InviteComposer({ onPosted, room = null, sport = "badminton", hig
         <label>Sport<select value={v.sport} onChange={set("sport")}>{SPORTS.map((s) => <option key={s}>{s}</option>)}</select></label>
         <label>Day<select value={v.day} onChange={set("day")}>{DAYS.map((d) => <option key={d}>{d}</option>)}</select></label>
         <label>Time<input type="time" value={v.start} onChange={set("start")} required /></label>
-        <label>Players needed<select value={v.spots} onChange={set("spots")}>{Array.from({ length: 12 }, (_, k) => <option key={k + 1} value={k + 1}>{k + 1}</option>)}</select></label>
+        <label>Others needed (besides you)<select value={v.spots} onChange={set("spots")}>{Array.from({ length: 12 }, (_, k) => <option key={k + 1} value={k + 1}>{k + 1} · {k + 2} players with you</option>)}</select></label>
         <div className="wide so-where">
           <span className="so-where-l">Where: tap a court or a spot</span>
           <RealMap sport={v.sport} pick height={220} onPick={(p) => setV((x) => ({ ...x, at: { lat: p.lat, lon: p.lon }, where: p.name || x.where }))} />
