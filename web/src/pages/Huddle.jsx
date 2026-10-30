@@ -320,13 +320,24 @@ function Limits({ t, onSaved }) {
   const [win, setWin] = useState(winKey(t.windows)), [km, setKm] = useState(t.limitKm ?? ""), [each, setEach] = useState(t.limitEach ?? "");
   const [on, setOn] = useState(!!d?.on), [dEach, setDEach] = useState(d?.maxEach ?? ""), [newPeople, setNewPeople] = useState(!!d?.newPeople);
   const [busy, setBusy] = useState(false), [said, setSaid] = useState(""), [err, setErr] = useState("");
+  const [cal, setCal] = useState(null), [reading, setReading] = useState(false);
+  // a calendar file: read by the gateway into free times, offered as a choice (saved with the rest)
+  const readCal = async (e) => {
+    const f = e.target.files?.[0]; e.target.value = ""; if (!f) return;
+    setErr(""); setSaid("");
+    if (f.size > 1e6) { setErr("That calendar is over 1 MB: export a shorter range."); return; }
+    setReading(true);
+    try { const r = await H.fromCalendar(await f.text()); if (!r.windows.length) throw new Error("No free time of two hours or more between 07:00 and 22:00 in that calendar."); setCal(r); setWin("ics"); } catch (x) { setErr(x.message); }
+    setReading(false);
+  };
+  const chosen = win === "ics" ? cal?.windows : win === "keep" ? t.windows : WIN[win]?.v;
   // what they said in their own words, offered (not saved) as limits
   const words = saidWords(), wWin = /weekday evening|weeknight|平日晚上/i.test(words) ? "evenings" : /weekday morning|平日早上/i.test(words) ? "mornings" : /weekend|週末|周末/i.test(words) ? "weekends" : null, wEach = eachFromText(words);
   const offer = (wWin && wWin !== win) || (wEach != null && String(wEach) !== String(each));
   const save = async (e) => {
     e.preventDefault(); setBusy(true); setErr(""); setSaid("");
     try {
-      await H.setLimits({ ...(win === "keep" ? {} : { windows: WIN[win].v }), maxKm: km === "" ? null : +km, maxEach: each === "" ? null : +each });
+      await H.setLimits({ ...(win === "keep" ? {} : { windows: win === "ics" ? cal.windows : WIN[win].v }), maxKm: km === "" ? null : +km, maxEach: each === "" ? null : +each });
       const r = await H.setDelegate(on ? { on: true, maxEach: dEach === "" ? null : +dEach, newPeople } : { on: false });
       setSaid("Saved. Nothing outside these is ever agreed for you."); onSaved(r.taste);
     } catch (x) { setErr(x.message); }
@@ -337,7 +348,12 @@ function Limits({ t, onSaved }) {
       <h2 className="h3">Your limits</h2>
       <p className="hd-fine">Hard limits: your agent never agrees to a game outside them.</p>
       {offer && <p className="hd-offer">You said “{words.slice(0, 80)}”. <button type="button" className="link" onClick={() => { if (wWin) setWin(wWin); if (wEach != null) setEach(String(wEach)); }}>Use {[wWin && WIN[wWin].label.toLowerCase(), wEach != null && `NT$${wEach} at most`].filter(Boolean).join(", ")}</button>, then Save.</p>}
-      <label>Times<select value={win} onChange={(e) => setWin(e.target.value)}>{win === "keep" && <option value="keep">As set before</option>}{Object.entries(WIN).map(([k, x]) => <option key={k} value={k}>{x.label}</option>)}</select></label>
+      <label>Times<select value={win} onChange={(e) => setWin(e.target.value)}>{win === "keep" && <option value="keep">As set before</option>}{cal && <option value="ics">From your calendar</option>}{Object.entries(WIN).map(([k, x]) => <option key={k} value={k}>{x.label}</option>)}</select></label>
+      <div className="hd-ics">
+        <label className="btn sm hd-file">{reading ? "Reading…" : "Import a calendar (.ics)"}<input type="file" accept=".ics,text/calendar" onChange={readCal} disabled={reading} /></label>
+        <span className="hd-fine">{cal ? `${cal.events} event${cal.events === 1 ? "" : "s"} over ${cal.weeks} weeks: free ${cal.free.join(", ")}.` : "Only the busy times in it are read; titles and details are never kept."}</span>
+      </div>
+      <WeekHeat ws={chosen} />
       <label>Farthest<span className="hd-unit"><input type="number" min="1" max="30" step="0.5" inputMode="decimal" placeholder="no limit" value={km} onChange={(e) => setKm(e.target.value)} />km</span></label>
       <label>Most per person<span className="hd-unit">NT$<input type="number" min="0" max="5000" step="10" inputMode="numeric" placeholder="no limit" value={each} onChange={(e) => setEach(e.target.value)} /></span></label>
       <h3 className="h4">Your agent saying yes for you</h3>
@@ -350,6 +366,20 @@ function Limits({ t, onSaved }) {
       {said && <p className="tq-said" role="status">{said}</p>}
       {err && <p className="join-err" role="alert">{err}</p>}
     </form>
+  );
+}
+// the person's own week by the hour, as the limits being set leave it: free or not (their own times only; other
+// members' times are private to their agents, so no club-wide count is shown)
+const HOURS = Array.from({ length: 15 }, (_, i) => 7 + i), WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const hh = (h) => `${String(h).padStart(2, "0")}:00`;
+function WeekHeat({ ws }) {
+  const free = (d, h) => !ws?.length || ws.some((w) => w.days.includes(d) && w.from <= hh(h) && hh(h + 1) <= w.to);
+  const n = WEEK.reduce((s, d) => s + HOURS.filter((h) => free(d, h)).length, 0);
+  return (
+    <div className="hd-heat hd-hours" role="img" aria-label={`Your week: ${n} free hours between 07:00 and 22:00`}>
+      <div className="hh-row hh-head"><span />{HOURS.map((h) => <span key={h}>{h % 3 === 1 ? h : ""}</span>)}</div>
+      {WEEK.map((d) => <div className="hh-row" key={d}><span>{d}</span>{HOURS.map((h) => <span key={h} className={`hh-c${free(d, h) ? " good" : ""}`} style={{ "--b": free(d, h) ? 1 : 0 }} title={`${d} ${hh(h)}: ${free(d, h) ? "free" : "busy"}`} />)}</div>)}
+    </div>
   );
 }
 // a part of the day inside the person's time limits (none set: all of it)

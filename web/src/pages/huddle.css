@@ -200,6 +200,11 @@
 .hd-limits select, .hd-limits input[type=number] { font: inherit; font-weight: 400; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-width: 0; }
 .hd-limits .hd-unit { display: flex; align-items: center; gap: 6px; font-weight: 400; }
 .hd-limits .hd-unit input { width: 8em; }
+.hd-ics { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.hd-limits .hd-file { display: inline-flex; position: relative; overflow: hidden; cursor: pointer; font-weight: 600; }
+.hd-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.hd-hours .hh-row { grid-template-columns: 34px repeat(15, minmax(12px, 1fr)); gap: 2px; }
+.hd-hours .hh-c { height: 14px; border-radius: 3px; }
 .hd-limits .hd-check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
 .hd-limits .h4 { margin: 6px 0 0; font-size: 15px; }
 .hd-limits .btn { justify-self: start; }

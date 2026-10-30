@@ -10,6 +10,12 @@
 //   POST /api/members/agents/revoke {id}     its key stops working at once
 //   POST /api/members/leave                  the member, their agents and everything they posted are deleted
 //   GET  /api/members/refusals               the agent channel's latest refusals (reason and path only)
+//   POST /api/members/calendar/ics {ics, tz, weeks, save}   an .ics file read into weekly free times (calendar.js):
+//                                            only busy times are read, never titles; save: they become the time limits
+//   GET  /api/members/skill                  the member's skill ratings per sport: mu, sigma, games (club/skill.js)
+//   POST /api/members/result {sport, teams, winner, mode, club}   a game's result; only a competitive one, outside
+//                                            gentle games, children's sessions and charity programmes, waits to be rated
+//   POST /api/members/result/confirm {id}    someone on the other side confirms it, and the ratings move
 //   GET  /api/clubs?lat=&lon=                the clubs members started, nearest first (clubs.js)
 //   POST /api/clubs {name, sport, about, where, at, privacy}    start one, public or private
 //   POST /api/clubs/answer {club, member, yes}   the owner of a private club answers someone who asked to join
@@ -56,6 +62,8 @@ import * as D from "./deals.js";
 import * as Tr from "./trust.js";
 import * as N from "./needs.js";
 import { signInHint } from "./discovery.js";
+import * as K from "./calendar.js";
+import * as Sk from "../club/skill.js";
 
 const readRaw = (req, max = 64e3) => new Promise((ok) => { const parts = []; let n = 0, over = false; req.on("data", (c) => { n += c.length; if (n > max) over = true; else parts.push(c); }); req.on("end", () => ok(over ? null : Buffer.concat(parts))); req.on("error", () => ok(null)); });
 const redirect = (res, url) => { res.writeHead(302, { location: url, "cache-control": "no-store" }); res.end(); return true; };
@@ -126,10 +134,34 @@ export async function route(req, res, u, { json, o, forget }) {
   }
   if (!p.startsWith("/api/members/")) return false;
   if (!me) return send(401, { error: "Sign in first.", ...signInHint(req) });
-  const raw = req.method === "POST" ? await readRaw(req) : null; let b = {}; try { b = JSON.parse(raw?.toString() || "{}"); } catch { /* empty */ }
+  const ics = p === "/api/members/calendar/ics", raw = req.method === "POST" ? await readRaw(req, ics ? K.MAX_BYTES * 1.2 : 64e3) : null; let b = {}; try { b = JSON.parse(raw?.toString() || "{}"); } catch { /* empty */ }
+  if (ics && req.method === "POST") {
+    if (raw == null) return send(413, { error: "The calendar is too big (1 MB at most)." });
+    if (typeof b.ics !== "string") return send(400, { error: "ics is the calendar file's text." });
+    if (b.weeks !== undefined && !(Number.isInteger(+b.weeks) && +b.weeks >= 1 && +b.weeks <= 12)) return send(400, { error: "weeks is a whole number from 1 to 12." });
+    const r = K.freeFrom(b.ics, { tz: b.tz ? String(b.tz) : Intl.DateTimeFormat().resolvedOptions().timeZone, weeks: b.weeks ?? 4 });
+    if (r.error) return send(400, r);
+    if (b.save !== true) return send(200, r);
+    if (!r.windows.length) return send(400, { ...r, error: "No free time of two hours or more inside 07:00 to 22:00 in that calendar, so nothing was saved." });
+    const s = T.setLimits(me.id, { windows: r.windows });
+    return s.error ? send(s.code || 400, s) : send(200, { ...r, taste: s.taste });
+  }
+  if (p === "/api/members/skill" && req.method === "GET") return send(200, { skill: Sk.store().view(me.id) });
+  if ((p === "/api/members/result" || p === "/api/members/result/confirm") && req.method === "POST") {
+    if (p === "/api/members/result/confirm") { const r = Sk.store().confirm(me.id, String(b.id || "")); return send(r.error ? r.code || 400 : 200, r); }
+    const teams = b.teams;
+    if (!Array.isArray(teams) || teams.length !== 2 || teams.some((t) => !Array.isArray(t) || !t.length || t.length > 4 || t.some((id) => typeof id !== "string"))) return send(400, { error: "teams is two lists of member ids (1 to 4 each)." });
+    if (![0, 1].includes(b.winner)) return send(400, { error: "winner is 0 or 1 (the team that won)." });
+    if (b.mode !== undefined && !["competitive", "casual"].includes(b.mode)) return send(400, { error: "mode is competitive or casual." });
+    if (teams.flat().some((id) => id !== me.id && !M.nameOf(id))) return send(400, { error: "Every player is a member." });
+    const club = b.club ? C.find(String(b.club)) : null;
+    if (b.club && !C.isMember(club?.id, me.id)) return send(404, { error: "No such club among yours." });
+    const r = Sk.store().report(me.id, { sport: String(b.sport || club?.sport || "badminton").toLowerCase(), teams, winner: b.winner, mode: b.mode || "casual", kind: club?.kind || "club" });
+    return send(r.error ? r.code || 400 : 200, r);
+  }
   if (p === "/api/members/agents" && req.method === "POST") { const r = M.addAgent(me.id, b); return send(r.error ? 400 : 200, r); }
   if (p === "/api/members/agents/revoke" && req.method === "POST") { const r = M.revokeAgent(me.id, String(b.id || "")); return send(r.error ? 400 : 200, r); }
-  if (p === "/api/members/leave" && req.method === "POST") { const ids = M.leave(me.id); for (const id of ids) { forget?.(id); C.forget(id); H.forget(id); } return send(200, { deleted: ids }); }
+  if (p === "/api/members/leave" && req.method === "POST") { const ids = M.leave(me.id); for (const id of ids) { forget?.(id); C.forget(id); H.forget(id); Sk.store().forget(id); } return send(200, { deleted: ids }); }
   if (p === "/api/members/refusals") return send(200, { refusals: M.refusals() });
   return send(404, { error: "no such route" });
 }

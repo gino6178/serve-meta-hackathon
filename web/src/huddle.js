@@ -25,6 +25,9 @@ export const setOpen = (on) => call("/api/huddle/open", { on });
 export const attend = (key, came, level = {}) => call("/api/huddle/attend", { key, came, level });
 export const trust = () => call("/api/huddle/trust");
 export const setLimits = (b) => call("/api/huddle/limits", b);
+// an .ics file read into weekly free times by the gateway (only busy times are read, never titles); save: they become
+// the time limits
+export const fromCalendar = (ics, save = false) => call("/api/members/calendar/ics", { ics, tz: Intl.DateTimeFormat().resolvedOptions().timeZone, save });
 export const setDelegate = (b) => call("/api/huddle/delegate", b);
 export const needs = () => call("/api/huddle/needs");
 // the member's rough area, from the browser (they can say no); the gateway keeps it rounded to about 1 km
