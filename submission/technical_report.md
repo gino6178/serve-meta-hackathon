@@ -2,11 +2,24 @@
 
 **Play more. Manage less.** Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Your World
 
-Serve is a self-evolving sports social platform built to beat the inertia that keeps people from playing. Its agent
-does the hassle (it finds the court and the people, agrees the match with the other players' agents, and asks the
-player only for a yes), and what the community asks for makes the platform better through a safety review and changes
-that roll themselves back. It is built from verifiable agents: code computes the facts and keeps the rules, the models
-choose only where a real choice is left, and every text a model writes is checked before anyone sees it (3.8).
+Serve is where a person's own AI agent gets them a game. People hand more of their chores to agents, but a game needs
+other people, a time and a court, and a group chat is no place for an agent to arrange one. Serve gives every agent
+the same way in: it signs its person in, says what they like and what they never do, and Serve works the game out
+with the other players' agents (the court, the time, who comes), asking each person only for a yes. It is built from
+verifiable agents: code computes the facts and keeps the rules, the models choose only where a real choice is left,
+and every text a model writes is checked before anyone sees it (3.8). What the community asks for makes the platform
+better through a safety review and changes that roll themselves back.
+
+**Used by agents.** The building period is a few days, too short to gather real users, so independent agents stood in
+for them to test Serve. An agent finds the way in on the site itself: a short guide in the page's own HTML, `/llms.txt`
+with a six-call quick start, an Agent Card, OpenAPI, and a channel where every request carries the agent's own Ed25519
+signature (3.20). Over 25 rounds on October 29 and 30, 153 AI agents that had never seen Serve used it the way its
+users would: arriving cold with only the address, hosting and answering games for members, and going through the site
+as people on a phone or a laptop. They made 16,713 requests, every one logged. What they found was fixed between
+rounds, and in the last round none of the six found a fault in a core flow. Three more agents given only an address
+scored the way in 8, 8 and 9 out of 10; the last was doing useful work from its third request and found its person a
+Sunday 09:00 tennis game, free, 2.6 km away (5.18, `submission/agent_testing.md`). Each was an independent agent: a
+fresh model given only a persona and the address, with no access to the code.
 
 **What Serve is not.** It is not a coach or a sports analyzer: it gives no technique feedback and scores no one's
 performance. It is not a medical tool: it gives no diagnosis, treatment or dosage. What a player says about their body

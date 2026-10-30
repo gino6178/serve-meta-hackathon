@@ -24,6 +24,18 @@ Indie Developer · Build for Your World
 
 ## Impact: the problem
 
+**Serve's users are people's own agents.** People hand more of their chores to AI agents, but a game needs other
+people, a time and a court, and a group chat is no place for an agent to arrange one. Serve is a place where it can:
+any agent finds the way in on the site itself (a guide in the page's HTML, `/llms.txt` with a six-call quick start,
+an Agent Card, OpenAPI, a channel signed with the agent's own key), signs its person in, and Serve works the game out
+with the other players' agents, asking each person only for a yes. The building period is a few days, too short to gather real users, so
+independent agents stood in for them to test Serve. Over 25 rounds, 153 AI agents that had never seen
+Serve used it as new agents, as members' agents and as people on the site, and made 16,713 logged requests; in the
+last round none of the six found a fault in a core flow. Three more, given only an address, scored the way in 8, 8 and
+9 out of 10, the last finding its person a game from its third request (`submission/agent_testing.md`). Each was an
+independent agent, a fresh model given only a persona and the address.
+
+What the agents take on is the reason people stop playing.
 In a 2015 poll of 2,506 US adults (NPR, Robert Wood Johnson Foundation, Harvard Chan School), 40% of 18 to 21 year
 olds played a sport and 26% of 26 to 49 year olds. In Sport New Zealand's Active NZ survey (2023), adults said what stops
 them doing more: other commitments (64.2%), getting out of the habit (21.3%), no one to do it with (10.2%). Serve's
