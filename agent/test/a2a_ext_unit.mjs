@@ -78,3 +78,18 @@ test("Serve's own client names them by itself: a hold over A2A is answered", asy
   // (no talk with this agent in that context: not held, but answered)
   assert.equal(client.dataOf(t, "hold").held, false);
 });
+
+test("the card takes JSON only, and a text message is refused as ContentTypeNotSupportedError (A2A v1.0), naming the data part", async () => {
+  const card = await (await fetch(`${url}.well-known/agent-card.json`)).json();
+  assert.deepEqual(card.defaultInputModes, ["application/json"]);
+  assert.ok(card.skills.every((s) => s.inputModes.every((x) => x === "application/json")));
+  const r = await (await fetch(url, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", authorization: "Bearer unit-token", ...ext.header(BASE) },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "SendMessage", params: { message: { messageId: crypto.randomUUID(), contextId: "c-text", role: "ROLE_USER", parts: [{ text: "Badminton Thursday?", mediaType: "text/plain" }] } } }) })).json();
+  assert.equal(r.error?.code, -32005, JSON.stringify(r)); assert.match(r.error.message, /text\/plain/); assert.match(r.error.message, /application\/json/); assert.ok(!r.result);
+  // a text part with no media type gets past that check: the task fails with the format to send
+  const t = await (await fetch(url, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", authorization: "Bearer unit-token", ...ext.header(BASE) },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "SendMessage", params: { message: { messageId: crypto.randomUUID(), contextId: "c-text2", role: "ROLE_USER", parts: [{ text: "Badminton Thursday?" }] } } }) })).json();
+  const task = t.result?.task;
+  assert.equal(task?.status?.state, "TASK_STATE_FAILED", JSON.stringify(t));
+  assert.match(JSON.stringify(task.status.message), /serve\.proposal.*application\/json/);
+});

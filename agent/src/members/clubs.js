@@ -92,6 +92,27 @@ export function join(member, id, on = true) {
   save();
   return { club: c.members.length ? view(c, member.id) : null };
 }
+// ---- a club's invite link (#/club?join=<code>) ----
+// any member shares it; opening it joins a public club, and asks to join a private one (its owner still says yes). The
+// code is made once and kept, so a link already sent keeps working
+export function invite(member, id) {
+  const c = find(id);
+  if (!c || (c.privacy === "private" && !c.members.some((m) => m.id === member.id))) return { error: "No such club.", code: 404 };
+  if (!c.members.some((m) => m.id === member.id)) return { error: "Join the club first: its members share its link.", code: 403 };
+  if (!c.code) { c.code = crypto.randomBytes(6).toString("base64url"); save(); }
+  return { link: `/#/club?join=${c.code}`, code: c.code, club: view(c, member.id), note: c.privacy === "private" ? "A private club: whoever opens the link asks to join, and the organiser says yes or no." : "Whoever opens the link and signs in joins the club." };
+}
+export const byCode = (code) => (code ? data().clubs.find((c) => c.code && c.code === String(code)) || null : null);
+// what the link shows before anyone signs in: the club, never who is in it
+export function preview(code) {
+  const c = byCode(code);
+  return c ? { club: { id: c.id, name: c.name, sport: c.sport, about: c.about, where: c.where, members: c.members.length, privacy: c.privacy || "public" } } : { error: "That club link isn't valid any more.", code: 404 };
+}
+export function joinByCode(member, code) {
+  const c = byCode(code);
+  if (!c) return { error: "That club link isn't valid any more.", code: 404 };
+  return { ...join(member, c.id, true), via: "link" };
+}
 // a member's agent recommends the nearest club they are not in yet (within 15 km), their sport first; null if none
 export function suggest(viewer, { lat, lon, sport = null } = {}) {
   const from = pointOf({ lat, lon });

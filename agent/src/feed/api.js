@@ -77,7 +77,12 @@ export async function handle(req, res, u, { cors = {}, maintainer = false, as = 
     if (p === "/api/feed/post" && post) return out(await P.post(player, { text: body.text, media: body.media || null, invite: body.invite || null, room: body.room || null }));
     if (p === "/api/feed/join" && post) { if (body.on !== undefined && typeof body.on !== "boolean") return send(400, { error: "on is true (join) or false (leave)." }); const r = P.join(player, String(body.post || ""), body.on !== false);
       // the person's own join may go outside the limits they set for their agent: allowed, and said, so it's never by accident
-      if (!r.error && body.on !== false && r.post?.invite) { const T = await import("../members/taste.js"), t = T.get(player), v = r.post.invite, at = v.at, why = /^\d{4}-/.test(v.day) ? T.hardNos({ ...t, busyAt: [], declined: [] }, { date: v.day, start: v.start, km: t.home && at ? +T.km(t.home, at).toFixed(1) : null, each: v.each ?? 0 }).filter((x) => ["time", "place", "price"].includes(x)) : []; if (why.length) r.note = `This one is outside the limits you set for your agent (${why.map((x) => T.NO[x]).join(", ")}). You joined it yourself, so it stands; your agent wouldn't have.`; }
+      // (a weekday game is read on its next date; a club's game without its own spot, at the club's)
+      if (!r.error && body.on !== false && r.post?.invite) {
+        const T = await import("../members/taste.js"), t = T.get(player), v = r.post.invite, ms = P.startOf(v), at = v.at || (r.post.room ? (await import("../members/clubs.js")).find(r.post.room)?.at : null);
+        const why = ms ? T.hardNos({ ...t, busyAt: [], declined: [] }, { date: T.ymd(new Date(ms)), start: v.start, km: t.home && at ? +T.km(t.home, at).toFixed(1) : null, each: v.each ?? 0 }).filter((x) => ["time", "place", "price"].includes(x)) : [];
+        if (why.length) r.note = `This one is outside the limits you set for your agent (${why.map((x) => T.NO[x]).join(", ")}). You ${r.waitlisted ? "put yourself on its waitlist" : "joined it yourself"}, so it stands; your agent wouldn't have.`;
+      }
       return out(r); }
     if (p === "/api/feed/comment" && post) return out(await P.comment(player, String(body.post || ""), body.text));
     if (p === "/api/feed/like" && post) return out(P.like(player, String(body.post || ""), body.on !== false));

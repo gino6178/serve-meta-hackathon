@@ -82,6 +82,7 @@ Good to know before you start:
 - GET /api/status: is the server up
 - GET /api/auth/providers: which sign-ins this server has (facebook, instagram, demo)
 - GET /api/invite?id=<post>: an open game someone shared as a link
+- GET /api/clubs/invite?code=<code>: a club someone shared as a link (#/club?join=<code>): its name, sport, place and size, never who is in it
 - GET /api/trust/chain, GET /api/trust/verify, GET /a2a/keys.json: the public trust chain and the key that signs it (verify it yourself: each entry's hash is sha256(JSON.stringify([n, at, kind, who, d, prev])); heads are signed as "serve-trust-head:<day>:<n>:<hash>")
 
 ## Who am I
@@ -102,7 +103,9 @@ Good to know before you start:
 
 ## Getting a game
 - GET /api/huddle/today: what is waiting (yes-questions, games near them, a quiet cheap hour, their own games)
-- POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "busy"|"time"|"place"|"price"|"quiet"|"none")
+- POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "busy"|"time"|"place"|"price"|"quiet"|"none"). yes:false on a game they are already in (or waiting for) leaves it, as POST /api/feed/join {"post", "on": false} does.
+- Your person may join a game outside their limits themself (POST /api/feed/join with their session): it stands, and the reply's "note" says which limit it breaks. Over your key (/api/agent-channel/join) the same game is refused (403, needs: "person"), a waitlist place too.
+- Clubs: GET /api/clubs (near ?lat=&lon=), POST /api/clubs {"name", "sport", "at": {lat, lon}, "privacy"?: "private"}, POST /api/clubs/join {"club"}. To invite people, a member gets the club's link with GET /api/clubs/<id>/invite ({"link": "/#/club?join=<code>"}); whoever opens it and signs in joins with POST /api/clubs/join {"code"}. A private club's link asks to join: its organiser says yes (POST /api/clubs/answer {"club", "member", "yes"}).
 - A weekly game is a new post each week: start a fill for each week's post (it shows under the host's games).
 - POST /api/huddle/start {"sport", "need" (players in all, you included), "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0 to 1, usually 0, 0.75 or 0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"} (it needs "club" or "nearby": true, to say whom to ask; "invite" and "fill" alone are not enough): the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
 - POST /api/huddle/reply {"id", "yes", "why"?}: one yes (or no, with "why": "busy"|"time"|"place"|"price"|"quiet"|"none"); answer within a day or the place goes to the next player
@@ -172,7 +175,9 @@ export function openapi(req) {
   add("/api/members/agents/revoke", "post", op("Revoke an agent key", { body: { id: S } }));
   add("/api/clubs", "get", op("Clubs near a point", { query: { lat: "latitude", lon: "longitude" } }));
   add("/api/clubs", "post", op("Start a club", { body: { name: S, sport: S, about: S, where: S, at: O, privacy: S } }));
-  add("/api/clubs/join", "post", op("Join or leave a club", { body: { club: S, on: B } }));
+  add("/api/clubs/join", "post", op("Join or leave a club; or join by its invite link's code (a private club: asks its organiser)", { body: { club: S, on: B, code: S } }));
+  add("/api/clubs/{id}/invite", "get", op("A member's share link for the club: {link: \"/#/club?join=<code>\", code}"));
+  add("/api/clubs/invite", "get", op("A club shared as a link, before sign-in: the club, not its members", { auth: "none", query: { code: "the link's code" } }));
   add("/api/feed", "get", op("The feed (a club's with ?room=)", { query: { room: "club id", n: "how many" } }));
   add("/api/feed/post", "post", op("A post or a game invite", { body: { text: S, invite: O, room: S } }));
   add("/api/feed/join", "post", op("Join a game, or leave it or its waitlist", { body: { post: S, on: B } }));

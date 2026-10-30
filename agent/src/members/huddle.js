@@ -56,7 +56,7 @@ export function people(me) {
 }
 
 // ---- 1. asking ----
-export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
+export function start(me, b = {}, { now = new Date(), wait = false, byAgent = false } = {}) {
   // filling a game the host posted: its sport, time and place are fixed, and the spots still open are what's needed
   const fill = b.fill ? P.find(String(b.fill)) : null;
   if (b.fill && (!fill || fill.kind !== "invite" || (fill.by.player || fill.by.agentOf) !== me)) return { error: "That isn't a game you posted.", code: 403 };
@@ -95,7 +95,7 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   const pin = b.pin && /^\d{4}-\d{2}-\d{2}$/.test(b.pin.date) && /^\d{2}:\d{2}$/.test(b.pin.start) ? { date: b.pin.date, start: b.pin.start, place: b.pin.place ? String(b.pin.place) : null } : null;
   if (pin) { const hn = T.hardNo(T.get(me), { date: pin.date, start: pin.start, km: null, each: 0 }); if (hn === "time" || hn === "busy") return { error: `${when(pin)} is outside the times you set (or you're busy then). Change your limits, or pick another time.`, code: 400 }; }
   const h = { id: `h-${crypto.randomUUID().slice(0, 8)}`, host: me, sport, need, club: club?.id || null, clubName: club?.name || null, invited, created: Date.now(), status: "talking",
-    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, picked: (Array.isArray(b.invite) ? b.invite.map(String) : club ? [] : invited).filter((id) => invited.includes(id) && !near.includes(id)), excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat ?? (fill.room ? C.find(fill.room)?.at?.lat : undefined), lon: fill.invite.at?.lon ?? (fill.room ? C.find(fill.room)?.at?.lon : undefined), kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}), hostYes: (b.hostYes === true && !!pin) || !!fill }; // (filling your own posted game: you're in it)
+    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, picked: (Array.isArray(b.invite) ? b.invite.map(String) : club ? [] : invited).filter((id) => invited.includes(id) && !near.includes(id)), excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat ?? (fill.room ? C.find(fill.room)?.at?.lat : undefined), lon: fill.invite.at?.lon ?? (fill.room ? C.find(fill.room)?.at?.lon : undefined), kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}), hostYes: (b.hostYes === true && !!pin) || !!fill, ...(byAgent ? { byAgent: true } : {}) }; // (filling your own posted game: you're in it)
   data().huddles.push(h); save();
   Tr.asked(me, near.length); // asking everyone nearby, again and again, is what a prober does (your clubs are fine)
   const job = run(h, now).catch((e) => { console.error("huddle run", e.stack); h.status = "stuck"; line(h, "agent", "Something went wrong on Serve's side while the agents talked, so this game is stuck. Start it again in a minute; if it keeps happening, the club's ideas page hears about it."); save(); });
@@ -279,9 +279,10 @@ async function run(h, now = new Date()) {
   }
   h.pick = { date: o.date, start: o.start, minutes: MINUTES, where: o.place.name, place: o.place.id, kind: o.place.kind, at: { lat: o.place.lat, lon: o.place.lon }, busy: +o.busy.toFixed(2),
     each: deal.each || 0, price: deal.price || 0, list: deal.list || 0, off: deal.off || 0, sample: !!deal.sample, km: Object.fromEntries(agreed.players.map((id) => [id, knownKm(id, o.place)])) };
-  // the host is a yes only when the time suits them too; otherwise they are asked like everyone else
+  // a person who started it is in it (the agents agree only inside their limits): never asked to answer their own game.
+  // One their agent started is the person's yes only when the time suits them too; otherwise they are asked like everyone else
   const del = taste[host].delegate, byDelegation = !!del?.on && !Tr.badge(host).agent.badSig && (del.maxEach == null || (deal.each || 0) <= del.maxEach) && (del.newPeople || agreed.players.every((x) => x === host || !Tr.badge(x).show.new));
-  const hostOk = (!!h.hostYes || byDelegation) && T.timeFit(taste[host], T.cellOf(o.date, o.start)) >= 0.4 && U[host][agreed.k] >= 0.45;
+  const hostOk = !h.byAgent || ((!!h.hostYes || byDelegation) && T.timeFit(taste[host], T.cellOf(o.date, o.start)) >= 0.4 && U[host][agreed.k] >= 0.45);
   h.players = agreed.players; h.direct = extra; h.answers = hostOk ? { [host]: "yes" } : {}; h.status = "asking"; h.askedAt = now.getTime();
   if (!hostOk) { line(h, "host", h.hostYes ? `It isn't one of ${hostName}'s usual times, so ${hostName} is asked too.` : `${hostName} is asked for a yes too.`, { who: hostName }); P.notify(host, "huddle", h.hostYes ? `The agents agreed ${h.sport} ${when(o)} at ${o.place.name}, not one of your usual times. Yes?` : `The agents agreed ${h.sport} ${when(o)} at ${o.place.name} for the game you asked for. Yes?`, { huddle: h.id }); }
   h.askedOf = Object.fromEntries(agreed.players.map((id) => [id, now.getTime()]));
@@ -432,7 +433,8 @@ export function mayAgentSayYes(me, { huddle = null, post = null } = {}) {
     if (why.length) return { error: `Ask your person: ${why.join("; ")}.`, code: 403, needs: "person", reasons: why };
   }
   if (post) {
-    const g = P.openInvites(me, (room) => C.canSee(room, me)).find((x) => x.id === post);
+    // (any game, also a full one: a waitlist place or an offered spot commits the person as much)
+    const q = P.find(post), g = q?.kind === "invite" && q.invite ? { invite: q.invite, room: q.room || null, hostId: q.by.player || q.by.agentOf } : null;
     if (g) {
       const why = [], t = T.get(me), dt = dateFor(g.invite.day, new Date()), spot = g.invite.at || (g.room ? C.find(g.room)?.at : null), km = t.home && spot?.lat != null ? +T.km(t.home, spot).toFixed(1) : null;
       if (km == null && t.limitKm != null) why.push("the game has no location, so its distance can't be checked");
@@ -600,6 +602,13 @@ export function answerGame(me, postId, yes, why = null, { now = new Date(), byAg
   if (P.find(postId)?.invite?.offered?.[me]) {
     const j = P.join(me, postId, yes, { via: "ask", agent: byAgent }); if (j.error) return j;
     return { line: yes ? "You're in: the spot is yours." : "Passed on it: the spot goes to the next in line.", taste: T.view(T.get(me)), ...(yes ? { confirmed: true } : {}) };
+  }
+  // already in it, or on its waitlist: a no leaves it, as POST /api/feed/join {on:false} does; a yes changes nothing
+  const v0 = P.find(postId)?.invite;
+  if (v0 && (v0.going.includes(me) || (v0.waitlist || []).includes(me))) {
+    if (yes) return { line: v0.going.includes(me) ? "You're already in that game." : "You're on its waitlist already.", taste: T.view(T.get(me)) };
+    const j = P.join(me, postId, false, { via: "ask", agent: byAgent }); if (j.error) return j;
+    return { line: j.left === "waitlist" ? "Off the waitlist." : "You've left that game: the host is told, and the next on the waitlist is offered your spot.", left: j.left || "game", taste: T.view(T.get(me)) };
   }
   const g = gamesFor(me, { now, n: 50 }).find((x) => x.post === postId);
   if (!g && !yes) {

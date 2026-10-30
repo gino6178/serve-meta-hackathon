@@ -11,7 +11,7 @@ import path from "node:path";
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-noshow-"));
 Object.assign(process.env, { MEMBERS_FILE: `${tmp}/members.json`, MEMBERS_KEY_FILE: `${tmp}/members.key`, FEED_FILE: `${tmp}/feed.json`, TRUST_FILE: `${tmp}/trust.json`, NEEDS_FILE: `${tmp}/needs.json`, TASTE_FILE: `${tmp}/taste.json`, HUDDLE_FILE: `${tmp}/huddles.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_DEMO: "off",
-  AGENT_KEYS_DIR: `${tmp}/agent_keys`, CONSENT_LOG: `${tmp}/consent.jsonl`, LOOP_DIR: `${tmp}/loop`, STORE_FILE: `${tmp}/players.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, GUARD: "off", LLM_URL: "http://127.0.0.1:9/v1", LOOP_WATCH: "off" });
+  AGENT_KEYS_DIR: `${tmp}/agent_keys`, CLUBS_FILE: `${tmp}/clubs.json`, PLACES_FILE: `${tmp}/places.json`, OVERPASS_URLS: "http://127.0.0.1:9/x", GOOGLE_MAPS_API_KEY: "", CONSENT_LOG: `${tmp}/consent.jsonl`, LOOP_DIR: `${tmp}/loop`, STORE_FILE: `${tmp}/players.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, GUARD: "off", LLM_URL: "http://127.0.0.1:9/v1", LOOP_WATCH: "off" });
 const Tr = await import("../src/members/trust.js");
 const C = await import("../src/a2a/consent.js");
 const M = await import("../src/members/members.js");
@@ -232,4 +232,91 @@ test("a huddle's spare is kept and moved in when a spot opens, even if another h
   assert.equal(r2.open, 1);
   assert.match(h.talk.at(-1).text, /The spare for that time is in another game at that hour now/);
   assert.deepEqual(h.alternates, []);
+});
+
+// ---- what the host and the waitlist are told ----
+test("the host hears once when a player's account leaves Serve, and once when the waitlist moves up the day before", async () => {
+  const amy = M.demo("Amy Wu").member, ken = M.demo("Ken Hsu").member, cat = M.demo("Cat Ho").member, bob = M.demo("Bob Li").member, dee = M.demo("Dee Fox").member;
+  const id = (await P.post(amy.id, { invite: { sport: "badminton", day: localDay(Date.now() + 4 * DAY), start: "10:00", where: "Amy court", spots: 1 } })).post.id;
+  P.join(ken.id, id); assert.ok(P.join(cat.id, id).waitlisted);
+  P.forget(ken.id, { name: "Ken Hsu" });
+  const left = notices(amy.id, "left");
+  assert.equal(left.length, 1, "once");
+  assert.match(left[0].text, /^Ken left Serve, so they can't make your badminton .+ 10:00\. 1 of 1 spot left \(1 offered from the waitlist\)/, left[0].text);
+  P.forget(bob.id); // never in it: nothing for the host
+  assert.equal(notices(amy.id, "left").length, 1);
+  // the day before: two new players waited behind a 90% gate, and two spots are still open
+  const day = localDay(Date.now() + 2 * DAY), g = (await P.post(amy.id, { invite: { sport: "badminton", day, start: "21:00", where: "Amy court", spots: 2, gate: { minShow: 0.9 } } })).post.id;
+  assert.ok(P.join(cat.id, g).waitlisted && P.join(dee.id, g).waitlisted);
+  clock = P.startOf(P.find(g).invite) - 20 * HOUR; P.promoteDue(clock); P.promoteDue(clock + 60e3);
+  const up = notices(amy.id, "moved-up");
+  assert.equal(up.length, 1, "one notice for the move-up, however often the pass runs");
+  assert.match(up[0].text, /^The waitlist moved up the day before your badminton .+ 21:00: Cat and Dee are offered a spot\. 2 of 2 spots left \(2 offered from the waitlist\)/, up[0].text);
+});
+
+test("a waitlisted player who clashes with another game is told once that the spot passed them by", async () => {
+  const amy = M.demo("Amy Wu").member, ken = M.demo("Ken Hsu").member, cat = M.demo("Cat Ho").member, dan = M.demo("Dan Go").member, eve = M.demo("Eve Ng").member, fay = M.demo("Fay Li").member;
+  const day = localDay(Date.now() + 3 * DAY);
+  const g1 = (await P.post(dan.id, { invite: { sport: "badminton", day, start: "19:00", where: "Dan hall", spots: 1 } })).post.id;
+  P.join(cat.id, g1); assert.ok(P.join(ken.id, g1).waitlisted); assert.ok(P.join(eve.id, g1).waitlisted);
+  const g2 = (await P.post(amy.id, { invite: { sport: "badminton", day, start: "19:30", where: "Amy hall", spots: 2 } })).post.id;
+  assert.ok(!P.join(ken.id, g2).error, "a waitlist place is not a booking");
+  P.join(cat.id, g1, false);
+  assert.ok(P.find(g1).invite.offered[eve.id], "the spot goes to Eve, next in line");
+  const told = notices(ken.id, "skipped");
+  assert.equal(told.length, 1);
+  assert.match(told[0].text, /you're in another game at that time, so it went to the next in line\. You stay on the waitlist\./);
+  assert.ok(P.find(g1).invite.waitlist.includes(ken.id));
+  // the next opening: no second notice
+  P.join(eve.id, g1, true); P.join(fay.id, g1); P.join(fay.id, g1, false); P.join(eve.id, g1, false);
+  assert.equal(notices(ken.id, "skipped").length, 1, "once");
+});
+
+test("huddle/game yes:false from a player already in a game leaves it, as feed/join on:false does; the leaver gets no notice", async () => {
+  const H = await import("../src/members/huddle.js");
+  const amy = M.demo("Amy Wu").member, ken = M.demo("Ken Hsu").member, cat = M.demo("Cat Ho").member, bob = M.demo("Bob Li").member;
+  const id = (await P.post(amy.id, { invite: { sport: "badminton", day: localDay(Date.now() + 3 * DAY), start: "18:00", where: "Amy court", spots: 2 } })).post.id;
+  P.join(ken.id, id); P.join(cat.id, id); assert.ok(P.join(bob.id, id).waitlisted);
+  // a full, confirmed game: the card has what it needs to offer Leave (joined, not the host's)
+  const kv = P.view(P.find(id), ken.id);
+  assert.deepEqual([kv.mine, kv.invite.joined, kv.invite.full], [false, true, true]);
+  assert.deepEqual([P.view(P.find(id), amy.id).mine, P.view(P.find(id), amy.id).invite.joined], [true, false]);
+  assert.match(H.answerGame(ken.id, id, true).line, /already in/);
+  S.change((d) => { d.notices = []; });
+  const r = H.answerGame(ken.id, id, false, "busy");
+  assert.ok(!r.error, JSON.stringify(r)); assert.equal(r.left, "game"); assert.match(r.line, /^You've left that game/);
+  assert.ok(!P.find(id).invite.going.includes(ken.id), "out of it");
+  assert.equal(notices(amy.id, "left").length, 1, "the host, once");
+  assert.equal((S.data().notices || []).filter((x) => x.player === ken.id).length, 0, "nothing for the leaver: the app says it once");
+  assert.ok(P.find(id).invite.offered[bob.id], "the waitlist moves up");
+  // on a waitlist: a no takes them off it
+  const dee = M.demo("Dee Fox").member; assert.ok(P.join(dee.id, id).waitlisted);
+  assert.equal(H.answerGame(dee.id, id, false).left, "waitlist");
+  assert.ok(!P.find(id).invite.waitlist.includes(dee.id));
+});
+
+test("whoever starts a huddle is in it and never asked to answer it; a huddle their agent started still asks them", async () => {
+  const H = await import("../src/members/huddle.js"), T = await import("../src/members/taste.js"), Cl = await import("../src/members/clubs.js");
+  const run = async (byAgent) => {
+    const host = M.demo("Hana Lin").member, a = M.demo("Ivy Ko").member, b = M.demo("Joe Wu").member, at = { lat: 25.03, lon: 121.56 };
+    const club = (await Cl.start(host, { name: `Hana club ${byAgent ? "b" : "a"}`, sport: "badminton", at }, async () => ({ ok: true }))).club;
+    for (const x of [a, b]) Cl.join(x, club.id);
+    for (const x of [host, a, b]) { T.setHome(x.id, at); T.setSports(x.id, ["badminton"]); }
+    const date = localDay(Date.now() + 3 * DAY), id = (await P.post(host.id, { invite: { sport: "badminton", day: date, start: "19:00", where: "Hana hall", spots: 2, at }, room: club.id })).post.id;
+    // a time that isn't one of the host's usual ones: an agent would ask
+    for (let i = 0; i < 6; i++) T.reply(host.id, { date, start: "19:00", km: 1, each: 0, busy: 0.3 }, false);
+    const r = await H.start(host.id, { fill: id }, { wait: true, byAgent });
+    if (!r.huddle) throw new Error(JSON.stringify(r));
+    return { host, h: H.find(r.huddle.id), today: await H.today(host.id) };
+  };
+  const own = await run(false);
+  assert.equal(own.h.status, "asking", JSON.stringify(own.h.talk.map((l) => l.text)));
+  assert.equal(own.h.answers[own.host.id], "yes", "the host's start is their yes");
+  assert.equal(H.view(own.h, own.host.id).ask, false);
+  assert.ok(!own.today.cards.some((c) => c.kind === "huddle" && c.huddle.id === own.h.id), "no yes-question for the host");
+  assert.doesNotMatch(own.h.talk.map((l) => l.text).join(" "), /is asked (for a yes )?too/);
+  const agent = await run(true);
+  assert.equal(agent.h.status, "asking");
+  assert.equal(agent.h.answers[agent.host.id], undefined, "a huddle the agent started waits for the person's yes");
+  assert.ok(H.view(agent.h, agent.host.id).ask);
 });

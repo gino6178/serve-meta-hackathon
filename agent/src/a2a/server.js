@@ -165,7 +165,7 @@ class MemberExecutor {
         bus.publish(AgentEvent.artifactUpdate({ taskId: ctx.taskId, contextId: ctx.contextId, artifact: { artifactId: "likely", name: "likely", description: "how likely this member is to say yes, as a band", parts: [part("data", r, "application/json")], metadata: undefined, extensions: [] }, lastChunk: true, append: false, metadata: undefined }));
         bus.publish(status(ctx, TaskState.TASK_STATE_COMPLETED)); return;
       }
-      const errors = p ? validate(PROPOSAL, p) : ["no data part"];
+      const errors = p ? validate(PROPOSAL, p) : ['no data part: send one part {"data": {"kind": "serve.proposal", ...}, "mediaType": "application/json"} (llms.txt)'];
       if (errors.length) { bus.publish(status(ctx, TaskState.TASK_STATE_FAILED, `${first(m.name)}'s agent reads a serve.proposal: ${errors.slice(0, 2).join("; ")}`)); return; }
       // answered once: the same message gets the same answer, if it is the same proposal; a known id with other times
       // is refused (an old yes must not be read against new times)
@@ -243,7 +243,8 @@ export function cardFor(base, m, club) {
         // another Serve gateway on the allow-list signs each request with its own key (peer.js)
         ...(peer.on() ? { peer: { apiKeySecurityScheme: { description: "For an allow-listed peer gateway: Serve-Signature, a compact JWS (EdDSA, typ serve-request+jwt) by the peer's pinned key over the method, the path, the SHA-256 of the body, this gateway's key id, a lifetime of 60 seconds at most and a nonce used once.", location: "header", name: "Serve-Signature" } } } : {}) },
       securityRequirements: [...(required() ? [{ schemes: { bearer: { list: [] } } }] : []), ...(peer.on() ? [{ schemes: { peer: { list: [] } } }] : [])] } : { securitySchemes: {}, securityRequirements: [] }),
-    defaultInputModes: ["application/json", "text/plain"], defaultOutputModes: ["application/json", "text/plain"],
+    // (every skill reads a data part only: a text part is refused as ContentTypeNotSupportedError, routerFor)
+    defaultInputModes: ["application/json"], defaultOutputModes: ["application/json", "text/plain"],
     skills: [{ id: "agree-game-time", name: "Agree a game time", description: `Answers a Serve proposal (a data part of kind "serve.proposal") for a ${(m.sports || ["badminton"]).join(" or ")} game: accept, counter with one of the listed times, or decline.`,
       tags: ["scheduling", "sports", "negotiation"], examples: ["Proposing badminton singles Thu 5 Nov 19:00–20:30 at Riverside Sports Centre, court 4"], inputModes: ["application/json"], outputModes: ["application/json", "text/plain"], securityRequirements: [] },
     { id: "hold-game-time", name: "Hold an agreed time", description: `Holds a time this agent said works in a talk, while the player decides (a data part of kind "serve.hold", in the same A2A context): held for 30 minutes, released on request, given way to the booking.`,
@@ -282,7 +283,8 @@ function routerFor(m) {
   const k = `${m.id}|${m.shares?.likely !== false}|${!!m.shares?.exact}|${peer.on()}`;
   if (!routers.has(k)) routers.set(k, (async () => {
     const base = `${BASE()}/a2a/members/${m.id}`;
-    const handler = new DefaultRequestHandler(await signCard(cardFor(base, m, readClub())), new AgentTaskStore(store, m.id), new MemberExecutor(m));
+    const handler = new DefaultRequestHandler(await signCard(cardFor(base, m, readClub())), new AgentTaskStore(store, m.id), new MemberExecutor(m),
+      undefined, undefined, undefined, undefined, undefined, { validateInputModes: true });
     const r = express.Router();
     r.use(`/${AGENT_CARD_PATH}`, agentCardHandler({ agentCardProvider: handler }));
     // (a peer gateway's request is its own user: the task store and the executor keep its tasks and talks apart)
