@@ -264,7 +264,7 @@ async function huddle(req, res, p, q, me, send, given = null) {
   if (p === "/api/huddle/limits" && post) return out(T.setLimits(me, b));
   if (p === "/api/huddle/delegate" && post) return out(T.setDelegate(me, b));
   if (p === "/api/huddle/attend" && post) return out(Tr.vote(me, String(b.key || ""), b.came || {}, b.level || {}));
-  if (p === "/api/huddle/trust" && get) return send(200, { trust: H.trustOf(me), explain: Tr.explain(me), chain: { ...Tr.mine(me), ...Tr.verify() } });
+  if (p === "/api/huddle/trust" && get) return send(200, { trust: H.trustOf(me, true), explain: Tr.explain(me), chain: { ...Tr.mine(me), ...Tr.verify() } });
   if (p === "/api/huddle/needs" && get) return send(200, { needs: N.view() });
   if (p === "/api/huddle/reset" && post) return send(200, { taste: T.view(T.reset(me)) });
   // the question is rebuilt from the member's state, so the answer carries the two games it showed

@@ -38,7 +38,7 @@ export default function InviteLink() {
         <h1 className="il-what">{cap(v.sport)}</h1>
         <p className="il-when"><b>{v.day}</b> {v.start}</p>
         <p className="il-where"><Icon name="pin" size={14} />{v.at ? <a href={`https://www.openstreetmap.org/?mlat=${v.at.lat}&mlon=${v.at.lon}#map=17/${v.at.lat}/${v.at.lon}`} target="_blank" rel="noreferrer">{v.where}</a> : v.where}</p>
-        <p className="il-spots">{v.full ? "This game is full." : `${left} spot${left === 1 ? "" : "s"} left of ${v.spots}`}</p>
+        <p className="il-spots">{v.full ? "This game is full." : `${left} spot${left === 1 ? "" : "s"} left of ${v.spots}${v.offered ? ` (${v.offered} offered from the waitlist)` : ""}`}</p>
         {state === "in" ? <><p className="il-in">{v.mine ? "This is your game: share the link with whoever you want to play." : `You're in. ${v.host} sees it now.`}</p><a className="btn primary" href="#/club">Open Serve</a></>
           : m ? <button className="btn primary" disabled={v.full || state === "joining"} onClick={join}>{state === "joining" ? "Joining…" : "Join this game"}</button>
           : !v.full && <p className="il-note">Sign in once to join. Your agent can find the next game for you after that.</p>}

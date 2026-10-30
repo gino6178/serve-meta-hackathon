@@ -225,7 +225,10 @@ export async function comment(player, postId, text, { agent = null } = {}) {
 }
 // the poster's agent, in the comments of an invite: sentences made by code from the invite, never a model's
 const first = (n = "") => String(n).split(" ")[0];
-const spotsLine = (p) => { const v = p.invite, left = v.spots - v.going.length; return `${left > 0 ? `${left} of ${v.spots} spot${v.spots > 1 ? "s" : ""} left` : "Full"} for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}.`; };
+// who is in: a spot offered from the waitlist is held for them but not taken until they say yes
+const inGame = (v) => v.going.filter((x) => !v.offered?.[x]);
+const offers = (v) => v.going.length - inGame(v).length;
+const spotsLine = (p) => { const v = p.invite, left = v.spots - inGame(v).length, o = offers(v); return `${left > 0 ? `${left} of ${v.spots} spot${v.spots > 1 ? "s" : ""} left${o ? ` (${o} offered from the waitlist)` : ""}` : "Full"} for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}.`; };
 function inviteReply(p, text, about = null) {
   const owner = p.by.agentOf || p.by.player;
   S.change(() => { p.comments.push({ id: S.newId("c"), at: deps.now(), by: { type: "agent", agentOf: owner }, text, reply: true, ...(about ? { about } : {}), reports: [], checks: { made: "code" } }); });
@@ -259,8 +262,9 @@ export function join(player, postId, on = true, { via = "feed", agent = false } 
   if (clash) return { error: `You're already in ${clash.invite.sport} ${dayWords(clash.invite.day)} ${clash.invite.start} at ${clash.invite.where}, which overlaps this one. Leave that game first.`, code: 409, clash: clash.id };
   // a full game: the waitlist, first come first in when a spot opens
   if (on && v.going.length >= v.spots) {
-    if (!waiting) { S.change(() => { v.waitlist = [...(v.waitlist || []), player]; }); inviteReply(p, `${nm} is on the waitlist: the game is full. A spot that opens is ${nm}'s.`, player); }
-    return { post: view(p, player), waitlisted: true, why: "the game is full" };
+    const why = full(v) ? "the game is full" : "the open spots are offered to the waitlist first";
+    if (!waiting) { S.change(() => { v.waitlist = [...(v.waitlist || []), player]; }); inviteReply(p, `${nm} is on the waitlist: ${why}. A spot that opens is ${nm}'s.`, player); }
+    return { post: view(p, player), waitlisted: true, why };
   }
   // the game's gate: someone under its show-up rate goes on the waitlist, and the poster's agent says why
   if (on && v.gate) {
@@ -315,7 +319,7 @@ export function promote(p, { dayBefore = false } = {}) {
     S.change(() => { v.waitlist = v.waitlist.filter((y) => y !== x); v.going = [...v.going, x]; v.joinedAt = { ...(v.joinedAt || {}), [x]: deps.now() }; v.offered = { ...(v.offered || {}), [x]: due }; });
     onJoined(x, p.id);
     notify(x, "moved-up", `A spot opened${dayBefore ? " the day before" : ""} for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}. It's yours if you say yes by ${clock(due)}; after that it goes to the next in line.`, { post: p.id, confirmBy: due });
-    inviteReply(p, `${first(authorOf(x) || "A member")} moves up from the waitlist. ${spotsLine(p)}`, x);
+    inviteReply(p, `${first(authorOf(x) || "A member")} is offered a spot from the waitlist, until ${clock(due)}. ${spotsLine(p)}`, x);
     n++;
   }
   if (full(v)) gameOn(p);
@@ -508,8 +512,8 @@ export function publicInvite(id, canSee = () => true) {
   const p = find(id);
   if (!p || p.kind !== "invite" || !p.invite || p.held || p.hidden || (p.room && !canSee(p.room))) return null;
   const v = p.invite;
-  return { id: p.id, sport: v.sport, day: v.day, start: v.start, where: v.where, at: v.at || null, spots: v.spots, going: v.going.length,
-    full: v.going.length >= v.spots, host: first(authorOf(p.by.player || p.by.agentOf) || "A member"), room: p.room || null };
+  return { id: p.id, sport: v.sport, day: v.day, start: v.start, where: v.where, at: v.at || null, spots: v.spots, going: inGame(v).length, offered: offers(v),
+    full: full(v), host: first(authorOf(p.by.player || p.by.agentOf) || "A member"), room: p.room || null };
 }
 // the invites a member can see that still have room and are not theirs, for their agent to recommend (members/huddle.js)
 export function openInvites(viewer, canSee = () => true) {
@@ -568,7 +572,7 @@ export function view(p, viewer) {
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),
-    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, offered: undefined, confirmBy: p.invite.offered?.[viewer] || null, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), range: Tr.rangeText(b), agent: Tr.agentText(b) }; })(), names: sameApart(p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member")))), joined: p.invite.going.includes(viewer), full: full(p.invite), ...(mine && fillInfo(p.id) ? { filling: fillInfo(p.id) } : {}) } } : {}),
+    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, confirmBy: p.invite.offered?.[viewer] || null, offered: offers(p.invite), going: inGame(p.invite).length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const w = Tr.words(Tr.badge(p.by.player || p.by.agentOf)); return { show: w.show, agent: w.agent, level: w.level }; })(), names: sameApart(inGame(p.invite).map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member")))), joined: p.invite.going.includes(viewer), full: full(p.invite), ...(mine && fillInfo(p.id) ? { filling: fillInfo(p.id) } : {}) } } : {}),
     ...(p.simulated ? { simulated: true } : {}), ...(p.held ? { held: true } : {}), ...(p.hidden ? { hidden: true } : {}),
     likes: p.likes.length, liked: p.likes.includes(viewer),
     comments: p.comments.filter((c) => (!c.held && !c.hidden) || c.by.player === viewer).map((c) => commentView(c, viewer)),

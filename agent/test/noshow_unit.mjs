@@ -66,6 +66,31 @@ test("the record as Beta(1 + came, 1 + missed): its mean and a 90% range that na
   assert.equal(Tr.rangeText(Tr.badge("nobody-yet")), "too soon to tell");
 });
 
+test("other members see show-up words only: no game counts, no rates; the member's own record keeps them", async () => {
+  Tr.seed("eight", { person: { games: 8, came: 8 }, agent: { said: 6, kept: 6 } });
+  Tr.seed("thin", { person: { games: 3, came: 1 } });
+  for (const id of ["eight", "thin", "nobody-yet"]) {
+    const w = Tr.words(Tr.badge(id));
+    assert.match(w.show, /^(new|shows up likely \d+-\d+%)$/, w.show); assert.doesNotMatch(w.agent, /\d/, w.agent);
+    assert.ok(!("rate" in w) && !("kept" in w) && !("games" in w), JSON.stringify(w));
+  }
+  assert.match(Tr.words(Tr.badge("eight")).show, /^shows up likely \d+-\d+%$/);
+  assert.equal(Tr.words(Tr.badge("nobody-yet")).show, "new");
+  assert.equal(Tr.words(Tr.badge("thin")).level, "low");
+  assert.doesNotMatch(Tr.check("thin", { minShow: 0.9 }).why, /games|33%/, "a gate's reason, shown in a huddle's talk, is words too");
+  // a huddle's players, a game card's host, the feed's host line: the same words; the own record has the counts
+  const H = await import("../src/members/huddle.js");
+  assert.deepEqual(H.trustOf("eight"), Tr.words(Tr.badge("eight")));
+  const own = H.trustOf("eight", true);
+  assert.match(own.show, /8 games/); assert.equal(own.rate, 1);
+  const ana = M.demo("Ana Lee").member, ben = M.demo("Ben Wu").member;
+  Tr.seed(ana.id, { person: { games: 8, came: 8 } });
+  const id = (await P.post(ana.id, { invite: { sport: "badminton", day: localDay(Date.now() + 2 * DAY), start: "19:00", where: "Riverside", spots: 2 } })).post.id;
+  const host = P.view(P.find(id), ben.id).invite.host;
+  assert.doesNotMatch(JSON.stringify(host), /games|"rate"|100%/, JSON.stringify(host));
+  assert.match(host.show, /^shows up likely/);
+});
+
 // ---- minimum players ----
 test("a game short of its minimum at the cut-off is called off, and everyone who said yes hears it once", async () => {
   const ana = M.demo("Ana Lee").member, ben = M.demo("Ben Wu").member, cy = M.demo("Cy Ito").member;
@@ -99,7 +124,14 @@ test("a spot offered from the waitlist waits for a yes, then goes to the next in
   assert.ok(v.joined && v.confirmBy > clock && v.confirmBy - clock <= P.CONFIRM_HOURS * HOUR, JSON.stringify(v));
   assert.equal(v.full, false, "not on until the offer is answered");
   assert.equal(P.view(P.find(id), dee.id).invite.confirmBy, null, "the deadline is Cy's alone");
-  assert.equal(P.view(P.find(id), dee.id).invite.offered, undefined, "and who is offered isn't shown");
+  // an offered spot is open until the yes: not in the names, not counted as going, not full, the same on the link page
+  const dv = P.view(P.find(id), dee.id).invite;
+  assert.equal(dv.offered, 1, "how many spots are offered, never who");
+  assert.deepEqual(dv.names, [], "Cy isn't in yet"); assert.equal(dv.going, 0);
+  assert.deepEqual([P.publicInvite(id).going, P.publicInvite(id).full, P.publicInvite(id).offered], [0, false, 1], "the link page agrees with the feed");
+  const said = P.find(id).comments.at(-1).text;
+  assert.match(said, /^Cy is offered a spot from the waitlist, until .+\. 1 of 1 spot left \(1 offered from the waitlist\)/, said);
+  assert.doesNotMatch(said, /Full|moves up/);
   assert.match(notices(cy.id, "moved-up")[0].text, /say yes by/);
   clock = v.confirmBy - 60e3; P.promoteDue(clock);
   assert.ok(P.find(id).invite.going.includes(cy.id), "still Cy's before the deadline");
@@ -109,6 +141,9 @@ test("a spot offered from the waitlist waits for a yes, then goes to the next in
   assert.equal(notices(cy.id, "lapsed").length, 1);
   const r = P.join(dee.id, id, true);
   assert.ok(r.confirmed && r.post.invite.full && !r.post.invite.confirmBy, "Dee's yes takes it, and the game is on");
+  assert.ok(P.find(id).comments.some((c) => /^Dee is in\. Full for/.test(c.text)), "then: Dee is in");
+  assert.deepEqual([P.publicInvite(id).going, P.publicInvite(id).full], [1, true]);
+  assert.deepEqual(P.view(P.find(id), ana.id).invite.names, ["Dee"]);
   assert.ok(C.yesesOf(dee.id).some((x) => x.via === "confirm" && x.ref === id), "the yes is signed");
 });
 

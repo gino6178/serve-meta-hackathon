@@ -242,6 +242,14 @@ export const showText = (b) => (b.show.new ? `new · ${b.show.games} game${b.sho
 // the range, in words (no counts): "likely 78-96%"; a new record can't tell yet
 export const rangeText = (b) => (b.show.new ? "too soon to tell" : `likely ${Math.round(b.show.low * 100)}-${Math.round(b.show.high * 100)}%`);
 export const agentText = (b) => (b.agent.probe ? "agent paused" : b.agent.badSig ? "agent being checked" : b.agent.new ? "agent new" : `agent right ${Math.round(b.agent.rate * 100)}%`);
+// what other members see: words only, never a count or a rate ("shows up likely 72-99%" or "new"; the agent kept its
+// word or not); the counts stay in the member's own record (explain, mine, GET /api/huddle/trust)
+export const level = (r) => (r == null ? null : r >= 0.9 ? "good" : r >= 0.75 ? "ok" : "low");
+export function words(b) {
+  const agentLevel = b.agent.probe || b.agent.badSig ? "low" : b.agent.new ? null : b.agent.rate >= AGENT_MIN ? "good" : "low";
+  return { show: b.show.new ? "new" : `shows up ${rangeText(b)}`, agent: b.agent.probe || b.agent.badSig || b.agent.new ? agentText(b) : agentLevel === "good" ? "agent keeps its word" : "agent often overruled",
+    newShow: b.show.new, newAgent: b.agent.new, level: b.show.new ? null : level(b.show.mean), agentLevel, flag: b.agent.probe || !!b.agent.badSig };
+}
 // a game's gate: { minShow (0..1, 0 = anyone), agentMin (0..1) }; the verdict for one person:
 //   ok        their agent may answer for them
 //   confirm   they can play, but their agent can't say yes for them: they are asked themself
@@ -264,10 +272,10 @@ export function explain(id, now = Date.now()) {
 }
 export function check(id, gate = {}, now = Date.now()) {
   const g = gateOf(gate), b = badge(id, now);
-  if (g.minShow && (b.show.new ? !g.newOk : gateRate(b) < g.minShow)) return { verdict: "waitlist", badge: b, why: b.show.new ? "new, and this game wants people with a record" : `${showText(b)}; this game needs ${Math.round(g.minShow * 100)}%` };
+  if (g.minShow && (b.show.new ? !g.newOk : gateRate(b) < g.minShow)) return { verdict: "waitlist", badge: b, why: b.show.new ? "new, and this game wants people with a record" : `${words(b).show}; this game needs ${Math.round(g.minShow * 100)}%` };
   if (b.agent.probe) return { verdict: "confirm", badge: b, why: "agent paused" };
   if (b.agent.badSig) return { verdict: "confirm", badge: b, why: "their agent is being checked" };
-  if (g.agentMin && !b.agent.new && b.agent.rate < g.agentMin) return { verdict: "confirm", badge: b, why: `${agentText(b)}; this game wants ${Math.round(g.agentMin * 100)}%` };
+  if (g.agentMin && !b.agent.new && b.agent.rate < g.agentMin) return { verdict: "confirm", badge: b, why: `${words(b).agent}; this game wants ${Math.round(g.agentMin * 100)}%` };
   return { verdict: "ok", badge: b };
 }
 // leaving Serve: a "left" entry (the chain is never rewritten), and the games waiting for votes forget them

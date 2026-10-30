@@ -114,8 +114,9 @@ function whenOf(w) {
 const inWhen = (w, date, start) => !w || ((!w.days.length || w.days.includes(date) || w.days.includes(T.DAYS[T.dateOf(date).getDay()])) && (!w.parts.length || w.parts.includes(T.partOf(start))));
 const isNear = (h, id) => (h.nearby || []).includes(id);
 const line = (h, from, text, extra = {}) => { h.talk.push({ at: Date.now(), from, text, ...extra }); };
-// what anyone sees of a person's two records (trust.js)
-export const trustOf = (id) => { const b = Tr.badge(id); return { show: Tr.showText(b), range: Tr.rangeText(b), agent: Tr.agentText(b), newShow: b.show.new, newAgent: b.agent.new, rate: b.show.new ? null : b.show.rate, kept: b.agent.new ? null : b.agent.rate, flag: b.agent.probe || !!b.agent.badSig }; };
+// what other members see of a person's two records: words only (trust.js words); own adds the counts and rates, for the
+// member's own record alone (GET /api/huddle/trust)
+export const trustOf = (id, own = false) => { const b = Tr.badge(id), w = Tr.words(b); return own ? { ...w, show: Tr.showText(b), range: Tr.rangeText(b), agent: Tr.agentText(b), rate: b.show.new ? null : b.show.rate, kept: b.agent.new ? null : b.agent.rate } : w; };
 // when someone already plays: their feed games and the huddles they are in (ms), for nobody to be booked twice
 const busyOf = (id, except = null, game = null) => [...P.busyAt(id).filter((t) => !game || t !== game), ...data().huddles.filter((h) => h.id !== except && ["asking", "on"].includes(h.status) && h.pick && h.players.includes(id)).map((h) => startMs(h.pick))];
 
@@ -489,12 +490,12 @@ P.onFill((post) => { const h = data().huddles.filter((x) => x.fill === post && [
 export function view(h, me) {
   const o = h.pick;
   return { id: h.id, sport: h.sport, need: h.need, club: h.clubName, host: first(h.host), mine: h.host === me, status: h.status, created: h.created, post: h.post || null,
-    ...(h.host === me ? { invited: h.invited.filter((id) => !isNear(h, id)).length } : {}), talk: h.talk.map((l) => ({ at: l.at, from: l.from === me ? "me" : l.from === "host" ? (h.host === me ? "me" : "host") : l.from === "venue" ? "venue" : l.from === "agent" ? "agent" : "other", who: l.who, text: l.plain && h.host !== me ? l.plain : l.text, ...(l.agent ? { agent: true } : {}), ...(l.venue ? { venue: true } : {}), ...(l.agreed ? { agreed: true } : {}), ...(l.yes != null ? { yes: l.yes } : {}), ...(l.trust ? { trust: l.trust } : {}), ...(l.gate ? { gate: l.gate } : {}) })),
+    ...(h.host === me ? { invited: h.invited.filter((id) => !isNear(h, id)).length } : {}), talk: h.talk.map((l) => ({ at: l.at, from: l.from === me ? "me" : l.from === "host" ? (h.host === me ? "me" : "host") : l.from === "venue" ? "venue" : l.from === "agent" ? "agent" : "other", who: l.who, text: l.plain && h.host !== me ? l.plain : l.text, ...(l.agent ? { agent: true } : {}), ...(l.venue ? { venue: true } : {}), ...(l.agreed ? { agreed: true } : {}), ...(l.yes != null ? { yes: l.yes } : {}), ...(l.trust ? { trust: trustOf(l.from) } : {}), ...(l.gate ? { gate: l.gate } : {}) })),
     ...(o ? { pick: { date: o.date, start: o.start, when: when(o), where: o.where, kind: o.kind, each: o.each, price: o.price, list: o.list, off: o.off, busy: o.busy, sample: o.sample, km: o.km[me] ?? null, at: o.at } } : {}),
     players: h.players.map((id) => ({ id, name: nameIn(h.players, id, me), answer: h.answers[id] || null, host: id === h.host, direct: (h.direct || []).includes(id), new: Tr.badge(id).show.new, known: id === me || C.mine(me).some((c) => c.members.some((m) => m.id === id)), trust: trustOf(id) })),
     ...(h.status === "asking" && h.players.includes(me) && !h.answers[me] ? { agentMay: mayAgentSayYes(me, { huddle: h.id }) } : {}),
     // filling a posted game: who is in comes from the game itself (people join it after the agents talked)
-    waitlist: (h.waitlist || []).filter((id) => !isNear(h, id) && !fillOf(h)?.going.includes(id)).map(first), ...(fillOf(h) ? { inGame: fillOf(h).going.length, spots: fillOf(h).spots } : {}), gate: h.gate || null, nearby: (h.nearby || []).length > 0, ...(h.found ? { found: h.found } : {}),
+    waitlist: (h.waitlist || []).filter((id) => !isNear(h, id) && !fillOf(h)?.going.includes(id)).map(first), ...(fillOf(h) ? { inGame: fillOf(h).going.length, spots: fillOf(h).spots } : {}), gate: h.gate || null, nearby: (h.nearby || []).length > 0, ...(h.found ? { found: { ...h.found, hostTrust: (() => { const g = P.find(h.found.post); return g ? trustOf(g.by.player || g.by.agentOf) : undefined; })() } } : {}),
     waiting: h.status === "asking" ? h.players.filter((x) => !h.answers[x]).map((x) => (x === me ? "You" : first(x))) : [], fill: h.fill || null,
     ask: h.status === "asking" && h.players.includes(me) && !h.answers[me], due: h.players.includes(me) ? dueBy(h, me) : dueBy(h) };
 }
