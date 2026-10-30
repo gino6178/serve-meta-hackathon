@@ -166,6 +166,15 @@ test("a join outside the person's own limits stands with a note; their agent is 
   assert.equal((await feedJoin(ben.id, { post: fine })).body.note, undefined);
 });
 
+test("a JSON body that is not an object (null, a list, a number) is no fields, never a 500", async () => {
+  const me = M.demo("Nell Body").member, as = { "x-serve-session": M.sessionFor(me.id) };
+  for (const body of [null, [1, 2], 5, "text"]) for (const path of ["/api/clubs", "/api/clubs/join", "/api/huddle/limits", "/api/huddle/start", "/api/members/result"]) {
+    const r = await route("POST", path, body, as);
+    assert.ok(r && r.code < 500, `${path} ${JSON.stringify(body)} -> ${r?.code}`);
+  }
+  const bad = await route("POST", "/api/huddle/limits", { windows: [null, 5, "a"] }, as);
+  assert.equal(bad.code, 400);
+});
 test("a club's invite link: members share it, a public club is joined by it, a private one asks its organiser", async () => {
   const ana = M.demo("Ana Lee").member, ben = M.demo("Ben Wu").member, cy = M.demo("Cy Ito").member;
   const as = (m) => ({ "x-serve-session": M.sessionFor(m.id) }), at = { lat: 25.03, lon: 121.56 };

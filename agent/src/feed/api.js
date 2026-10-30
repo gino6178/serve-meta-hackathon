@@ -37,7 +37,7 @@ import { deps } from "./deps.js";
 
 const PLAYER = /^[\w:.-]{1,64}$/;
 const readRaw = (req, max) => new Promise((ok) => { const parts = []; let n = 0, over = false; req.on("data", (c) => { n += c.length; if (n > max) over = true; else parts.push(c); }); req.on("end", () => ok(over ? null : Buffer.concat(parts))); req.on("error", () => ok(null)); });
-const readJson = async (req) => { const b = await readRaw(req, 64e3); try { return b ? JSON.parse(b.toString("utf8") || "{}") : null; } catch { return {}; } };
+const readJson = async (req) => { const b = await readRaw(req, 64e3); try { if (!b) return null; const j = JSON.parse(b.toString("utf8") || "{}"); return j && typeof j === "object" && !Array.isArray(j) ? j : {}; } catch { return {}; } };
 
 export async function handle(req, res, u, { cors = {}, maintainer = false, as = null } = {}) {
   const send = (code, body) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store", ...cors }); res.end(JSON.stringify(body)); };

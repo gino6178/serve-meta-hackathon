@@ -63,7 +63,9 @@ export function createSkill(file = null) {
   function rate(game) {
     const ok = counts(game);
     if (!ok.ok) return { rated: false, why: ok.why };
-    const sport = String(game.sport || "badminton"), teams = (game.teams || []).map((t) => [...new Set(t.map(String))]);
+    const sport = String(game.sport || "badminton");
+    if (!/^[a-z][a-z -]{1,23}$/.test(sport) || ["constructor", "prototype"].includes(sport)) return { rated: false, why: "the sport is a name like badminton or table tennis" };
+    const teams = (game.teams || []).map((t) => [...new Set(t.map(String))]);
     if (teams.length < 2 || teams.some((t) => !t.length) || new Set(teams.flat()).size !== teams.flat().length) return { rated: false, why: "two teams or more, each with its own players" };
     const ranks = Array.isArray(game.ranks) ? game.ranks : teams.map((_, i) => (i === +game.winner ? 0 : 1));
     if (ranks.length !== teams.length) return { rated: false, why: "a rank for every team" };

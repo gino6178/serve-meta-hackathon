@@ -36,6 +36,12 @@ test("skill: a win moves mu up and the loser's down, every sigma shrinks; an ups
   assert.ok(Sk.winChance([fav], [dog]) > 0.75);
 });
 
+test("skill: a sport is a plain name: an object's own keys and odd strings are refused", () => {
+  const s = Sk.createSkill();
+  for (const sport of ["__proto__", "constructor", "prototype", "<b>", "x".repeat(40)]) assert.equal(s.rate({ sport, teams: [["ann"], ["bo"]], winner: 0, mode: "competitive" }).rated, false, sport);
+  assert.equal({}.mu, undefined, "nothing reached Object.prototype");
+  assert.equal(s.rate({ sport: "table tennis", teams: [["ann"], ["bo"]], winner: 0, mode: "competitive" }).rated, true);
+});
 test("skill: doubles rate the team; the partner with the wider sigma moves more", () => {
   const s = Sk.createSkill();
   s.rate({ teams: [["ann"], ["cy"]], winner: 0, mode: "competitive" }); // ann surer than bo now

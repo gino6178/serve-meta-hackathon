@@ -87,7 +87,7 @@ const stream = async (res, origin, run) => {
 const rawOf = (req) => new Promise((ok) => { let b = ""; req.on("data", (c) => (b += c)); req.on("end", () => ok(b)); });
 // a raw body up to a size, or null when it is bigger
 const rawBytes = (req, max) => new Promise((ok) => { const parts = []; let n = 0, over = false; req.on("data", (c) => { n += c.length; if (n > max) over = true; else parts.push(c); }); req.on("end", () => ok(over ? null : Buffer.concat(parts))); });
-const bodyOf = (req) => new Promise((ok) => { let b = ""; req.on("data", (c) => (b += c)); req.on("end", () => { try { ok(JSON.parse(b || "{}")); } catch { ok({}); } }); });
+const bodyOf = (req) => new Promise((ok) => { let b = ""; req.on("data", (c) => (b += c)); req.on("end", () => { try { const j = JSON.parse(b || "{}"); ok(j && typeof j === "object" && !Array.isArray(j) ? j : {}); } catch { ok({}); } }); });
 
 // the morning message: today's calendar, for players with something on today
 async function remind(force = false) {

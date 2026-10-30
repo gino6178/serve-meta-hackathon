@@ -59,6 +59,8 @@
 //   POST /api/agent-channel/comment {post, text}     a comment, as "<member>'s agent"
 //   POST /api/agent-channel/join {post, on}          join an invite for its member
 import * as M from "./members.js";
+// a JSON body that is not an object (null, a number, a list) reads as no fields, never a crash
+const obj = (x) => (x && typeof x === "object" && !Array.isArray(x) ? x : {});
 import * as P from "../feed/posts.js";
 import * as C from "./clubs.js";
 import * as H from "./huddle.js";
@@ -96,7 +98,7 @@ export async function route(req, res, u, { json, o, forget }) {
     return redirect(res, r.error ? `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}` : `${M.appUrl()}/#/social?session=${M.sessionFor(r.member.id)}`);
   }
   if (p === "/api/auth/demo" && req.method === "POST") {
-    const raw = await readRaw(req); let b = {}; try { b = JSON.parse(raw?.toString() || "{}"); } catch { /* empty */ }
+    const raw = await readRaw(req); let b = {}; try { b = obj(JSON.parse(raw?.toString() || "{}")); } catch { /* empty */ }
     if (b.name !== undefined && (typeof b.name !== "string" || b.name.trim().length > 40)) return send(400, { error: "name is text, up to 40 characters." });
     const r = M.demo(b.name);
     return r.error ? send(403, r) : send(200, { member: r.member, session: M.sessionFor(r.member.id) });
@@ -120,7 +122,7 @@ export async function route(req, res, u, { json, o, forget }) {
       if (p === "/api/clubs" && req.method === "GET" && (la != null || lo != null) && !(num(la, 90) && num(lo, 180))) return send(400, { error: "lat (-90..90) and lon (-180..180) go together, or leave both out." }); }
     if (p === "/api/clubs" && req.method === "GET") return send(200, C.list(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon") }));
     if (p === "/api/clubs/suggest" && req.method === "GET") return send(200, C.suggest(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon"), sport: u2.searchParams.get("sport") }));
-    let cb = {}; try { cb = JSON.parse((await readRaw(req))?.toString() || "{}"); } catch { /* empty */ }
+    let cb = {}; try { cb = obj(JSON.parse((await readRaw(req))?.toString() || "{}")); } catch { /* empty */ }
     const out = (r) => send(r.error ? r.code || 400 : 200, r);
     if (p === "/api/clubs" && req.method === "POST") return out(await C.start(me, cb, (t, who) => P.moderate(t, who)));
     if (p === "/api/clubs/join" && req.method === "POST" && cb.on !== undefined && typeof cb.on !== "boolean") return send(400, { error: "on is true (join) or false (leave)." });
@@ -149,7 +151,7 @@ export async function route(req, res, u, { json, o, forget }) {
   }
   if (!p.startsWith("/api/members/")) return false;
   if (!me) return send(401, { error: "Sign in first.", ...signInHint(req) });
-  const ics = p === "/api/members/calendar/ics", raw = req.method === "POST" ? await readRaw(req, ics ? K.MAX_BYTES * 1.2 : 64e3) : null; let b = {}; try { b = JSON.parse(raw?.toString() || "{}"); } catch { /* empty */ }
+  const ics = p === "/api/members/calendar/ics", raw = req.method === "POST" ? await readRaw(req, ics ? K.MAX_BYTES * 1.2 : 64e3) : null; let b = {}; try { b = obj(JSON.parse(raw?.toString() || "{}")); } catch { /* empty */ }
   if (ics && req.method === "POST") {
     if (raw == null) return send(413, { error: "The calendar is too big (1 MB at most)." });
     if (typeof b.ics !== "string") return send(400, { error: "ics is the calendar file's text." });
@@ -158,7 +160,7 @@ export async function route(req, res, u, { json, o, forget }) {
     if (r.error) return send(400, r);
     if (b.save !== true && b.save !== "true") return send(200, r);
     // a broken or empty file reads as "free all week": it never replaces the member's limits
-    if (!r.events) return send(400, { ...r, error: "No events could be read from that calendar (is the file complete?), so nothing was saved." });
+    if (!r.events || !r.busyBlocks) return send(400, { ...r, error: "No events could be read from that calendar (is the file complete?), so nothing was saved." });
     if (!r.windows.length) return send(400, { ...r, error: "No free time of two hours or more inside 07:00 to 22:00 in that calendar, so nothing was saved." });
     const s = T.setLimits(me.id, { windows: r.windows });
     return s.error ? send(s.code || 400, s) : send(200, { ...r, taste: s.taste });
@@ -192,7 +194,7 @@ async function channel(req, res, p, send) {
   if (!c.ok) return send(401, { error: `refused: ${c.message}`, why: c.why, docs: "/llms.txt" });
   const ag = c.agent, owner = ag.owner;
   if (p === "/api/agent-channel/feed/post") p = "/api/agent-channel/post"; // the feed's own path, under the channel
-  let b = {}; try { b = JSON.parse(raw.toString() || "{}"); } catch { return send(400, { error: "the body is not JSON" }); }
+  let b = {}; try { b = obj(JSON.parse(raw.toString() || "{}")); } catch { return send(400, { error: "the body is not JSON" }); }
   const out = (r) => send(r.error ? r.code || 400 : 200, r);
   if (p === "/api/agent-channel/me" && req.method === "GET") return send(200, { member: M.view(M.get(owner)), agent: M.view(ag), audience: M.AUDIENCE });
   if (p === "/api/agent-channel/feed" && req.method === "GET") return send(200, P.feed(owner, { n: 20 }));
@@ -248,7 +250,7 @@ const isNum = (x) => (typeof x === "number" && isFinite(x)) || (typeof x === "st
 function badInput(r, b) {
   if (r === "/huddle/sports" && (!Array.isArray(b.sports) || !b.sports.length || b.sports.some((x) => !T.SPORTS.includes(String(x).toLowerCase())))) return `sports is a list of: ${T.SPORTS.join(", ")}.`;
   if (r === "/huddle/open" && typeof b.on !== "boolean") return "on is true or false.";
-  if (r === "/huddle/limits" && b.windows !== undefined && b.windows !== null && !Array.isArray(b.windows)) return "windows is a list of {days, from, to}, or null to clear them.";
+  if (r === "/huddle/limits" && b.windows !== undefined && b.windows !== null && (!Array.isArray(b.windows) || !b.windows.every((w) => w && typeof w === "object" && Array.isArray(w.days)))) return "windows is a list of {days, from, to}, or null to clear them.";
   if (r === "/huddle/delegate") {
     if (typeof b.on !== "boolean") return "on is true or false.";
     if (b.on && b.maxEach != null && !(isNum(b.maxEach) && +b.maxEach >= 0 && +b.maxEach <= 5000)) return "maxEach is a price from 0 to 5000, or null for any price.";
@@ -267,7 +269,7 @@ function badInput(r, b) {
 }
 async function huddle(req, res, p, q, me, send, given = null) {
   let b = given || {};
-  if (req.method === "POST" && !given) { const raw = await readRaw(req); if (raw == null) return send(413, { error: "too big" }); try { b = JSON.parse(raw.toString() || "{}"); } catch { return send(400, { error: "the body is not JSON" }); } }
+  if (req.method === "POST" && !given) { const raw = await readRaw(req); if (raw == null) return send(413, { error: "too big" }); try { b = obj(JSON.parse(raw.toString() || "{}")); } catch { return send(400, { error: "the body is not JSON" }); } }
   const out = (r) => send(r?.error ? r.code || 400 : 200, r);
   const get = req.method === "GET", post = req.method === "POST";
   if (post) { const why = badInput(p.replace(/^\/api/, ""), b); if (why) return send(400, { error: why, docs: "/llms.txt" }); }
