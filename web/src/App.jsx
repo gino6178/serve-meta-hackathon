@@ -84,6 +84,49 @@ function useTheme() {
   return [t, setT];
 }
 
+// what the member was told (the gateway hands each notice out once): kept in this tab for the bell's list, per
+// signed-in member, newest first
+const heardKey = () => { try { return `serve.notices.${(localStorage.getItem(SESSION_KEY) || "").slice(-12)}`; } catch { return "serve.notices"; } };
+const heard = () => { try { return JSON.parse(sessionStorage.getItem(heardKey()) || "[]"); } catch { return []; } };
+function hear(notes) {
+  const all = [...notes.map((n) => ({ ...n, at: Date.now(), unread: true })), ...heard()].slice(0, 40);
+  try { sessionStorage.setItem(heardKey(), JSON.stringify(all)); } catch { /* this render only */ }
+  dispatchEvent(new Event("serve:heard"));
+}
+const noticeKick = (n) => (n.kind === "gameon" ? "Game on" : n.kind === "moved-up" ? "A spot for you" : n.kind === "nudge" ? "Your agent found a game" : n.kind === "huddle" ? "Your agent" : "");
+const noticeHref = (n) => (n.huddle ? `#/huddle?id=${n.huddle}` : n.nudge ? "#/" : n.post ? "#/club" : null);
+
+// the bell: every notice heard while signed in, also at phone width where the toasts are easy to miss
+function Notices() {
+  const [open, setOpen, box] = useMenu();
+  const [list, setList] = useState(heard);
+  useEffect(() => { const on = () => setList(heard()); addEventListener("serve:heard", on); return () => removeEventListener("serve:heard", on); }, []);
+  const unread = list.filter((n) => n.unread).length;
+  const toggle = () => {
+    if (!open && unread) { const all = heard().map((n) => ({ ...n, unread: false })); try { sessionStorage.setItem(heardKey(), JSON.stringify(all)); } catch { /* this render only */ } }
+    setOpen(!open);
+  };
+  useEffect(() => { if (!open) setList(heard()); }, [open]);
+  return (
+    <div className="side-more side-notices" ref={box}>
+      <button className="side-more-btn side-bell" aria-expanded={open} aria-haspopup="true" aria-label={unread ? `Notices, ${unread} new` : "Notices"} onClick={toggle}>
+        <Icon name="bell" size={22} /><span className="lbl">Notices</span>{unread > 0 && !open && <em className="nav-count" aria-hidden="true">{unread}</em>}
+      </button>
+      {open && (
+        <div className="more-pop notices-pop" role="region" aria-label="Notices">
+          <b className="notices-h">Notices</b>
+          {list.length ? <ul>{list.map((n, i) => (
+            <li key={i} className={n.unread ? "new" : ""}>
+              <span>{noticeKick(n) && <b>{noticeKick(n)} </b>}{n.text.replace(/^Game on: /, "")}<em>{new Date(n.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</em></span>
+              {noticeHref(n) && <a className="btn sm ghost" href={noticeHref(n)}>Open</a>}
+            </li>
+          ))}</ul> : <p className="muted small">Nothing yet. When a game fills, a spot opens or a game is called off, it shows here.</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Shell({ page, club }) {
   const cur = (it) => (it.on ?? [it.k]).includes(page) ? "page" : undefined;
   const [more, setMore, moreBox] = useMenu();
@@ -106,6 +149,7 @@ function Shell({ page, club }) {
           <a className="btn primary side-new" href={memberNow() ? "#/huddle" : "#/play"} title="Find a game: your agent finds the court and the people"><Icon name="book" size={18} /><span className="lbl">Find a game</span></a>
           <AskOutLoud />
           <a className="icon-btn side-inbox" href="#/messages" aria-label="Messenger" aria-current={cur(INBOX)}><Icon name="send" size={20} /></a>
+          {memberNow() && <Notices />}
           <div className="side-more" ref={moreBox}>
             <button className="side-more-btn" aria-expanded={more} aria-haspopup="true" aria-label="More" onClick={() => setMore(!more)}>
               <Icon name="menu" size={22} /><span className="lbl">More</span>
@@ -139,9 +183,9 @@ function GameOn() {
     let live = true;
     const ask = () => {
       if (document.visibilityState !== "visible") return;
-      agentFetch("/api/feed/notices").then((r) => r.json()).then((j) => { if (live && j.notices?.length) { setNotes((x) => [...x, ...j.notices]); dispatchEvent(new Event("serve:notices")); } }).catch(() => {});
+      agentFetch("/api/feed/notices").then((r) => r.json()).then((j) => { if (live && j.notices?.length) { setNotes((x) => [...x, ...j.notices]); hear(j.notices); dispatchEvent(new Event("serve:notices")); } }).catch(() => {});
       // the member's agent, unasked: a new game near them that fits how they play (at most one every six hours)
-      agentFetch("/api/huddle/nudge").then((r) => r.json()).then((j) => { if (live && j.nudge) setNotes((x) => [...x, { kind: "nudge", text: j.nudge.text, nudge: true }]); }).catch(() => {});
+      agentFetch("/api/huddle/nudge").then((r) => r.json()).then((j) => { if (live && j.nudge) { const n = { kind: "nudge", text: j.nudge.text, nudge: true }; setNotes((x) => [...x, n]); hear([n]); } }).catch(() => {});
     };
     ask(); const t = setInterval(ask, 30000); addEventListener("visibilitychange", ask);
     return () => { live = false; clearInterval(t); removeEventListener("visibilitychange", ask); };
@@ -154,8 +198,8 @@ function GameOn() {
   return (
     <div className="toast checkback gameon" role="status">
       <span className="agent-dot" aria-hidden="true" />
-      <span>{n.kind === "gameon" ? <b>Game on </b> : n.kind === "moved-up" ? <b>A spot for you </b> : n.kind === "nudge" ? <b>Your agent found a game </b> : n.kind === "huddle" ? <b>Your agent </b> : null}{n.text.replace(/^Game on: /, "")}</span>
-      {(n.huddle || n.nudge || n.post) && <a className="btn sm primary" href={n.huddle ? `#/huddle?id=${n.huddle}` : n.nudge ? "#/" : "#/club"} onClick={() => setNotes((x) => x.slice(1))}>Open</a>}
+      <span>{noticeKick(n) ? <b>{noticeKick(n)} </b> : null}{n.text.replace(/^Game on: /, "")}</span>
+      {noticeHref(n) && <a className="btn sm primary" href={noticeHref(n)} onClick={() => setNotes((x) => x.slice(1))}>Open</a>}
       <button className="icon-btn sm" aria-label="Dismiss" onClick={() => setNotes((x) => x.slice(1))}><Icon name="close" size={16} /></button>
     </div>
   );
