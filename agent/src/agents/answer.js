@@ -12,6 +12,7 @@ import * as store from "../core/store.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DAY_MS = 864e5;
+export const WAITING = "agreed by the agents, still waiting for yeses";
 const dateOf = (s) => { const [y, m, d] = String(s).split("-").map(Number); return new Date(y, m - 1, d); };
 const monday = (d) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
@@ -25,7 +26,7 @@ function knownOf({ player = null, app = null }) {
     const games = (player.events || []).filter((e) => e.kind === "match");
     return { club, goal, played: player.games || [], logs: player.logs || [], booked: games, calendar: (player.events || []).filter((e) => e.kind !== "match"), body: player.body || {}, notes: (player.memories || []).map((m) => m.text), player };
   }
-  const booked = (app?.upcoming || []).filter((u) => u?.date).map((u) => ({ date: String(u.date), start: String(u.start || ""), with: (u.with || []).map(String), title: "" }));
+  const booked = (app?.upcoming || []).filter((u) => u?.date).map((u) => ({ date: String(u.date), start: String(u.start || ""), with: (u.with || []).map(String), title: u.title === WAITING ? WAITING : "" })); // (no other text from the caller reaches the model)
   return { club, goal, played: [...(club.you?.history || []), ...(app?.history || [])], logs: [], booked, calendar: [], body: app?.body || {}, notes: [], player: null };
 }
 
@@ -41,7 +42,8 @@ export function factsFor({ player = null, app = null, now = new Date() } = {}) {
   if (soon.length) {
     const n = soon[0];
     add("next", `Your next game: ${when(n)}${n.title ? `, ${n.title}` : n.with?.length ? `, with ${list(n.with.map(name))}` : ""}.`);
-    add("booked", `Games booked in the next 7 days: ${soon.length}.`);
+    const settled = soon.filter((e) => !/waiting for yeses/.test(e.title || ""));
+    add("booked", `Games booked in the next 7 days: ${settled.length}${settled.length < soon.length ? `; ${soon.length - settled.length} more agreed by the agents, still waiting for yeses` : ""}.`);
   } else add("next", "No game is booked in the next 7 days.");
   const cal = k.calendar.filter((e) => new Date(`${e.date}T${e.start || "23:59"}`) >= now && dateOf(e.date) < new Date(now.getTime() + 7 * DAY_MS));
   if (cal.length) add("calendar", `Also in your calendar this week: ${cal.slice(0, 5).map((e) => `${e.title} ${when(e)}`).join("; ")}.`);

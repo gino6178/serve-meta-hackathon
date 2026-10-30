@@ -49,6 +49,7 @@ export async function handle(req, res, u, { cors = {}, maintainer = false, as = 
     if (!PLAYER.test(player)) return send(400, { error: "player is a member's id" });
     const out = (r) => send(r?.code || (r?.error ? 400 : 200), r);
 
+    if (p === "/api/feed" && !post && q("n") != null && !(Number.isInteger(+q("n")) && +q("n") >= 1)) return send(400, { error: "n is a whole number of posts, 1 or more." });
     if (p === "/api/feed" && !post) {
       // a private club's posts are for its members only (members/clubs.js)
       if (q("room") && !(await import("../members/clubs.js")).canSee(q("room"), player)) return send(200, { posts: [], more: false, notices: [], private: true });

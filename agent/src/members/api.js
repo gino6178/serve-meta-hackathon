@@ -82,6 +82,7 @@ export async function route(req, res, u, { json, o, forget }) {
   }
   if (p === "/api/auth/demo" && req.method === "POST") {
     const raw = await readRaw(req); let b = {}; try { b = JSON.parse(raw?.toString() || "{}"); } catch { /* empty */ }
+    if (b.name !== undefined && typeof b.name !== "string") return send(400, { error: "name is text." });
     const r = M.demo(b.name);
     return r.error ? send(403, r) : send(200, { member: r.member, session: M.sessionFor(r.member.id) });
   }
@@ -95,6 +96,7 @@ export async function route(req, res, u, { json, o, forget }) {
   if (p === "/api/clubs" || p.startsWith("/api/clubs/")) {
     if (!me) return send(401, { error: "Sign in first.", ...signInHint(req) });
     const u2 = new URL(req.url, "http://x");
+    if (p === "/api/clubs" && req.method === "GET" && [u2.searchParams.get("lat"), u2.searchParams.get("lon")].some((x) => x != null && !(isFinite(+x) && x.trim() !== ""))) return send(400, { error: "lat and lon are numbers (or leave both out)." });
     if (p === "/api/clubs" && req.method === "GET") return send(200, C.list(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon") }));
     if (p === "/api/clubs/suggest" && req.method === "GET") return send(200, C.suggest(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon"), sport: u2.searchParams.get("sport") }));
     let cb = {}; try { cb = JSON.parse((await readRaw(req))?.toString() || "{}"); } catch { /* empty */ }
@@ -256,6 +258,8 @@ async function huddle(req, res, p, q, me, send, given = null) {
   }
   if (p === "/api/huddle/deal" && post) {
     const t = T.get(me), sport = String(b.sport || t.sports[0] || "badminton").toLowerCase();
+    if (b.players !== undefined && !(Number.isInteger(+b.players) && +b.players >= 2 && +b.players <= 12)) return send(400, { error: "players is a whole number from 2 to 12." });
+    if (!T.SPORTS.includes(sport)) return send(400, { error: `sport is one of: ${T.SPORTS.join(", ")}.` });
     if (!t.home) return send(400, { error: "Share your rough area first." });
     const x = (await D.placesNear(t.home, sport, { venues: 4, courts: 4 })).find((y) => y.id === b.place);
     if (x && x.kind !== "venue") return send(400, { error: "That's a public court: it's free, so there's no price to ask. Its quiet hours are in GET /api/huddle/places." });

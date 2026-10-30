@@ -165,7 +165,7 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
           {[[0, "Anyone"], [0.75, "Shows up 75%+"], [0.9, "Shows up 90%+"]].map(([k, l]) => <button type="button" key={k} role="radio" aria-checked={minShow === k} onClick={() => setMinShow(k)}>{l}</button>)}
         </div>
         <label className="hd-check"><input type="checkbox" checked={agentMin} onChange={(e) => setAgentMin(e.target.checked)} /><span><b>Only reliable agents answer for their person</b><em>An agent that keeps under 80% of its yeses can't say yes for them: they're asked themself</em></span></label>
-        <p className="hd-fine">Below the show-up rate, people go on the waitlist. New people (under three games) are let in. Serve never asks anyone for a deposit.</p>
+        <p className="hd-fine">Below the show-up rate, people go on the waitlist. New people (under three games) are let in at 75%, and wait at 90%. Serve never asks anyone for a deposit.</p>
       </fieldset>
       {who === "pick" && (
         <div className="hd-people">

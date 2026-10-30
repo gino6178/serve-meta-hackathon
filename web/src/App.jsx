@@ -145,6 +145,8 @@ function GameOn() {
     return () => { live = false; clearInterval(t); removeEventListener("visibilitychange", ask); };
   }, []);
   const n = notes[0];
+  // a game just answered: its "one yes from you?" toasts are stale
+  useEffect(() => { const on = (e) => setNotes((x) => x.filter((m) => m.huddle !== e.detail)); addEventListener("serve:answered", on); return () => removeEventListener("serve:answered", on); }, []);
   useEffect(() => { if (!n?.nudge) return; const t = setTimeout(() => setNotes((x) => x.slice(1)), 9000); return () => clearTimeout(t); }, [n]);
   if (!n) return null;
   return (

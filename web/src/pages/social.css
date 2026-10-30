@@ -59,3 +59,6 @@
 .so-chats { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 10px; align-items: center; text-decoration: none; color: var(--ink); }
 .so-chats svg:first-child { color: var(--agent); }
 .so-chats span { font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* time and number inputs have a wide built-in size: let them shrink to the column on a phone */
+.so-inv-grid input, .so-inv-grid select { min-width: 0; width: 100%; box-sizing: border-box; }
+.so-invite { min-width: 0; overflow-wrap: anywhere; }

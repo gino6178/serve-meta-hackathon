@@ -122,8 +122,8 @@ export function talk(place, { date, start, players = 4, minutes = 90, weekly = f
   for (let r = 0; r < 3; r++) {
     if (ours >= floor) { lines.push({ from: them, text: `Deal at ${C}${ours}.` }); return done(ours); }
     theirs = Math.max(floor, round10(theirs - (theirs - ours) * 0.4));
-    const low = theirs === floor ? `, and that's as low as I go for that hour` : "";
-    lines.push({ from: them, text: r === 0 ? `List is ${C}${list} for ${minutes} minutes. ${t.busy < 0.5 ? "For a quiet hour" : "For that hour"} I can do ${C}${theirs}${low}.` : `${C}${theirs}${low}.` });
+    const low = theirs === floor ? `, and that's as low as I go for that time` : "";
+    lines.push({ from: them, text: r === 0 ? `List is ${C}${list} for ${minutes} minutes. ${t.busy < 0.5 ? "At a quiet time" : "At that time"} I can do ${C}${theirs}${low}.` : `${C}${theirs}${low}.` });
     if (theirs === floor || r === 2) { lines.push({ from: us, text: `${C}${theirs} it is.` }); return done(theirs); }
     ours = round10(ours + (theirs - ours) * (0.35 + 0.3 * (1 - push)));
     lines.push({ from: us, text: `Meet us at ${C}${ours}?` });

@@ -218,3 +218,8 @@
 .poster-sheet { position: relative; }
 .fd-inv-link { grid-column: 1 / -1; margin: 0; display: grid; gap: 4px; color: var(--ink-2); }
 .fd-inv-link input { font: inherit; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-width: 0; }
+.fd-inv-mine { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; min-width: 0; }
+@media (max-width: 520px) {
+  .fd-invite { grid-template-columns: 64px minmax(0, 1fr); }
+  .fd-invite > .fd-inv-mine, .fd-invite > .task-state, .fd-invite > button { grid-column: 1 / -1; justify-content: flex-start; }
+}

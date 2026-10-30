@@ -15,7 +15,7 @@ export const one = (id) => call(`/api/huddle/one?id=${encodeURIComponent(id)}`);
 export const question = () => call("/api/huddle/question");
 export const answer = (q, pick) => call("/api/huddle/answer", { q, pick });
 export const start = (b) => call("/api/huddle/start", b);
-export const reply = (id, yes, why = null) => call("/api/huddle/reply", { id, yes, why });
+export const reply = (id, yes, why = null) => call("/api/huddle/reply", { id, yes, why }).then((r) => { dispatchEvent(new CustomEvent("serve:answered", { detail: id })); return r; });
 export const cancel = (id) => call("/api/huddle/cancel", { id });
 export const game = (post, yes, why = null) => call("/api/huddle/game", { post, yes, why });
 export const places = (sport) => call(`/api/huddle/places${sport ? `?sport=${encodeURIComponent(sport)}` : ""}`);

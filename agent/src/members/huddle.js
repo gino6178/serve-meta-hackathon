@@ -222,7 +222,7 @@ async function run(h, now = new Date()) {
         if (!isNear(h, id)) line(h, id, `Not that one for ${nm} (${{ busy: "the time", time: "the time", place: "the place", price: "the price", quiet: "too busy" }[why]}).${b != null && b !== k ? ` A counter: ${when(opts[b])} at ${opts[b].place.name}.` : ""}`, { who: nm, agent: true, yes: false, why, trust: trustOf(id) });
       }
     }
-    if (yes.length >= want) { const ranked2 = yes.sort((a, b) => pickScore(b, k) - pickScore(a, k)); agreed = { k, players: [host, ...ranked2.slice(0, want)], alternates: ranked2.slice(want) }; }
+    if (yes.length >= want) { const ranked2 = yes.sort((a, b) => ((h.picked || []).includes(b) - (h.picked || []).includes(a)) || pickScore(b, k) - pickScore(a, k)); agreed = { k, players: [host, ...ranked2.slice(0, want)], alternates: ranked2.slice(want) }; }
     else if (!bestTry || yes.length > bestTry.players.length - 1) bestTry = { k, players: [host, ...yes] };
   }
   if (!agreed && bestTry && (bestTry.players.length >= 2 || direct.length)) {
@@ -255,6 +255,7 @@ async function run(h, now = new Date()) {
   }
   if (h.status === "cancelled") return;
   const over = deal.each && agreed.players.find((id) => taste[id].limitEach != null && deal.each > taste[id].limitEach);
+  if (over && (h.priceTries || 0) >= 2) { h.status = "stuck"; line(h, "host", `The courts that fit cost more than the limit ${first(over)} set, even after asking the venues (${D.CURRENCY}${deal.each} each here). Raise that limit, pick a public court, or post the game at a price that fits.`, { who: hostName }); return save(); }
   if (over && (h.priceTries || 0) < 2) {
     h.priceTries = (h.priceTries || 0) + 1; h.excluded.push({ place: o.place.id });
     line(h, "host", `${D.CURRENCY}${deal.each} each is over the limit ${first(over)} set, even after asking the venue. Looking at other courts.`, { who: hostName });
@@ -382,6 +383,7 @@ async function book(h) {
 export function mayAgentSayYes(me, { huddle = null, post = null } = {}) {
   const d = T.get(me).delegate;
   if (d?.on && Tr.badge(me).agent.badSig) return { error: "Requests with your key failed their checks lately, so for now your person answers themself.", code: 403, needs: "person" };
+  { const ab = Tr.badge(me).agent; if (d?.on && (ab.probe || (!ab.new && ab.rate < Tr.AGENT_MIN))) return { error: `Your record is ${Tr.agentText(Tr.badge(me))}: under ${Tr.AGENT_MIN * 100}% an agent can't say yes for its person, so they answer themself. Each time they answer the way you would have, it counts (GET /api/huddle/trust).`, code: 403, needs: "person" }; }
   if (!d?.on) return { error: "Your person hasn't let you say yes for them. They can turn it on: POST /api/huddle/delegate {on:true, maxEach, newPeople} with their session.", code: 403, needs: "delegate" };
   if (huddle) {
     const h = find(huddle);
@@ -422,6 +424,8 @@ export function cancel(me, id) {
 
 // ---- what a member sees ----
 const fillOf = (h) => (h.fill ? P.find(h.fill)?.invite || null : null);
+// a posted game deleted while the agents fill it: the fill stops, and those asked hear it's off
+P.whenRemoved((post) => { for (const h of data().huddles.filter((x) => x.fill === post && ["talking", "asking"].includes(x.status))) { h.status = "cancelled"; line(h, "host", `${first(h.host)} deleted the game, so it's off.`, { who: first(h.host) }); for (const id of h.players.filter((x) => x !== h.host)) { P.dropNotices(id, h.id); P.notify(id, "huddle", `${first(h.host)} deleted the ${h.sport} game ${h.pick ? when(h.pick) : ""}: it's off.`, { huddle: h.id }); } } save(); });
 // the host's card for a posted game shows its live fill: talking, or agreed and waiting for yeses
 P.onFill((post) => { const h = data().huddles.filter((x) => x.fill === post && ["talking", "asking"].includes(x.status)).at(-1); if (!h) return null; const others = h.players.filter((x) => x !== h.host); return { huddle: h.id, status: h.status, asked: others.length, yes: others.filter((x) => h.answers[x] === "yes").length }; });
 export function view(h, me) {
@@ -438,7 +442,7 @@ export function view(h, me) {
 }
 const LIVE = { asking: 0, talking: 1, on: 2, stuck: 3, cancelled: 4 };
 // the member's coming games the agents agreed (asking with their yes, or on), as {date, start}, for the agent chat
-export const agreedFor = (me) => data().huddles.filter((h) => h.pick && h.players.includes(me) && (h.status === "on" || (h.status === "asking" && h.answers[me] === "yes")) && !h.post).map((h) => ({ date: h.pick.date, start: h.pick.start }));
+export const agreedFor = (me) => data().huddles.filter((h) => h.pick && h.players.includes(me) && (h.status === "on" || (h.status === "asking" && h.answers[me] === "yes")) && !h.post).map((h) => ({ date: h.pick.date, start: h.pick.start, waiting: h.status === "asking" }));
 export const mineFor = (me) => data().huddles.filter((h) => h.host === me || h.players.includes(me)).sort((a, b) => (LIVE[a.status] - LIVE[b.status]) || b.created - a.created).slice(0, 20).map((h) => view(h, me));
 
 // ---- the agent, without being asked ----

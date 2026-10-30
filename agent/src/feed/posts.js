@@ -221,7 +221,7 @@ export function join(player, postId, on = true) {
   if (on && v.gate) {
     const c = Tr.check(player, v.gate);
     if (c.verdict === "waitlist") {
-      if (!waiting) { S.change(() => { v.waitlist = [...(v.waitlist || []), player]; }); inviteReply(p, `${nm} is on the waitlist: ${c.why}. If a spot is still open the day before, it's ${nm}'s.`, player); }
+      if (!waiting) { S.change(() => { v.waitlist = [...(v.waitlist || []), player]; }); inviteReply(p, `${nm} is on the waitlist. If a spot is still open the day before, it's ${nm}'s.`, player); } // the reason (their record) goes to them, not to everyone reading the game
       return { post: view(p, player), waitlisted: true, why: c.why };
     }
   }
@@ -364,8 +364,12 @@ export function remove(player, postId, cid = null) {
   }
   if (!(p.by.player === player || p.by.agentOf === player)) return { error: "Only its author can delete that post.", code: 403 };
   S.change((d) => { S.dropMedia(p.media); d.posts = d.posts.filter((x) => x !== p); });
+  onRemoved(p.id);
   return { deleted: true };
 }
+// a deleted game: the agents filling it stop too (members/huddle.js registers this)
+let onRemoved = () => {};
+export const whenRemoved = (f) => { onRemoved = f; };
 
 // what waited for the guard: checked again; shown, or dropped (its author is told when they next look), or still waiting
 export async function retryHeld() {
