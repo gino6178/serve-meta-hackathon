@@ -129,7 +129,7 @@ function StartClub({ onDone }) {
 // the club's own invite (agent: GET /api/clubs/:id/invite -> { url or link, code }): a link to copy or share, and its
 // code. A server without the route (404) or that refuses it shows no button.
 const fullLink = (u) => (!u ? "" : /^https?:/.test(u) ? u : u.startsWith("#") ? `${location.origin}${location.pathname}${u}` : `${location.origin}${u.startsWith("/") ? "" : "/"}${u}`);
-function ClubInvite({ id, name }) {
+function ClubInvite({ id, name, privacy }) {
   const [inv, setInv] = useState(null), [open, setOpen] = useState(false), [said, setSaid] = useState("");
   useEffect(() => {
     let live = true; setInv(null); setOpen(false);
@@ -147,7 +147,7 @@ function ClubInvite({ id, name }) {
     <section className={`cl-invite${open ? " panel" : ""}`} aria-label="Invite people">
       {!open ? <button className="btn primary sm" onClick={() => { setSaid(""); setOpen(true); }}><Icon name="share" size={16} />Invite people</button> : <>
         <b>Invite people to {name}</b>
-        {inv.url && <label className="cl-invite-link tiny">Anyone with this link can join<input readOnly value={inv.url} onFocus={(e) => e.target.select()} /></label>}
+        {inv.url && <label className="cl-invite-link tiny">{privacy === "private" ? "Anyone with this link can ask to join; you let them in" : "Anyone with this link can join"}<input readOnly value={inv.url} onFocus={(e) => e.target.select()} /></label>}
         {inv.code && <p className="tiny">Or give them the code <b className="mono">{inv.code}</b></p>}
         <div className="cta-row">
           <button className="btn primary sm" onClick={copy}>{inv.url ? "Copy link" : "Copy code"}</button>
@@ -181,7 +181,7 @@ function ClubRoom({ id }) {
           : c.asked ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Asked · cancel</button>
           : <button className="btn primary sm" disabled={busy} onClick={() => join(true)}>{c.privacy === "private" ? "Ask to join" : "Join"}</button>}
       </header>
-      {c.joined && <ClubInvite id={c.id} name={c.name} />}
+      {c.joined && <ClubInvite id={c.id} name={c.name} privacy={c.privacy} />}
       <RealMap courts={false} height={180} marks={[{ id: c.id, name: c.where, lat: c.at.lat, lon: c.at.lon }]} />
       {c.requests?.length > 0 && (
         <section className="panel cl-requests" aria-label="Asked to join">

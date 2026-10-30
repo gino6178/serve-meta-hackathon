@@ -220,8 +220,8 @@ function HuddleView({ id, onBack, onChange = () => {} }) {
             {pk.km != null && <li>Your trip {pk.km} km</li>}
           </ul>
           {pk.sample && <p className="hd-fine">The venue hasn't joined Serve yet: its list price is a sample, and nothing is paid here.</p>}
-          <ul className="hd-players">{h.players.map((x, i) => <li key={i} className={x.answer === "yes" ? "yes" : ""}>{x.answer === "yes" ? <Icon name="check" size={14} /> : <i className="hd-wait" />}<span>{x.name}{x.host ? " (asked)" : x.direct ? " (asked directly)" : ""}</span>{x.name !== "You" && <TrustBadge t={x.trust} compact />}</li>)}</ul>
-          {h.waitlist?.length > 0 && <p className="hd-fine">Waitlist: {h.waitlist.join(", ")}.</p>}
+          {h.status !== "cancelled" && <ul className="hd-players">{h.players.map((x, i) => <li key={i} className={x.answer === "yes" ? "yes" : ""}>{x.answer === "yes" ? <Icon name="check" size={14} /> : <i className="hd-wait" />}<span>{x.name}{x.host ? " (host)" : x.direct ? " (asked directly)" : ""}</span>{x.name !== "You" && <TrustBadge t={x.trust} compact />}</li>)}</ul>}
+          {h.status !== "cancelled" && h.waitlist?.length > 0 && <p className="hd-fine">Waitlist: {h.waitlist.join(", ")}.</p>}
           {h.status === "asking" && !h.ask && h.waiting?.length > 0 && <p className="hd-fine">Waiting for {h.waiting.join(", ")}{h.due ? `: they have until ${new Date(h.due).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })}, then the next player gets the spot` : ""}.</p>}
           {h.mine && !h.ask && ["asking", "on"].includes(h.status) && <p className="hd-fine">You started this game, so you're in it: there's nothing to say yes to.</p>}
           {h.ask && (
@@ -355,7 +355,7 @@ function Limits({ t, onSaved }) {
       <label>Times<select value={win} onChange={(e) => setWin(e.target.value)}>{win === "keep" && <option value="keep">As set before</option>}{cal && <option value="ics">From your calendar</option>}{Object.entries(WIN).map(([k, x]) => <option key={k} value={k}>{x.label}</option>)}</select></label>
       <div className="hd-ics">
         <label className="btn sm hd-file">{reading ? "Reading…" : "Import a calendar (.ics)"}<input type="file" accept=".ics,text/calendar" onChange={readCal} disabled={reading} /></label>
-        <span className="hd-fine">{cal ? `${cal.events} event${cal.events === 1 ? "" : "s"} over ${cal.weeks} weeks: free ${cal.free.join(", ")}.` : "Only the busy times in it are read; titles and details are never kept."}</span>
+        <span className="hd-fine">{cal ? `${cal.events} event${cal.events === 1 ? "" : "s"} over ${cal.weeks} weeks: free ${cal.free.join(", ")}. Choose "From your calendar" and save to use it.` : "Only the busy times in it are read; titles and details are never kept."}</span>
       </div>
       <WeekHeat ws={chosen} />
       <label>Farthest<span className="hd-unit"><input type="number" min="1" max="30" step="0.5" inputMode="decimal" placeholder="no limit" value={km} onChange={(e) => setKm(e.target.value)} />km</span></label>
