@@ -62,9 +62,12 @@ export function folded(text) {
 // Llama Guard 3 1B lets most harassment through (veiled threats, insults, demeaning a group, asking someone for
 // photos; test/feed_redteam.mjs), which a club feed must not show. Any model not answering: the text waits.
 export async function moderate(text, player) {
-  const plain = folded(text), pg = await deps.injected(plain === text ? [text] : [text, plain], { site: "feed.person" });
-  if ((pg || []).some((x) => x?.injected === true)) return { refused: true, why: "Not posted: it is written to instruct the app's agents.", check: "prompt-guard" };
-  if (!pg?.length || pg.some((x) => x?.injected == null)) return { down: true };
+  const plain = folded(text), r = await deps.injected(plain === text ? [text] : [text, plain], { site: "feed.person" });
+  const pg = Array.isArray(r) ? r : r ? [r] : [];
+  if (pg.some((x) => x?.injected === true)) return { refused: true, why: "Not posted: it is written to instruct the app's agents.", check: "prompt-guard" };
+  // a guard that is on but did not answer (an error, or nothing back) holds the text; guards switched off on this server
+  // (no error, not checked) pass it on to the checks below, as they do for Llama Guard
+  if (!pg.length || pg.some((x) => x?.injected == null && x?.error)) return { down: true };
   for (const b of T.personProblems(text, { author: authorOf(player), names: othersNames() })) return { refused: true, why: `Not posted: ${b.why}`, code: b.code, check: "code" };
   const g = await deps.screen([{ role: "user", content: text }], { site: "feed.person", timeoutMs: +(process.env.GUARD_OUT_TIMEOUT_MS || 8000) });
   const stop = guardRules.stopsIn(g, text);
