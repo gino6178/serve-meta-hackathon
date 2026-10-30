@@ -191,3 +191,7 @@
 .hd-talk .t-me p { color: var(--agent-ink); }
 
 .fy-last { margin: 0; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--agent) 10%, var(--bg)); color: var(--agent); font-weight: 600; font-size: 14px; }
+/* a gate note on your own agent's side: the light note colour, with ink that reads on it */
+.hd-talk .t-me.t-gate p { background: color-mix(in srgb, var(--warn) 14%, var(--bg)); color: var(--ink); }
+.hd-talk .t-me.g-waitlist p { background: color-mix(in srgb, var(--bad) 10%, var(--bg)); color: var(--ink); }
+.tq-why { margin: -4px 0 2px; font-size: 13px; color: var(--ink-2); }

@@ -195,6 +195,14 @@ export function reply(id, o, yes, why = null) {
   return { taste: view(put(id, t)), line };
 }
 
+// the member asked, in their own words, for these days and parts of the day: they count a little more from now on
+export function askedFor(id, w) {
+  const t = get(id), days = (w?.days || []).map((d) => (/^\d{4}-/.test(d) ? DAYS[dateOf(d).getDay()] : d)).filter((d) => DAYS.includes(d)), parts = (w?.parts || []).filter((p) => PARTS.includes(p));
+  if (!parts.length) return;
+  for (const d of days.length ? [...new Set(days)] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]) for (const p of parts) nudgeCell(t, `${d} ${p}`, days.length ? 0.3 : 0.15);
+  put(id, t);
+}
+
 // ---- questions ----
 // the next question, when the agent still needs one: two games that pull two factors apart, built around the member's
 // own area and sport (named places when the caller passes courts near them). Before SURE_AT answers it asks every

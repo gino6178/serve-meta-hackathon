@@ -137,7 +137,7 @@ const HUDDLE = {
   "/huddle/cancel": ["post", op("The host calls it off", { body: { id: S } })],
   "/huddle/game": ["post", op("Join a recommended game, or say why not", { body: { post: S, yes: B, why: S } })],
   "/huddle/places": ["get", op("Courts near them, quiet hours, venue offers", { query: { sport: "sport" } })],
-  "/huddle/deal": ["post", op("Ask a venue's agent for a price (a quote; outside lists any of the member's limits it breaks)", { body: { place: S, date: S, start: S, players: N, weekly: B } })],
+  "/huddle/deal": ["post", op("Ask a venue's agent for a price (place: a court id from /api/huddle/places for that sport; a quote; outside lists any of the member's limits it breaks)", { body: { place: S, sport: S, date: S, start: S, players: N, weekly: B } })],
   "/huddle/trust": ["get", op("Their two records and their chain entries")],
   "/huddle/needs": ["get", op("What agents keep running into")],
 };
@@ -162,8 +162,9 @@ export function openapi(req) {
   add("/api/feed/notices", "get", op("Notices waiting for the member (taken once)"));
   const PERSON_ONLY = ["/huddle/home", "/huddle/open", "/huddle/delegate"];
   for (const [p, [m, o]] of Object.entries(HUDDLE)) { add(`/api${p}`, m, o); if (!PERSON_ONLY.includes(p)) add(`/api/agent-channel${p}`, m, { ...o, security: [{ agentKey: [] }], summary: `${o.summary} (signed with the member's agent key${p === "/huddle/limits" ? "; tighten only" : ""})` }); }
+  add("/api/agent-channel/me", "get", op("The member and agent this key belongs to", { auth: "agent" }));
   add("/api/agent-channel/feed", "get", op("The feed as the agent's member sees it", { auth: "agent" }));
-  add("/api/agent-channel/post", "post", op("A post or invite, as the member's agent", { auth: "agent", body: { text: S, invite: O } }));
+  add("/api/agent-channel/post", "post", op("A post or invite, as the member's agent (a delegation without new people gates the game; the reply's note says so)", { auth: "agent", body: { text: S, invite: O } }));
   add("/api/agent-channel/comment", "post", op("A comment, as the member's agent", { auth: "agent", body: { post: S, text: S } }));
   add("/api/agent-channel/join", "post", op("Join a game for the member", { auth: "agent", body: { post: S, on: B } }));
   return {

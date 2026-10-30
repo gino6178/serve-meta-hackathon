@@ -267,7 +267,8 @@ export async function nearby({ lat, lon, sport = "basketball", radius = 2000, wa
   // OpenStreetMap's public servers are often at capacity: then Google Places, when this server has a key. Google's terms:
   // its places are not stored and not drawn on another map, so they go back as a list, each with its Google Maps link
   if (!j) {
-    if (!KEY) throw new Error("OpenStreetMap did not answer");
+    // no key: courts looked up nearby before, or none, said plainly (the map service being busy isn't the caller's mistake)
+    if (!KEY) { const old = cachedNear(at, sp, 2.5); if (old) return old; const e = new Error("The map of courts isn't answering right now: pin the place on the map, or type it."); e.busy = true; throw e; }
     const g = await google({ textQuery: GOOGLE_Q[sp] || `${sp} court`, languageCode: "en", maxResultCount: 20, locationBias: { circle: { center: { latitude: at.lat, longitude: at.lon }, radius: r } } });
     const places = g.filter((x) => x.location).map((x) => ({ id: `g:${x.id}`, name: x.displayName?.text || `${sp} court`, lat: x.location.latitude, lon: x.location.longitude, kind: "google", url: `https://www.google.com/maps/place/?q=place_id:${x.id}`, m: Math.round(meters(at, { lat: x.location.latitude, lon: x.location.longitude })) }))
       .filter((x) => x.m <= r * 1.5).sort((a, b) => a.m - b.m);

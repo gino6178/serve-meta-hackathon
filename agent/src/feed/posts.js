@@ -201,6 +201,9 @@ export function join(player, postId, on = true) {
   // leaving the waitlist
   if (!on && waiting) { S.change(() => { v.waitlist = v.waitlist.filter((x) => x !== player); }); return { post: view(p, player), left: "waitlist" }; }
   if (on === was) return { post: view(p, player) };
+  // a game that overlaps one they're already in (games run about 90 minutes): not both
+  const at = startOf(v), clash = on && at ? S.data().posts.find((q) => q.id !== p.id && q.kind === "invite" && q.invite && !q.hidden && ((q.by.player || q.by.agentOf) === player || q.invite.going.includes(player)) && Math.abs(startOf(q.invite) - at) < 90 * 60e3) : null;
+  if (clash) return { error: `You're already in ${clash.invite.sport} ${dayWords(clash.invite.day)} ${clash.invite.start} at ${clash.invite.where}, which overlaps this one. Leave that game first.`, code: 409, clash: clash.id };
   // a full game: the waitlist, first come first in when a spot opens
   if (on && v.going.length >= v.spots) {
     if (!waiting) { S.change(() => { v.waitlist = [...(v.waitlist || []), player]; }); inviteReply(p, `${nm} is on the waitlist: the game is full. A spot that opens is ${nm}'s.`, player); }

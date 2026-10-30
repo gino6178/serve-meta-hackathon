@@ -66,7 +66,7 @@ function GameTab({ me, reload }) {
       {open ? <HuddleView id={open} onChange={reload} onBack={() => { setParam("id", null); reload(); }} /> : <Ask me={me} pin={pin} club={p.get("club")} sport={p.get("sport")} onStarted={(h) => { reload(); setParam("id", h.id); }} />}
       {me.huddles.length > 0 && (
         <section className="hd-list" aria-label="Your games being worked out">
-          <h2 className="h3">Your huddles</h2>
+          <h2 className="h3">Games your agent is arranging</h2>
           <ul>{me.huddles.map((h) => (
             <li key={h.id}><button className={open === h.id ? "on" : ""} onClick={() => setParam("id", h.id)}>
               <span className={`hd-status s-${h.status}`}>{STATUS[h.status]}{h.ask ? " · needs you" : ""}</span>

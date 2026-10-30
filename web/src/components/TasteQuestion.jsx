@@ -20,6 +20,7 @@ export default function TasteQuestion({ q, onAnswered }) {
   return (
     <div className="tq">
       <p className="tq-ask"><b>{q.ask}</b><span>{q.n < q.of ? ` ${q.n + 1} of ${q.of}` : ""}</span></p>
+      <p className="tq-why">Two example games, not real ones: your pick teaches your agent what matters to you.</p>
       <div className="tq-pair">{opt("a", q.a)}{opt("b", q.b)}</div>
       <div className="tq-foot">
         <button className="btn ghost sm" disabled={busy} onClick={() => pick("either")}>Either is fine</button>

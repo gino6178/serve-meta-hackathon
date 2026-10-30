@@ -139,6 +139,17 @@ async function channel(req, res, p, send) {
     const t = T.get(owner), v = b.invite, date = /^\d{4}-/.test(String(v.day)) ? v.day : null;
     const why = date && /^\d{2}:\d{2}$/.test(String(v.start)) ? T.hardNos(t, { date, start: v.start, km: t.home && v.at ? +T.km(t.home, v.at).toFixed(1) : null, each: +v.each || 0 }) : [];
     if (why.length) return send(403, { error: `That game is outside what your person set (${why.map((x) => T.NO[x] || x).join(", ")}); your person can post it themself.`, needs: "person" });
+    // posting a game commits the person as its host: within the price they let the agent say yes to
+    const dl = t.delegate;
+    if (dl?.on && dl.maxEach != null && (+v.each || 0) > dl.maxEach) return send(403, { error: `NT$${+v.each} each is over the NT$${dl.maxEach} your person lets you say yes to; your person can post it themself.`, needs: "person" });
+    // a game the agent posts keeps the person's rule about new people, as one it starts (below)
+    const d = t.delegate;
+    if (d?.on && !d.newPeople) {
+      const asked = +v.gate?.minShow || 0;
+      b = { ...b, invite: { ...v, gate: { minShow: Math.max(0.6, asked), newOk: false, agentMin: v.gate?.agentMin } } };
+      const r = await P.post(ag.id, { text: b.text, invite: b.invite, agent: { id: ag.id, owner } });
+      return out(r.error ? r : { ...r, note: `Your person's delegation wants people with a record, so new people wait${asked < 0.6 ? " and the game is gated at 60%" : ""}.` });
+    }
   }
   if (p === "/api/agent-channel/post" && req.method === "POST") return out(await P.post(ag.id, { text: b.text, invite: b.invite || null, agent: { id: ag.id, owner } }));
   if (p === "/api/agent-channel/comment" && req.method === "POST") return out(await P.comment(ag.id, String(b.post || ""), b.text, { agent: { id: ag.id, owner } }));
@@ -192,7 +203,7 @@ async function huddle(req, res, p, q, me, send, given = null) {
   // the question is rebuilt from the member's state, so the answer carries the two games it showed
   if (p === "/api/huddle/question" && get) { const t = T.get(me); const places = t.home ? (await D.placesNear(t.home, t.sports[0] || "badminton", { wait: false })).map((x) => ({ ...x, km: +T.km(t.home, x).toFixed(1) })) : []; return send(200, { question: T.question(me, { places, force: true }) }); }
   if (p === "/api/huddle/answer" && post) { if (!["a", "b", "either"].includes(b.pick)) return send(400, { error: "pick is a, b or either" }); return out(T.choose(me, b.q ?? b.id, b.pick)); }
-  if (p === "/api/huddle/start" && post) return out(H.start(me, b));
+  if (p === "/api/huddle/start" && post) { const r = H.start(me, b); if (!r.error && !req.byAgent && b.when) T.askedFor(me, b.when); return out(r); }
   if (p === "/api/huddle/one" && get) { await H.sweep(); const h = H.find(String(q.get("id") || "")); return h && (h.host === me || h.invited.includes(me)) ? send(200, { huddle: H.view(h, me) }) : send(404, { error: "No such game." }); }
   if (p === "/api/huddle/reply" && post) return out(await H.reply(me, String(b.id || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
   if (p === "/api/huddle/cancel" && post) return out(H.cancel(me, String(b.id || "")));

@@ -52,7 +52,7 @@ export default function RealMap({ sport = "badminton", pick = false, onPick = ()
           const mk = L.circleMarker([p.lat, p.lon], { radius: 8, color: "#0a7f44", weight: 2, fillColor: "#5fd39a", fillOpacity: 0.8 }).addTo(layer.current).bindTooltip(p.name || sport);
           if (pick) mk.on("click", (e) => { L.DomEvent.stopPropagation(e); choose({ name: p.name || `${sport} court`, lat: p.lat, lon: p.lon }); });
         }
-        setNote(all.length ? "" : pick ? "No courts mapped here: tap anywhere to pin the place" : "No courts mapped here");
+        setNote(all.length ? "" : j.note ? (pick ? "Courts can't be looked up right now: tap anywhere to pin the place" : "Courts can't be looked up right now") : pick ? "No courts mapped here: tap anywhere to pin the place" : "No courts mapped here");
       } catch { if (live) setNote(pick ? "Tap anywhere to pin the place" : ""); }
     };
     const soon = () => { clearTimeout(t); t = setTimeout(load, 500); };
