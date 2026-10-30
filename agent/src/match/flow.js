@@ -149,7 +149,11 @@ async function talkThrough({ cp, club, intent, format, need, par, maxTalks, talk
     }
     // the talks did not land: the one question whose answer most raises the chance of a game (voi.js), asked as a
     // single yes or no of that member's agent (freebusy.js, under its budget), and one more talk only on a yes
-    const q = process.env.MATCH_VOI === "off" ? null : voi.bestQuestion({ members: ordered.slice(0, 12).map((c) => ({ id: c.m.id, chance: voi.chanceOf(c), mem: memoryOf(c.m.id) })), slots: cp.slots || [],
+    // (the cold start is the club's population prior: its members' free lists, or with private calendars only what your
+    // agent has seen of them)
+    const priv = process.env.A2A_PRIVATE === "1";
+    const prior = voi.populationPrior({ members: priv ? [] : club.members, sport: intent.sport || "badminton", mems: priv ? club.members.map((m) => memoryOf(m.id)).filter(Boolean) : [] });
+    const q = process.env.MATCH_VOI === "off" ? null : voi.bestQuestion({ members: ordered.slice(0, 12).map((c) => ({ id: c.m.id, chance: voi.chanceOf(c), mem: memoryOf(c.m.id) })), slots: cp.slots || [], prior,
       tried: new Set(talks.flatMap((x) => x.with.flatMap((id) => (cp.slots || []).map((sl) => `${id}|${sl.date}|${sl.start}`)))) });
     if (q) {
       const c = ordered.find((x) => x.m.id === q.id), toMin = (t) => +t.slice(0, 2) * 60 + +t.slice(3, 5);
