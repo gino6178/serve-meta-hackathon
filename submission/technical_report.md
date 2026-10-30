@@ -12,8 +12,10 @@ uses the same Serve on the web or in Messenger, where Serve's own agent does the
 faster; it is not the way in. What the community asks for makes the platform
 better through a safety review and changes that roll themselves back.
 
-**Used by agents.** The building period is a few days, too short to gather real users, so independent agents stood in
-for them to test Serve. An agent finds the way in on the site itself: a short guide in the page's own HTML, `/llms.txt`
+**Used by agents: a synthetic cohort and autonomous agent audits.** In a building period of a few days (October 27
+to November 4), a long trial with a real group of players is not possible, and a claim of many real users would not be
+believable. So Serve was checked end to end by agents instead: independent agents stood in for its users, and a cohort
+of simulated players with an inertia model stood in for a group of friends (5.14). An agent finds the way in on the site itself: a short guide in the page's own HTML, `/llms.txt`
 with a six-call quick start, an Agent Card, OpenAPI, and a channel where every request carries the agent's own Ed25519
 signature (3.20). Over 25 rounds on October 29 and 30, 153 AI agents that had never seen Serve used it the way its
 users would: arriving cold with only the address, hosting and answering games for members, and going through the site
@@ -85,8 +87,12 @@ Around these sit a club (feed, games anyone can join, challenges, a random match
 any ball sport, highlight clips from the player's own video, voice notes, and the same agent in Messenger.
 
 **Who else it serves.** Games are hardest to start where no one has the time to organise them. A club on Serve can
-be one of three kinds for those groups (3.19): children's sessions a teacher or volunteer runs, gentle games for older
-adults, and a charity tournament.
+be one of three kinds for those groups, each with its rules in code (3.19):
+- **Children's sessions** a teacher or volunteer runs: courts filled from a queue so no child plays more than one turn
+  more than another; children have no accounts, and parents get a pick-up note through the phone's share sheet.
+- **Gentle games for older adults:** held by code between 08:00 and 16:00, doubles only, 60 minutes at most.
+- **Charity tournaments:** a balanced round-robin draw by the circle method; a pledge is only recorded, and Serve
+  handles no money.
 
 ## 2. Architecture
 
@@ -109,6 +115,22 @@ adults, and a charity tournament.
   `body/`, `memory/`, `media/`, `channels/`. `server.js` is the entry point; the web app is in `web/`.
 - **Members' agents** are A2A agents with signed Agent Cards, served by the same gateway. **Messenger** reaches it
   through a signed webhook.
+
+**Four pillars.** Everything in section 3 rests on four ideas:
+- **Agreement between agents (3.2).** A2A v1.0 [19], with only checked facts in each message (`{id, date, start,
+  venue, court, trip}`), never free text. The Contract Net [2] with a one-shot intersection; the venue chosen is the
+  one whose longest trip is shortest. 30-minute holds and a fixed order of taking them: without holds 11 of 12 pairs of
+  talks booked the same member twice, with them none did (5.3).
+- **Asking only what helps (3.18).** A Beta(1 + yes, 1 + no) belief about each player being free, and one closed
+  question chosen by its value of information: over 20,000 simulated requests a game was found 51.9% of the time,
+  against 40.7% with no question and 44.4% with a random one.
+- **A loop that improves itself and rolls itself back (3.7).** Glimmer drafts a spec; a policy check with CodeShield's
+  rules, a code scan, tests, the crash matrix and the red team gate it; it ships to a canary and turns itself off when
+  thumbs down rise 10 points (a one-sided two-proportion z of 1.645 or more). In simulation that caught a harmful
+  change 94.8% of the time and rolled back a harmless one 4.9% of the time (5.6).
+- **The Rule of Two, and a budget on what talks reveal (6, 3.13).** No agent holds untrusted input, private data and
+  the power to act at once. Against a probing agent, five talks recovered 97.6% of a member's weekdays; the disclosure
+  budget brings that down to 32.4% while the ordinary player's best time drops only from 88.9% to 81.5%.
 
 ## 3. The agent systems
 
@@ -164,7 +186,7 @@ player instead (3.3).
 
 ### 3.3 Scheduling limits (body log, health import) and courts
 
-What a player says about their body becomes a scheduling limit, never advice. Glimmer files it with one tool call (part, side, level, cause), checked by code (`agent/src/body/body.js`). A health
+**A body log is not medical advice.** What a player says about their body becomes a scheduling limit, never advice. Glimmer files it with one tool call (part, side, level, cause), checked by code (`agent/src/body/body.js`). A health
 export (Apple Health, Google Fit, GPX, TCX or CSV) is parsed on the server with Python's standard library and deleted
 (`health_import.py`). Code turns them into scheduling limits (doubles first, a shorter game, one game fewer).
 It records and schedules; it gives no diagnosis, treatment or dosage.
@@ -175,7 +197,7 @@ for word) or the forecast is dropped. Prompt Guard 2 reads the reviews first.
 
 ### 3.4 Automatic highlight editing, and orbit replays
 
-A highlight is cut automatically from the player's own video: a clip to share with friends, made with no editing by
+**A highlight is not coaching.** A highlight is cut automatically from the player's own video: a clip to share with friends, made with no editing by
 the player. Nothing in it scores technique or performance. In `video/pose/reel.py`,
 DETR [16] finds the people in the player's own video, Sapiens2 finds the moment worth sharing and SAM 2.1 [17] cuts
 the player out. The clip replays that moment in slow motion, with a caption Glimmer writes and code checks.
@@ -481,6 +503,17 @@ Every member has their own agent, and only it knows how they like to play.
 
 ## 4. Meta models and tools
 
+**What surprised us.** Three findings from running Meta's models in a product, each measured:
+- **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
+  of calls came back empty, nearly all from a quick pick whose budget ran out mid-thought; with thinking switched off it
+  reasoned in a hidden channel and returned nothing. Every call now asks for `think: "low"` with 900 tokens of room (5.9).
+- **A 1B student agrees with Glimmer more than Glimmer agrees with itself.** Llama 3.2 1B, distilled from 4,868 of
+  Glimmer's choices and run in int4 on the CPU, agrees with Glimmer on 89.5% of 500 held-out cases, against Glimmer's
+  88.8% with itself. It answers in about 0.9 s against about 40 s, and cut Glimmer's member answers by 54 to 67% (3.12).
+- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category stopped ordinary injury talk often enough
+  to reach the player about seven times in ten. S6 now blocks a text only when code also finds a dose, a medicine to
+  take, or a condition the player is said to have (3.6).
+
 Only what is wired into the code. 15 Meta models in all: 10 open-weights models on my GPU server, and 5 on the Meta Model API, of which
 2 work at runtime (Muse Voice Transcribe, Muse Image) and 3 serve fallback and checks (Muse Spark 1.3, SAM 3.1, Muse
 Wonder).
@@ -531,6 +564,18 @@ Wonder).
 Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformers, OpenStreetMap, Open-Meteo, the Google Places API.
 
 ## 5. Evaluations
+
+**At a glance.**
+
+| What | Scale | Result | Where |
+|---|---|---|---|
+| Independent agents using Serve cold | 153 agents, 25 rounds, 16,713 logged requests | No core-flow fault in the last round (6 of 6); agents given only an address scored the way in 8, 8 and 9 of 10 | 5.18 |
+| Offline tests | 25 suites, no model | 275 tests: 270 pass, 3 skipped (optional tools), 2 need Linux | 5.1 |
+| Attacks | 93 cases, named by OWASP LLM Top 10 risk | 93 of 93 stopped | 5.1, 6 |
+| Crash recovery | Gateway killed at five points | 20 of 20 checks, no game booked twice | 5.1 |
+| Messenger end to end | Real gateway, fake Graph API | 58 of 58 checks | 5.1 |
+| The builder | 6 specs, 3 runs each | 18 of 18 builds on the first attempt, median 5 steps, 1.2 minutes | 5.7 |
+| The Autopilot | 8 weeks, 3 runs each | 24 of 24 runs passed | 5.2 |
 
 ### 5.1 The test suites (2026-10-28, and after the restructure on 2026-10-29)
 
@@ -768,12 +813,22 @@ with no model errors.
   a partner is asked ("I'm in" or "Can't make it") before their agent books.
 - **After the fixes** (seeds 2, 3 and 4): the Match helper asked 8, 16 and 9 times, and partners were asked before
   booking 6, 12 and 3 times.
-- **Seed 2:** 3 games played with Serve against 1 without; 8 users with a game against 2; player-games per user +0.3
-  (95% CI 0.1 to 0.5) (`sim_users_v2s2.json`).
-- **Seed 4:** a game was booked the moment it was wanted, a median of 0 minutes, against 100.5 minutes without Serve
-  (`sim_users_v3s4.json`).
-- **The users read like people:** a blinded judge (Muse Glimmer, `test/sim_users/judge.mjs`) could not tell their
-  messages from 40 held-out messages written in a person's style: 11 of 20 pairs, chance level (`sim_judge_v3s4.json`).
+- **All three seeds**, with Serve against the same people without it (`sim_users_v2s2.json`, `sim_users_v2s3.json`,
+  `sim_users_v3s4.json`):
+
+| Seed | Games played | Users with a game | Player-games per user, difference (95% CI) | Median minutes from wanting a game to booking it |
+|---|---|---|---|---|
+| 2 | 3 against 1 | 8 against 2 | +0.3 (0.1 to 0.5) | 220 against 60 (3 and 1 games) |
+| 3 | 1 against 1 | 2 against 2 | 0 | 0 against 44 (1 and 1) |
+| 4 | 1 against 4 | 2 against 8 | -0.3 (-0.5 to -0.1) | 0 against 100.5 (4 and 4) |
+
+  The effect on games played is mixed: better in seed 2, the same in seed 3, worse in seed 4, where Serve booked as
+  many games as the baseline (4 each) but fewer were played within the three days. Twenty users over three simulated
+  days are too few to settle it.
+- **How the users read:** a blinded judge (Muse Glimmer, `test/sim_users/judge.mjs`) told their messages from 40
+  held-out messages in 11 of 20 pairs, near chance (`sim_judge_v3s4.json`). The held-out messages were themselves
+  written by an AI imitating people, and the judge is the same model as the users, so this shows only that the two
+  sets were hard to tell apart, not that the users behave like real people.
 - Everything they made loads as a seed (`export_seed.mjs`), so the demo starts with a club that already has people in
   it.
 
