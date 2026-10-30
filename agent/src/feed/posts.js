@@ -143,6 +143,10 @@ export async function post(player, { text = "", media = null, invite = null, age
     photo = { id: up.id, type: up.type, w: up.w, h: up.h };
   }
   count(player, "post");
+  // a game that overlaps one the person already hosts or plays in (games run about 90 minutes): not both, as for joining
+  const owner = agent?.owner || player, at0 = iv.invite ? startOf(iv.invite) : null;
+  const overlap = at0 ? S.data().posts.find((q) => q.kind === "invite" && q.invite && !q.hidden && ((q.by.player || q.by.agentOf) === owner || q.invite.going.includes(owner)) && Math.abs(startOf(q.invite) - at0) < 90 * 60e3) : null;
+  if (overlap) return { error: `That overlaps ${overlap.invite.sport} ${dayWords(overlap.invite.day)} ${overlap.invite.start} at ${overlap.invite.where}, already in your games. Pick another time, or call that one off first.`, code: 409, clash: overlap.id };
   const m = await screenPost([t, iv.invite?.where].filter(Boolean).join("\n"), photo, player);
   if (m.refused || m.helpline) { if (photo) dropUpload(player, photo.id); return { refused: true, why: m.why, check: m.helpline ? "helpline" : m.check, ...(m.helpline ? { helpline: true } : {}) }; }
   const x = S.change((d) => {
@@ -152,7 +156,7 @@ export async function post(player, { text = "", media = null, invite = null, age
     if (photo) d.uploads = d.uploads.filter((u) => u.id !== photo.id);
     return p;
   });
-  const clash = x.invite ? busyAt(player).some((t) => t !== startOf(x.invite) && Math.abs(t - startOf(x.invite)) < 3 * 3600e3) : false;
+  const clash = x.invite ? busyAt(owner).some((t) => t !== startOf(x.invite) && Math.abs(t - startOf(x.invite)) < 3 * 3600e3) : false;
   return { post: view(x, player), ...(clash ? { warning: "You already have a game within three hours of this one." } : {}), ...(m.down ? { held: true, why: `The safety check${photo ? " for photos" : ""} isn't answering right now. Your post shows once it is checked; only you can see it until then.` } : {}) };
 }
 function dropUpload(player, id) {

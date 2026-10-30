@@ -233,8 +233,8 @@ export function question(id, { places = [], now = new Date(), force = false } = 
   const [ld, lp] = liked.split(" "), other = lp === "evening" ? "Sat morning" : "Wed evening";
   const [od, op] = other.split(" ");
   const pub = places.filter((p) => p.kind === "public"), ven = places.filter((p) => p.kind === "venue");
-  const near = (list, k) => list.find((p) => p.km != null && Math.abs(p.km - k) < 1.5)?.name || null;
-  const g = (cell, k, each, busy, list = []) => { const [d, p] = cell.split(" "); return { date: nextDate(now, DAYS.indexOf(d)), start: STARTS[p], km: k, each, busy, where: near(list, k) || (each > 0 ? "an indoor court" : "a public court") }; };
+  // example games: made-up numbers, so no real court's name on them (a name would contradict that court's real distance and price)
+  const g = (cell, k, each, busy) => { const [d, p] = cell.split(" "); return { date: nextDate(now, DAYS.indexOf(d)), start: STARTS[p], km: k, each, busy, where: each > 0 ? "an indoor court" : "a public court", example: true }; };
   let a, b;
   const [x, y] = axes;
   if (x === "time" && y === "place") { a = g(liked, Math.max(t.maxKm * 1.1, 4), 90, 0.5, ven); b = g(other, 0.8, 90, 0.5, ven); }

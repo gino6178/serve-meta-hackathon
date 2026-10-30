@@ -91,7 +91,7 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   const pin = b.pin && /^\d{4}-\d{2}-\d{2}$/.test(b.pin.date) && /^\d{2}:\d{2}$/.test(b.pin.start) ? { date: b.pin.date, start: b.pin.start, place: b.pin.place ? String(b.pin.place) : null } : null;
   if (pin) { const hn = T.hardNo(T.get(me), { date: pin.date, start: pin.start, km: null, each: 0 }); if (hn === "time" || hn === "busy") return { error: `${when(pin)} is outside the times you set (or you're busy then). Change your limits, or pick another time.`, code: 400 }; }
   const h = { id: `h-${crypto.randomUUID().slice(0, 8)}`, host: me, sport, need, club: club?.id || null, clubName: club?.name || null, invited, created: Date.now(), status: "talking",
-    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat ?? (fill.room ? C.find(fill.room)?.at?.lat : undefined), lon: fill.invite.at?.lon ?? (fill.room ? C.find(fill.room)?.at?.lon : undefined), kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}), hostYes: b.hostYes === true && !!pin };
+    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, picked: club ? [] : invited.filter((id) => !near.includes(id)), excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat ?? (fill.room ? C.find(fill.room)?.at?.lat : undefined), lon: fill.invite.at?.lon ?? (fill.room ? C.find(fill.room)?.at?.lon : undefined), kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}), hostYes: b.hostYes === true && !!pin };
   data().huddles.push(h); save();
   Tr.asked(me, near.length); // asking everyone nearby, again and again, is what a prober does (your clubs are fine)
   const job = run(h, now).catch((e) => { console.error("huddle run", e.stack); h.status = "stuck"; line(h, "agent", "Something went wrong on Serve's side while the agents talked, so this game is stuck. Start it again in a minute; if it keeps happening, the club's ideas page hears about it."); save(); });
@@ -130,7 +130,8 @@ async function run(h, now = new Date()) {
   if (h.status === "cancelled") return; // called off while the map was being read
   if (!h.places?.length && taste[host].home && T.km(taste[host].home, center) > 1.5) { const near = await D.placesNear(taste[host].home, h.sport); places = [...places, ...near.filter((p) => !places.some((q) => q.id === p.id))]; }
   if (places.length && !h.places?.length) h.places = places.map(({ id, name, lat, lon, kind, sport, list, sample }) => ({ id, name, lat, lon, kind, sport, ...(list ? { list, sample } : {}) }));
-  let pinned = h.fillPlace?.lat != null ? h.fillPlace : h.pin?.place ? places.find((p) => p.id === h.pin.place) : null;
+  // a posted game being filled keeps its own place, also when it was posted by name only (then distances are from the group's middle)
+  let pinned = h.fillPlace ? { ...h.fillPlace, lat: h.fillPlace.lat ?? center.lat, lon: h.fillPlace.lon ?? center.lon, ...(h.fillPlace.lat == null ? { guessAt: true } : {}) } : h.pin?.place ? places.find((p) => p.id === h.pin.place) : null;
   if (h.pin?.place && !pinned) pinned = (await D.placesNear(taste[host].home || center, h.sport, { venues: 4, courts: 4 })).find((p) => p.id === h.pin.place) || null;
   if (h.pin?.place && !pinned) { h.status = "stuck"; line(h, "host", "I can't find the court you picked near the group. Pick it again from Courts & prices, or leave the court to the agents.", { who: hostName }); return save(); }
   if (h.status === "cancelled") return;
@@ -173,9 +174,10 @@ async function run(h, now = new Date()) {
       for (const place of places) {
         if (!h.pin && (!opensFor(place, start) || !inWhen(h.when, date, start))) continue;
         const o = { date, start, place, busy: D.busy(place, date, start, games), each: h.fill ? (P.find(h.fill)?.invite.each ?? 0) : D.guessEach(place, date, start, h.need) };
+        o.best = h.fill ? o.each : D.bestEach(place, date, start, h.need);
         if (startMs(o) - now.getTime() < 3 * 3600e3 || h.excluded.some((x) => matches(x, o))) continue;
         if (hostBusy.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3)) { hostRuled.busy = (hostRuled.busy || 0) + 1; continue; }
-        const hn = T.hardNo(taste[host], { date, start, km: taste[host].home ? +T.km(taste[host].home, place).toFixed(1) : null, each: o.each });
+        const hn = T.hardNo(taste[host], { date, start, km: taste[host].home ? +T.km(taste[host].home, place).toFixed(1) : null, each: o.best });
         if (hn) { hostRuled[hn] = (hostRuled[hn] || 0) + 1; continue; } // the host's own limits
         opts.push(o);
       }
@@ -185,7 +187,7 @@ async function run(h, now = new Date()) {
   if (!opts.length && ruled) { h.status = "stuck"; line(h, "host", `Every option is outside your own limits (${{ place: "the courts are farther than your distance limit", price: "the courts cost more than your price limit", time: "no time in your windows", busy: "you already have a game at those times" }[ruled] || ruled}). ${ruled === "busy" ? "Your games are under Your games on the home page." : "Widen your limits, or ask a club nearer you."}`, { who: hostName }); return save(); }
   if (!opts.length) { h.status = "stuck"; line(h, "host", h.when && !h.pin ? "No court time fits the days and times you asked for, at least three hours from now." : h.pin ? `${when(h.pin)} doesn't work: it's too soon, or you already play then.` : "There's no time left that I haven't already tried this week.", { who: hostName }); return save(); }
   const game = (id, o) => ({ date: o.date, start: o.start, km: kmFor(id, o.place), each: o.each, busy: o.busy });
-  const hard = Object.fromEntries(everyone.map((id) => { const b = busyOf(id, h.id, fillAt); return [id, opts.map((o) => (b.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3) ? "busy" : T.hardNo(taste[id], game(id, o))))]; }));
+  const hard = Object.fromEntries(everyone.map((id) => { const b = busyOf(id, h.id, fillAt); return [id, opts.map((o) => (b.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3) ? "busy" : T.hardNo(taste[id], { ...game(id, o), each: o.best ?? o.each })))]; }));
   const U = Object.fromEntries(everyone.map((id) => [id, opts.map((o, k) => (hard[id][k] ? -1 : T.worth(taste[id], game(id, o))))]));
   // with a show-up gate, among those who said yes the reliable come first (someone new counts as middling)
   const pickScore = (id, k) => U[id][k] + (h.gate?.minShow ? 0.2 * (Tr.badge(id).show.rate ?? 0.6) : 0);
@@ -230,7 +232,7 @@ async function run(h, now = new Date()) {
   if (!agreed && direct.length && short.length) agreed = { k: short[0], players: [host] };
   // a time the host picked themself: the agents' guesses don't block it; the best-suited people are asked directly
   if (!agreed && h.pin && short.length) {
-    const k0 = short[0], ask = others.filter((id) => !hard[id][k0]).sort((a, b) => U[b][k0] - U[a][k0]);
+    const k0 = short[0], ask = [...others, ...direct].filter((id) => !hard[id][k0]).sort((a, b) => ((h.picked || []).includes(b) - (h.picked || []).includes(a)) || U[b][k0] - U[a][k0]);
     if (ask.length) { agreed = { k: k0, players: [host, ...ask.slice(0, want)], alternates: ask.slice(want), asked: true }; line(h, "host", `The agents weren't sure ${when(opts[k0])} suits their people, so ${names(ask.slice(0, want).map(first))} ${ask.slice(0, want).length > 1 ? "are" : "is"} asked directly.`, { who: hostName }); }
   }
   { const nos = h.talk.filter((l) => l.yes === false).map((l) => l.why); if (nos.filter((w) => w === "place").length >= 2) N.saw("too_far", h.id); if (nos.filter((w) => w === "price").length >= 2) N.saw("too_dear", h.id); }
@@ -242,7 +244,7 @@ async function run(h, now = new Date()) {
   // for the people asked directly, what their agent would have said: a right guess counts for the agent (trust.js)
   h.shadow = Object.fromEntries(direct.map((id) => [id, U[id][agreed.k] >= bar(id, 0)]));
   // spots the agents couldn't fill go to the people asked directly, best-suited first
-  const extra = direct.sort((a, b) => U[b][agreed.k] - U[a][agreed.k]).slice(0, Math.max(0, h.need - agreed.players.length));
+  const extra = direct.filter((id) => !agreed.players.includes(id)).sort((a, b) => ((h.picked || []).includes(b) - (h.picked || []).includes(a)) || U[b][agreed.k] - U[a][agreed.k]).slice(0, Math.max(0, h.need - agreed.players.length));
   if (extra.length) { agreed.players = [...agreed.players, ...extra]; line(h, "host", `Asking ${names(extra.map(first))} directly, without an agent's yes.`, { who: hostName }); }
   let deal = { each: 0, price: 0 };
   if (o.place.kind === "venue" && h.fill) deal = { each: P.find(h.fill)?.invite.each ?? 0, price: 0, list: 0, off: 0, sample: false };
@@ -268,7 +270,7 @@ async function run(h, now = new Date()) {
   if (!hostOk) { line(h, "host", h.hostYes ? `It isn't one of ${hostName}'s usual times, so ${hostName} is asked too.` : `${hostName} is asked for a yes too.`, { who: hostName }); P.notify(host, "huddle", h.hostYes ? `The agents agreed ${h.sport} ${when(o)} at ${o.place.name}, not one of your usual times. Yes?` : `The agents agreed ${h.sport} ${when(o)} at ${o.place.name} for the game you asked for. Yes?`, { huddle: h.id }); }
   h.askedOf = Object.fromEntries(agreed.players.map((id) => [id, now.getTime()]));
   // fewer than asked for: said as the best time so far, with what's still missing and how to fill it
-  const short_ = h.need - agreed.players.length, price = deal.each ? `, ${D.CURRENCY}${deal.each} each` : ", a free court";
+  const short_ = h.need - agreed.players.length, price = deal.each ? `, ${D.CURRENCY}${deal.each} each` : h.fill ? "" : ", a free court";
   line(h, "host", short_ > 0 && !h.fill
     ? `Best time so far: ${when(o)} at ${o.place.name}${price}. Only ${agreed.players.length} of the ${h.need} players fit it: asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes. Once they say yes it's posted with ${short_} open spot${short_ > 1 ? "s" : ""} for others to join; or ask for fewer players.`
     : `Agreed: ${when(o)} at ${o.place.name}${price}. Asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes.`, { who: hostName, agreed: short_ <= 0 || !!h.fill });
@@ -279,6 +281,12 @@ async function run(h, now = new Date()) {
 // ---- 5. one yes from each player ----
 export async function reply(me, id, yes, why = null, { now = new Date(), wait = false, byAgent = false } = {}) {
   const h = find(id);
+  // someone who gave up their spot can take it back while the game still has room (and they aren't busy then)
+  if (h && yes && !h.players.includes(me) && h.invited.includes(me) && h.status === "asking" && h.pick && h.players.length < h.need && !busyOf(me, h.id).some((t) => Math.abs(t - startMs(h.pick)) < 3 * 3600e3)) {
+    h.players.push(me); h.out = h.out.filter((x) => x !== me); (h.askedOf ||= {})[me] = now.getTime();
+    { const home = T.get(me).home; h.pick.km[me] = home && h.pick.at ? +T.km(home, h.pick.at).toFixed(1) : null; }
+    line(h, me, `${first(me)} is back in.`, { who: first(me) });
+  }
   if (!h || !h.players.includes(me)) return { error: "That game isn't one you're in.", code: 404 };
   if (h.status !== "asking") return { error: { talking: "The agents are still talking: answer once they agree.", on: "It's settled: the game is on.", stuck: "The agents couldn't settle this one.", cancelled: "It was called off." }[h.status] || "It's settled.", code: 409 };
   const o = h.pick, mine = { date: o.date, start: o.start, km: o.km[me] ?? 3, each: o.each, busy: o.busy };
@@ -322,6 +330,13 @@ async function drop(h, me, why, now = new Date(), wait = false) {
     save();
     return { replaced: first(next) };
   }
+  // nobody spare, but the rest are still in: the game stands with an open spot (posted for others once they all say yes)
+  if (h.players.length >= 2) {
+    line(h, "host", `No other agent had said yes to that time, so ${nm}'s spot stays open: everyone else's yes stands, and once the rest say yes the game is ${h.fill ? "on in your post" : "posted"} with the spot open for others to join.`, { who: first(h.host) });
+    if (h.players.every((x) => h.answers[x] === "yes")) await book(h);
+    save();
+    return { open: 1 };
+  }
   h.tries++;
   if (h.tries > TRIES) {
     h.status = "stuck";
@@ -331,7 +346,7 @@ async function drop(h, me, why, now = new Date(), wait = false) {
     return {};
   }
   h.status = "talking"; h.answers = { [h.host]: "yes" }; h.players = []; delete h.pick;
-  line(h, "host", `Nobody else had said yes to that time. Looking again, with what ${nm}'s agent just learned.`, { who: first(h.host) });
+  line(h, "host", `Nobody else is left in that time, so the agents look for a new one, with what ${nm}'s agent just learned; everyone is asked again.`, { who: first(h.host) });
   save();
   const job = run(h, now).catch((e) => { console.error("huddle run", e.stack); h.status = "stuck"; line(h, "agent", "Something went wrong on Serve's side, so this game is stuck. Start it again in a minute."); save(); });
   if (wait) await job;
@@ -431,10 +446,10 @@ export const mineFor = (me) => data().huddles.filter((h) => h.host === me || h.p
 function reasons(t, g) {
   const f = T.fits(t, g), out = [];
   if (f.time >= 0.7) out.push(`one of your good times (${T.cellWords(T.cellOf(g.date, g.start))})`);
-  if (g.km <= Math.max(1.5, t.maxKm * 0.4)) out.push(`close: ${g.km < 1 ? `${Math.round(g.km * 1000)} m` : `${g.km} km`}`);
+  if (g.km != null && g.km > 0 && g.km <= Math.max(1.5, t.maxKm * 0.4)) out.push(`close: ${g.km < 1 ? `${Math.round(g.km * 1000)} m` : `${g.km} km`}`);
   if (g.busy <= 0.35) out.push("usually quiet then");
   if (g.each === 0) out.push("free court");
-  return out.length ? out : [`${g.km} km away`];
+  return out.length ? out : [g.km != null ? `${g.km} km away` : "near your clubs"];
 }
 const dateFor = (day, now) => { if (/^\d{4}-/.test(day)) return day; const d = new Date(now); for (let i = 0; i < 7; i++) { if (T.DAYS[d.getDay()] === day) return T.ymd(d); d.setDate(d.getDate() + 1); } return T.ymd(now); };
 // games near the member, posted by others, that still have room, best for them first

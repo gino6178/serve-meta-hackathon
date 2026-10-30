@@ -56,8 +56,13 @@ export async function placesNear(at, sport = "badminton", { venues = 3, courts =
 
 // how full a place usually is at a time, 0..1: the kind of place's typical week, this place's own lean, and the games
 // on Serve already there then (games: [{ at: {lat, lon}, day, start }])
+// A game runs about 90 minutes, so it is as full as the busiest part of that time (16:30 runs into the evening rush)
 export function busy(place, date, start, games = []) {
-  const d = dateOf(date), wk = d.getDay() === 0 || d.getDay() === 6, h = hourOf(start);
+  const h = hourOf(start);
+  return Math.max(busyAt(place, date, h, games), busyAt(place, date, Math.min(23.9, h + 1.4), games));
+}
+function busyAt(place, date, h, games) {
+  const d = dateOf(date), wk = d.getDay() === 0 || d.getDay() === 6;
   let b;
   if (wk) b = h < 8 ? 0.3 : h < 12 ? 0.8 : h < 17 ? 0.6 : h < 21 ? 0.5 : 0.25;
   else b = h < 7 ? 0.25 : h < 9 ? 0.45 : h < 12 ? 0.2 : h < 14 ? 0.4 : h < 17 ? 0.2 : h < 21 ? 0.85 : 0.5;
@@ -84,6 +89,13 @@ export function terms(place, date, start, { minutes = 90, weekly = false, games 
   return { list, busy: b, floor: Math.min(list, floor) };
 }
 // a quick estimate of the price per person a group would end up paying (for ranking options before anyone talks)
+// the least the venue would take, each: what a price limit is checked against before the talk (the talk's own result is
+// checked again after it), so a court the haggle would bring under the limit isn't ruled out on its list price
+export function bestEach(place, date, start, players, opts = {}) {
+  if (place.kind !== "venue") return 0;
+  const t = terms(place, date, start, opts), courts = Math.max(1, Math.ceil(players / (PER_COURT[place.sport] || 4)));
+  return Math.round((t.floor * courts) / players);
+}
 export function guessEach(place, date, start, players, opts = {}) {
   if (place.kind !== "venue") return 0;
   const t = terms(place, date, start, opts), courts = Math.max(1, Math.ceil(players / (PER_COURT[place.sport] || 4)));

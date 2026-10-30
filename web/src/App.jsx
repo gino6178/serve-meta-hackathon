@@ -53,9 +53,12 @@ const MORE = [
   { k: "messages", label: "Serve in Messenger", note: "Your agent, in your chats", icon: "chat" },
   { k: "about", label: "About Serve", note: "Why it exists, how it works", icon: "info" },
 ];
+// pages that show the demo player's own made-up week (their streak, body log, plan, chats): a member doesn't get them,
+// and "Courts near you" is their own Courts & prices
+const DEMO_ONLY = ["chats", "autopilot", "goals", "body"];
 const memberNow = () => { try { return !!localStorage.getItem(SESSION_KEY) && !import.meta.env.VITE_AGENT_TOKEN; } catch { return false; } };
 // a signed-in member's "You" is how they play and their records (Huddle), not the demo player's page
-const href = (k) => (k === "you" && memberNow() ? "#/huddle?tab=taste" : `#/${k === "home" ? "" : k}`);
+const href = (k) => (k === "you" && memberNow() ? "#/huddle?tab=taste" : k === "courts" && memberNow() ? "#/huddle?tab=courts" : `#/${k === "home" ? "" : k}`);
 const THEME = "serve.theme";
 
 // a menu that closes on Escape, on a click outside it and on navigation
@@ -107,7 +110,7 @@ function Shell({ page, club }) {
             </button>
             {more && (
               <div className="more-pop" role="menu">
-                {MORE.map((it) => <a key={it.k} role="menuitem" href={href(it.k)} aria-current={cur(it)}><Icon name={it.icon} /><span><b>{it.label}</b><em>{it.note}</em></span></a>)}
+                {MORE.filter((it) => !(memberNow() && DEMO_ONLY.includes(it.k))).map((it) => <a key={it.k} role="menuitem" href={href(it.k)} aria-current={cur(it)}><Icon name={it.icon} /><span><b>{it.label}</b><em>{it.note}</em></span></a>)}
                 <div className="more-theme" role="group" aria-label="Theme">
                   <span><Icon name="sun" size={18} />Theme</span>
                   <div className="seg sm" role="radiogroup" aria-label="Theme">
@@ -199,7 +202,7 @@ export default function App() {
   // the public build (no gateway token in it): every page but joining and a shared game's link needs a signed-in member, each with an agent of
   // their own on the server (agent tenants/proxy.js)
   const signedOut = !import.meta.env.VITE_AGENT_TOKEN && !(() => { try { return localStorage.getItem(SESSION_KEY); } catch { return null; } })();
-  const show = signedOut && !["join", "about", "invite"].includes(page) ? PAGES.join : PAGES[page] || PAGES.home;
+  const show = signedOut && !["join", "about", "invite"].includes(page) ? PAGES.join : memberNow() && DEMO_ONLY.includes(page) ? PAGES.huddle : memberNow() && page === "courts" ? PAGES.huddle : PAGES[page] || PAGES.home;
   return (
     <>
       <Shell page={page} club={club} />

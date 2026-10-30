@@ -199,7 +199,9 @@ function badInput(r, b) {
   if ((r === "/huddle/reply" || r === "/huddle/game") && typeof b.yes !== "boolean") return "yes is true or false.";
   if ((r === "/huddle/reply" || r === "/huddle/game") && b.yes === false && b.why != null && !REASONS.includes(String(b.why))) return `why is one of: ${REASONS.join(", ")}.`;
   if (r === "/huddle/start") {
-    if (b.need !== undefined && !isNum(b.need)) return "need is a number of players.";
+    if (b.need !== undefined && !(isNum(b.need) && Number.isInteger(+b.need))) return "need is a whole number of players (you included).";
+    for (const k of ["nearby", "hostYes"]) if (b[k] !== undefined && typeof b[k] !== "boolean") return `${k} is true or false.`;
+    if (b.invite !== undefined && !Array.isArray(b.invite)) return "invite is a list of member ids.";
     if (b.gate?.minShow !== undefined && !(isNum(b.gate.minShow) && +b.gate.minShow >= 0 && +b.gate.minShow <= 1)) return "gate.minShow is from 0 to 1 (0.75 is 75%).";
     if (b.sport !== undefined && !T.SPORTS.includes(String(b.sport).toLowerCase())) return `sport is one of: ${T.SPORTS.join(", ")}.`;
   }
@@ -248,7 +250,7 @@ async function huddle(req, res, p, q, me, send, given = null) {
       // the quietest hours shown are ones the member can play at, when they set time windows
       const okTime = (g) => !t.windows?.length || !T.hardNo({ ...t, limitKm: null, limitEach: null, busyAt: [], declined: [] }, { ...g, km: null, each: 0 });
       const qt = { grid: qt0.grid, quiet: qt0.quiet.filter(okTime).slice(0, 3) };
-      const good = qt.grid.filter((g) => !T.hardNo(t, { ...g, km: k, each: x.kind === "venue" ? D.guessEach(x, g.date, g.start, 4) : 0 })).map((g) => ({ ...g, s: T.worth(t, { ...g, km: k, each: 0 }) + (1 - g.busy) })).sort((a1, b1) => b1.s - a1.s)[0];
+      const good = qt.grid.filter((g) => !T.hardNo(t, { ...g, km: k, each: x.kind === "venue" ? D.bestEach(x, g.date, g.start, 4) : 0 })).map((g) => ({ ...g, s: T.worth(t, { ...g, km: k, each: 0 }) + (1 - g.busy) })).sort((a1, b1) => b1.s - a1.s)[0];
       return { id: x.id, name: x.name, kind: x.kind, indoor: x.kind === "venue", km: k, lat: x.lat, lon: x.lon, quiet: qt.quiet, grid: qt.grid, ...(x.kind === "venue" ? { list: x.list, sample: true, offer: good && (() => { const o = D.talk(x, { date: good.date, start: good.start, players: 4, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }); return t.limitEach != null && o.each > t.limitEach ? { ...o, overLimit: true } : o; })(), at: good } : {}) };
     }) });
   }

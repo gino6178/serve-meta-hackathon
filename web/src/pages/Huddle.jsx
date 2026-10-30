@@ -139,7 +139,7 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
   return (
     <form className="panel hd-ask" onSubmit={go}>
       <h2 className="h3">Get a game together</h2>
-      {pin && <p className="hd-pin"><Icon name="clock" size={16} />At the time you picked: {pin.date} {pin.start}</p>}
+      {pin && <p className="hd-pin"><Icon name="clock" size={16} />At the time you picked: {new Date(`${pin.date}T12:00`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" })}, {pin.start}</p>}
       <div className="hd-row">
         <label>Sport<select value={sport} onChange={(e) => setSport(e.target.value)}>{H.SPORTS.map((s) => <option key={s}>{s}</option>)}</select></label>
         <label>Players, you included
@@ -285,7 +285,7 @@ function Place({ p, sport }) {
       <p className="hd-quiet">Quietest: {p.quiet.map((q) => `${DAYS[dayOf(q.date).getDay()]} ${q.start} (${pct(q.busy)})`).join(", ")}</p>
       {o && (
         <div className="hd-offer">
-          <p><b>{o.off ? `NT$${o.price} instead of NT$${o.list}` : `NT$${o.list}, the list price`}</b> for a court for 90 minutes, {DAYS[dayOf(p.at.date).getDay()]} {p.at.start} ({pct(o.busy)} full usually){o.each ? `, NT$${o.each} each for 4` : ""}. List NT${p.list} an hour.</p>
+          <p><b>{o.off ? `NT$${o.price} instead of NT$${o.list}` : `NT$${o.list}, the list price`}</b> for a court for 90 minutes, {DAYS[dayOf(p.at.date).getDay()]} {p.at.start} ({pct(o.busy)} full usually){o.each ? `, NT$${o.each} each for 4` : ""}. List NT${p.list} an hour. An offer for now: for a game, your agent asks the venue again with that game's players, so the price can move a little.</p>
           <div className="cta-row">
             <a className="btn primary sm" href={`#/huddle?sport=${encodeURIComponent(sport)}&date=${p.at.date}&start=${p.at.start}&place=${encodeURIComponent(p.id)}`}>Get a game then</a>
             <button className="btn ghost sm" onClick={() => setShow(!show)}>{show ? "Hide the talk" : "How the agents got there"}</button>
