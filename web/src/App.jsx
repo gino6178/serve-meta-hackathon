@@ -154,7 +154,7 @@ function GameOn() {
   return (
     <div className="toast checkback gameon" role="status">
       <span className="agent-dot" aria-hidden="true" />
-      <span>{n.kind === "gameon" ? <b>Game on </b> : n.kind === "moved-up" ? <b>You're in </b> : n.kind === "nudge" ? <b>Your agent found a game </b> : n.kind === "huddle" ? <b>Your agent </b> : null}{n.text.replace(/^Game on: /, "")}</span>
+      <span>{n.kind === "gameon" ? <b>Game on </b> : n.kind === "moved-up" ? <b>A spot for you </b> : n.kind === "nudge" ? <b>Your agent found a game </b> : n.kind === "huddle" ? <b>Your agent </b> : null}{n.text.replace(/^Game on: /, "")}</span>
       {(n.huddle || n.nudge || n.post) && <a className="btn sm primary" href={n.huddle ? `#/huddle?id=${n.huddle}` : n.nudge ? "#/" : "#/club"} onClick={() => setNotes((x) => x.slice(1))}>Open</a>}
       <button className="icon-btn sm" aria-label="Dismiss" onClick={() => setNotes((x) => x.slice(1))}><Icon name="close" size={16} /></button>
     </div>
