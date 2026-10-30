@@ -62,7 +62,7 @@ A100 with the same Muse Glimmer build as our RTX 3090, and the report says which
 
 **How to watch or try it**
 - Try it live: https://play.theminimallab.com (a demo sign-in, no Facebook account needed).
-- Watch the demo video: [VIDEO LINK].
+- Watch the demo video (2:42): [Serve_Meta_demo.mp4](https://github.com/gino6178/serve-meta-hackathon/raw/main/docs/media/Serve_Meta_demo.mp4).
 - Read the technical report: [submission/technical_report.md](submission/technical_report.md).
 - Code: https://github.com/gino6178/serve-meta-hackathon
 - Run it yourself: `cd agent && npm install && npm test` runs 275 offline tests with no model or GPU (on a

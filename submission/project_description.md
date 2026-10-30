@@ -377,4 +377,6 @@ Indie Developer track, one member.
 
 ## Where to find it
 
+- Demo video (2:42): https://github.com/gino6178/serve-meta-hackathon/raw/main/docs/media/Serve_Meta_demo.mp4
+- Live site: https://play.theminimallab.com
 - Code: https://github.com/gino6178/serve-meta-hackathon

@@ -2,6 +2,8 @@
 
 **Meta Global AI Developer Hackathon 2026 · Technical architecture and report** · Indie Developer track · Build for Your World
 
+**Demo video (2:42):** https://github.com/gino6178/serve-meta-hackathon/raw/main/docs/media/Serve_Meta_demo.mp4 · **Live site:** https://play.theminimallab.com · **Code:** https://github.com/gino6178/serve-meta-hackathon
+
 ## 1. Impact
 
 Most people who stop playing a sport have not lost interest; they are worn down by the friction of organising a
