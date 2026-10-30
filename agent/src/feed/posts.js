@@ -1,9 +1,10 @@
 // People in the club feed: their own posts (text, or a photo with a caption), comments, likes and reports, and the
 // feed as one member sees it.
-//   Before anything a person writes is shown, code checks it (text.js: no contact details, nothing about another
-//   member's health or private life) and Llama Guard 3 reads it. A flagged one is not kept, and the author is told why
-//   in plain words; words of self-harm get the helpline instead. When the guard does not answer, the post waits,
-//   seen only by its author, and is checked again every few minutes (retryHeld); nothing is shown unchecked.
+//   Before anything a person writes is shown, Prompt Guard 2 reads it (an instruction to the agents), code checks it
+//   (text.js: no contact details, nothing about another member's health or private life) and Llama Guard 3 reads it.
+//   A flagged one is not kept, and the author is told why in plain words; words of self-harm get the helpline instead.
+//   When a guard does not answer, the post waits, seen only by its author, and is checked again every few minutes
+//   (retryHeld); nothing is shown unchecked.
 //   Rate limits per member (RATES), a report button (three different members' reports hide an item until the
 //   maintainer looks), "Not for me" on a post, and /forget (forget) deletes the member's posts, comments, likes, reports
 //   and drafts, with their photos and clips.
@@ -41,11 +42,25 @@ const othersNames = () => [...(deps.club().members || []).map((m) => m.name), ..
 // Llama Guard's categories that keep a person's text out of the feed: what stops a message to the agent, and also
 // defamation (S5) and privacy (S7). (S6, specialized advice, is for what models write; a member may say their knee hurts.)
 export const BLOCK_POST = [...guardRules.BLOCK_IN, "S5", "S7"];
-// the checks on a person's text: { ok } | { refused, why } | { helpline } | { down } (a check did not answer).
-// Code first, then Llama Guard 3 (its hazard categories), then the club's own standard, read by Muse Glimmer: Llama
-// Guard 3 1B lets most harassment through (veiled threats, insults, demeaning a group, asking someone for photos;
-// test/feed_redteam.mjs), which a club feed must not show. Either model not answering: the text waits.
+// what Prompt Guard reads beside the text: the text folded back to plain letters (NFKC, lookalike letters from other
+// scripts, zero-width marks, letters spaced or dotted apart), so a rewrite that only changes how it looks reads the
+// same (test/feed_unit.mjs, the adaptive red team)
+const LOOK = { "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x", "і": "i", "ј": "j", "ѕ": "s", "ԁ": "d", "һ": "h", "ӏ": "l", "ɡ": "g", "ο": "o", "ν": "v", "ι": "i", "Α": "A", "В": "B", "С": "C", "Е": "E", "Н": "H", "І": "I", "К": "K", "М": "M", "О": "O", "Р": "P", "Т": "T", "Х": "X", "Υ": "Y", "Ζ": "Z", "Ѕ": "S" };
+export function folded(text) {
+  const s = String(text).normalize("NFKC").replace(/[​-‍⁠﻿­]/g, "").replace(/[^\x00-\x7f]/g, (c) => LOOK[c] ?? c);
+  // (a run keeps one separator, so "i  g  n  o  r  e y  o  u  r" folds to "ignore your"; letters set one space apart
+  // with words one space apart run together, which is the guard's to read)
+  return s.replace(/(?<!\p{L})\p{L}([\s.\-_*·]{1,2})(?:\p{L}\1){1,}\p{L}(?!\p{L})/gu, (m, sep) => m.split(sep).join("")).replace(/(?<=\p{L})[\-_*·]+(?=\p{L})/gu, "");
+}
+// the checks on a person's text (and an outside agent's, through the agent channel): { ok } | { refused, why } |
+// { helpline } | { down } (a check did not answer). Prompt Guard 2 first (text that instructs the agents that read the
+// feed), then code, then Llama Guard 3 (its hazard categories), then the club's own standard, read by Muse Glimmer:
+// Llama Guard 3 1B lets most harassment through (veiled threats, insults, demeaning a group, asking someone for
+// photos; test/feed_redteam.mjs), which a club feed must not show. Any model not answering: the text waits.
 export async function moderate(text, player) {
+  const plain = folded(text), pg = await deps.injected(plain === text ? [text] : [text, plain], { site: "feed.person" });
+  if ((pg || []).some((x) => x?.injected === true)) return { refused: true, why: "Not posted: it is written to instruct the app's agents.", check: "prompt-guard" };
+  if (!pg?.length || pg.some((x) => x?.injected == null)) return { down: true };
   for (const b of T.personProblems(text, { author: authorOf(player), names: othersNames() })) return { refused: true, why: `Not posted: ${b.why}`, code: b.code, check: "code" };
   const g = await deps.screen([{ role: "user", content: text }], { site: "feed.person", timeoutMs: +(process.env.GUARD_OUT_TIMEOUT_MS || 8000) });
   const stop = guardRules.stopsIn(g, text);
