@@ -8,6 +8,7 @@
 //     hours does not, a withheld time is not learned as a no, and the decision fits the A2A schema with `withheld`
 //   - a band (match/likely.js) is refused once the hours it covers are over the budget
 //   - the counts about a member's agent fade (half every 14 days) and go; coarse keys by part of the day
+//   - a fact A tells B never reaches C: what B heard from A changes nothing B's agent tells C
 import { test, after } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -142,4 +143,34 @@ test("what your agent keeps about a member's agent fades, and can be coarse", as
   await a2a.negotiate({ me, members: [m], venues, format: "singles", sport: "badminton", minutes: 90, now: new Date(T0 + 7 * D), calendars: "private" });
   assert.deepEqual(Object.keys(a2a.memoryOf("fm1", T0 + 7 * D).yes), ["Wed evening"]);
   delete process.env.A2A_MEMORY_GRAIN;
+});
+
+// A fact A's agent tells B's agent stays with B: B's agent learns Ann's hours in a talk, then Cal's agent asks B's
+// agent (Bea as the member) for a game, and nothing Bea's agent tells Cal carries Ann: not her name or id, and every
+// reply is the same as when B never talked to Ann (the answers come from Bea's own week, never from what B heard).
+test("a fact A tells B never reaches C", { timeout: 60000 }, async () => {
+  const venues = helpers.readVenues(), area = { x: 3, y: 5 };
+  const ann = { id: "ann1", name: "Ann Early", area, free: ["Sun 08-10"], rules: {}, rulesComplete: true, sports: ["badminton"] };
+  const bea = { id: "bea1", name: "Bea Between", area, free: ["Sun 07-10"], rules: {}, rulesComplete: true, sports: ["badminton"] };
+  const cal = { id: "cal1", name: "Cal Curious", area, free: ["Sun 07-10"] };
+  const calAsks = async () => {
+    const said = [], heard = [];
+    await a2a.negotiate({ me: cal, members: [bea], venues, format: "singles", sport: "badminton", minutes: 90, now: new Date(T0 + D), calendars: "private", say: (m) => said.push(m), heard: (e) => heard.push(e) });
+    return { said: said.filter((m) => m.from === bea.id).map(({ from, intent, when, text, withheld }) => ({ from, intent, when, text, withheld })), heard: heard.map(({ round, cur, offered, ...e }) => e) };
+  };
+  // without Ann: what Cal hears from Bea's agent
+  a2a.forgetMemory(); disclosure.useLedger(disclosure.createLedger(null));
+  const base = await calAsks();
+  // with Ann: Bea's side talks to Ann's agent first, and learns her Sunday hours
+  a2a.forgetMemory(); disclosure.useLedger(disclosure.createLedger(null));
+  const r = await a2a.negotiate({ me: { ...bea, id: "you" }, members: [ann], venues, format: "singles", sport: "badminton", minutes: 90, now: new Date(T0), calendars: "private" });
+  assert.ok(r.agreed, r.reason);
+  const knew = a2a.memoryOf("ann1", T0) || {};
+  assert.ok(Object.keys(knew.no || {}).includes("Sun 07:00") && Object.keys({ ...knew.yes, ...knew.asked }).some((k) => k.startsWith("Sun 08")), `B learned Ann's Sunday: ${JSON.stringify(knew)}`);
+  const after = await calAsks();
+  assert.ok(after.said.length, "Bea's agent answered Cal");
+  const text = JSON.stringify(after);
+  assert.ok(!/ann1|Ann|Early/.test(text), `Ann reached Cal: ${text.slice(0, 200)}`);
+  assert.ok(after.said.every((m) => m.intent !== "none") && after.said.some((m) => m.intent !== "decline"), `Bea's agent decided: ${text}`);
+  assert.deepEqual(after, base, "Cal hears the same with or without what B learned from Ann");
 });
