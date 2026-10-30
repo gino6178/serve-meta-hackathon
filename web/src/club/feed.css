@@ -223,3 +223,4 @@
   .fd-invite { grid-template-columns: 64px minmax(0, 1fr); }
   .fd-invite > .fd-inv-mine, .fd-invite > .task-state, .fd-invite > button { grid-column: 1 / -1; justify-content: flex-start; }
 }
+.fd-inv-link.bad { color: var(--bad); font-weight: 600; }

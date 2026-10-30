@@ -88,7 +88,7 @@ export async function route(req, res, u, { json, o, forget }) {
   }
   if (p.startsWith("/api/agent-channel/")) return channel(req, res, p, send);
   // the trust chain, for anyone to check (trust.js): its entries (pseudonymous), the signed daily heads, and a replay
-  if (p === "/api/trust/chain" && req.method === "GET" && ["after", "n"].some((k) => u.searchParams.get(k) != null && !Number.isInteger(+u.searchParams.get(k)))) return send(400, { error: "after and n are whole numbers." });
+  if (p === "/api/trust/chain" && req.method === "GET" && [["after", -1], ["n", 1]].some(([k, min]) => u.searchParams.get(k) != null && !(Number.isInteger(+u.searchParams.get(k)) && +u.searchParams.get(k) >= min))) return send(400, { error: "after and n are whole numbers." });
   if (p === "/api/trust/chain" && req.method === "GET") return send(200, { ...Tr.publicChain({ after: +(u.searchParams.get("after") ?? -1), n: +(u.searchParams.get("n") || 500) }), today: await Tr.head() });
   if (p === "/api/trust/verify" && req.method === "GET") return send(200, { ...Tr.verify(), head: await Tr.head() });
 

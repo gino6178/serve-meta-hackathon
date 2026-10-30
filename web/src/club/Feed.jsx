@@ -218,7 +218,7 @@ function DraftCard({ d, onDone, say }) {
 // an invite anyone can join: the game, who is in, and the spots left (the poster's agent says so in the comments)
 function InviteBox({ p, patch, say }) {
   const v = p.invite, [busy, setBusy] = useState(false), [shown, setShown] = useState(""); // shown: what sharing did, on the card
-  const join = async (on) => { setBusy(true); try { const r = await feedApi.join(p.id, on); patch(() => r.post); } catch (e) { say(e.message); } setBusy(false); };
+  const join = async (on) => { setBusy(true); setShown(""); try { const r = await feedApi.join(p.id, on); patch(() => r.post); } catch (e) { say(e.message); setShown(`! ${e.message}`); } setBusy(false); };
   const share = async () => { const r = await shareInvite(p.id, `${cap(v.sport)} ${v.day} ${v.start}: join me on Serve`); const note = r === "copied" ? "Link copied. Anyone can open it, also without an account." : r === "shared" ? "Shared." : r?.startsWith("link:") ? r.slice(5) : ""; if (note) { say(r?.startsWith("link:") ? `Copy this link to share it: ${note}` : note); setShown(r?.startsWith("link:") ? `link:${note}` : note); } };
   return (
     <div className="fd-invite">
@@ -233,7 +233,7 @@ function InviteBox({ p, patch, say }) {
         : v.waiting ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>On the waitlist · leave</button> : <span className="fd-inv-mine"><button className="btn primary sm" disabled={busy} onClick={() => join(true)}>{v.full ? "Join the waitlist" : "Join"}</button><button className="btn ghost sm" onClick={share} aria-label="Share this game"><Icon name="share" size={14} /></button></span>}
       {shown && (shown.startsWith("link:")
         ? <label className="fd-inv-link tiny">Copy this link to share it<input readOnly value={shown.slice(5)} onFocus={(e) => e.target.select()} /></label>
-        : <p className="fd-inv-link tiny" role="status">{shown}</p>)}
+        : <p className={`fd-inv-link tiny${shown.startsWith("! ") ? " bad" : ""}`} role={shown.startsWith("! ") ? "alert" : "status"}>{shown.replace(/^! /, "")}</p>)}
     </div>
   );
 }

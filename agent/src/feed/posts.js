@@ -113,6 +113,7 @@ export function inviteOf(x) {
   const sport = String(x.sport || "").toLowerCase(), day = String(x.day || ""), start = String(x.start || ""), where = T.tidy(x.where, 60), spots = Math.round(+x.spots);
   if (!SPORTS.includes(sport)) return { error: `The sport must be one of: ${SPORTS.join(", ")}.` };
   if (!/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun|\d{4}-\d{2}-\d{2})$/.test(day) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(start)) return { error: "Say the day (Mon to Sun, or a date) and the time (HH:MM)." };
+  if (/^\d{4}-/.test(day) && localDay(new Date(`${day}T12:00`).getTime()) !== day) return { error: "That date doesn't exist: use YYYY-MM-DD." };
   if (/^\d{4}-/.test(day) && day < localDay(deps.now())) return { error: "That date has passed: pick today or a later day." };
   if (!where) return { error: "Say where you'll play." };
   if (!(spots >= 1 && spots <= 12)) return { error: "Between 1 and 12 spots." };
@@ -125,7 +126,7 @@ export function inviteOf(x) {
   if (weeks && !/^\d{4}-/.test(day)) return { error: "A weekly game needs its first date (YYYY-MM-DD)." };
   return { invite: { sport, day, start, where, spots, ...(at ? { at } : {}), ...(gate && (gate.minShow || gate.agentMin) ? { gate } : {}), ...(each != null && each >= 0 && each <= 5000 ? { each } : {}), ...(weeks > 0 ? { repeat: { weekly: Math.min(8, weeks) } } : {}), going: [] } };
 }
-export async function post(player, { text = "", media = null, invite = null, agent = null, room = null } = {}) {
+export async function post(player, { text = "", media = null, invite = null, agent = null, room = null, fromHuddle = null } = {}) {
   const t = T.tidy(text, 600);
   // a post in a club members started (members/clubs.js): clubs are open, so posting there joins it (a member's agent
   // posts for its member)
@@ -146,6 +147,9 @@ export async function post(player, { text = "", media = null, invite = null, age
   // a game that overlaps one the person already hosts or plays in (games run about 90 minutes): not both, as for joining
   const owner = agent?.owner || player, at0 = iv.invite ? startOf(iv.invite) : null;
   const overlap = at0 ? S.data().posts.find((q) => q.kind === "invite" && q.invite && !q.hidden && ((q.by.player || q.by.agentOf) === owner || q.invite.going.includes(owner)) && Math.abs(startOf(q.invite) - at0) < 90 * 60e3) : null;
+  // (a game the agents agreed counts too, except the one this post is the result of)
+  const agreed = at0 ? huddleBusy(owner, null).find((x) => x.huddle !== fromHuddle && Math.abs(x.at - at0) < 90 * 60e3) : null;
+  if (agreed) return { error: `That overlaps ${agreed.what}. Pick another time, or answer no there first.`, code: 409, clash: agreed.huddle };
   if (overlap) return { error: `That overlaps ${overlap.invite.sport} ${dayWords(overlap.invite.day)} ${overlap.invite.start} at ${overlap.invite.where}, already in your games. Pick another time, or call that one off first.`, code: 409, clash: overlap.id };
   const m = await screenPost([t, iv.invite?.where].filter(Boolean).join("\n"), photo, player);
   if (m.refused || m.helpline) { if (photo) dropUpload(player, photo.id); return { refused: true, why: m.why, check: m.helpline ? "helpline" : m.check, ...(m.helpline ? { helpline: true } : {}) }; }

@@ -371,7 +371,7 @@ async function book(h) {
     line(h, "host", `Everyone said yes: they're in your game, ${when(o)} at ${o.where}.`, { who: first(h.host), agreed: true });
     return;
   }
-  const r = await P.post(h.host, { text: `Our agents agreed this one: ${o.where}${o.each ? `, ${D.CURRENCY}${o.each} each` : ""}.`, invite: { sport: h.sport, day: o.date, start: o.start, where: o.where.slice(0, 60), spots: h.need - 1, at: o.at, gate: h.gate, each: o.kind === "venue" ? o.each : 0 }, room: h.club }).catch((e) => ({ error: e.message }));
+  const r = await P.post(h.host, { fromHuddle: h.id, text: `Our agents agreed this one: ${o.where}${o.each ? `, ${D.CURRENCY}${o.each} each` : ""}.`, invite: { sport: h.sport, day: o.date, start: o.start, where: o.where.slice(0, 60), spots: h.need - 1, at: o.at, gate: h.gate, each: o.kind === "venue" ? o.each : 0 }, room: h.club }).catch((e) => ({ error: e.message }));
   h.status = "on";
   Tr.expect(r?.post?.id || h.id, h.players, startMs(o)); // after the game, the players say who came
   if (r?.post?.id) { h.post = r.post.id; for (const id of h.players) if (id !== h.host) P.join(id, h.post, true); }

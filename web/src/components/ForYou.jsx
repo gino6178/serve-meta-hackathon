@@ -17,7 +17,8 @@ export default function ForYou() {
   useEffect(() => { load(); const on = () => load(); addEventListener("serve:notices", on); return () => removeEventListener("serve:notices", on); }, []);
   useEffect(() => { if (!r?.looking) return; const t = setTimeout(load, 5000); return () => clearTimeout(t); }, [r?.looking]);
   if (!r || r.failed) return null;
-  const note = (k, line) => setSaid((s) => ({ ...s, [k]: line }));
+  // one note at a time: a newer answer replaces what an older card said (a leave after a join, say)
+  const note = (k, line) => setSaid({ [k]: line });
   const act = async (k, fn) => { setBusy(true); try { const x = await fn(); note(k, x.line || "Done."); setLast(x.line || "Done."); load(); } catch (e) { note(k, e.message); setLast(e.message); } setBusy(false); };
   const t = r.taste;
   return (
@@ -34,7 +35,7 @@ export default function ForYou() {
       {r.cards.map((c, i) => {
         if (c.kind === "huddle") { const h = c.huddle, pk = h.pick; return (
           <div key={i} className="fy-card needs"><span className="fy-kick">Needs your yes</span>
-            <p>Your agent and {h.host}'s agreed <b>{h.sport} {pk.when}</b> at {pk.where}{pk.each ? `, NT$${pk.each} each` : ", a free court"}. {h.players.filter((x) => x.answer === "yes").map((x) => x.name).join(", ")} already said yes.</p>
+            <p>Your agent and {h.host}'s proposed <b>{h.sport} {pk.when}</b> at {pk.where}{pk.each ? `, NT$${pk.each} each` : ", a free court"}. {h.players.filter((x) => x.answer === "yes").map((x) => x.name).join(", ")} already said yes.</p>
             <div className="cta-row"><button className="btn primary sm" disabled={busy} onClick={() => act(i, () => H.reply(h.id, true))}>Yes, I'm in</button>
               {WHY.slice(0, 3).map(([k, l]) => <button key={k} className="btn ghost sm" disabled={busy} onClick={() => act(i, () => H.reply(h.id, false, k))}>{l}</button>)}
               <a className="link" href={`#/huddle?id=${h.id}`}>See the talk</a></div>
@@ -42,7 +43,7 @@ export default function ForYou() {
           </div>); }
         if (c.kind === "mine") return (
           <div key={i} className="fy-card"><span className="fy-kick">Your games</span>
-            <ul className="fy-mine">{c.games.map((g) => <li key={g.post}><b>{cap(g.sport)} {g.when}</b><span>{g.where}{g.club ? ` · ${g.club}` : ""} · {g.agreed ? (g.on ? `game on, ${g.going} of you` : `agreed; ${g.going} of ${g.spots} said yes, waiting for the rest`) : g.waiting ? "you're on the waitlist" : g.mine ? `${g.going} of ${g.spots} joined` : `with ${g.host}, ${g.going} of ${g.spots} in`}</span>
+            <ul className="fy-mine">{c.games.map((g) => <li key={g.post}><b>{cap(g.sport)} {g.when}</b><span>{g.where}{g.club ? ` · ${g.club}` : ""} · {g.agreed ? (g.on ? `game on, ${g.going} of you` : `proposed; ${g.going} of ${g.spots} said yes, waiting for the rest`) : g.waiting ? "you're on the waitlist" : g.mine ? `${g.going} of ${g.spots} joined` : `with ${g.host}, ${g.going} of ${g.spots} in`}</span>
               {g.agreed ? <a className="link" href={`#/huddle?id=${g.huddle}`}>See it</a> : !g.mine && <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, false); return { line: g.waiting ? "Off the waitlist." : "You've left that game." }; })}>{g.waiting ? "Leave the waitlist" : "Can't make it"}</button>}</li>)}</ul>
             {Object.entries(said).filter(([k]) => k.startsWith("m")).map(([k, v]) => <p key={k} className="tq-said">{v}</p>)}
           </div>);
