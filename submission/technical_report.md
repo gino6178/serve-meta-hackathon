@@ -178,8 +178,7 @@ For a highlight, Serve can stop time and move the camera round the player, from 
 - **Automatic highlights.** A clip to share is cut from the player's own video with no editing by the player: DETR
   finds the people, Sapiens2 finds the moment worth sharing (a racket's fastest swing, the top of a jump, a kick), SAM
   2.1 cuts the player out, and the clip replays that moment in slow motion with a caption Glimmer writes and code
-  checks. A frame-by-frame check makes sure the player and the racket hand are really in the shot: on 170 labelled
-  frames it caught every frame where they were missing (34 of 34), so the camera never aims at an empty spot.
+  checks. The presence check above keeps the zoom on the player.
 
 ![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](shots/highlight_strip.png)
 
