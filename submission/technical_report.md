@@ -129,8 +129,6 @@ carries the agent's own Ed25519 signature.
 
 ![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](shots/highlight_strip.png)
 
-![Time stopped, the camera 12 degrees to the left](shots/orbit/orbit_good.png)
-
 - **MapAnything:** metric depth and the camera from one frame, with the background filled in, give a time-stopped
   camera sweep around the player; arcs of about ±6 to 12° look like a camera move.
 - **Catching broken frames:** one learned threshold on invented pixels (6.26%) judged 84 labelled frames at precision
