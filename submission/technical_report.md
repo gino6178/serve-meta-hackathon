@@ -14,6 +14,25 @@ keep the habit going (21.3%)** and **no regular people to play with (10.2%)**. S
 in turn: Talk fits the time, Match keeps the habit, and the agents find the people. Serve's core value is a network of agents that turns hours of back-and-forth in a chat
 app (the time, the court, who comes) into one tap from each person: **one yes**.
 
+**A first real club.** During the hackathon we introduced Serve to a real badminton club: more than 10 people used
+it, and of the 3 game invites sent through it, 2 became games that were played, within three days. Two players, in
+their own words (translated from Chinese):
+
+- *"It's actually really handy. You just talk to the agent."* (Player A)
+- *"I think the way it suggests games first can make people more motivated to play."* (Player B)
+
+#### A game from one sentence, against a group-chat poll
+
+| Step | Group-chat poll | Serve |
+|---|---|---|
+| The time and the court | The organiser picks options and books the court | The agent drafts both from one sentence: the day from the words, the nearest court |
+| Settled when | Everyone has voted and the organiser posts the result | The spots fill: whoever is free taps Join; nobody else is waited for |
+| Someone not in the group | Has to be added to the chat first | Opens the link and joins |
+| Who is in | Read back from the votes and replies | On the card; the agent posts each join in the thread |
+
+On the live site, the first player joined 1, 6 and 46 minutes after a game was posted, and the two games filled within
+76 and 46 minutes.
+
 Serve is a platform where people and agents make games together. Every person on it has an agent: the one Serve gives
 them, on the web and in Messenger, or their own, which comes in through the same open door (section 2). Behind the
 agents runs Muse Glimmer and **our own model, a Llama 3.2 1B we distilled from Glimmer**, which makes Glimmer's choice
@@ -21,7 +40,8 @@ in about 0.9 s instead of about 40 s (2.6). Underneath are four pieces of engine
 distributed negotiation engine, active querying by the value of information, a community that evolves the platform
 with automatic rollback, and 3D reconstruction from a phone video (section 2).
 
-**Built for anyone's world.** Anyone, anywhere, can use Serve. Courts come from OpenStreetMap, so any town with courts
+**Build for Your World.** Each person's world is their own week, their own courts and their own people, and Serve is
+built around exactly that. Anyone, anywhere, can use it. Courts come from OpenStreetMap, so any town with courts
 works, for any ball sport (badminton, tennis, pickleball, table tennis, basketball, volleyball, soccer); it runs in a
 phone's browser and in Messenger. The demo town sits on Taipei, with prices in NT$, but nothing in Serve is tied to one
 place or one sport.
@@ -37,24 +57,9 @@ place or one sport.
   doubles instead of singles while a knee is sore, one game fewer in a heavy week. **A body log is not medical advice**:
   Serve gives no diagnosis, treatment or dose, and a highlight clip is for sharing, never for coaching or scoring.
 
-**For groups nobody organises** (each with its rules in code and its own tests)
-- **Children's sessions:** courts are filled from a queue so no child plays more than one turn more than another.
-  Children have no accounts; the organiser keeps a list of first names that only they see, and parents get the pick-up
-  note through the phone's own share sheet.
-- **Gentle games for older adults:** held by code between 08:00 and 16:00, doubles only, 60 minutes at most, so no game
-  runs long or into the evening.
-- **Charity tournaments:** a balanced round-robin draw by the circle method. A pledge is only recorded; Serve handles
-  no money.
-
-**Putting quiet courts to use.** For a 90-minute game, the group's agent asks a venue's agent for a quiet-hour price,
-at most three rounds, so venues can fill hours that would stand empty. Venue prices are samples until a venue joins.
-
-**Used by real players.** During the hackathon we introduced Serve to a real badminton club: more than 10 people used
-it, and of the 3 game invites sent through it, 2 became games that were played, within three days. Two players, in
-their own words (translated from Chinese):
-
-- *"It's actually really handy. You just talk to the agent."* (Player A)
-- *"I think the way it suggests games first can make people more motivated to play."* (Player B)
+**For groups nobody organises:** children's sessions with fair turns and no child accounts, gentle daytime doubles
+for older adults, and charity round-robins that record pledges but handle no money, each with its rules in code.
+**Quiet courts:** the group's agent can ask a venue's agent for a quiet-hour price, so venues fill empty hours.
 
 **How it was validated in nine days.** A long trial with real players is not possible in a nine-day build, so Serve
 was also checked by agents. Over 25 rounds, a fresh set of independent AI agents used it each round (six a round, five
@@ -156,8 +161,9 @@ For a highlight, Serve can stop time and move the camera round the player, from 
   net. One learned threshold on invented pixels (6.26%) picks the widest arc that still looks right, or falls back to a
   zoom: on 84 labelled frames it reached precision 1.00 and recall 0.79, against 0.45 and 0.64 for the first rule.
   From 14 moments of one clip it chose 4 orbits, 6 zooms and 4 holds.
-- **A second opinion that says why.** Muse Wonder judged the same 84 frames, agreeing with the labels 87% of the time,
-  and names what it rejects ("doubled ghost net outline above the net").
+- **A second opinion that says why.** The threshold decides; Muse Wonder explains. On the same 84 frames it agreed
+  with the labels 87% of the time, and it names what it rejects ("doubled ghost net outline above the net"), which a
+  pixel count cannot.
 - **Never an empty shot.** A frame-by-frame check that the player and the racket hand are there (SAM 2.1 as a video
   tracker, DETR [18] and Sapiens2) caught every frame where they were missing. A moment takes 19.9 s on the RTX 3090
   once the models are loaded.
@@ -193,11 +199,17 @@ person's hard rules.
 |---|---|---|
 | Agreement with Glimmer on 500 held-out cases | 88.8% (with itself) | **89.5%** |
 | Time per choice | about 40 s, on the RTX 3090 | **about 0.9 s, on the CPU** |
-| Cases it answers at 0.6 sure | all | 96% of 500; 73% of the 196 hardest |
+| Cases it answers at 0.6 sure | all | 96% of 500; 73% of the 196 hardest (the asked time breaks a rule, calendars shared) |
 
-In talks with the simulated club it cut Glimmer's member answers by 54 to 67% with no rule broken. When it is unsure, busy for
+In talks with the simulated club it cut Glimmer's member answers by 67% (ordinary talks) and 54% (with private
+calendars on), with no rule broken. When it is unsure, busy for
 8 s or silent for 20 s, Glimmer answers instead. With 500 cases each agreement rate is good to about 3 points either
-way, so the student matches Glimmer as closely as Glimmer matches itself, about 44 times faster.
+way, so the student matches Glimmer as closely as Glimmer matches itself, about 44 times faster than its full answer.
+
+**Why distil, when the one-pass decider takes 0.53 s?** The decider is still Glimmer, so it needs the GPU that every
+agent's reasoning and the video models share, and it keeps a pick only at the 5% risk level (about 8% of choices). The
+student runs on the CPU, answers 96% of the 500 test cases on its own, and leaves the GPU free for the work only Glimmer
+can do.
 
 **What surprised us.** Four findings from running Meta's models in a product, each measured:
 - **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
@@ -241,7 +253,7 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 |---|---|---|---|
 | Reasoning | Muse Glimmer (30B) | RTX 3090 (GPU 1) | Every agent: the Autopilot's tool loop, each member's decision, the community specs, reading what a person wants. A JSON Schema on every call, and code checks every text |
 | Live voice | Muse Voice Transcribe | Meta Model API | 24 kHz PCM full duplex, with Kokoro speaking the reply on the server; the player can talk over the agent |
-| Fallback | Muse Spark 1.3 | Meta Model API | A fallback when the GPU server can't take a call, and a builder model for new code |
+| Fallback | Muse Spark 1.3 | Meta Model API | A fallback when the GPU server can't take a call, and an alternative model for the builder (which uses Glimmer by default) |
 | Images | Muse Image | Meta Model API | Faces for the club's agents and the art of rematch posters |
 | Cross-check | SAM 3.1 | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
 | Vision judge | Muse Wonder | Meta Model API | Judges orbit frames for defects: agreed with the labels on 87% of 84 frames |
@@ -267,15 +279,25 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 - **Messenger**, through a signed webhook, the Send API and quick replies: players arrange games and give feedback in the
   chat app they already use.
 
-## 4. Sources and notes
+## 4. What is not done yet
+
+- **Most validation is simulated.** Beyond one real club and two games, the evidence comes from AI agents, simulated
+  members and local copies; timings such as the 7 ms card were measured on a local copy, not the live site.
+- **The slow path still exists.** When the small models are unsure, Glimmer takes about 40 s. The person sees the steps
+  stream in and a moving status line, but it is still a wait.
+- **Venues are samples.** No venue has joined yet, so quiet-hour prices are sample prices.
+- **Orbit replays are short.** Only arcs of about ±6 to 12° look right; otherwise Serve falls back to a zoom.
+
+## 5. Sources and notes
 
 - **Where the numbers come from.** Each number above comes from a result file in `submission/results/` or from the
   documents in `docs/`: the student in `docs/decision_model.md`, the decider in `docs/decider.md`, A2A and holds in
   `contention_eval.json`, the value of information in `voi_sim.json`, the loop in `loop_eval.json`, orbits in
   `submission/results/orbit/`, the agent testing in `submission/agent_testing.md`. The guard results' raw output stayed
   on the server.
-- **Built during the hackathon.** Building started on October 27, the hackathon's first day. The code was written
-  with an AI coding agent (Claude Code), credited in the repository's commits. The one earlier piece is TrackNetV5, our published shuttle
+- **Built during the hackathon.** Building started on October 27, the hackathon's first day. We designed Serve and
+  decided what it does and how; an AI coding agent (Claude Code) wrote code to our instructions, credited in the
+  repository's commits, and every change went through the tests. The one earlier piece is TrackNetV5, our published shuttle
   tracker, fetched at run time and off unless `BALL_TRACKING=1`.
 - **Real and simulated.** The badminton club above is real people. Separately, the built-in demo club that a new
   visitor sees, the clubs used for evaluations and the members the agent testers met are simulated and labelled as
