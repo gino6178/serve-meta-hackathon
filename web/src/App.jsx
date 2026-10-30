@@ -250,7 +250,9 @@ export default function App() {
   // the public build (no gateway token in it): every page but joining and a shared game's link needs a signed-in member, each with an agent of
   // their own on the server (agent tenants/proxy.js)
   const signedOut = !import.meta.env.VITE_AGENT_TOKEN && !(() => { try { return localStorage.getItem(SESSION_KEY); } catch { return null; } })();
-  const show = signedOut && !["join", "about", "invite"].includes(page) ? PAGES.join : memberNow() && DEMO_ONLY.includes(page) ? PAGES.huddle : memberNow() && page === "courts" ? PAGES.huddle : PAGES[page] || PAGES.home;
+  // (a club's invite link, #/club?join=<code>, shows the club and its "Sign in to join" before sign-in too)
+  const clubLink = page === "club" && /[?&]join=/.test(location.hash);
+  const show = signedOut && !["join", "about", "invite"].includes(page) && !clubLink ? PAGES.join : memberNow() && DEMO_ONLY.includes(page) ? PAGES.huddle : memberNow() && page === "courts" ? PAGES.huddle : PAGES[page] || PAGES.home;
   return (
     <>
       <Shell page={page} club={club} />
