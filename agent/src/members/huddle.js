@@ -91,7 +91,7 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   const pin = b.pin && /^\d{4}-\d{2}-\d{2}$/.test(b.pin.date) && /^\d{2}:\d{2}$/.test(b.pin.start) ? { date: b.pin.date, start: b.pin.start, place: b.pin.place ? String(b.pin.place) : null } : null;
   if (pin) { const hn = T.hardNo(T.get(me), { date: pin.date, start: pin.start, km: null, each: 0 }); if (hn === "time" || hn === "busy") return { error: `${when(pin)} is outside the times you set (or you're busy then). Change your limits, or pick another time.`, code: 400 }; }
   const h = { id: `h-${crypto.randomUUID().slice(0, 8)}`, host: me, sport, need, club: club?.id || null, clubName: club?.name || null, invited, created: Date.now(), status: "talking",
-    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, picked: club ? [] : invited.filter((id) => !near.includes(id)), excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat ?? (fill.room ? C.find(fill.room)?.at?.lat : undefined), lon: fill.invite.at?.lon ?? (fill.room ? C.find(fill.room)?.at?.lon : undefined), kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}), hostYes: b.hostYes === true && !!pin };
+    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, picked: (Array.isArray(b.invite) ? b.invite.map(String) : club ? [] : invited).filter((id) => invited.includes(id) && !near.includes(id)), excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat ?? (fill.room ? C.find(fill.room)?.at?.lat : undefined), lon: fill.invite.at?.lon ?? (fill.room ? C.find(fill.room)?.at?.lon : undefined), kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}), hostYes: b.hostYes === true && !!pin };
   data().huddles.push(h); save();
   Tr.asked(me, near.length); // asking everyone nearby, again and again, is what a prober does (your clubs are fine)
   const job = run(h, now).catch((e) => { console.error("huddle run", e.stack); h.status = "stuck"; line(h, "agent", "Something went wrong on Serve's side while the agents talked, so this game is stuck. Start it again in a minute; if it keeps happening, the club's ideas page hears about it."); save(); });
@@ -274,7 +274,7 @@ async function run(h, now = new Date()) {
   const short_ = h.need - agreed.players.length, price = deal.each ? `, ${D.CURRENCY}${deal.each} each` : h.fill ? "" : ", a free court";
   line(h, "host", short_ > 0 && !h.fill
     ? `Best time so far: ${when(o)} at ${o.place.name}${price}. Only ${agreed.players.length} of the ${h.need} players fit it: asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes. Once they say yes it's posted with ${short_} open spot${short_ > 1 ? "s" : ""} for others to join; or ask for fewer players.`
-    : `Agreed: ${when(o)} at ${o.place.name}${price}. Asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes.`, { who: hostName, agreed: short_ <= 0 || !!h.fill });
+    : `Agreed: ${when(o)} at ${o.place.name}${price}. Asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes.${h.alternates.length ? ` ${names(h.alternates.filter((id) => !isNear(h, id)).map(first)) || "Someone else"}'s agent said yes too: first in line if a spot opens.` : ""}`, { who: hostName, agreed: short_ <= 0 || !!h.fill });
   for (const id of agreed.players) if (id !== host) P.notify(id, "huddle", `Your agent and ${hostName}'s agreed ${h.sport} ${when(o)} at ${o.place.name}. One yes from you?`, { huddle: h.id });
   save();
 }
@@ -333,7 +333,7 @@ async function drop(h, me, why, now = new Date(), wait = false) {
   }
   // nobody spare, but the rest are still in: the game stands with an open spot (posted for others once they all say yes)
   if (h.players.length >= 2) {
-    line(h, "host", `No other agent had said yes to that time, so ${nm}'s spot stays open: everyone else's yes stands, and once the rest say yes the game is ${h.fill ? "on in your post" : "posted"} with the spot open for others to join.`, { who: first(h.host) });
+    line(h, "host", `Nobody was waiting as a spare for that time, so ${nm}'s spot stays open: everyone else's yes stands, and once the rest say yes the game is ${h.fill ? "on in your post" : "posted"} with the spot open for others to join.`, { who: first(h.host) });
     if (h.players.every((x) => h.answers[x] === "yes")) await book(h);
     save();
     return { open: 1 };
@@ -424,6 +424,8 @@ export function cancel(me, id) {
 
 // ---- what a member sees ----
 const fillOf = (h) => (h.fill ? P.find(h.fill)?.invite || null : null);
+// a member's agreed games that aren't on the feed (yet), for the feed's join not to double-book them
+P.busyFrom((id, post) => data().huddles.filter((h) => ["asking", "on"].includes(h.status) && h.pick && h.players.includes(id) && h.post !== post && h.fill !== post && !(h.status === "on" && h.post)).map((h) => ({ at: startMs(h.pick), what: `${h.sport} ${when(h.pick)} (the agents agreed it)`, huddle: h.id })));
 // a posted game deleted while the agents fill it: the fill stops, and those asked hear it's off
 P.whenRemoved((post) => { for (const h of data().huddles.filter((x) => x.fill === post && ["talking", "asking"].includes(x.status))) { h.status = "cancelled"; line(h, "host", `${first(h.host)} deleted the game, so it's off.`, { who: first(h.host) }); for (const id of h.players.filter((x) => x !== h.host)) { P.dropNotices(id, h.id); P.notify(id, "huddle", `${first(h.host)} deleted the ${h.sport} game ${h.pick ? when(h.pick) : ""}: it's off.`, { huddle: h.id }); } } save(); });
 // the host's card for a posted game shows its live fill: talking, or agreed and waiting for yeses
@@ -496,7 +498,7 @@ export async function today(me, { now = new Date() } = {}) {
   await sweep(now); P.promoteDue(now.getTime());
   const t = T.get(me), cards = [];
   for (const h of data().huddles.filter((x) => x.status === "asking" && x.players.includes(me) && !x.answers[me])) cards.push({ kind: "huddle", huddle: view(h, me) });
-  const waitingFor = data().huddles.filter((h) => h.status === "asking" && h.pick && h.players.includes(me) && h.answers[me] === "yes" && !(h.fill && (h.host === me || fillOf(h)?.going.includes(me)))).map((h) => ({ post: `huddle:${h.id}`, huddle: h.id, sport: h.sport, day: h.pick.date, start: h.pick.start, where: h.pick.where, going: h.players.filter((x) => h.answers[x] === "yes").length, spots: h.players.length, mine: h.host === me, waiting: false, agreed: true, host: first(h.host) }));
+  const waitingFor = data().huddles.filter((h) => h.pick && h.players.includes(me) && ((h.status === "asking" && h.answers[me] === "yes" && !(h.fill && (h.host === me || fillOf(h)?.going.includes(me)))) || (h.status === "on" && !h.post))).map((h) => ({ post: `huddle:${h.id}`, huddle: h.id, sport: h.sport, day: h.pick.date, start: h.pick.start, where: h.pick.where, going: h.players.filter((x) => h.answers[x] === "yes").length, spots: h.players.length, mine: h.host === me, waiting: false, agreed: true, on: h.status === "on", host: first(h.host) }));
   const games = [...waitingFor, ...P.gamesOf(me, now.getTime())];
   if (games.length) cards.push({ kind: "mine", games: games.map((g) => ({ ...g, when: when({ date: dateFor(g.day, now), start: g.start }), club: g.room ? C.find(g.room)?.name || null : null })) });
   for (const c of Tr.pending(me, now.getTime())) { const d = new Date(c.at); cards.push({ kind: "attend", attend: { key: c.key, when: when({ date: T.ymd(d), start: d.toTimeString().slice(0, 5) }), players: c.players.map((id) => ({ id, name: first(id) })) } }); }

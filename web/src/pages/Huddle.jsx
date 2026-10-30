@@ -375,7 +375,7 @@ function TasteTab({ me, reload }) {
           <div className="hh-row hh-head"><span />{PARTS.map((x) => <span key={x}>{x}</span>)}</div>
           {DAYS.map((d) => <div className="hh-row" key={d}><span>{d}</span>{PARTS.map((x) => inWins(t.windows, d, x) ? <span key={x} className="hh-c good" style={{ "--b": t.grid[`${d} ${x}`] }} title={`${d} ${x}: ${pct(t.grid[`${d} ${x}`])}`} /> : <span key={x} className="hh-c off" title={`${d} ${x}: outside your limits`} />)}</div>)}
         </div>
-        <p className="hd-fine">Darker is better for you{t.windows?.length ? "; grey is outside your limits" : ""}. Until you answer, your agent assumes what suits most people who work or study: weekday evenings and weekend mornings.</p>
+        <p className="hd-fine">A stronger colour is better for you{t.windows?.length ? "; grey is outside your limits" : ""}. Until you answer, your agent assumes what suits most people who work or study: weekday evenings and weekend mornings.</p>
       </section>
       <section className="panel hd-set" aria-label="Your records">
         <h2 className="h3">What other agents see about you</h2>

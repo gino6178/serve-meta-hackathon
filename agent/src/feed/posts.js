@@ -210,6 +210,9 @@ export function join(player, postId, on = true) {
   if (!on && waiting) { S.change(() => { v.waitlist = v.waitlist.filter((x) => x !== player); }); return { post: view(p, player), left: "waitlist" }; }
   if (on === was) return { post: view(p, player) };
   // a game that overlaps one they're already in (games run about 90 minutes): not both
+  // (a game the agents agreed, not posted yet, counts too: members/huddle.js tells which)
+  const agreedClash = on && startOf(v) ? huddleBusy(player, p.id).find((x) => Math.abs(x.at - startOf(v)) < 90 * 60e3) : null;
+  if (agreedClash) return { error: `You're already in ${agreedClash.what}, which overlaps this one. Answer no there first.`, code: 409, clash: agreedClash.huddle };
   const at = startOf(v), clash = on && at ? S.data().posts.find((q) => q.id !== p.id && q.kind === "invite" && q.invite && !q.hidden && ((q.by.player || q.by.agentOf) === player || q.invite.going.includes(player)) && Math.abs(startOf(q.invite) - at) < 90 * 60e3) : null;
   if (clash) return { error: `You're already in ${clash.invite.sport} ${dayWords(clash.invite.day)} ${clash.invite.start} at ${clash.invite.where}, which overlaps this one. Leave that game first.`, code: 409, clash: clash.id };
   // a full game: the waitlist, first come first in when a spot opens
@@ -367,6 +370,9 @@ export function remove(player, postId, cid = null) {
   onRemoved(p.id);
   return { deleted: true };
 }
+// the games the agents agreed (or are asking about) that aren't a feed post: {at, what, huddle}; members/huddle.js sets it
+let huddleBusy = () => [];
+export const busyFrom = (f) => { huddleBusy = f; };
 // a deleted game: the agents filling it stop too (members/huddle.js registers this)
 let onRemoved = () => {};
 export const whenRemoved = (f) => { onRemoved = f; };

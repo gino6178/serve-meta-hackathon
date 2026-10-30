@@ -88,6 +88,7 @@ export async function route(req, res, u, { json, o, forget }) {
   }
   if (p.startsWith("/api/agent-channel/")) return channel(req, res, p, send);
   // the trust chain, for anyone to check (trust.js): its entries (pseudonymous), the signed daily heads, and a replay
+  if (p === "/api/trust/chain" && req.method === "GET" && ["after", "n"].some((k) => u.searchParams.get(k) != null && !Number.isInteger(+u.searchParams.get(k)))) return send(400, { error: "after and n are whole numbers." });
   if (p === "/api/trust/chain" && req.method === "GET") return send(200, { ...Tr.publicChain({ after: +(u.searchParams.get("after") ?? -1), n: +(u.searchParams.get("n") || 500) }), today: await Tr.head() });
   if (p === "/api/trust/verify" && req.method === "GET") return send(200, { ...Tr.verify(), head: await Tr.head() });
 
@@ -96,12 +97,14 @@ export async function route(req, res, u, { json, o, forget }) {
   if (p === "/api/clubs" || p.startsWith("/api/clubs/")) {
     if (!me) return send(401, { error: "Sign in first.", ...signInHint(req) });
     const u2 = new URL(req.url, "http://x");
-    if (p === "/api/clubs" && req.method === "GET" && [u2.searchParams.get("lat"), u2.searchParams.get("lon")].some((x) => x != null && !(isFinite(+x) && x.trim() !== ""))) return send(400, { error: "lat and lon are numbers (or leave both out)." });
+    { const la = u2.searchParams.get("lat"), lo = u2.searchParams.get("lon"), num = (x, m) => x != null && x.trim() !== "" && isFinite(+x) && Math.abs(+x) <= m;
+      if (p === "/api/clubs" && req.method === "GET" && (la != null || lo != null) && !(num(la, 90) && num(lo, 180))) return send(400, { error: "lat (-90..90) and lon (-180..180) go together, or leave both out." }); }
     if (p === "/api/clubs" && req.method === "GET") return send(200, C.list(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon") }));
     if (p === "/api/clubs/suggest" && req.method === "GET") return send(200, C.suggest(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon"), sport: u2.searchParams.get("sport") }));
     let cb = {}; try { cb = JSON.parse((await readRaw(req))?.toString() || "{}"); } catch { /* empty */ }
     const out = (r) => send(r.error ? r.code || 400 : 200, r);
     if (p === "/api/clubs" && req.method === "POST") return out(await C.start(me, cb, (t, who) => P.moderate(t, who)));
+    if (p === "/api/clubs/join" && req.method === "POST" && cb.on !== undefined && typeof cb.on !== "boolean") return send(400, { error: "on is true (join) or false (leave)." });
     if (p === "/api/clubs/join" && req.method === "POST") return out(C.join(me, String(cb.club || ""), cb.on !== false));
     if (p === "/api/clubs/answer" && req.method === "POST") return out(C.answer(me, String(cb.club || ""), String(cb.member || ""), cb.yes === true));
     if (p === "/api/clubs/roster" && req.method === "POST") return out(await C.setRoster(me, String(cb.club || ""), cb.names, (t, who) => P.moderate(t, who)));

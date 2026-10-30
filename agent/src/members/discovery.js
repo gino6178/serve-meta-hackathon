@@ -131,7 +131,7 @@ const HUDDLE = {
   "/huddle/limits": ["post", op("Hard limits: time windows, max distance, max price per person", { body: { windows: A, maxKm: N, maxEach: N } })],
   "/huddle/open": ["post", op("Let nearby members' agents ask theirs", { body: { on: B } })],
   "/huddle/delegate": ["post", op("Let their agent answer yes for them, within limits", { body: { on: B, maxEach: N, newPeople: B } })],
-  "/huddle/start": ["post", op("Get a game together", { body: { sport: S, need: N, club: S, invite: A, nearby: B, gate: O, pin: O } })],
+  "/huddle/start": ["post", op("Get a game together", { body: { sport: S, need: N, club: S, invite: A, nearby: B, gate: O, pin: O, when: O, fill: S, hostYes: B } })],
   "/huddle/one": ["get", op("One huddle: the talk, the pick, who said yes", { query: { id: "huddle id" } })],
   "/huddle/reply": ["post", op("One yes, or no and why", { body: { id: S, yes: B, why: S } })],
   "/huddle/cancel": ["post", op("The host calls it off", { body: { id: S } })],
@@ -151,6 +151,7 @@ export function openapi(req) {
   add("/api/trust/chain", "get", op("The public trust chain and signed daily heads", { auth: "none", query: { after: "last entry seen", n: "how many" } }));
   add("/api/trust/verify", "get", op("The server's replay of the chain, and today's signed head", { auth: "none" }));
   add("/api/me", "get", op("The member and their agents"));
+  add("/api/members/leave", "post", op("Leave Serve: the member, their agents, posts and taste are deleted; the trust chain keeps only a 'left' entry"));
   add("/api/members/agents", "post", op("Register the member's own agent key", { body: { name: S, jwk: O } }));
   add("/api/members/agents/revoke", "post", op("Revoke an agent key", { body: { id: S } }));
   add("/api/clubs", "get", op("Clubs near a point", { query: { lat: "latitude", lon: "longitude" } }));
@@ -159,6 +160,7 @@ export function openapi(req) {
   add("/api/feed", "get", op("The feed (a club's with ?room=)", { query: { room: "club id", n: "how many" } }));
   add("/api/feed/post", "post", op("A post or a game invite", { body: { text: S, invite: O, room: S } }));
   add("/api/feed/join", "post", op("Join a game, or leave it or its waitlist", { body: { post: S, on: B } }));
+  add("/api/feed/delete", "post", op("Delete your post (a game: the agents filling it stop and those asked hear it), or your comment", { body: { post: S, comment: S } }));
   add("/api/feed/notices", "get", op("Notices waiting for the member (taken once)"));
   const PERSON_ONLY = ["/huddle/home", "/huddle/open", "/huddle/delegate"];
   for (const [p, [m, o]] of Object.entries(HUDDLE)) { add(`/api${p}`, m, o); if (!PERSON_ONLY.includes(p)) add(`/api/agent-channel${p}`, m, { ...o, security: [{ agentKey: [] }], summary: `${o.summary} (signed with the member's agent key${p === "/huddle/limits" ? "; tighten only" : ""})` }); }

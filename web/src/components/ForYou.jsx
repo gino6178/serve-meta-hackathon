@@ -42,7 +42,7 @@ export default function ForYou() {
           </div>); }
         if (c.kind === "mine") return (
           <div key={i} className="fy-card"><span className="fy-kick">Your games</span>
-            <ul className="fy-mine">{c.games.map((g) => <li key={g.post}><b>{cap(g.sport)} {g.when}</b><span>{g.where}{g.club ? ` · ${g.club}` : ""} · {g.agreed ? `agreed; ${g.going} of ${g.spots} said yes, waiting for the rest` : g.waiting ? "you're on the waitlist" : g.mine ? `${g.going} of ${g.spots} joined` : `with ${g.host}, ${g.going} of ${g.spots} in`}</span>
+            <ul className="fy-mine">{c.games.map((g) => <li key={g.post}><b>{cap(g.sport)} {g.when}</b><span>{g.where}{g.club ? ` · ${g.club}` : ""} · {g.agreed ? (g.on ? `game on, ${g.going} of you` : `agreed; ${g.going} of ${g.spots} said yes, waiting for the rest`) : g.waiting ? "you're on the waitlist" : g.mine ? `${g.going} of ${g.spots} joined` : `with ${g.host}, ${g.going} of ${g.spots} in`}</span>
               {g.agreed ? <a className="link" href={`#/huddle?id=${g.huddle}`}>See it</a> : !g.mine && <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, false); return { line: g.waiting ? "Off the waitlist." : "You've left that game." }; })}>{g.waiting ? "Leave the waitlist" : "Can't make it"}</button>}</li>)}</ul>
             {Object.entries(said).filter(([k]) => k.startsWith("m")).map(([k, v]) => <p key={k} className="tq-said">{v}</p>)}
           </div>);

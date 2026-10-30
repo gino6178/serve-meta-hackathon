@@ -34,7 +34,7 @@ export default function InviteLink() {
   return (
     <div className="page invite-link">
       <section className="il-card">
-        <span className="il-from">{v.host} invited you</span>
+        <span className="il-from">{v.mine ? "Your game" : `${v.host} invited you`}</span>
         <h1 className="il-what">{cap(v.sport)}</h1>
         <p className="il-when"><b>{v.day}</b> {v.start}</p>
         <p className="il-where"><Icon name="pin" size={14} />{v.at ? <a href={`https://www.openstreetmap.org/?mlat=${v.at.lat}&mlon=${v.at.lon}#map=17/${v.at.lat}/${v.at.lon}`} target="_blank" rel="noreferrer">{v.where}</a> : v.where}</p>
