@@ -258,9 +258,12 @@ export function promote(p, { dayBefore = false } = {}) {
   const v = p.invite;
   if (!v?.waitlist?.length || v.going.length >= v.spots) return 0;
   let n = 0;
-  while (v.waitlist.length && v.going.length < v.spots) {
-    const x = v.waitlist[0];
-    S.change(() => { v.waitlist = v.waitlist.slice(1); v.going = [...v.going, x]; v.joinedAt = { ...(v.joinedAt || {}), [x]: deps.now() }; });
+  // the first in line who isn't in another game at that time (games or agreed games overlapping it): they keep their place otherwise
+  const at = startOf(v), free = (x) => !at || (!S.data().posts.some((q) => q.id !== p.id && q.kind === "invite" && q.invite && !q.hidden && ((q.by.player || q.by.agentOf) === x || q.invite.going.includes(x)) && Math.abs(startOf(q.invite) - at) < 90 * 60e3) && !huddleBusy(x, p.id).some((y) => Math.abs(y.at - at) < 90 * 60e3));
+  while (v.going.length < v.spots) {
+    const x = v.waitlist.find(free);
+    if (!x) break;
+    S.change(() => { v.waitlist = v.waitlist.filter((y) => y !== x); v.going = [...v.going, x]; v.joinedAt = { ...(v.joinedAt || {}), [x]: deps.now() }; });
     onJoined(x, p.id);
     notify(x, "gameon", `A spot opened${dayBefore ? " the day before" : ""}: you're in for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}.`, { post: p.id });
     inviteReply(p, `${first(authorOf(x) || "A member")} moves up from the waitlist. ${spotsLine(p)}`, x);

@@ -292,6 +292,8 @@ export async function reply(me, id, yes, why = null, { now = new Date(), wait = 
     line(h, me, `${first(me)} is back in.`, { who: first(me) });
   }
   if (!h || !h.players.includes(me)) return { error: "That game isn't one you're in.", code: 404 };
+  // the host's game stands with them in it: to drop it they call it off (which tells everyone)
+  if (me === h.host && !yes) return { error: "You started this game, so you're in it. To drop it, call it off: POST /api/huddle/cancel {id}.", code: 409 };
   if (h.status === "on" && !h.post && !yes && h.players.includes(me) && me !== h.host) {
     h.players = h.players.filter((x) => x !== me); delete h.answers[me];
     line(h, me, `${first(me)} can't make it after all.`, { who: first(me) });
@@ -452,6 +454,7 @@ P.whenJoined((id, post) => { let any = false; for (const h of data().huddles.fil
 P.whenRemoved((post) => {
   // a game that was on and posted: it's off with its post (the feed already told the players)
   for (const h of data().huddles.filter((x) => (x.post === post || x.fill === post) && x.status === "on")) { h.status = "cancelled"; line(h, "host", `${first(h.host)} deleted the game, so it's off.`, { who: first(h.host) }); }
+  for (const h of data().huddles.filter((x) => x.fill === post && x.status === "stuck")) { h.status = "cancelled"; line(h, "host", `${first(h.host)} deleted the game, so it's off.`, { who: first(h.host) }); }
   for (const h of data().huddles.filter((x) => x.fill === post && ["talking", "asking"].includes(x.status))) { h.status = "cancelled"; line(h, "host", `${first(h.host)} deleted the game, so it's off.`, { who: first(h.host) }); for (const id of h.players.filter((x) => x !== h.host)) { P.dropNotices(id, h.id); P.notify(id, "huddle", `${first(h.host)} deleted the ${h.sport} game ${h.pick ? when(h.pick) : ""}: it's off.`, { huddle: h.id }); } } save(); });
 // the host's card for a posted game shows its live fill: talking, or agreed and waiting for yeses
 P.onFill((post) => { const h = data().huddles.filter((x) => x.fill === post && ["talking", "asking"].includes(x.status)).at(-1); if (!h) return null; const others = h.players.filter((x) => x !== h.host); return { huddle: h.id, status: h.status, asked: others.length, yes: others.filter((x) => h.answers[x] === "yes").length }; });

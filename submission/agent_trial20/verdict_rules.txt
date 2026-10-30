@@ -1,0 +1,7 @@
+HOW TO JUDGE (required): classify every finding as
+- BLOCKER: you could not finish the task at all;
+- BUG: something wrong in a CORE FLOW (below): it behaves wrongly, breaks a published rule or promise, loses or corrupts data, double-books someone, leaks something private, or tells a person something false about their game;
+- MINOR: everything else: wording, layout, jargon, small inconveniences, nice-to-haves, input validation that doesn't change any real outcome, docs gaps, and anything outside the core flows.
+CORE FLOWS: getting a game (asking the agents, the agreed time and place), saying yes or no, joining and leaving a game, calling off or deleting a game, the person's limits and their agent's permission to say yes, privacy (what others can see), trust records, and money (Serve never takes any).
+Only report what you actually observed, with the exact request/response (or screen and what you clicked). Don't count the limits of this local copy as findings (no language model here; the clock can't be moved; seeded members are simulated and won't answer in real time; one shared server for all test users).
+End your report with exactly one line: "VERDICT: CLEAN" if you found no BLOCKER and no BUG, otherwise "VERDICT: <n> BLOCKER, <m> BUG". Repeat that line as the last line of your reply.
