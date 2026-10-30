@@ -22,7 +22,9 @@
 //   GET  /api/clubs?lat=&lon=                the clubs members started, nearest first (clubs.js)
 //   POST /api/clubs {name, sport, about, where, at, privacy}    start one, public or private
 //   POST /api/clubs/answer {club, member, yes}   the owner of a private club answers someone who asked to join
-//   POST /api/clubs/join {club, on}          join a club, or leave it
+//   POST /api/clubs/join {club, on}          join a club, or leave it; {code}: by its invite link
+//   GET  /api/clubs/<id>/invite              a member's share link for the club, #/club?join=<code>
+//   GET  /api/clubs/invite?code=             what the link shows before sign-in (no member names)
 //   GET  /api/clubs/suggest?lat=&lon=&sport=   the nearest club the member is not in, for their agent to recommend
 //   POST /api/clubs/roster {club, names}     a children's club: the organiser's roster, first names only (programs.js)
 //   POST /api/clubs/session {club, present, courts, perCourt, start, end, minutes, day}   today's rotations and the parents' note
@@ -74,7 +76,7 @@ export const member = (req) => M.fromSession(req.headers["x-serve-session"]);
 P.joinRoomWith((room, id) => C.joinById(String(room), id, M.get(id)?.name));
 // the routes a signed-in member may use without the gateway's token
 export const memberRoute = (p) => p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/") || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/");
-export const publicRoute = (p) => p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p === "/api/invite" || p.startsWith("/api/trust/") || p === "/api/openapi.json";
+export const publicRoute = (p) => p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p === "/api/invite" || p === "/api/clubs/invite" || p.startsWith("/api/trust/") || p === "/api/openapi.json";
 
 export async function route(req, res, u, { json, o, forget }) {
   const p = u.pathname, send = (code, body) => { json(res, code, body, o); return true; };
@@ -108,8 +110,12 @@ export async function route(req, res, u, { json, o, forget }) {
   const me = member(req);
   if (p === "/api/me") return me ? send(200, { member: M.view(me), agents: M.agentsOf(me.id) }) : send(401, { error: "Sign in first.", ...signInHint(req) });
   if (p === "/api/clubs" || p.startsWith("/api/clubs/")) {
-    if (!me) return send(401, { error: "Sign in first.", ...signInHint(req) });
     const u2 = new URL(req.url, "http://x");
+    // a club's invite link, before signing in: the club, not its members
+    if (p === "/api/clubs/invite" && req.method === "GET") { const r = C.preview(u2.searchParams.get("code")); return send(r.error ? r.code : 200, r); }
+    if (!me) return send(401, { error: "Sign in first.", ...signInHint(req) });
+    const inv = /^\/api\/clubs\/([\w-]{1,40})\/invite$/.exec(p);
+    if (inv && req.method === "GET") { const r = C.invite(me, inv[1]); return send(r.error ? r.code : 200, r); }
     { const la = u2.searchParams.get("lat"), lo = u2.searchParams.get("lon"), num = (x, m) => x != null && x.trim() !== "" && isFinite(+x) && Math.abs(+x) <= m;
       if (p === "/api/clubs" && req.method === "GET" && (la != null || lo != null) && !(num(la, 90) && num(lo, 180))) return send(400, { error: "lat (-90..90) and lon (-180..180) go together, or leave both out." }); }
     if (p === "/api/clubs" && req.method === "GET") return send(200, C.list(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon") }));
@@ -118,6 +124,12 @@ export async function route(req, res, u, { json, o, forget }) {
     const out = (r) => send(r.error ? r.code || 400 : 200, r);
     if (p === "/api/clubs" && req.method === "POST") return out(await C.start(me, cb, (t, who) => P.moderate(t, who)));
     if (p === "/api/clubs/join" && req.method === "POST" && cb.on !== undefined && typeof cb.on !== "boolean") return send(400, { error: "on is true (join) or false (leave)." });
+    // by a club's invite link: {code}; a private club's owner hears someone asked
+    if (p === "/api/clubs/join" && req.method === "POST" && cb.code != null && cb.on !== false) {
+      const c = C.byCode(String(cb.code)), was = !!c && (c.requests || []).some((x) => x.id === me.id), r = C.joinByCode(me, String(cb.code));
+      if (r.asked && c && !was) P.notify(c.owner, "club", `${me.name.split(" ")[0]} asked to join ${c.name} through its link. Say yes or no on the club's page.`);
+      return out(r);
+    }
     if (p === "/api/clubs/join" && req.method === "POST") return out(C.join(me, String(cb.club || ""), cb.on !== false));
     if (p === "/api/clubs/answer" && req.method === "POST") return out(C.answer(me, String(cb.club || ""), String(cb.member || ""), cb.yes === true));
     if (p === "/api/clubs/roster" && req.method === "POST") return out(await C.setRoster(me, String(cb.club || ""), cb.names, (t, who) => P.moderate(t, who)));

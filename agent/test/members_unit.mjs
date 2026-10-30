@@ -166,3 +166,29 @@ test("a join outside the person's own limits stands with a note; their agent is 
   assert.equal((await feedJoin(ben.id, { post: fine })).body.note, undefined);
 });
 
+test("a club's invite link: members share it, a public club is joined by it, a private one asks its organiser", async () => {
+  const ana = M.demo("Ana Lee").member, ben = M.demo("Ben Wu").member, cy = M.demo("Cy Ito").member;
+  const as = (m) => ({ "x-serve-session": M.sessionFor(m.id) }), at = { lat: 25.03, lon: 121.56 };
+  const pub = (await route("POST", "/api/clubs", { name: "Riverside Smash", sport: "badminton", at }, as(ana))).body.club;
+  const priv = (await route("POST", "/api/clubs", { name: "Quiet Doubles", sport: "badminton", at, privacy: "private" }, as(ana))).body.club;
+  const link = await route("GET", `/api/clubs/${pub.id}/invite`, undefined, as(ana));
+  assert.equal(link.code, 200); assert.match(link.body.link, /^\/#\/club\?join=[\w-]{8}$/); assert.equal(link.body.link, `/#/club?join=${link.body.code}`);
+  assert.equal((await route("GET", `/api/clubs/${pub.id}/invite`, undefined, as(ana))).body.code, link.body.code, "the same link each time");
+  assert.equal((await route("GET", `/api/clubs/${pub.id}/invite`, undefined, as(ben))).code, 403, "only members share it");
+  assert.equal((await route("GET", `/api/clubs/${priv.id}/invite`, undefined, as(ben))).code, 404, "a private club's, not to outsiders");
+  // what the link shows before sign-in: the club, never who is in it
+  const pre = await route("GET", `/api/clubs/invite?code=${link.body.code}`);
+  assert.equal(pre.code, 200); assert.equal(pre.body.club.name, "Riverside Smash"); assert.equal(pre.body.club.members, 1);
+  assert.doesNotMatch(JSON.stringify(pre.body), /Ana|names/);
+  assert.equal((await route("GET", "/api/clubs/invite?code=nope")).code, 404);
+  const j = await route("POST", "/api/clubs/join", { code: link.body.code }, as(ben));
+  assert.equal(j.code, 200); assert.ok(j.body.club.joined); assert.equal(j.body.via, "link");
+  // private: the link asks; the organiser hears it once and says yes
+  const code = (await route("GET", `/api/clubs/${priv.id}/invite`, undefined, as(ana))).body.code;
+  const ask = await route("POST", "/api/clubs/join", { code }, as(cy));
+  assert.ok(ask.body.asked && !ask.body.club.joined, JSON.stringify(ask.body));
+  await route("POST", "/api/clubs/join", { code }, as(cy));
+  assert.equal((S.data().notices || []).filter((x) => x.player === ana.id && x.kind === "club").length, 1, "the organiser, once");
+  assert.ok((await route("POST", "/api/clubs/answer", { club: priv.id, member: cy.id, yes: true }, as(ana))).body.club.members === 2);
+  assert.equal((await route("POST", "/api/clubs/join", { code: "nope" }, as(cy))).code, 404);
+});
