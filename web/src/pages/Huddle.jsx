@@ -389,6 +389,17 @@ function WeekHeat({ ws }) {
 // a part of the day inside the person's time limits (none set: all of it)
 const PART_HOURS = { early: ["06:00", "09:00"], morning: ["09:00", "12:00"], afternoon: ["12:00", "17:00"], evening: ["17:00", "23:00"] };
 const inWins = (ws, d, part) => !ws?.length || ws.some((w) => w.days.includes(d) && w.from < PART_HOURS[part][1] && w.to > PART_HOURS[part][0]);
+const partOf = (h) => (h < 9 ? "early" : h < 12 ? "morning" : h < 17 ? "afternoon" : "evening");
+// with time limits (an imported calendar, say), the week hour by hour: what suits them inside the limits, grey outside
+function YourHours({ t }) {
+  const free = (d, h) => t.windows.some((w) => w.days.includes(d) && w.from <= hh(h) && hh(h + 1) <= w.to);
+  return (
+    <div className="hd-heat hd-hours" role="table" aria-label="Your times, hour by hour">
+      <div className="hh-row hh-head"><span />{HOURS.map((h) => <span key={h}>{h % 3 === 1 ? h : ""}</span>)}</div>
+      {WEEK.map((d) => <div className="hh-row" key={d}><span>{d}</span>{HOURS.map((h) => { const b = t.grid[`${d} ${partOf(h)}`] ?? 0; return free(d, h) ? <span key={h} className="hh-c good" style={{ "--b": b }} title={`${d} ${hh(h)}: ${pct(b)}`} /> : <span key={h} className="hh-c off" title={`${d} ${hh(h)}: outside your limits`} />; })}</div>)}
+    </div>
+  );
+}
 function TasteTab({ me, reload }) {
   const [q, setQ] = useState(null), [t, setT] = useState(me.taste), [busy, setBusy] = useState(false), [mine, setMine] = useState(null), [err, setErr] = useState("");
   const ask = () => H.question().then((r) => setQ(r.question), () => {});
@@ -411,10 +422,10 @@ function TasteTab({ me, reload }) {
       <Limits t={t} onSaved={(x) => { setT(x); reload(); }} />
       <section className="panel" aria-label="Your times">
         <h2 className="h3">Your times</h2>
-        <div className="hd-heat hd-week">
+        {t.windows?.length ? <YourHours t={t} /> : <div className="hd-heat hd-week">
           <div className="hh-row hh-head"><span />{PARTS.map((x) => <span key={x}>{x}</span>)}</div>
           {DAYS.map((d) => <div className="hh-row" key={d}><span>{d}</span>{PARTS.map((x) => inWins(t.windows, d, x) ? <span key={x} className="hh-c good" style={{ "--b": t.grid[`${d} ${x}`] }} title={`${d} ${x}: ${pct(t.grid[`${d} ${x}`])}`} /> : <span key={x} className="hh-c off" title={`${d} ${x}: outside your limits`} />)}</div>)}
-        </div>
+        </div>}
         <p className="hd-fine">A stronger colour is better for you{t.windows?.length ? "; grey is outside your limits" : ""}. Until you answer, your agent assumes what suits most people who work or study: weekday evenings and weekend mornings.</p>
       </section>
       <section className="panel hd-set" aria-label="Your records">
