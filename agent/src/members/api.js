@@ -173,6 +173,7 @@ export async function route(req, res, u, { json, o, forget }) {
     const teams = b.teams;
     if (!Array.isArray(teams) || teams.length !== 2 || teams.some((t) => !Array.isArray(t) || !t.length || t.length > 4 || t.some((id) => typeof id !== "string"))) return send(400, { error: "teams is two lists of member ids (1 to 4 each)." });
     if (![0, 1].includes(b.winner)) return send(400, { error: "winner is 0 or 1 (the team that won)." });
+    if (b.sport !== undefined && !T.SPORTS.includes(String(b.sport).toLowerCase())) return send(400, { error: `sport is one of: ${T.SPORTS.join(", ")}.` });
     if (b.mode !== undefined && !["competitive", "casual"].includes(b.mode)) return send(400, { error: "mode is competitive or casual." });
     if (teams.flat().some((id) => id !== me.id && !M.nameOf(id))) return send(400, { error: "Every player is a member." });
     const club = b.club ? C.find(String(b.club)) : null;
@@ -230,6 +231,7 @@ async function channel(req, res, p, send) {
     if (["/huddle/delegate", "/huddle/open", "/huddle/home"].includes(sub)) return send(403, { error: "Only your person changes this, with their own session: it is their permission, not yours." });
     // over the channel limits only get tighter: loosening them is the person's call
     if (sub === "/huddle/limits" && req.method === "POST") {
+      { const bad = badInput("/huddle/limits", b); if (bad) return send(400, { error: bad }); } // (checked before comparing)
       const t = T.get(owner), _mins = (ws) => (ws || []).reduce((n, w) => n + w.days.length * ((+w.to.slice(0, 2) * 60 + +w.to.slice(3)) - (+w.from.slice(0, 2) * 60 + +w.from.slice(3))), 0);
       const looser = (b.maxKm != null && t.limitKm != null && +b.maxKm > t.limitKm) || (b.maxEach != null && t.limitEach != null && +b.maxEach > t.limitEach)
         || (b.maxKm === null && t.limitKm != null) || (b.maxEach === null && t.limitEach != null)

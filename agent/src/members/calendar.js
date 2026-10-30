@@ -93,6 +93,9 @@ function occurrences(ev, tz, until) {
   const isEx = (w, t) => ex.has(t) || ex.has(dayNum(w));
   const out = [], r = ev.rrule;
   if (!r || !["WEEKLY", "DAILY"].includes(r.FREQ)) return [[t0, t0 + len]]; // other rules: the first time only
+  // a rule that can't be right (INTERVAL under 1, a BYDAY with no real day) makes the event unreadable: it adds no busy time
+  if (r.INTERVAL != null && !(+r.INTERVAL >= 1)) return [];
+  if (r.BYDAY && !r.BYDAY.split(",").some((x) => BYDAY[x.replace(/^[+-]?\d+/, "").toUpperCase()] != null)) return [];
   const interval = Math.max(1, +r.INTERVAL || 1), count = r.COUNT ? +r.COUNT : Infinity;
   const untilR = r.UNTIL ? (() => { const u = when(r.UNTIL, {}); return u ? (u.allDay ? instant(addDays(u.wall, 1), zone) - 1 : instant(u.wall, u.zone === "floating" ? zone : u.zone)) : Infinity; })() : Infinity;
   let n = 0;

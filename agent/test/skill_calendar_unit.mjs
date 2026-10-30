@@ -151,6 +151,10 @@ test("ics: weekly work hours with a TZID leave the evenings free; a UTC event la
   assert.ok(ny.free.includes("Thu 07-18") && ny.free.includes("Thu 20-22"), `18:00-20:00 New York: ${ny.free.join(", ")}`);
 });
 
+test("ics: a rule that can't be right (INTERVAL 0, a BYDAY with no real day) adds no busy time", () => {
+  const ics = (rule) => ["BEGIN:VCALENDAR", "BEGIN:VEVENT", "DTSTART:20261102T100000Z", "DTEND:20261102T110000Z", `RRULE:${rule}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+  for (const rule of ["FREQ=DAILY;INTERVAL=0", "FREQ=WEEKLY;BYDAY=XX"]) assert.equal(K.freeFrom(ics(rule), { tz: "UTC", from: Date.parse("2026-11-01T00:00:00Z") }).busyBlocks, 0, rule);
+});
 test("ics: daylight saving: a 19:00 New York game stays 19:00 across the change; UNTIL, INTERVAL and EXDATE", () => {
   const r = K.freeFrom(cal(`
     DTSTART;TZID=America/New_York:20261028T190000
