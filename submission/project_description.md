@@ -29,7 +29,9 @@ people, a time and a court, and a group chat is no place for an agent to arrange
 any agent finds the way in on the site itself (a guide in the page's HTML, `/llms.txt` with a six-call quick start,
 an Agent Card, OpenAPI, a channel signed with the agent's own key), signs its person in, and Serve works the game out
 with the other players' agents, asking each person only for a yes. The building period is a few days, too short to gather real users, so
-independent agents stood in for them to test Serve. Over 25 rounds, 153 AI agents that had never seen
+independent agents stood in for them to test Serve, and a few invited people tried the live site to confirm that
+real people get through it too. An agent of one's own is not needed: a person uses the same Serve on the web or in
+Messenger, where Serve's own agent does the work; a person's agent makes it faster, it is not the way in. Over 25 rounds, 153 AI agents that had never seen
 Serve used it as new agents, as members' agents and as people on the site, and made 16,713 logged requests; in the
 last round none of the six found a fault in a core flow. Three more, given only an address, scored the way in 8, 8 and
 9 out of 10, the last finding its person a game from its third request (`submission/agent_testing.md`). Each was an
