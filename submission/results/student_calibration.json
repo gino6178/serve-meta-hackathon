@@ -1,0 +1,747 @@
+{
+ "label": "Calibration of the 1B student's confidence against agreement with its teacher (Muse Glimmer), the risk-coverage curve, and thresholds by conformal risk control and learn-then-test. bf16 1B v3 predictions; the served int4 picks the same option on 492/500 test and 183/196 decider cases.",
+ "at": "2026-10-30T10:37:45.572Z",
+ "model": "Llama 3.2 1B Instruct, distilled (1b_v3), bf16, short prompt",
+ "served": {
+  "model": "serve-jev-1b-v3-Q4_K_M",
+  "sure": 0.6
+ },
+ "eps": 0.05,
+ "delta": 0.05,
+ "sets": {
+  "test": {
+   "file": "submission/results/decision_model/preds_1b_v3_test.jsonl",
+   "teacher": "Glimmer's 3 answers per case",
+   "calibration": {
+    "cases": 500,
+    "readMatches": 499,
+    "ece": 0.052,
+    "agreement": 0.895,
+    "meanConfidence": 0.938,
+    "bins": [
+     {
+      "from": 0.3,
+      "n": 1,
+      "confidence": 0.371,
+      "agreement": 0
+     },
+     {
+      "from": 0.4,
+      "n": 2,
+      "confidence": 0.451,
+      "agreement": 0.167
+     },
+     {
+      "from": 0.5,
+      "n": 15,
+      "confidence": 0.57,
+      "agreement": 0.667
+     },
+     {
+      "from": 0.6,
+      "n": 16,
+      "confidence": 0.636,
+      "agreement": 0.688
+     },
+     {
+      "from": 0.7,
+      "n": 21,
+      "confidence": 0.752,
+      "agreement": 0.651
+     },
+     {
+      "from": 0.8,
+      "n": 41,
+      "confidence": 0.865,
+      "agreement": 0.764
+     },
+     {
+      "from": 0.9,
+      "n": 404,
+      "confidence": 0.985,
+      "agreement": 0.944
+     }
+    ],
+    "riskCoverage": [
+     {
+      "threshold": 0,
+      "coverage": 0.998,
+      "disagreement": 0.104
+     },
+     {
+      "threshold": 0.4,
+      "coverage": 0.996,
+      "disagreement": 0.102
+     },
+     {
+      "threshold": 0.5,
+      "coverage": 0.992,
+      "disagreement": 0.099
+     },
+     {
+      "threshold": 0.6,
+      "coverage": 0.962,
+      "disagreement": 0.092
+     },
+     {
+      "threshold": 0.7,
+      "coverage": 0.93,
+      "disagreement": 0.085
+     },
+     {
+      "threshold": 0.8,
+      "coverage": 0.888,
+      "disagreement": 0.072
+     },
+     {
+      "threshold": 0.9,
+      "coverage": 0.806,
+      "disagreement": 0.055
+     },
+     {
+      "threshold": 0.95,
+      "coverage": 0.74,
+      "disagreement": 0.047
+     }
+    ],
+    "riskCoverageFine": [
+     {
+      "threshold": 0.9997,
+      "coverage": 0.01,
+      "disagreement": 0
+     },
+     {
+      "threshold": 0.9973,
+      "coverage": 0.228,
+      "disagreement": 0.009
+     },
+     {
+      "threshold": 0.9944,
+      "coverage": 0.376,
+      "disagreement": 0.021
+     },
+     {
+      "threshold": 0.9909,
+      "coverage": 0.468,
+      "disagreement": 0.028
+     },
+     {
+      "threshold": 0.9867,
+      "coverage": 0.548,
+      "disagreement": 0.04
+     },
+     {
+      "threshold": 0.9806,
+      "coverage": 0.616,
+      "disagreement": 0.039
+     },
+     {
+      "threshold": 0.9711,
+      "coverage": 0.672,
+      "disagreement": 0.045
+     },
+     {
+      "threshold": 0.9541,
+      "coverage": 0.73,
+      "disagreement": 0.047
+     },
+     {
+      "threshold": 0.9192,
+      "coverage": 0.78,
+      "disagreement": 0.05
+     },
+     {
+      "threshold": 0.8873,
+      "coverage": 0.83,
+      "disagreement": 0.061
+     },
+     {
+      "threshold": 0.8204,
+      "coverage": 0.882,
+      "disagreement": 0.071
+     },
+     {
+      "threshold": 0.6716,
+      "coverage": 0.932,
+      "disagreement": 0.086
+     },
+     {
+      "threshold": 0.5586,
+      "coverage": 0.982,
+      "disagreement": 0.098
+     },
+     {
+      "threshold": 0.3708,
+      "coverage": 0.998,
+      "disagreement": 0.104
+     }
+    ]
+   },
+   "served": {
+    "threshold": 0.6,
+    "cases": 500,
+    "answered": 481,
+    "coverage": 0.962,
+    "disagreement": 0.092,
+    "allCasesRisk": 0.089
+   },
+   "split": {
+    "calibration": {
+     "cases": 250,
+     "members": 250
+    },
+    "test": {
+     "cases": 250,
+     "members": 250
+    }
+   },
+   "crc": {
+    "eps": 0.05,
+    "n": 250,
+    "threshold": 0.79,
+    "steps": [
+     {
+      "threshold": 1,
+      "answered": 2,
+      "risk": 0,
+      "bound": 0.004
+     },
+     {
+      "threshold": 0.998,
+      "answered": 37,
+      "risk": 0,
+      "bound": 0.004
+     },
+     {
+      "threshold": 0.996,
+      "answered": 76,
+      "risk": 0.001,
+      "bound": 0.005
+     },
+     {
+      "threshold": 0.993,
+      "answered": 104,
+      "risk": 0.007,
+      "bound": 0.011
+     },
+     {
+      "threshold": 0.99,
+      "answered": 122,
+      "risk": 0.012,
+      "bound": 0.016
+     },
+     {
+      "threshold": 0.986,
+      "answered": 140,
+      "risk": 0.017,
+      "bound": 0.021
+     },
+     {
+      "threshold": 0.981,
+      "answered": 155,
+      "risk": 0.02,
+      "bound": 0.024
+     },
+     {
+      "threshold": 0.972,
+      "answered": 170,
+      "risk": 0.024,
+      "bound": 0.028
+     },
+     {
+      "threshold": 0.956,
+      "answered": 187,
+      "risk": 0.028,
+      "bound": 0.032
+     },
+     {
+      "threshold": 0.919,
+      "answered": 201,
+      "risk": 0.033,
+      "bound": 0.037
+     },
+     {
+      "threshold": 0.881,
+      "answered": 215,
+      "risk": 0.041,
+      "bound": 0.045
+     },
+     {
+      "threshold": 0.777,
+      "answered": 222,
+      "risk": 0.048,
+      "bound": 0.052
+     }
+    ],
+    "onTest": {
+     "cases": 250,
+     "answered": 227,
+     "coverage": 0.908,
+     "disagreement": 0.093,
+     "allCasesRisk": 0.084
+    }
+   },
+   "ltt": {
+    "eps": 0.05,
+    "delta": 0.05,
+    "n": 250,
+    "level": 0.00455,
+    "threshold": null,
+    "steps": [
+     {
+      "threshold": 0.5,
+      "answered": 249,
+      "disagreement": 0.099,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.55,
+      "answered": 248,
+      "disagreement": 0.095,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.6,
+      "answered": 243,
+      "disagreement": 0.088,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.65,
+      "answered": 236,
+      "disagreement": 0.081,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.7,
+      "answered": 231,
+      "disagreement": 0.072,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.75,
+      "answered": 225,
+      "disagreement": 0.058,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.8,
+      "answered": 220,
+      "disagreement": 0.052,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.85,
+      "answered": 217,
+      "disagreement": 0.049,
+      "p": 0.998,
+      "passes": false
+     },
+     {
+      "threshold": 0.9,
+      "answered": 208,
+      "disagreement": 0.046,
+      "p": 0.973,
+      "passes": false
+     },
+     {
+      "threshold": 0.95,
+      "answered": 191,
+      "disagreement": 0.037,
+      "p": 0.675,
+      "passes": false
+     },
+     {
+      "threshold": 0.99,
+      "answered": 119,
+      "disagreement": 0.025,
+      "p": 0.393,
+      "passes": false
+     }
+    ],
+    "onTest": {
+     "coverage": 0,
+     "disagreement": null,
+     "answered": 0
+    }
+   }
+  },
+  "decider": {
+   "file": "submission/results/decision_model/preds_1b_v3_decider.jsonl",
+   "teacher": "Glimmer's full and full2 answers",
+   "calibration": {
+    "cases": 196,
+    "readMatches": 196,
+    "ece": 0.061,
+    "agreement": 0.681,
+    "meanConfidence": 0.742,
+    "bins": [
+     {
+      "from": 0.4,
+      "n": 8,
+      "confidence": 0.489,
+      "agreement": 0.5
+     },
+     {
+      "from": 0.5,
+      "n": 49,
+      "confidence": 0.552,
+      "agreement": 0.469
+     },
+     {
+      "from": 0.6,
+      "n": 36,
+      "confidence": 0.65,
+      "agreement": 0.583
+     },
+     {
+      "from": 0.7,
+      "n": 32,
+      "confidence": 0.741,
+      "agreement": 0.656
+     },
+     {
+      "from": 0.8,
+      "n": 14,
+      "confidence": 0.848,
+      "agreement": 0.714
+     },
+     {
+      "from": 0.9,
+      "n": 57,
+      "confidence": 0.973,
+      "agreement": 0.956
+     }
+    ],
+    "riskCoverage": [
+     {
+      "threshold": 0,
+      "coverage": 1,
+      "disagreement": 0.319
+     },
+     {
+      "threshold": 0.4,
+      "coverage": 1,
+      "disagreement": 0.319
+     },
+     {
+      "threshold": 0.5,
+      "coverage": 0.959,
+      "disagreement": 0.311
+     },
+     {
+      "threshold": 0.6,
+      "coverage": 0.709,
+      "disagreement": 0.234
+     },
+     {
+      "threshold": 0.7,
+      "coverage": 0.526,
+      "disagreement": 0.17
+     },
+     {
+      "threshold": 0.8,
+      "coverage": 0.362,
+      "disagreement": 0.092
+     },
+     {
+      "threshold": 0.9,
+      "coverage": 0.291,
+      "disagreement": 0.044
+     },
+     {
+      "threshold": 0.95,
+      "coverage": 0.224,
+      "disagreement": 0.023
+     }
+    ],
+    "riskCoverageFine": [
+     {
+      "threshold": 0.9998,
+      "coverage": 0.005,
+      "disagreement": 0
+     },
+     {
+      "threshold": 0.9926,
+      "coverage": 0.107,
+      "disagreement": 0
+     },
+     {
+      "threshold": 0.9655,
+      "coverage": 0.189,
+      "disagreement": 0.027
+     },
+     {
+      "threshold": 0.9139,
+      "coverage": 0.265,
+      "disagreement": 0.029
+     },
+     {
+      "threshold": 0.8149,
+      "coverage": 0.347,
+      "disagreement": 0.081
+     },
+     {
+      "threshold": 0.7509,
+      "coverage": 0.423,
+      "disagreement": 0.127
+     },
+     {
+      "threshold": 0.7025,
+      "coverage": 0.5,
+      "disagreement": 0.163
+     },
+     {
+      "threshold": 0.6687,
+      "coverage": 0.582,
+      "disagreement": 0.184
+     },
+     {
+      "threshold": 0.62,
+      "coverage": 0.668,
+      "disagreement": 0.218
+     },
+     {
+      "threshold": 0.5877,
+      "coverage": 0.745,
+      "disagreement": 0.247
+     },
+     {
+      "threshold": 0.5546,
+      "coverage": 0.821,
+      "disagreement": 0.273
+     },
+     {
+      "threshold": 0.5262,
+      "coverage": 0.903,
+      "disagreement": 0.288
+     },
+     {
+      "threshold": 0.4911,
+      "coverage": 0.98,
+      "disagreement": 0.313
+     },
+     {
+      "threshold": 0.4696,
+      "coverage": 1,
+      "disagreement": 0.319
+     }
+    ]
+   },
+   "served": {
+    "threshold": 0.6,
+    "cases": 196,
+    "answered": 139,
+    "coverage": 0.709,
+    "disagreement": 0.234,
+    "allCasesRisk": 0.166
+   },
+   "split": {
+    "calibration": {
+     "cases": 107,
+     "members": 85
+    },
+    "test": {
+     "cases": 89,
+     "members": 67
+    }
+   },
+   "crc": {
+    "eps": 0.05,
+    "n": 107,
+    "threshold": 0.812,
+    "steps": [
+     {
+      "threshold": 0.999,
+      "answered": 3,
+      "risk": 0,
+      "bound": 0.009
+     },
+     {
+      "threshold": 0.999,
+      "answered": 6,
+      "risk": 0,
+      "bound": 0.009
+     },
+     {
+      "threshold": 0.997,
+      "answered": 9,
+      "risk": 0,
+      "bound": 0.009
+     },
+     {
+      "threshold": 0.992,
+      "answered": 13,
+      "risk": 0,
+      "bound": 0.009
+     },
+     {
+      "threshold": 0.987,
+      "answered": 16,
+      "risk": 0,
+      "bound": 0.009
+     },
+     {
+      "threshold": 0.982,
+      "answered": 19,
+      "risk": 0.005,
+      "bound": 0.014
+     },
+     {
+      "threshold": 0.966,
+      "answered": 22,
+      "risk": 0.009,
+      "bound": 0.019
+     },
+     {
+      "threshold": 0.948,
+      "answered": 25,
+      "risk": 0.009,
+      "bound": 0.019
+     },
+     {
+      "threshold": 0.935,
+      "answered": 28,
+      "risk": 0.009,
+      "bound": 0.019
+     },
+     {
+      "threshold": 0.91,
+      "answered": 31,
+      "risk": 0.014,
+      "bound": 0.023
+     },
+     {
+      "threshold": 0.883,
+      "answered": 34,
+      "risk": 0.023,
+      "bound": 0.032
+     },
+     {
+      "threshold": 0.851,
+      "answered": 37,
+      "risk": 0.037,
+      "bound": 0.046
+     },
+     {
+      "threshold": 0.812,
+      "answered": 40,
+      "risk": 0.037,
+      "bound": 0.046
+     },
+     {
+      "threshold": 0.811,
+      "answered": 41,
+      "risk": 0.042,
+      "bound": 0.051
+     }
+    ],
+    "onTest": {
+     "cases": 89,
+     "answered": 29,
+     "coverage": 0.326,
+     "disagreement": 0.052,
+     "allCasesRisk": 0.017
+    }
+   },
+   "ltt": {
+    "eps": 0.05,
+    "delta": 0.05,
+    "n": 107,
+    "level": 0.00455,
+    "threshold": null,
+    "steps": [
+     {
+      "threshold": 0.5,
+      "answered": 104,
+      "disagreement": 0.308,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.55,
+      "answered": 94,
+      "disagreement": 0.282,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.6,
+      "answered": 80,
+      "disagreement": 0.269,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.65,
+      "answered": 67,
+      "disagreement": 0.216,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.7,
+      "answered": 59,
+      "disagreement": 0.195,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.75,
+      "answered": 49,
+      "disagreement": 0.153,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.8,
+      "answered": 41,
+      "disagreement": 0.11,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.85,
+      "answered": 37,
+      "disagreement": 0.108,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.9,
+      "answered": 33,
+      "disagreement": 0.061,
+      "p": 1,
+      "passes": false
+     },
+     {
+      "threshold": 0.95,
+      "answered": 24,
+      "disagreement": 0.042,
+      "p": 0.982,
+      "passes": false
+     },
+     {
+      "threshold": 0.99,
+      "answered": 14,
+      "disagreement": 0,
+      "p": 0.488,
+      "passes": false
+     }
+    ],
+    "onTest": {
+     "coverage": 0,
+     "disagreement": null,
+     "answered": 0
+    }
+   }
+  }
+ }
+}
