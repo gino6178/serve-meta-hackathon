@@ -26,6 +26,7 @@ export async function peerCases() {
   const { TaskState, AGENT_CARD_PATH, A2A_PROTOCOL_VERSION, generateAgentCardSignature } = await import("@a2a-js/sdk");
   const peer = await import("../src/a2a/peer.js");
   const a2aServer = await import("../src/a2a/server.js");
+  const ext = await import("../src/a2a/ext.js");
   const { negotiate } = await import("../src/a2a/talk.js");
   const play = await import("../src/club/play.js");
   const { readClub } = await import("../src/club/club.js");
@@ -96,7 +97,7 @@ export async function peerCases() {
   const talk = (id) => negotiate({ me, members: [peer.member(id)], venues, format: "singles", minutes: 90, prefer: { day: "Thu", start: "19:00" } });
   const msg = (data, contextId = crypto.randomUUID()) => JSON.stringify({ jsonrpc: "2.0", id: 1, method: "SendMessage", params: { message: { messageId: crypto.randomUUID(), contextId, role: "ROLE_USER", parts: [{ data, mediaType: "application/json" }] } } });
   const rpcBody = (method, params) => JSON.stringify({ jsonrpc: "2.0", id: 1, method, params });
-  const post = (member, body, h) => fetch(`${A}/a2a/members/${member}/`, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", ...h }, body }).then(async (r) => ({ status: r.status, json: await r.json().catch(() => null) }));
+  const post = (member, body, h) => fetch(`${A}/a2a/members/${member}/`, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", ...ext.header(A), ...h }, body }).then(async (r) => ({ status: r.status, json: await r.json().catch(() => null) }));
   const signedBy = (k, member, body, extra = {}) => ({ [peer.HEADER]: peer.signToken({ key: k.key, kid: k.kid, aud: Akid, method: "POST", path: `/a2a/members/${member}/`, body, ...extra }) });
   const proposal = (start = "20:00") => ({ kind: "serve.proposal", sport: "badminton", format: "singles", minutes: 90, proposal: { id: "t1", date: next, start, venue: "riverside", court: 2 }, choices: [{ id: "t1", date: next, start, venue: "riverside", court: 2 }], from: "you" });
   const refusedBy = (why) => fs.readFileSync(path.join(D, "peer_log.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)).filter((e) => e.why === why).length;

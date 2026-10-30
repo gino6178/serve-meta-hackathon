@@ -3,10 +3,11 @@
 // such as TASK_STATE_COMPLETED, one key per part: {data} or {text}) rather than the SDK's internal objects. Your agent
 // talks to the other members' agents through it the same way it would talk to an agent run by anyone else: it knows
 // only the base URL.
-import { ClientFactory, JsonRpcTransportFactory, withA2AExtensions } from "@a2a-js/sdk/client";
+import { ClientFactory, JsonRpcTransportFactory, ServiceParameters, withA2AExtensions } from "@a2a-js/sdk/client";
 import { tracingFetch } from "../core/trace.js";
 import { authHeader } from "../core/auth.js";
 import * as peer from "./peer.js";
+import { REQUIRED_PATHS } from "./ext.js";
 import { Role, TaskState, verifyAgentCardSignature, AGENT_CARD_PATH, A2A_PROTOCOL_VERSION } from "@a2a-js/sdk";
 
 // every request carries the W3C trace context (so the member's side of a talk is in the same trace) and the gateway's
@@ -39,7 +40,8 @@ const factory = new ClientFactory({ transports: [new JsonRpcTransportFactory({ f
 // A member's card is used only if it is signed by the key published at its own address (/a2a/keys.json there) and
 // names that same address for its messages: whoever answers at the address endorsed the card, and a card served at one
 // member's address can't send the talk to another (or to this gateway, with its token). A key named elsewhere (the JWS
-// jku) is not fetched, and neither fetch follows a redirect. Over plain HTTP someone on the path could replace both the
+// jku) is not fetched, and a card whose jku is not that address's /a2a/keys.json is refused; neither fetch follows a
+// redirect. Over plain HTTP someone on the path could replace both the
 // card and the key, so for agents on other servers this is as strong as their TLS. A2A_VERIFY_CARDS=off skips it.
 // For a peer gateway on the allow-list the key is the one pinned on first use (peer.js), never one fetched again: a card
 // signed by any other key is refused and logged.
@@ -52,7 +54,8 @@ const keyAt = (origin) => {
   return keys.get(origin);
 };
 // (a key it does not have yet, after the other side made a new one: the list is fetched once more)
-export const verifierFor = (origin) => verifyAgentCardSignature(async (kid) => {
+export const verifierFor = (origin) => verifyAgentCardSignature(async (kid, jku) => {
+  if (jku && jku !== `${origin}/a2a/keys.json`) throw new Error(`its key is named at ${String(jku).slice(0, 80)}, not at ${origin}`);
   let k = (await keyAt(origin)).keys?.find((x) => x.kid === kid);
   if (!k) { keys.delete(origin); k = (await keyAt(origin)).keys?.find((x) => x.kid === kid); }
   if (!k) throw new Error(`no key ${String(kid).slice(0, 40)} at ${origin}`);
@@ -67,7 +70,7 @@ const algOf = (card) => { try { return JSON.parse(Buffer.from(card.signatures[0]
 const clientFor = async (base) => {
   const url = base.endsWith("/") ? base : `${base}/`; // the card is found relative to the base
   if (!clients.has(url)) {
-    if (process.env.A2A_VERIFY_CARDS === "off") { clients.set(url, await factory.createFromUrl(url)); checks.set(url, { verified: false, skipped: true, at: Date.now() }); }
+    if (process.env.A2A_VERIFY_CARDS === "off") { const c = await factory.createFromUrl(url); cards.set(url, await c.getAgentCard()); clients.set(url, c); checks.set(url, { verified: false, skipped: true, at: Date.now() }); }
     else {
       const no = (e) => { checks.set(url, { verified: false, at: Date.now(), reason: String(e.message || e).slice(0, 120) }); throw e; };
       // the card as it was served is what is checked, and the client is made from that same card (the SDK's own
@@ -103,11 +106,12 @@ const plain = (t) => (!t?.status ? t : { ...t, status: { ...t.status, state: Tas
 export const declared = (base, extPath) => (cards.get(slash(base))?.capabilities?.extensions || []).map((e) => e.uri).filter((u) => { try { return new URL(u).pathname === extPath; } catch { return false; } });
 // SendMessage: the task the agent made for it (or the message it answered with), in the protocol's JSON shape.
 // extensions: the paths of extensions the message uses, sent as A2A-Extensions with the URIs the agent's card declares
-// for them; signal: an earlier limit than A2A_TIMEOUT_MS (a hold, which does not wait for a model)
+// for them, with the proposal and hold extensions (ext.js) the card declares, which a Serve agent requires on every
+// message; signal: an earlier limit than A2A_TIMEOUT_MS (a hold, which does not wait for a model)
 export async function send(base, message, { extensions = [], signal } = {}) {
   const c = await clientFor(base);
-  const uris = extensions.flatMap((p) => declared(base, p));
-  const opts = { ...(uris.length ? { serviceParameters: withA2AExtensions(...uris) } : {}), ...(signal ? { signal } : {}) };
+  const uris = [...new Set([...REQUIRED_PATHS, ...extensions].flatMap((p) => declared(base, p)))];
+  const opts = { ...(uris.length ? { serviceParameters: ServiceParameters.create(withA2AExtensions(...uris)) } : {}), ...(signal ? { signal } : {}) };
   const res = await c.sendMessage({ message: { messageId: message.messageId, contextId: message.contextId || "", taskId: message.taskId || "", role: Role.ROLE_USER, parts: message.parts.map(toSdk), extensions: uris, metadata: message.metadata || {}, referenceTaskIds: [] } }, Object.keys(opts).length ? opts : undefined);
   // (the message's metadata may carry the trace context, traceparent, which the receiving agent continues)
   return plain(res);

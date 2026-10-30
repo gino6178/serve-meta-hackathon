@@ -27,6 +27,7 @@ const { DefaultRequestHandler, AgentEvent, InMemoryTaskStore } = await import("@
 const { agentCardHandler, jsonRpcHandler, UserBuilder } = await import("@a2a-js/sdk/server/express");
 const { TaskState, Role, AGENT_CARD_PATH, A2A_PROTOCOL_VERSION, generateAgentCardSignature } = await import("@a2a-js/sdk");
 const a2aServer = await import("../src/a2a/server.js");
+const ext = await import("../src/a2a/ext.js");
 const { negotiate } = await import("../src/a2a/talk.js");
 const { readClub } = await import("../src/club/club.js");
 const { helpers } = await import("../src/club/play.js");
@@ -42,7 +43,7 @@ const M = (id) => club.members.find((m) => m.id === id);
 console.log("\n1. Another agent attacking a member's agent (the gateway's A2A endpoint)");
 const gw = await listen((req, res) => a2aServer.handle(req, res)), G = `http://127.0.0.1:${gw.address().port}`;
 let seq = 0, leoTask = null;
-const rpc = (member, method, params, h = AUTH) => fetch(`${G}/a2a/members/${member}/`, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", ...h }, body: JSON.stringify({ jsonrpc: "2.0", id: ++seq, method, params }) });
+const rpc = (member, method, params, h = AUTH) => fetch(`${G}/a2a/members/${member}/`, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", ...ext.header(process.env.A2A_BASE || "http://127.0.0.1:8790"), ...h }, body: JSON.stringify({ jsonrpc: "2.0", id: ++seq, method, params }) });
 const send = async (member, data, messageId = crypto.randomUUID(), contextId = crypto.randomUUID()) => (await rpc(member, "SendMessage", { message: { messageId, contextId, role: "ROLE_USER", parts: [{ data, mediaType: "application/json" }] } })).json();
 const state = (j) => j.result?.task?.status?.state || j.result?.status?.state || j.error?.message;
 const next = (() => { const d = new Date(); do d.setDate(d.getDate() + 1); while (d.getDay() !== 4); return helpers.ymd(d); })(); // Leo is free Thursdays 19-22
