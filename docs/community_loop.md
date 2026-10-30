@@ -247,6 +247,24 @@ With the canary at 20% of the beta members, a club needs about 100 of them befor
 stops costing catches. Below that, a false rollback is cheap: one flag goes back to its default and the proposal opens
 again.
 
+**The smallest harm each canary catches** (`node test/loop_canary_sim.mjs --mde`, `submission/results/canary_mde.json`).
+The same simulated club and the monitor's real schedule (a look every 5 minutes for 7 days), with the bad change swept
+from "Not this week" 25% of asks to 27.5% .. 85%, 10,000 trials per point. The table gives the smallest rise in the
+share of thumbs down (from 29.4%) that the rule rolls back at least 80% of the time, at alpha 0.05, and how often it
+rolls back a change that does nothing:
+
+| Canary members | e-process (default): smallest rise caught 80% | False rollback | z-test, every look (`LOOP_SOFT_TEST=z`): smallest rise | False rollback | z-test once, at the end (reference) | False rollback |
+|---|---|---|---|---|---|---|
+| 3 | +58.8 points | 0.6% | +35.3 | 19.2% | +41.2 | 6.0% |
+| 5 | +50.0 | 0.5% | +26.5 | 21.7% | +32.4 | 5.1% |
+| 10 | +38.2 | 0.5% | +17.6 | 26.2% | +23.5 | 5.2% |
+| 20 | +26.5 | 0.5% | +11.8 | 29.6% | +17.6 | 4.3% |
+
+The z-test looked at every 5 minutes buys its smaller harms with a false rollback in 1 of 4 to 5 canaries; the
+e-process keeps that under 1% (alpha is a bound over the whole canary, and it is not tight here) and pays for it in
+harm: a canary of 3 or 5 catches only a large one within the 7 days. A finer harm needs a bigger canary, not a looser
+test.
+
 ### Grouping, drafts and bridging, measured
 
 These three were measured outside `loop_eval`, over three seeds (7, 11 and 13), so the result does not rest on one
