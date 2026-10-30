@@ -2,6 +2,10 @@
 
 **Play more. Manage less.** Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Your World
 
+| For | What was measured | Real people |
+|---|---|---|
+| Anyone who plays a ball sport for fun, and groups nobody organises (a school's children, older adults, a charity day) | An agent given only the address found its person a game from its third request; 153 independent agents ended with a round with no core-flow fault (5.18) | Invited people on the live site since 29 October: 8 people, 2 clubs they started, 2 games filled, the first player in 1 to 46 minutes after a game was posted (5.17, 7) |
+
 Serve is a platform where people and agents make games together. Every person on it has an agent: one that Serve
 gives them, on the web and in Messenger, or their own, which comes in through the same open door. A game needs other
 people, a time and a court, and a group chat is no place for an agent to arrange one. On Serve the person says what
@@ -33,14 +37,14 @@ share with friends.
 Every number below names the file it comes from; section 2 gives the hardware.
 
 **What surprised us.** Three findings from running Meta's models in a product, each measured:
-- **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
+- **A pitfall: Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
   of calls came back empty, nearly all from a quick pick whose budget ran out mid-thought; with thinking switched off it
   reasoned in a hidden channel and returned nothing. Every call now asks for `think: "low"` with 900 tokens of room (5.9).
 - **A 1B student agrees with Glimmer as often as Glimmer agrees with itself.** Llama 3.2 1B, distilled from 4,868 of
   Glimmer's choices and run in int4 on the CPU, agrees with Glimmer on 89.5% of 500 held-out cases, against Glimmer's
-  88.8% with itself, the same within noise. It answers in about 0.9 s against about 40 s, and cut Glimmer's member answers by 54 to 67% (3.12).
-- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category stopped ordinary injury talk often enough
-  to reach the player about seven times in ten. S6 now blocks a text only when code also finds a dose, a medicine to
+  88.8% with itself; with 500 cases each rate is good to about 3 points either way, so the two are the same. It answers in about 0.9 s against about 40 s, and cut Glimmer's member answers by 54 to 67% (3.12).
+- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category flagged 6 to 8 of 15 ordinary
+  injury-care answers, so about three in ten never reached the player. S6 now blocks a text only when code also finds a dose, a medicine to
   take, or a condition the player is said to have (3.6).
 
 **The Meta models, in one line.** Muse Glimmer runs every agent; a Llama 3.2 1B distilled from it answers the easy
@@ -58,7 +62,9 @@ for keeps making the platform better, under a safety review that a person contro
 **Built during the hackathon.** Everything in the repository was written during the building period (October 27 to
 November 4, 2026). The one earlier piece of mine is TrackNetV5, a published shuttle tracker, fetched at run time and off
 unless `BALL_TRACKING=1`; none of its code is in the repository. The code is at
-https://github.com/gino6178/serve-meta-hackathon, restructured into its current layout on October 28 and 29.
+https://github.com/gino6178/serve-meta-hackathon. Building started at 00:59 on October 27 (Taiwan time) in a working
+repository (338 commits over October 27 and 28); on the night of October 28 the code was moved into this repository one
+file per commit, 864 commits in four minutes, and work since then is ordinary commits (section 7.1).
 
 **Tried by invited people.** Since 29 October Serve runs on a public address (3.17), and a few invited people tried
 it there, to confirm that real people get through it too (section 7). Each player's agent runs in a process of its
@@ -240,7 +246,7 @@ model reads the notes, as LongMemEval does [10].
 Llama Guard 3 1B [11] runs on its own CPU-only Ollama (`agent/src/safety/guard.js`). It reads what the player writes in
 Messenger (waiting at most 4 s) and model text for the player (at most 8 s). Prompt Guard 2 86M reads Google reviews
 before the court judge (`guard_worker.py`). Two rules came out of measuring:
-- Llama Guard flagged ordinary injury advice as S6 often enough that it reached the player about seven times in ten.
+- Llama Guard flagged 6 to 8 of 15 ordinary injury-care answers as S6, so about three in ten never reached the player.
   S6 now blocks a text only when code also finds a dose, a medicine to take, or a condition the player is said to have.
 - Code also reads plain words of self-harm, which get a helpline reply even if Llama Guard misses them or is down.
 
@@ -367,103 +373,15 @@ whole day certain to that asker is withheld. It brings the days known down to 32
 agrees every game (its best time drops from 88.9% to 81.5%). It cannot hide the hours a game needs: to agree a game the
 asker must learn that some hours are free.
 
-### 3.14 A federation of clubs
+### 3.14 to 3.18, in brief (in full in the appendix)
 
-The two-gateway A2A link (3.11) is generalized to any number of clubs (`agent/src/a2a/peer.js`). A club publishes a
-card, `/a2a/club.json`: its name, the members other clubs may ask (made-up demo members only, never a real player), a
-public profile each, and where its keys are. A gateway's `A2A_FEDERATION_FILE` lists only addresses; it reads each card
-at start and every ten minutes, and each club becomes a peer whose key is pinned on first use. Keys can be rotated: the
-old key signs a hand-over statement (`typ: serve-key-rotation+jwt`) naming the new key, published in the key set next to
-it. When a request arrives under a key it does not know, a gateway follows the statements from the key it pinned, and
-re-pins only if every link verifies; a statement signed by any other key, or a page that is not a card, is refused.
-`test/federation_unit.mjs` (4 of 4) runs three clubs over real HTTP: discovery, signed requests and a replay refused, a rotation
-followed two statements deep, and a forged rotation refused with the pin unchanged.
-
-### 3.15 Private calendars, all the way through
-
-The talk between agents could already keep calendars private (3.11). Now the code that plans for one player does too
-(`agent/src/agents/freebusy.js`): with private calendars on, the Match helper's daily ask, the planner's
-`find_partners` and its check before a talk, the play search and best match never read another member's free times.
-They ask that member's agent "free on this date at this time for 90 minutes?" and get a yes or a no. One asker may ask
-about one member at most 24 different times a day (`A2A_PROBE_BUDGET`), so a week cannot be read back hour by hour;
-past the budget the answer is no and the refusal is counted. The calendar the player sees shows the partners' rows as
-the one time their agents said yes to.
-`test/freebusy_unit.mjs` seals each member's calendar so that any read outside its own agent throws: the play search
-and the daily ask find the same best time and partners as with shared calendars, and the shared mode is shown to read
-them directly.
-
-### 3.16 A learned intent router behind the expressions
-
-A game request in Messenger is recognised by regular expressions (`match/flow.js isPlayRequest`). A message they miss
-now goes to a small softmax head on DRAMA vectors (`agent/src/match/router.js`, trained on the CPU in numpy by
-`test/router_train.py`; five classes: play, played, body, question, chat). When "play" is the most likely class the
-message goes to matchmaking, whose game still waits for the player's yes. Trained on 132 messages: 111 the simulated
-users wrote in the three runs after the fixes and 21 phrasings written for the expressions' own tests; tested on the
-judge's held-out set, written separately in a person's style (32 messages in these classes). The expressions found 6
-of 10 game requests; the router 9 of 10; the two together 10 of 10 (`submission/results/intent_router.json`).
-
-### 3.17 Live: an agent of their own for each player, clubs on a real map, invites from a sentence
-
-**One address, an agent each** (`agent/src/tenants/proxy.js`, `ops/tenants.sh`). A Cloudflare tunnel publishes a small
-proxy on the GPU server. It serves the web app's public build (no gateway token in it: the browser holds only the
-member's session) and routes by path: sign-in, members, clubs, the feed and A2A go to the club's gateway, which
-everyone shares; every other call goes to the signed-in member's own gateway, a separate process started on their
-first call, with its own data folder (memory, body log, plans, prefs) and stopped after 20 idle minutes. Leaving
-deletes the member's folder with their account. A restart of the proxy takes the running gateways up again.
-
-**Clubs anyone can start** (`agent/src/members/clubs.js`, `web/src/pages/Clubs.jsx`). A member starts a club with a
-name, a sport and a place picked on a real map (OpenStreetMap through Leaflet; the courts nearby from OpenStreetMap,
-or Google Places when OpenStreetMap's public servers are busy). Public clubs: anyone sees their games and posts, and
-posting joins. Private clubs: on the map, but their posts are for members, who ask to join and the owner says yes.
-The name and line are checked like any post. A member's agent recommends the nearest public club within 15 km.
-
-**Invites from a sentence** (`play.js inviteDraft`, `web/src/pages/Messages.jsx`). Told "Saturday morning doubles, need
-3" (or 「我想打羽球」), the agent drafts the invite: the sport and format, the day worked out by code from the words, the
-time, how many players, and the nearest court to the player. The player changes the count and taps Post; it goes into
-their club for that sport, else the shared feed, and the chat shows who has joined.
-
-**An invite as a link** (`web/src/pages/InviteLink.jsx`, `GET /api/invite`). Any invite can be shared from the feed or
-the chat (the phone's share sheet, else the link copied) to a group chat or to someone not on Serve. The link opens a
-card anyone can read without an account: the sport, the time, the place on the map and the spots left, never who is
-going, and nothing from a private club. Signing in from it (a demo account, Facebook or Instagram) joins the game
-straight away, also after a login that left the page. That is how a new club starts with no one on Serve yet.
-
-### 3.18 Four pieces of agent architecture
-
-**Active epistemic querying, by the value of information** (`agent/src/match/voi.js`). When a game request's talks have
-not landed, the agent does not give up or ask the player again. For each member and each of the player's times it
-keeps a Beta posterior of "free then", Beta(1 + yes, 1 + no), over what it has seen of that member's agent at that
-weekday and hour (the faded counts of 3.2, never a calendar), and multiplies it by the chance of a yes from the
-member's band. It then asks the one yes-or-no question whose answer most raises the expected best chance of a game,
-through the private free-or-busy channel and its budget (3.15), and talks again only on a yes. On 20,000 simulated
-requests (8 members, 6 times, hidden true availability; `test/voi_sim.mjs`, `submission/results/voi_sim.json`), one
-question by value of information then one talk found a game 51.9% of the time, against 40.7% with no question, 44.4%
-with a random question and 48.2% asking about the likeliest pair.
-
-**A critic in the loop on every counter-offer** (`agent/src/a2a/critic.js`). Before the player's agent may take a
-member's agent's counter-offer, code reviews it for the player. Probing: a member's agent that asks for more than two
-different times in one talk is mapping the player's week, and its further counters are refused. Fairness: the trips of
-the games the agent agreed are kept; when the player had the longest trip in two of their last three games, a counter
-that again gives them the longest trip by more than 10 minutes is refused, and the talk goes on with the other times.
-Each refusal is said in the trail, with the reason.
-
-**From episodes to beliefs** (`agent/src/memory/beliefs.js`). Once a week (or on ask), Muse Glimmer abstracts the
-player's live notes into a few standing beliefs about how they like to play, each citing the notes it rests on. Code
-checks every belief: the cited notes exist and are live, a belief that generalizes ("usually", "prefers") cites at least
-two, and every number in it is in what it cites; a belief that fails is dropped. The planner reads the beliefs first,
-each with how many notes stand behind it; the notes stay, and `/forget` deletes both. On 10 written notes, Glimmer gave
-3 beliefs, each resting on two notes, none dropped, in 42 s (`submission/results/beliefs_glimmer.json`), for example
-"work-night games start no earlier than 19:00 and finish by 22:00".
-
-**Proof of consent before a booking** (`agent/src/a2a/consent.js`). When a talk agrees a game, each member's agent
-that said yes signs the game's canonical record (date, start, length, venue, sport and the sorted players) with its own
-Ed25519 key; the player's agent signs when the player says yes. Booking verifies every signature against the game it
-is asked to book: a record changed after it was signed (another time or venue, a player added) or a signature made with
-another agent's key is refused. Members on a peer gateway confirm through their own gateway's mandate (3.11).
-`CONSENT=require` also refuses a game that carries no signatures.
-
-The four are tested without a model in `test/agentic_unit.mjs`; the offline suites now hold 275 tests
-(25 suites, with `test/programs_unit.mjs` and the invite tests in `test/feed_unit.mjs`).
+- **3.14 A federation of clubs:** any number of clubs link over A2A; a club's card lists only made-up demo members.
+- **3.15 Private calendars, all the way through:** with private calendars on, no planner ever reads another member's
+  free times.
+- **3.16 A learned intent router:** a small head on DRAMA vectors catches game requests the regular expressions miss.
+- **3.17 Live:** one public address, an agent of their own for each player, clubs on a real map, invites from a sentence.
+- **3.18 Agent architecture, in detail:** asking by the value of information, and the other pieces behind the pillars
+  in section 2.
 
 ### 3.19 Clubs for groups with no organiser
 
@@ -526,7 +444,7 @@ done. Where a person does wait, Serve answers in layers, each taking over only w
 | Layer | Time | What it does | State |
 |---|---|---|---|
 | 0. Code | milliseconds | Facts and rules: free times, courts, trips, limits; every decision the facts settle; the card the person sees | Built |
-| 1. Small models | about 0.5 to 2 s | The 1B student picks among workable times when it is sure (3.12); the one-pass decider reads Glimmer's choice from one token (0.53 s, 5.15) | Both on. The decider keeps a pick only when it is sure (0.85, the 5% risk level), about 8% of these choices |
+| 1. Small models | about 0.5 to 2 s | Two different things, tried in this order. The student, a separate Llama 3.2 1B model on the CPU, answers when it is sure: 96% of ordinary choices, 73% of the hardest (3.12). The one-pass decider, Glimmer itself read from one token with no reasoning (0.53 s), takes some of what the student leaves (5.15) | Both on. The decider keeps a pick only at the 5% risk level, about 8% of what reaches it |
 | 2. Glimmer | about 40 s | Only what layers 0 and 1 leave open, and the short texts; streamed step by step, so the person watches the agent work | Built |
 | 3. Ahead of time | before anyone asks | Match looks at the player's usual times and asks first, so a game is often agreed before the player thinks of it | Built |
 
@@ -534,6 +452,11 @@ done. Where a person does wait, Serve answers in layers, each taking over only w
 3 s it counts the seconds, and after 12 s it says the agent is still working and that a full answer can take up to a
 minute. A streamed answer keeps it until the stream ends; background checks never show it
 (`web/src/components/Waiting.jsx`).
+
+**Measured.** On a local copy, `POST /api/huddle/start` answered with the game's card in 7 ms at the median and
+97 ms at most (9 runs; the 10th hit the rate limit). The card is code (layer 0); the other players' agents answer into
+it as they reply, and on the local copy the simulated members do not reply in real time, so the time to an agreed
+game is not measured here.
 
 **The plan.** Show the layer-0 card at once and let layers 1 and 2 fill in and correct it; start member talks for the
 player's usual times ahead, so the answer is waiting. The target is a first card within a second and a proposal within
@@ -562,6 +485,11 @@ Wonder).
 | Meta model or tool | Status | Runs on | What it does in Serve |
 |---|---|---|---|
 | **Muse Glimmer**, open weights (27.9B, Q4_K_M) | In the app | Ollama, RTX 3090; some evaluations on A100s, same digest | Every agent: the Autopilot's tool loop, Match's question, reading "I want to play" into an intent, each member's agent's decision (in parallel, JSON Schema), filing what hurts, judging courts, captions, the body report, the loop's paraphrases, summaries and specs, the builder |
+| **Muse Voice Transcribe** (Meta Model API) | In the app, on when the server has an API key | Meta's cloud, realtime | Live voice with the agent; the player can talk over it |
+| **Muse Spark 1.3** (Meta Model API) | Off by default (`LLM_FALLBACK=on`) | Meta's cloud | A fallback when the GPU server can't take a call; also a builder model for new code (5.11) |
+| **Muse Image** (Meta Model API) | Used once | Meta's cloud | Faces for the demo club's agents and the player's own (12 images) |
+| **SAM 3.1** (Meta Model API) | Used once, as a check | Meta's cloud | Cross-checked SAM 2.1's player outline on one frame |
+| **Muse Wonder** (Meta Model API) | Evaluation only | Meta's cloud | Judged 84 labelled orbit frames (5.16) |
 | **Llama 3.2 1B**, open weights, distilled from Glimmer (LoRA, int4) | In the app | CPU | A member's choice of time when it is sure; Glimmer answers otherwise (3.12) |
 | **Llama Guard 3 1B** (Q8_0) | In the app | Ollama, CPU | The player's Messenger messages; model text for the player; the loop's screen |
 | **Prompt Guard 2 86M** | In the app | Transformers, CPU | Reviews before the court judge; the loop's screen |
@@ -621,6 +549,8 @@ Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformer
 ### 5.1 The test suites (2026-10-28, and after the restructure on 2026-10-29)
 
 "Glimmer on an A100" below is the same Muse Glimmer build (the same model digest) the product runs on the RTX 3090.
+The A100s ran evaluations only, with simulated members and test messages and no player's data, so that long suites
+could run in parallel without taking the 3090 from the live product. Players' data stays on the 3090 server.
 
 | Suite | Result | Hardware | Source |
 |---|---|---|---|
@@ -986,8 +916,11 @@ how many invited players join, and the same group's group-chat polls for compari
 **Built during the hackathon (which runs October 27 to November 4, 2026).** All the code in the repository: the gateway and every
 agent, A2A and its signing, the matchmaking, the memory and its beliefs, the guards' use, the community loop and its
 builder, the highlight pipeline's code, the web app, the members, clubs and the per-player gateways, the tests and
-evaluations. Building started on October 28, the hackathon's second day, and the repository has over 900 commits
-since. The demo video (2:27) was recorded from this code.
+evaluations. Building started at 00:59 on October 27 (Taiwan time), the hackathon's first hour, in a working repository
+(338 commits over October 27 and 28). On the night of October 28 the code was moved into this repository with one
+commit per file: 864 commits between 23:57 and 00:01, which is why the count is high. Every commit since is ordinary
+work. The code was written with an AI coding agent (Claude Code), credited in each of this repository's commits. The demo video (2:27) was
+recorded from this code.
 
 **Mine, from before.** TrackNetV5, a published shuttle tracker (ICIP 2026): fetched at run time, off unless
 `BALL_TRACKING=1`, and not used in this entry.
@@ -1041,6 +974,106 @@ node test/match_messenger.mjs                           # "I want to play" in Me
 The code is at https://github.com/gino6178/serve-meta-hackathon. `submission/results/README.md` and `manifest.json` name the command,
 commit and time behind each raw file. The decider
 and orbit commands are in `docs/decider.md` and `docs/orbit_highlights.md`.
+
+## Appendix: sections 3.14 to 3.18 in full
+
+### 3.14 A federation of clubs
+
+The two-gateway A2A link (3.11) is generalized to any number of clubs (`agent/src/a2a/peer.js`). A club publishes a
+card, `/a2a/club.json`: its name, the members other clubs may ask (made-up demo members only, never a real player), a
+public profile each, and where its keys are. A gateway's `A2A_FEDERATION_FILE` lists only addresses; it reads each card
+at start and every ten minutes, and each club becomes a peer whose key is pinned on first use. Keys can be rotated: the
+old key signs a hand-over statement (`typ: serve-key-rotation+jwt`) naming the new key, published in the key set next to
+it. When a request arrives under a key it does not know, a gateway follows the statements from the key it pinned, and
+re-pins only if every link verifies; a statement signed by any other key, or a page that is not a card, is refused.
+`test/federation_unit.mjs` (4 of 4) runs three clubs over real HTTP: discovery, signed requests and a replay refused, a rotation
+followed two statements deep, and a forged rotation refused with the pin unchanged.
+
+### 3.15 Private calendars, all the way through
+
+The talk between agents could already keep calendars private (3.11). Now the code that plans for one player does too
+(`agent/src/agents/freebusy.js`): with private calendars on, the Match helper's daily ask, the planner's
+`find_partners` and its check before a talk, the play search and best match never read another member's free times.
+They ask that member's agent "free on this date at this time for 90 minutes?" and get a yes or a no. One asker may ask
+about one member at most 24 different times a day (`A2A_PROBE_BUDGET`), so a week cannot be read back hour by hour;
+past the budget the answer is no and the refusal is counted. The calendar the player sees shows the partners' rows as
+the one time their agents said yes to.
+`test/freebusy_unit.mjs` seals each member's calendar so that any read outside its own agent throws: the play search
+and the daily ask find the same best time and partners as with shared calendars, and the shared mode is shown to read
+them directly.
+
+### 3.16 A learned intent router behind the expressions
+
+A game request in Messenger is recognised by regular expressions (`match/flow.js isPlayRequest`). A message they miss
+now goes to a small softmax head on DRAMA vectors (`agent/src/match/router.js`, trained on the CPU in numpy by
+`test/router_train.py`; five classes: play, played, body, question, chat). When "play" is the most likely class the
+message goes to matchmaking, whose game still waits for the player's yes. Trained on 132 messages: 111 the simulated
+users wrote in the three runs after the fixes and 21 phrasings written for the expressions' own tests; tested on the
+judge's held-out set, written separately in a person's style (32 messages in these classes). The expressions found 6
+of 10 game requests; the router 9 of 10; the two together 10 of 10 (`submission/results/intent_router.json`).
+
+### 3.17 Live: an agent of their own for each player, clubs on a real map, invites from a sentence
+
+**One address, an agent each** (`agent/src/tenants/proxy.js`, `ops/tenants.sh`). A Cloudflare tunnel publishes a small
+proxy on the GPU server. It serves the web app's public build (no gateway token in it: the browser holds only the
+member's session) and routes by path: sign-in, members, clubs, the feed and A2A go to the club's gateway, which
+everyone shares; every other call goes to the signed-in member's own gateway, a separate process started on their
+first call, with its own data folder (memory, body log, plans, prefs) and stopped after 20 idle minutes. Leaving
+deletes the member's folder with their account. A restart of the proxy takes the running gateways up again.
+
+**Clubs anyone can start** (`agent/src/members/clubs.js`, `web/src/pages/Clubs.jsx`). A member starts a club with a
+name, a sport and a place picked on a real map (OpenStreetMap through Leaflet; the courts nearby from OpenStreetMap,
+or Google Places when OpenStreetMap's public servers are busy). Public clubs: anyone sees their games and posts, and
+posting joins. Private clubs: on the map, but their posts are for members, who ask to join and the owner says yes.
+The name and line are checked like any post. A member's agent recommends the nearest public club within 15 km.
+
+**Invites from a sentence** (`play.js inviteDraft`, `web/src/pages/Messages.jsx`). Told "Saturday morning doubles, need
+3" (or 「我想打羽球」), the agent drafts the invite: the sport and format, the day worked out by code from the words, the
+time, how many players, and the nearest court to the player. The player changes the count and taps Post; it goes into
+their club for that sport, else the shared feed, and the chat shows who has joined.
+
+**An invite as a link** (`web/src/pages/InviteLink.jsx`, `GET /api/invite`). Any invite can be shared from the feed or
+the chat (the phone's share sheet, else the link copied) to a group chat or to someone not on Serve. The link opens a
+card anyone can read without an account: the sport, the time, the place on the map and the spots left, never who is
+going, and nothing from a private club. Signing in from it (a demo account, Facebook or Instagram) joins the game
+straight away, also after a login that left the page. That is how a new club starts with no one on Serve yet.
+
+### 3.18 Agent architecture, in detail
+
+**Active epistemic querying, by the value of information** (`agent/src/match/voi.js`). When a game request's talks have
+not landed, the agent does not give up or ask the player again. For each member and each of the player's times it
+keeps a Beta posterior of "free then", Beta(1 + yes, 1 + no), over what it has seen of that member's agent at that
+weekday and hour (the faded counts of 3.2, never a calendar), and multiplies it by the chance of a yes from the
+member's band. It then asks the one yes-or-no question whose answer most raises the expected best chance of a game,
+through the private free-or-busy channel and its budget (3.15), and talks again only on a yes. On 20,000 simulated
+requests (8 members, 6 times, hidden true availability; `test/voi_sim.mjs`, `submission/results/voi_sim.json`), one
+question by value of information then one talk found a game 51.9% of the time, against 40.7% with no question, 44.4%
+with a random question and 48.2% asking about the likeliest pair.
+
+**A critic in the loop on every counter-offer** (`agent/src/a2a/critic.js`). Before the player's agent may take a
+member's agent's counter-offer, code reviews it for the player. Probing: a member's agent that asks for more than two
+different times in one talk is mapping the player's week, and its further counters are refused. Fairness: the trips of
+the games the agent agreed are kept; when the player had the longest trip in two of their last three games, a counter
+that again gives them the longest trip by more than 10 minutes is refused, and the talk goes on with the other times.
+Each refusal is said in the trail, with the reason.
+
+**From episodes to beliefs** (`agent/src/memory/beliefs.js`). Once a week (or on ask), Muse Glimmer abstracts the
+player's live notes into a few standing beliefs about how they like to play, each citing the notes it rests on. Code
+checks every belief: the cited notes exist and are live, a belief that generalizes ("usually", "prefers") cites at least
+two, and every number in it is in what it cites; a belief that fails is dropped. The planner reads the beliefs first,
+each with how many notes stand behind it; the notes stay, and `/forget` deletes both. On 10 written notes, Glimmer gave
+3 beliefs, each resting on two notes, none dropped, in 42 s (`submission/results/beliefs_glimmer.json`), for example
+"work-night games start no earlier than 19:00 and finish by 22:00".
+
+**Proof of consent before a booking** (`agent/src/a2a/consent.js`). When a talk agrees a game, each member's agent
+that said yes signs the game's canonical record (date, start, length, venue, sport and the sorted players) with its own
+Ed25519 key; the player's agent signs when the player says yes. Booking verifies every signature against the game it
+is asked to book: a record changed after it was signed (another time or venue, a player added) or a signature made with
+another agent's key is refused. Members on a peer gateway confirm through their own gateway's mandate (3.11).
+`CONSENT=require` also refuses a game that carries no signatures.
+
+The four are tested without a model in `test/agentic_unit.mjs`; the offline suites now hold 275 tests
+(25 suites, with `test/programs_unit.mjs` and the invite tests in `test/feed_unit.mjs`).
 
 ## 9. References
 
