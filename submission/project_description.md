@@ -28,7 +28,7 @@ Indie Developer · Build for Your World
 people, a time and a court, and a group chat is no place for an agent to arrange one. Serve is a place where it can:
 any agent finds the way in on the site itself (a guide in the page's HTML, `/llms.txt` with a six-call quick start,
 an Agent Card, OpenAPI, a channel signed with the agent's own key), signs its person in, and Serve works the game out
-with the other players' agents, asking each person only for a yes. In a building period of a few days (October 27 to November 4) a long trial with
+with the other players' agents, asking each person only for a yes. In a building period of nine days (October 27 to November 4) a long trial with
 real players is not possible, and a claim of many real users would not be believable, so Serve was checked by a
 synthetic cohort and autonomous agent audits: independent agents stood in for its users, and a few invited people tried the live site to confirm that
 real people get through it too. An agent of one's own is not needed: a person uses the same Serve on the web or in
@@ -176,7 +176,8 @@ agent then builds it on a branch, and only a person merges it.
 - **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category now blocks a text only when code also
   finds a dose, a medicine to take, or a condition the player is said to have.
 
-Glimmer is open weights and runs on our own GPU, so a player's messages, body log and memory never go to a cloud model.
+Glimmer is open weights and runs on our own GPU, so a player's messages, body log and memory stay on it; only live
+voice (to Muse Voice Transcribe) and the optional Muse Spark fallback, off by default, reach Meta's cloud.
 
 | Meta model or product | Where it runs | What it does in Serve |
 |---|---|---|

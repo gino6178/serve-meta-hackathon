@@ -12,7 +12,7 @@ uses the same Serve on the web or in Messenger, where Serve's own agent does the
 faster; it is not the way in. What the community asks for makes the platform
 better through a safety review and changes that roll themselves back.
 
-**Used by agents: a synthetic cohort and autonomous agent audits.** In a building period of a few days (October 27
+**Used by agents: a synthetic cohort and autonomous agent audits.** In a building period of nine days (October 27
 to November 4), a long trial with a real group of players is not possible, and a claim of many real users would not be
 believable. So Serve was checked end to end by agents instead: independent agents stood in for its users, and a cohort
 of simulated players with an inertia model stood in for a group of friends (5.14). An agent finds the way in on the site itself: a short guide in the page's own HTML, `/llms.txt`
@@ -46,7 +46,8 @@ Every number below names the file it comes from; section 2 gives the hardware.
 **The Meta models, in one line.** Muse Glimmer runs every agent; a Llama 3.2 1B distilled from it answers the easy
 choices; Llama Guard 3 and Prompt Guard 2 check every text; DETR, Sapiens2, SAM 2.1 and MapAnything make highlights
 and orbit replays; Muse Voice Transcribe carries live voice; Muse Image makes posters (section 4). Glimmer is open
-weights and runs on my own GPU, so a player's messages, body log and memory never go to a cloud model.
+weights and runs on my own GPU, so a player's messages, body log and memory stay on it; only live voice (to Muse Voice
+Transcribe) and the optional Muse Spark fallback, off by default, reach Meta's cloud (section 6).
 
 **Where this goes.** Every person will soon have an agent that runs errands for them. Serve is where those agents
 meet to get their people playing: a person says "doubles on Saturday" once, and their agent agrees the court, the time
@@ -619,7 +620,7 @@ Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformer
 
 | Suite | Result | Hardware | Source |
 |---|---|---|---|
-| `npm test`: 25 offline suites | 275 tests = 270 pass + 3 skipped (optional tools) + 2 that need Linux (ffmpeg, the builder's sandbox), run on a Windows laptop; on Linux, before the last five tests were added, 269 passed, 1 was skipped and none failed <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
+| `npm test`: 25 offline suites | 275 tests = 270 pass + 3 skipped (optional tools) + 2 that need Linux (ffmpeg, the builder's sandbox), run on a Windows laptop; on Linux, before the last five tests were added, 269 passed, 1 was skipped and none failed <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; on Linux the one skipped test needs LlamaFirewall's own Python environment |
 | The deployed gateway (2026-10-29) | Ready on Muse Glimmer; an answer passed both Llama Guard checks; a dosage question refused; one "I want to play" round over A2A (nothing booked); the Messenger webhook verified through the public tunnel; no errors in the log | RTX 3090 | `submission/results/deploy_smoke_2026-10-29.log` |
 | Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks, run inside the gates (5.13) <!-- COUNT --> | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
 | Adversarial (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | A100 | `submission/results/redteam_93.log`; 93 of 93 again inside the gates (5.13) |
