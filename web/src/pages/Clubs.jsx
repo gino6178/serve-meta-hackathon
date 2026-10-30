@@ -3,7 +3,7 @@ import Icon from "../components/Icon.jsx";
 import RealMap from "../components/RealMap.jsx";
 import Feed from "../club/Feed.jsx";
 import { InviteComposer } from "./Social.jsx";
-import { agentFetch } from "../agent.js";
+import { agentFetch, SESSION_KEY } from "../agent.js";
 import { knownPlace, myPlace } from "../where.js";
 import ClubSuggest from "../components/ClubSuggest.jsx";
 import Program, { KINDS } from "../club/Programs.jsx";
@@ -20,11 +20,43 @@ const call = async (path, body) => {
   return j;
 };
 const roomOf = () => new URLSearchParams(location.hash.split("?")[1] || "").get("room");
+const joinOf = () => new URLSearchParams(location.hash.split("?")[1] || "").get("join");
+const signedIn = () => { try { return !!localStorage.getItem(SESSION_KEY); } catch { return false; } };
 
 export default function Clubs() {
-  const [room, setRoom] = useState(roomOf);
-  useEffect(() => { const on = () => setRoom(roomOf()); addEventListener("hashchange", on); return () => removeEventListener("hashchange", on); }, []);
-  return room ? <ClubRoom id={room} /> : <ClubsHome />;
+  const [room, setRoom] = useState(roomOf), [code, setCode] = useState(joinOf);
+  useEffect(() => { const on = () => { setRoom(roomOf()); setCode(joinOf()); }; addEventListener("hashchange", on); return () => removeEventListener("hashchange", on); }, []);
+  return code ? <JoinByLink code={code} /> : room ? <ClubRoom id={room} /> : <ClubsHome />;
+}
+
+// a club's invite link (#/club?join=<code>; agent: GET /api/clubs/invite?code=, POST /api/clubs/join {code}): the club
+// as the link shows it before sign-in (no member names), then one tap to join, or to ask a private club's organiser
+function JoinByLink({ code }) {
+  const [c, setC] = useState(null), [err, setErr] = useState(""), [busy, setBusy] = useState(false), [done, setDone] = useState("");
+  useEffect(() => { call(`/api/clubs/invite?code=${encodeURIComponent(code)}`).then((r) => setC(r.club)).catch((e) => setErr(e.message)); }, [code]);
+  const join = async () => {
+    if (!signedIn()) { try { sessionStorage.setItem("serve.after", location.hash); } catch { /* the link still works after sign-in */ } location.hash = "/join"; return; }
+    setBusy(true); setErr("");
+    try {
+      const r = await call("/api/clubs/join", { code });
+      if (r.club?.joined || r.club?.member) location.hash = `/club?room=${r.club.id}`;
+      else setDone(c?.privacy === "private" ? "Asked. The organiser lets you in." : "You're in the club.");
+    } catch (e) { setErr(e.message); } finally { setBusy(false); }
+  };
+  return (
+    <div className="page clubs">
+      <header className="cl-head"><h1 className="h1">Join a club</h1></header>
+      {err && <p className="join-err" role="alert">{err}</p>}
+      {!c && !err && <p className="cl-empty">Opening the invite…</p>}
+      {c && <section className="panel">
+        <p><b>{c.name}</b> · {c.sport}{c.privacy === "private" ? " · Private" : ""}</p>
+        {c.about && <p className="cl-about">{c.about}</p>}
+        <p className="cl-meta">{c.where} · {c.members} member{c.members === 1 ? "" : "s"}</p>
+        {done ? <p role="status">{done}</p>
+          : <button className="btn primary" disabled={busy} onClick={join}>{busy ? "Joining…" : !signedIn() ? "Sign in to join" : c.privacy === "private" ? "Ask to join" : "Join the club"}</button>}
+      </section>}
+    </div>
+  );
 }
 
 function ClubsHome() {

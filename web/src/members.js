@@ -13,6 +13,8 @@ const AGENT_KEY = "serve.agentKey.v1";
 const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch { /* private window */ } } };
 const listeners = new Set();
 const changed = () => listeners.forEach((f) => f());
+// a page that sent the person to sign in (a club's invite link) gets them back once they are in
+const back = () => { try { const to = sessionStorage.getItem("serve.after"); if (to) { sessionStorage.removeItem("serve.after"); setTimeout(() => { location.hash = to; }, 0); } } catch { /* no storage: they open the link again */ } };
 
 // the session in the address after a provider's login: kept, and taken out of the address
 export function takeSession() {
@@ -20,7 +22,7 @@ export function takeSession() {
   if (!m) return false;
   store.set(SESSION_KEY, m[1]);
   history.replaceState(null, "", location.pathname + location.hash.replace(/[?&]session=[A-Za-z0-9_.-]+/, ""));
-  changed();
+  changed(); back();
   return true;
 }
 const json = async (r) => { const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || `The gateway answered ${r.status}.`); return j; };
@@ -28,7 +30,7 @@ export const providers = () => fetch(`${AGENT_URL}/api/auth/providers`).then(jso
 export const startUrl = (p) => `${AGENT_URL}/api/auth/${p}/start`;
 export async function demo(name) {
   const r = await json(await fetch(`${AGENT_URL}/api/auth/demo`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }) }));
-  store.set(SESSION_KEY, r.session); changed();
+  store.set(SESSION_KEY, r.session); changed(); back();
   return r.member;
 }
 export const me = () => agentFetch("/api/me").then(json);
