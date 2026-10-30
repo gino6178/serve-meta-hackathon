@@ -24,7 +24,9 @@ if ! ss -Hltn "sport = :8796" | grep -q .; then
     # what each player's gateway runs with: the same as the club's gateway in start.sh
     export LLM_URL=http://127.0.0.1:11435/v1 LLM_MODEL=muse-glimmer LLM_DEVICE="RTX 3090 (CUDA)" EMBED_URL=http://127.0.0.1:11434
     export LLM_FALLBACK="${LLM_FALLBACK:-on}" VOICE_TTS_PYTHON="${VOICE_TTS_PYTHON:-$HOME/shuttlecoach/tts/env/bin/python}" VOICE_TTS_MODELS="${VOICE_TTS_MODELS:-$HOME/shuttlecoach/tts/models}"
-    export REEL_PYTHON="${REEL_PYTHON:-}" REEL_SCRIPT="$ROOT/pose/reel.py" REEL_GPU=0 REEL_HF_CACHE="${REEL_HF_CACHE:-}"
+    export REEL_PYTHON="${REEL_PYTHON:-}" REEL_SCRIPT="${REEL_SCRIPT:-$ROOT/video/pose/reel.py}" REEL_GPU=0 REEL_HF_CACHE="${REEL_HF_CACHE:-}"
+    # the ball tracker (BALL_TRACKING=1) runs in its own Python, which has TrackNetV5's requirements (pandas, parse, ...)
+    export BALL_PYTHON="${BALL_PYTHON:-$ROOT/orbit/venv/bin/python}"
     export REEL_EFFECTS_SCRIPT="${REEL_EFFECTS_SCRIPT:-$ROOT/orbit/orbit.py}" REEL_EFFECTS_PYTHON="${REEL_EFFECTS_PYTHON:-$ROOT/orbit/venv/bin/python}"
     export ORBIT_MAPANYTHING="${ORBIT_MAPANYTHING:-$ROOT/orbit/weights/map-anything-apache}"
     export TENANT_ROOT="$ROOT/tenants" TENANT_WEB="$ROOT/web/dist" ASR_PYTHON="${ASR_PYTHON:-$ROOT/asr/env/bin/python}"

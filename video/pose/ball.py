@@ -263,27 +263,41 @@ def rally_end(x, y, on, fps):
     return b if n - 1 - b >= still else None
 
 
-def rally_clip(on, at, end, fps, gap=1.0, pre=0.3, post=0.4):
-    """the rally around frame at, from the ball, as the clip's in and out frames: the first and last frame the ball is
-    on (confident) in the stretch around the moment, where gaps of up to gap seconds are joined (a tracker loses a
-    shuttle mid-rally), cut at the rally's end when that falls inside it; pre and post seconds of margin. The moment
-    is always inside. None when the ball is not on within gap seconds of the moment"""
+DEFAULT_WINDOW = (3.0, 1.2)  # the app's own cut around the moment when there is no rally (web Highlights: s - 3 to s + 1.2)
+
+
+def rally_clip(on, at, end, fps, gap=2.0, pre=0.3, post=0.4, before=1.5, after=1.2, sparse=0.2, min_on=1.0):
+    """the rally around frame at, from the ball, as (in, out, source) frames. source "ball": the first and last frame
+    the ball is on (confident) in the stretch around the moment, where gaps of up to gap seconds are joined (on phone
+    footage TrackNetV5 loses the shuttle for over a second mid-rally), cut at the rally's end when that falls inside
+    it, with pre and post seconds of margin. Whatever the ball says, the clip starts at least before seconds before the
+    moment (the slow motion's lead-in) and ends at least after seconds after it, so a lost shuttle never cuts the shot.
+    source "moment": the app's default window around the moment (DEFAULT_WINDOW) when the track is too sparse to
+    trust: the ball not on within gap seconds of the moment, under min_on seconds of "on" in the stretch, or "on" in
+    under sparse of its frames. None without a moment"""
     n, g = len(on), round(gap * fps)
     if not n or at is None:
         return None
+    at = max(0, min(n - 1, int(at)))
+    default = (max(0, at - round(DEFAULT_WINDOW[0] * fps)), min(n - 1, at + round(DEFAULT_WINDOW[1] * fps)), "moment")
     lit = [i for i, v in enumerate(on) if v]
     near = [i for i in lit if abs(i - at) <= g]
     if not near:
-        return None
+        return default
     a = b = min(near, key=lambda i: abs(i - at))
     idx = set(lit)
     while any(a - k in idx for k in range(1, g + 1)):
         a = next(a - k for k in range(1, g + 1) if a - k in idx)
     while any(b + k in idx for k in range(1, g + 1)):
         b = next(b + k for k in range(1, g + 1) if b + k in idx)
+    lit_in = sum(1 for i in lit if a <= i <= b)
+    if lit_in < min_on * fps or lit_in < sparse * (b - a + 1):
+        return default
     if end is not None and at <= end < b:
         b = end
-    return max(0, min(a, at) - round(pre * fps)), min(n - 1, max(b, at) + round(post * fps))
+    i0 = min(a - round(pre * fps), at - round(before * fps))
+    i1 = max(b + round(post * fps), at + round(after * fps))
+    return max(0, i0), min(n - 1, i1), "ball"
 
 
 def track(clip, sport="badminton", reel=None, csv_path=None):

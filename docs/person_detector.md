@@ -6,12 +6,18 @@ The detector is now swappable; everything after it is untouched.
 
 | `PERSON_DETECTOR` | Model | Licence | Status |
 |---|---|---|---|
-| `detr` (**default**) | [facebook/detr-resnet-50](https://huggingface.co/facebook/detr-resnet-50), revision `no_timm` | Apache 2.0 | What the reel has always used, measured on the server. Its code repository (facebookresearch/detr) is archived; the Transformers port is what we use. |
-| `rtdetr` (opt-in) | [PekingU/rtdetr_v2_r50vd](https://huggingface.co/PekingU/rtdetr_v2_r50vd) (RT-DETRv2, ResNet-50) through `AutoModelForObjectDetection` | Apache 2.0 (Hugging Face licence tag, checked 2026-10-30) | Measured on the server 2026-10-30 (below): better on the three sample clips at 0.8. Still opt-in in code |
+| `rtdetr` (**default** since 2026-10-30) | [PekingU/rtdetr_v2_r50vd](https://huggingface.co/PekingU/rtdetr_v2_r50vd) (RT-DETRv2, ResNet-50) through `AutoModelForObjectDetection` | Apache 2.0 (Hugging Face licence tag, checked 2026-10-30) | Measured on the server 2026-10-30 (below): better on the three sample clips at 0.8, and the default |
+| `detr` (selectable) | [facebook/detr-resnet-50](https://huggingface.co/facebook/detr-resnet-50), revision `no_timm` | Apache 2.0 | What the reel used until 2026-10-30. Its code repository (facebookresearch/detr) is archived; the Transformers port is what we use. |
 
 Other settings:
-- `PERSON_DETECTOR_MODEL`: another checkpoint of the RT-DETR family, e.g. `PekingU/rtdetr_r50vd` (RT-DETR v1, also
-  Apache 2.0 on Hugging Face). Only read with `rtdetr`.
+- `PERSON_DETECTOR_MODEL`: the RT-DETR checkpoint, a local folder or a Hugging Face id (e.g. `PekingU/rtdetr_r50vd`,
+  RT-DETR v1, also Apache 2.0). Only read with `rtdetr`. Unset, the reel uses the server's stable copy,
+  `/mnt/nas/serve-models/rtdetr_v2_r50vd` (`RTDETR_LOCAL` moves it), when that folder has a `config.json`, and
+  otherwise the Hugging Face id `PekingU/rtdetr_v2_r50vd`, downloaded into the HF cache.
+- **The weights on the GPU server** are in `/mnt/nas/serve-models/rtdetr_v2_r50vd` (config, preprocessor config,
+  README and `model.safetensors`, 172 MB, SHA-256 `3331d977…541d88d71`), copied from the test download in
+  `/mnt/nas/serve-test-logs/hf/`. They are a folder of their own on the NAS, not in the shared HF cache, so no other
+  model's cache is touched, and nothing goes on the server's root disk (which is nearly full).
 - `PERSON_THRESHOLD`: the score a box needs (default 0.8, as before). Any other `PERSON_DETECTOR` value stops the reel
   with a message.
 
@@ -19,10 +25,10 @@ Other settings:
 threshold and the reel's frame size, and keep the boxes whose label is COCO's `person`. The result is the same shape
 as before: per frame, `[[x0, y0, x1, y1], ...]` in the reel's pixels.
 
-**Why DETR is still the default in code.** When this change was written, RT-DETR could not be run (no
-`transformers` on that machine, GPU server not to be used). It has now been measured (next section) and did better;
-switching the default is a separate decision. The original note: DETR's scores are a softmax over classes and RT-DETR's are
-per-class sigmoids, so the same 0.8 need not keep the same people. Before making `rtdetr` the default:
+**Why RT-DETR became the default.** It was measured on the server (next section) and did better on all three sample
+clips at 0.8; it is the default since 2026-10-30, with DETR one setting away (`PERSON_DETECTOR=detr`). DETR's scores
+are a softmax over classes and RT-DETR's are per-class sigmoids, so the same 0.8 need not keep the same people; the
+checks that were done before the switch, and that are worth repeating on new footage:
 1. Run both on the three sample clips (`web/public/media/samples/`) with the same frames, e.g. `ffmpeg -i
    singles_point_01.mp4 -vf "select=not(mod(n\,30))" -vsync 0 f_%03d.png`, and compare per frame the number of
    person boxes, the IoU of matched boxes, and the time per batch of 8.
@@ -72,12 +78,13 @@ The same DETR run twice gave the same frames and moment.
 moment on the other two clips, and it is faster. Keep 0.8 for RT-DETR: 0.5–0.7 bring back the seated spectators as the
 other player and gain nothing for "you". Its weak point is fewer boxes per frame (the partner is missing on 142 of
 368 frames in doubles, and a few frames have under two big boxes). Three clips from two venues is a small sample, so
-the recommendation is to make `rtdetr` the default after one more clip with a far player in view; the code default
-has not been changed.
+the recommendation was to make `rtdetr` the default after one more clip with a far player in view. It was made the
+default on 2026-10-30 without that clip (the decision was taken on these three), so a clip with a far player is
+still worth running.
 
 ### The rally clip in the same session (`BALL_TRACKING=1 RALLY_CLIP=1`, DETR unless noted)
 
-What it took to run, none of it in the deployed setup:
+What it took to run, none of it in the deployed setup at the time (all fixed on 2026-10-30, next section):
 - `~/serve/video/pose` has only `reel.py` and `ball.py`; `ball.py` imports `exists.py`, so the shuttle is "not tracked"
   (`No module named 'exists'`). Run from a NAS copy with this repository's `exists.py`.
 - The reel's Python (`isaac`) has no `parse`, which TrackNetV5 imports; `BALL_PYTHON=~/serve/orbit/venv/bin/python`
@@ -99,6 +106,42 @@ Without `RALLY_CLIP` the output is unchanged: on each clip the `BALL_TRACKING=1`
 `BALL_TRACKING=1 RALLY_CLIP=1` run are identical once `clip` is removed, the run without the flag has no `clip` key,
 and the frames match the run without ball tracking (the moment moves only where the ball's hit is meant to move it:
 doubles 14.73 s to 14.67 s).
+
+## Deployed and measured again (2026-10-30/31, GPU server, GPU 0, nice 19)
+
+**What changed on the server.**
+- **The gateway runs `~/serve/video/pose/reel.py`.** The cause was `ops/start.sh` (and `tenants.sh`), which set
+  `REEL_SCRIPT="$ROOT/pose/reel.py"`. They now default it to `$ROOT/video/pose/reel.py` (`REEL_SCRIPT` in the
+  environment still overrides), and `agent/src/media/reel.js` falls back to the checkout's `video/pose/reel.py` when
+  `REEL_SCRIPT` is unset. The live gateway's environment was checked after the restart. The old `~/serve/pose/` is left
+  in place, unused. The tenants proxy was not restarted, so players' own gateways keep the old path until
+  `tenants.sh proxy` is run.
+- **`~/serve/video/pose` is the whole repository folder** (`exists.py`, `orbit*.py`, `labels/`, ...), the same bytes as
+  this commit. The two files that were there before are backed up in
+  `/mnt/nas/serve-test-logs/backup-video-20261030-2351/`, with `start.sh`, `tenants.sh`, `start.env` and the agent files.
+- **The ball tracker's Python.** `parse` 1.22.4 is now installed in the reel's environment (`isaac`, 21 kB). That is
+  not enough: TrackNetV5 also needs `pandas` and `pycocotools`, which `isaac` lacks, and the root disk has no room for
+  `pandas`. So `start.sh` now sets `BALL_PYTHON` to `~/serve/orbit/venv/bin/python`, which has all of them, and
+  `start.env` sets `BALL_WEIGHTS=/mnt/nas/shuttlecoach-meta/weights` (`ball.py`'s default, `/mnt/nas/serve/weights`,
+  does not exist on this server).
+- **GPU memory.** With `BALL_TRACKING=1` the reel deletes its detector, Sapiens2 and SAM 2.1 and empties the CUDA cache
+  before the tracker's process starts. The ball now runs inside the deployed reel: no out-of-memory error on any clip.
+- **RT-DETR is the default**, from `/mnt/nas/serve-models/rtdetr_v2_r50vd`. `BALL_TRACKING` and `RALLY_CLIP` stay off
+  in the gateway.
+
+**Measured.** `~/serve/video/pose/reel.py` with no detector settings, run the way the gateway runs it (`start.env`,
+`REEL_PYTHON`, `HF_HUB_CACHE`, `BALL_PYTHON` as `start.sh` sets it), on the three sample clips. Logs and JSON:
+`/mnt/nas/serve-test-logs/video2/`.
+
+| Clip | Default run | Same as the last session's RT-DETR 0.8 run (checked by eye) | Wall time | With `BALL_TRACKING=1 RALLY_CLIP=1` |
+|---|---|---|---|---|
+| singles_point_01 | you: the player in pink; moment 5.9 s | identical frames (399 for you, 95 for the other) | 137 s | 324 s; 257 shuttle frames; clip 0.0–23.7 s |
+| doubles_rally_01 | you: near player; other: your partner; moment 14.73 s | identical (368 / 226) | 147 s | 297 s; moment moves to the ball's hit, 14.67 s; clip 2.0–21.7 s |
+| singles_rally_01 | you: the player in blue; moment 2.97 s | identical (252 / 244) | 133 s | 273 s; clip 0.0–21.3 s |
+
+The default run gives the right player on all three clips, and the frames are identical to the earlier opt-in run.
+That also confirms the NAS copy of the weights is the checkpoint measured before. With the ball, the frames are
+identical to the run without it. For the rally clips, see `docs/ball_tracking.md`.
 
 ## Licence checks still to do
 

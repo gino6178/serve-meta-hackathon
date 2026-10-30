@@ -10,7 +10,8 @@
 #              Weights from the Google Drive links in the repository's MODEL_ZOO.md (setup_weights.sh's names).
 #   sh setup_ball.sh [code_dir] [weights_dir]
 # Then for reel.py: BALL_TRACKING=1, and BALL_PYTHON (a Python with torch, numpy, opencv, pandas, parse, pycocotools,
-# Pillow and tqdm).
+# Pillow and tqdm). ops/start.sh sets BALL_PYTHON to orbit/venv/bin/python, which has them; the reel's own Python on
+# the GPU server lacks pandas and pycocotools (parse 1.22.4 was added to it), and the root disk has no room for pandas.
 set -e
 CODE=${1:-$HOME/serve/orbit/third_party}
 WEIGHTS=${2:-/mnt/nas/serve/weights}

@@ -112,16 +112,40 @@ Tennis and basketball: see the status at the top (measured once, not usable on t
 
 ## The rally's in and out points (`RALLY_CLIP=1`, off by default)
 
-With `BALL_TRACKING=1` and `RALLY_CLIP=1`, `reel.py` adds `clip: {in, out, from: "ball"}` (seconds) to its output:
-the rally around the moment, from the ball (`ball.rally_clip`).
-- **In and out.** Starting from the frame where the ball is "on" nearest the moment (within 1 s), the stretch is
-  grown while the next "on" frame is at most 1 s away (a tracker loses a shuttle mid-rally). Its first and last
-  frames are the rally's start and stop; the stop is cut at `rally_end` when that falls inside it, after the moment.
-- **Margins.** 0.3 s before, 0.4 s after (as the orbit effect's cut). The moment is always inside the clip.
-- **No clip** when the flag is off, the ball was not tracked, there is no moment, or the ball is not on within 1 s of
-  it: then the output has no `clip` field and is exactly as before.
+With `BALL_TRACKING=1` and `RALLY_CLIP=1`, `reel.py` adds `clip: {in, out, from}` (seconds) to its output
+(`ball.rally_clip`):
+- **From the ball (`from: "ball"`).** Start at the frame nearest the moment where the ball is "on" (within 2 s). Grow
+  the stretch while the next "on" frame is at most **2 s** away (it was 1 s; on phone footage TrackNetV5 loses the
+  shuttle for 1–1.5 s mid-rally). The stretch's first and last frames are the rally's start and stop. The stop is cut at
+  `rally_end` when that falls inside the stretch, after the moment.
+- **Margins.** 0.3 s before and 0.4 s after the stretch. Whatever the ball says, the clip **starts at least 1.5 s
+  before the moment** (the slow motion's lead-in) and **ends at least 1.2 s after it**, so a lost shuttle never cuts
+  the shot.
+- **Too sparse: the default window (`from: "moment"`).** If the ball is not on within 2 s of the moment, the stretch
+  has under 1 s of "on" frames, or under 20% of its frames are "on", the clip is the app's own window around the
+  moment: 3 s before to 1.2 s after (`DEFAULT_WINDOW`, as `web/src/pages/Highlights.jsx` plays it).
+- **No clip** when the flag is off, the ball was not tracked, or there is no moment. The output then has no `clip`
+  field and is exactly as before.
 
-Checked on synthetic "on" tracks (joined and unjoined gaps, a rally end inside the stretch, the clip's edges, no ball
-near the moment), not on a real track yet. The gateway (`agent/src/media/reel.js`) does not read `clip` yet; it still
-cuts around the moment, so the flag changes nothing the member sees until the gateway uses it. Given TrackNetV5's
-recall on phone footage (0.31, above), a stretch can end early where the tracker lost the shuttle for over a second.
+**Running it on the server.** The tracker runs in `BALL_PYTHON`. `ops/start.sh` sets it to `~/serve/orbit/venv/bin/python`,
+because the reel's own Python lacks `pandas` and `pycocotools`; `parse` was added to it. Set `BALL_WEIGHTS` too
+(`start.env` on the GPU server: `/mnt/nas/shuttlecoach-meta/weights`). The reel frees its models' GPU memory before the
+tracker starts, so the tracker no longer runs out of memory.
+
+**Measured (2026-10-31, the deployed reel, RT-DETR default).** Rally times by eye are from the last session's contact
+sheets:
+
+| Clip | Moment | Before (1 s gaps) | Now | Rally by eye | Verdict |
+|---|---|---|---|---|---|
+| singles_point_01 | 5.9 s | 5.1–9.7 s | 0.0–23.7 s (the whole clip) | about 3–19 s | No longer ends early (the 1.5 s gap at 9.3–10.8 s is joined). Ends 4.7 s late: the false points after the rally (heads, lamps; under 2 s apart) keep the stretch going to the clip's end |
+| doubles_rally_01 | 14.67 s | 12.4–21.7 s | 2.0–21.7 s | about 3–21 s | Right: in fixed (the 1–1.5 s gaps at 9–12.7 s are joined), out unchanged |
+| singles_rally_01 | 2.97 s | 0.0–15.7 s | 0.0–21.3 s | 0–15 s | Worse: ends 6 s late. The 1.3 s gap at 15.3–16.6 s is now joined, and false points carry on to `rally_end` (20.9 s) |
+
+None of the three fell back to the default window (the ball is "on" in 37–68% of each stretch). The rule now errs
+long rather than short. On two of the three clips the out point is near the clip's end, because TrackNetV5's false
+points on phone footage (precision 0.40, above) come less than 2 s apart after a rally. No run-level cue we tried on
+these clips separates them from the real shuttle: the motion of each run and the density of "on" frames were both
+checked. A better end needs a better ball signal (or the players' movement), so `RALLY_CLIP` stays opt-in, and the
+gateway does not read `clip` yet. The rule was checked offline against the last session's tracks before it ran, and the
+server runs gave the same in and out points. Synthetic checks: no ball near the moment, and too few "on" frames, give
+the default window; a 1.7 s gap is joined; a `rally_end` inside the stretch still leaves 1.2 s after the moment.

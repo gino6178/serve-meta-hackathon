@@ -5,14 +5,15 @@ server, called by the agent gateway (agent/src/media/reel.js) for a video the pl
   soccer: your fastest kick
   python reel.py <in.mp4> <out.json> [sport]
 Prints one JSON line per step ({"step", "detail"}) for the gateway to stream to the app.
-- Meta's DETR (or RT-DETR, with PERSON_DETECTOR=rtdetr) finds the people on every second frame. The largest person
+- RT-DETRv2 (or Meta's DETR, with PERSON_DETECTOR=detr) finds the people on every second frame. The largest person
   who stays in the picture is you; the next one is the other player.
 - Meta's Sapiens2 reads both players' pose and SAM 2.1 cuts each one out, every second frame, and every frame in the
   two and a half seconds around the smash, for the slow motion.
 - The smash is your fastest overhead swing: the moment your racket hand, above your head, moves fastest.
 Output: {fps, w, h, n, sport, kind, frames: [[you, other] or 0, ...], swings: [{t, speed}], smash: t (the moment), hand,
   ball: ball.py's output (per frame: x, y, p, on; hits; rally_end) or null when no tracker is set up for the sport,
-  clip: {in, out, from: "ball"} in seconds, only with RALLY_CLIP=1 and a tracked ball: the rally's in and out points}
+  clip: {in, out, from} in seconds, only with RALLY_CLIP=1, a tracked ball and a moment: the rally's in and out points
+  (from "ball"), or the default window around the moment when the ball's track is too sparse (from "moment")}
   Pixels are in the video's own frame, scaled to at most 960 px wide. A player is {"m": outline [x, y, ...],
   "k": 24 x [x, y, score]} or 0, keypoints COCO-17, then big toes, heels, neck and index fingertips."""
 import json, os, sys
@@ -36,15 +37,18 @@ def say(step, detail=""):
     print(json.dumps({"step": step, "detail": detail}), flush=True)
 
 
-# The person detector, swappable: PERSON_DETECTOR=detr (the default: Meta's DETR, whose repository is archived) or
-# rtdetr (RT-DETRv2, Apache 2.0, opt-in until it has run on the server). Either gives the same thing: per frame, the
-# person boxes [[x0, y0, x1, y1], ...] scoring at least PERSON_THRESHOLD (0.8 unless set). PERSON_DETECTOR_MODEL
-# picks another checkpoint of the same family (for RT-DETR v1: PekingU/rtdetr_r50vd).
-DETECTOR = os.environ.get("PERSON_DETECTOR", "detr").lower()
+# The person detector, swappable: PERSON_DETECTOR=rtdetr (the default: RT-DETRv2, Apache 2.0, measured better than DETR
+# on the sample clips, docs/person_detector.md) or detr (Meta's DETR, whose repository is archived). Either gives the
+# same thing: per frame, the person boxes [[x0, y0, x1, y1], ...] scoring at least PERSON_THRESHOLD (0.8 unless set).
+# PERSON_DETECTOR_MODEL is the RT-DETR checkpoint: a local folder or a Hugging Face id. Unset, the server's stable copy
+# (RTDETR_LOCAL, on the NAS) when it is there, else the Hugging Face id (downloaded into the HF cache).
+RTDETR_ID = "PekingU/rtdetr_v2_r50vd"
+RTDETR_LOCAL = os.environ.get("RTDETR_LOCAL", "/mnt/nas/serve-models/rtdetr_v2_r50vd")
+DETECTOR = os.environ.get("PERSON_DETECTOR", "rtdetr").lower()
 THRESH = float(os.environ.get("PERSON_THRESHOLD", "0.8"))
 if DETECTOR == "rtdetr":
     from transformers import AutoImageProcessor, AutoModelForObjectDetection
-    _ckpt = os.environ.get("PERSON_DETECTOR_MODEL", "PekingU/rtdetr_v2_r50vd")
+    _ckpt = os.environ.get("PERSON_DETECTOR_MODEL") or (RTDETR_LOCAL if os.path.isfile(os.path.join(RTDETR_LOCAL, "config.json")) else RTDETR_ID)
     dp = AutoImageProcessor.from_pretrained(_ckpt)
     dm = AutoModelForObjectDetection.from_pretrained(_ckpt).to(dev).eval()
     DETECTOR_NAME = "RT-DETR"
@@ -269,6 +273,12 @@ else:
 ball = None
 BALL_WORD = "shuttle" if SPORT == "badminton" else "ball"
 if os.environ.get("BALL_TRACKING") == "1" and SPORT in ("badminton", "tennis", "basketball"):
+    # the tracker runs in a process of its own on the same GPU, and every model above is done with: free their memory
+    # first (the reel holds about 13 GB of the card's cache otherwise, and the tracker runs out)
+    import gc
+    del dm, dp, sm, sp, qm, qp
+    gc.collect()
+    torch.cuda.empty_cache()
     try:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import ball as ball_track
@@ -283,14 +293,18 @@ if os.environ.get("BALL_TRACKING") == "1" and SPORT in ("badminton", "tennis", "
     except Exception as e:  # the reel goes on without the ball
         say(f"The {BALL_WORD} was not tracked", str(e).splitlines()[-1][:160] if str(e) else type(e).__name__)
 # 6 the clip's in and out from the rally (RALLY_CLIP=1, off by default): the ball's first and last confident frame
-# around the moment (ball.rally_clip). Without the flag, or without a ball, there is no "clip" and the output is as before
+# around the moment, never ending before the moment plus a margin, or the default window when the ball's track is too
+# sparse (ball.rally_clip). Without the flag, a ball or a moment there is no "clip" and the output is as before
 clip = None
 if os.environ.get("RALLY_CLIP") == "1" and ball and ball.get("ball") and smash:
     try:
         rc = ball_track.rally_clip(ball["ball"]["on"], smash, ball["rally_end"], fps)
         if rc:
-            clip = {"in": round(rc[0] / fps, 3), "out": round(rc[1] / fps, 3), "from": "ball"}
-            say("Cut to the rally", f"from {clip['in']:.1f} s to {clip['out']:.1f} s, where the {BALL_WORD} is in play")
+            clip = {"in": round(rc[0] / fps, 3), "out": round(rc[1] / fps, 3), "from": rc[2]}
+            if rc[2] == "ball":
+                say("Cut to the rally", f"from {clip['in']:.1f} s to {clip['out']:.1f} s, where the {BALL_WORD} is in play")
+            else:
+                say("Cut around your moment", f"from {clip['in']:.1f} s to {clip['out']:.1f} s; the {BALL_WORD} was seen too little to find the rally")
     except Exception as e:
         say("The rally was not cut", str(e).splitlines()[-1][:160] if str(e) else type(e).__name__)
 # hand speed in m/s, taking you as 1.7 m tall: an estimate from 2D pose, and lower than the racket head's

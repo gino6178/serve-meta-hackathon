@@ -8,7 +8,7 @@ import { EffectChoice, EffectNote, effectOf, effectBadge, effectFrame, playEffec
 import "./highlights.css";
 
 // Film a highlight: a clip you filmed of your own game, in any ball sport, becomes a reel to post. The clip goes to your
-// own GPU server once (agent/src/media/reel.js runs video/pose/reel.py): DETR finds you, Sapiens2 reads your pose on every
+// own GPU server once (agent/src/media/reel.js runs video/pose/reel.py): RT-DETR finds you, Sapiens2 reads your pose on every
 // frame, SAM 2.1 cuts you out, and your best moment is found (the fastest swing, the top of a jump, a kick). This page
 // then cuts the reel in the browser: the moment at real speed, a slow-motion replay that pushes in on you, a hold on
 // contact and a freeze, with your footage on top and how Serve sees you under it. Muse Glimmer writes the caption.
