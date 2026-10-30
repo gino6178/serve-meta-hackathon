@@ -1,52 +1,132 @@
-// Trust, on two tracks. Once a member's agent asks people beyond their friends (people nearby who are open to it,
-// anyone who opens a game's link), two things decide whether a game happens: will that person turn up, and does their
-// agent tell the truth about them. They are different questions, so Serve keeps two records, both counted by code from
-// what happened, never from opinions:
+// Trust, on two tracks, kept on a chain no one can quietly change. Once a member's agent asks people beyond their friends
+// (people nearby who are open to it, anyone who opens a game's link), two things decide whether a game happens: will
+// that person turn up, and does their agent tell the truth about them. They are different questions, so Serve keeps two
+// records, both counted by code from what happened, never from opinions:
 //   The person (show-up): after a game, the players say who came (one tap each); someone most of the others say didn't
 //   come counts as a miss. Leaving a game in its last six hours counts as a late drop. Rate = came / games; under three
 //   games the person is "new", and a new person is never scored down for it.
 //   The agent (kept promises): every time a member's agent says yes for them in a huddle (huddle.js) and the person is
 //   then asked, the agent made a promise; the person's yes keeps it, a no breaks it. Rate = kept / said; under three it
-//   is new. Two more marks against an agent: asking too many people's agents too often (a prober walking the area's
+//   is new. Two more marks against an agent: asking too many people's agents in a day (a prober walking the area's
 //   calendars, the same worry as the disclosure budget, safety/disclosure.js), and requests on the agent channel with
 //   its key that failed the signature check (members.js logs them).
+// The chain. Every one of those events is an entry that carries the hash of the entry before it (SHA-256 over the
+// entry's number, time, kind, subject, data and the previous hash), so changing, removing or reordering any past entry
+// breaks every hash after it. The records anyone sees are not stored beside the chain: they are worked out from it,
+// entry by entry, every time. Once a day the gateway signs the chain's head (the last hash and how many entries) with
+// its own Ed25519 key, the one its Agent Cards are signed with (/a2a/keys.json), so anyone can check from outside that
+// what they are shown is what was there that day: GET /api/trust/chain gives the entries and the signed heads, and
+// verify() replays it. Subjects are pseudonyms (a hash of the member's id), never names. Leaving Serve adds a "left"
+// entry: nothing is rewritten, and that subject's records stop counting.
 // A game can set a gate (huddle.js, feed/posts.js): people under its show-up rate go on the waitlist; an agent that
 // keeps too few promises, or is marked a prober, cannot say yes for its person, so the person is asked themself. No
 // money is ever involved: no deposits, no fees.
-//   data/trust.json (TRUST_FILE): { people: {...}, agents: {...}, checks: {...} }
+//   data/trust.json (TRUST_FILE): { chain: [...entries], heads: [...signed heads], checks: {...games waiting for votes} }
 import path from "node:path";
+import crypto from "node:crypto";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
 
 const FILE = () => path.resolve(process.env.TRUST_FILE || "data/trust.json");
-let db = null, from = null;
-const data = () => { if (from !== FILE()) { db = readJSON(FILE(), { people: {}, agents: {}, checks: {} }); for (const k of ["people", "agents", "checks"]) db[k] ||= {}; from = FILE(); } return db; };
+let db = null, from = null, state = null;
+const data = () => { if (from !== FILE()) { db = readJSON(FILE(), {}); db.chain ||= []; db.heads ||= []; db.checks ||= {}; from = FILE(); state = null; carry(); } return db; };
+// records kept before the chain (plain counters) go onto it once, as "carried" entries, so nothing is lost
+function carry() {
+  if (db.chain.length || (!db.people && !db.agents)) return;
+  const old = { people: db.people || {}, agents: db.agents || {} };
+  delete db.people; delete db.agents;
+  for (const [id, p] of Object.entries(old.people)) add("carried", id, { person: { games: p.games, came: p.came, missed: p.missed, late: p.late, level: p.level } });
+  for (const [id, a] of Object.entries(old.agents)) add("carried", id, { agent: { said: a.said, kept: a.kept } });
+}
 const save = () => writeJSON(FILE(), data());
 const HOUR = 3600e3, DAY = 24 * HOUR;
 export const NEW_UNDER = 3, LATE_HOURS = 6, PROBE_ASKS = 30, AGENT_MIN = 0.8;
-const person = (id) => (data().people[id] ||= { games: 0, came: 0, missed: 0, late: 0, level: { ok: 0, off: 0 } });
-const agent = (id) => (data().agents[id] ||= { said: 0, kept: 0, asks: [], probe: 0, sig: [] });
+export const GENESIS = "0".repeat(64);
+export const subject = (id) => crypto.createHash("sha256").update(`serve-trust:${id}`).digest("hex").slice(0, 16);
+const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
+export const hashOf = (e) => sha(JSON.stringify([e.n, e.at, e.kind, e.who, e.d, e.prev]));
+// the gateway's signature on a head; tests pass their own signer
+let signer = null;
+export function useSigner(fn) { signer = fn; }
+async function sign(text) {
+  if (signer) return signer(text);
+  const { ownKey } = await import("../a2a/peer.js"), k = ownKey();
+  return { kid: k.kid, alg: "EdDSA", sig: crypto.sign(null, Buffer.from(text), k.key).toString("base64url") };
+}
+export const headText = (h) => `serve-trust-head:${h.day}:${h.n}:${h.hash}`;
+
+// ---- the chain ----
+function add(kind, id, d = {}, now = Date.now()) {
+  const c = data().chain, prev = c.length ? c[c.length - 1].hash : GENESIS;
+  const e = { n: c.length, at: now, kind, who: subject(id), d, prev };
+  e.hash = hashOf(e);
+  c.push(e);
+  state = null;
+  sealDays(now);
+  save();
+  return e;
+}
+// the head of every day before today, signed once (the signature is added when it comes back)
+function sealDays(now = Date.now()) {
+  const c = data().chain, day = (t) => new Date(t).toISOString().slice(0, 10), today = day(now), done = new Set(data().heads.map((h) => h.day));
+  for (let i = 0; i < c.length; i++) {
+    const d = day(c[i].at), last = i === c.length - 1 || day(c[i + 1].at) !== d;
+    if (!last || d >= today || done.has(d)) continue;
+    const h = { day: d, n: i + 1, hash: c[i].hash };
+    data().heads.push(h); done.add(d);
+    sign(headText(h)).then((s) => { Object.assign(h, s); save(); }).catch(() => {});
+  }
+}
+// today's head, signed now (for the app's "verified" line and for anyone who asks)
+export async function head(now = Date.now()) {
+  const c = data().chain, h = { day: new Date(now).toISOString().slice(0, 10), n: c.length, hash: c.length ? c[c.length - 1].hash : GENESIS, at: now };
+  return { ...h, ...(await sign(headText(h)).catch(() => ({}))) };
+}
+// replay a chain: every hash, every link, and the records it adds up to; the first broken entry stops it
+export function verify(chain = data().chain, heads = data().heads) {
+  let prev = GENESIS;
+  for (const e of chain) {
+    if (e.prev !== prev) return { ok: false, at: e.n, why: "an entry does not point at the one before it" };
+    if (hashOf(e) !== e.hash) return { ok: false, at: e.n, why: "an entry was changed after it was written" };
+    prev = e.hash;
+  }
+  for (const h of heads) if (h.n > chain.length || (h.n && chain[h.n - 1].hash !== h.hash)) return { ok: false, at: h.n, why: `the chain no longer matches the head signed on ${h.day}` };
+  return { ok: true, n: chain.length, head: prev };
+}
+// the records, worked out from the chain
+function replay(now = Date.now()) {
+  if (state && state.at > now - 60e3) return state;
+  const people = {}, agents = {}, gone = new Set();
+  const P = (w) => (people[w] ||= { games: 0, came: 0, missed: 0, late: 0, level: { ok: 0, off: 0 } }), A = (w) => (agents[w] ||= { said: 0, kept: 0, asks: [], probe: 0, sig: [] });
+  for (const e of data().chain) {
+    const w = e.who, d = e.d || {};
+    if (e.kind === "left") { gone.add(w); delete people[w]; delete agents[w]; continue; }
+    if (gone.has(w)) continue;
+    if (e.kind === "promise") { const a = A(w); a.said++; if (d.kept) a.kept++; }
+    if (e.kind === "asked") { const a = A(w); a.asks = [...a.asks.filter((x) => e.at - x.at < DAY), { at: e.at, n: d.n }]; if (a.asks.reduce((s, x) => s + x.n, 0) > PROBE_ASKS) a.probe = e.at; }
+    if (e.kind === "sig") A(w).sig.push({ at: e.at, why: d.why });
+    if (e.kind === "late") { const p = P(w); p.late++; p.games++; }
+    if (e.kind === "game") { const p = P(w); p.games++; if (d.came) p.came++; else p.missed++; for (const l of d.level || []) p.level[l]++; }
+    if (e.kind === "seed" || e.kind === "carried") { if (d.person) Object.assign(P(w), d.person); if (d.agent) Object.assign(A(w), d.agent); }
+  }
+  return (state = { at: now, people, agents });
+}
 
 // ---- the agent's record ----
 // a promise: the agent said yes for its person, and the person was asked; kept is their answer
-export function promise(id, kept) { const a = agent(id); a.said++; if (kept) a.kept++; save(); }
+export function promise(id, kept) { add("promise", id, { kept: !!kept }); }
 // the agent asked `n` people's agents at once (a huddle); too many in a day marks it a prober for a week
-export function asked(id, n, now = Date.now()) {
-  const a = agent(id);
-  a.asks = [...a.asks.filter((x) => now - x.at < DAY), { at: now, n }];
-  if (a.asks.reduce((s, x) => s + x.n, 0) > PROBE_ASKS) a.probe = now;
-  save();
-}
+export function asked(id, n, now = Date.now()) { if (n > 0) add("asked", id, { n }, now); }
 // a request with the agent's key that failed the check (replayed, changed, expired)
-export function badSignature(id, why, now = Date.now()) { const a = agent(id); a.sig = [...a.sig.filter((x) => now - x.at < 30 * DAY), { at: now, why }].slice(-20); save(); }
+export function badSignature(id, why, now = Date.now()) { add("sig", id, { why: String(why || "bad") }, now); }
 
 // ---- the person's record ----
 // leaving a game: in its last six hours it is a late drop
 export function left(id, startMs, now = Date.now()) {
   if (!startMs || startMs - now > LATE_HOURS * HOUR || now > startMs) return false;
-  const p = person(id); p.late++; p.games++; save();
+  add("late", id, {}, now);
   return true;
 }
-// a game that is on: after it, the players are asked who came
+// a game that is on: after it, the players are asked who came (the votes wait here; only the outcome goes on the chain)
 export function expect(key, players, startMs) {
   if (!key || players.length < 2) return;
   const c = data().checks[key];
@@ -61,38 +141,43 @@ export function vote(me, key, came = {}, level = {}, now = Date.now()) {
   if (now < c.at + 60 * 60e3) return { error: "Ask again after the game.", code: 409 };
   if (c.settled) return { error: "Already settled.", code: 409 };
   c.votes[me] = Object.fromEntries(c.players.filter((x) => x !== me).map((x) => [x, { came: came[x] !== "missed", level: ["ok", "off"].includes(level[x]) ? level[x] : null }]));
-  if (c.players.every((x) => c.votes[x]) || now > c.at + 72 * HOUR) settle(key);
+  if (c.players.every((x) => c.votes[x]) || now > c.at + 72 * HOUR) settle(key, now);
   save();
   return { ok: true, settled: c.settled };
 }
 // most of the others who answered decide whether a player came; nobody answering about them leaves them uncounted
-function settle(key) {
+function settle(key, now = Date.now()) {
   const c = data().checks[key];
   for (const x of c.players) {
     const said = Object.entries(c.votes).filter(([v]) => v !== x).map(([, v]) => v[x]).filter(Boolean);
     if (!said.length) continue;
-    const p = person(x), yes = said.filter((v) => v.came).length;
-    p.games++; if (yes * 2 >= said.length) p.came++; else p.missed++;
-    for (const v of said) if (v.level) p.level[v.level]++;
+    const yes = said.filter((v) => v.came).length;
+    add("game", x, { came: yes * 2 >= said.length, level: said.map((v) => v.level).filter(Boolean), game: sha(key).slice(0, 12) }, now);
   }
-  c.settled = true;
+  c.settled = true; c.votes = {}; // the outcome is on the chain; who voted what is not kept
 }
 // the games a member still has to say who came to (an hour after the start, for three days)
 export function pending(me, now = Date.now()) {
-  for (const [k, c] of Object.entries(data().checks)) if (!c.settled && now > c.at + 72 * HOUR) settle(k);
+  for (const [k, c] of Object.entries(data().checks)) if (!c.settled && now > c.at + 72 * HOUR) settle(k, now);
   return Object.entries(data().checks).filter(([, c]) => !c.settled && c.players.includes(me) && !c.votes[me] && now > c.at + 60 * 60e3).map(([key, c]) => ({ key, at: c.at, players: c.players.filter((x) => x !== me) }));
 }
 
 // ---- what anyone sees ----
 const rate = (a, b) => (b ? a / b : null);
 export function badge(id, now = Date.now()) {
-  const p = data().people[id] || { games: 0, came: 0, late: 0, level: { ok: 0, off: 0 } }, a = data().agents[id] || { said: 0, kept: 0, probe: 0, sig: [] };
+  const s = replay(now), w = subject(id);
+  const p = s.people[w] || { games: 0, came: 0, late: 0, level: { ok: 0, off: 0 } }, a = s.agents[w] || { said: 0, kept: 0, probe: 0, sig: [] };
   const show = rate(p.came, p.games), kept = rate(a.kept, a.said);
   return {
     show: { rate: show == null ? null : +show.toFixed(2), games: p.games, late: p.late, new: p.games < NEW_UNDER, levelOk: p.level.ok + p.level.off ? +(p.level.ok / (p.level.ok + p.level.off)).toFixed(2) : null },
     agent: { rate: kept == null ? null : +kept.toFixed(2), said: a.said, new: a.said < NEW_UNDER, probe: !!a.probe && now - a.probe < 7 * DAY, badSig: a.sig.filter((x) => now - x.at < 30 * DAY).length },
   };
 }
+// a member's own entries on the chain, for them to check
+export const mine = (id) => { const w = subject(id); return { subject: w, entries: data().chain.filter((e) => e.who === w).map(({ n, at, kind, d, hash }) => ({ n, at, kind, d, hash })) }; };
+// the chain as anyone may read it: pseudonymous subjects, no names, and the signed daily heads
+export const publicChain = ({ after = -1, n = 500 } = {}) => ({ entries: data().chain.filter((e) => e.n > after).slice(0, Math.min(2000, n)), heads: data().heads, genesis: GENESIS, length: data().chain.length,
+  how: "hash = sha256(JSON.stringify([n, at, kind, who, d, prev])); each prev is the hash before it; heads are signed as 'serve-trust-head:<day>:<n>:<hash>' with the Ed25519 key at /a2a/keys.json" });
 export const showText = (b) => (b.show.new ? `new · ${b.show.games} game${b.show.games === 1 ? "" : "s"}` : `shows up ${Math.round(b.show.rate * 100)}% · ${b.show.games} games`);
 export const agentText = (b) => (b.agent.probe ? "asks too many agents" : b.agent.badSig ? "signature problems" : b.agent.new ? "agent new" : `agent keeps ${Math.round(b.agent.rate * 100)}% of its yeses`);
 // a game's gate: { minShow (0..1, 0 = anyone), agentMin (0..1) }; the verdict for one person:
@@ -108,6 +193,11 @@ export function check(id, gate = {}, now = Date.now()) {
   if (g.agentMin && !b.agent.new && b.agent.rate < g.agentMin) return { verdict: "confirm", badge: b, why: `their agent keeps only ${Math.round(b.agent.rate * 100)}% of its yeses` };
   return { verdict: "ok", badge: b };
 }
-export function forget(id) { const d = data(); delete d.people[id]; delete d.agents[id]; for (const c of Object.values(d.checks)) { c.players = c.players.filter((x) => x !== id); delete c.votes[id]; } save(); }
-// for the local demo's test accounts only (seed scripts), never called by a route
-export function seed(id, { person: p, agent: a } = {}) { if (p) Object.assign(person(id), p); if (a) Object.assign(agent(id), a); save(); }
+// leaving Serve: a "left" entry (the chain is never rewritten), and the games waiting for votes forget them
+export function forget(id) {
+  add("left", id);
+  for (const c of Object.values(data().checks)) { c.players = c.players.filter((x) => x !== id); delete c.votes[id]; }
+  save();
+}
+// for the local demo's test accounts only (seed scripts), never called by a route; marked "seed" on the chain
+export function seed(id, { person: p, agent: a } = {}) { add("seed", id, { ...(p ? { person: p } : {}), ...(a ? { agent: a } : {}) }); }

@@ -39,6 +39,9 @@
 //   POST /api/huddle/game {post, yes, why}   join a game the agent recommended, or say why not
 //   GET  /api/huddle/places?sport=           courts near them: quiet hours, and for sports centres the venue agent's price
 //   POST /api/huddle/deal {place, date, start, players, sport}   ask a venue's agent for a price
+// The trust chain, for anyone (no sign-in):
+//   GET  /api/trust/chain?after=&n=          entries (pseudonymous subjects) and the daily heads signed with /a2a/keys.json
+//   GET  /api/trust/verify                   the gateway's own replay of the chain, and today's head, signed
 // The agent channel, every request signed by a registered agent's key (header serve-signature):
 //   GET  /api/agent-channel/feed             the feed as the agent's member sees it
 //   POST /api/agent-channel/post {text, invite}      a post, or an invite, as "<member>'s agent"
@@ -58,7 +61,7 @@ const redirect = (res, url) => { res.writeHead(302, { location: url, "cache-cont
 export const member = (req) => M.fromSession(req.headers["x-serve-session"]);
 // the routes a signed-in member may use without the gateway's token
 export const memberRoute = (p) => p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/") || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/");
-export const publicRoute = (p) => p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p === "/api/invite";
+export const publicRoute = (p) => p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p === "/api/invite" || p.startsWith("/api/trust/");
 
 export async function route(req, res, u, { json, o, forget }) {
   const p = u.pathname, send = (code, body) => { json(res, code, body, o); return true; };
@@ -80,6 +83,9 @@ export async function route(req, res, u, { json, o, forget }) {
     return r.error ? send(403, r) : send(200, { member: r.member, session: M.sessionFor(r.member.id) });
   }
   if (p.startsWith("/api/agent-channel/")) return channel(req, res, p, send);
+  // the trust chain, for anyone to check (trust.js): its entries (pseudonymous), the signed daily heads, and a replay
+  if (p === "/api/trust/chain" && req.method === "GET") return send(200, Tr.publicChain({ after: +(u.searchParams.get("after") ?? -1), n: +(u.searchParams.get("n") || 500) }));
+  if (p === "/api/trust/verify" && req.method === "GET") return send(200, { ...Tr.verify(), head: await Tr.head() });
 
   const me = member(req);
   if (p === "/api/me") return me ? send(200, { member: M.view(me), agents: M.agentsOf(me.id) }) : send(401, { error: "Sign in first." });
@@ -145,7 +151,7 @@ async function huddle(req, res, p, q, me, send) {
   if (p === "/api/huddle/sports" && post) return out(T.setSports(me, b.sports));
   if (p === "/api/huddle/open" && post) return out(T.setOpen(me, b.on === true));
   if (p === "/api/huddle/attend" && post) return out(Tr.vote(me, String(b.key || ""), b.came || {}, b.level || {}));
-  if (p === "/api/huddle/trust" && get) return send(200, { trust: H.trustOf(me) });
+  if (p === "/api/huddle/trust" && get) return send(200, { trust: H.trustOf(me), chain: { ...Tr.mine(me), ...Tr.verify() } });
   if (p === "/api/huddle/needs" && get) return send(200, { needs: N.view() });
   if (p === "/api/huddle/reset" && post) return send(200, { taste: T.view(T.reset(me)) });
   // the question is rebuilt from the member's state, so the answer carries the two games it showed

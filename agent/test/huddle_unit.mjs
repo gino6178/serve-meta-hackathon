@@ -77,3 +77,27 @@ test("what the agents keep running into goes to the club's ideas after three hud
   for (const h of ["h4", "h5", "h6"]) await N.saw("too_far", h, { suggest });
   assert.equal(sent.length, 1); // once a month
 });
+
+test("the trust chain: records come from it, and any change to a past entry is caught", async () => {
+  const { privateKey, publicKey } = (await import("node:crypto")).generateKeyPairSync("ed25519");
+  const crypto = await import("node:crypto");
+  Tr.useSigner((text) => ({ kid: "test", alg: "EdDSA", sig: crypto.sign(null, Buffer.from(text), privateKey).toString("base64url") }));
+  Tr.promise("zed", true); Tr.promise("zed", true); Tr.promise("zed", false);
+  assert.equal(Tr.badge("zed").agent.rate, 0.67);
+  const pub = Tr.publicChain({ n: 2000 });
+  assert.equal(Tr.verify(pub.entries, pub.heads).ok, true);
+  assert.ok(!JSON.stringify(pub).includes("zed")); // subjects are pseudonyms
+  // someone edits a broken promise into a kept one, or drops an entry: the replay stops there
+  const edited = structuredClone(pub.entries); const k = edited.findLastIndex((e) => e.kind === "promise"); edited[k].d.kept = true;
+  assert.equal(Tr.verify(edited, []).ok, false);
+  const dropped = pub.entries.filter((_, i) => i !== k - 1);
+  assert.equal(Tr.verify(dropped, []).ok, false);
+  // today's head is signed with the gateway's key, and the signature checks out; cutting the end off fails against it
+  const h = await Tr.head();
+  assert.equal(Tr.verify(pub.entries.slice(0, -1), [h]).ok, false);
+  assert.equal(crypto.verify(null, Buffer.from(Tr.headText(h)), publicKey, Buffer.from(h.sig, "base64url")), true);
+  // leaving adds an entry; the chain still verifies and the records stop counting
+  Tr.forget("zed");
+  assert.equal(Tr.verify().ok, true);
+  assert.equal(Tr.badge("zed").agent.said, 0);
+});

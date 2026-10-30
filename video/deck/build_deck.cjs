@@ -174,7 +174,7 @@ async function chart(file) {
   // to meet; Serve is that place, with trust on two tracks, owned keys, and rules that change with what agents need
   {
     const s = content("Impact", "IMPACT · THE PROBLEM", "Everyone will have an agent, with nowhere to meet",
-      "示意圖：每個人都有自己的 agent，因為隱私，偏好只有 agent 知道（幾點有空、願意跑多遠、願意付多少），不會攤在群組裡。\n左邊是今天：每個 agent 只認識自己的主人，也只能找通訊錄裡的人；朋友沒空就沒有下一步，而陌生人的 agent 又不知道能不能信。\n右邊是 Serve：一個讓人和 agent 都能進出的地方。agent 帶著主人的偏好來揪團、找附近的夥伴，彼此只交換「可以／不行／原因」，偏好不離開 agent。\n下面三個支柱：AI trust（真人出席率＋agent 守信率，每個 agent 有自己的金鑰、每則訊息都簽章）；Web3 的精神但不用區塊鏈（金鑰在你手上、資料留在你的 agent、社團可以跨伺服器聯盟）；會進化的平台（agent 一直撞到的牆會變成社團的提案，大家投票，經過安全關卡後上線，平台跟著 agent 的需求改變）。");
+      "示意圖：每個人都有自己的 agent，因為隱私，偏好只有 agent 知道（幾點有空、願意跑多遠、願意付多少），不會攤在群組裡。\n左邊是今天：每個 agent 只認識自己的主人，也只能找通訊錄裡的人；朋友沒空就沒有下一步，而陌生人的 agent 又不知道能不能信。\n右邊是 Serve：一個讓人和 agent 都能進出的地方。agent 帶著主人的偏好來揪團、找附近的夥伴，彼此只交換「可以／不行／原因」，偏好不離開 agent。\n下面三個支柱：AI trust（真人出席率＋agent 守信率，每個 agent 有自己的金鑰、每則訊息都簽章）；Web3：不可竄改的信用帳本（每筆信用紀錄都是雜湊鏈上的一筆，含前一筆的雜湊；伺服器每天用自己的 Ed25519 金鑰簽下鏈尾；任何人都能從 /api/trust/chain 驗證，repo 裡有 verify_trust_chain.mjs；金鑰在你手上；沒有代幣、沒有手續費）；會進化的平台（agent 一直撞到的牆會變成社團的提案，大家投票，經過安全關卡後上線，平台跟著 agent 的需求改變）。");
     // left: today, each agent alone with its person's preferences
     box(s, 0.6, 1.8, 5.55, 3.55, { fill: CARD, line: CARD });
     T(s, "TODAY", 0.85, 1.95, 3, 0.28, { fontSize: 11, bold: true, color: RED, charSpacing: 1 });
@@ -211,7 +211,7 @@ async function chart(file) {
     // three pillars
     const pillars = [
       ["AI TRUST", "Two records, counted by code: does the person show up, does their agent keep its yeses. Every agent has its own key and signs every message.", GREEN, GREENBG],
-      ["WEB3-STYLE, NO CHAIN NEEDED", "You own your agent's key and your data stays with it. Clubs can federate across servers, and members govern the rules.", BLUE, BLUEBG],
+      ["WEB3: A TRUST LEDGER NO ONE CAN EDIT", "Every record is a hash-chained entry; the server signs each day's head with its key, and anyone can verify it. You hold your agent's key. No tokens, no fees.", BLUE, BLUEBG],
       ["EVOLVES WITH ITS AGENTS", "What agents keep running into becomes a club idea: members vote, it's built and passes the safety gates, and the platform adapts to its agents.", AMBER, AMBERBG],
     ];
     pillars.forEach(([k, d, c, bg], i) => {
@@ -251,7 +251,7 @@ async function chart(file) {
       T(s, out, 6.75, y + 0.5, 5.8, 0.5, { fontSize: 12.5 });
     });
     box(s, 6.55, 5.95, 6.15, 0.65, { fill: WHITE, line: LINE });
-    T(s, [{ text: "Two records, counted by code. ", options: { bold: true } }, { text: "Shows up: players tap who came after each game; leaving in the last 6 hours is a late drop. Agent keeps: your yes after your agent's yes." }],
+    T(s, [{ text: "Two records on a signed hash chain. ", options: { bold: true } }, { text: "Shows up: players tap who came; a drop in the last 6 hours is late. Agent keeps: your yes after your agent's yes. Anyone can verify." }],
       6.7, 5.95, 5.9, 0.65, { fontSize: 10.5, valign: "middle" });
     T(s, "The scenario ran in the app with test accounts. On the live site every record starts at zero, and anyone under three games shows as new.", 0.6, 6.72, 12.1, 0.3, { fontSize: 10.5, color: MUTED, italic: true });
   }

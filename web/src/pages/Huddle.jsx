@@ -3,6 +3,7 @@ import Icon from "../components/Icon.jsx";
 import TasteQuestion from "../components/TasteQuestion.jsx";
 import TrustBadge from "../components/TrustBadge.jsx";
 import * as H from "../huddle.js";
+import { AGENT_URL } from "../agent.js";
 import { cap, pct, FACTOR, WHY } from "../huddle.js";
 import "./huddle.css";
 
@@ -267,7 +268,8 @@ const PARTS = ["early", "morning", "afternoon", "evening"];
 function TasteTab({ me, reload }) {
   const [q, setQ] = useState(null), [t, setT] = useState(me.taste), [busy, setBusy] = useState(false), [mine, setMine] = useState(null), [err, setErr] = useState("");
   const ask = () => H.question().then((r) => setQ(r.question), () => {});
-  useEffect(() => { ask(); H.trust().then((r) => setMine(r.trust), () => {}); }, []);
+  const [chain, setChain] = useState(null);
+  useEffect(() => { ask(); H.trust().then((r) => { setMine(r.trust); setChain(r.chain); }, () => {}); }, []);
   const w = t.weights;
   return (
     <div className="hd-taste">
@@ -293,6 +295,7 @@ function TasteTab({ me, reload }) {
         <h2 className="h3">What other agents see about you</h2>
         {mine && <TrustBadge t={mine} />}
         <p className="hd-fine">Shows up: after each game the other players tap who came; leaving in the last six hours counts as a late drop. Your agent: how often you said yes when it had said yes for you. Both stay "new" until there are three to count.</p>
+        {chain && <Chain c={chain} />}
         <label className="hd-check"><input type="checkbox" checked={!!t.open} onChange={async (e) => { setErr(""); try { const r = await H.setOpen(e.target.checked); setT(r.taste); } catch (x) { setErr(x.message); } }} />
           <span><b>Let people nearby ask my agent</b><em>Other members' agents within about 5 km can ask yours for a game; your agent answers the way you would, and you say yes once</em></span></label>
         {err && <p className="join-err" role="alert">{err}</p>}
@@ -306,6 +309,21 @@ function TasteTab({ me, reload }) {
           <button className="btn ghost sm" disabled={busy} onClick={async () => { if (!confirm("Forget what your agent learned about how you play?")) return; const r = await H.reset(); setT(r.taste); ask(); }}>Start over</button>
         </div>
       </section>
+    </div>
+  );
+}
+
+// the member's records on the trust chain (agent members/trust.js): every entry carries the hash of the one before, the
+// gateway signs the head each day with its Agent Card key, and anyone can replay it from /api/trust/chain
+const KIND = { promise: (d) => (d.kept ? "Your agent said yes for you, and you did too" : "Your agent said yes for you, and you said no"), game: (d) => (d.came ? "The other players say you came" : "The other players say you didn't come"), late: () => "Left a game in its last six hours", asked: (d) => `Your agent asked ${d.n} people nearby`, sig: () => "A request with your agent's key failed its check", seed: () => "Test record", carried: () => "Record from before the chain", left: () => "Left Serve" };
+function Chain({ c }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="hd-chain">
+      <p><span className={c.ok ? "hd-ok" : "hd-bad"}>{c.ok ? "✓ Chain verified" : `✗ Chain broken at entry ${c.at}`}</span> {c.ok ? `${c.n} entries; the last hash is ${String(c.head).slice(0, 12)}…` : c.why}</p>
+      <p className="hd-fine">Your records are worked out from a chain no one can quietly change: every entry carries the hash of the one before it, and the server signs the chain's end each day with its own key. You appear on it only as {c.subject}, never by name. Anyone can check it at <a href={`${AGENT_URL}/api/trust/chain`} target="_blank" rel="noreferrer">/api/trust/chain</a>.</p>
+      {c.entries.length > 0 && <button className="link" onClick={() => setOpen(!open)}>{open ? "Hide" : "Show"} your {c.entries.length} entr{c.entries.length === 1 ? "y" : "ies"}</button>}
+      {open && <ol className="hd-lines">{c.entries.map((e) => <li key={e.n}>#{e.n} · {new Date(e.at).toLocaleDateString()} · {(KIND[e.kind] || (() => e.kind))(e.d || {})} <code>{e.hash.slice(0, 10)}</code></li>)}</ol>}
     </div>
   );
 }
