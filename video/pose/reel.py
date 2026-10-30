@@ -5,13 +5,14 @@ server, called by the agent gateway (agent/src/media/reel.js) for a video the pl
   soccer: your fastest kick
   python reel.py <in.mp4> <out.json> [sport]
 Prints one JSON line per step ({"step", "detail"}) for the gateway to stream to the app.
-- Meta's DETR finds the people on every second frame. The largest person who stays in the picture is you; the next
-  one is the other player.
+- Meta's DETR (or RT-DETR, with PERSON_DETECTOR=rtdetr) finds the people on every second frame. The largest person
+  who stays in the picture is you; the next one is the other player.
 - Meta's Sapiens2 reads both players' pose and SAM 2.1 cuts each one out, every second frame, and every frame in the
   two and a half seconds around the smash, for the slow motion.
 - The smash is your fastest overhead swing: the moment your racket hand, above your head, moves fastest.
 Output: {fps, w, h, n, sport, kind, frames: [[you, other] or 0, ...], swings: [{t, speed}], smash: t (the moment), hand,
-  ball: ball.py's output (per frame: x, y, p, on; hits; rally_end) or null when no tracker is set up for the sport}
+  ball: ball.py's output (per frame: x, y, p, on; hits; rally_end) or null when no tracker is set up for the sport,
+  clip: {in, out, from: "ball"} in seconds, only with RALLY_CLIP=1 and a tracked ball: the rally's in and out points}
   Pixels are in the video's own frame, scaled to at most 960 px wide. A player is {"m": outline [x, y, ...],
   "k": 24 x [x, y, score]} or 0, keypoints COCO-17, then big toes, heels, neck and index fingertips."""
 import json, os, sys
@@ -35,12 +36,29 @@ def say(step, detail=""):
     print(json.dumps({"step": step, "detail": detail}), flush=True)
 
 
-# DETR's no-timm weights: its config has dilation null, which Transformers 5 refuses; it means no dilation
-cfg = json.load(open(hf_hub_download("facebook/detr-resnet-50", "config.json", revision="no_timm")))
-cfg["dilation"] = bool(cfg.get("dilation"))
-detr_cfg = DetrConfig(**{k: v for k, v in cfg.items() if not k.startswith("_") and k not in ("architectures", "transformers_version", "model_type")})
-dp = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
-dm = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm", config=detr_cfg).to(dev).eval()
+# The person detector, swappable: PERSON_DETECTOR=detr (the default: Meta's DETR, whose repository is archived) or
+# rtdetr (RT-DETRv2, Apache 2.0, opt-in until it has run on the server). Either gives the same thing: per frame, the
+# person boxes [[x0, y0, x1, y1], ...] scoring at least PERSON_THRESHOLD (0.8 unless set). PERSON_DETECTOR_MODEL
+# picks another checkpoint of the same family (for RT-DETR v1: PekingU/rtdetr_r50vd).
+DETECTOR = os.environ.get("PERSON_DETECTOR", "detr").lower()
+THRESH = float(os.environ.get("PERSON_THRESHOLD", "0.8"))
+if DETECTOR == "rtdetr":
+    from transformers import AutoImageProcessor, AutoModelForObjectDetection
+    _ckpt = os.environ.get("PERSON_DETECTOR_MODEL", "PekingU/rtdetr_v2_r50vd")
+    dp = AutoImageProcessor.from_pretrained(_ckpt)
+    dm = AutoModelForObjectDetection.from_pretrained(_ckpt).to(dev).eval()
+    DETECTOR_NAME = "RT-DETR"
+elif DETECTOR == "detr":
+    # DETR's no-timm weights: its config has dilation null, which Transformers 5 refuses; it means no dilation
+    cfg = json.load(open(hf_hub_download("facebook/detr-resnet-50", "config.json", revision="no_timm")))
+    cfg["dilation"] = bool(cfg.get("dilation"))
+    detr_cfg = DetrConfig(**{k: v for k, v in cfg.items() if not k.startswith("_") and k not in ("architectures", "transformers_version", "model_type")})
+    dp = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
+    dm = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm", config=detr_cfg).to(dev).eval()
+    DETECTOR_NAME = "Meta's DETR"
+else:
+    sys.exit(f"PERSON_DETECTOR must be detr or rtdetr, not {DETECTOR!r}")
+PERSON = {i for i, name in dm.config.id2label.items() if name == "person"}
 sp = Sapiens2ImageProcessor.from_pretrained("facebook/sapiens2-pose-0.4b")
 sm = Sapiens2ForPoseEstimation.from_pretrained("facebook/sapiens2-pose-0.4b", torch_dtype=torch.bfloat16).to(dev).eval()
 qp = Sam2Processor.from_pretrained("facebook/sam2.1-hiera-large")
@@ -76,8 +94,8 @@ def frames(want):
 def detect(batch):
     x = dp(images=[im for _, im in batch], return_tensors="pt").to(dev)
     o = dm(**x)
-    rs = dp.post_process_object_detection(o, threshold=0.8, target_sizes=[(H, W)] * len(batch))
-    return [[b.tolist() for s, l, b in zip(r["scores"], r["labels"], r["boxes"]) if dm.config.id2label[l.item()] == "person"] for r in rs]
+    rs = dp.post_process_object_detection(o, threshold=THRESH, target_sizes=[(H, W)] * len(batch))
+    return [[b.tolist() for s, l, b in zip(r["scores"], r["labels"], r["boxes"]) if l.item() in PERSON] for r in rs]
 
 
 # 1 everyone, every second frame
@@ -119,11 +137,11 @@ if not tracks:
     json.dump({"error": "no player"}, open(out, "w"))
     sys.exit(0)
 players = tracks[:2]
-say("Found you", f"Meta's DETR found {len(players)} player{'s' if len(players) > 1 else ''} in {len(boxes)} frames; you are the nearer one")
+say("Found you", f"{DETECTOR_NAME} found {len(players)} player{'s' if len(players) > 1 else ''} in {len(boxes)} frames; you are the nearer one")
 
 
 def box_at(t, i):
-    """a track's box on frame i, between its neighbours when DETR missed it"""
+    """a track's box on frame i, between its neighbours when the detector missed it"""
     bs = t["boxes"]
     if i in bs:
         return bs[i]
@@ -264,8 +282,19 @@ if os.environ.get("BALL_TRACKING") == "1" and SPORT in ("badminton", "tennis", "
         say(f"Found the {BALL_WORD}", f"in {sum(ball['ball']['on'])} of {N} frames, {len(ball['hits'])} hits" + (f"; the rally ends at {end / fps:.1f} s" if end is not None else ""))
     except Exception as e:  # the reel goes on without the ball
         say(f"The {BALL_WORD} was not tracked", str(e).splitlines()[-1][:160] if str(e) else type(e).__name__)
+# 6 the clip's in and out from the rally (RALLY_CLIP=1, off by default): the ball's first and last confident frame
+# around the moment (ball.rally_clip). Without the flag, or without a ball, there is no "clip" and the output is as before
+clip = None
+if os.environ.get("RALLY_CLIP") == "1" and ball and ball.get("ball") and smash:
+    try:
+        rc = ball_track.rally_clip(ball["ball"]["on"], smash, ball["rally_end"], fps)
+        if rc:
+            clip = {"in": round(rc[0] / fps, 3), "out": round(rc[1] / fps, 3), "from": "ball"}
+            say("Cut to the rally", f"from {clip['in']:.1f} s to {clip['out']:.1f} s, where the {BALL_WORD} is in play")
+    except Exception as e:
+        say("The rally was not cut", str(e).splitlines()[-1][:160] if str(e) else type(e).__name__)
 # hand speed in m/s, taking you as 1.7 m tall: an estimate from 2D pose, and lower than the racket head's
 hand = round(max((v for i, v in swing_speed(1) if smash and abs(i - smash) <= 2), default=0) * 1.7, 1) if smash else None
 json.dump({"fps": round(fps, 3), "w": W, "h": H, "n": N, "sport": SPORT, "kind": KIND, "frames": got, "swings": swings, "smash": round(smash / fps, 3) if smash else None, "hand": hand or None,
-           "ball": ball}, open(out, "w"), separators=(",", ":"))
+           "ball": ball, **({"clip": clip} if clip else {})}, open(out, "w"), separators=(",", ":"))
 say("Ready", f"{sum(1 for f in got if f)} frames read")

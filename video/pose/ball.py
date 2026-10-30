@@ -263,6 +263,29 @@ def rally_end(x, y, on, fps):
     return b if n - 1 - b >= still else None
 
 
+def rally_clip(on, at, end, fps, gap=1.0, pre=0.3, post=0.4):
+    """the rally around frame at, from the ball, as the clip's in and out frames: the first and last frame the ball is
+    on (confident) in the stretch around the moment, where gaps of up to gap seconds are joined (a tracker loses a
+    shuttle mid-rally), cut at the rally's end when that falls inside it; pre and post seconds of margin. The moment
+    is always inside. None when the ball is not on within gap seconds of the moment"""
+    n, g = len(on), round(gap * fps)
+    if not n or at is None:
+        return None
+    lit = [i for i, v in enumerate(on) if v]
+    near = [i for i in lit if abs(i - at) <= g]
+    if not near:
+        return None
+    a = b = min(near, key=lambda i: abs(i - at))
+    idx = set(lit)
+    while any(a - k in idx for k in range(1, g + 1)):
+        a = next(a - k for k in range(1, g + 1) if a - k in idx)
+    while any(b + k in idx for k in range(1, g + 1)):
+        b = next(b + k for k in range(1, g + 1) if b + k in idx)
+    if end is not None and at <= end < b:
+        b = end
+    return max(0, min(a, at) - round(pre * fps)), min(n - 1, max(b, at) + round(post * fps))
+
+
 def track(clip, sport="badminton", reel=None, csv_path=None):
     import cv2
     cap = cv2.VideoCapture(clip)
