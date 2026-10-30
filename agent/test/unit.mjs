@@ -412,3 +412,23 @@ test("a score checked against its sport's rules: tennis sets and match tiebreaks
   assert.equal(elevenMatch(S([11, 7], [8, 11], [11, 9], [11, 6])).winner, "first", "best of five");
   assert.ok(!elevenMatch(S([11, 7], [11, 8], [11, 9])).valid, "a game after the match was won");
 });
+
+test("venue rules: minimax the longest trip (the default), sum the total, nash the sum of log(trip + 1)", async () => {
+  const { court, venueScore, venueRule } = await import("../src/a2a/talk.js");
+  assert.equal(venueScore([10, 30], "minimax"), 30); assert.equal(venueScore([10, 30], "sum"), 40);
+  assert.ok(Math.abs(venueScore([10, 30], "nash") - (Math.log(11) + Math.log(31))) < 1e-9);
+  // two players on a line: mid (19 / 20 min) in the middle, near (6 / 32) and nearer (5 / 33) by one of them
+  const v = (id, x) => ({ id, name: id, x, y: 0, courts: 2, open: ["06:00", "23:00"], peakBusy: 0, offBusy: 0, price: 10 });
+  const venues = { venues: [v("mid", 3.6), v("near", 0.27), v("nearer", 0)] }, people = [{ id: "you", name: "You", area: { x: 0, y: 0 } }, { id: "m", name: "M", area: { x: 7.47, y: 0 } }];
+  const at = (rule) => court({ date: "2026-11-09", day: "Mon" }, 10 * 60, 90, people, venues, "badminton", rule);
+  const trips = (c) => c.travel.map((t) => t.min);
+  assert.deepEqual([at("minimax").v.id, trips(at("minimax"))], ["mid", [19, 20]], "the longest trip shortest");
+  assert.equal(at("sum").v.id, "near", "the least total trip (38 both: the tie goes to the shorter longest trip)");
+  assert.equal(at("nash").v.id, "nearer", "log weighs a minute more for whoever travels less");
+  const was = process.env.A2A_VENUE_RULE;
+  try {
+    delete process.env.A2A_VENUE_RULE; assert.equal(venueRule(), "minimax"); assert.equal(at(undefined).v.id, "mid", "unset: minimax, as before");
+    process.env.A2A_VENUE_RULE = "sum"; assert.equal(at(undefined).v.id, "near", "the setting picks the rule");
+    process.env.A2A_VENUE_RULE = "fastest"; assert.equal(venueRule(), "minimax", "an unknown rule falls back to minimax");
+  } finally { if (was == null) delete process.env.A2A_VENUE_RULE; else process.env.A2A_VENUE_RULE = was; }
+});

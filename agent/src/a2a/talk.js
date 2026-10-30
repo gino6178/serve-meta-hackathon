@@ -113,8 +113,18 @@ export function shared(people, minutes = 90, now = new Date()) {
 }
 // a venue's offer for one sport (the demo venues list theirs under `sports`; badminton is the default)
 const forSport = (v, sport) => (v.sports ? (v.sports[sport] ? { ...v, courts: v.sports[sport].courts, price: v.sports[sport].price } : null) : sport === "badminton" ? v : null);
-// for one time: the venue with a free court where the longest trip is shortest
-export function court(slot, start, minutes, people, venues, sport = "badminton") {
+// How a venue is weighed by its players' trips (A2A_VENUE_RULE): minimax (the default) the longest trip, sum the
+// total, nash the sum of log(trip + 1), between the two: a minute matters more to whoever travels less. Lower is
+// better. test/booking_quality.mjs compares the three on the simulated users' games (docs/booking_quality.md).
+export const VENUE_RULES = ["minimax", "sum", "nash"];
+export const venueRule = () => (VENUE_RULES.includes(process.env.A2A_VENUE_RULE) ? process.env.A2A_VENUE_RULE : "minimax");
+export function venueScore(mins, rule = "minimax") {
+  if (rule === "sum") return mins.reduce((a, t) => a + t, 0);
+  if (rule === "nash") return mins.reduce((a, t) => a + Math.log(t + 1), 0);
+  return Math.max(0, ...mins);
+}
+// for one time: the venue with a free court whose trips weigh least by the rule (the longest trip shortest, by default)
+export function court(slot, start, minutes, people, venues, sport = "badminton", rule = venueRule()) {
   const date = dateOf(slot.date), out = [];
   for (const v0 of venues.venues) {
     const v = forSport(v0, sport);
@@ -122,9 +132,10 @@ export function court(slot, start, minutes, people, venues, sport = "badminton")
     const courts = demoVenues.freeCourts(v, date, start, minutes);
     if (!courts.length) continue;
     const travel = people.filter((p) => p.area).map((p) => ({ id: p.id, name: p.name, min: travelMin(p.area, v), km: +kmBetween(p.area, v).toFixed(1) }));
-    out.push({ v, court: courts[0], courtsFree: courts.length, travel, longest: Math.max(0, ...travel.map((t) => t.min)) });
+    out.push({ v, court: courts[0], courtsFree: courts.length, travel, longest: Math.max(0, ...travel.map((t) => t.min)), score: venueScore(travel.map((t) => t.min), rule) });
   }
-  return out.sort((a, b) => a.longest - b.longest)[0] || null;
+  // (minimax as before: by the longest trip only; the others break a tie by the longest trip)
+  return out.sort((a, b) => a.score - b.score || (rule === "minimax" ? 0 : a.longest - b.longest))[0] || null;
 }
 // an option in the shape Play books (play.book)
 export function option(slot, start, minutes, c, members, format, sport, agreed) {
