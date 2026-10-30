@@ -107,3 +107,18 @@ test("an invite: checked, joined up to its spots, and the poster's agent answers
   assert.equal(P.find(id).invite.going.length, 0, "a member who leaves is out of the invite");
   assert.ok(!P.find(id).comments.some((c) => /Cy is in/.test(c.text)), "and the agent's line naming them is gone");
 });
+
+test("llms.txt: its A2A examples pass the very schemas the API checks", async () => {
+  const D = await import("../src/members/discovery.js"), Sc = await import("../src/core/schema.js");
+  const line = D.llmsTxt({ headers: { host: "x" } }).split("\n").find((l) => l.includes('"serve.proposal"'));
+  const found = [];
+  for (let i = line.indexOf('{"kind"'); i >= 0; i = line.indexOf('{"kind"', i + 1)) {
+    let depth = 0, j = i;
+    for (; j < line.length; j++) { if (line[j] === "{") depth++; if (line[j] === "}" && !--depth) break; }
+    found.push(JSON.parse(line.slice(i, j + 1).replace(/<[^>]+>/g, "ref-1")));
+  }
+  assert.deepEqual(found.map((x) => x.kind), ["serve.proposal", "serve.hold", "serve.likely"]);
+  for (const x of found) assert.deepEqual(Sc.validate({ "serve.proposal": Sc.PROPOSAL, "serve.hold": Sc.HOLD, "serve.likely": Sc.LIKELY }[x.kind], x), [], x.kind);
+  assert.equal(found[0].proposal.minutes, undefined, "minutes is beside proposal, not in it");
+  assert.ok(found[0].choices.length >= 1);
+});
