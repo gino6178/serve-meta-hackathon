@@ -5,13 +5,14 @@ server, called by the agent gateway (agent/src/media/reel.js) for a video the pl
   soccer: your fastest kick
   python reel.py <in.mp4> <out.json> [sport]
 Prints one JSON line per step ({"step", "detail"}) for the gateway to stream to the app.
-- Meta's DETR (or RT-DETR, PERSON_DETECTOR=rtdetr) finds the people on every second frame. The largest person who stays in the picture is you; the next
-  one is the other player.
+- Meta's DETR (or RT-DETR, with PERSON_DETECTOR=rtdetr) finds the people on every second frame. The largest person
+  who stays in the picture is you; the next one is the other player.
 - Meta's Sapiens2 reads both players' pose and SAM 2.1 cuts each one out, every second frame, and every frame in the
   two and a half seconds around the smash, for the slow motion.
 - The smash is your fastest overhead swing: the moment your racket hand, above your head, moves fastest.
 Output: {fps, w, h, n, sport, kind, frames: [[you, other] or 0, ...], swings: [{t, speed}], smash: t (the moment), hand,
-  ball: ball.py's output (per frame: x, y, p, on; hits; rally_end) or null when no tracker is set up for the sport}
+  ball: ball.py's output (per frame: x, y, p, on; hits; rally_end) or null when no tracker is set up for the sport,
+  clip: {in, out, from: "ball"} in seconds, only with RALLY_CLIP=1 and a tracked ball: the rally's in and out points}
   Pixels are in the video's own frame, scaled to at most 960 px wide. A player is {"m": outline [x, y, ...],
   "k": 24 x [x, y, score]} or 0, keypoints COCO-17, then big toes, heels, neck and index fingertips."""
 import json, os, sys
@@ -281,8 +282,19 @@ if os.environ.get("BALL_TRACKING") == "1" and SPORT in ("badminton", "tennis", "
         say(f"Found the {BALL_WORD}", f"in {sum(ball['ball']['on'])} of {N} frames, {len(ball['hits'])} hits" + (f"; the rally ends at {end / fps:.1f} s" if end is not None else ""))
     except Exception as e:  # the reel goes on without the ball
         say(f"The {BALL_WORD} was not tracked", str(e).splitlines()[-1][:160] if str(e) else type(e).__name__)
+# 6 the clip's in and out from the rally (RALLY_CLIP=1, off by default): the ball's first and last confident frame
+# around the moment (ball.rally_clip). Without the flag, or without a ball, there is no "clip" and the output is as before
+clip = None
+if os.environ.get("RALLY_CLIP") == "1" and ball and ball.get("ball") and smash:
+    try:
+        rc = ball_track.rally_clip(ball["ball"]["on"], smash, ball["rally_end"], fps)
+        if rc:
+            clip = {"in": round(rc[0] / fps, 3), "out": round(rc[1] / fps, 3), "from": "ball"}
+            say("Cut to the rally", f"from {clip['in']:.1f} s to {clip['out']:.1f} s, where the {BALL_WORD} is in play")
+    except Exception as e:
+        say("The rally was not cut", str(e).splitlines()[-1][:160] if str(e) else type(e).__name__)
 # hand speed in m/s, taking you as 1.7 m tall: an estimate from 2D pose, and lower than the racket head's
 hand = round(max((v for i, v in swing_speed(1) if smash and abs(i - smash) <= 2), default=0) * 1.7, 1) if smash else None
 json.dump({"fps": round(fps, 3), "w": W, "h": H, "n": N, "sport": SPORT, "kind": KIND, "frames": got, "swings": swings, "smash": round(smash / fps, 3) if smash else None, "hand": hand or None,
-           "ball": ball}, open(out, "w"), separators=(",", ":"))
+           "ball": ball, **({"clip": clip} if clip else {})}, open(out, "w"), separators=(",", ":"))
 say("Ready", f"{sum(1 for f in got if f)} frames read")
