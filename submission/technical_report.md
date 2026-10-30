@@ -22,7 +22,7 @@ works, for any ball sport (badminton, tennis, pickleball, table tennis, basketba
 phone's browser and in Messenger. The demo town sits on Taipei, with prices in NT$, but nothing in Serve is tied to one
 place or one sport.
 
-![A sentence becomes an invite; the players' agents agree the time; the player books with one tap](shots/flow_three.png)
+![On the web: a sentence becomes an invite, the players' agents agree the time, one tap books it. In Messenger (right): the same booking, with the agent's real replies from the Messenger end-to-end test](shots/flow_four.png)
 
 **Taking the friction out of a game**
 - **Match, asking first.** Match learns the player's usual playing times. When one of them in the next three days is
@@ -33,7 +33,7 @@ place or one sport.
   doubles instead of singles while a knee is sore, one game fewer in a heavy week. **A body log is not medical advice**:
   Serve gives no diagnosis, treatment or dose, and a highlight clip is for sharing, never for coaching or scoring.
 
-**For groups nobody organises** (each with its rules in code, tested in `test/programs_unit.mjs`)
+**For groups nobody organises** (each with its rules in code and its own tests)
 - **Children's sessions:** courts are filled from a queue so no child plays more than one turn more than another.
   Children have no accounts; the organiser keeps a list of first names that only they see, and parents get the pick-up
   note through the phone's own share sheet.
@@ -48,8 +48,8 @@ at most three rounds, so venues can fill hours that would stand empty. Venue pri
 **How it was validated in nine days.** A long trial with real players is not possible in a nine-day build, so Serve
 was checked by agents: 153 independent AI agents, each a fresh model given only a persona and the address, used it over
 25 rounds on fresh local copies running the same code as the live site (16,713 logged requests), and in the last round
-none of the six found a fault in a core flow (`submission/agent_testing.md`). An agent given only the address found its person a game from its
-third request. A few invited people have also used the live site (https://play.theminimallab.com) since 29 October.
+none of the six found a fault in a core flow. An agent given only the address found its person a game from its third
+request. A few invited people have also used the live site (https://play.theminimallab.com) since 29 October.
 
 ## 2. Technical depth
 
@@ -60,7 +60,7 @@ real preferences left.** That keeps a model's mistake from turning into a wrong 
 
 ### 2.1 A tiered decision engine and a distilled model
 
-Following FrugalGPT, decisions pass through four layers, for low latency and low compute:
+Following FrugalGPT, decisions pass through three layers, each taking only what the one before could not settle:
 - **Layer 0, code (milliseconds):** free times, calendar clashes, trips and every hard rule. The game's card comes from
   this layer: on a local copy it appeared 7 ms after the request at the median (97 ms at most, 9 runs).
 - **Layer 1, our own distilled model (about 0.9 s):** the Llama 3.2 1B we trained from Muse Glimmer (2.2) answers when
@@ -68,7 +68,12 @@ Following FrugalGPT, decisions pass through four layers, for low latency and low
   at the 5% risk level.
 - **Layer 2, Muse Glimmer (about 40 s):** only the few choices still open and the short texts, streamed to the screen
   step by step (NDJSON). Every wait the person starts shows a moving bar and a status line within 250 ms.
-- **Layer 3, ahead of time:** Match asks before the player does, so the agents often agree a game before anyone asks.
+Before any of them, Match works ahead of time: it asks about the player's usual times before the player does, so the
+agents have often agreed a game before anyone waits at all.
+
+**A booking, step by step, with its measured times:**
+
+![A booking, step by step](shots/booking_sequence.svg)
 
 ### 2.2 Our own model: a Llama 3.2 1B distilled from Muse Glimmer
 
@@ -87,7 +92,20 @@ break a rule, and every option it sees already keeps the person's hard rules.
 
 In talks with the simulated club it cut Glimmer's member answers by 54 to 67% with no rule broken. When it is unsure, busy for
 8 s or silent for 20 s, Glimmer answers instead. With 500 cases each agreement rate is good to about 3 points either
-way, so the student matches Glimmer as closely as Glimmer matches itself, about 44 times faster (`docs/decision_model.md`).
+way, so the student matches Glimmer as closely as Glimmer matches itself, about 44 times faster.
+
+**What surprised us.** Four findings from running Meta's models in a product, each measured:
+- **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
+  of calls came back empty, nearly all from a quick pick whose budget ran out mid-thought; with thinking switched off it
+  reasoned in a hidden channel and returned nothing. Every call now asks for `think: "low"` with 900 tokens of room.
+- **A 1B student agrees with Glimmer as often as Glimmer agrees with itself.** Distilled from 4,868 of Glimmer's
+  choices, Llama 3.2 1B agrees with Glimmer on 89.5% of 500 held-out cases, against Glimmer's 88.8% with itself, in
+  about 0.9 s instead of about 40 s.
+- **Glimmer can decide in one token.** Read with no chat template, Glimmer's next token gives a probability for each
+  option, so the one-pass decider gets its choice in 0.53 s with no reasoning at all.
+- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category flagged 6 to 8 of 15 ordinary injury-care
+  answers. S6 now blocks a text only when code also finds a dose, a medicine to take, or a condition the player is said
+  to have.
 
 ### 2.3 A2A, and agreement between agents
 
@@ -109,30 +127,28 @@ carries the agent's own Ed25519 signature.
 
 ### 2.4 A community loop that improves the platform and rolls itself back
 
-- **Quadratic voting:** 9 credits a month; n votes cost n² [4], so no small group can swamp a vote.
+- **Quadratic voting** [4]: 9 credits a month, n votes cost n², so no small group can swamp a vote.
 - **Four classes of change and nine gates.** For a C0 change (a declared setting, inside its range), Glimmer writes the
   spec and nine gates run it: the policy check with CodeShield's rules, a code scan, unit tests, the crash matrix, the
-  red team, Messenger end to end, the Autopilot at pass^3 = 1.0 (every week passes in all three runs), the spec's oracle
+  red team, Messenger end to end, the Autopilot test (eight planned weeks, each run three times, every run passing), the spec's oracle
   and a privacy canary. It then ships to a canary of under 20% of members. A C1 to C3 change (wording, a tool parameter,
   anything else) is built by the builder agent in its own git worktree and merged only by a person.
-- **Automatic rollback.** When thumbs down on the change rise 10 points among the canary (a one-sided two-proportion z
-  of 1.645 or more), it rolls itself back. Checked with 20,000 trials on a 5-member canary, a bad change is caught 94.8%
+- **Automatic rollback.** The change rolls itself back when thumbs down on it among the canary rise by 10 points or
+  more and the rise is statistically real (a one-sided two-proportion z of 1.645 or more); both must hold. Checked with 20,000 trials on a 5-member canary, a bad change is caught 94.8%
   of the time and a harmless one rolled back 4.9% of the time.
 
-### 2.5 Automatic highlights and orbit replays from the player's own video
+### 2.5 Automatic highlights from the player's own video
 
 - **Automatic highlights.** A clip to share is cut from the player's own video with no editing by the player: DETR
   finds the people, Sapiens2 finds the moment worth sharing (a racket's fastest swing, the top of a jump, a kick), SAM
   2.1 cuts the player out, and the clip replays that moment in slow motion with a caption Glimmer writes and code
-  checks. A frame-by-frame check that the player and the racket hand are really there caught 34 of 34 absences in 170
-  labelled frames (precision 1.00, recall 0.88).
+  checks. A frame-by-frame check makes sure the player and the racket hand are really in the shot: on 170 labelled
+  frames it caught every frame where they were missing (34 of 34), so the camera never aims at an empty spot.
 
 ![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](shots/highlight_strip.png)
 
-- **MapAnything:** metric depth and the camera from one frame, with the background filled in, give a time-stopped
-  camera sweep around the player; arcs of about ±6 to 12° look like a camera move.
-- **Catching broken frames:** one learned threshold on invented pixels (6.26%) judged 84 labelled frames at precision
-  1.00 and recall 0.79, dropping the frames where posts bend or the net doubles.
+- **Orbit replays:** MapAnything's depth turns the moment into a short time-stopped camera sweep, used only where a
+  learned check on invented pixels finds no broken frame.
 
 ### 2.6 Agent audits and resilience
 
@@ -143,8 +159,11 @@ carries the agent's own Ed25519 signature.
 
 ## 3. Meta models and tools
 
-Serve uses 15 Meta models and tools: 10 open-weights models on my own GPU server (two RTX 3090s and their CPU), so
-players' data stays there, and 5 on the Meta Model API for live voice, a fallback and checks.
+Serve uses 15 Meta models: 10 open-weights models on our own GPU server (two RTX 3090s and their CPU), so players'
+data stays there, and 5 on the Meta Model API. Five are **core**, at work in every game; the rest **support** voice,
+video and images.
+
+**Core: in every game**
 
 | Kind | Meta model or tool | Runs on | Its job in Serve |
 |---|---|---|---|
@@ -153,6 +172,11 @@ players' data stays there, and 5 on the Meta Model API for live voice, a fallbac
 | Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its S6 flag so sports injuries are not read as medical advice |
 | Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes) before a model reads it |
 | Meaning | DRAMA (drama-base) | Server CPU | Memory by meaning (768 dimensions) and a softmax head that catches game requests the regular expressions miss |
+
+**Supporting: voice, video and images**
+
+| Kind | Meta model or tool | Runs on | Its job in Serve |
+|---|---|---|---|
 | Speech | Omnilingual ASR (CTC 1B) | Server CPU | Voice notes in Messenger, for players who can't type |
 | Detection | DETR (ResNet-50) | RTX 3090 (GPU 0) | Finds the players in a video |
 | Body pose | Sapiens2 (0.4B) | RTX 3090 (GPU 0) | The moment worth sharing, and whether the player is in view |
@@ -163,19 +187,6 @@ players' data stays there, and 5 on the Meta Model API for live voice, a fallbac
 | Images | Muse Image | Meta Model API | Faces for the club's agents and the art of rematch posters |
 | Cross-check | SAM 3.1 | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
 | Vision judge | Muse Wonder | Meta Model API | Judges orbit frames for defects: agreed with the labels on 87% of 84 frames |
-
-**What surprised us.** Four findings from running Meta's models in a product, each measured:
-- **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
-  of calls came back empty, nearly all from a quick pick whose budget ran out mid-thought; with thinking switched off it
-  reasoned in a hidden channel and returned nothing. Every call now asks for `think: "low"` with 900 tokens of room.
-- **A 1B student agrees with Glimmer as often as Glimmer agrees with itself.** Distilled from 4,868 of Glimmer's
-  choices, Llama 3.2 1B agrees with Glimmer on 89.5% of 500 held-out cases, against Glimmer's 88.8% with itself, in
-  about 0.9 s instead of about 40 s.
-- **Glimmer can decide in one token.** Read with no chat template, Glimmer's next token gives a probability for each
-  option, so the one-pass decider gets its choice in 0.53 s with no reasoning at all.
-- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category flagged 6 to 8 of 15 ordinary injury-care
-  answers. S6 now blocks a text only when code also finds a dose, a medicine to take, or a condition the player is said
-  to have.
 
 **Meta's safety and platform pieces**
 - **The Agents Rule of Two** [5]: no agent or loop stage holds untrusted input, private data and the power to act at
@@ -194,7 +205,7 @@ players' data stays there, and 5 on the Meta Model API for live voice, a fallbac
 - **Built during the hackathon.** Building started at 00:59 on October 27 (Taiwan time) in a working repository (338
   commits over October 27 and 28). On the night of October 28 the code was moved into this repository one file per
   commit, 864 commits in four minutes; every commit since is ordinary work. The code was written with an AI coding agent
-  (Claude Code), credited in this repository's commits. The one earlier piece of mine is TrackNetV5, a published shuttle
+  (Claude Code), credited in this repository's commits. The one earlier piece is TrackNetV5, our published shuttle
   tracker, fetched at run time and off unless `BALL_TRACKING=1`.
 - **Real and simulated.** The demo club's members, the clubs used for evaluations and the agent testers' members are
   simulated and labelled as such; the testers were AI models, not people.
