@@ -456,6 +456,14 @@ const gateway = http.createServer(async (req, res) => {
   if (u.pathname === "/webhook/messenger") return webhook(req, res, u);
   // the club members' agents (A2A protocol, on the official SDK; their JSON-RPC checks the token itself, auth.js)
   if (u.pathname.startsWith("/a2a/")) return a2aServer.handle(req, res);
+  // the way in for an agent that has only this address (members/discovery.js): Serve's Agent Card, a guide, every route
+  if (req.method === "GET" && ["/", "/.well-known/agent-card.json", "/.well-known/agent.json", "/llms.txt", "/privacy.txt", "/openapi.json", "/api/openapi.json"].includes(u.pathname)) {
+    const D = await import("./members/discovery.js");
+    if (u.pathname === "/llms.txt" || u.pathname === "/privacy.txt") { res.writeHead(200, { "content-type": "text/plain; charset=utf-8", "cache-control": "max-age=300", ...o }); return res.end(u.pathname === "/llms.txt" ? D.llmsTxt(req) : D.privacyTxt(req)); }
+    if (u.pathname.endsWith("openapi.json")) return json(res, 200, D.openapi(req), o);
+    if (u.pathname === "/") return json(res, 200, { name: "Serve", about: "People's agents arrange sports games here.", agentCard: "/.well-known/agent-card.json", guide: "/llms.txt", openapi: "/api/openapi.json" }, o);
+    return json(res, 200, D.agentCard(req), o);
+  }
   // the API: the token when AGENT_TOKEN is set (the status stays open, for the app's "is the gateway up" check), and
   // never a POST another site's page could make through the player's browser
   if (u.pathname.startsWith("/api/")) {
@@ -467,7 +475,11 @@ const gateway = http.createServer(async (req, res) => {
     // sign-in and the agent channel check their own way (the provider's state, each request's signature)
     signedIn = membersApi.memberRoute(u.pathname) ? membersApi.member(req) : null;
     if (MAINTAINER.includes(u.pathname)) { if (!maintainer(req)) return json(res, 401, { error: "this route needs the maintainer's token: Authorization: Bearer <MAINTAINER_TOKEN>" }, o); }
-    else if (u.pathname !== "/api/status" && !membersApi.publicRoute(u.pathname) && !signedIn && !auth.authorized(req)) return json(res, 401, { error: "this gateway needs its token: Authorization: Bearer <AGENT_TOKEN>" }, o);
+    else if (u.pathname !== "/api/status" && !membersApi.publicRoute(u.pathname) && !signedIn && !auth.authorized(req)) {
+      // a member's route without a session: say how a person (or their agent) signs in, not the gateway's own token
+      if (membersApi.memberRoute(u.pathname)) return json(res, 401, { error: "Sign in first.", ...(await import("./members/discovery.js")).signInHint(req) }, o);
+      return json(res, 401, { error: "this gateway needs its token: Authorization: Bearer <AGENT_TOKEN>", docs: "/llms.txt" }, o);
+    }
     safety.enter("app");
   }
   try {
@@ -482,6 +494,7 @@ const gateway = http.createServer(async (req, res) => {
     if (u.pathname === "/api/traces") { const sp = tracing.spans({ trace: u.searchParams.get("trace"), root: u.searchParams.get("root"), n: +(u.searchParams.get("n") || 1) }); return json(res, 200, { spans: sp, attribution: u.searchParams.get("trace") ? attribution.attribute(sp) : null }, o); }
     // the token ledger: what each call site has cost since the gateway started, and the latest calls
     if (u.pathname === "/api/ledger") return json(res, 200, { total: ledger.totals(ledger.calls(100000)), bySite: ledger.bySite(ledger.calls(100000)), recent: ledger.calls(+(u.searchParams.get("n") || 30)) }, o);
+    if (u.pathname === "/api/players" && req.method !== "GET") return json(res, 405, { error: "This route only reads (GET). To sign a person in, see /llms.txt." }, o);
     if (u.pathname === "/api/players") return json(res, 200, store.players().map(({ id, name, memories, history, prefs, events, logs, games, body }) => ({ id, name, memories, history: history.slice(-20), prefs, events, logs, games, body })), o);
     // a question for your agent from the app: answered from your games, bookings and body log (body: { text, you }),
     // past the guards both ways, with the checks they made (webapi.answer)
@@ -607,7 +620,7 @@ const gateway = http.createServer(async (req, res) => {
       const b = await bodyOf(req);
       return json(res, 200, { sent: b.kind && b.kind !== "morning" ? await lifeTick({ kind: b.kind, force: true }) : await remind(true) }, o);
     }
-    return json(res, 404, { error: "not found" }, o);
+    return json(res, 404, { error: "not found", docs: "/llms.txt", agentCard: "/.well-known/agent-card.json" }, o);
   } catch (e) { return json(res, 500, { error: String(e.message || e) }, o); }
 }).listen(PORT, process.env.GW_HOST || undefined, () => { // (GW_HOST=127.0.0.1: this machine only, as on a peer gateway's VM)
   console.log(`agent gateway on http://127.0.0.1:${PORT} · LLM ${process.env.LLM_URL || "http://127.0.0.1:11435/v1"} · Messenger ${msn.state.enabled ? "on" : "off (no page token)"} · API ${auth.required() ? "needs its token" : process.env.AGENT_OPEN === "1" ? "OPEN to this network (AGENT_OPEN=1): set AGENT_TOKEN" : "this machine only: set AGENT_TOKEN"}`);

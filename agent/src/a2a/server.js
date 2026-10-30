@@ -241,7 +241,7 @@ export function cardFor(base, m, club) {
       tags: ["scheduling", "lease"], examples: ["Hold Thu 5 Nov 19:00 for 90 minutes"], inputModes: ["application/json"], outputModes: ["application/json"], securityRequirements: [] },
     ...(m.shares?.likely === false ? [] : [{ id: "estimate-yes", name: "How likely is a yes", description: `Answers a data part of kind "serve.likely" (up to 12 times) with a band: unlikely, maybe, likely or very likely${m.shares?.exact ? ", and the exact chance in steps of 0.05 from 0.15 up" : ""}, worked out on this side from ${first(m.name)}'s own records, which never leave it. A few estimates a day per asker; a refusal is REJECTED.`,
       tags: ["scheduling", "matchmaking"], examples: ["How likely is a yes to singles Thu 5 Nov 19:00?"], inputModes: ["application/json"], outputModes: ["application/json"], securityRequirements: [] }])],
-    documentationUrl: "", signatures: [],
+    documentationUrl: `${process.env.PUBLIC_URL || process.env.A2A_BASE || ""}/llms.txt`, signatures: [],
   };
 }
 
@@ -301,6 +301,19 @@ const peerKeys = (origin) => fetch(`${origin}/a2a/keys.json`, { redirect: "error
 // A request from another Serve gateway: the body is read here (its hash is in the signature), the signature is checked
 // against that peer's pinned key, and the member must be one the allow-list shares with that peer.
 const rawJson = express.json({ limit: "256kb", verify: (req, res, buf) => { req.rawBody = buf; } });
+// an A2A 0.3 client (message/send, tasks/get, tasks/cancel) is told plainly what this server speaks, instead of a bare
+// "method not found": the 1.0 names, with the A2A-Version header (the message shapes differ between the two)
+const OLD_METHODS = { "message/send": "SendMessage", "tasks/get": "GetTask", "tasks/cancel": "CancelTask" };
+// (the body is read once here; a peer's signature is still checked against the bytes as they came, req.rawBody)
+app.use((req, res, next) => {
+  if (req.method !== "POST") return next();
+  rawJson(req, res, (e) => {
+    if (e) return res.status(400).json(rpcError("not a JSON body"));
+    const now = OLD_METHODS[req.body?.method];
+    if (now) return res.status(200).json({ jsonrpc: "2.0", id: req.body.id ?? null, error: { code: -32601, message: `This server speaks A2A 1.0: use "${now}" (not "${req.body.method}") with the header A2A-Version: 1.0. Message shapes and examples: /llms.txt` } });
+    next();
+  });
+});
 function fromPeer(m, req, res, next) {
   rawJson(req, res, async (e) => {
     if (e) return res.status(400).json(rpcError("not a JSON body"));

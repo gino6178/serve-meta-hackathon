@@ -207,10 +207,23 @@ export const agentText = (b) => (b.agent.probe ? "asks too many agents" : b.agen
 //   confirm   they can play, but their agent can't say yes for them: they are asked themself
 //   waitlist  under the game's show-up rate (new people are let in unless the gate says otherwise)
 // a 90% gate wants people with a record (new people wait); at 75% new people are let in
-export function gateOf(g = {}) { const minShow = [0, 0.75, 0.9].includes(+g.minShow) ? +g.minShow : 0; return { minShow, agentMin: g.agentMin === 0 ? 0 : AGENT_MIN, newOk: g.newOk == null ? minShow < 0.9 : g.newOk !== false }; }
+export function gateOf(g = {}) { const m = Math.max(0, Math.min(1, +g.minShow || 0)), minShow = Math.round(m * 100) / 100; return { minShow, agentMin: g.agentMin === 0 ? 0 : AGENT_MIN, newOk: g.newOk == null ? minShow < 0.9 : g.newOk !== false }; }
+// the rate a gate compares: smoothed toward 85% by two games, so one miss in a short record doesn't shut someone out
+export const gateRate = (b) => (b.show.rate * b.show.games + 1.7) / (b.show.games + 2);
+// the cut-offs and the way back, in words an agent can pass on
+export function explain(id, now = Date.now()) {
+  const b = badge(id, now), out = [];
+  if (b.show.new) out.push(`Shows up: new (${b.show.games} of ${NEW_UNDER} games counted). Games at 90% wait-list new people; at 75% or less they let you in.`);
+  else { const came = Math.round(b.show.rate * b.show.games), need = (r) => Math.max(0, Math.ceil((r * (b.show.games + 2) - came - 1.7) / (1 - r))); out.push(`Shows up ${Math.round(b.show.rate * 100)}% (${came} of ${b.show.games}). A game's gate compares ${Math.round(gateRate(b) * 100)}% (your record, smoothed). To clear 75%: ${need(0.75) ? `${need(0.75)} more game${need(0.75) > 1 ? "s" : ""} you turn up to` : "you do"}; 90%: ${need(0.9) ? `${need(0.9)} more` : "you do"}.`); }
+  if (b.agent.probe) out.push("Your agent asked too many people's agents today: nearby asks pause for a day; your clubs still work.");
+  else if (b.agent.badSig) out.push("Requests with your agent's key failed their check in the last 30 days: for now you are asked directly. Check the key's signing (see /llms.txt).");
+  else if (b.agent.new) out.push(`Your agent: new (${b.agent.said} yes${b.agent.said === 1 ? "" : "es"} counted; it needs ${NEW_UNDER} from two different hosts).`);
+  else { const kept = Math.round(b.agent.rate * b.agent.said), n = Math.max(0, Math.ceil((AGENT_MIN * b.agent.said - kept) / (1 - AGENT_MIN))); out.push(`Your agent keeps ${Math.round(b.agent.rate * 100)}% of its yeses (${kept} of ${b.agent.said}). ${b.agent.rate >= AGENT_MIN ? "It may answer for you." : `Under ${AGENT_MIN * 100}% it can't say yes for you, so you're asked directly; each time you answer the way it would have, it counts. ${n} more like that and it answers for you again.`}`); }
+  return out;
+}
 export function check(id, gate = {}, now = Date.now()) {
   const g = gateOf(gate), b = badge(id, now);
-  if (g.minShow && (b.show.new ? !g.newOk : b.show.rate < g.minShow)) return { verdict: "waitlist", badge: b, why: b.show.new ? "new, and this game wants people with a record" : `${showText(b)}; this game needs ${Math.round(g.minShow * 100)}%` };
+  if (g.minShow && (b.show.new ? !g.newOk : gateRate(b) < g.minShow)) return { verdict: "waitlist", badge: b, why: b.show.new ? "new, and this game wants people with a record" : `${showText(b)}; this game needs ${Math.round(g.minShow * 100)}%` };
   if (b.agent.probe) return { verdict: "confirm", badge: b, why: "their agent asked too many people's agents today" };
   if (b.agent.badSig) return { verdict: "confirm", badge: b, why: "requests with their agent's key failed the signature check" };
   if (g.agentMin && !b.agent.new && b.agent.rate < g.agentMin) return { verdict: "confirm", badge: b, why: `their agent keeps only ${Math.round(b.agent.rate * 100)}% of its yeses` };

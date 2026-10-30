@@ -56,7 +56,12 @@ export function people(me) {
 export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   const sport = String(b.sport || "badminton").toLowerCase(), need = Math.round(+b.need || 4);
   if (!SPORTS.includes(sport)) return { error: `The sport must be one of: ${SPORTS.join(", ")}.`, code: 400 };
-  if (!(need >= 2 && need <= 12)) return { error: "Between 2 and 12 players.", code: 400 };
+  const most = sport === "soccer" ? 22 : 12;
+  if (!(need >= 2 && need <= most)) return { error: `Between 2 and ${most} players for ${sport}. Usual: racket sports 2 or 4, basketball 6 or 10, volleyball 8 to 12, soccer 10 to 22.`, code: 400 };
+  // F7/F8: a day's worth of starting games, and a pause on asking strangers for an agent marked a prober
+  const day = data().huddles.filter((h) => h.host === me && Date.now() - h.created < 24 * 3600e3).length;
+  if (day >= 8) return { error: "Eight games started in a day is the most: let some of them settle.", code: 429 };
+  if (b.nearby && Tr.badge(me).agent.probe) return { error: "Your agent asked many people's agents today, so asking people nearby pauses until tomorrow. Your clubs still work.", code: 429 };
   const mine = C.mine(me), club = b.club ? mine.find((c) => c.id === b.club) : null;
   if (b.club && !club) return { error: "You're not in that club.", code: 403 };
   const can = new Set(mine.flatMap((c) => c.members.map((m) => m.id)));
@@ -76,7 +81,8 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   data().huddles.push(h); save();
   Tr.asked(me, near.length); // asking everyone nearby, again and again, is what a prober does (your clubs are fine)
   const job = run(h, now).catch((e) => { h.status = "stuck"; line(h, "agent", `Something went wrong while the agents talked (${e.message}).`); save(); });
-  return wait ? job.then(() => ({ huddle: view(h, me) })) : { huddle: view(h, me) };
+  const note = b.nearby && !near.length ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet, so only your club${club ? "" : "s"} were asked.` : null;
+  return wait ? job.then(() => ({ huddle: view(h, me), ...(note ? { note } : {}) })) : { huddle: view(h, me), ...(note ? { note } : {}) };
 }
 const line = (h, from, text, extra = {}) => { h.talk.push({ at: Date.now(), from, text, ...extra }); };
 // what anyone sees of a person's two records (trust.js)
@@ -115,8 +121,8 @@ async function run(h, now = new Date()) {
   const verdict = Object.fromEntries(h.invited.filter((id) => !h.out.includes(id)).map((id) => [id, Tr.check(id, h.gate)]));
   if (h.tries === 0) for (const [id, c] of Object.entries(verdict)) {
     const nm = first(id);
-    if (c.verdict === "waitlist") line(h, "host", `${nm} goes on the waitlist: ${c.why}.`, { who: hostName, gate: "waitlist" });
-    if (c.verdict === "confirm") line(h, "host", `${nm}'s agent can't answer for ${nm} here (${c.why}); if a spot is left, ${nm} is asked directly.`, { who: hostName, gate: "confirm" });
+    if (c.verdict === "waitlist") line(h, "host", `${nm} goes on the waitlist: ${c.why}.`, { who: hostName, gate: "waitlist", plain: `${nm} goes on the waitlist for this game.` });
+    if (c.verdict === "confirm") line(h, "host", `${nm}'s agent can't answer for ${nm} here (${c.why}); if a spot is left, ${nm} is asked directly.`, { who: hostName, gate: "confirm", plain: `If a spot is left, ${nm} is asked directly.` });
   }
   h.waitlist = Object.keys(verdict).filter((id) => verdict[id].verdict === "waitlist");
   const direct = Object.keys(verdict).filter((id) => verdict[id].verdict === "confirm");
@@ -162,7 +168,7 @@ async function run(h, now = new Date()) {
     const yes = [];
     for (const id of others) {
       const nm = first(id);
-      if (U[id][k] >= bar(id, r)) {
+      if (U[id][k] >= bar(id, r) && U[id][k] >= 0.45 && T.timeFit(taste[id], T.cellOf(o.date, o.start)) >= 0.4) {
         yes.push(id);
         // the reason their agent gives is what matters most to them, when this game is good on it
         const f = T.fits(taste[id], game(id, o)), w = T.weights(taste[id]), top = T.FACTORS.filter((x) => (x !== "price" || o.each > 0) && f[x] >= 0.55).sort((a, b) => w[b] - w[a])[0] || [...T.FACTORS].sort((a, b) => f[b] - f[a])[0];
@@ -171,7 +177,7 @@ async function run(h, now = new Date()) {
       } else {
         const b = bestOf(id), why = hard[id][k] === "busy" ? "busy" : hard[id][k] || T.mainWhy(taste[id], game(id, o), game(id, opts[b]));
         bonus[b] = (bonus[b] || 0) + 0.06;
-        line(h, id, `Not that one for ${nm}: ${{ busy: `${nm} is busy then`, time: `it's not a good time for ${nm}`, place: `it's too far for ${nm}`, price: `it costs more than ${nm} wants to pay`, quiet: "it's usually too busy then" }[why]}. ${nm} could do ${when(opts[b])} at ${opts[b].place.name}.`, { who: nm, agent: true, yes: false, why, trust: trustOf(id) });
+        line(h, id, `Not that one for ${nm}: ${{ busy: `that time doesn't work for ${nm}`, time: `it's not a good time for ${nm}`, place: `it's too far for ${nm}`, price: `it costs more than ${nm} wants to pay`, quiet: "it's usually too busy then" }[why]}. ${nm} could do ${when(opts[b])} at ${opts[b].place.name}.`, { who: nm, agent: true, yes: false, why, trust: trustOf(id) });
       }
     }
     if (yes.length >= want) { const ranked2 = yes.sort((a, b) => pickScore(b, k) - pickScore(a, k)); agreed = { k, players: [host, ...ranked2.slice(0, want)], alternates: ranked2.slice(want) }; }
@@ -201,7 +207,10 @@ async function run(h, now = new Date()) {
   }
   h.pick = { date: o.date, start: o.start, minutes: MINUTES, where: o.place.name, place: o.place.id, kind: o.place.kind, at: { lat: o.place.lat, lon: o.place.lon }, busy: +o.busy.toFixed(2),
     each: deal.each || 0, price: deal.price || 0, list: deal.list || 0, off: deal.off || 0, sample: !!deal.sample, km: Object.fromEntries(agreed.players.map((id) => [id, kmFor(id, o.place)])) };
-  h.players = agreed.players; h.direct = extra; h.answers = { [host]: "yes" }; h.status = "asking"; h.askedAt = now.getTime();
+  // the host is a yes only when the time suits them too; otherwise they are asked like everyone else
+  const hostOk = T.timeFit(taste[host], T.cellOf(o.date, o.start)) >= 0.4 && U[host][agreed.k] >= 0.45;
+  h.players = agreed.players; h.direct = extra; h.answers = hostOk ? { [host]: "yes" } : {}; h.status = "asking"; h.askedAt = now.getTime();
+  if (!hostOk) { line(h, "host", `It isn't one of ${hostName}'s usual times, so ${hostName} is asked too.`, { who: hostName }); P.notify(host, "huddle", `The agents agreed ${h.sport} ${when(o)} at ${o.place.name}, not one of your usual times. Yes?`, { huddle: h.id }); }
   h.askedOf = Object.fromEntries(agreed.players.map((id) => [id, now.getTime()]));
   line(h, "host", `Agreed: ${when(o)} at ${o.place.name}${deal.each ? `, ${D.CURRENCY}${deal.each} each` : ", a free court"}. Asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes.`, { who: hostName, agreed: true });
   for (const id of agreed.players) if (id !== host) P.notify(id, "huddle", `Your agent and ${hostName}'s agreed ${h.sport} ${when(o)} at ${o.place.name}. One yes from you?`, { huddle: h.id });
@@ -216,6 +225,7 @@ export async function reply(me, id, yes, why = null, { now = new Date(), wait = 
   const o = h.pick, mine = { date: o.date, start: o.start, km: o.km[me] ?? 3, each: o.each, busy: o.busy };
   const r = T.reply(me, mine, yes, why);
   keepScore(h, me, yes, why);
+  P.dropNotices(me, h.id);
   if (yes) {
     h.answers[me] = "yes";
     if (h.players.every((x) => h.answers[x] === "yes")) await book(h);
@@ -286,11 +296,29 @@ async function book(h) {
   line(h, "host", `Everyone said yes. ${when(o)} at ${o.where} is on${h.players.length < h.need ? `; ${h.need - h.players.length} spot${h.need - h.players.length > 1 ? "s are" : " is"} open in the feed` : ""}.`, { who: first(h.host), agreed: true });
   if (!r?.post) for (const id of h.players) P.notify(id, "gameon", `Game on: ${h.sport} ${when(o)} at ${o.where}. ${names(h.players.filter((x) => x !== id).map(first))} ${h.players.length > 2 ? "are" : "is"} in.`, { huddle: h.id });
 }
+// may the member's own agent (its key, not the member's session) say yes for them here: only with the member's standing
+// permission, within its price, and with people who have a record unless new people are allowed too
+export function mayAgentSayYes(me, { huddle = null, post = null } = {}) {
+  const d = T.get(me).delegate;
+  if (!d?.on) return { error: "Your person hasn't let you say yes for them. They can turn it on: POST /api/huddle/delegate {on:true, maxEach, newPeople} with their session.", code: 403, needs: "delegate" };
+  if (huddle) {
+    const h = find(huddle);
+    if (!h || !h.pick) return { error: "No such game to answer.", code: 404 };
+    if (d.maxEach != null && h.pick.each > d.maxEach) return { error: `NT$${h.pick.each} each is over the NT$${d.maxEach} your person allowed: ask them.`, code: 403, needs: "person" };
+    if (!d.newPeople && h.players.some((x) => x !== me && Tr.badge(x).show.new)) return { error: "Someone new is in this game, and your person wants to decide those: ask them.", code: 403, needs: "person" };
+  }
+  if (post) {
+    const g = P.openInvites(me, (room) => C.canSee(room, me)).find((x) => x.id === post);
+    if (g && d.maxEach != null && (g.invite.each ?? 0) > d.maxEach) return { error: `NT$${g.invite.each} each is over the NT$${d.maxEach} your person allowed: ask them.`, code: 403, needs: "person" };
+  }
+  return { ok: true };
+}
 export function cancel(me, id) {
   const h = find(id);
   if (!h || h.host !== me) return { error: "Only the person who asked can call it off.", code: 403 };
   if (!["talking", "asking", "stuck", "on"].includes(h.status)) return { error: "It's already called off.", code: 409 };
   if (h.status === "on" && h.post) P.remove(me, h.post);
+  if (h.pick && h.players.some((x) => x !== me && h.answers[x] === "yes")) Tr.left(me, startMs(h.pick));
   h.status = "cancelled"; line(h, "host", `${first(me)} called it off.`, { who: first(me) });
   for (const x of h.players) if (x !== me) P.notify(x, "huddle", `${first(me)} called off ${h.sport} ${h.pick ? when(h.pick) : ""}.`.replace(/ \.$/, "."), { huddle: h.id });
   save();
@@ -301,13 +329,15 @@ export function cancel(me, id) {
 export function view(h, me) {
   const o = h.pick;
   return { id: h.id, sport: h.sport, need: h.need, club: h.clubName, host: first(h.host), mine: h.host === me, status: h.status, created: h.created, post: h.post || null,
-    invited: h.invited.length, talk: h.talk.map((l) => ({ at: l.at, from: l.from === me ? "me" : l.from === "host" ? (h.host === me ? "me" : "host") : l.from === "venue" ? "venue" : l.from === "agent" ? "agent" : "other", who: l.who, text: l.text, ...(l.agent ? { agent: true } : {}), ...(l.venue ? { venue: true } : {}), ...(l.agreed ? { agreed: true } : {}), ...(l.yes != null ? { yes: l.yes } : {}), ...(l.trust ? { trust: l.trust } : {}), ...(l.gate ? { gate: l.gate } : {}) })),
+    invited: h.invited.length, talk: h.talk.map((l) => ({ at: l.at, from: l.from === me ? "me" : l.from === "host" ? (h.host === me ? "me" : "host") : l.from === "venue" ? "venue" : l.from === "agent" ? "agent" : "other", who: l.who, text: l.plain && h.host !== me ? l.plain : l.text, ...(l.agent ? { agent: true } : {}), ...(l.venue ? { venue: true } : {}), ...(l.agreed ? { agreed: true } : {}), ...(l.yes != null ? { yes: l.yes } : {}), ...(l.trust ? { trust: l.trust } : {}), ...(l.gate ? { gate: l.gate } : {}) })),
     ...(o ? { pick: { date: o.date, start: o.start, when: when(o), where: o.where, kind: o.kind, each: o.each, price: o.price, list: o.list, off: o.off, busy: o.busy, sample: o.sample, km: o.km[me] ?? null, at: o.at } } : {}),
-    players: h.players.map((id) => ({ name: id === me ? "You" : first(id), answer: h.answers[id] || null, host: id === h.host, direct: (h.direct || []).includes(id), trust: trustOf(id) })),
+    players: h.players.map((id) => ({ id, name: id === me ? "You" : first(id), answer: h.answers[id] || null, host: id === h.host, direct: (h.direct || []).includes(id), new: Tr.badge(id).show.new, known: id === me || C.mine(me).some((c) => c.members.some((m) => m.id === id)), trust: trustOf(id) })),
+    ...(h.status === "asking" && h.players.includes(me) && !h.answers[me] ? { agentMay: mayAgentSayYes(me, { huddle: h.id }) } : {}),
     waitlist: (h.waitlist || []).map(first), gate: h.gate || null, nearby: (h.nearby || []).length, ...(h.found ? { found: h.found } : {}),
     ask: h.status === "asking" && h.players.includes(me) && !h.answers[me], due: h.players.includes(me) ? dueBy(h, me) : dueBy(h) };
 }
-export const mineFor = (me) => data().huddles.filter((h) => h.host === me || h.players.includes(me)).sort((a, b) => b.created - a.created).slice(0, 12).map((h) => view(h, me));
+const LIVE = { asking: 0, talking: 1, on: 2, stuck: 3, cancelled: 4 };
+export const mineFor = (me) => data().huddles.filter((h) => h.host === me || h.players.includes(me)).sort((a, b) => (LIVE[a.status] - LIVE[b.status]) || b.created - a.created).slice(0, 20).map((h) => view(h, me));
 
 // ---- the agent, without being asked ----
 // why a game suits this member, in a few words

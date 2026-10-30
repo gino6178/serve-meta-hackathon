@@ -156,7 +156,7 @@ export function addAgent(owner, { name, jwk }, now = Date.now()) {
   const id = `ag-${hash(kid).slice(0, 12)}`;
   d.members[id] = { id, kind: "agent", provider: "key", name: String(name).trim(), owner, kid, x: jwk.x, joined: now };
   save();
-  return { agent: view(d.members[id]) };
+  return { agent: view(d.members[id]), audience: AUDIENCE, how: "Sign each request on /api/agent-channel/... with a compact JWS in the serve-signature header: alg EdDSA, typ serve-request+jwt, kid as here; claims aud (this audience), method, path, bh (base64url SHA-256 of the body), iat, exp (60 s at most), jti (random, once). Guide: /llms.txt" };
 }
 export function revokeAgent(owner, id) {
   const m = get(id);
@@ -176,6 +176,7 @@ export function checkAgent(req, body, p, now = Date.now()) {
   if (!token) return logged({ ok: false, why: "unsigned", message: `every agent-channel request needs its ${HEADER} header` }, p);
   const r = checkToken(token, { method: req.method, path: p, body, now, audience: AUDIENCE, seen,
     keyFor: (kid) => { const m = Object.values(data().members).find((x) => x.kind === "agent" && x.kid === kid && !x.revoked); return m ? { peer: m.id, key: { x: m.x } } : null; } });
+  if (!r.ok && r.why === "wrong-audience") r.message = `aud must be "${AUDIENCE}"`;
   if (!r.ok) {
     // a known agent's key on a request that failed the check counts against that agent (trust.js)
     try { const kid = JSON.parse(Buffer.from(String(token).split(".")[0], "base64url").toString()).kid; const m = Object.values(data().members).find((x) => x.kind === "agent" && x.kid === kid); if (m?.owner) badSignature(m.owner, r.why); } catch { /* not a token we can read */ }

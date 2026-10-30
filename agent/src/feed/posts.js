@@ -117,8 +117,9 @@ export function inviteOf(x) {
   // the place on the map, when it was picked there (rounded to about 10 m)
   const lat = +x.at?.lat, lon = +x.at?.lon, at = isFinite(lat) && isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat: +lat.toFixed(4), lon: +lon.toFixed(4) } : null;
   // a gate (members/trust.js): people under its show-up rate wait; agents that keep too few promises can't answer
-  const gate = x.gate ? Tr.gateOf(x.gate) : null, each = x.each == null || x.each === "" ? null : Math.round(+x.each);
-  return { invite: { sport, day, start, where, spots, ...(at ? { at } : {}), ...(gate && (gate.minShow || gate.agentMin) ? { gate } : {}), ...(each != null && each >= 0 && each <= 5000 ? { each } : {}), going: [] } };
+  const gate = x.gate ? Tr.gateOf(x.gate) : null, each = x.each == null || x.each === "" ? null : Math.round(+x.each), weeks = Math.round(+x.repeat?.weekly || 0);
+  if (weeks && !/^\d{4}-/.test(day)) return { error: "A weekly game needs its first date (YYYY-MM-DD)." };
+  return { invite: { sport, day, start, where, spots, ...(at ? { at } : {}), ...(gate && (gate.minShow || gate.agentMin) ? { gate } : {}), ...(each != null && each >= 0 && each <= 5000 ? { each } : {}), ...(weeks > 0 ? { repeat: { weekly: Math.min(8, weeks) } } : {}), going: [] } };
 }
 export async function post(player, { text = "", media = null, invite = null, agent = null, room = null } = {}) {
   const t = T.tidy(text, 600);
@@ -219,7 +220,7 @@ export function join(player, postId, on = true) {
     v.joinedAt = { ...(v.joinedAt || {}) }; if (on) v.joinedAt[player] = deps.now(); else delete v.joinedAt[player];
   });
   if (!on) Tr.unexpect(p.id, player); // off the after-game check of a game they left
-  inviteReply(p, `${on ? `${nm} is in (${Tr.showText(Tr.badge(player))}).` : `${nm} can't make it${late ? " (a late drop, under six hours before the start)" : ""}.`} ${spotsLine(p)}`, player);
+  inviteReply(p, `${on ? `${nm} is in.` : `${nm} can't make it${late ? " (a late drop, under six hours before the start)" : ""}.`} ${spotsLine(p)}`, player);
   if (!on) {
     notify(host, "left", `${nm} can't make your ${v.sport} ${dayWords(v.day)} ${v.start}. ${spotsLine(p)}`, { post: p.id });
     promote(p); // the first on the waitlist takes the spot
@@ -245,6 +246,11 @@ export function promote(p, { dayBefore = false } = {}) {
 // the games starting within a day that still have spots: their waitlists move up (run whenever members look)
 export function promoteDue(now = deps.now()) {
   let n = 0;
+  // a weekly game that has passed posts next week's, the same host, game and gate, nobody in yet
+  for (const p of [...S.data().posts]) if (p.kind === "invite" && p.invite?.repeat?.weekly > 0 && !p.invite.rolled && !p.hidden && (startOf(p.invite) || Infinity) < now) {
+    const [y, m, d] = p.invite.day.split("-").map(Number), x = new Date(y, m - 1, d + 7), day = `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+    S.change((db) => { p.invite.rolled = true; db.posts.push({ ...p, id: S.newId("p"), at: now, invite: { ...p.invite, day, going: [], waitlist: [], joinedAt: {}, rolled: false, repeat: { weekly: p.invite.repeat.weekly - 1 } }, likes: [], comments: [], reports: [] }); });
+  }
   for (const p of S.data().posts) if (p.kind === "invite" && p.invite?.waitlist?.length && !p.hidden) { const t = startOf(p.invite); if (t && t > now && t - now < 864e5) n += promote(p, { dayBefore: true }); }
   return n;
 }
@@ -394,6 +400,8 @@ export function gamesOf(player, now = deps.now()) {
     .sort((a, b) => startOf(a.invite) - startOf(b.invite)).slice(0, 6)
     .map((p) => ({ post: p.id, sport: p.invite.sport, day: p.invite.day, start: p.invite.start, where: p.invite.where, going: p.invite.going.length, spots: p.invite.spots, room: p.room || null, mine: (p.by.player || p.by.agentOf) === player, waiting: (p.invite.waitlist || []).includes(player), host: first(authorOf(p.by.player || p.by.agentOf) || "A member") }));
 }
+// the notices about one huddle, once the member has answered it (so nothing keeps asking for a yes already given)
+export function dropNotices(player, huddle) { S.change((d) => { d.notices = (d.notices || []).filter((x) => !(x.player === player && x.huddle === huddle)); }); }
 // when the member already plays: every invite they posted or joined, as start times (ms), for their agent not to clash
 export const busyAt = (player) => S.data().posts.filter((p) => p.kind === "invite" && p.invite && !p.hidden && ((p.by.player || p.by.agentOf) === player || p.invite.going.includes(player))).map((p) => startOf(p.invite)).filter(Boolean);
 // a notice for a member, shown wherever they are in the app (GET /api/feed/notices); extra carries a link, e.g. { huddle }
@@ -432,7 +440,7 @@ export function view(p, viewer) {
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),
-    ...(p.invite ? { invite: { ...p.invite, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots } } : {}),
+    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/i/${p.id}`, joinedAt: undefined, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots } } : {}),
     ...(p.simulated ? { simulated: true } : {}), ...(p.held ? { held: true } : {}), ...(p.hidden ? { hidden: true } : {}),
     likes: p.likes.length, liked: p.likes.includes(viewer),
     comments: p.comments.filter((c) => (!c.held && !c.hidden) || c.by.player === viewer).map((c) => commentView(c, viewer)),

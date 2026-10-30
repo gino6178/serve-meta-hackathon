@@ -37,4 +37,4 @@ async function toLoop(kind) {
   return signals.fromAgents({ kind, ...KINDS[kind] });
 }
 // what the agents have run into, for the app: each kind, how many huddles, whether it went to the club's ideas
-export const view = () => Object.entries(KINDS).map(([kind, x]) => { const k = data().kinds[kind]; return { kind, text: x.text, huddles: k?.huddles.length || 0, of: AT, sent: k?.sent || null }; });
+export const view = () => Object.entries(KINDS).map(([kind, x]) => { const k = data().kinds[kind]; return { kind, text: x.text, huddles: Math.min(k?.huddles.length || 0, AT), of: AT, sent: k?.sent || null }; });

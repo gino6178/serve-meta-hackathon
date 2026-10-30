@@ -269,7 +269,8 @@ function TasteTab({ me, reload }) {
   const [q, setQ] = useState(null), [t, setT] = useState(me.taste), [busy, setBusy] = useState(false), [mine, setMine] = useState(null), [err, setErr] = useState("");
   const ask = () => H.question().then((r) => setQ(r.question), () => {});
   const [chain, setChain] = useState(null);
-  useEffect(() => { ask(); H.trust().then((r) => { setMine(r.trust); setChain(r.chain); }, () => {}); }, []);
+  const [explain, setExplain] = useState([]);
+  useEffect(() => { ask(); H.trust().then((r) => { setMine(r.trust); setChain(r.chain); setExplain(r.explain || []); }, () => {}); }, []);
   const w = t.weights;
   return (
     <div className="hd-taste">
@@ -294,6 +295,7 @@ function TasteTab({ me, reload }) {
       <section className="panel hd-set" aria-label="Your records">
         <h2 className="h3">What other agents see about you</h2>
         {mine && <TrustBadge t={mine} />}
+        {explain.length > 0 && <ul className="hd-lines">{explain.map((x, i) => <li key={i}>{x}</li>)}</ul>}
         <p className="hd-fine">Shows up: after each game the other players tap who came; leaving in the last six hours counts as a late drop. Your agent: how often you said yes when it had said yes for you. Both stay "new" until there are three to count.</p>
         {chain && <Chain c={chain} />}
         <label className="hd-check"><input type="checkbox" checked={!!t.open} onChange={async (e) => { setErr(""); try { const r = await H.setOpen(e.target.checked); setT(r.taste); } catch (x) { setErr(x.message); } }} />

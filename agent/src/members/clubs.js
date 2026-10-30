@@ -95,7 +95,7 @@ export function join(member, id, on = true) {
 export function suggest(viewer, { lat, lon, sport = null } = {}) {
   const from = pointOf({ lat, lon });
   if (!from) return { club: null };
-  const near = data().clubs.filter((c) => c.privacy !== "private" && !c.members.some((m) => m.id === viewer)).map((c) => ({ c, d: km(from, c.at) })).filter((x) => x.d <= 15)
+  const near = data().clubs.filter((c) => c.privacy !== "private" && !c.members.some((m) => m.id === viewer) && (!sport || c.sport === sport)).map((c) => ({ c, d: km(from, c.at) })).filter((x) => x.d <= 15)
     .sort((a, b) => ((b.c.sport === sport) - (a.c.sport === sport)) || a.d - b.d)[0];
   if (!near) return { club: null };
   const v = view(near.c, viewer, from);

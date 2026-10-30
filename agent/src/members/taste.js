@@ -36,13 +36,38 @@ export const cellWord = (cell) => cellWords(cell).replace(/s$/, "");
 const rad = (d) => (d * Math.PI) / 180;
 export const km = (a, b) => { const h = Math.sin(rad(b.lat - a.lat) / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lon - a.lon) / 2) ** 2; return 12742 * Math.asin(Math.sqrt(h)); };
 
-const blank = () => ({ home: null, sports: [], open: false, raw: { time: 0, place: 0, price: 0, quiet: 0 }, cells: {}, maxKm: 5, priceCap: 250, answers: [], learned: [], asked: 0 });
+const blank = () => ({ home: null, sports: [], open: false, windows: [], limitKm: null, limitEach: null, delegate: null, raw: { time: 0, place: 0, price: 0, quiet: 0 }, cells: {}, maxKm: 5, priceCap: 250, answers: [], learned: [], asked: 0 });
 export const get = (id) => ({ ...blank(), ...(data().members[id] || {}) });
 const put = (id, t) => { data().members[id] = t; save(); return t; };
 export function forget(id) { if (data().members[id]) { delete data().members[id]; save(); } }
 export function reset(id) { const t = get(id); return put(id, { ...blank(), home: t.home, sports: t.sports, open: t.open }); }
 // open to people nearby: other members' agents may ask this member's agent for a game (huddle.js), within about 5 km
 export function setOpen(id, on) { const t = get(id); if (on && !t.home) return { error: "Share your rough area first, so people nearby can find you.", code: 400 }; return { taste: view(put(id, { ...t, open: !!on })) }; }
+// hard limits an agent can set straight from what its person said: when they can play at all, how far, how much
+const HM = /^([01]\d|2[0-3]):[0-5]\d$/;
+export function setLimits(id, b = {}) {
+  const t = get(id), w = Array.isArray(b.windows) ? b.windows.slice(0, 14) : t.windows;
+  const windows = [];
+  for (const x of w || []) {
+    const days = (Array.isArray(x.days) ? x.days : []).filter((d) => DAYS.includes(d));
+    if (!days.length || !HM.test(x.from) || !HM.test(x.to) || x.from >= x.to) return { error: "Each window needs days (Sun..Sat) and from < to as HH:MM.", code: 400 };
+    windows.push({ days: [...new Set(days)], from: x.from, to: x.to });
+  }
+  const limitKm = b.maxKm == null ? t.limitKm : +b.maxKm > 0 ? Math.min(30, +b.maxKm) : null;
+  const limitEach = b.maxEach == null ? t.limitEach : +b.maxEach >= 0 ? Math.min(5000, Math.round(+b.maxEach)) : null;
+  const n = { ...t, windows, limitKm, limitEach };
+  if (limitKm) n.maxKm = Math.min(n.maxKm, limitKm);
+  if (limitEach != null) n.priceCap = Math.min(n.priceCap, Math.max(60, limitEach));
+  const parts = [windows.length ? `only ${windows.map((x) => `${x.days.join("/")} ${x.from}–${x.to}`).join(", ")}` : "", limitKm ? `within ${limitKm} km` : "", limitEach != null ? `at most NT$${limitEach} each` : ""].filter(Boolean);
+  n.learned = [...n.learned, { at: Date.now(), text: parts.length ? `Set: ${parts.join(", ")}. Nothing outside that is ever agreed.` : "Limits cleared." }].slice(-30);
+  return { taste: view(put(id, n)) };
+}
+// the person's standing permission for their agent to say yes for them: within a price, and with or without new people
+export function setDelegate(id, b = {}) {
+  const t = get(id);
+  const d = b.on === true ? { on: true, maxEach: b.maxEach == null ? null : Math.max(0, Math.round(+b.maxEach)), newPeople: b.newPeople === true, at: Date.now() } : null;
+  return { taste: view(put(id, { ...t, delegate: d })) };
+}
 export const openNear = (at, sport, maxKm = 5) => !at ? [] : Object.entries(data().members).filter(([, t]) => t.open && t.home && km(at, t.home) <= maxKm && (!t.sports?.length || t.sports.includes(sport))).map(([id, t]) => ({ id, km: +km(at, t.home).toFixed(1) }));
 // the member's rough area (about 1 km), for courts near them and the middle of a group; never an address
 export function setHome(id, at) {
@@ -93,6 +118,9 @@ const remember = (t, list, o) => { t[list] = [...(t[list] || []).filter((x) => x
 const near = (a, b) => a.date === b.date && Math.abs(+a.start.slice(0, 2) + +a.start.slice(3) / 60 - (+b.start.slice(0, 2) + +b.start.slice(3) / 60)) < 2;
 // a hard no, whatever the weights say: busy then, already turned down, far over the price or the distance they gave
 export function hardNo(t, o) {
+  if (t.windows?.length) { const d = DAYS[dateOf(o.date).getDay()], end = (() => { const m = +o.start.slice(0, 2) * 60 + +o.start.slice(3) + (o.minutes || 90); return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`; })(); if (!t.windows.some((w) => w.days.includes(d) && w.from <= o.start && end <= w.to)) return "time"; }
+  if (t.limitKm && o.km != null && o.km > t.limitKm) return "place";
+  if (t.limitEach != null && o.each > t.limitEach) return "price";
   if ((t.busyAt || []).some((x) => near(x, o))) return "busy";
   if ((t.declined || []).some((x) => x.date === o.date && x.start === o.start)) return "time";
   if (o.each > 0 && o.each > t.priceCap * 1.15 && (t.raw.price || 0) > 0.2) return "price";
@@ -103,7 +131,9 @@ export function hardNo(t, o) {
 // the distance and price of what they picked
 export function choose(id, q, pick) {
   const t = get(id);
-  if (!q || !q.a || !q.b) return { error: "No such question." };
+  // an agent may send back just the question's id: the last question asked is kept for that
+  if ((typeof q === "string" || (q && !q.a)) && t.lastQ && t.lastQ.id === (typeof q === "string" ? q : q.id)) q = t.lastQ;
+  if (!q || !q.a || !q.b) return { error: "No such question: send back the question object, or the id of the last one GET /api/huddle/question gave.", code: 400 };
   t.asked = (t.asked || 0) + 1;
   if (pick === "either") {
     t.answers = [...t.answers, { at: Date.now(), kind: "pair", q: q.id, pick, axes: q.axes }].slice(-40);
@@ -187,7 +217,9 @@ export function question(id, { places = [], now = new Date(), force = false } = 
   else { a = g(liked, 1, 90, 0.5, ven); b = g(other, 1, 90, 0.5, ven); }
   if (a.date === b.date && a.start === b.start && x !== "time") b.start = a.start === "19:30" ? "18:00" : a.start;
   const qid = `q${t.asked || 0}-${axes.join("")}`;
-  return { id: qid, axes, a: { ...a, text: gameText(a) }, b: { ...b, text: gameText(b) }, n, of: SURE_AT, ask: n === 0 ? "Which of these would you rather play?" : "One more: which would you pick?" };
+  const out = { id: qid, axes, a: { ...a, text: gameText(a) }, b: { ...b, text: gameText(b) }, n, of: SURE_AT, ask: n === 0 ? "Which of these would you rather play?" : "One more: which would you pick?" };
+  data().members[id] = { ...get(id), lastQ: out }; save();
+  return out;
 }
 
 // ---- what the member sees ----
@@ -204,7 +236,7 @@ export function summary(t) {
 export function view(t) {
   const w = weights(t), pairs = t.answers.filter((a) => a.kind === "pair").length;
   const grid = Object.fromEntries(DAYS.flatMap((d) => PARTS.map((p) => [`${d} ${p}`, +timeFit(t, `${d} ${p}`).toFixed(2)])));
-  return { home: t.home, sports: t.sports, open: !!t.open, weights: Object.fromEntries(FACTORS.map((k) => [k, +w[k].toFixed(2)])), grid, maxKm: +t.maxKm.toFixed(1), priceCap: Math.round(t.priceCap),
+  return { home: t.home, sports: t.sports, open: !!t.open, windows: t.windows || [], limitKm: t.limitKm ?? null, limitEach: t.limitEach ?? null, delegate: t.delegate || null, weights: Object.fromEntries(FACTORS.map((k) => [k, +w[k].toFixed(2)])), grid, maxKm: +t.maxKm.toFixed(1), priceCap: Math.round(t.priceCap),
     answers: t.answers.length, pairs, sure: Math.min(1, t.answers.length / SURE_AT), summary: summary(t), learned: t.learned.slice(-8).reverse() };
 }
 export const isSure = (t) => t.answers.length >= SURE_AT;

@@ -31,8 +31,8 @@ if (!TOKEN) { console.error("tenants: AGENT_TOKEN is not set"); process.exit(1);
 fs.mkdirSync(ROOT, { recursive: true });
 
 // the club's routes, on the shared gateway (getting a game together is between members, so it is there too)
-const shared = (p) => p === "/api/status" || p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/")
-  || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/") || p.startsWith("/api/trust/") || p === "/api/invite" || p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p.startsWith("/a2a/");
+const shared = (p) => p.startsWith("/.well-known/") || p === "/llms.txt" || p === "/privacy.txt" || p === "/openapi.json" || p === "/api/status" || p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/")
+  || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/") || p.startsWith("/api/trust/") || p === "/api/openapi.json" || p === "/api/invite" || p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p.startsWith("/a2a/");
 
 // who a session belongs to, asked of the shared gateway (kept a minute)
 const seen = new Map();
@@ -142,6 +142,8 @@ function file(req, res, p) {
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, "http://x"), p = u.pathname;
   try {
+    // the way in for agents (the Agent Card, the guide, the privacy page) is the shared gateway's, read-only
+    if (req.method === "GET" && (p.startsWith("/.well-known/") || p === "/llms.txt" || p === "/privacy.txt" || p === "/openapi.json")) return pass(req, res, MAIN, { token: false });
     if (!p.startsWith("/api/") && !p.startsWith("/a2a/")) return file(req, res, p);
     if (!sameOrigin(req)) return json(res, 403, { error: "requests from another site are not allowed" });
     // a member who leaves the club: their own gateway and its folder go with them
