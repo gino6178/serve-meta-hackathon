@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Icon from "../components/Icon.jsx";
-import { AGENT_URL } from "../agent.js";
+import { agentFetch } from "../agent.js";
 import { useMember } from "../members.js";
 import { feedApi } from "../club/feedApi.js";
 import { pendingInvite } from "../invite.js";
@@ -17,12 +17,12 @@ export default function InviteLink() {
   const [v, setV] = useState(null), [err, setErr] = useState(null), [state, setState] = useState(null);
 
   useEffect(() => {
-    fetch(`${AGENT_URL}/api/invite?id=${encodeURIComponent(id)}`).then((r) => r.json()).then((j) => (j.invite ? setV(j.invite) : setErr(j.error || "That game is not open any more.")), () => setErr("The server did not answer."));
-  }, [id]);
+    agentFetch(`/api/invite?id=${encodeURIComponent(id)}`).then((r) => r.json()).then((j) => { if (!j.invite) return setErr(j.error || "That game is not open any more."); setV(j.invite); if (j.invite.joined || j.invite.mine) setState("in"); }, () => setErr("The server did not answer."));
+  }, [id, m?.id]);
 
   const join = async () => {
     setState("joining");
-    try { await feedApi.join(id, true); pendingInvite.clear(); setState("in"); }
+    try { await feedApi.join(id, true); pendingInvite.clear(); setState("in"); setV((x) => (x ? { ...x, going: x.going + 1, joined: true } : x)); }
     catch (e) { pendingInvite.clear(); setState(null); setErr(e.message); }
   };
   // back from signing in with this game remembered: join it straight away
@@ -39,7 +39,7 @@ export default function InviteLink() {
         <p className="il-when"><b>{v.day}</b> {v.start}</p>
         <p className="il-where"><Icon name="pin" size={14} />{v.at ? <a href={`https://www.openstreetmap.org/?mlat=${v.at.lat}&mlon=${v.at.lon}#map=17/${v.at.lat}/${v.at.lon}`} target="_blank" rel="noreferrer">{v.where}</a> : v.where}</p>
         <p className="il-spots">{v.full ? "This game is full." : `${left} spot${left === 1 ? "" : "s"} left of ${v.spots}`}</p>
-        {state === "in" ? <><p className="il-in">You're in. {v.host} sees it now.</p><a className="btn primary" href="#/club">Open Serve</a></>
+        {state === "in" ? <><p className="il-in">{v.mine ? "This is your game: share the link with whoever you want to play." : `You're in. ${v.host} sees it now.`}</p><a className="btn primary" href="#/club">Open Serve</a></>
           : m ? <button className="btn primary" disabled={v.full || state === "joining"} onClick={join}>{state === "joining" ? "Joining…" : "Join this game"}</button>
           : !v.full && <p className="il-note">Sign in once to join. Your agent can find the next game for you after that.</p>}
         {err && <p className="join-err" role="alert">{err}</p>}

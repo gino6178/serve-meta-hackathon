@@ -70,7 +70,9 @@ export async function route(req, res, u, { json, o, forget }) {
   // an invite link (#/i/<id>) opened by someone who has no account yet
   if (p === "/api/invite" && req.method === "GET") {
     const v = P.publicInvite(String(u.searchParams.get("id") || ""), (room) => C.canSee(room, null));
-    return v ? send(200, { invite: v }) : send(404, { error: "That game is not open any more." });
+    // signed in: whether they are already in it (so a reload doesn't ask them to join again)
+    const who = member(req), post = v && who ? P.find(v.id) : null;
+    return v ? send(200, { invite: { ...v, ...(post ? { joined: post.invite.going.includes(who.id), mine: (post.by.player || post.by.agentOf) === who.id } : {}) } }) : send(404, { error: "That game is not open any more." });
   }
   const a = /^\/api\/auth\/(facebook|instagram)\/(start|callback)$/.exec(p);
   if (a && a[2] === "start") { const r = M.start(a[1]); return r.error ? redirect(res, `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}`) : redirect(res, r.url); }
@@ -181,11 +183,33 @@ async function channel(req, res, p, send) {
   return send(404, { error: "no such route", docs: "/llms.txt" });
 }
 
+// values a route can't take, said before anything changes (a 200 that quietly ignores them misleads the caller)
+const REASONS = ["busy", "time", "place", "price", "quiet", "none"];
+const isNum = (x) => (typeof x === "number" && isFinite(x)) || (typeof x === "string" && x.trim() !== "" && isFinite(+x));
+function badInput(r, b) {
+  if (r === "/huddle/sports" && (!Array.isArray(b.sports) || !b.sports.length || b.sports.some((x) => !T.SPORTS.includes(String(x).toLowerCase())))) return `sports is a list of: ${T.SPORTS.join(", ")}.`;
+  if (r === "/huddle/open" && typeof b.on !== "boolean") return "on is true or false.";
+  if (r === "/huddle/limits" && b.windows !== undefined && b.windows !== null && !Array.isArray(b.windows)) return "windows is a list of {days, from, to}, or null to clear them.";
+  if (r === "/huddle/delegate") {
+    if (typeof b.on !== "boolean") return "on is true or false.";
+    if (b.on && b.maxEach != null && !(isNum(b.maxEach) && +b.maxEach >= 0 && +b.maxEach <= 5000)) return "maxEach is a price from 0 to 5000, or null for any price.";
+    if (b.newPeople !== undefined && typeof b.newPeople !== "boolean") return "newPeople is true or false.";
+  }
+  if ((r === "/huddle/reply" || r === "/huddle/game") && typeof b.yes !== "boolean") return "yes is true or false.";
+  if ((r === "/huddle/reply" || r === "/huddle/game") && b.yes === false && b.why != null && !REASONS.includes(String(b.why))) return `why is one of: ${REASONS.join(", ")}.`;
+  if (r === "/huddle/start") {
+    if (b.need !== undefined && !isNum(b.need)) return "need is a number of players.";
+    if (b.gate?.minShow !== undefined && !(isNum(b.gate.minShow) && +b.gate.minShow >= 0 && +b.gate.minShow <= 1)) return "gate.minShow is from 0 to 1 (0.75 is 75%).";
+    if (b.sport !== undefined && !T.SPORTS.includes(String(b.sport).toLowerCase())) return `sport is one of: ${T.SPORTS.join(", ")}.`;
+  }
+  return null;
+}
 async function huddle(req, res, p, q, me, send, given = null) {
   let b = given || {};
   if (req.method === "POST" && !given) { const raw = await readRaw(req); if (raw == null) return send(413, { error: "too big" }); try { b = JSON.parse(raw.toString() || "{}"); } catch { return send(400, { error: "the body is not JSON" }); } }
   const out = (r) => send(r?.error ? r.code || 400 : 200, r);
   const get = req.method === "GET", post = req.method === "POST";
+  if (post) { const why = badInput(p.replace(/^\/api/, ""), b); if (why) return send(400, { error: why, docs: "/llms.txt" }); }
   if (p === "/api/huddle/me" && get) return send(200, { taste: T.view(T.get(me)), huddles: H.mineFor(me), ...H.people(me) });
   if (p === "/api/huddle/today" && get) return send(200, await H.today(me));
   if (p === "/api/huddle/nudge" && get) return send(200, H.nudge(me));

@@ -143,7 +143,7 @@ export function asked(id, n, now = Date.now()) {
   const t = tally.get(id) || { asks: [], marked: 0 };
   t.asks = [...t.asks.filter((x) => now - x.at < DAY), { at: now, n }]; tally.set(id, t);
   const sum = t.asks.reduce((s, x) => s + x.n, 0);
-  if (sum > PROBE_ASKS && now - t.marked > DAY) { t.marked = now; add("asked", id, { n: sum }, now); }
+  if (sum > PROBE_ASKS && now - t.marked > DAY) { t.marked = now; add("asked", id, { n: PROBE_ASKS + 1 }, now); } // the mark, not the count
 }
 // a request with the agent's key that failed the check (replayed, changed, expired)
 export function badSignature(id, why, now = Date.now()) { add("sig", id, { why: String(why || "bad") }, now); }
@@ -233,9 +233,9 @@ export function explain(id, now = Date.now()) {
 export function check(id, gate = {}, now = Date.now()) {
   const g = gateOf(gate), b = badge(id, now);
   if (g.minShow && (b.show.new ? !g.newOk : gateRate(b) < g.minShow)) return { verdict: "waitlist", badge: b, why: b.show.new ? "new, and this game wants people with a record" : `${showText(b)}; this game needs ${Math.round(g.minShow * 100)}%` };
-  if (b.agent.probe) return { verdict: "confirm", badge: b, why: "their agent asked too many people's agents today" };
+  if (b.agent.probe) return { verdict: "confirm", badge: b, why: "agent paused" };
   if (b.agent.badSig) return { verdict: "confirm", badge: b, why: "their agent is being checked" };
-  if (g.agentMin && !b.agent.new && b.agent.rate < g.agentMin) return { verdict: "confirm", badge: b, why: `their agent keeps only ${Math.round(b.agent.rate * 100)}% of its yeses` };
+  if (g.agentMin && !b.agent.new && b.agent.rate < g.agentMin) return { verdict: "confirm", badge: b, why: `${agentText(b)}; this game wants ${Math.round(g.agentMin * 100)}%` };
   return { verdict: "ok", badge: b };
 }
 // leaving Serve: a "left" entry (the chain is never rewritten), and the games waiting for votes forget them

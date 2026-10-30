@@ -229,7 +229,7 @@ function InviteBox({ p, patch, say }) {
         {v.gentle && <span className="tiny muted">Gentle game · {v.gentle.format ? `${v.gentle.format}, ` : ""}{v.gentle.minutes} min</span>}
         {v.host && !p.mine && <span className="tiny muted">Host: {v.host.show} · {v.host.agent}</span>}
         {v.gate?.minShow ? <span className="tiny muted"><Icon name="lock" size={12} /> Joins straight in at shows up {Math.round(v.gate.minShow * 100)}%+{v.waitlist ? ` · ${v.waitlist} waiting` : ""}</span> : null}</span>
-      {v.full && (p.mine || v.joined) ? <span className="task-state done">Game on</span> : p.mine ? <span className="fd-inv-mine"><a className="btn primary sm" href={`#/huddle?fill=${p.id}&need=${Math.max(2, v.spots - v.going + 1)}&sport=${encodeURIComponent(v.sport)}`}><Icon name="spark" size={14} />Let the agents fill it</a><button className="btn ghost sm" onClick={share}><Icon name="share" size={14} />Share link</button></span> : v.joined ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button>
+      {v.full && (p.mine || v.joined) ? <span className="task-state done">Game on</span> : p.mine ? <span className="fd-inv-mine">{v.filling ? <a className="btn primary sm" href={`#/huddle?id=${v.filling.huddle}`}><Icon name="spark" size={14} />{v.filling.status === "talking" ? "Agents talking…" : `Agreed: ${v.filling.yes} of ${v.filling.asked} said yes`}</a> : <a className="btn primary sm" href={`#/huddle?fill=${p.id}&need=${Math.max(2, v.spots - v.going + 1)}&sport=${encodeURIComponent(v.sport)}`}><Icon name="spark" size={14} />Let the agents fill it</a>}<button className="btn ghost sm" onClick={share}><Icon name="share" size={14} />Share link</button></span> : v.joined ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>Leave</button>
         : v.waiting ? <button className="btn ghost sm" disabled={busy} onClick={() => join(false)}>On the waitlist · leave</button> : <span className="fd-inv-mine"><button className="btn primary sm" disabled={busy} onClick={() => join(true)}>{v.full ? "Join the waitlist" : "Join"}</button><button className="btn ghost sm" onClick={share} aria-label="Share this game"><Icon name="share" size={14} /></button></span>}
     </div>
   );
@@ -353,7 +353,8 @@ function Comments({ p, input, patch, say, onReport }) {
     } catch (x) { setErr({ bad: true, text: x instanceof FeedError ? x.message : "The comment did not go through." }); }
     finally { setBusy(false); }
   };
-  const top = p.comments.filter((c) => !c.reply), replies = (id) => p.comments.filter((c) => c.reply === id);
+  // (the poster's agent's notes on an invite, "X is in", are marked reply: true and stand on their own)
+  const top = p.comments.filter((c) => !c.reply || c.reply === true), replies = (id) => p.comments.filter((c) => c.reply === id);
   const shown = all ? top : top.slice(-2);
   return (
     <div className="fd-comments">

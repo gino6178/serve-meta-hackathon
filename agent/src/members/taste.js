@@ -79,7 +79,7 @@ export function setHome(id, at) {
   if (!isFinite(lat) || !isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return { error: "That is not a place on the map." };
   return { taste: view(put(id, { ...get(id), home: { lat: +lat.toFixed(2), lon: +lon.toFixed(2) }, homeMoves: [...moves, Date.now()] })) };
 }
-const SPORTS = ["badminton", "tennis", "pickleball", "table tennis", "basketball", "volleyball", "soccer", "squash"];
+export const SPORTS = ["badminton", "tennis", "pickleball", "table tennis", "basketball", "volleyball", "soccer", "squash"];
 export function setSports(id, sports) {
   const s = [...new Set((Array.isArray(sports) ? sports : []).map((x) => String(x).toLowerCase()).filter((x) => SPORTS.includes(x)))].slice(0, 4);
   return { taste: view(put(id, { ...get(id), sports: s })) };
@@ -147,6 +147,8 @@ export function choose(id, q, pick) {
   // an agent may send back just the question's id: the last question asked is kept for that
   if ((typeof q === "string" || (q && !q.a)) && t.lastQ && t.lastQ.id === (typeof q === "string" ? q : q.id)) q = t.lastQ;
   if (!q || !q.a || !q.b) return { error: "No such question: send back the question object, or the id of the last one GET /api/huddle/question gave.", code: 400 };
+  // the same question answered again (a retry, a double tap) counts once
+  if (q.id && t.answers.some((a) => a.kind === "pair" && a.q === q.id)) return { taste: view(t), line: "Already answered: it counts once.", duplicate: true };
   t.asked = (t.asked || 0) + 1;
   if (pick === "either") {
     t.answers = [...t.answers, { at: Date.now(), kind: "pair", q: q.id, pick, axes: q.axes }].slice(-40);

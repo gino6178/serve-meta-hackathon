@@ -43,7 +43,8 @@ export async function placesNear(at, sport = "badminton", { venues = 3, courts =
       .then((found) => { pending.delete(key); if (found) got.set(key, found); else failed.set(key, Date.now()); return found || []; });
     pending.set(key, job);
   }
-  const found = got.get(key) || (wait ? await pending.get(key) : []);
+  // (after a failed lookup there's no job to wait for: nothing found, said by the caller)
+  const found = got.get(key) || (wait && pending.has(key) ? await pending.get(key) : null) || [];
   // one of each place: the same name, or two entries under 150 m apart (a hall mapped twice, a park as several pitches)
   const one = (list) => list.filter((p, i) => list.findIndex((q) => q.name === p.name || km(q, p) < 0.15) === i);
   const v = one(found.filter((p) => p.kind === "sports_centre")).slice(0, venues), c = one(found.filter((p) => p.kind !== "sports_centre")).slice(0, courts);

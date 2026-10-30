@@ -12,10 +12,13 @@ import "./huddle.css";
 // a price, and everyone says yes once (agent src/members/huddle.js). Three tabs: get a game, courts and prices near
 // you (quiet hours, what a venue's agent would take), and how you play (what your agent has learned).
 const params = () => new URLSearchParams(location.hash.split("?")[1] || "");
+// the person's own words from the home box, kept for this visit so How you play can offer them as limits
+const saidWords = () => { const s = params().get("say"); try { if (s) sessionStorage.setItem("serve.said", s); return s || sessionStorage.getItem("serve.said") || ""; } catch { return s || ""; } };
 const TABS = [["game", "Get a game"], ["courts", "Courts & prices"], ["taste", "How you play"]];
 const setParam = (k, v) => { const p = params(); if (v == null) p.delete(k); else p.set(k, v); location.hash = `/huddle${p.toString() ? `?${p}` : ""}`; };
 
 export default function Huddle() {
+  saidWords(); // keep the home box's words for this visit
   const [tab, setTab] = useState(() => params().get("tab") || "game");
   const [me, setMe] = useState(null), [err, setErr] = useState("");
   const load = () => H.mine().then(setMe, (e) => setErr(e.message));
@@ -311,6 +314,9 @@ function Limits({ t, onSaved }) {
   const [win, setWin] = useState(winKey(t.windows)), [km, setKm] = useState(t.limitKm ?? ""), [each, setEach] = useState(t.limitEach ?? "");
   const [on, setOn] = useState(!!d?.on), [dEach, setDEach] = useState(d?.maxEach ?? ""), [newPeople, setNewPeople] = useState(!!d?.newPeople);
   const [busy, setBusy] = useState(false), [said, setSaid] = useState(""), [err, setErr] = useState("");
+  // what they said in their own words, offered (not saved) as limits
+  const words = saidWords(), wWin = /weekday evening|weeknight|平日晚上/i.test(words) ? "evenings" : /weekday morning|平日早上/i.test(words) ? "mornings" : /weekend|週末|周末/i.test(words) ? "weekends" : null, wEach = eachFromText(words);
+  const offer = (wWin && wWin !== win) || (wEach != null && String(wEach) !== String(each));
   const save = async (e) => {
     e.preventDefault(); setBusy(true); setErr(""); setSaid("");
     try {
@@ -324,6 +330,7 @@ function Limits({ t, onSaved }) {
     <form className="panel hd-limits" aria-label="Your limits" onSubmit={save}>
       <h2 className="h3">Your limits</h2>
       <p className="hd-fine">Hard limits: your agent never agrees to a game outside them.</p>
+      {offer && <p className="hd-offer">You said “{words.slice(0, 80)}”. <button type="button" className="link" onClick={() => { if (wWin) setWin(wWin); if (wEach != null) setEach(String(wEach)); }}>Use {[wWin && WIN[wWin].label.toLowerCase(), wEach != null && `NT$${wEach} at most`].filter(Boolean).join(", ")}</button>, then Save.</p>}
       <label>Times<select value={win} onChange={(e) => setWin(e.target.value)}>{win === "keep" && <option value="keep">As set before</option>}{Object.entries(WIN).map(([k, x]) => <option key={k} value={k}>{x.label}</option>)}</select></label>
       <label>Farthest<span className="hd-unit"><input type="number" min="1" max="30" step="0.5" inputMode="decimal" placeholder="no limit" value={km} onChange={(e) => setKm(e.target.value)} />km</span></label>
       <label>Most per person<span className="hd-unit">NT$<input type="number" min="0" max="5000" step="10" inputMode="numeric" placeholder="no limit" value={each} onChange={(e) => setEach(e.target.value)} /></span></label>

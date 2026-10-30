@@ -107,11 +107,13 @@ const pausedWhy = (l) => `Your posts and comments are paused by the club's maint
 // may post one for its member through the agent channel (members.js): agent is { id, owner }, and the post says it is
 // that member's agent. The place is checked with the text, as anything a person writes is.
 export const SPORTS = ["badminton", "tennis", "pickleball", "table tennis", "basketball", "volleyball", "soccer", "squash", "running"];
+const localDay = (ms) => { const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 export function inviteOf(x) {
   if (!x) return { invite: null };
   const sport = String(x.sport || "").toLowerCase(), day = String(x.day || ""), start = String(x.start || ""), where = T.tidy(x.where, 60), spots = Math.round(+x.spots);
   if (!SPORTS.includes(sport)) return { error: `The sport must be one of: ${SPORTS.join(", ")}.` };
   if (!/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun|\d{4}-\d{2}-\d{2})$/.test(day) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(start)) return { error: "Say the day (Mon to Sun, or a date) and the time (HH:MM)." };
+  if (/^\d{4}-/.test(day) && day < localDay(deps.now())) return { error: "That date has passed: pick today or a later day." };
   if (!where) return { error: "Say where you'll play." };
   if (!(spots >= 1 && spots <= 12)) return { error: "Between 1 and 12 spots." };
   // the place on the map, when it was picked there (rounded to about 10 m)
@@ -437,6 +439,9 @@ function commentView(c, viewer) {
 // one clip, from the app's own files
 export const mediaView = (m) => (m.static ? { static: true, src: m.src, posterSrc: m.poster || null, type: m.type, w: m.w ?? null, h: m.h ?? null }
   : { id: m.id, type: m.type, ...(m.poster ? { poster: m.poster.id } : {}), w: m.w ?? null, h: m.h ?? null });
+// how the agents filling a posted game are getting on (members/huddle.js registers it; the feed can't import it)
+let fillInfo = () => null;
+export const onFill = (f) => { fillInfo = f; };
 export function view(p, viewer) {
   const mine = p.by.player === viewer || p.by.agentOf === viewer;
   return {
@@ -444,7 +449,7 @@ export function view(p, viewer) {
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),
-    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots } } : {}),
+    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, waitlist: undefined, going: p.invite.going.length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const b = Tr.badge(p.by.player || p.by.agentOf); return { show: Tr.showText(b), agent: Tr.agentText(b) }; })(), names: p.invite.going.map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member"))), joined: p.invite.going.includes(viewer), full: p.invite.going.length >= p.invite.spots, ...(mine && fillInfo(p.id) ? { filling: fillInfo(p.id) } : {}) } } : {}),
     ...(p.simulated ? { simulated: true } : {}), ...(p.held ? { held: true } : {}), ...(p.hidden ? { hidden: true } : {}),
     likes: p.likes.length, liked: p.likes.includes(viewer),
     comments: p.comments.filter((c) => (!c.held && !c.hidden) || c.by.player === viewer).map((c) => commentView(c, viewer)),
