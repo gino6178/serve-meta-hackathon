@@ -116,6 +116,8 @@ export function inviteOf(x) {
   if (/^\d{4}-/.test(day) && day < localDay(deps.now())) return { error: "That date has passed: pick today or a later day." };
   if (!where) return { error: "Say where you'll play." };
   if (!(spots >= 1 && spots <= 12)) return { error: "Between 1 and 12 spots." };
+  if (x.each != null && x.each !== "" && !(+x.each >= 0 && +x.each <= 5000)) return { error: "each is the price per person, from 0 to 5000." };
+  if (x.gate?.minShow != null && !(+x.gate.minShow >= 0 && +x.gate.minShow <= 1)) return { error: "gate.minShow is from 0 to 1 (0.75 is 75%)." };
   // the place on the map, when it was picked there (rounded to about 10 m)
   const lat = +x.at?.lat, lon = +x.at?.lon, at = isFinite(lat) && isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat: +lat.toFixed(4), lon: +lon.toFixed(4) } : null;
   // a gate (members/trust.js): people under its show-up rate wait; agents that keep too few promises can't answer

@@ -158,6 +158,7 @@ async function channel(req, res, p, send) {
   if (p === "/api/agent-channel/comment" && req.method === "POST") return out(await P.comment(ag.id, String(b.post || ""), b.text, { agent: { id: ag.id, owner } }));
   if (p === "/api/agent-channel/join" && req.method === "POST") {
     // joining commits the person: the same permission as a yes (taste.js delegate), with its limits
+    if (b.on !== undefined && typeof b.on !== "boolean") return send(400, { error: "on is true (join) or false (leave)." });
     if (b.on !== false) { const ok = H.mayAgentSayYes(owner, { post: String(b.post || "") }); if (ok.error) return send(ok.code || 403, ok); }
     return out(P.join(owner, String(b.post || ""), b.on !== false));
   }
@@ -235,6 +236,7 @@ async function huddle(req, res, p, q, me, send, given = null) {
   if (p === "/api/huddle/game" && post) return out(H.answerGame(me, String(b.post || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
   if (p === "/api/huddle/places" && get) {
     const t = T.get(me), sport = String(q.get("sport") || t.sports[0] || "badminton").toLowerCase();
+    if (!T.SPORTS.includes(sport)) return send(400, { error: `sport is one of: ${T.SPORTS.join(", ")}.` });
     if (!t.home) return send(200, { places: [], home: false });
     const places = await D.placesNear(t.home, sport, { venues: 4, courts: 4, wait: false });
     const looking = D.loading(t.home, sport);

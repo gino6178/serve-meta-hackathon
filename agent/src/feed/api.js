@@ -73,7 +73,7 @@ export async function handle(req, res, u, { cors = {}, maintainer = false, as = 
       return send(200, { media: { id: m.id, w: c.w, h: c.h } });
     }
     if (p === "/api/feed/post" && post) return out(await P.post(player, { text: body.text, media: body.media || null, invite: body.invite || null, room: body.room || null }));
-    if (p === "/api/feed/join" && post) return out(P.join(player, String(body.post || ""), body.on !== false));
+    if (p === "/api/feed/join" && post) { if (body.on !== undefined && typeof body.on !== "boolean") return send(400, { error: "on is true (join) or false (leave)." }); return out(P.join(player, String(body.post || ""), body.on !== false)); }
     if (p === "/api/feed/comment" && post) return out(await P.comment(player, String(body.post || ""), body.text));
     if (p === "/api/feed/like" && post) return out(P.like(player, String(body.post || ""), body.on !== false));
     if (p === "/api/feed/notforme" && post) return out(P.notForMe(player, String(body.post || "")));

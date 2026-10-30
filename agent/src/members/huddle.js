@@ -267,7 +267,11 @@ async function run(h, now = new Date()) {
   h.players = agreed.players; h.direct = extra; h.answers = hostOk ? { [host]: "yes" } : {}; h.status = "asking"; h.askedAt = now.getTime();
   if (!hostOk) { line(h, "host", h.hostYes ? `It isn't one of ${hostName}'s usual times, so ${hostName} is asked too.` : `${hostName} is asked for a yes too.`, { who: hostName }); P.notify(host, "huddle", h.hostYes ? `The agents agreed ${h.sport} ${when(o)} at ${o.place.name}, not one of your usual times. Yes?` : `The agents agreed ${h.sport} ${when(o)} at ${o.place.name} for the game you asked for. Yes?`, { huddle: h.id }); }
   h.askedOf = Object.fromEntries(agreed.players.map((id) => [id, now.getTime()]));
-  line(h, "host", `Agreed: ${when(o)} at ${o.place.name}${deal.each ? `, ${D.CURRENCY}${deal.each} each` : ", a free court"}. Asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes.`, { who: hostName, agreed: true });
+  // fewer than asked for: said as the best time so far, with what's still missing and how to fill it
+  const short_ = h.need - agreed.players.length, price = deal.each ? `, ${D.CURRENCY}${deal.each} each` : ", a free court";
+  line(h, "host", short_ > 0 && !h.fill
+    ? `Best time so far: ${when(o)} at ${o.place.name}${price}. Only ${agreed.players.length} of the ${h.need} players fit it: asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes. Once they say yes it's posted with ${short_} open spot${short_ > 1 ? "s" : ""} for others to join; or ask for fewer players.`
+    : `Agreed: ${when(o)} at ${o.place.name}${price}. Asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes.`, { who: hostName, agreed: short_ <= 0 || !!h.fill });
   for (const id of agreed.players) if (id !== host) P.notify(id, "huddle", `Your agent and ${hostName}'s agreed ${h.sport} ${when(o)} at ${o.place.name}. One yes from you?`, { huddle: h.id });
   save();
 }

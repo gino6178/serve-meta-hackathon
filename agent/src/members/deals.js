@@ -11,7 +11,7 @@
 //   (60% of list for an empty hour, the full list once it is 85% full), and it knocks a little more off for a group
 //   that books the same hour every week. The group's agent opens low, both sides move toward each other, and the deal
 //   is the first offer the venue's rule accepts. Code does all of it; nothing is booked or paid here.
-import { nearby, cachedNear } from "../club/places.js";
+import { nearby, cachedNear, readable } from "../club/places.js";
 import { km, dateOf, ymd, DAYS } from "./taste.js";
 
 export const CURRENCY = "NT$";
@@ -50,7 +50,7 @@ export async function placesNear(at, sport = "badminton", { venues = 3, courts =
   const v = one(found.filter((p) => p.kind === "sports_centre")).slice(0, venues), c = one(found.filter((p) => p.kind !== "sports_centre")).slice(0, courts);
   return [...v, ...c].map((p) => {
     const venue = p.kind === "sports_centre";
-    return { id: p.id, name: p.name, lat: p.lat, lon: p.lon, kind: venue ? "venue" : "public", sport, ...(venue ? { list: round10((LIST[sport] || 300) * (0.85 + 0.3 * hash(p.id))), sample: true } : {}) };
+    return { id: p.id, name: readable(p.name, p.kind, sport), lat: p.lat, lon: p.lon, kind: venue ? "venue" : "public", sport, ...(venue ? { list: round10((LIST[sport] || 300) * (0.85 + 0.3 * hash(p.id))), sample: true } : {}) };
   });
 }
 

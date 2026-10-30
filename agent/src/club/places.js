@@ -253,6 +253,14 @@ let lastGeo = 0;
 // the courts for a sport around a point, for the app's map: courts and sports centres only (no parks), every Overpass
 // mirror asked at once and the first answer taken, kept a month (no model)
 const near = new Map();
+// a place's name someone who doesn't read the local script can still use: what it is, then its own name
+// ("Basketball court · 女生優先球場"); a name with Latin letters already reads, so it stays as it is
+export const readable = (name, kind, sport = "") => {
+  const n = String(name || "");
+  if (!n || /[A-Za-z]/.test(n)) return n;
+  const what = kind === "sports_centre" || kind === "venue" ? "Sports centre" : `${String(sport).replace(/^./, (c) => c.toUpperCase())} court`.trim();
+  return `${what} · ${n}`;
+};
 export async function nearby({ lat, lon, sport = "basketball", radius = 2000, wait = 8000 } = {}) {
   const at = { lat: +(+lat).toFixed(3), lon: +(+lon).toFixed(3) };
   if (!isFinite(at.lat) || !isFinite(at.lon) || Math.abs(at.lat) > 90 || Math.abs(at.lon) > 180) throw new Error("No location to search around.");
