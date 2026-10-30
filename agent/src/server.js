@@ -243,8 +243,9 @@ msn.hooks.payload = async (psid, payload) => {
 // with the other players' agents and shows the player what they said
 const inputOf = (psid) => { const me = store.get(psid); return { history: me?.games || [], upcoming: (me?.events || []).filter((e) => e.kind === "match" && e.with?.length).map((e) => ({ date: e.date, start: e.start, with: e.with })), body: me?.body || null }; };
 const ASK_BUTTONS = (id) => [{ title: "Yes, set it up", payload: `gm:${id}:yes` }, { title: "Another time", payload: `gm:${id}:other` }, { title: "Not this week", payload: `gm:${id}:week` }];
-async function gameFor(psid, { ahead = 7, quiet = false } = {}) {
-  const r = await asks.ask({ who: psid, ...inputOf(psid), ahead });
+// (daily: the once-a-day ask, under the weekly cap and the trial, agents/ask.js)
+async function gameFor(psid, { ahead = 7, quiet = false, daily = false } = {}) {
+  const r = await asks.ask({ who: psid, ...inputOf(psid), ahead, daily });
   if (r.none) { if (!quiet) await msn.direct(psid, `No game to suggest right now: ${r.none}. Send /autopilot to have me plan the whole week.`); return r; }
   await msn.direct(psid, r.text, { buttons: ASK_BUTTONS(r.id) });
   return r;
@@ -301,7 +302,8 @@ async function sendResult(psid, id, r) {
 const flagOr = (read, fallback) => { try { const v = read(); return Number.isFinite(v) ? v : fallback; } catch { return fallback; } };
 // once a day at ASK_HOUR (12:00), for Messenger players who wrote in the last day (Messenger's standard messaging
 // window): the Match helper asks about the next three days, if the week is short of the goal. For a beta member in a
-// canary the hour (ask.hour) and the days ahead (ask.ahead) are the flags' values
+// canary the hour (ask.hour) and the days ahead (ask.ahead) are the flags' values. The daily ask counts toward the
+// player's weekly cap (ASK_WEEK_CAP) and may be withheld by the trial (ASK_TRIAL_P); a forced tick is neither
 async function askTick(now = new Date(), force = false) {
   let n = 0;
   for (const p of store.players()) {
@@ -310,7 +312,7 @@ async function askTick(now = new Date(), force = false) {
     const today = life.ymd(now);
     if (!force && (p.prefs.lastAsk === today || !p.lastSeen || Date.now() - p.lastSeen > 23 * 36e5 || asks.open(p.id))) continue;
     store.setPref(p.id, "lastAsk", today);
-    const r = await club.asPlayer(p.id, () => gameFor(p.id, { ahead: force ? 7 : flagOr(() => loopParts.flags.get("ask.ahead", p.id), 3), quiet: true })).catch(() => null);
+    const r = await club.asPlayer(p.id, () => gameFor(p.id, { ahead: force ? 7 : flagOr(() => loopParts.flags.get("ask.ahead", p.id), 3), quiet: true, daily: !force })).catch(() => null);
     if (r && !r.none) n++;
   }
   return n;

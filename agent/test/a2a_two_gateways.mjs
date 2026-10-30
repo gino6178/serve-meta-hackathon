@@ -48,6 +48,9 @@ const { negotiate, releaseHolds } = await import("../src/a2a/talk.js");
 const play = await import("../src/club/play.js");
 const client = await import("../src/a2a/client.js");
 const peer = await import("../src/a2a/peer.js");
+// the extensions a Serve agent requires (ext.js), as its card names them, for a raw JSON-RPC request
+const reqExt = new Map();
+const extsFor = (url) => { if (!reqExt.has(url)) reqExt.set(url, fetch(`${url}.well-known/agent-card.json`).then((r) => r.json()).then((c) => (c.capabilities?.extensions || []).filter((e) => e.required).map((e) => e.uri)).catch(() => [])); return reqExt.get(url); };
 const { estimate } = await import("../src/match/ask.js");
 const { EXT_PATH } = await import("../src/match/likely.js");
 const { readClub } = await import("../src/club/club.js");
@@ -90,13 +93,13 @@ const lk = { kind: "serve.likely", from: "you", sport: "badminton", format: "sin
   // A2A-Extensions: the request names serve.likely as B's card declares it, and B says it back
   const url = `${B}/a2a/members/nb02/`, uri = client.declared(url, EXT_PATH)[0];
   const body = JSON.stringify({ jsonrpc: "2.0", id: 1, method: "SendMessage", params: { message: { messageId: crypto.randomUUID(), contextId: crypto.randomUUID(), role: "ROLE_USER", parts: [{ data: lk, mediaType: "application/json" }] } } });
-  const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", "A2A-Extensions": uri, ...(await peer.sign(url, { method: "POST", body })) }, body });
+  const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", "A2A-Extensions": [uri, ...(await extsFor(url))].join(","), ...(await peer.sign(url, { method: "POST", body })) }, body });
   expect(r.status === 200 && r.headers.get("a2a-extensions") === uri, `A2A-Extensions: sent ${uri}, B activated ${r.headers.get("a2a-extensions")}`);
 }
 // the hop: the same small requests at A's own gateway (loopback) and at B (through the tunnel to us-central1)
 const rpc = async (base, member, data, sign, contextId = `probe-${crypto.randomUUID().slice(0, 13)}`) => {
   const url = `${base}/a2a/members/${member}/`, body = JSON.stringify({ jsonrpc: "2.0", id: 1, method: "SendMessage", params: { message: { messageId: crypto.randomUUID(), contextId, role: "ROLE_USER", parts: [{ data, mediaType: "application/json" }] } } });
-  const h = { "content-type": "application/json", "A2A-Version": "1.0", ...(sign ? await peer.sign(url, { method: "POST", body }) : { authorization: `Bearer ${process.env.AGENT_TOKEN}` }) };
+  const h = { "content-type": "application/json", "A2A-Version": "1.0", "A2A-Extensions": (await extsFor(url)).join(","), ...(sign ? await peer.sign(url, { method: "POST", body }) : { authorization: `Bearer ${process.env.AGENT_TOKEN}` }) };
   const r = await fetch(url, { method: "POST", headers: h, body, signal: AbortSignal.timeout(60000) });
   return { status: r.status, json: await r.json().catch(() => null) };
 };
@@ -257,7 +260,7 @@ log(`talks: ${agreed.length} of ${talks.length} agreed (by members on B: ${JSON.
 {
   const Bkid = peer.pinOf("gwb").kid, own = peer.ownKey(), C = crypto.generateKeyPairSync("ed25519"), Ckid = peer.kidOf(C.publicKey.export({ format: "jwk" }).x);
   const msg = (data = lk) => JSON.stringify({ jsonrpc: "2.0", id: 1, method: "SendMessage", params: { message: { messageId: crypto.randomUUID(), contextId: crypto.randomUUID(), role: "ROLE_USER", parts: [{ data, mediaType: "application/json" }] } } });
-  const post = (member, body, h) => fetch(`${B}/a2a/members/${member}/`, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", ...h }, body }).then((r) => r.status);
+  const post = (member, body, h) => extsFor(`${B}/a2a/members/${member}/`).then((x) => fetch(`${B}/a2a/members/${member}/`, { method: "POST", headers: { "content-type": "application/json", "A2A-Version": "1.0", "A2A-Extensions": x.join(","), ...h }, body })).then((r) => r.status);
   const tok = (o) => ({ [peer.HEADER]: peer.signToken({ key: own.key, kid: own.kid, aud: Bkid, method: "POST", path: "/a2a/members/nb01/", ...o }) });
   const cases = [];
   const run = async (id, what, fn, want) => { const got = await fn(); cases.push({ id, what, status: got, refused: got === want }); log(`  ${got === want ? "refused" : "NOT REFUSED"} ${id} ${what}: HTTP ${got}`); };

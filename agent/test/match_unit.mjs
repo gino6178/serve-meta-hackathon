@@ -244,7 +244,7 @@ test("over A2A: the card declares serve.likely, a member's agent answers a band,
     assert.ok(ext, "the extension is declared"); assert.deepEqual(Object.keys(ext.params.bands), M.BANDS);
     assert.ok(card.skills.some((s) => s.id === "estimate-yes")); assert.equal(card.signatures.length, 1, "and signed with the card");
     const out = srv.cardFor("http://x/a2a/members/z", { ...m, shares: { ...m.shares, likely: false } }, club);
-    assert.equal(out.capabilities.extensions.length, 0); assert.ok(!out.skills.some((s) => s.id === "estimate-yes"), "an opted-out member declares none");
+    assert.equal(out.capabilities.extensions.filter((e) => e.uri.endsWith(L.EXT_PATH)).length, 0); assert.ok(!out.skills.some((s) => s.id === "estimate-yes"), "an opted-out member declares none");
     const doc = await (await fetch(`${process.env.A2A_BASE}${L.EXT_PATH}`)).json();
     assert.deepEqual(doc.bands, M.BANDS);
     const w = helpers.windows(m.free)[0], date = (() => { for (let k = 1; k <= 7; k++) { const d = new Date(Date.now() + k * DAY); if (d.getDay() === w.day) return ymd(d.getTime()); } })();
@@ -315,10 +315,10 @@ test("a real player's choices: no bands until /bands on, the exact chance only o
   S.set("you", { bands: false });
   const srv = await import("../src/a2a/server.js"), club = readClub();
   const off = srv.cardFor("http://x/a2a/members/you", P.asMember("you", club), club);
-  assert.equal(off.capabilities.extensions.length, 0); assert.ok(!off.skills.some((s) => s.id === "estimate-yes")); assert.match(off.description, /A real player's agent/);
+  assert.equal(off.capabilities.extensions.filter((e) => e.uri.endsWith(L.EXT_PATH)).length, 0); assert.ok(!off.skills.some((s) => s.id === "estimate-yes")); assert.match(off.description, /A real player's agent/);
   S.set("you", { bands: true, exact: true });
   const on = srv.cardFor("http://x/a2a/members/you", P.asMember("you", club), club);
-  assert.ok(on.skills.some((s) => s.id === "estimate-yes")); assert.ok(on.capabilities.extensions[0].params.exact);
+  assert.ok(on.skills.some((s) => s.id === "estimate-yes")); assert.ok(on.capabilities.extensions.find((e) => e.uri.endsWith(L.EXT_PATH)).params.exact);
   assert.match(srv.cardFor("http://x", club.members[0], club).description, /A simulated member/, "simulated members are labelled so");
   S.set("you", { bands: false }); S.setClub({ fairExposure: false }); assert.equal(S.club().fairExposure, false); S.setClub({ fairExposure: true });
 });

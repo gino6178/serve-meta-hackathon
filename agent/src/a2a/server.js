@@ -41,10 +41,12 @@ import { withPriority } from "../core/llm.js";
 import { helpers, held as heldNow } from "../club/play.js";
 import { placeById, toTown } from "../club/places.js";
 import * as peer from "./peer.js";
+import * as ext from "./ext.js";
 
 const { toMin, hm, dateOf, readVenues, travelMin, DAYS } = helpers;
 const DATA = path.resolve(process.env.A2A_DATA || "data");
 const atomic = writeJSON, load = readJSON;
+const BASE = () => process.env.A2A_BASE || "http://127.0.0.1:8790";
 
 // the SDK's TaskStore, on disk: every task of every member's agent, kept across restarts (the newest 600)
 class FileTaskStore {
@@ -124,6 +126,12 @@ class MemberExecutor {
     bus.publish(AgentEvent.task(ctx.task ?? { id: ctx.taskId, contextId: ctx.contextId, status: { state: TaskState.TASK_STATE_SUBMITTED, timestamp: new Date().toISOString() }, artifacts: [], history: [msg], metadata: { agent: m.id } }));
     try {
       const p = msg.parts.find((x) => x.content?.$case === "data")?.content.value;
+      // a proposal or a hold uses its required extension (ext.js): said back as activated; one the request did not name
+      // is refused (the SDK refuses a request naming neither before it gets here, ExtensionSupportRequiredError)
+      // (by its path: the URI's base is the card's, which the SDK checked exactly)
+      const used = ext.pathOf(p?.kind), uri = used && (ctx.context?.requestedExtensions || []).find((u) => { try { return new URL(u).pathname === used; } catch { return false; } });
+      if (used && !uri) { bus.publish(status(ctx, TaskState.TASK_STATE_REJECTED, `${first(m.name)}'s agent needs the extension ${BASE()}${used} named in A2A-Extensions for a ${p.kind}.`)); return; }
+      if (used) ctx.context.addActivatedExtension(uri);
       if (p?.kind === "serve.hold") {
         const bad = validate(HOLD, p);
         if (bad.length) { bus.publish(status(ctx, TaskState.TASK_STATE_FAILED, `${first(m.name)}'s agent reads a serve.hold: ${bad.slice(0, 2).join("; ")}`)); return; }
@@ -151,8 +159,8 @@ class MemberExecutor {
         // (an asker on another gateway is an asker of its own here, with no rating this side knows)
         const r = likely.answer(m, { ...p, from: sc.from(p.from) }, { club: caller ? { ...club, you: { ...club.you, rating: 1500 } } : club, venues: readVenues(), breaks, travelMin });
         // the extension, when the request named it (A2A-Extensions) as this card declares it: said back in the response
-        const uri = likely.extension(process.env.A2A_BASE || "http://127.0.0.1:8790", m).uri;
-        if (ctx.context?.requestedExtensions?.includes?.(uri)) ctx.context.addActivatedExtension(uri);
+        const lu = likely.extension(BASE(), m).uri;
+        if (ctx.context?.requestedExtensions?.includes?.(lu)) ctx.context.addActivatedExtension(lu);
         if (r.refused) { bus.publish(status(ctx, TaskState.TASK_STATE_REJECTED, likely.REFUSAL)); return; }
         bus.publish(AgentEvent.artifactUpdate({ taskId: ctx.taskId, contextId: ctx.contextId, artifact: { artifactId: "likely", name: "likely", description: "how likely this member is to say yes, as a band", parts: [part("data", r, "application/json")], metadata: undefined, extensions: [] }, lastChunk: true, append: false, metadata: undefined }));
         bus.publish(status(ctx, TaskState.TASK_STATE_COMPLETED)); return;
@@ -226,8 +234,9 @@ export function cardFor(base, m, club) {
     supportedInterfaces: [{ url: `${base}/`, protocolBinding: "JSONRPC", tenant: "", protocolVersion: A2A_PROTOCOL_VERSION }],
     provider: { organization: m.real ? "Serve" : "Serve demo club (simulated members)", url: `${process.env.A2A_BASE || ""}/a2a/agents` },
     version: "1.0.0",
-    // serve.likely, declared as an A2A extension (a member who opted out declares none and has no such skill)
-    capabilities: { streaming: false, pushNotifications: false, extensions: m.shares?.likely === false ? [] : [likely.extension(process.env.A2A_BASE || "http://127.0.0.1:8790", m)], extendedAgentCard: false },
+    // the proposal and the hold, as required A2A extensions (ext.js); serve.likely as an optional one (a member who opted
+    // out declares it not and has no such skill)
+    capabilities: { streaming: false, pushNotifications: false, extensions: [...ext.declare(BASE()), ...(m.shares?.likely === false ? [] : [likely.extension(BASE(), m)])], extendedAgentCard: false },
     // (in the A2A JSON form a client reads: the SDK serves the card as it is given)
     ...(required() || peer.on() ? {
       securitySchemes: { ...(required() ? { bearer: { httpAuthSecurityScheme: { description: "The gateway's token (AGENT_TOKEN), as Authorization: Bearer <token>.", scheme: "Bearer", bearerFormat: "" } } } : {}),
@@ -247,7 +256,7 @@ export function cardFor(base, m, club) {
 
 // Signed Agent Cards (A2A v1.0, spec 8.4: a JWS over the card in JCS form, the SDK's generateAgentCardSignature). The
 // gateway keeps one Ed25519 key (A2A_DATA/card-key.pem, made when there is none) and publishes its public half at
-// /a2a/keys.json. Your agent checks a member's card against the key published at the card's own address, and that the
+// /a2a/keys.json, which the protected header names (jku, next to kid). Your agent checks a member's card against the key published at the card's own address, and that the
 // card names that same address for its messages, before it talks to that agent (a2a_client.js). That shows whoever
 // answers at the address endorsed the card; over plain HTTP someone on the path could replace both, so for agents on
 // other servers it is worth as much as their TLS.
@@ -257,12 +266,14 @@ let keyState = null;
 function cardKey() {
   if (keyState) return keyState;
   const { key, jwk, kid } = peer.ownKey(DATA);
-  keyState = { kid, jwk, sign: generateAgentCardSignature(key, { alg: "EdDSA", kid, typ: "JOSE" }) };
+  keyState = { kid, jwk, key };
   return keyState;
 }
+export const keysUrl = () => `${BASE()}/a2a/keys.json`;
 // (the key set also carries the statements that lead to the key from the ones before it: peer.js rotateOwnKey)
 export const jwks = () => { cardKey(); return peer.keySet(DATA); };
-export const signCard = (card) => cardKey().sign(card);
+// (the jku is this gateway's base as the cards name it, so it is read at each signing)
+export const signCard = (card) => { const { key, kid } = cardKey(); return generateAgentCardSignature(key, { alg: "EdDSA", kid, typ: "JOSE", jku: keysUrl() })(card); };
 
 // one SDK request handler (and router) per member's agent, made the first time it is called (its card signed once)
 const routers = new Map();
@@ -270,7 +281,7 @@ function routerFor(m) {
   // (a card says what the member shares: a new choice is a new card)
   const k = `${m.id}|${m.shares?.likely !== false}|${!!m.shares?.exact}|${peer.on()}`;
   if (!routers.has(k)) routers.set(k, (async () => {
-    const base = `${process.env.A2A_BASE || "http://127.0.0.1:8790"}/a2a/members/${m.id}`;
+    const base = `${BASE()}/a2a/members/${m.id}`;
     const handler = new DefaultRequestHandler(await signCard(cardFor(base, m, readClub())), new AgentTaskStore(store, m.id), new MemberExecutor(m));
     const r = express.Router();
     r.use(`/${AGENT_CARD_PATH}`, agentCardHandler({ agentCardProvider: handler }));
@@ -285,6 +296,7 @@ const app = express();
 app.get("/a2a/keys.json", (req, res) => { try { res.json(jwks()); } catch (e) { res.status(500).json({ error: "no signing key" }); } });
 // what serve.likely is and what its bands mean (the extension's URI in each card)
 app.get(likely.EXT_PATH, (req, res) => res.json(likely.describe()));
+for (const p of ext.REQUIRED_PATHS) app.get(p, (req, res) => res.json(ext.describe(p)));
 // this club's card for the federation (peer.js discover): its name, the members other clubs may ask (the demo club's,
 // made up; never a real player), a public profile each, and where its keys are
 export const clubSlug = () => (process.env.A2A_CLUB_NAME || readClub().name || "club").replace(/[^A-Za-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32) || "club";

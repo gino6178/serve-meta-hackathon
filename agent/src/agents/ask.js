@@ -7,6 +7,10 @@
 //   Another time: the next opening. Not this week: quiet until Monday.
 // Every time, name and number in the ask comes from code; Muse Glimmer only words it, and its sentence is checked like
 // every other (numbers from the facts, the time as written, first names, no he or she).
+// The daily ask is capped: at most ASK_WEEK_CAP (3) a week per player, and a further one that week is not made. A trial
+// can withhold it: with ASK_TRIAL_P above 0, each daily ask point is in the "withhold" arm with that chance, by a hash
+// of (player, day), so the same day always gets the same arm. Each point is logged in the asks store (db.trial: the
+// arm, whether it asked, the answer within 24 h; ids and times only, no text) for test/ask_trial_analysis.mjs.
 import * as guard from "../safety/guard.js";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -29,6 +33,7 @@ import { privateFor } from "../safety/privacy.js";
 const { windows, ymd, hm, toMin, dateOf, readVenues, DAYS } = helpers;
 const FILE = path.resolve(process.env.ASK_FILE || "data/asks.json");
 let db = readJSON(FILE, { asks: {}, snooze: {} });
+db.trial ||= [];
 const save = () => writeJSON(FILE, db);
 const DAY = 24 * 36e5;
 // a talk cut off by a restart is picked up only if it stopped less than RESUME_MAX_MIN minutes ago (30) and its time
@@ -41,6 +46,19 @@ const freeAt = (free, day, start, minutes) => windows(free).some((w) => DAYS[w.d
 const expect = (a, b) => 1 / (1 + 10 ** ((b - a) / 400));
 const monday = (now) => { const d = new Date(now); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; };
 const names = (ps) => ps.map((p) => first(p.name)).join(ps.length > 2 ? ", " : " and ").replace(/, ([^,]+)$/, " and $1");
+
+// the cap and the trial (read at each ask, so a change needs no restart)
+const WEEK_CAP = () => { const n = +(process.env.ASK_WEEK_CAP ?? 3); return Number.isFinite(n) ? n : 3; };
+const TRIAL_P = () => { const p = +(process.env.ASK_TRIAL_P || 0); return Number.isFinite(p) ? Math.min(1, Math.max(0, p)) : 0; };
+const TRIAL_KEEP = 5000;
+// the arm of a daily ask point: "withhold" with chance p, from a hash of (player, day) alone, so it is the same every
+// time it is worked out (after a restart too) and independent of anything else the ask looks at
+const unit = (s) => parseInt(crypto.createHash("sha256").update(s).digest("hex").slice(0, 8), 16) / 2 ** 32;
+export const armOf = (who, day, p = TRIAL_P()) => (p > 0 && unit(`ask-trial|${who}|${day}`) < p ? "withhold" : "ask");
+// the daily asks this player got this week (Monday on)
+export const askedThisWeek = (who, now = new Date()) => { const t0 = monday(now).getTime(); return db.trial.filter((x) => x.who === who && x.asked && x.at >= t0).length; };
+export const trialLog = () => db.trial;
+const logPoint = (row) => { db.trial.push(row); if (db.trial.length > TRIAL_KEEP) db.trial = db.trial.slice(-TRIAL_KEEP); };
 
 // the next opening: a habitual time in the next `ahead` days that is still open, the best people free then, a court
 // bands: { "date start": { memberId: band } } from the members' agents (match/rank.js bandsFor): a band goes before fit
@@ -127,23 +145,35 @@ async function word(o) {
 }
 
 // ask `who` (a Messenger id, or "app"): the opening and its words, kept until answered
-export const ask = (args = {}) => span("invoke_agent match", { ...agentAttrs("match"), "serve.ahead_days": args.ahead ?? 3 }, async (s) => { const r = await askNow(args); s.setAttributes({ "serve.asked": !!r.id }); return r; });
-async function askNow({ who = "app", history = [], upcoming = [], body = null, skip = [], ahead = 3, now = new Date() } = {}) {
+// daily: the once-a-day ask nobody requested (server.js askTick), which the weekly cap and the trial apply to; an ask
+// the player asked for (/game, Another time) is neither capped nor withheld
+export const ask = (args = {}) => span("invoke_agent match", { ...agentAttrs("match"), "serve.ahead_days": args.ahead ?? 3 }, async (s) => { const r = await askNow(args); s.setAttributes({ "serve.asked": !!r.id, ...(r.capped ? { "serve.capped": true } : {}), ...(r.arm ? { "serve.trial.arm": r.arm } : {}) }); return r; });
+async function askNow({ who = "app", history = [], upcoming = [], body = null, skip = [], ahead = 3, now = new Date(), daily = false } = {}) {
   if (db.snooze[who] && db.snooze[who] > ymd(now)) return { none: `you said not this week; I'll look again on ${LONG[DAYS[dateOf(db.snooze[who]).getDay()]]}`, snoozed: db.snooze[who] };
   // a question whose time the agents moved, still waiting for the player's book or drop, gives way to the new one
   for (const x of Object.values(db.asks)) if (x.who === who && x.status === "moved") { x.status = "replaced"; save(); await releaseHolds(x.agreed); }
   const priv = await privateFor(who);
   let o = opening({ history, upcoming, body, skip, now, ahead, priv, who });
   if (o.none) return o;
+  // a daily ask point: over the week's cap, none; otherwise its arm, logged whether it asks or not
+  let point = null;
+  if (daily) {
+    const had = askedThisWeek(who, now), cap = WEEK_CAP();
+    if (had >= cap) return { none: `I've asked you ${had} time${had > 1 ? "s" : ""} this week already`, capped: true };
+    const p = TRIAL_P(), arm = armOf(who, ymd(now), p);
+    point = { who, day: ymd(now), at: now.getTime(), p, arm, asked: arm === "ask", id: null, response: null, respondedAt: null };
+    if (arm === "withhold") { logPoint(point); save(); return { none: "not asking today", withheld: true, arm }; }
+  }
   // the people free then, ordered by their agents' bands (each agent answers from its own member's records)
   const bands = await bandsFor(o, { from: who === "app" ? "you" : who }).catch(() => null);
   if (bands) { const o2 = opening({ history, upcoming, body, skip, now, ahead, bands, priv, who }); if (!o2.none && o2.date === o.date && o2.start === o.start) o = o2; }
   const w = await word(o), id = `gm-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
-  db.asks[id] = { id, who, at: Date.now(), status: "asked", opening: o, text: w.text, by: w.by, input: { history, upcoming, body, skip, ahead } };
+  db.asks[id] = { id, who, at: Date.now(), status: "asked", opening: o, text: w.text, by: w.by, input: { history, upcoming, body, skip, ahead }, ...(point ? { daily: true } : {}) };
+  if (point) logPoint({ ...point, id });
   // keep the last 40
   for (const k of Object.keys(db.asks).sort((a, b) => db.asks[a].at - db.asks[b].at).slice(0, -40)) delete db.asks[k];
   save();
-  return { id, text: w.text, by: w.by, opening: o };
+  return { id, text: w.text, by: w.by, opening: o, ...(point ? { arm: point.arm } : {}) };
 }
 // "I want to play" (match/flow.js): the agents of the people likeliest to say yes are asked first, and the game they
 // agree waits for the player's yes, as a question whose time the agents set (status "moved": Book it / Drop it)
@@ -196,7 +226,7 @@ async function resumeSearch(a, deliver) {
 }
 export const get = (id) => db.asks[id] || null;
 export const open = (who) => Object.values(db.asks).filter((a) => a.who === who && ["asked", "moved"].includes(a.status)).sort((a, b) => b.at - a.at)[0] || null;
-export function forget(who) { for (const [k, a] of Object.entries(db.asks)) if (a.who === who) delete db.asks[k]; delete db.snooze[who]; save(); }
+export function forget(who) { for (const [k, a] of Object.entries(db.asks)) if (a.who === who) delete db.asks[k]; delete db.snooze[who]; db.trial = db.trial.filter((x) => x.who !== who); save(); }
 
 // the player's answer. yes -> the Talk helper agrees it with the other agents; book / drop -> after the agents moved it;
 // other -> the next opening; week -> quiet until Monday. say, tell and work hear the agents' messages and the steps.
@@ -205,6 +235,8 @@ export async function answer(id, choice, { say = () => {}, tell = () => {}, work
   if (!a) return { error: "I don't have that question any more." };
   // the player's own yes or no to their agent's suggestion, for their own records (match/records.js)
   if ((a.status === "asked" && ["yes", "other", "week"].includes(choice)) || (a.status === "moved" && ["book", "drop"].includes(choice))) noteOwn(a.who, choice === "yes" || choice === "book", "ask");
+  // the trial's response: the first answer to a daily ask, if it came within 24 hours
+  if (a.status === "asked" && ["yes", "other", "week"].includes(choice)) { const row = db.trial.find((x) => x.id === id); if (row && row.response == null && now.getTime() - row.at <= DAY) { row.response = choice; row.respondedAt = now.getTime(); } }
   if (choice === "week") {
     const next = new Date(monday(now).getTime() + 7 * 864e5);
     if (a.status === "moved") await releaseHolds(a.agreed);
