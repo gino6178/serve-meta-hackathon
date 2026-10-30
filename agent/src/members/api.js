@@ -148,6 +148,13 @@ async function channel(req, res, p, send) {
     const sub = p.replace("/api/agent-channel", "");
     if (["/huddle/reply", "/huddle/game"].includes(sub) && b.yes === true) { const ok = H.mayAgentSayYes(owner, sub === "/huddle/reply" ? { huddle: String(b.id || "") } : { post: String(b.post || "") }); if (ok.error) return send(403, ok); }
     if (["/huddle/delegate", "/huddle/open", "/huddle/home"].includes(sub)) return send(403, { error: "Only your person changes this, with their own session: it is their permission, not yours." });
+    // over the channel limits only get tighter: loosening them is the person's call
+    if (sub === "/huddle/limits" && req.method === "POST") {
+      const t = T.get(owner), mins = (ws) => (ws || []).reduce((n, w) => n + w.days.length * ((+w.to.slice(0, 2) * 60 + +w.to.slice(3)) - (+w.from.slice(0, 2) * 60 + +w.from.slice(3))), 0);
+      const looser = (b.maxKm != null && t.limitKm != null && +b.maxKm > t.limitKm) || (b.maxEach != null && t.limitEach != null && +b.maxEach > t.limitEach)
+        || (b.maxKm === null && t.limitKm != null) || (b.maxEach === null && t.limitEach != null) || (Array.isArray(b.windows) && t.windows?.length && (!b.windows.length || mins(b.windows) > mins(t.windows)));
+      if (looser) return send(403, { error: "Over the agent channel limits can only get tighter; loosening them needs your person's session.", needs: "person" });
+    }
     // a game the agent starts keeps the person's rule about new people
     if (sub === "/huddle/start" && req.method === "POST") { const d = T.get(owner).delegate; if (d?.on && !d.newPeople) b = { ...b, gate: { minShow: Math.max(0.6, +b.gate?.minShow || 0), newOk: false, agentMin: b.gate?.agentMin } }; }
     const fake = { method: req.method, url: sub, headers: req.headers, on: () => {} };
@@ -199,7 +206,8 @@ async function huddle(req, res, p, q, me, send, given = null) {
     const t = T.get(me), sport = String(b.sport || t.sports[0] || "badminton").toLowerCase();
     if (!t.home) return send(400, { error: "Share your rough area first." });
     const x = (await D.placesNear(t.home, sport, { venues: 4, courts: 4 })).find((y) => y.id === b.place);
-    if (!x || x.kind !== "venue") return send(404, { error: "That venue isn't near you." });
+    if (x && x.kind !== "venue") return send(400, { error: "That's a public court: it's free, so there's no price to ask. Its quiet hours are in GET /api/huddle/places." });
+    if (!x) return send(404, { error: "That venue isn't among the courts near you (GET /api/huddle/places lists them)." });
     if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(b.start)) return send(400, { error: "Say the date and the time (HH:MM)." });
     { const [y, mo, d] = b.date.split("-").map(Number), [hh, mm] = b.start.split(":").map(Number), t = new Date(y, mo - 1, d, hh, mm).getTime(); if (!(t > Date.now() && t < Date.now() + 30 * 864e5)) return send(400, { error: "Pick a time in the next 30 days." }); if (hh < 6 || hh * 60 + mm + 90 > 22 * 60) return send(400, { error: "Venues here open 06:00 to 22:00; pick a 90-minute game inside that." }); }
     return send(200, { deal: D.talk(x, { date: b.date, start: b.start, players: Math.min(12, Math.max(2, +b.players || 4)), weekly: !!b.weekly, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }), currency: D.CURRENCY });

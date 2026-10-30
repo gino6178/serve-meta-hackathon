@@ -45,7 +45,7 @@ export function privacyTxt(req) {
 - Where you play from: a rough area rounded to about 1 km (2 decimals of latitude and longitude), never an address. Other members never see it; their agents learn only your trip in km to a court you'd both go to.
 - How you like to play: four weights (time, distance, price, quiet court), the times of the week that suit you, your limits, your answers. Only your agent uses them; in a negotiation other agents see yes, no and a one-word reason.
 - Trust: two records worked out from a public hash chain (${u}/api/trust/chain). On it you are an HMAC pseudonym under this server's secret; others see only "shows up N%" and "agent keeps N%" (or "new").
-- Games you post or join, your comments: shown to the club or the feed you posted them in.
+- Games you post or join, your comments: shown to the club or the feed you posted them in, with your name; agents also see member ids (needed to invite or answer), never your area or preferences.
 - No payment details: no money moves on Serve.
 - Leaving: POST /api/members/leave deletes your account, your posts and your agents; the chain gets a "left" entry and your records stop counting (the chain is never rewritten).
 `;
@@ -90,7 +90,7 @@ What is kept and who sees it: ${u}/privacy.txt
 - POST /api/huddle/start {"sport", "need", "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0|0.75|0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"}: the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
 - POST /api/huddle/reply {"id", "yes", "why"?}: one yes (or no: "busy"|"time"|"place"|"price"); answer within a day or the place goes to the next player
 - The same huddle routes work on the agent channel as /api/agent-channel/huddle/<name>, signed with your key. A yes there needs your person's delegation; each huddle shown to your person says whether you may answer it (agentMay).
-- Players per game: badminton, tennis, pickleball, table tennis, squash 2 or 4; basketball 6 (3 on 3) or 10; volleyball 8 to 12; soccer 10 to 22.
+- Usual players per game (2 to 12 are accepted, 16 for basketball and volleyball, 22 for soccer): badminton, tennis, pickleball, table tennis, squash 2 or 4; basketball 6 (3 on 3) or 10; volleyball 8 to 12; soccer 10 to 22.
 - A game you post: POST /api/feed/post {"invite": {"sport", "day": "YYYY-MM-DD", "start": "HH:MM", "where", "spots", "at"?: {lat, lon}, "each"?: price per person, "gate"?: {"minShow": 0..1}, "repeat"?: {"weekly": weeks up to 8}}}. The answer has shareUrl: anyone opens it and joins, no account needed first; a weekly game posts next week's when this one is past.
 
 ## Talking to the club's agents over A2A (the demo club; its members are simulated)
@@ -104,7 +104,8 @@ What is kept and who sees it: ${u}/privacy.txt
 - Trust: shows up (players tap who came), and kept yeses (your yes after your agent's yes). A game can wait-list people under its show-up rate; an agent that keeps under 80% of its yeses can't answer for its person.
 - Asking many people's agents in a day marks an agent a prober.
 - Once your key has worked, a replayed request or a signature that doesn't check out counts against your person's agent record for 30 days; mistakes while you get the signing right don't.
-- An answer you give for your person (a yes, a join) doesn't teach Serve their taste; only their own answers do.
+- Answering the quick two-game questions teaches Serve your person's taste: answer them from what your person told you. A yes or a join you give for them doesn't teach it (that is your guess, not their choice).
+- Over the agent channel you may tighten your person's limits (fewer times, shorter distance, lower price), not loosen them: that needs their session.
 - Venue prices are samples until a venue joins; nothing is paid here.
 `;
 }
@@ -155,7 +156,8 @@ export function openapi(req) {
   add("/api/feed/post", "post", op("A post or a game invite", { body: { text: S, invite: O, room: S } }));
   add("/api/feed/join", "post", op("Join a game, or leave it or its waitlist", { body: { post: S, on: B } }));
   add("/api/feed/notices", "get", op("Notices waiting for the member (taken once)"));
-  for (const [p, [m, o]] of Object.entries(HUDDLE)) { add(`/api${p}`, m, o); add(`/api/agent-channel${p}`, m, { ...o, security: [{ agentKey: [] }], summary: `${o.summary} (signed with the member's agent key)` }); }
+  const PERSON_ONLY = ["/huddle/home", "/huddle/open", "/huddle/delegate"];
+  for (const [p, [m, o]] of Object.entries(HUDDLE)) { add(`/api${p}`, m, o); if (!PERSON_ONLY.includes(p)) add(`/api/agent-channel${p}`, m, { ...o, security: [{ agentKey: [] }], summary: `${o.summary} (signed with the member's agent key${p === "/huddle/limits" ? "; tighten only" : ""})` }); }
   add("/api/agent-channel/feed", "get", op("The feed as the agent's member sees it", { auth: "agent" }));
   add("/api/agent-channel/post", "post", op("A post or invite, as the member's agent", { auth: "agent", body: { text: S, invite: O } }));
   add("/api/agent-channel/comment", "post", op("A comment, as the member's agent", { auth: "agent", body: { post: S, text: S } }));

@@ -60,19 +60,21 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   if (fill) {
     const v = fill.invite, open = v.spots - v.going.length;
     if (open < 1) return { error: "That game is already full.", code: 409 };
-    b = { ...b, sport: v.sport, need: open + 1, club: b.club ?? fill.room ?? undefined, pin: { date: /^\d{4}-/.test(v.day) ? v.day : null, start: v.start, place: null }, gate: b.gate || v.gate };
-    if (!b.pin.date) return { error: "Give the game a date first (YYYY-MM-DD).", code: 400 };
+    const at0 = P.startOf(v), date = /^\d{4}-/.test(v.day) ? v.day : at0 ? T.ymd(new Date(at0)) : null;
+    b = { ...b, sport: v.sport, need: open + 1, club: b.club ?? fill.room ?? undefined, pin: { date, start: v.start, place: null }, gate: b.gate || v.gate };
+    if (!date) return { error: "That game has no day the agents can read.", code: 400 };
   }
   const sport = String(b.sport || "badminton").toLowerCase(), need = Math.round(+b.need || 4);
+  { const t0 = T.get(me); if (SPORTS.includes(sport) && !t0.sports.includes(sport) && t0.sports.length < 4) T.setSports(me, [...t0.sports, sport]); }
   if (!SPORTS.includes(sport)) return { error: `The sport must be one of: ${SPORTS.join(", ")}.`, code: 400 };
-  const most = sport === "soccer" ? 22 : 12;
+  const most = sport === "soccer" ? 22 : ["basketball", "volleyball"].includes(sport) ? 16 : 12;
   if (!(need >= 2 && need <= most)) return { error: `Between 2 and ${most} players for ${sport}. Usual: racket sports 2 or 4, basketball 6 or 10, volleyball 8 to 12, soccer 10 to 22.`, code: 400 };
   // F7/F8: a day's worth of starting games, and a pause on asking strangers for an agent marked a prober
   const day = data().huddles.filter((h) => h.host === me && Date.now() - h.created < 24 * 3600e3).length;
   if (day >= 8) return { error: "Eight games started in a day is the most: let some of them settle.", code: 429 };
   if (b.nearby && Tr.badge(me).agent.probe) return { error: "Your agent asked many people's agents today, so asking people nearby pauses until tomorrow. Your clubs still work.", code: 429 };
-  const mine = C.mine(me), club = b.club ? mine.find((c) => c.id === b.club) : null;
-  if (b.club && !club) return { error: "You're not in that club.", code: 403 };
+  const mine = C.mine(me), club = b.club ? mine.find((c) => c.id === b.club || c.name.toLowerCase() === String(b.club).toLowerCase()) : null;
+  if (b.club && !club) return { error: `You're not in a club "${String(b.club).slice(0, 40)}". Your clubs: ${mine.map((c) => `${c.name} (${c.id})`).join(", ") || "none yet"}.`, code: 403 };
   const can = new Set(mine.flatMap((c) => c.members.map((m) => m.id)));
   let invited = club ? club.members.map((m) => m.id) : (Array.isArray(b.invite) ? b.invite.map(String) : []);
   invited = [...new Set(invited.filter((id) => id !== me && can.has(id)))];
@@ -87,11 +89,12 @@ export function start(me, b = {}, { now = new Date(), wait = false } = {}) {
   const pin = b.pin && /^\d{4}-\d{2}-\d{2}$/.test(b.pin.date) && /^\d{2}:\d{2}$/.test(b.pin.start) ? { date: b.pin.date, start: b.pin.start, place: b.pin.place ? String(b.pin.place) : null } : null;
   if (pin) { const hn = T.hardNo(T.get(me), { date: pin.date, start: pin.start, km: null, each: 0 }); if (hn === "time" || hn === "busy") return { error: `${when(pin)} is outside the times you set (or you're busy then). Change your limits, or pick another time.`, code: 400 }; }
   const h = { id: `h-${crypto.randomUUID().slice(0, 8)}`, host: me, sport, need, club: club?.id || null, clubName: club?.name || null, invited, created: Date.now(), status: "talking",
-    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat, lon: fill.invite.at?.lon, kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}) };
+    talk: [], answers: { [me]: "yes" }, players: [], tries: 0, excluded: [], out: [], nearby: near, ...(fill ? { fill: fill.id, fillPlace: { id: `post:${fill.id}`, name: fill.invite.where, lat: fill.invite.at?.lat ?? (fill.room ? C.find(fill.room)?.at?.lat : undefined), lon: fill.invite.at?.lon ?? (fill.room ? C.find(fill.room)?.at?.lon : undefined), kind: (fill.invite.each ?? 0) > 0 ? "venue" : "public", sport: fill.invite.sport, ...((fill.invite.each ?? 0) > 0 ? { list: Math.round(fill.invite.each * 4 / 1.5), sample: true } : {}) } } : {}), gate: Tr.gateOf(b.gate || {}), ...(pin ? { pin } : {}), ...(whenOf(b.when) ? { when: whenOf(b.when) } : {}), hostYes: b.hostYes === true && !!pin };
   data().huddles.push(h); save();
   Tr.asked(me, near.length); // asking everyone nearby, again and again, is what a prober does (your clubs are fine)
   const job = run(h, now).catch((e) => { h.status = "stuck"; line(h, "agent", `Something went wrong while the agents talked (${e.message}).`); save(); });
-  const note = b.nearby && !near.length ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet, so only your club${club ? "" : "s"} were asked.` : null;
+  const self = Tr.check(me, h.gate), gateNote = self.verdict === "waitlist" ? `Your own record (${Tr.showText(self.badge)}) is under this gate: others' games with it would wait-list you.` : null;
+  const note = [b.nearby && !near.length ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet, so only your club${club ? "" : "s"} were asked.` : null, gateNote].filter(Boolean).join(" ") || null;
   return wait ? job.then(() => ({ huddle: view(h, me), ...(note ? { note } : {}) })) : { huddle: view(h, me), ...(note ? { note } : {}) };
 }
 // when the host wants to play: some days (YYYY-MM-DD or Mon..Sun) and parts of the day (early, morning, afternoon, evening)
@@ -115,13 +118,18 @@ async function run(h, now = new Date()) {
   const homes = everyone.map((id) => taste[id].home).filter(Boolean), club = h.club ? C.find(h.club) : null;
   const center = homes.length ? { lat: homes.reduce((s, p) => s + p.lat, 0) / homes.length, lon: homes.reduce((s, p) => s + p.lon, 0) / homes.length } : club?.at || null;
   const hostName = first(host);
-  if (h.tries === 0) line(h, "host", `${h.need} for ${h.sport} in the next seven days. I'll ask ${h.invited.length} people's agents${h.nearby?.length ? `, ${h.nearby.length} of them people nearby who are open to being asked` : ""}. Nobody shares a calendar or an address: only yes, no, and why.`, { who: hostName });
+  const asked = [h.pin ? `at ${when(h.pin)}` : h.when ? `on ${[h.when.days.length ? h.when.days.join("/") : "", h.when.parts.length ? h.when.parts.join("/") : ""].filter(Boolean).join(", ")}` : "in the next seven days", h.gate?.minShow ? `people who show up ${Math.round(h.gate.minShow * 100)}%+` : ""].filter(Boolean).join(", ");
+  if (h.tries === 0) line(h, "host", `${h.need} for ${h.sport} ${asked}. I'll ask ${h.invited.length} people's agents${h.nearby?.length ? `, ${h.nearby.length} of them people nearby who are open to being asked` : ""}. Nobody shares a calendar or an address: only yes, no, and why.`, { who: hostName });
   if (!center) { h.status = "stuck"; line(h, "host", "Nobody in the group has shared their rough area yet, so I can't look for courts. Share yours on the Huddle page and ask again.", { who: hostName }); return save(); }
   // the courts found the first time are kept: a re-plan without someone moves the middle a little, and must not lose them
   let places = h.places?.length ? h.places : await D.placesNear(center, h.sport);
+  if (h.status === "cancelled") return; // called off while the map was being read
+  if (!h.places?.length && taste[host].home && T.km(taste[host].home, center) > 1.5) { const near = await D.placesNear(taste[host].home, h.sport); places = [...places, ...near.filter((p) => !places.some((q) => q.id === p.id))]; }
   if (places.length && !h.places?.length) h.places = places.map(({ id, name, lat, lon, kind, sport, list, sample }) => ({ id, name, lat, lon, kind, sport, ...(list ? { list, sample } : {}) }));
   let pinned = h.fillPlace?.lat != null ? h.fillPlace : h.pin?.place ? places.find((p) => p.id === h.pin.place) : null;
   if (h.pin?.place && !pinned) pinned = (await D.placesNear(taste[host].home || center, h.sport, { venues: 4, courts: 4 })).find((p) => p.id === h.pin.place) || null;
+  if (h.pin?.place && !pinned) { h.status = "stuck"; line(h, "host", "I can't find the court you picked near the group. Pick it again from Courts & prices, or leave the court to the agents.", { who: hostName }); return save(); }
+  if (h.status === "cancelled") return;
   if (pinned) places = [pinned];
   else {
     // badminton, table tennis and squash are indoor games: an outdoor court only when there is no hall nearby
@@ -159,6 +167,7 @@ async function run(h, now = new Date()) {
         if (!h.pin && (!opensFor(place, start) || !inWhen(h.when, date, start))) continue;
         const o = { date, start, place, busy: D.busy(place, date, start, games), each: D.guessEach(place, date, start, h.need) };
         if (startMs(o) - now.getTime() < 3 * 3600e3 || h.excluded.some((x) => matches(x, o)) || hostBusy.some((x) => Math.abs(x - startMs(o)) < 3 * 3600e3)) continue;
+        if (T.hardNo(taste[host], { date, start, km: taste[host].home ? +T.km(taste[host].home, place).toFixed(1) : null, each: o.each })) continue; // the host's own limits
         opts.push(o);
       }
     }
@@ -225,12 +234,20 @@ async function run(h, now = new Date()) {
     deal = D.talk(o.place, { date: o.date, start: o.start, players: h.need, minutes: MINUTES, push: Math.min(1, push * 2.5), games, group: hostName });
     for (const l of deal.lines) line(h, l.from.endsWith(`${hostName}'s agent`) ? "host" : "venue", l.text, { who: l.from.replace(/'s agent$/, ""), venue: l.from.startsWith(o.place.name) });
   }
+  if (h.status === "cancelled") return;
+  const over = deal.each && agreed.players.find((id) => taste[id].limitEach != null && deal.each > taste[id].limitEach);
+  if (over && (h.priceTries || 0) < 2) {
+    h.priceTries = (h.priceTries || 0) + 1; h.excluded.push({ place: o.place.id });
+    line(h, "host", `${D.CURRENCY}${deal.each} each is over the limit ${first(over)} set, even after asking the venue. Looking at other courts.`, { who: hostName });
+    save();
+    return run(h, now);
+  }
   h.pick = { date: o.date, start: o.start, minutes: MINUTES, where: o.place.name, place: o.place.id, kind: o.place.kind, at: { lat: o.place.lat, lon: o.place.lon }, busy: +o.busy.toFixed(2),
     each: deal.each || 0, price: deal.price || 0, list: deal.list || 0, off: deal.off || 0, sample: !!deal.sample, km: Object.fromEntries(agreed.players.map((id) => [id, knownKm(id, o.place)])) };
   // the host is a yes only when the time suits them too; otherwise they are asked like everyone else
-  const hostOk = T.timeFit(taste[host], T.cellOf(o.date, o.start)) >= 0.4 && U[host][agreed.k] >= 0.45;
+  const hostOk = !!h.hostYes && T.timeFit(taste[host], T.cellOf(o.date, o.start)) >= 0.4 && U[host][agreed.k] >= 0.45;
   h.players = agreed.players; h.direct = extra; h.answers = hostOk ? { [host]: "yes" } : {}; h.status = "asking"; h.askedAt = now.getTime();
-  if (!hostOk) { line(h, "host", `It isn't one of ${hostName}'s usual times, so ${hostName} is asked too.`, { who: hostName }); P.notify(host, "huddle", `The agents agreed ${h.sport} ${when(o)} at ${o.place.name}, not one of your usual times. Yes?`, { huddle: h.id }); }
+  if (!hostOk) { line(h, "host", h.hostYes ? `It isn't one of ${hostName}'s usual times, so ${hostName} is asked too.` : `${hostName} says yes too, like everyone else.`, { who: hostName }); P.notify(host, "huddle", `The agents agreed ${h.sport} ${when(o)} at ${o.place.name}, not one of your usual times. Yes?`, { huddle: h.id }); }
   h.askedOf = Object.fromEntries(agreed.players.map((id) => [id, now.getTime()]));
   line(h, "host", `Agreed: ${when(o)} at ${o.place.name}${deal.each ? `, ${D.CURRENCY}${deal.each} each` : ", a free court"}. Asking ${names(agreed.players.filter((id) => id !== host).map(first))} for one yes.`, { who: hostName, agreed: true });
   for (const id of agreed.players) if (id !== host) P.notify(id, "huddle", `Your agent and ${hostName}'s agreed ${h.sport} ${when(o)} at ${o.place.name}. One yes from you?`, { huddle: h.id });
@@ -395,7 +412,7 @@ export function gamesFor(me, { now = new Date(), n = 3 } = {}) {
     const at0 = startMs({ date, start: g.invite.start });
     if (mine.some((x) => Math.abs(x - at0) < 3 * 3600e3)) return null;
     return { post: g.id, agentMay: mayAgentSayYes(me, { post: g.id }), host: g.host, hostTrust: trustOf(g.hostId), gate: g.invite.gate || null, sport: g.invite.sport, date, start: g.invite.start, when: when(gm), where: g.invite.where, left: g.invite.spots - g.invite.going, km: at && t.home ? k : null, each: gm.each, score: +T.worth(t, { ...gm, each: gm.each ?? 0 }).toFixed(2), why: reasons(t, gm), club: g.room ? C.find(g.room)?.name || null : null };
-  }).filter(Boolean).filter((g) => !t.sports.length || t.sports.includes(g.sport)).sort((a, b) => b.score - a.score).slice(0, n);
+  }).filter(Boolean).filter((g) => (t.sports.length ? t.sports : [...new Set(C.mine(me).map((c) => c.sport))]).includes(g.sport) || (!t.sports.length && !C.mine(me).length)).sort((a, b) => b.score - a.score).slice(0, n);
 }
 // the cheapest quiet hour near the member at a time that suits them, with what the venue's agent would take
 export async function dealFor(me, { now = new Date() } = {}) {
@@ -443,6 +460,7 @@ export function nudge(me, { now = new Date() } = {}) {
   if (now.getTime() - n.at < 6 * 3600e3) return { nudge: null };
   const t = T.get(me);
   if (!t.home && !t.answers.length) return { nudge: null };
+  if (!t.sports.length && !C.mine(me).length) return { nudge: null }; // nothing to go on yet: no toast about a sport they may not play
   const g = gamesFor(me, { now, n: 5 }).find((x) => !n.seen.includes(x.post) && x.score >= 0.55);
   if (!g) return { nudge: null };
   data().nudged[me] = { at: now.getTime(), seen: [...n.seen, g.post].slice(-50) }; save();

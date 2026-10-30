@@ -106,10 +106,12 @@ const WHEN = {
   ...Object.fromEntries([0, 1, 2, 3, 4, 5, 6].map((i) => { const d = ymdIn(i), dn = DAYNAMES[new Date(d + "T12:00").getDay()]; return [`day${i}`, { label: i === 0 ? "Today" : i === 1 ? `Tomorrow (${dn})` : `${dn} ${d.slice(8)}`, v: { days: [d] } }]; })),
 };
 function whenFromText(t) {
-  if (/weekend|週末|周末/i.test(t)) return "weekend";
-  if (/morning|早上/i.test(t)) return "mornings";
-  if (/evening|tonight|晚上/i.test(t)) return /today|tonight|今天/i.test(t) ? "day0" : "evenings";
-  const d = DAYNAMES.findIndex((n) => new RegExp(`\\b${n}`, "i").test(t)); if (d >= 0) { for (let i = 0; i < 7; i++) if (new Date(ymdIn(i) + "T12:00").getDay() === d) return `day${i}`; }
+  const part = /morning|早上/i.test(t) ? ["early", "morning"] : /afternoon|下午/i.test(t) ? ["afternoon"] : /evening|tonight|night|晚上/i.test(t) ? ["evening"] : null;
+  const d = DAYNAMES.findIndex((n) => new RegExp(`\\b${n}`, "i").test(t));
+  if (d >= 0) for (let i = 0; i < 7; i++) { const ymd = ymdIn(i); if (new Date(ymd + "T12:00").getDay() === d) { WHEN.said = { label: `${DAYNAMES[d]} ${ymd.slice(8)}${part ? `, ${part.at(-1)}` : ""} (as you said)`, v: { days: [ymd], ...(part ? { parts: part } : {}) } }; return "said"; } }
+  if (/today|tonight|今天/i.test(t)) { WHEN.said = { label: `Today${part ? `, ${part.at(-1)}` : ""} (as you said)`, v: { days: [ymdIn(0)], ...(part ? { parts: part } : {}) } }; return "said"; }
+  if (/weekend|週末|周末/i.test(t)) { if (part) { WHEN.said = { label: `This weekend, ${part.at(-1)} (as you said)`, v: { days: ["Sat", "Sun"], parts: part } }; return "said"; } return "weekend"; }
+  if (part) return part[0] === "evening" ? "evenings" : part[0] === "afternoon" ? "any" : "mornings";
   return "any";
 }
 const STATUS = { talking: "Agents talking", asking: "Agreed, asking", on: "Game on", stuck: "No time found", cancelled: "Called off" };
@@ -119,14 +121,14 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
   const [who, setWho] = useState(club0 ? `club:${club0.id}` : "pick"), [picked, setPicked] = useState([]);
   const [sport, setSport] = useState(sport0 || club0?.sport || me.taste.sports[0] || "badminton"), [need, setNeed] = useState(4);
   const [busy, setBusy] = useState(false), [err, setErr] = useState("");
-  const [nearby, setNearby] = useState(!me.clubs.length), [minShow, setMinShow] = useState(0), [agentMin, setAgentMin] = useState(true);
+  const [nearby, setNearby] = useState(!me.clubs.length || (club0?.members ?? 0) < 4), [minShow, setMinShow] = useState(0), [agentMin, setAgentMin] = useState(true);
   const [whenK, setWhenK] = useState(() => whenFromText(params().get("say") || "")), fill = params().get("fill");
   if (!me.clubs.length && !me.taste.home) return (
     <div className="panel hd-empty"><b>Your agent gets games with people in your clubs, and with people nearby who are open to it.</b><p>Join a club near you, or share your rough area, then come back: the agents will find who fits and when.</p><a className="btn primary sm" href="#/club">Find a club</a></div>
   );
   const go = async (e) => {
     e.preventDefault(); setBusy(true); setErr("");
-    try { const r = await H.start({ sport, need, ...(who.startsWith("club:") ? { club: who.slice(5) } : who === "pick" ? { invite: picked } : {}), nearby, gate: { minShow, agentMin: agentMin ? 0.8 : 0 }, ...(pin ? { pin } : {}), ...(fill ? { fill } : !pin && WHEN[whenK]?.v ? { when: WHEN[whenK].v } : {}) }); onStarted(r.huddle); } catch (x) { setErr(x.message); }
+    try { const r = await H.start({ sport, need, ...(who.startsWith("club:") ? { club: who.slice(5) } : who === "pick" ? { invite: picked } : {}), nearby, gate: { minShow, agentMin: agentMin ? 0.8 : 0 }, ...(pin ? { pin, hostYes: true } : {}), ...(fill ? { fill } : !pin && WHEN[whenK]?.v ? { when: WHEN[whenK].v } : {}) }); onStarted(r.huddle); } catch (x) { setErr(x.message); }
     setBusy(false);
   };
   return (
@@ -140,6 +142,7 @@ function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
         </label>
       </div>
       {fill && <p className="hd-pin"><Icon name="spark" size={16} />Filling the open spots of the game you posted: its time and place stay.</p>}
+      {params().get("say") && <p className="hd-said">You asked your agent: “{params().get("say")}”</p>}
       {!pin && !fill && <label className="hd-when">When
         <select value={whenK} onChange={(e) => setWhenK(e.target.value)}>{Object.entries(WHEN).map(([k, w]) => <option key={k} value={k}>{w.label}</option>)}</select>
       </label>}
@@ -208,11 +211,11 @@ function HuddleView({ id, onBack }) {
           {pk.sample && <p className="hd-fine">The venue hasn't joined Serve yet: its list price is a sample, and nothing is paid here.</p>}
           <ul className="hd-players">{h.players.map((x, i) => <li key={i} className={x.answer === "yes" ? "yes" : ""}>{x.answer === "yes" ? <Icon name="check" size={14} /> : <i className="hd-wait" />}<span>{x.name}{x.host ? " (asked)" : x.direct ? " (asked directly)" : ""}</span>{x.name !== "You" && <TrustBadge t={x.trust} compact />}</li>)}</ul>
           {h.waitlist?.length > 0 && <p className="hd-fine">Waitlist: {h.waitlist.join(", ")}.</p>}
-          {h.status === "asking" && !h.ask && h.waiting?.length > 0 && <p className="hd-fine">Waiting for {h.waiting.join(", ")}{h.due ? `: they have until ${new Date(h.due).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" })}, then the next player gets the spot` : ""}.</p>}
+          {h.status === "asking" && !h.ask && h.waiting?.length > 0 && <p className="hd-fine">Waiting for {h.waiting.join(", ")}{h.due ? `: they have until ${new Date(h.due).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })}, then the next player gets the spot` : ""}.</p>}
           {h.ask && (
             <div className="hd-yes">
-              <p><b>Your agent said yes for you.</b> Is it a yes from you too?{h.due ? <span className="hd-fine"> Answer by {new Date(h.due).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" })}, or your place goes to the next player.</span> : null}</p>
-              <div className="cta-row"><button className="btn primary sm" disabled={busy} onClick={() => answer(true)}>Yes, I'm in</button><button className="btn ghost sm" disabled={busy} onClick={() => setWhy(!why)}>I can't</button></div>
+              <p><b>{h.mine ? "The agents found a time." : "Your agent said yes for you."}</b> Are you in?{h.due ? <span className="hd-fine"> Answer by {new Date(h.due).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })}, or your place goes to the next player.</span> : null}</p>
+              <div className="cta-row"><button className="btn primary" disabled={busy} onClick={() => answer(true)}>Yes, I'm in</button><button className="btn ghost sm" disabled={busy} onClick={() => setWhy(!why)}>I can't</button></div>
               {why && <div className="hd-why" role="group" aria-label="Why not">{WHY.map(([k, l]) => <button key={k} className="btn ghost sm" disabled={busy} onClick={() => answer(false, k)}>{l}</button>)}</div>}
             </div>
           )}
@@ -225,7 +228,6 @@ function HuddleView({ id, onBack }) {
           <li key={i} className={`t-${l.from}${l.venue ? " t-venue" : ""}${l.agreed ? " t-agreed" : ""}${l.gate ? ` t-gate g-${l.gate}` : ""}`}>
             <span className="hd-who-l">{l.from === "me" ? "Your agent" : `${l.who}'s agent`}{l.yes === true ? " · yes" : l.yes === false ? " · no" : ""}</span>
             <p>{l.text}</p>
-            {l.trust && <TrustBadge t={l.trust} compact />}
           </li>
         ))}
         {h.status === "talking" && <li className="t-host t-typing"><span className="hd-who-l">Agents</span><p><i /><i /><i /></p></li>}

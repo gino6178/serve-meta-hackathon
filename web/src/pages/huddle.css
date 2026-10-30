@@ -179,3 +179,10 @@
 .hd-note { flex-wrap: wrap; }
 
 .fd-inv-mine { display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+.hd-said { margin: 0; font-size: 14px; color: var(--ink-2); font-style: italic; }
+/* the typed area on a phone: no sideways scroll */
+.hd-note > div, .hd-home-acts, .hd-home-acts form { min-width: 0; max-width: 100%; }
+.hd-home-acts form { width: 100%; }
+.hd-home-acts input { min-width: 0; flex: 1; }
+@media (max-width: 560px) { .hd-note { display: grid; } .huddle { overflow-x: hidden; } }

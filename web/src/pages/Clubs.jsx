@@ -89,7 +89,7 @@ function StartClub({ onDone }) {
       <RealMap sport={v.sport} pick height={220} onPick={(p) => setV((x) => ({ ...x, at: { lat: p.lat, lon: p.lon }, where: p.name || x.where }))} />
       <input value={v.where} onChange={set("where")} placeholder="Name the place" maxLength={60} aria-label="The place's name" />
       {err && <p className="join-err" role="alert">{err}</p>}
-      <div className="cta-row"><button className="btn primary sm" disabled={busy || !v.at}>{busy ? "Starting…" : "Start the club"}</button><button type="button" className="btn ghost sm" onClick={() => onDone(null)}>Cancel</button></div>
+      <div className="cta-row"><button className="btn primary sm" disabled={busy || !v.at}>{busy ? "Starting…" : "Start the club"}</button>{!v.at && <span className="tiny muted">Tap a court or a spot on the map first, so people nearby can find it.</span>}<button type="button" className="btn ghost sm" onClick={() => onDone(null)}>Cancel</button></div>
     </form>
   );
 }
