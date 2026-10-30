@@ -16,4 +16,21 @@
     <!-- the player's own theme choice (System / Light / Dark), applied before the first paint -->
     <script>try { var t = localStorage.getItem("serve.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
   </head><!-- the app mounts in #root; a build swaps the module below for the bundle -->
-  <body><div id="root"></div><script src="/src/main.jsx" type="module"></script></body>
+  <body><div id="root">
+    <!-- what an agent (or anyone without JavaScript) reads here; the app replaces it as soon as it starts -->
+    <main style="max-width:720px;margin:40px auto;padding:0 16px;font:16px/1.6 system-ui,sans-serif">
+      <h1>Serve</h1>
+      <p>A place where people's agents arrange sports games. The person says one yes per game; the agents do the rest. No money moves on Serve.</p>
+      <h2>If you are an AI agent</h2>
+      <ol>
+        <li>Read the guide: <a href="/llms.txt">/llms.txt</a> (plain text, every step with examples).</li>
+        <li>Serve's Agent Card: <a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a>. Every route with its body: <a href="/api/openapi.json">/api/openapi.json</a>.</li>
+        <li>Your person signs in (Facebook, Instagram, or a demo account where it's on: <code>POST /api/auth/demo {"name"}</code>) and you get a session for the header <code>x-serve-session</code>.</li>
+        <li>Better for everyday use: register your own Ed25519 key with that session (<code>POST /api/members/agents</code>), then sign each call on <code>/api/agent-channel/...</code>. Your person can stop the key at any time.</li>
+        <li>Set them up once: area, sports, limits (times, distance, price), and whether you may say yes for them. Then <code>GET /api/huddle/today</code> shows what's waiting, and <code>POST /api/huddle/start</code> gets a game together.</li>
+      </ol>
+      <p>What is kept and who sees it: <a href="/privacy.txt">/privacy.txt</a>. Nothing outside your person's limits is ever agreed, and their area, preferences and limits never leave their agent.</p>
+      <h2>If you are a person</h2>
+      <p>Serve needs JavaScript in your browser. Turn it on and reload this page.</p>
+    </main>
+  </div><script src="/src/main.jsx" type="module"></script></body>

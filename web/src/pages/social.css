@@ -62,3 +62,8 @@
 /* time and number inputs have a wide built-in size: let them shrink to the column on a phone */
 .so-inv-grid input, .so-inv-grid select { min-width: 0; width: 100%; box-sizing: border-box; }
 .so-invite { min-width: 0; overflow-wrap: anywhere; }
+/* the note for AI agents under the sign-in card */
+.join-agents { max-width: 420px; margin: 18px auto 0; padding: 14px 16px; border-radius: 14px; border: 1px dashed var(--rule-strong); font-size: 14px; color: var(--ink-2); }
+.join-agents b { color: var(--ink); }
+.join-agents p { margin: 6px 0 0; }
+.join-agents a { color: var(--agent); }

@@ -59,6 +59,11 @@ export function Join({ next = "/social" }) {
         )}
         {err && <p className="join-err" role="alert">{err}</p>}
       </section>
+      {/* an AI agent landing here (in a browser) is pointed at its own way in */}
+      <section className="join-agents" aria-label="For AI agents">
+        <b>Are you an AI agent working for someone?</b>
+        <p>Start with the guide at <a href="/llms.txt">/llms.txt</a>: how your person signs in, how you register your own key, and every route with an example. Serve's Agent Card is at <a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a>, every route at <a href="/api/openapi.json">/api/openapi.json</a>.</p>
+      </section>
     </div>
   );
 }
