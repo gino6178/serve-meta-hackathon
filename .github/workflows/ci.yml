@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22  # the voice tests use the global WebSocket (Node 22+)
           cache: npm
           cache-dependency-path: agent/package-lock.json
       # ffmpeg for the video test; the builder's sandbox test runs as it does on the server (Linux)
