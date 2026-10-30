@@ -208,3 +208,28 @@ test("whoever is promoted can act on the notice: the offer is confirmable by the
   assert.ok(!H.answerGame(bob.id, third, false).error);
   assert.ok(!P.find(third).invite.going.includes(bob.id));
 });
+
+test("a huddle's spare is kept and moved in when a spot opens, even if another huddle is asking them at that hour", async () => {
+  const H = await import("../src/members/huddle.js");
+  const alice = M.demo("Alice Tan").member, henry = M.demo("Henry Ko").member, iris = M.demo("Iris Lu").member, jack = M.demo("Jack Pan").member, kay = M.demo("Kay Su").member, zoe = M.demo("Zoe Ma").member;
+  const date = localDay(Date.now() + 2 * DAY), pick = { date, start: "20:30", where: "Hall", place: { name: "Hall" }, km: {}, at: null, each: 0 };
+  const hud = (id, host, players, extra = {}) => ({ id, host, sport: "badminton", need: players.length, status: "asking", pick: { ...pick, km: {} }, players, answers: { [host]: "yes" }, invited: players.filter((x) => x !== host), out: [], talk: [], askedOf: {}, askedAt: Date.now(), tries: 0, direct: [], alternates: [], created: Date.now(), ...extra });
+  const file = path.join(tmp, "huddles-spare.json");
+  fs.writeFileSync(file, JSON.stringify({ nudged: {}, huddles: [
+    hud("h-spare", alice.id, [alice.id, henry.id, iris.id], { alternates: [jack.id, kay.id] }),
+    hud("h-other", zoe.id, [zoe.id, jack.id]), // Jack is only being asked here: not a booking
+    hud("h-yes", zoe.id, [zoe.id, kay.id], { answers: { [zoe.id]: "yes", [kay.id]: "yes" } }), // Kay said yes here: she is
+  ] }));
+  process.env.HUDDLE_FILE = file;
+  const r = await H.reply(henry.id, "h-spare", false, "busy");
+  assert.equal(r.replaced, "Jack", JSON.stringify(r));
+  const h = H.find("h-spare");
+  assert.ok(h.players.includes(jack.id) && !h.alternates.includes(jack.id));
+  assert.ok(notices(jack.id, "huddle").some((n) => /One yes from you/.test(n.text)), "Jack is asked");
+  assert.doesNotMatch(h.talk.map((l) => l.text).join(" "), /Nobody was waiting/);
+  // the next no: Kay, the other spare, is in another game at that hour: said so, never "nobody was waiting"
+  const r2 = await H.reply(iris.id, "h-spare", false, "busy");
+  assert.equal(r2.open, 1);
+  assert.match(h.talk.at(-1).text, /The spare for that time is in another game at that hour now/);
+  assert.deepEqual(h.alternates, []);
+});

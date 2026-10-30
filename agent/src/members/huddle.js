@@ -118,6 +118,9 @@ const line = (h, from, text, extra = {}) => { h.talk.push({ at: Date.now(), from
 // member's own record alone (GET /api/huddle/trust)
 export const trustOf = (id, own = false) => { const b = Tr.badge(id), w = Tr.words(b); return own ? { ...w, show: Tr.showText(b), range: Tr.rangeText(b), agent: Tr.agentText(b), rate: b.show.new ? null : b.show.rate, kept: b.agent.new ? null : b.agent.rate } : w; };
 // when someone already plays: their feed games and the huddles they are in (ms), for nobody to be booked twice
+// what a spare is held to: games they are in and huddles they said yes to (being asked elsewhere is not a booking)
+const committed = (id, except = null) => [...P.busyAt(id), ...data().huddles.filter((h) => h.id !== except && h.pick && h.players.includes(id) && (h.status === "on" || (h.status === "asking" && h.answers[id] === "yes"))).map((h) => startMs(h.pick))];
+const freeAt = (id, h, o) => !committed(id, h.id).some((t) => Math.abs(t - startMs(o)) < CLASH);
 const busyOf = (id, except = null, game = null) => [...P.busyAt(id).filter((t) => !game || t !== game), ...data().huddles.filter((h) => h.id !== except && ["asking", "on"].includes(h.status) && h.pick && h.players.includes(id)).map((h) => startMs(h.pick))];
 
 // ---- 2-4. the agents talk ----
@@ -250,7 +253,9 @@ async function run(h, now = new Date()) {
   if (!agreed) { h.status = "stuck"; line(h, "host", h.afterNo ? `After ${h.afterNo} couldn't make it, no other time this week suits enough of you. Try fewer players, or more people.` : "The agents couldn't find a time that suits enough of you this week. Try fewer players, or more people.", { who: hostName }); if (h.afterNo) P.notify(h.host, "huddle", `No other time this week suits enough of you for ${h.sport}, after ${h.afterNo} couldn't make it.`, { huddle: h.id }); return save(); }
   const o = opts[agreed.k];
   h.promised = agreed.asked ? [] : agreed.players.filter((id) => id !== host); // their agents said yes for them: a promise each (trust.js)
-  h.alternates = agreed.alternates || []; h.altAsked = !!agreed.asked; // spares (their agents' yeses, or people to ask directly): the first takes a spot someone gives up
+  // spares (their agents' yeses, or people to ask directly): the first takes a spot someone gives up. Only those free at
+  // that time are kept, and only kept ones are mentioned
+  h.alternates = (agreed.alternates || []).filter((id) => freeAt(id, h, o)); h.altAsked = !!agreed.asked;
   // for the people asked directly, what their agent would have said: a right guess counts for the agent (trust.js)
   h.shadow = Object.fromEntries(direct.map((id) => [id, U[id][agreed.k] >= bar(id, 0)]));
   // spots the agents couldn't fill go to the people asked directly, best-suited first
@@ -347,7 +352,8 @@ async function drop(h, me, why, now = new Date(), wait = false) {
   if (why === "place") N.saw("too_far", h.id);
   if (why === "price") N.saw("too_dear", h.id);
   h.players = h.players.filter((x) => x !== me); delete h.answers[me];
-  const next = (h.alternates || []).find((x) => !h.players.includes(x) && !h.out.includes(x) && !busyOf(x, h.id).some((t) => Math.abs(t - startMs(o)) < CLASH));
+  const next = (h.alternates || []).find((x) => !h.players.includes(x) && !h.out.includes(x) && freeAt(x, h, o));
+  const gone = next ? [] : (h.alternates || []).filter((x) => !h.players.includes(x) && !h.out.includes(x)); // spares mentioned who can't take it now
   if (next) {
     h.alternates = h.alternates.filter((x) => x !== next);
     h.players.push(next); h.promised = [...(h.promised || []), next]; (h.askedOf ||= {})[next] = now.getTime();
@@ -360,7 +366,8 @@ async function drop(h, me, why, now = new Date(), wait = false) {
   }
   // nobody spare, but the rest are still in: the game stands with an open spot (posted for others once they all say yes)
   if (h.players.length >= 2) {
-    line(h, "host", `Nobody was waiting as a spare for that time, so ${nm}'s spot stays open: everyone else's yes stands, and once the rest say yes the game is ${h.fill ? "on in your post" : "posted"} with the spot open for others to join.`, { who: first(h.host) });
+    if (gone.length) h.alternates = [];
+    line(h, "host", `${gone.length ? `The spare${gone.length > 1 ? "s" : ""} for that time ${gone.length > 1 ? "are" : "is"} in another game at that hour now` : "Nobody was waiting as a spare for that time"}, so ${nm}'s spot stays open: everyone else's yes stands, and once the rest say yes the game is ${h.fill ? "on in your post" : "posted"} with the spot open for others to join.`, { who: first(h.host) });
     if (h.players.every((x) => h.answers[x] === "yes")) await book(h);
     save();
     return { open: 1 };
