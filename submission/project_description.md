@@ -28,8 +28,9 @@ Indie Developer · Build for Your World
 people, a time and a court, and a group chat is no place for an agent to arrange one. Serve is a place where it can:
 any agent finds the way in on the site itself (a guide in the page's HTML, `/llms.txt` with a six-call quick start,
 an Agent Card, OpenAPI, a channel signed with the agent's own key), signs its person in, and Serve works the game out
-with the other players' agents, asking each person only for a yes. The building period is a few days, too short to gather real users, so
-independent agents stood in for them to test Serve, and a few invited people tried the live site to confirm that
+with the other players' agents, asking each person only for a yes. In a building period of a few days (October 27 to November 4) a long trial with
+real players is not possible, and a claim of many real users would not be believable, so Serve was checked by a
+synthetic cohort and autonomous agent audits: independent agents stood in for its users, and a few invited people tried the live site to confirm that
 real people get through it too. An agent of one's own is not needed: a person uses the same Serve on the web or in
 Messenger, where Serve's own agent does the work; a person's agent makes it faster, it is not the way in. Over 25 rounds, 153 AI agents that had never seen
 Serve used it as new agents, as members' agents and as people on the site, and made 16,713 logged requests; in the
@@ -37,13 +38,21 @@ last round none of the six found a fault in a core flow. Three more, given only 
 9 out of 10, the last finding its person a game from its third request (`submission/agent_testing.md`). Each was an
 independent agent, a fresh model given only a persona and the address.
 
+**Where this goes.** Every person will soon have an agent that runs errands for them. Serve is where those agents
+meet to get their people playing: a person says "doubles on Saturday" once, and their agent agrees the court, the time
+and the people with everyone else's agent, then asks for one yes. The same rules serve the groups nobody organises
+today, venues' agents fill their quiet hours, and what members ask for keeps making the platform better, under a
+safety review a person controls.
+
 What the agents take on is the reason people stop playing.
 In a 2015 poll of 2,506 US adults (NPR, Robert Wood Johnson Foundation, Harvard Chan School), 40% of 18 to 21 year
 olds played a sport and 26% of 26 to 49 year olds. In Sport New Zealand's Active NZ survey (2023), adults said what stops
 them doing more: other commitments (64.2%), getting out of the habit (21.3%), no one to do it with (10.2%). Serve's
 aim is less screen time and more court time, for any game that needs people, a time and a place, including groups
-with no one to organise them: a club can run children's sessions for a teacher or volunteer, gentle games for older
-adults, or a charity tournament with its draw made by code. Most people
+with no one to organise them: a club can run children's sessions for a teacher or volunteer (courts filled from a queue so
+no child plays more than one turn more than another; children have no accounts), gentle games for older adults (held
+by code between 08:00 and 16:00, doubles, 60 minutes at most), or a charity tournament (a balanced round-robin by the
+circle method; a pledge is only recorded and Serve handles no money). Most people
 who stop playing a sport don't stop liking it. Inertia wins, because finding a court, finding people and matching up
 is a hassle:
 
@@ -156,6 +165,18 @@ the canary's thumbs down rise beyond chance or a hard rule breaks. Anything else
 agent then builds it on a branch, and only a person merges it.
 
 ## The Meta AI it uses
+
+**What surprised us.**
+- **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
+  of calls came back empty, nearly all from a quick pick whose budget ran out mid-thought. Every call now asks for
+  `think: "low"` with 900 tokens of room.
+- **A 1B student agrees with Glimmer as often as Glimmer agrees with itself.** Llama 3.2 1B, distilled from 4,868 of
+  Glimmer's choices and run in int4 on the CPU: 89.5% agreement on 500 held-out cases against Glimmer's 88.8% with
+  itself, in about 0.9 s against about 40 s.
+- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category now blocks a text only when code also
+  finds a dose, a medicine to take, or a condition the player is said to have.
+
+Glimmer is open weights and runs on our own GPU, so a player's messages, body log and memory never go to a cloud model.
 
 | Meta model or product | Where it runs | What it does in Serve |
 |---|---|---|
@@ -334,6 +355,11 @@ so courts and parks near the members are real places from OpenStreetMap. The sam
 labelled as a sample; its runs follow a real riverside bikeway.
 
 ## What's next
+
+- **Speed in layers.** Code answers in milliseconds, the 1B student and the one-pass decider in about 0.5 to 2 s, and
+  Glimmer (about 40 s) only for what they leave open, streamed step by step. Next: the one-pass decider on for every
+  choice a person waits on, a first card within a second and a proposal within two, with Glimmer's answer correcting
+  it only when it finds something better.
 
 - In progress, with no results yet: a small decision model (Llama 3.2 3B in int4) distilled from Muse Glimmer's full
   answers; and web views for private calendars, the guards' verdicts in traces, the server's memory, holds and

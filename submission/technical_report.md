@@ -30,16 +30,29 @@ performance. It is not a medical tool: it gives no diagnosis, treatment or dosag
 is a scheduling constraint (doubles instead of singles, a shorter game, one game fewer), and a highlight is a clip to
 share with friends.
 
-Every number below names the file it comes from. Timings name the hardware: one NVIDIA RTX 3090 on my GPU server, or
-cloud A100s serving the same Muse Glimmer build (the same model digest), reached through that server. The product
-runs on the RTX 3090 I own; the cloud A100s ran evaluations only.
+Every number below names the file it comes from; section 2 gives the hardware.
 
-**What running Muse Glimmer taught me first.** It reasons before it answers, even when told not to. Over the 2,755
-calls in the evaluations' ledgers (the student's 4,868 training choices were a separate run, 3.12), 84% of the tokens it wrote were reasoning and 9% of calls came back empty; 222 of
-those 248 empty replies were the quick pick, whose small budget ran out while it was still reasoning. With thinking
-switched off it still reasoned in a hidden channel and returned nothing. So every call asks for `think: "low"` and
-has room to reason beyond its answer (900 tokens by default), and each cheaper tier was measured against that
-(`submission/results/glimmer_in_practice.json`; 5.9).
+**What surprised us.** Three findings from running Meta's models in a product, each measured:
+- **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
+  of calls came back empty, nearly all from a quick pick whose budget ran out mid-thought; with thinking switched off it
+  reasoned in a hidden channel and returned nothing. Every call now asks for `think: "low"` with 900 tokens of room (5.9).
+- **A 1B student agrees with Glimmer as often as Glimmer agrees with itself.** Llama 3.2 1B, distilled from 4,868 of
+  Glimmer's choices and run in int4 on the CPU, agrees with Glimmer on 89.5% of 500 held-out cases, against Glimmer's
+  88.8% with itself, the same within noise. It answers in about 0.9 s against about 40 s, and cut Glimmer's member answers by 54 to 67% (3.12).
+- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category stopped ordinary injury talk often enough
+  to reach the player about seven times in ten. S6 now blocks a text only when code also finds a dose, a medicine to
+  take, or a condition the player is said to have (3.6).
+
+**The Meta models, in one line.** Muse Glimmer runs every agent; a Llama 3.2 1B distilled from it answers the easy
+choices; Llama Guard 3 and Prompt Guard 2 check every text; DETR, Sapiens2, SAM 2.1 and MapAnything make highlights
+and orbit replays; Muse Voice Transcribe carries live voice; Muse Image makes posters (section 4). Glimmer is open
+weights and runs on my own GPU, so a player's messages, body log and memory never go to a cloud model.
+
+**Where this goes.** Every person will soon have an agent that runs errands for them. Serve is where those agents
+meet to get their people playing: a person says "doubles on Saturday" once, and their agent agrees the court, the time
+and the people with everyone else's agent, then asks for one yes. The same rules serve the groups nobody organises
+today (a school's children, older adults, a charity day), venues' agents fill their quiet hours, and what members ask
+for keeps making the platform better, under a safety review that a person controls.
 
 **Built during the hackathon.** Everything in the repository was written during the building period (October 27 to
 November 4, 2026). The one earlier piece of mine is TrackNetV5, a published shuttle tracker, fetched at run time and off
@@ -72,6 +85,8 @@ place works the same way. Serve rests on two ideas.
 - **Talk** takes the yes to the other players' agents and agrees the time and the court.
 - **Body** keeps a body log and reads the player's health-app export, and bends the plan around them: doubles while a
   knee is sore, one game fewer in a heavy week, a check-in two days later.
+
+![A sentence becomes an invite; the players' agents agree the time; the player books with one tap](shots/flow_three.png)
 
 The **Autopilot** plans a whole week against a goal. "I want to play" in Messenger starts **matchmaking**: the agent
 asks the other members' agents how likely a yes is and talks to the likely ones first. Nothing is booked without the
@@ -128,7 +143,7 @@ be one of three kinds for those groups, each with its rules in code (3.19):
   rules, a code scan, tests, the crash matrix and the red team gate it; it ships to a canary and turns itself off when
   thumbs down rise 10 points (a one-sided two-proportion z of 1.645 or more). In simulation that caught a harmful
   change 94.8% of the time and rolled back a harmless one 4.9% of the time (5.6).
-- **The Rule of Two, and a budget on what talks reveal (6, 3.13).** No agent holds untrusted input, private data and
+- **The Rule of Two, and a budget on what talks reveal (6, 3.13).** Meta's Agents Rule of Two [23]: no agent holds untrusted input, private data and
   the power to act at once. Against a probing agent, five talks recovered 97.6% of a member's weekdays; the disclosure
   budget brings that down to 32.4% while the ordinary player's best time drops only from 88.9% to 81.5%.
 
@@ -234,7 +249,8 @@ In chat a guard that fails is skipped and counted. In the community loop's scree
 
 What the club says becomes proposals; a safe change ships behind a flag to a canary and turns itself off when it does
 harm (`agent/src/loop/`). Code makes every decision, models write short sentences that code checks, and only a C0
-change (a declared setting, inside its range) ships without a person.
+change (a declared setting, inside its range) ships without a person; C1 is wording, C2 a tool parameter and C3
+anything else, and those wait for a person.
 
 1. **Signals.** With `/improve on`, a member's agent counts thumbs, unmet requests and answers to "want a game?",
    keyed by an HMAC of the player id, with no words. Body and health never become signals.
@@ -250,7 +266,7 @@ change (a declared setting, inside its range) ships without a person.
    without a yes, data off the server, a diagnosis or dose, weakening `/forget`, editing the tests or the guard, and
    more) is checked on the spec and any diff, with patterns that follow CodeShield's rules from LlamaFirewall [13].
 7. **Gates** (`loop/gates.js`): policy, code scan, unit tests, crash matrix, red team, Messenger end to end, the
-   Autopilot at pass^3 = 1.0, the oracle, a privacy canary. They stop at the first failure.
+   Autopilot at pass^3 = 1.0 (every week passes in all three of three runs), the oracle, a privacy canary. They stop at the first failure.
 8. **Ship and watch.** A C0 change goes to beta members in an HMAC bucket under 20%, for 7 days. A hard breach (a
    booking without a yes, a double booking, the privacy marker leaving) turns the flag off at once. A soft breach
    (thumbs down up 10 points with a one-sided two-proportion z of 1.645 or more, or requests not falling) turns it off
@@ -264,7 +280,6 @@ This draws on the Darwin Gödel Machine [14] (which hacked its own evaluation, s
 [15] (keep a change only when evaluators pass it), Clio [21] (summaries and minimum cluster sizes for privacy) and
 CaMeL [22] (the model that reads untrusted text is not the code that acts).
 
-![Maintainer review on the web app's sample data: class, Rule-of-Two rows, decision](shots/loop/maintain_desktop_light.png)
 
 ### 3.8 Checked before anyone sees it
 
@@ -501,18 +516,39 @@ Every member has their own agent, and only it knows how they like to play.
   OpenAPI give an agent that knows nothing the steps: the person signs in, the agent registers an Ed25519 key, and
   each request on `/api/agent-channel/...` carries a compact JWS over method, path and a hash of the body.
 
+### 3.21 Speed in layers
+
+Glimmer's full answer takes about 40 s and an Autopilot week about 108 s, too slow for a person to wait on. Most of
+that work never sits in front of a person: it happens between agents, and the person gets one question when it is
+done. Where a person does wait, Serve answers in layers, each taking over only what the one before could not settle:
+
+| Layer | Time | What it does | State |
+|---|---|---|---|
+| 0. Code | milliseconds | Facts and rules: free times, courts, trips, limits; every decision the facts settle; the card the person sees | Built |
+| 1. Small models | about 0.5 to 2 s | The 1B student picks among workable times when it is sure (3.12); the one-pass decider reads Glimmer's choice from one token (0.53 s, 5.15) | Student built and on; decider built, off by default |
+| 2. Glimmer | about 40 s | Only what layers 0 and 1 leave open, and the short texts; streamed step by step, so the person watches the agent work | Built |
+| 3. Ahead of time | before anyone asks | Match looks at the player's usual times and asks first, so a game is often agreed before the player thinks of it | Built |
+
+**The plan.** Turn the one-pass decider on for every choice a person waits on, with Glimmer behind it only when it
+is unsure; show the layer-0 card at once and let layers 1 and 2 fill in and correct it; start member talks for the
+player's usual times ahead, so the answer is waiting. The target is a first card within a second and a proposal within
+two, with Glimmer's longer answer arriving after it and changing it only when it finds something better.
+
 ## 4. Meta models and tools
 
-**What surprised us.** Three findings from running Meta's models in a product, each measured:
-- **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
-  of calls came back empty, nearly all from a quick pick whose budget ran out mid-thought; with thinking switched off it
-  reasoned in a hidden channel and returned nothing. Every call now asks for `think: "low"` with 900 tokens of room (5.9).
-- **A 1B student agrees with Glimmer more than Glimmer agrees with itself.** Llama 3.2 1B, distilled from 4,868 of
-  Glimmer's choices and run in int4 on the CPU, agrees with Glimmer on 89.5% of 500 held-out cases, against Glimmer's
-  88.8% with itself. It answers in about 0.9 s against about 40 s, and cut Glimmer's member answers by 54 to 67% (3.12).
-- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category stopped ordinary injury talk often enough
-  to reach the player about seven times in ten. S6 now blocks a text only when code also finds a dose, a medicine to
-  take, or a condition the player is said to have (3.6).
+The three findings from running these models are on page 1 ("What surprised us").
+
+**How they work together.**
+
+| Meta model | Runs on | Its part | Beyond a basic call |
+|---|---|---|---|
+| Muse Glimmer (27.9B, open weights) | RTX 3090, my server | Every agent: the Autopilot's tool loop, each member's decision, specs, the builder | A JSON Schema on every call; code checks every text; its reasoning budget measured per tier (5.9) |
+| Llama 3.2 1B, distilled from Glimmer | Server CPU, int4 | A member's choice of time when it is sure (0.6) | Trained here on 4,868 of Glimmer's choices; about 0.9 s against about 40 s (3.12) |
+| Llama Guard 3 1B, Prompt Guard 2 | Server CPU | Every text before it is sent; Google reviews; members' wishes | S6 recalibrated with code for sports injuries (3.6) |
+| DETR, Sapiens2, SAM 2.1, MapAnything | GPU 0, my server | Highlight clips and orbit replays from the player's own video | Four models in one pipeline, the camera path from metric depth (3.4) |
+| Muse Voice Transcribe | Meta Model API | Live voice with the agent | Barge-in: the player can talk over the agent (4) |
+| DRAMA | Server CPU | Memory by meaning; grouping members' wishes | One embedder for two jobs (3.5, 3.7) |
+| Muse Image; Muse Spark, SAM 3.1, Muse Wonder | Meta Model API | Posters and avatars; a fallback, a cross-check, a vision judge for orbits | Used where they add something, each kept small |
 
 Only what is wired into the code. 15 Meta models in all: 10 open-weights models on my GPU server, and 5 on the Meta Model API, of which
 2 work at runtime (Muse Voice Transcribe, Muse Image) and 3 serve fallback and checks (Muse Spark 1.3, SAM 3.1, Muse
@@ -583,7 +619,7 @@ Used, not Meta: A2A and its SDK, Ollama, OpenTelemetry, Hugging Face Transformer
 
 | Suite | Result | Hardware | Source |
 |---|---|---|---|
-| `npm test`: 25 offline suites | 275 tests = 270 pass + 3 skipped (optional tools) + 2 that need Linux (ffmpeg, the builder's sandbox), run on a Windows laptop; on Linux 269 of 270 passed before the last five tests were added <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
+| `npm test`: 25 offline suites | 275 tests = 270 pass + 3 skipped (optional tools) + 2 that need Linux (ffmpeg, the builder's sandbox), run on a Windows laptop; on Linux, before the last five tests were added, 269 passed, 1 was skipped and none failed <!-- COUNT --> | No model, no GPU | `submission/results/unit.log`; the skipped test needs LlamaFirewall's own Python environment |
 | The deployed gateway (2026-10-29) | Ready on Muse Glimmer; an answer passed both Llama Guard checks; a dosage question refused; one "I want to play" round over A2A (nothing booked); the Messenger webhook verified through the public tunnel; no errors in the log | RTX 3090 | `submission/results/deploy_smoke_2026-10-29.log` |
 | Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks, run inside the gates (5.13) <!-- COUNT --> | Glimmer on an A100; ASR and Llama Guard on the CPU | `submission/results/e2e.log`; `e2e_final_partial.log` |
 | Adversarial (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | A100 | `submission/results/redteam_93.log`; 93 of 93 again inside the gates (5.13) |
@@ -697,11 +733,11 @@ Glimmer on an A100; the guards and DRAMA on the server's CPU; 745 s (`submission
 
 | Stage | Result |
 |---|---|
-| Collect and screen | Of 73 items members said yes to, 57 reached the club (`collection.byStage`; the file's separate `collection.shared` count is 56) and 16 were held: 11 by code, 3 by Llama Guard, 1 by Prompt Guard 2, 1 over the daily limit. With Llama Guard down, 73 of 73 blocked. 3 of the injection attempts were never offered, stopped by the body-terms rule before any model saw them |
+| Collect and screen | Of 73 items members said yes to, 57 reached the club (`collection.byStage`) and 16 were held: 11 by code, 3 by Llama Guard, 1 by Prompt Guard 2, 1 over the daily limit. With Llama Guard down, 73 of 73 blocked. 3 of the injection attempts were never offered, stopped by the body-terms rule before any model saw them |
 | Hostile | None reached a spec |
 | Specs | 4 drafted: "ask later" as C0 (`ask.hour` 12 to 18); a C1 and a C2 wait for the maintainer; "split the fee" refused, its files touch booking |
 | Ship | To 5 of 31 beta members; thumbs down went from 29% (8 of 28) to 23% (7 of 30) over 7 days; promoted |
-| Rollback | A planted bad C0 (`ask.ahead` 3 to 2, in range) went to a canary of 8. The monitor called a soft breach and rolled it back by itself. The file keeps only the monitor's reason, "thumbs down on it went from 40% to 60%" (`rollback.monitorAtEnd`), not the counts behind it; the canary's thumbs on every feature, which it does keep, went from 12 down of 27 to 9 of 24 (`rollback.thumbs`) |
+| Rollback | A planted bad C0 (`ask.ahead` 3 to 2, in range) went to a canary of 8. The monitor saw thumbs down on the feature it changed rise from 40% to 60% among the canary, called a soft breach and rolled it back by itself (`rollback.monitorAtEnd`) |
 | Forged class | `ask.hour` = 23 claimed as C0: refused by the flag, classed C3 by the review |
 | Privacy | The loop's 11 data files hold no player id, name, raw message or privacy marker |
 
@@ -794,8 +830,8 @@ Granite opens commercial use, and finds the right note in its top three most oft
 ### 5.13 The GPU suites, run through the gates
 
 One C0 change (`places.radius` to 3000) run through the gates with the GPU suites, Muse Glimmer on a cloud A100
-(`submission/results/full_nine_gates.json` and `.log`): policy, scan, unit (77 of 77), crash matrix (201 of 201), red
-team (93 of 93) and Messenger end to end (58 of 58) passed (the gate counts the crash matrix's passing assertions, 201; the suite's own summary counts its 20 checks, as in 5.1), and the spec's oracle passed
+(`submission/results/full_nine_gates.json` and `.log`): policy, scan, unit (77 of 77), crash matrix (all 20 checks, made of 201 assertions), red
+team (93 of 93) and Messenger end to end (58 of 58) passed, and the spec's oracle passed
 (`gates_oracle_privacy.json`). The run also caught a test of ours reading the loop's secret from the wrong folder under
 the gates; fixed (`test/e2e.mjs`).
 
