@@ -60,6 +60,7 @@ import { signInHint } from "./discovery.js";
 const readRaw = (req, max = 64e3) => new Promise((ok) => { const parts = []; let n = 0, over = false; req.on("data", (c) => { n += c.length; if (n > max) over = true; else parts.push(c); }); req.on("end", () => ok(over ? null : Buffer.concat(parts))); req.on("error", () => ok(null)); });
 const redirect = (res, url) => { res.writeHead(302, { location: url, "cache-control": "no-store" }); res.end(); return true; };
 export const member = (req) => M.fromSession(req.headers["x-serve-session"]);
+P.joinRoomWith((room, id) => C.joinById(String(room), id, M.get(id)?.name));
 // the routes a signed-in member may use without the gateway's token
 export const memberRoute = (p) => p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/") || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/");
 export const publicRoute = (p) => p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p === "/api/invite" || p.startsWith("/api/trust/") || p === "/api/openapi.json";
@@ -75,14 +76,15 @@ export async function route(req, res, u, { json, o, forget }) {
     return v ? send(200, { invite: { ...v, ...(post ? { joined: post.invite.going.includes(who.id), mine: (post.by.player || post.by.agentOf) === who.id } : {}) } }) : send(404, { error: "That game is not open any more." });
   }
   const a = /^\/api\/auth\/(facebook|instagram)\/(start|callback)$/.exec(p);
-  if (a && a[2] === "start") { const r = M.start(a[1]); return r.error ? redirect(res, `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}`) : redirect(res, r.url); }
+  // (a browser goes back to the app with the reason; an agent or script gets it as JSON)
+  if (a && a[2] === "start") { const r = M.start(a[1]); if (r.error && !String(req.headers.accept || "").includes("text/html")) return send(404, { error: r.error, providers: "/api/auth/providers" }); return r.error ? redirect(res, `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}`) : redirect(res, r.url); }
   if (a && a[2] === "callback") {
     const r = await M.callback(a[1], Object.fromEntries(u.searchParams));
     return redirect(res, r.error ? `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}` : `${M.appUrl()}/#/social?session=${M.sessionFor(r.member.id)}`);
   }
   if (p === "/api/auth/demo" && req.method === "POST") {
     const raw = await readRaw(req); let b = {}; try { b = JSON.parse(raw?.toString() || "{}"); } catch { /* empty */ }
-    if (b.name !== undefined && typeof b.name !== "string") return send(400, { error: "name is text." });
+    if (b.name !== undefined && (typeof b.name !== "string" || b.name.trim().length > 40)) return send(400, { error: "name is text, up to 40 characters." });
     const r = M.demo(b.name);
     return r.error ? send(403, r) : send(200, { member: r.member, session: M.sessionFor(r.member.id) });
   }

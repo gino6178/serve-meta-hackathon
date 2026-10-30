@@ -215,6 +215,7 @@ export function join(player, postId, on = true) {
   // leaving the waitlist
   if (!on && waiting) { S.change(() => { v.waitlist = v.waitlist.filter((x) => x !== player); }); return { post: view(p, player), left: "waitlist" }; }
   if (on === was) return { post: view(p, player) };
+  if (on && p.room && !roomJoin(p.room, player)) return { error: "This club is private: ask to join it first.", code: 403 };
   // a game that overlaps one they're already in (games run about 90 minutes): not both
   // (a game the agents agreed, not posted yet, counts too: members/huddle.js tells which)
   const agreedClash = on && startOf(v) ? huddleBusy(player, p.id).find((x) => Math.abs(x.at - startOf(v)) < 90 * 60e3) : null;
@@ -260,6 +261,7 @@ export function promote(p, { dayBefore = false } = {}) {
   while (v.waitlist.length && v.going.length < v.spots) {
     const x = v.waitlist[0];
     S.change(() => { v.waitlist = v.waitlist.slice(1); v.going = [...v.going, x]; v.joinedAt = { ...(v.joinedAt || {}), [x]: deps.now() }; });
+    onJoined(x, p.id);
     notify(x, "gameon", `A spot opened${dayBefore ? " the day before" : ""}: you're in for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}.`, { post: p.id });
     inviteReply(p, `${first(authorOf(x) || "A member")} moves up from the waitlist. ${spotsLine(p)}`, x);
     n++;
@@ -384,6 +386,9 @@ export function remove(player, postId, cid = null) {
 // the games the agents agreed (or are asking about) that aren't a feed post: {at, what, huddle}; members/huddle.js sets it
 let huddleBusy = () => [];
 export const busyFrom = (f) => { huddleBusy = f; };
+// joining a club's game joins its club (members/api.js sets it: public clubs say yes, private ones only to members)
+let roomJoin = () => true;
+export const joinRoomWith = (f) => { roomJoin = f; };
 // someone left or joined a game: the agents' record of who's in follows (members/huddle.js sets it)
 let onLeft = () => {}, onJoined = () => {};
 export const whenJoined = (f) => { onJoined = f; };

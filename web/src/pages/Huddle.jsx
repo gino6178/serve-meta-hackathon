@@ -219,6 +219,7 @@ function HuddleView({ id, onBack, onChange = () => {} }) {
           <ul className="hd-players">{h.players.map((x, i) => <li key={i} className={x.answer === "yes" ? "yes" : ""}>{x.answer === "yes" ? <Icon name="check" size={14} /> : <i className="hd-wait" />}<span>{x.name}{x.host ? " (asked)" : x.direct ? " (asked directly)" : ""}</span>{x.name !== "You" && <TrustBadge t={x.trust} compact />}</li>)}</ul>
           {h.waitlist?.length > 0 && <p className="hd-fine">Waitlist: {h.waitlist.join(", ")}.</p>}
           {h.status === "asking" && !h.ask && h.waiting?.length > 0 && <p className="hd-fine">Waiting for {h.waiting.join(", ")}{h.due ? `: they have until ${new Date(h.due).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })}, then the next player gets the spot` : ""}.</p>}
+          {h.mine && ["asking", "on"].includes(h.status) && <p className="hd-fine">You started this game, so you're in it: there's nothing to say yes to.</p>}
           {h.ask && (
             <div className="hd-yes">
               <p><b>{h.mine ? "The agents found a time." : "Your agent said yes for you."}</b> Are you in?{h.due ? <span className="hd-fine"> Answer by {new Date(h.due).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })}, or your place goes to the next player.</span> : null}</p>
