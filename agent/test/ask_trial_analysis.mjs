@@ -68,7 +68,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.log(`${r.points} daily ask points (${r.pending48h} under 48 h old, left out of the effect)`);
     for (const [arm, x] of Object.entries(r.byArm)) console.log(`  ${arm.padEnd(8)} ${String(x.points).padStart(5)} points, ${x.players} players: ${x.meanGames48h ?? "-"} games in 48 h on average, ${x.anyGame48h ?? "-"} with any`);
     const e = r.effect;
-    console.log(e.games48h == null ? "proximal effect: no points with both arms possible (is ASK_TRIAL_P set?)" : `proximal effect of asking: ${e.games48h >= 0 ? "+" : ""}${e.games48h} games in 48 h${e.ci95 ? ` (95% ${e.ci95[0]} to ${e.ci95[1]}, bootstrap over ${e.players} players)` : ""}, from ${e.points} points`);
+    console.log(e.games48h == null ? (r.points && r.pending48h === r.points ? "proximal effect: every point is under 48 h old, so none has an outcome yet" : "proximal effect: no points with both arms possible (is ASK_TRIAL_P set?)") : `proximal effect of asking: ${e.games48h >= 0 ? "+" : ""}${e.games48h} games in 48 h${e.ci95 ? ` (95% ${e.ci95[0]} to ${e.ci95[1]}, bootstrap over ${e.players} players)` : ""}, from ${e.points} points`);
     console.log("response within 24 h, by week since sign-up:");
     for (const [wk, x] of Object.entries(r.responseByWeek).sort((a, b) => (+a[0] || 0) - (+b[0] || 0))) console.log(`  week ${String(wk).padEnd(7)} ${x.answered}/${x.asked} answered (${x.responseRate}), ${x.yes} yes (${x.yesRate})`);
   }

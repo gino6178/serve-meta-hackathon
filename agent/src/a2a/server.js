@@ -306,7 +306,8 @@ app.get("/a2a/club.json", (req, res) => {
     members: club.members.filter((m) => !m.real).map((m) => ({ id: m.id, name: m.name, level: m.level, sports: m.sports || ["badminton"], prefers: m.prefers || "any" })) });
 });
 app.get("/a2a/agents", (req, res) => { const club = readClub(), base = process.env.A2A_BASE || ""; res.json({ club: club.name, agents: club.members.map((m) => ({ id: m.id, name: `${m.name}'s agent`, card: `${base}/a2a/members/${m.id}/${AGENT_CARD_PATH}` })) }); });
-const rpcError = (message) => ({ jsonrpc: "2.0", id: null, error: { code: -32600, message } });
+// -32600 an invalid request; -32700 a body that is not JSON at all (JSON-RPC 2.0, section 5.1)
+const rpcError = (message, code = -32600) => ({ jsonrpc: "2.0", id: null, error: { code, message } });
 const serveMember = (m, req, res, next) => routerFor(m).then((r) => r(req, res, next)).catch(() => res.status(500).json({ error: "this agent's card could not be made" }));
 // a peer's key set, fetched to pin it on first use (peer.js): from the peer's own origin, no redirects
 const peerKeys = (origin) => fetch(`${origin}/a2a/keys.json`, { redirect: "error", signal: AbortSignal.timeout(10000) }).then((r) => { if (!r.ok) throw new Error(`keys: HTTP ${r.status}`); return r.json(); });
@@ -320,7 +321,7 @@ const OLD_METHODS = { "message/send": "SendMessage", "tasks/get": "GetTask", "ta
 app.use((req, res, next) => {
   if (req.method !== "POST") return next();
   rawJson(req, res, (e) => {
-    if (e) return res.status(400).json(rpcError("not a JSON body"));
+    if (e) return res.status(400).json(rpcError("not a JSON body", -32700));
     const now = OLD_METHODS[req.body?.method];
     if (now) return res.status(200).json({ jsonrpc: "2.0", id: req.body.id ?? null, error: { code: -32601, message: `This server speaks A2A 1.0: use "${now}" (not "${req.body.method}") with the header A2A-Version: 1.0. Message shapes and examples: /llms.txt` } });
     next();
@@ -328,7 +329,7 @@ app.use((req, res, next) => {
 });
 function fromPeer(m, req, res, next) {
   rawJson(req, res, async (e) => {
-    if (e) return res.status(400).json(rpcError("not a JSON body"));
+    if (e) return res.status(400).json(rpcError("not a JSON body", -32700));
     const v = await peer.verify({ method: req.method, path: req.originalUrl, headers: req.headers, body: req.rawBody, from: req.socket?.remoteAddress }, peerKeys).catch(() => ({ ok: false, message: "the signature could not be checked" }));
     if (!v.ok) return res.status(401).json(rpcError(`refused: ${v.message}`));
     if (!peer.serves(v.peer, m)) { peer.note("refused", { why: "member-not-shared", peer: v.peer, member: m.id, path: req.originalUrl }); return res.status(403).json(rpcError("this agent does not answer that gateway")); }
