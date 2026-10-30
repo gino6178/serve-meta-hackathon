@@ -127,10 +127,10 @@ data stays there, and 5 on the Meta Model API for live voice, a fallback and che
 | Video segmentation | SAM 2.1 (Hiera-L) | GPU 0 | Tracks and cuts out the player for highlight clips |
 | 3D | MapAnything | GPU 0 | Metric depth and the camera for orbit replays |
 | Live voice | Muse Voice Transcribe | Meta Model API | 24 kHz PCM full duplex, with Kokoro speaking the reply on the server; the player can talk over the agent |
-| Fallback | Muse Spark 1.3 | Meta Model API | A fallback when the GPU server can't take a call (off by default), and a builder model for new code |
-| Images | Muse Image | Meta Model API | Faces for the demo club's agents (12 images, made once) and the art of rematch posters |
-| Cross-check | SAM 3.1 | Meta Model API | Checked SAM 2.1's outline once, on a smash frame: 0.974 IoU |
-| Vision judge | Muse Wonder | Meta Model API | An evaluation: judged 84 orbit frames, agreeing with the labels 87% of the time |
+| Fallback | Muse Spark 1.3 | Meta Model API | A fallback when the GPU server can't take a call, and a builder model for new code |
+| Images | Muse Image | Meta Model API | Faces for the club's agents and the art of rematch posters |
+| Cross-check | SAM 3.1 | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
+| Vision judge | Muse Wonder | Meta Model API | Judges orbit frames for defects: agreed with the labels on 87% of 84 frames |
 
 **Meta's safety and platform pieces**
 - **The Agents Rule of Two** [23]: no agent or loop stage holds untrusted input, private data and the power to act at
