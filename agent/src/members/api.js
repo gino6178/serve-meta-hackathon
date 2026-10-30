@@ -168,7 +168,7 @@ export async function route(req, res, u, { json, o, forget }) {
   }
   if (p === "/api/members/agents" && req.method === "POST") { const r = M.addAgent(me.id, b); return send(r.error ? 400 : 200, r); }
   if (p === "/api/members/agents/revoke" && req.method === "POST") { const r = M.revokeAgent(me.id, String(b.id || "")); return send(r.error ? 400 : 200, r); }
-  if (p === "/api/members/leave" && req.method === "POST") { const ids = M.leave(me.id); for (const id of ids) { forget?.(id); C.forget(id); H.forget(id); Sk.store().forget(id); } return send(200, { deleted: ids }); }
+  if (p === "/api/members/leave" && req.method === "POST") { const names = { [me.id]: M.nameOf(me.id) }, ids = M.leave(me.id); for (const id of ids) { forget?.(id, { name: names[id] || null }); C.forget(id); H.forget(id); Sk.store().forget(id); } return send(200, { deleted: ids }); }
   if (p === "/api/members/refusals") return send(200, { refusals: M.refusals() });
   return send(404, { error: "no such route" });
 }
@@ -277,7 +277,7 @@ async function huddle(req, res, p, q, me, send, given = null) {
   // the question is rebuilt from the member's state, so the answer carries the two games it showed
   if (p === "/api/huddle/question" && get) { const t = T.get(me); const places = t.home ? (await D.placesNear(t.home, t.sports[0] || "badminton", { wait: false })).map((x) => ({ ...x, km: +T.km(t.home, x).toFixed(1) })) : []; return send(200, { question: T.question(me, { places, force: true }) }); }
   if (p === "/api/huddle/answer" && post) { if (!["a", "b", "either"].includes(b.pick)) return send(400, { error: "pick is a, b or either" }); return out(T.choose(me, b.q ?? b.id, b.pick)); }
-  if (p === "/api/huddle/start" && post) { const r = H.start(me, b); if (!r.error && !req.byAgent && (b.when || b.wantEach != null)) T.askedFor(me, b.when, b.wantEach); return out(r); }
+  if (p === "/api/huddle/start" && post) { const r = H.start(me, b, { byAgent: !!req.byAgent }); if (!r.error && !req.byAgent && (b.when || b.wantEach != null)) T.askedFor(me, b.when, b.wantEach); return out(r); }
   if (p === "/api/huddle/one" && get) { await H.sweep(); const h = H.find(String(q.get("id") || "")); return h && (h.host === me || h.invited.includes(me)) ? send(200, { huddle: H.view(h, me) }) : send(404, { error: "No such game." }); }
   if (p === "/api/huddle/reply" && post) return out(await H.reply(me, String(b.id || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
   if (p === "/api/huddle/cancel" && post) { if (b.game !== undefined && typeof b.game !== "boolean") return send(400, { error: "game is true or false." }); return out(H.cancel(me, String(b.id || ""), { game: b.game === true })); }

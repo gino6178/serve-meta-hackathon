@@ -312,16 +312,24 @@ export function promote(p, { dayBefore = false } = {}) {
   let n = 0;
   // the first in line who isn't in another game at that time (games or agreed games overlapping it): they keep their place otherwise
   const at = startOf(v), free = (x) => !at || (!S.data().posts.some((q) => q.id !== p.id && q.kind === "invite" && q.invite && !q.hidden && ((q.by.player || q.by.agentOf) === x || q.invite.going.includes(x)) && Math.abs(startOf(q.invite) - at) < 90 * 60e3) && !huddleBusy(x, p.id).some((y) => Math.abs(y.at - at) < 90 * 60e3));
+  const moved = [];
   while (v.going.length < v.spots) {
     const x = v.waitlist.find(free);
+    // those ahead of them (or all, with nobody free) are in another game then: told once why the spot passed them by
+    for (const y of x ? v.waitlist.slice(0, v.waitlist.indexOf(x)) : v.waitlist) if (!(v.skipTold || []).includes(y)) {
+      S.change(() => { v.skipTold = [...(v.skipTold || []), y]; });
+      notify(y, "skipped", `A spot opened for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}, but you're in another game at that time, so it ${x ? "went to the next in line" : "wasn't offered to you"}. You stay on the waitlist.`, { post: p.id });
+    }
     if (!x) break;
     const due = confirmBy(v, deps.now());
     S.change(() => { v.waitlist = v.waitlist.filter((y) => y !== x); v.going = [...v.going, x]; v.joinedAt = { ...(v.joinedAt || {}), [x]: deps.now() }; v.offered = { ...(v.offered || {}), [x]: due }; });
     onJoined(x, p.id);
     notify(x, "moved-up", `A spot opened${dayBefore ? " the day before" : ""} for ${v.sport} ${dayWords(v.day)} ${v.start} at ${v.where}. It's yours if you say yes by ${clock(due)}; after that it goes to the next in line.`, { post: p.id, confirmBy: due });
     inviteReply(p, `${first(authorOf(x) || "A member")} is offered a spot from the waitlist, until ${clock(due)}. ${spotsLine(p)}`, x);
-    n++;
+    moved.push(first(authorOf(x) || "A member")); n++;
   }
+  // the day before, nobody left: the host hears who was offered the open spots (a drop's own notice says it otherwise)
+  if (dayBefore && moved.length) notify(p.by.player || p.by.agentOf, "moved-up", `The waitlist moved up the day before your ${v.sport} ${dayWords(v.day)} ${v.start}: ${moved.length > 1 ? `${moved.slice(0, -1).join(", ")} and ${moved.at(-1)} are` : `${moved[0]} is`} offered a spot. ${spotsLine(p)}`, { post: p.id });
   if (full(v)) gameOn(p);
   return n;
 }
@@ -589,9 +597,10 @@ export function feed(viewer, { before = Infinity, n = 30, room = null } = {}) {
 }
 
 // ---- /forget ----
-export function forget(player) {
-  const out = { posts: 0, comments: 0, likes: 0, reports: 0, drafts: 0, media: 0 };
-  const freed = []; // games they were in: the waitlist is offered their spot
+// (name: theirs, when the member record is already gone, for the hosts of the games they leave)
+export function forget(player, { name = null } = {}) {
+  const out = { posts: 0, comments: 0, likes: 0, reports: 0, drafts: 0, media: 0 }, nm = first(name || authorOf(player) || "A member");
+  const freed = [], offeredTo = []; // games they were in: the waitlist is offered their spot (and the host told, once)
   S.change((d) => {
     for (const p of d.posts.filter((x) => x.by.player === player || x.by.agentOf === player)) { if (p.media) { S.dropMedia(p.media); out.media++; } }
     const n = d.posts.length;
@@ -600,7 +609,8 @@ export function forget(player) {
     for (const p of d.posts) {
       // (and an agent's line that names them: "Mia is in")
       const mine = new Set(p.comments.filter((c) => c.by.player === player || c.by.agentOf === player || c.about === player).map((c) => c.id));
-      if (p.invite?.going.includes(player)) freed.push(p);
+      if (p.invite?.going.includes(player) && !p.invite.offered?.[player]) freed.push(p);
+      else if (p.invite?.offered?.[player]) offeredTo.push(p);
       if (p.invite) { p.invite.going = p.invite.going.filter((x) => x !== player); if (p.invite.waitlist) p.invite.waitlist = p.invite.waitlist.filter((x) => x !== player); if (p.invite.joinedAt) delete p.invite.joinedAt[player]; if (p.invite.offered) delete p.invite.offered[player]; }
       const before = p.comments.length;
       p.comments = p.comments.filter((c) => !mine.has(c.id) && !mine.has(c.reply));
@@ -619,7 +629,11 @@ export function forget(player) {
     if (d.limits) delete d.limits[player];
     for (const a of d.audit || []) if (a.author === player) { a.author = null; a.authorName = "a member who left"; }
   });
-  for (const p of freed) if (S.data().posts.includes(p)) promote(p);
+  for (const p of [...freed, ...offeredTo]) if (S.data().posts.includes(p)) {
+    promote(p);
+    const v = p.invite;
+    if (freed.includes(p)) notify(p.by.player || p.by.agentOf, "left", `${nm} left Serve, so they can't make your ${v.sport} ${dayWords(v.day)} ${v.start}. ${spotsLine(p)}`, { post: p.id });
+  }
   return out;
 }
 // what the feed holds about one player, for /forget's check and the tests: counts only

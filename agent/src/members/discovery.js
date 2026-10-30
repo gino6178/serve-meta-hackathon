@@ -102,7 +102,8 @@ Good to know before you start:
 
 ## Getting a game
 - GET /api/huddle/today: what is waiting (yes-questions, games near them, a quiet cheap hour, their own games)
-- POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "busy"|"time"|"place"|"price"|"quiet"|"none")
+- POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "busy"|"time"|"place"|"price"|"quiet"|"none"). yes:false on a game they are already in (or waiting for) leaves it, as POST /api/feed/join {"post", "on": false} does.
+- Your person may join a game outside their limits themself (POST /api/feed/join with their session): it stands, and the reply's "note" says which limit it breaks. Over your key (/api/agent-channel/join) the same game is refused (403, needs: "person"), a waitlist place too.
 - A weekly game is a new post each week: start a fill for each week's post (it shows under the host's games).
 - POST /api/huddle/start {"sport", "need" (players in all, you included), "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0 to 1, usually 0, 0.75 or 0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"} (it needs "club" or "nearby": true, to say whom to ask; "invite" and "fill" alone are not enough): the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
 - POST /api/huddle/reply {"id", "yes", "why"?}: one yes (or no, with "why": "busy"|"time"|"place"|"price"|"quiet"|"none"); answer within a day or the place goes to the next player

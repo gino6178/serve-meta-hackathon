@@ -10,7 +10,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-members-"));
-Object.assign(process.env, { MEMBERS_FILE: `${tmp}/members.json`, MEMBERS_KEY_FILE: `${tmp}/members.key`, FEED_FILE: `${tmp}/feed.json`, TRUST_FILE: `${tmp}/trust.json`, NEEDS_FILE: `${tmp}/needs.json`, TASTE_FILE: `${tmp}/taste.json`, HUDDLE_FILE: `${tmp}/huddles.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_DEMO: "off", AGENT_KEYS_DIR: `${tmp}/agent_keys`, CONSENT_LOG: `${tmp}/consent.jsonl`,
+Object.assign(process.env, { CLUBS_FILE: `${tmp}/clubs.json`, MEMBERS_FILE: `${tmp}/members.json`, MEMBERS_KEY_FILE: `${tmp}/members.key`, FEED_FILE: `${tmp}/feed.json`, TRUST_FILE: `${tmp}/trust.json`, NEEDS_FILE: `${tmp}/needs.json`, TASTE_FILE: `${tmp}/taste.json`, HUDDLE_FILE: `${tmp}/huddles.json`, FEED_MEDIA_DIR: `${tmp}/media`, FEED_DEMO: "off", AGENT_KEYS_DIR: `${tmp}/agent_keys`, CONSENT_LOG: `${tmp}/consent.jsonl`,
   LOOP_DIR: `${tmp}/loop`, STORE_FILE: `${tmp}/players.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, GUARD: "off", LLM_URL: "http://127.0.0.1:9/v1", LOOP_WATCH: "off" });
 delete process.env.FB_APP_ID; delete process.env.IG_APP_ID;
 const M = await import("../src/members/members.js");
@@ -122,3 +122,47 @@ test("llms.txt: its A2A examples pass the very schemas the API checks", async ()
   assert.equal(found[0].proposal.minutes, undefined, "minutes is beside proposal, not in it");
   assert.ok(found[0].choices.length >= 1);
 });
+
+// ---- through the routes ----
+const { Readable } = await import("node:stream");
+const route = async (method, pathName, body, headers = {}) => {
+  const api = await import("../src/members/api.js"), raw = body === undefined ? "" : JSON.stringify(body);
+  const rq = Object.assign(Readable.from(raw ? [Buffer.from(raw)] : []), { method, url: pathName, headers });
+  let out = null; await api.route(rq, {}, new URL(`http://x${pathName}`), { json: (_res, code, b) => { out = { code, body: b }; }, o: {} });
+  return out;
+};
+const feedJoin = async (player, body) => {
+  const api = await import("../src/feed/api.js");
+  return new Promise((ok) => {
+    const res = { writeHead(code) { this.code = code; }, end(b) { ok({ code: this.code, body: JSON.parse(b) }); }, write() {} };
+    api.handle(Object.assign(Readable.from([Buffer.from(JSON.stringify(body))]), { method: "POST", headers: {} }), res, new URL("http://x/api/feed/join"), { as: player });
+  });
+};
+
+test("a join outside the person's own limits stands with a note; their agent is refused it, a full game's waitlist too", async () => {
+  const T = await import("../src/members/taste.js");
+  const ana = M.demo("Ana Lee").member, ben = M.demo("Ben Wu").member, cy = M.demo("Cy Ito").member;
+  T.setLimits(ben.id, { windows: [{ days: ["Sat"], from: "09:00", to: "12:00" }] });
+  T.setDelegate(ben.id, { on: true, maxEach: 500, newPeople: true });
+  const k = agentKey(); M.addAgent(ben.id, { name: "Ben's agent", jwk: k.jwk });
+  const open = (await P.post(ana.id, { invite: { sport: "badminton", day: "Thu", start: "19:00", where: "Riverside", spots: 3 } })).post.id;
+  const full = (await P.post(ana.id, { invite: { sport: "badminton", day: "Wed", start: "19:00", where: "Riverside", spots: 1 } })).post.id;
+  P.join(cy.id, full);
+  const viaAgent = async (post) => { const p = "/api/agent-channel/join", body = { post }; return route("POST", p, body, signed(k, "POST", p, JSON.stringify(body))); };
+  for (const post of [open, full]) {
+    const r = await viaAgent(post);
+    assert.equal(r.code, 403, JSON.stringify(r.body)); assert.equal(r.body.needs, "person"); assert.match(r.body.error, /outside their limits \(not a good time\)/);
+  }
+  assert.ok(!P.find(open).invite.going.includes(ben.id) && !(P.find(full).invite.waitlist || []).includes(ben.id), "the agent changed nothing");
+  // the person's own join: allowed, and said (a weekday game too)
+  const own = await feedJoin(ben.id, { post: open });
+  assert.equal(own.code, 200); assert.ok(own.body.post.invite.joined);
+  assert.match(own.body.note, /outside the limits you set for your agent \(not a good time\)\. You joined it yourself, so it stands/);
+  const wait = await feedJoin(ben.id, { post: full });
+  assert.ok(wait.body.waitlisted); assert.match(wait.body.note, /You put yourself on its waitlist, so it stands/);
+  // inside the limits: no note
+  T.setLimits(ben.id, { windows: null });
+  const fine = (await P.post(ana.id, { invite: { sport: "badminton", day: "Fri", start: "19:00", where: "Riverside", spots: 3 } })).post.id;
+  assert.equal((await feedJoin(ben.id, { post: fine })).body.note, undefined);
+});
+

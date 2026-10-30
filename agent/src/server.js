@@ -485,7 +485,7 @@ const gateway = http.createServer(async (req, res) => {
     safety.enter("app");
   }
   try {
-    if (u.pathname.startsWith("/api/") && await membersApi.route(req, res, u, { json, o, forget: (id) => feedPosts.forget(id) })) return;
+    if (u.pathname.startsWith("/api/") && await membersApi.route(req, res, u, { json, o, forget: (id, opts) => feedPosts.forget(id, opts) })) return;
     if (u.pathname.startsWith("/api/") && await webapi.route(req, res, u, { json, bodyOf, o })) return;
     if (u.pathname === "/api/status") {
       return json(res, 200, { llm: await health(), messenger: { enabled: msn.state.enabled, page: msn.state.page, error: msn.state.error, lastEvent: msn.state.lastEvent }, reel: reel.ready(), reelEffects: reel.effectsReady(), places: places.ready(), health: true,
