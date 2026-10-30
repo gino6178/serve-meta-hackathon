@@ -17,6 +17,10 @@
 //   z, every look   the old rule at every 5-minute look, against a window of the same length (as flags.js did)
 //   e-process       the new default (loop/anytime.js) at every 5-minute look, against the 7 days before the ship
 // Each rule is the code flags.js runs (anytime.softRise), not a copy of it.
+//
+// --mde (out: ../submission/results/canary_mde.json) sweeps the bad change instead: Not this week from 25% before to
+// 27.5% .. 85% after (every 2.5 points; 85% leaves no Yes), and gives, per canary size and rule, the smallest rise in
+// the share of thumbs down caught at least 80% of the time over the 7 days, and the null's false-rollback rate.
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
@@ -101,8 +105,8 @@ function trial(r, n, sc) {
   return { out, before: before.length, after: after.length };
 }
 
-function cell({ scenario, n, trials, seed }) {
-  const r = rng(seed), sc = SCENARIOS[scenario], hits = Object.fromEntries(RULES.map((k) => [k, []]));
+function cell({ scenario, n, trials, seed, sc = SCENARIOS[scenario] }) {
+  const r = rng(seed), hits = Object.fromEntries(RULES.map((k) => [k, []]));
   let thumbsBefore = 0, thumbsAfter = 0;
   for (let t = 0; t < trials; t++) {
     const { out, before, after } = trial(r, n, sc);
@@ -134,10 +138,16 @@ if (!isMainThread) {
 } else {
   const arg = (name, dflt) => { const i = process.argv.indexOf(`--${name}`); return i > 0 ? process.argv[i + 1] : dflt; };
   const here = path.dirname(fileURLToPath(import.meta.url));
-  const trials = +arg("trials", 20000), seed = +arg("seed", 7), out = path.resolve(arg("out", path.join(here, "../../submission/results/canary_sequential.json")));
+  const mde = process.argv.includes("--mde");
+  const trials = +arg("trials", mde ? 10000 : 20000), seed = +arg("seed", 7), out = path.resolve(arg("out", path.join(here, `../../submission/results/${mde ? "canary_mde" : "canary_sequential"}.json`)));
   const threads = Math.max(1, Math.min(+arg("threads", 12), os.cpus().length));
   const t0 = Date.now();
-  const jobs = Object.keys(SCENARIOS).flatMap((scenario, si) => SIZES.map((n, ni) => ({ scenario, n, trials, seed: seed * 1000 + si * 100 + ni })));
+  // --mde: the null, then each bad rate, per size; a rate's cell is named by its Not this week after the ship
+  const AFTER = Array.from({ length: 24 }, (_, i) => +(0.275 + i * 0.025).toFixed(3));
+  const jobs = mde
+    ? SIZES.flatMap((n, ni) => [{ scenario: "null", n, trials, seed: seed * 1000 + ni },
+      ...AFTER.map((p, pi) => ({ scenario: `bad ${p}`, n, trials, seed: seed * 1000 + (pi + 1) * 100 + ni, sc: { before: 0.25, after: p } }))])
+    : Object.keys(SCENARIOS).flatMap((scenario, si) => SIZES.map((n, ni) => ({ scenario, n, trials, seed: seed * 1000 + si * 100 + ni })));
   const done = [];
   let next = 0;
   await new Promise((resolve, reject) => {
@@ -153,6 +163,37 @@ if (!isMainThread) {
     };
     for (let i = 0; i < threads; i++) start();
   });
+  if (mde) {
+    // the share of thumbs down is Not this week among the asks that got a thumb: p / (1 - 0.15)
+    const sh = (p) => p / (1 - NO_THUMB), POWER = 0.8, cellOf = (s, n) => done.find((c) => c.scenario === s && c.n === n);
+    const rows = SIZES.flatMap((n) => RULES.map((rule) => {
+      const rate = (s) => cellOf(s, n).hits[rule].length / trials, nul = cellOf("null", n).hits[rule].length;
+      const curve = AFTER.map((p) => ({ after: p, shareRise: +(sh(p) - sh(0.25)).toFixed(4), caught: +rate(`bad ${p}`).toFixed(4) }));
+      // the smallest rate from which every larger one is caught 80% of the time (noise can wobble a curve near 80%)
+      let i = curve.length;
+      while (i > 0 && curve[i - 1].caught >= POWER) i--;
+      const at = curve[i];
+      return { canary: n, rule, falseRollback: +(nul / trials).toFixed(4), falseRollbackCi95: wilson(nul, trials),
+        mde: at ? { after: at.after, shareRise: at.shareRise, caught: at.caught, caughtCi95: wilson(Math.round(at.caught * trials), trials) } : null, curve };
+    }));
+    const result = {
+      label: "Minimum detectable effect of the soft-breach rule: the smallest rise in the share of thumbs down caught at least 80% of the time over a 7-day canary, looked at every 5 minutes, and the false-rollback rate on a change that does nothing. Simulated thumbs, the real rule (loop/anytime.js). No model.",
+      at: new Date().toISOString(), seconds: Math.round((Date.now() - t0) / 1000), trials, seed, power: POWER, alpha: ALPHA, z: Z,
+      model: { members: SIZES, before: "Not this week 25% of asks (a thumbs-down share of 29.4%)", after: `Not this week ${AFTER[0]} .. ${AFTER.at(-1)} of asks, every 0.025`, anotherTime: NO_THUMB,
+        shareRise: "the rise in thumbs down among the asks that got a thumb, (after - 0.25) / 0.85; the rule needs 10 points of it before any test", schedule: "as canary_sequential.json" },
+      rules: { "z, once": "LOOP_SOFT_TEST=z looked at once, at the canary's end (a reference, not what runs)", "z, every look": "LOOP_SOFT_TEST=z as flags.js runs it", "e-process": "the default, as flags.js runs it" },
+      mde: "null when no rate up to 85% is caught 80% of the time",
+      rows,
+    };
+    fs.mkdirSync(path.dirname(out), { recursive: true });
+    fs.writeFileSync(out, JSON.stringify(result, null, 1) + "\n");
+    const pc = (x) => (x == null ? "-" : `${(x * 100).toFixed(1)}%`);
+    console.log(`${trials} trials per cell, ${result.seconds} s -> ${path.relative(process.cwd(), out)}`);
+    console.log("| canary | rule | smallest rise in thumbs-down share caught 80% | caught there | false rollback, nothing changed |");
+    console.log("|---|---|---|---|---|");
+    for (const x of rows) console.log(`| ${x.canary} | ${x.rule} | ${x.mde ? `+${(x.mde.shareRise * 100).toFixed(1)} points (Not this week 25% -> ${pc(x.mde.after)})` : "none up to 85%"} | ${pc(x.mde?.caught)} | ${pc(x.falseRollback)} |`);
+    process.exit(0);
+  }
   const rows = jobs.flatMap((j) => summary(done.find((c) => c.scenario === j.scenario && c.n === j.n)));
   const result = {
     label: "The soft-breach rule under the monitor's schedule: a look every 5 minutes for the 7 days of a canary. Simulated thumbs, the real rule (loop/anytime.js). No model.",

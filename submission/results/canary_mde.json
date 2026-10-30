@@ -1,0 +1,1711 @@
+{
+ "label": "Minimum detectable effect of the soft-breach rule: the smallest rise in the share of thumbs down caught at least 80% of the time over a 7-day canary, looked at every 5 minutes, and the false-rollback rate on a change that does nothing. Simulated thumbs, the real rule (loop/anytime.js). No model.",
+ "at": "2026-10-30T10:33:20.771Z",
+ "seconds": 106,
+ "trials": 10000,
+ "seed": 7,
+ "power": 0.8,
+ "alpha": 0.05,
+ "z": 1.645,
+ "model": {
+  "members": [
+   3,
+   5,
+   10,
+   20
+  ],
+  "before": "Not this week 25% of asks (a thumbs-down share of 29.4%)",
+  "after": "Not this week 0.275 .. 0.85 of asks, every 0.025",
+  "anotherTime": 0.15,
+  "shareRise": "the rise in thumbs down among the asks that got a thumb, (after - 0.25) / 0.85; the rule needs 10 points of it before any test",
+  "schedule": "as canary_sequential.json"
+ },
+ "rules": {
+  "z, once": "LOOP_SOFT_TEST=z looked at once, at the canary's end (a reference, not what runs)",
+  "z, every look": "LOOP_SOFT_TEST=z as flags.js runs it",
+  "e-process": "the default, as flags.js runs it"
+ },
+ "mde": "null when no rate up to 85% is caught 80% of the time",
+ "rows": [
+  {
+   "canary": 3,
+   "rule": "z, once",
+   "falseRollback": 0.06,
+   "falseRollbackCi95": [
+    0.0555,
+    0.0648
+   ],
+   "mde": {
+    "after": 0.6,
+    "shareRise": 0.4118,
+    "caught": 0.8175,
+    "caughtCi95": [
+     0.8098,
+     0.8249
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.0749
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.1067
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.1361
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.1902
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.2385
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.3038
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.3527
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.4249
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.5032
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.5563
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.6304
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.706
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.7628
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.8175
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 0.8674
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 0.9135
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 0.9395
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 0.9593
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 0.9777
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 0.99
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 0.995
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 0.9982
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 3,
+   "rule": "z, every look",
+   "falseRollback": 0.1923,
+   "falseRollbackCi95": [
+    0.1847,
+    0.2001
+   ],
+   "mde": {
+    "after": 0.55,
+    "shareRise": 0.3529,
+    "caught": 0.8377,
+    "caughtCi95": [
+     0.8303,
+     0.8448
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.2307
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.2702
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.3222
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.3928
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.4405
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.5061
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.5683
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.6321
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.6881
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.7377
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.7939
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.8377
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.8727
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.906
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 0.9355
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 0.9609
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 0.9746
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 0.9819
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 0.991
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 0.9959
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 0.9976
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 0.9996
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 3,
+   "rule": "e-process",
+   "falseRollback": 0.0061,
+   "falseRollbackCi95": [
+    0.0048,
+    0.0078
+   ],
+   "mde": {
+    "after": 0.75,
+    "shareRise": 0.5882,
+    "caught": 0.8093,
+    "caughtCi95": [
+     0.8015,
+     0.8169
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.0075
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.0118
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.0199
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.0276
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.0365
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.0542
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.0758
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.1
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.1273
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.1552
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.2047
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.2541
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.3147
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.3777
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 0.4393
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 0.5218
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 0.6022
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 0.6628
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 0.7389
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 0.8093
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 0.8712
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 0.9235
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 0.9655
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 0.9908
+    }
+   ]
+  },
+  {
+   "canary": 5,
+   "rule": "z, once",
+   "falseRollback": 0.0513,
+   "falseRollbackCi95": [
+    0.0471,
+    0.0558
+   ],
+   "mde": {
+    "after": 0.525,
+    "shareRise": 0.3235,
+    "caught": 0.821,
+    "caughtCi95": [
+     0.8134,
+     0.8284
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.0821
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.1258
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.1766
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.2506
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.3176
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.4163
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.4997
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.5912
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.6725
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.7474
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.821
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.8776
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.9194
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.9495
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 0.9725
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 0.9871
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 0.9921
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 0.9958
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 0.9989
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 0.9997
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 0.9999
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 1
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 5,
+   "rule": "z, every look",
+   "falseRollback": 0.2173,
+   "falseRollbackCi95": [
+    0.2093,
+    0.2255
+   ],
+   "mde": {
+    "after": 0.475,
+    "shareRise": 0.2647,
+    "caught": 0.8274,
+    "caughtCi95": [
+     0.8199,
+     0.8347
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.2676
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.3451
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.4104
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.488
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.5546
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.6393
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.7121
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.7764
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.8274
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.8703
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.9174
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.9422
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.964
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.977
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 0.9887
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 0.9949
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 0.9974
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 0.9987
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 0.9993
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 1
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 1
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 1
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 5,
+   "rule": "e-process",
+   "falseRollback": 0.0055,
+   "falseRollbackCi95": [
+    0.0042,
+    0.0072
+   ],
+   "mde": {
+    "after": 0.675,
+    "shareRise": 0.5,
+    "caught": 0.8475,
+    "caughtCi95": [
+     0.8403,
+     0.8544
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.0084
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.0159
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.022
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.0374
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.0563
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.0851
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.1174
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.156
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.2181
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.2809
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.358
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.4453
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.5216
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.6215
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 0.6984
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 0.7873
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 0.8475
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 0.905
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 0.9482
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 0.9736
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 0.9875
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 0.9972
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 0.9997
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 10,
+   "rule": "z, once",
+   "falseRollback": 0.0522,
+   "falseRollbackCi95": [
+    0.048,
+    0.0567
+   ],
+   "mde": {
+    "after": 0.45,
+    "shareRise": 0.2353,
+    "caught": 0.8457,
+    "caughtCi95": [
+     0.8385,
+     0.8526
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.0988
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.1738
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.2626
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.3927
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.5094
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.6351
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.7469
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.8457
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.9023
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.948
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.9754
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.9893
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.9956
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.9992
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 0.9996
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 0.9999
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 1
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 1
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 1
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 1
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 1
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 1
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 10,
+   "rule": "z, every look",
+   "falseRollback": 0.2623,
+   "falseRollbackCi95": [
+    0.2538,
+    0.271
+   ],
+   "mde": {
+    "after": 0.4,
+    "shareRise": 0.1765,
+    "caught": 0.8164,
+    "caughtCi95": [
+     0.8087,
+     0.8239
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.3417
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.4418
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.5351
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.6514
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.7402
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.8164
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.883
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.9366
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.9623
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.9809
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.9908
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.9973
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.9988
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.9999
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 1
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 1
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 1
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 1
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 1
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 1
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 1
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 1
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 10,
+   "rule": "e-process",
+   "falseRollback": 0.005,
+   "falseRollbackCi95": [
+    0.0038,
+    0.0066
+   ],
+   "mde": {
+    "after": 0.575,
+    "shareRise": 0.3824,
+    "caught": 0.8699,
+    "caughtCi95": [
+     0.8632,
+     0.8764
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.0095
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.0162
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.0328
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.0588
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.0973
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.1628
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.2377
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.3394
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.446
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.5728
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.6855
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.7897
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.8699
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.9269
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 0.9635
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 0.9858
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 0.9951
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 0.9982
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 0.9993
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 1
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 1
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 1
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 20,
+   "rule": "z, once",
+   "falseRollback": 0.0434,
+   "falseRollbackCi95": [
+    0.0396,
+    0.0476
+   ],
+   "mde": {
+    "after": 0.4,
+    "shareRise": 0.1765,
+    "caught": 0.8822,
+    "caughtCi95": [
+     0.8757,
+     0.8884
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.1152
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.2445
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.4106
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.6077
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.7701
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.8822
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.9497
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.9802
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.9936
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.9984
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.9999
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 1
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 1
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 1
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 1
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 1
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 1
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 1
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 1
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 1
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 1
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 1
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 20,
+   "rule": "z, every look",
+   "falseRollback": 0.2961,
+   "falseRollbackCi95": [
+    0.2872,
+    0.3051
+   ],
+   "mde": {
+    "after": 0.35,
+    "shareRise": 0.1176,
+    "caught": 0.8166,
+    "caughtCi95": [
+     0.8089,
+     0.8241
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.4094
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.5503
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.696
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.8166
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.9031
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.9551
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.9833
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.9934
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.9982
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.9996
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 1
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 1
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 1
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 1
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 1
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 1
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 1
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 1
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 1
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 1
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 1
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 1
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  },
+  {
+   "canary": 20,
+   "rule": "e-process",
+   "falseRollback": 0.0046,
+   "falseRollbackCi95": [
+    0.0035,
+    0.0061
+   ],
+   "mde": {
+    "after": 0.475,
+    "shareRise": 0.2647,
+    "caught": 0.8007,
+    "caughtCi95": [
+     0.7928,
+     0.8084
+    ]
+   },
+   "curve": [
+    {
+     "after": 0.275,
+     "shareRise": 0.0294,
+     "caught": 0.0096
+    },
+    {
+     "after": 0.3,
+     "shareRise": 0.0588,
+     "caught": 0.0232
+    },
+    {
+     "after": 0.325,
+     "shareRise": 0.0882,
+     "caught": 0.0492
+    },
+    {
+     "after": 0.35,
+     "shareRise": 0.1176,
+     "caught": 0.1065
+    },
+    {
+     "after": 0.375,
+     "shareRise": 0.1471,
+     "caught": 0.2009
+    },
+    {
+     "after": 0.4,
+     "shareRise": 0.1765,
+     "caught": 0.3364
+    },
+    {
+     "after": 0.425,
+     "shareRise": 0.2059,
+     "caught": 0.4898
+    },
+    {
+     "after": 0.45,
+     "shareRise": 0.2353,
+     "caught": 0.6589
+    },
+    {
+     "after": 0.475,
+     "shareRise": 0.2647,
+     "caught": 0.8007
+    },
+    {
+     "after": 0.5,
+     "shareRise": 0.2941,
+     "caught": 0.9017
+    },
+    {
+     "after": 0.525,
+     "shareRise": 0.3235,
+     "caught": 0.9629
+    },
+    {
+     "after": 0.55,
+     "shareRise": 0.3529,
+     "caught": 0.986
+    },
+    {
+     "after": 0.575,
+     "shareRise": 0.3824,
+     "caught": 0.9975
+    },
+    {
+     "after": 0.6,
+     "shareRise": 0.4118,
+     "caught": 0.9988
+    },
+    {
+     "after": 0.625,
+     "shareRise": 0.4412,
+     "caught": 0.9999
+    },
+    {
+     "after": 0.65,
+     "shareRise": 0.4706,
+     "caught": 1
+    },
+    {
+     "after": 0.675,
+     "shareRise": 0.5,
+     "caught": 1
+    },
+    {
+     "after": 0.7,
+     "shareRise": 0.5294,
+     "caught": 1
+    },
+    {
+     "after": 0.725,
+     "shareRise": 0.5588,
+     "caught": 1
+    },
+    {
+     "after": 0.75,
+     "shareRise": 0.5882,
+     "caught": 1
+    },
+    {
+     "after": 0.775,
+     "shareRise": 0.6176,
+     "caught": 1
+    },
+    {
+     "after": 0.8,
+     "shareRise": 0.6471,
+     "caught": 1
+    },
+    {
+     "after": 0.825,
+     "shareRise": 0.6765,
+     "caught": 1
+    },
+    {
+     "after": 0.85,
+     "shareRise": 0.7059,
+     "caught": 1
+    }
+   ]
+  }
+ ]
+}

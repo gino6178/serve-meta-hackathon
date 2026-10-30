@@ -191,6 +191,35 @@ itself. The 3B does better at every threshold (0.5: 98% of the decider's choices
 about three times as long on the CPU. On a busy server that means more decisions turned away to Glimmer
 (`A2A_STUDENT_SURE=0.5` with `serve.sh serve-jev-3b-v3-Q4_K_M.gguf` serves it).
 
+### Is the 1B's confidence calibrated?
+
+`node agent/test/student_calibration.mjs` (`submission/results/student_calibration.json`; `--self-test` checks it on
+synthetic cases). From the saved per-case probabilities, which are the **bf16** 1B v3's: the served int4 picks the
+same option on 492 of 500 test cases and 183 of 196 decider cases, but its per-case probabilities stayed on the VM.
+Confidence is the pick's probability; agreement is the share of Glimmer's answers that match it; a case is answered
+when the confidence reaches the threshold and the student's reading of which times work matches code's.
+
+| Set | Agreement | Mean confidence | ECE (10 bins) | At 0.6: answered / disagreement | At 0.9 | At 0.95 |
+|---|---|---|---|---|---|---|
+| test (500) | 89.5% | 93.8% | 0.052 | 96.2% / 9.2% | 80.6% / 5.5% | 74.0% / 4.7% |
+| decider's cases (196) | 68.1% | 74.2% | 0.061 | 70.9% / 23.4% | 29.1% / 4.4% | 22.4% / 2.3% |
+
+The student is a little overconfident on both sets, most in the middle (on the decider's cases, 0.5 to 0.6: confidence
+55%, agreement 47%); above 0.9 it is close (97% against 96%).
+
+Thresholds for "disagreement with the teacher at most 5%", chosen on one half (by member on the decider's cases; the
+test file names no member, so by case) and checked on the other:
+
+- **Conformal risk control** (as `cascade_analysis.mjs`; it bounds the disagreement over *all* cases, counting a case
+  the student leaves to Glimmer as 0): 0.79 on the test set (held out: 90.8% answered, 9.3% disagreement among them,
+  8.4% over all, above the 5% the bound holds on average, on 250 cases) and 0.81 on the decider's cases (32.6%
+  answered, 5.2% among them, 1.7% over all).
+- **Among answered cases only** (learn-then-test, Hoeffding-Bentkus, 11 thresholds at 0.05 / 11): no threshold can be
+  certified at this size. The best is 0.99 on the test half (119 answered, 2.5%, p = 0.39) and 0.95 on the decider half
+  (24 answered, 4.2%). Glimmer disagrees with itself 11% of the time on the test set and 26% on the decider's cases,
+  so 5% against it is a strict goal: the served 0.6 keeps 77% agreement among what it answers there, which is the
+  trade docs above chose (Glimmer calls saved against agreement), not a 5% guarantee.
+
 ### End to end
 
 The merged code, over A2A (`EVAL_A2A=1`), with routing on. Muse Glimmer ran on a cloud A100 test endpoint (the same
