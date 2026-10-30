@@ -23,6 +23,7 @@ import MessengerSetup from "./pages/MessengerSetup.jsx";
 import Clubs from "./pages/Clubs.jsx";
 import InviteLink from "./pages/InviteLink.jsx";
 import Mark from "./components/Mark.jsx";
+import Huddle from "./pages/Huddle.jsx";
 
 // Serve's shell: a sidebar on a computer and a tab bar on a phone, the way a social app has them. Five tabs (the
 // feed, your agent, the club, play and you), Messenger as the inbox, and the rest under More. Pages are picked by the
@@ -33,6 +34,7 @@ export function go(path) { location.hash = "/" + path; window.scrollTo(0, 0); }
 const TABS = [
   { k: "social", label: "Feed", icon: "live", on: ["social", "join"] },
   { k: "home", label: "Agent", icon: "spark", on: ["home", "autopilot", "chats"] },
+  { k: "huddle", label: "Huddle", icon: "shared", on: ["huddle"] },
   { k: "club", label: "Club", icon: "coaches", on: ["club"] },
   { k: "play", label: "Play", icon: "book", on: ["play", "courts"] },
   { k: "you", label: "You", icon: "you", on: ["you", "body", "memory", "highlights", "match"] },
@@ -115,7 +117,7 @@ function Shell({ page, club }) {
         <p className="side-status" title="Every agent runs on Muse Glimmer on a GPU you own; your videos, body log and memory never leave it"><i aria-hidden="true" /><span className="lbl">Muse Glimmer · your server</span></p>
       </header>
       <nav className="tabbar" aria-label="Main">
-        {TABS.map((it) => <a key={it.k} href={href(it.k)} aria-current={cur(it)}><span className="tab-ic"><Icon name={it.icon} size={24} />{badge(it)}</span><span>{it.label}</span></a>)}
+        {TABS.filter((it) => it.k !== "club").map((it) => <a key={it.k} href={href(it.k)} aria-current={cur(it)}><span className="tab-ic"><Icon name={it.icon} size={24} />{badge(it)}</span><span>{it.label}</span></a>)}
       </nav>
     </>
   );
@@ -126,7 +128,12 @@ function GameOn() {
   const [notes, setNotes] = useState([]);
   useEffect(() => {
     let live = true;
-    const ask = () => document.visibilityState === "visible" && agentFetch("/api/feed/notices").then((r) => r.json()).then((j) => { if (live && j.notices?.length) { setNotes((x) => [...x, ...j.notices]); dispatchEvent(new Event("serve:notices")); } }).catch(() => {});
+    const ask = () => {
+      if (document.visibilityState !== "visible") return;
+      agentFetch("/api/feed/notices").then((r) => r.json()).then((j) => { if (live && j.notices?.length) { setNotes((x) => [...x, ...j.notices]); dispatchEvent(new Event("serve:notices")); } }).catch(() => {});
+      // the member's agent, unasked: a new game near them that fits how they play (at most one every six hours)
+      agentFetch("/api/huddle/nudge").then((r) => r.json()).then((j) => { if (live && j.nudge) setNotes((x) => [...x, { kind: "nudge", text: j.nudge.text, nudge: true }]); }).catch(() => {});
+    };
     ask(); const t = setInterval(ask, 30000); addEventListener("visibilitychange", ask);
     return () => { live = false; clearInterval(t); removeEventListener("visibilitychange", ask); };
   }, []);
@@ -135,8 +142,8 @@ function GameOn() {
   return (
     <div className="toast checkback gameon" role="status">
       <span className="agent-dot" aria-hidden="true" />
-      <span>{n.kind === "gameon" ? <b>Game on </b> : null}{n.text.replace(/^Game on: /, "")}</span>
-      {n.post && <a className="btn sm primary" href="#/club" onClick={() => setNotes((x) => x.slice(1))}>Open</a>}
+      <span>{n.kind === "gameon" ? <b>Game on </b> : n.kind === "nudge" ? <b>Your agent found a game </b> : n.kind === "huddle" ? <b>Your agent </b> : null}{n.text.replace(/^Game on: /, "")}</span>
+      {(n.huddle || n.nudge || n.post) && <a className="btn sm primary" href={n.huddle ? `#/huddle?id=${n.huddle}` : n.nudge ? "#/" : "#/club"} onClick={() => setNotes((x) => x.slice(1))}>Open</a>}
       <button className="icon-btn sm" aria-label="Dismiss" onClick={() => setNotes((x) => x.slice(1))}><Icon name="close" size={16} /></button>
     </div>
   );
@@ -171,7 +178,7 @@ function CheckBack() {
 const PAGES = {
   home: (c) => <Agent club={c} />, about: () => <Landing />, club: (c) => (/[?&](tab|demo)=/.test(location.hash) ? <Club club={c} /> : <Clubs />), goals: (c) => <Goals club={c} />,
   play: (c) => <Play data={c} />, you: (c) => <You club={c} />, autopilot: (c) => <Autopilot data={c} />, body: () => <Body />,
-  courts: () => <Courts />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, "messenger-setup": () => <MessengerSetup />, maintain: () => <Maintain />, social: (c) => <Social club={c} />, chats: (c) => <Chats club={c} />, join: () => <Join />, invite: () => <InviteLink />,
+  courts: () => <Courts />, huddle: () => <Huddle />, highlights: () => <Highlights />, match: () => <Highlights />, memory: () => <Memory />, messages: () => <Messages />, "messenger-setup": () => <MessengerSetup />, maintain: () => <Maintain />, social: (c) => <Social club={c} />, chats: (c) => <Chats club={c} />, join: () => <Join />, invite: () => <InviteLink />,
 };
 
 export default function App() {

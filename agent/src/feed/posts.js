@@ -214,7 +214,7 @@ function gameOn(p) {
 export function takeNotices(player) {
   const mine = (S.data().notices || []).filter((x) => x.player === player);
   if (mine.length) S.change((d) => { d.notices = d.notices.filter((x) => x.player !== player); });
-  return mine.map((x) => ({ text: x.text, kind: x.kind || "note", post: x.post || null }));
+  return mine.map((x) => ({ text: x.text, kind: x.kind || "note", post: x.post || null, ...(x.huddle ? { huddle: x.huddle } : {}) }));
 }
 export const pendingAnswers = new Set();
 function answerLater(postId, commentId, player, question) {
@@ -319,6 +319,16 @@ export function publicInvite(id, canSee = () => true) {
   const v = p.invite;
   return { id: p.id, sport: v.sport, day: v.day, start: v.start, where: v.where, at: v.at || null, spots: v.spots, going: v.going.length,
     full: v.going.length >= v.spots, host: first(authorOf(p.by.player || p.by.agentOf) || "A member"), room: p.room || null };
+}
+// the invites a member can see that still have room and are not theirs, for their agent to recommend (members/huddle.js)
+export function openInvites(viewer, canSee = () => true) {
+  return S.data().posts.filter((p) => p.kind === "invite" && p.invite && !p.held && !p.hidden && visible(p, viewer) && (!p.room || canSee(p.room))
+    && (p.by.player || p.by.agentOf) !== viewer && !p.invite.going.includes(viewer) && p.invite.going.length < p.invite.spots)
+    .map((p) => ({ id: p.id, at: p.at, room: p.room || null, host: first(authorOf(p.by.player || p.by.agentOf) || "A member"), invite: { ...p.invite, going: p.invite.going.length } }));
+}
+// a notice for a member, shown wherever they are in the app (GET /api/feed/notices); extra carries a link, e.g. { huddle }
+export function notify(player, kind, text, extra = {}) {
+  S.change((d) => { (d.notices ||= []).push({ player, at: deps.now(), kind, text, ...extra }); });
 }
 function visible(p, viewer) {
   const mine = p.by.player === viewer || p.by.agentOf === viewer;

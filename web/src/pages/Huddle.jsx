@@ -1,0 +1,270 @@
+import { useEffect, useRef, useState } from "react";
+import Icon from "../components/Icon.jsx";
+import TasteQuestion from "../components/TasteQuestion.jsx";
+import * as H from "../huddle.js";
+import { cap, pct, FACTOR, WHY } from "../huddle.js";
+import "./huddle.css";
+
+// Huddle: getting a game together with real people. Each person's agent answers for them the way they would (it
+// learns how they like to play from a few answers), the agents agree a time and a place, a venue's agent is asked for
+// a price, and everyone says yes once (agent src/members/huddle.js). Three tabs: get a game, courts and prices near
+// you (quiet hours, what a venue's agent would take), and how you play (what your agent has learned).
+const params = () => new URLSearchParams(location.hash.split("?")[1] || "");
+const TABS = [["game", "Get a game"], ["courts", "Courts & prices"], ["taste", "How you play"]];
+const setParam = (k, v) => { const p = params(); if (v == null) p.delete(k); else p.set(k, v); location.hash = `/huddle${p.toString() ? `?${p}` : ""}`; };
+
+export default function Huddle() {
+  const [tab, setTab] = useState(() => params().get("tab") || "game");
+  const [me, setMe] = useState(null), [err, setErr] = useState("");
+  const load = () => H.mine().then(setMe, (e) => setErr(e.message));
+  useEffect(() => { load(); const on = () => setTab(params().get("tab") || "game"); addEventListener("hashchange", on); return () => removeEventListener("hashchange", on); }, []);
+  return (
+    <div className="page huddle">
+      <header className="hd-head">
+        <h1 className="h1">Huddle</h1>
+        <p className="hd-sub">Your agent and theirs work out when and where. You say yes once.</p>
+      </header>
+      <div className="seg hd-tabs" role="tablist">
+        {TABS.map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} aria-checked={tab === k} onClick={() => setParam("tab", k === "game" ? null : k)}>{l}</button>)}
+      </div>
+      {err && <p className="join-err" role="alert">{err}</p>}
+      {me && !me.taste.home && <ShareHome onDone={load} />}
+      {me && tab === "game" && <GameTab me={me} reload={load} />}
+      {me && tab === "courts" && <CourtsTab me={me} />}
+      {me && tab === "taste" && <TasteTab me={me} reload={load} />}
+      {!me && !err && <p className="muted">Asking your agent…</p>}
+    </div>
+  );
+}
+
+function ShareHome({ onDone }) {
+  const [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  return (
+    <div className="hd-note">
+      <Icon name="pin" size={20} />
+      <div><b>Where do you usually play from?</b><p>Your rough area (about 1 km, never an address) lets the agents find courts in the middle of the group and work out each person's trip.</p>
+        {err && <p className="join-err" role="alert">{err}</p>}</div>
+      <button className="btn primary sm" disabled={busy} onClick={async () => { setBusy(true); setErr(""); try { await H.shareHome(); onDone(); } catch (e) { setErr(e.message); } setBusy(false); }}>{busy ? "Asking…" : "Share my area"}</button>
+    </div>
+  );
+}
+
+// ---- get a game ----
+function GameTab({ me, reload }) {
+  const p = params(), [open, setOpen] = useState(p.get("id"));
+  const pin = p.get("date") ? { date: p.get("date"), start: p.get("start"), place: p.get("place") } : null;
+  useEffect(() => { const on = () => setOpen(params().get("id")); addEventListener("hashchange", on); return () => removeEventListener("hashchange", on); }, []);
+  return (
+    <div className="hd-game">
+      {open ? <HuddleView id={open} onBack={() => { setParam("id", null); reload(); }} /> : <Ask me={me} pin={pin} club={p.get("club")} sport={p.get("sport")} onStarted={(h) => { reload(); setParam("id", h.id); }} />}
+      {me.huddles.length > 0 && (
+        <section className="hd-list" aria-label="Your games being worked out">
+          <h2 className="h3">Your huddles</h2>
+          <ul>{me.huddles.map((h) => (
+            <li key={h.id}><button className={open === h.id ? "on" : ""} onClick={() => setParam("id", h.id)}>
+              <span className={`hd-status s-${h.status}`}>{STATUS[h.status]}{h.ask ? " · needs you" : ""}</span>
+              <b>{cap(h.sport)}, {h.need} players{h.club ? ` · ${h.club}` : ""}</b>
+              <span>{h.pick ? `${h.pick.when} · ${h.pick.where}` : h.mine ? "You asked" : `${h.host} asked`}</span>
+            </button></li>
+          ))}</ul>
+        </section>
+      )}
+    </div>
+  );
+}
+const STATUS = { talking: "Agents talking", asking: "Agreed, asking", on: "Game on", stuck: "No time found", cancelled: "Called off" };
+
+function Ask({ me, pin, club: clubId, sport: sport0, onStarted }) {
+  const club0 = me.clubs.find((c) => c.id === clubId) || me.clubs[0] || null;
+  const [who, setWho] = useState(club0 ? `club:${club0.id}` : "pick"), [picked, setPicked] = useState([]);
+  const [sport, setSport] = useState(sport0 || club0?.sport || me.taste.sports[0] || "badminton"), [need, setNeed] = useState(4);
+  const [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  if (!me.clubs.length) return (
+    <div className="panel hd-empty"><b>Your agent gets games with people in your clubs.</b><p>Join a club near you, or start one, then come back: the agents will find who fits and when.</p><a className="btn primary sm" href="#/club">Find a club</a></div>
+  );
+  const go = async (e) => {
+    e.preventDefault(); setBusy(true); setErr("");
+    try { const r = await H.start({ sport, need, ...(who.startsWith("club:") ? { club: who.slice(5) } : { invite: picked }), ...(pin ? { pin } : {}) }); onStarted(r.huddle); } catch (x) { setErr(x.message); }
+    setBusy(false);
+  };
+  return (
+    <form className="panel hd-ask" onSubmit={go}>
+      <h2 className="h3">Get a game together</h2>
+      {pin && <p className="hd-pin"><Icon name="clock" size={16} />At the time you picked: {pin.date} {pin.start}</p>}
+      <div className="hd-row">
+        <label>Sport<select value={sport} onChange={(e) => setSport(e.target.value)}>{H.SPORTS.map((s) => <option key={s}>{s}</option>)}</select></label>
+        <label>Players, you included
+          <span className="hd-step"><button type="button" aria-label="Fewer" onClick={() => setNeed(Math.max(2, need - 1))}>−</button><b>{need}</b><button type="button" aria-label="More" onClick={() => setNeed(Math.min(12, need + 1))}>+</button></span>
+        </label>
+      </div>
+      <fieldset className="hd-who"><legend>With whom</legend>
+        {me.clubs.map((c) => (
+          <label key={c.id} className={who === `club:${c.id}` ? "on" : ""}><input type="radio" name="who" checked={who === `club:${c.id}`} onChange={() => setWho(`club:${c.id}`)} />
+            <span><b>Anyone in {c.name}</b><em>{c.members - 1} other{c.members === 2 ? "" : "s"}: the agents pick who fits best</em></span></label>
+        ))}
+        <label className={who === "pick" ? "on" : ""}><input type="radio" name="who" checked={who === "pick"} onChange={() => setWho("pick")} /><span><b>People I pick</b><em>Everyone you pick has to agree</em></span></label>
+      </fieldset>
+      {who === "pick" && (
+        <div className="hd-people">
+          {me.people.length ? me.people.map((x) => (
+            <button type="button" key={x.id} className={picked.includes(x.id) ? "on" : ""} aria-pressed={picked.includes(x.id)} onClick={() => setPicked(picked.includes(x.id) ? picked.filter((y) => y !== x.id) : [...picked, x.id])}>
+              {x.name.split(" ")[0]}{x.knows && <i title="Their agent knows how they like to play">✓</i>}
+            </button>
+          )) : <p className="muted">Nobody else is in your clubs yet.</p>}
+        </div>
+      )}
+      <p className="hd-how">Each person's agent answers for them from what it has learned: the time, how far, the price, a quiet court. Nobody shares a calendar or an address.</p>
+      {err && <p className="join-err" role="alert">{err}</p>}
+      <button className="btn primary" disabled={busy || (who === "pick" && !picked.length)}><Icon name="spark" size={18} />{busy ? "Starting…" : "Let the agents work it out"}</button>
+    </form>
+  );
+}
+
+function HuddleView({ id, onBack }) {
+  const [h, setH] = useState(null), [err, setErr] = useState(""), [said, setSaid] = useState(""), [busy, setBusy] = useState(false), [why, setWhy] = useState(false);
+  const end = useRef(null);
+  const load = () => H.one(id).then((r) => setH(r.huddle), (e) => setErr(e.message));
+  useEffect(() => { load(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (h?.status !== "talking") return; const t = setInterval(load, 1500); return () => clearInterval(t); }, [h?.status]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { end.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, [h?.talk?.length]);
+  const answer = async (yes, w = null) => { setBusy(true); try { const r = await H.reply(id, yes, w); setH(r.huddle); setSaid(r.line); setWhy(false); } catch (e) { setErr(e.message); } setBusy(false); };
+  if (err) return <div className="panel"><button className="link" onClick={onBack}>Back</button><p className="join-err" role="alert">{err}</p></div>;
+  if (!h) return <div className="panel"><p className="muted">Opening…</p></div>;
+  const pk = h.pick;
+  return (
+    <section className="panel hd-one" aria-label="The agents' talk">
+      <div className="hd-one-head">
+        <button className="link hd-back" onClick={onBack}><Icon name="back" size={16} />New game</button>
+        <span className={`hd-status s-${h.status}`}>{STATUS[h.status]}</span>
+      </div>
+      <h2 className="h3">{cap(h.sport)}, {h.need} players{h.club ? ` · anyone in ${h.club}` : ""}</h2>
+      {pk && (
+        <div className="hd-pick">
+          <div className="hd-pick-main"><b>{pk.when}</b><span>{pk.where}</span></div>
+          <ul className="hd-facts">
+            <li>{pk.kind === "venue" ? <>{pk.each ? `NT$${pk.each} each` : ""}{pk.off ? <em> · {pk.off}% under list</em> : null}</> : "Free public court"}</li>
+            <li>Usually {pct(pk.busy)} full then</li>
+            {pk.km != null && <li>Your trip {pk.km} km</li>}
+          </ul>
+          {pk.sample && <p className="hd-fine">The venue hasn't joined Serve yet: its list price is a sample, and nothing is paid here.</p>}
+          <ul className="hd-players">{h.players.map((x, i) => <li key={i} className={x.answer === "yes" ? "yes" : ""}>{x.answer === "yes" ? <Icon name="check" size={14} /> : <i className="hd-wait" />}{x.name}{x.host ? " (asked)" : ""}</li>)}</ul>
+          {h.ask && (
+            <div className="hd-yes">
+              <p><b>Your agent said yes for you.</b> Is it a yes from you too?</p>
+              <div className="cta-row"><button className="btn primary sm" disabled={busy} onClick={() => answer(true)}>Yes, I'm in</button><button className="btn ghost sm" disabled={busy} onClick={() => setWhy(!why)}>I can't</button></div>
+              {why && <div className="hd-why" role="group" aria-label="Why not">{WHY.map(([k, l]) => <button key={k} className="btn ghost sm" disabled={busy} onClick={() => answer(false, k)}>{l}</button>)}</div>}
+            </div>
+          )}
+          {h.status === "on" && h.post && <a className="btn ghost sm" href="#/social">See it in the feed</a>}
+        </div>
+      )}
+      {said && <p className="hd-learned" role="status"><Icon name="memory" size={16} />{said}</p>}
+      <ol className="hd-talk">
+        {h.talk.map((l, i) => (
+          <li key={i} className={`t-${l.from}${l.venue ? " t-venue" : ""}${l.agreed ? " t-agreed" : ""}`}>
+            <span className="hd-who-l">{l.from === "me" ? "Your agent" : l.venue ? `${l.who}'s agent` : `${l.who}'s agent`}{l.yes === true ? " · yes" : l.yes === false ? " · no" : ""}</span>
+            <p>{l.text}</p>
+          </li>
+        ))}
+        {h.status === "talking" && <li className="t-host t-typing"><span className="hd-who-l">Agents</span><p><i /><i /><i /></p></li>}
+        <li ref={end} aria-hidden="true" />
+      </ol>
+      {h.mine && ["talking", "asking", "stuck"].includes(h.status) && <button className="link hd-cancel" onClick={async () => { const r = await H.cancel(id).catch((e) => setErr(e.message)); if (r) setH(r.huddle); }}>Call it off</button>}
+    </section>
+  );
+}
+
+// ---- courts and prices ----
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dayOf = (date) => { const [y, m, d] = date.split("-").map(Number); return new Date(y, m - 1, d); };
+function CourtsTab({ me }) {
+  const [sport, setSport] = useState(me.taste.sports[0] || "badminton"), [r, setR] = useState(null), [err, setErr] = useState("");
+  useEffect(() => {
+    let live = true, t = null;
+    const load = () => H.places(sport).then((x) => { if (!live) return; setR(x); if (x.looking) t = setTimeout(load, 4000); }, (e) => setErr(e.message));
+    setR(null); load();
+    return () => { live = false; clearTimeout(t); };
+  }, [sport, me.taste.home]);
+  return (
+    <div className="hd-courts">
+      <div className="hd-row"><label>Sport<select value={sport} onChange={(e) => setSport(e.target.value)}>{H.SPORTS.map((s) => <option key={s}>{s}</option>)}</select></label></div>
+      <p className="hd-fine">How full a place is: an estimate from a typical week there and the games already on Serve. Sports centres' prices are samples until a venue joins Serve; their agent follows a venue's rule: an empty hour sells for less, a full one at the list price. In each grid, darker is busier.</p>
+      {err && <p className="join-err" role="alert">{err}</p>}
+      {r && !r.home && <p className="muted">Share your area first.</p>}
+      {(!r || r.looking) && r?.home !== false && <p className="muted hd-looking"><i className="hd-wait" />Looking at the map around you (OpenStreetMap can take up to a minute)…</p>}
+      {r?.places?.map((p) => <Place key={p.id} p={p} sport={sport} />)}
+      {r && !r.looking && r.home && !r.places.length && <p className="muted">No {sport} courts found near you on the map.</p>}
+    </div>
+  );
+}
+function Place({ p, sport }) {
+  const [show, setShow] = useState(false);
+  const days = [...new Set(p.grid.map((g) => g.date))], starts = [...new Set(p.grid.map((g) => g.start))].sort();
+  const cell = (d, s) => p.grid.find((g) => g.date === d && g.start === s);
+  const o = p.offer;
+  return (
+    <article className="panel hd-place">
+      <header><div><span className={`hd-kind k-${p.kind}`}>{p.kind === "venue" ? "Sports centre" : "Public court"}</span><h3>{p.name}</h3></div><span className="hd-km">{p.km} km</span></header>
+      <div className="hd-heat" role="table" aria-label={`How full ${p.name} usually is`}>
+        <div role="row" className="hh-row hh-head"><span />{starts.map((s) => <span key={s} role="columnheader">{s.slice(0, 2)}</span>)}</div>
+        {days.map((d) => (
+          <div role="row" className="hh-row" key={d}><span role="rowheader">{DAYS[dayOf(d).getDay()]}</span>
+            {starts.map((s) => { const c = cell(d, s); return <span key={s} role="cell" className="hh-c" style={c ? { "--b": c.busy } : undefined} title={c ? `${DAYS[dayOf(d).getDay()]} ${s}: usually ${pct(c.busy)} full` : "past"}>{c ? "" : "·"}</span>; })}
+          </div>
+        ))}
+      </div>
+      <p className="hd-quiet">Quietest: {p.quiet.map((q) => `${DAYS[dayOf(q.date).getDay()]} ${q.start} (${pct(q.busy)})`).join(", ")}</p>
+      {o && (
+        <div className="hd-offer">
+          <p><b>{o.off ? `NT$${o.price} instead of NT$${o.list}` : `NT$${o.list}, the list price`}</b> for a court, {DAYS[dayOf(p.at.date).getDay()]} {p.at.start} ({pct(o.busy)} full usually){o.each ? `, NT$${o.each} each for 4` : ""}.</p>
+          <div className="cta-row">
+            <a className="btn primary sm" href={`#/huddle?sport=${encodeURIComponent(sport)}&date=${p.at.date}&start=${p.at.start}&place=${encodeURIComponent(p.id)}`}>Get a game then</a>
+            <button className="btn ghost sm" onClick={() => setShow(!show)}>{show ? "Hide the talk" : "How the agents got there"}</button>
+          </div>
+          {show && <ol className="hd-talk sm">{o.lines.map((l, i) => <li key={i} className={l.from === "Your agent" ? "t-me" : "t-venue"}><span className="hd-who-l">{l.from}</span><p>{l.text}</p></li>)}</ol>}
+        </div>
+      )}
+      {p.kind === "public" && <p className="hd-fine">Free to use; the quiet hours are the ones to aim for.</p>}
+    </article>
+  );
+}
+
+// ---- how you play ----
+const PARTS = ["early", "morning", "afternoon", "evening"];
+function TasteTab({ me, reload }) {
+  const [q, setQ] = useState(null), [t, setT] = useState(me.taste), [busy, setBusy] = useState(false);
+  const ask = () => H.question().then((r) => setQ(r.question), () => {});
+  useEffect(() => { ask(); }, []);
+  const w = t.weights;
+  return (
+    <div className="hd-taste">
+      <section className="panel">
+        <div className="hd-sure"><span style={{ "--p": t.sure }} /><em>{t.answers >= 5 ? "Your agent knows enough to answer for you" : `${t.answers} of 5 answers: your agent still checks with you`}</em></div>
+        <p className="hd-summary">{t.summary}</p>
+        <TasteQuestion q={q} onAnswered={(r) => { setT(r.taste); setTimeout(ask, 900); }} />
+      </section>
+      <section className="panel hd-weights" aria-label="What matters to you">
+        <h2 className="h3">What matters to you</h2>
+        {Object.keys(FACTOR).map((k) => <div key={k} className="hw-row"><span>{FACTOR[k]}</span><span className="hw-bar"><i style={{ width: pct(w[k]) }} /></span><b>{pct(w[k])}</b></div>)}
+        <p className="hd-fine">Within about {t.maxKm} km{w.price > 0.2 ? `, aiming under NT$${t.priceCap} each` : ""}.</p>
+      </section>
+      <section className="panel" aria-label="Your times">
+        <h2 className="h3">Your times</h2>
+        <div className="hd-heat hd-week">
+          <div className="hh-row hh-head"><span />{PARTS.map((x) => <span key={x}>{x}</span>)}</div>
+          {DAYS.map((d) => <div className="hh-row" key={d}><span>{d}</span>{PARTS.map((x) => <span key={x} className="hh-c good" style={{ "--b": t.grid[`${d} ${x}`] }} title={`${d} ${x}: ${pct(t.grid[`${d} ${x}`])}`} />)}</div>)}
+        </div>
+        <p className="hd-fine">Darker is better for you. Until you answer, your agent assumes what suits most people who work or study: weekday evenings and weekend mornings.</p>
+      </section>
+      <section className="panel hd-set">
+        <h2 className="h3">Sports you play</h2>
+        <div className="hd-people">{H.SPORTS.map((s) => <button key={s} className={t.sports.includes(s) ? "on" : ""} aria-pressed={t.sports.includes(s)} onClick={async () => { const n = t.sports.includes(s) ? t.sports.filter((x) => x !== s) : [...t.sports, s]; const r = await H.setSports(n); setT(r.taste); reload(); }}>{s}</button>)}</div>
+        {t.learned.length > 0 && <><h2 className="h3">What your agent learned lately</h2><ul className="hd-lines">{t.learned.map((l, i) => <li key={i}>{l.text}</li>)}</ul></>}
+        <div className="cta-row">
+          <button className="btn ghost sm" disabled={busy} onClick={async () => { setBusy(true); await H.shareHome().catch(() => {}); reload(); setBusy(false); }}><Icon name="pin" size={16} />{t.home ? "Update my area" : "Share my area"}</button>
+          <button className="btn ghost sm" disabled={busy} onClick={async () => { if (!confirm("Forget what your agent learned about how you play?")) return; const r = await H.reset(); setT(r.taste); ask(); }}>Start over</button>
+        </div>
+      </section>
+    </div>
+  );
+}

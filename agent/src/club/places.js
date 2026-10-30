@@ -253,7 +253,7 @@ let lastGeo = 0;
 // the courts for a sport around a point, for the app's map: courts and sports centres only (no parks), every Overpass
 // mirror asked at once and the first answer taken, kept a month (no model)
 const near = new Map();
-export async function nearby({ lat, lon, sport = "basketball", radius = 2000 } = {}) {
+export async function nearby({ lat, lon, sport = "basketball", radius = 2000, wait = 8000 } = {}) {
   const at = { lat: +(+lat).toFixed(3), lon: +(+lon).toFixed(3) };
   if (!isFinite(at.lat) || !isFinite(at.lon) || Math.abs(at.lat) > 90 || Math.abs(at.lon) > 180) throw new Error("No location to search around.");
   const r = Math.min(5000, Math.max(500, +radius || 2000)), sp = String(sport).toLowerCase(), key = `${at.lat},${at.lon},${r},${sp}`;
@@ -261,7 +261,7 @@ export async function nearby({ lat, lon, sport = "basketball", radius = 2000 } =
   if (hit && Date.now() - hit.at < 30 * 864e5) return hit.places;
   const tag = OSM[sp] || sp.replace(/\s+/g, "_");
   const q = `[out:json][timeout:15];(nwr[leisure=pitch][sport~"(^|;)(${tag}|multi)(;|$)"](around:${r},${at.lat},${at.lon});nwr[leisure=sports_centre][sport~"(^|;)(${tag}|multi)(;|$)"](around:${r},${at.lat},${at.lon}););out center 60;`;
-  const ask = (url) => fetch(url, { method: "POST", headers: { "user-agent": UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q), signal: AbortSignal.timeout(8000) })
+  const ask = (url) => fetch(url, { method: "POST", headers: { "user-agent": UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q), signal: AbortSignal.timeout(wait) })
     .then((x) => (x.ok ? x.json() : Promise.reject(new Error(`OpenStreetMap is busy (${x.status})`))));
   const j = await Promise.any(OVERPASS.map(ask)).catch(() => null);
   // OpenStreetMap's public servers are often at capacity: then Google Places, when this server has a key. Google's terms:

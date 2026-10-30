@@ -19,6 +19,22 @@
 //   POST /api/clubs/session {club, present, courts, perCourt, start, end, minutes, day}   today's rotations and the parents' note
 //   POST /api/clubs/enter {club, level, pledge, on}   a charity tournament: enter (joins the club), change or withdraw
 //   POST /api/clubs/draw {club, courts, start, minutes}   the organiser makes the draw; it is said in the club's feed
+// Getting a game together, and how the member likes to play (huddle.js, taste.js, deals.js):
+//   GET  /api/huddle/me                      what the agent knows about the member, their games being worked out, who they can ask
+//   GET  /api/huddle/today                   what the agent puts in front of them now: yes-questions, a question, games near them, a deal
+//   GET  /api/huddle/nudge                   at most one toast every six hours: a new game near them that fits
+//   POST /api/huddle/home {lat, lon}         their rough area (rounded to about 1 km)
+//   POST /api/huddle/sports {sports}         the sports they play
+//   GET  /api/huddle/question                the agent's next quick question (two games; pick one)
+//   POST /api/huddle/answer {q, pick}        a or b or either: the agent learns from it and says what it learned
+//   POST /api/huddle/reset                   forget what the agent learned
+//   POST /api/huddle/start {sport, need, invite, club, pin}   the agents work out a time and a place
+//   GET  /api/huddle/one?id=                 one game being worked out: the agents' talk, the pick, who said yes
+//   POST /api/huddle/reply {id, yes, why}    the member's one yes (or no, and why)
+//   POST /api/huddle/cancel {id}             the host calls it off
+//   POST /api/huddle/game {post, yes, why}   join a game the agent recommended, or say why not
+//   GET  /api/huddle/places?sport=           courts near them: quiet hours, and for sports centres the venue agent's price
+//   POST /api/huddle/deal {place, date, start, players, sport}   ask a venue's agent for a price
 // The agent channel, every request signed by a registered agent's key (header serve-signature):
 //   GET  /api/agent-channel/feed             the feed as the agent's member sees it
 //   POST /api/agent-channel/post {text, invite}      a post, or an invite, as "<member>'s agent"
@@ -27,12 +43,15 @@
 import * as M from "./members.js";
 import * as P from "../feed/posts.js";
 import * as C from "./clubs.js";
+import * as H from "./huddle.js";
+import * as T from "./taste.js";
+import * as D from "./deals.js";
 
 const readRaw = (req, max = 64e3) => new Promise((ok) => { const parts = []; let n = 0, over = false; req.on("data", (c) => { n += c.length; if (n > max) over = true; else parts.push(c); }); req.on("end", () => ok(over ? null : Buffer.concat(parts))); req.on("error", () => ok(null)); });
 const redirect = (res, url) => { res.writeHead(302, { location: url, "cache-control": "no-store" }); res.end(); return true; };
 export const member = (req) => M.fromSession(req.headers["x-serve-session"]);
 // the routes a signed-in member may use without the gateway's token
-export const memberRoute = (p) => p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/") || p === "/api/clubs" || p.startsWith("/api/clubs/");
+export const memberRoute = (p) => p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/") || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/");
 export const publicRoute = (p) => p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p === "/api/invite";
 
 export async function route(req, res, u, { json, o, forget }) {
@@ -79,12 +98,16 @@ export async function route(req, res, u, { json, o, forget }) {
     }
     return send(404, { error: "no such route" });
   }
+  if (p.startsWith("/api/huddle/")) {
+    if (!me) return send(401, { error: "Sign in first." });
+    return huddle(req, res, p, new URL(req.url, "http://x").searchParams, me.id, send);
+  }
   if (!p.startsWith("/api/members/")) return false;
   if (!me) return send(401, { error: "Sign in first." });
   const raw = req.method === "POST" ? await readRaw(req) : null; let b = {}; try { b = JSON.parse(raw?.toString() || "{}"); } catch { /* empty */ }
   if (p === "/api/members/agents" && req.method === "POST") { const r = M.addAgent(me.id, b); return send(r.error ? 400 : 200, r); }
   if (p === "/api/members/agents/revoke" && req.method === "POST") { const r = M.revokeAgent(me.id, String(b.id || "")); return send(r.error ? 400 : 200, r); }
-  if (p === "/api/members/leave" && req.method === "POST") { const ids = M.leave(me.id); for (const id of ids) { forget?.(id); C.forget(id); } return send(200, { deleted: ids }); }
+  if (p === "/api/members/leave" && req.method === "POST") { const ids = M.leave(me.id); for (const id of ids) { forget?.(id); C.forget(id); H.forget(id); } return send(200, { deleted: ids }); }
   if (p === "/api/members/refusals") return send(200, { refusals: M.refusals() });
   return send(404, { error: "no such route" });
 }
@@ -101,5 +124,45 @@ async function channel(req, res, p, send) {
   if (p === "/api/agent-channel/post" && req.method === "POST") return out(await P.post(ag.id, { text: b.text, invite: b.invite || null, agent: { id: ag.id, owner } }));
   if (p === "/api/agent-channel/comment" && req.method === "POST") return out(await P.comment(ag.id, String(b.post || ""), b.text, { agent: { id: ag.id, owner } }));
   if (p === "/api/agent-channel/join" && req.method === "POST") return out(P.join(owner, String(b.post || ""), b.on !== false));
+  return send(404, { error: "no such route" });
+}
+
+async function huddle(req, res, p, q, me, send) {
+  let b = {};
+  if (req.method === "POST") { const raw = await readRaw(req); if (raw == null) return send(413, { error: "too big" }); try { b = JSON.parse(raw.toString() || "{}"); } catch { return send(400, { error: "the body is not JSON" }); } }
+  const out = (r) => send(r?.error ? r.code || 400 : 200, r);
+  const get = req.method === "GET", post = req.method === "POST";
+  if (p === "/api/huddle/me" && get) return send(200, { taste: T.view(T.get(me)), huddles: H.mineFor(me), ...H.people(me) });
+  if (p === "/api/huddle/today" && get) return send(200, await H.today(me));
+  if (p === "/api/huddle/nudge" && get) return send(200, H.nudge(me));
+  if (p === "/api/huddle/home" && post) return out(T.setHome(me, b));
+  if (p === "/api/huddle/sports" && post) return out(T.setSports(me, b.sports));
+  if (p === "/api/huddle/reset" && post) return send(200, { taste: T.view(T.reset(me)) });
+  // the question is rebuilt from the member's state, so the answer carries the two games it showed
+  if (p === "/api/huddle/question" && get) { const t = T.get(me); const places = t.home ? (await D.placesNear(t.home, t.sports[0] || "badminton", { wait: false })).map((x) => ({ ...x, km: +T.km(t.home, x).toFixed(1) })) : []; return send(200, { question: T.question(me, { places, force: true }) }); }
+  if (p === "/api/huddle/answer" && post) { if (!["a", "b", "either"].includes(b.pick)) return send(400, { error: "pick is a, b or either" }); return out(T.choose(me, b.q, b.pick)); }
+  if (p === "/api/huddle/start" && post) return out(H.start(me, b));
+  if (p === "/api/huddle/one" && get) { const h = H.find(String(q.get("id") || "")); return h && (h.host === me || h.invited.includes(me)) ? send(200, { huddle: H.view(h, me) }) : send(404, { error: "No such game." }); }
+  if (p === "/api/huddle/reply" && post) return out(await H.reply(me, String(b.id || ""), b.yes === true, b.why ? String(b.why) : null));
+  if (p === "/api/huddle/cancel" && post) return out(H.cancel(me, String(b.id || "")));
+  if (p === "/api/huddle/game" && post) return out(H.answerGame(me, String(b.post || ""), b.yes === true, b.why ? String(b.why) : null));
+  if (p === "/api/huddle/places" && get) {
+    const t = T.get(me), sport = String(q.get("sport") || t.sports[0] || "badminton").toLowerCase();
+    if (!t.home) return send(200, { places: [], home: false });
+    const places = await D.placesNear(t.home, sport, { venues: 4, courts: 4, wait: false });
+    return send(200, { home: true, sport, currency: D.CURRENCY, looking: D.loading(t.home, sport), places: places.map((x) => {
+      const k = +T.km(t.home, x).toFixed(1), qt = D.quietest(x);
+      const good = qt.grid.map((g) => ({ ...g, s: T.worth(t, { ...g, km: k, each: 0 }) + (1 - g.busy) })).sort((a1, b1) => b1.s - a1.s)[0];
+      return { id: x.id, name: x.name, kind: x.kind, km: k, lat: x.lat, lon: x.lon, quiet: qt.quiet, grid: qt.grid, ...(x.kind === "venue" ? { list: x.list, sample: true, offer: good && D.talk(x, { date: good.date, start: good.start, players: 4, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }), at: good } : {}) };
+    }) });
+  }
+  if (p === "/api/huddle/deal" && post) {
+    const t = T.get(me), sport = String(b.sport || t.sports[0] || "badminton").toLowerCase();
+    if (!t.home) return send(400, { error: "Share your rough area first." });
+    const x = (await D.placesNear(t.home, sport, { venues: 4, courts: 4 })).find((y) => y.id === b.place);
+    if (!x || x.kind !== "venue") return send(404, { error: "That venue isn't near you." });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || !/^\d{2}:\d{2}$/.test(b.start)) return send(400, { error: "Say the date and the time." });
+    return send(200, { deal: D.talk(x, { date: b.date, start: b.start, players: Math.min(12, Math.max(2, +b.players || 4)), weekly: !!b.weekly, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }), currency: D.CURRENCY });
+  }
   return send(404, { error: "no such route" });
 }

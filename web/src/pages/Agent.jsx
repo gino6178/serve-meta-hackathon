@@ -13,6 +13,8 @@ import { go } from "../App.jsx";
 import VoiceAsk from "../voice/VoiceAsk.jsx";
 import LiveTalk from "../voice/LiveTalk.jsx";
 import ClubSuggest from "../components/ClubSuggest.jsx";
+import ForYou from "../components/ForYou.jsx";
+import { SESSION_KEY } from "../agent.js";
 import "./clubs.css";
 import "./agent.css";
 
@@ -129,6 +131,9 @@ export default function Agent({ club }) {
               <button className="send" aria-label="Send to your agent" disabled={!text.trim() || !you}><Icon name="up" size={20} /></button>
             </form>
           </section>
+
+          {/* a signed-in member: their own agent's cards (huddles, questions, games near them, quiet hours) */}
+          {(() => { try { return localStorage.getItem(SESSION_KEY); } catch { return null; } })() && <ForYou />}
 
           {club && (() => {
             const h = habits(club.you.history || []).slice(0, 2), sore = soreNow(body.log || club.you.body || []);

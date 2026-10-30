@@ -30,9 +30,9 @@ const INTERNAL = "http://serve.internal";
 if (!TOKEN) { console.error("tenants: AGENT_TOKEN is not set"); process.exit(1); }
 fs.mkdirSync(ROOT, { recursive: true });
 
-// the club's routes, on the shared gateway
+// the club's routes, on the shared gateway (getting a game together is between members, so it is there too)
 const shared = (p) => p === "/api/status" || p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/")
-  || p === "/api/clubs" || p.startsWith("/api/clubs/") || p === "/api/invite" || p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p.startsWith("/a2a/");
+  || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/") || p === "/api/invite" || p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p.startsWith("/a2a/");
 
 // who a session belongs to, asked of the shared gateway (kept a minute)
 const seen = new Map();

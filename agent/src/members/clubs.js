@@ -101,6 +101,8 @@ export function suggest(viewer, { lat, lon, sport = null } = {}) {
   const v = view(near.c, viewer, from);
   return { club: v, why: `${v.km < 1 ? `${Math.round(v.km * 1000)} m` : `${v.km} km`} from you, ${v.sport}, ${v.members} member${v.members === 1 ? "" : "s"}` };
 }
+// the clubs a member is in, with everyone in them, for their agent to get a game together (huddle.js)
+export const mine = (player) => data().clubs.filter((c) => c.members.some((m) => m.id === player)).map((c) => ({ id: c.id, name: c.name, sport: c.sport, at: c.at, where: c.where, members: c.members.map((m) => ({ id: m.id, name: m.name })) }));
 // someone who posts in a club joins it (clubs are open); false for a club that is not there
 export function joinById(id, player, name) {
   const c = find(id);
