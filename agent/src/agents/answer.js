@@ -9,6 +9,8 @@ import { readClub } from "../club/club.js";
 import { organize } from "../body/body.js";
 import * as life from "../club/life.js";
 import * as store from "../core/store.js";
+import * as prefs from "../memory/prefs.js";
+import * as prefsOf from "../memory/prefs_of.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DAY_MS = 864e5;
@@ -71,8 +73,13 @@ export function factsFor({ player = null, app = null, now = new Date() } = {}) {
   if (sore.length) add("body", `In your body log: ${sore.slice(0, 3).map((p) => `${p.name} ${p.latest.kind} ${p.latest.level}/5`).join(", ")}${org.plan.limit ? `; until it settles, the games I line up are ${org.plan.format === "doubles" ? "doubles first" : org.plan.limit}` : ""}.`);
   else add("body", "Nothing in your body log is sore right now.");
   add("club", `Your club: ${club.name}, ${club.members.length} other members; club night is ${club.night?.day} at ${club.night?.start}.`);
+  // what the player wants now (memory/prefs.js: dated records, the newest wins), and what they said before and have
+  // since changed is left out of the notes the model reads
+  const Ps = prefsOf.of(player ? player.id : "app", { now: now.getTime() }), want = Ps.current.filter((r) => r.confidence >= prefs.HARD);
+  if (want.length) add("prefs", `What you want now (the newest thing you said wins): ${want.slice(0, 5).map((r) => `${prefs.say(r, prefsOf.names())} (since ${life.ymd(new Date(r.since))})`).join("; ")}.`);
+  const stale = prefsOf.staleTexts(Ps);
   if (club.challenge) add("challenge", `The club challenge, "${club.challenge.title}": the members have played ${club.members.reduce((a, m) => a + (m.games || 0), 0)} of ${club.challenge.target} games.`);
-  return { facts: F, notes: k.notes, numbers: new Set(F.flatMap((f) => nums(f.text))) };
+  return { facts: F, notes: k.notes.filter((t) => !stale.has(String(t).slice(0, 160))), numbers: new Set(F.flatMap((f) => nums(f.text))) };
 }
 
 const nums = (t) => (String(t).match(/\d+/g) || []).map(Number);
@@ -104,7 +111,7 @@ const COACHING = /\b(drills?|footwork|technique|grip|wrist snap|follow[- ]throug
 export const coaching = (t) => COACHING.test(String(t));
 
 // the facts that fit the question best, when the model's answer cannot be used
-const PICK = [[/next|when|booked|tomorrow|tonight|game/i, ["next", "booked"]], [/how many|this week|goal|streak|in a row/i, ["week", "goal", "streak"]], [/who|with|partner|most/i, ["played"]],
+const PICK = [[/prefer|preference|doubles|singles|rather/i, ["prefs"]], [/next|when|booked|tomorrow|tonight|game/i, ["next", "booked"]], [/how many|this week|goal|streak|in a row/i, ["week", "goal", "streak"]], [/who|with|partner|most/i, ["played"]],
   [/hurt|sore|knee|ankle|back|body|pain/i, ["body"]], [/club|challenge|members|night/i, ["club", "challenge"]], [/calendar|schedule|exam|training/i, ["calendar", "next"]]];
 function fallback(sheet, text) {
   const keys = PICK.find(([rx]) => rx.test(text))?.[1] || ["next", "week"];

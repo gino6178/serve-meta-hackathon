@@ -493,6 +493,15 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
   within 2 h 7.5 to 10.1, games from asks 3.97 to 4.39 (+0.42, 95% 0.33 to 0.50), opt-outs 37.7% to 26.2% of players
   (-11.5 points, 9.9 to 13.2). Against the one best fixed hour (20:00): the same games (+0.00, -0.10 to 0.10), 9.2 points
   fewer opt-outs. Choosing only the hour and always sending found more games (4.81) but more opt-outs (32.7%).
+- **Preferences as dated records, the newest wins** (`memory/prefs.js`, `prefs_of.js`). What a player said (notes,
+  Messenger memories, the rules memory_update.js checked), the weekly beliefs and the habit in their games become typed
+  records (time, partner, venue, format) with a date, a cited source and a confidence; code keeps the newest per kind
+  and key (the player's own words beat an inference of the same day) and shows the older ones as superseded. "Want a
+  game?", the Autopilot, the answer's facts and a member's taste read them; nothing stored is migrated. Simulated (400
+  players, no model, `test/pref_memory_sim.mjs`): when the player says the change in words, decisions that used the old
+  preference fell from 95% to 17% (no more Friday evenings), 99% to 24% (singles to doubles) and 93% to 0% (Fridays
+  fine again). Code extraction found 27 of 32 phrasings, by the same author; when the player never says it, nothing
+  changes (95%, 99%, 93% both ways). `submission/results/pref_memory.json`
 
 ## What is where
 

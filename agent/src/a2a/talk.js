@@ -36,6 +36,7 @@ import * as critic from "./critic.js";
 import * as consent from "./consent.js";
 import * as peer from "./peer.js";
 import { stretchOn, marksFor, cleanMarks, pickStretched, noteStretch } from "./stretch.js";
+import { prefsBreak } from "../memory/prefs.js";
 
 const { windows, travelMin, kmBetween, ymd, hm, toMin, dateOf, DAYS } = helpers;
 const FILE = path.resolve(process.env.A2A_FILE || "data/a2a_memory.json");
@@ -235,6 +236,8 @@ export function breaks(m, x, minutes = 90) {
   // does not count (a talk resumed after a crash)
   if (m.id && x.slot.date && playing(m.id, x.slot.date, talkScope.getStore() ?? null).some((g) => g.from < x.start + minutes && x.start < g.to)) return "already playing then";
   if (r.noDays?.includes(x.slot.day)) return `no games on ${x.slot.day}`;
+  // a time the member said no to, newest word first (memory/prefs.js; PREF_RECORDS=off leaves it out)
+  { const p = prefsBreak(m, x); if (p) return p; }
   if (r.endBy && x.start + minutes > toMin(r.endBy)) return `it ends after ${r.endBy}`;
   // the earliest start, on weekdays or at weekends ("19:00 or later after work", "no earlier than 11:00 at weekends")
   const from = r.notBefore && (["Sat", "Sun"].includes(x.slot.day) ? r.notBefore.weekend : r.notBefore.weekday);
