@@ -83,7 +83,7 @@ export function join(member, id, on = true) {
   // a private club: asking, and the owner answers (answer below); asking again, or leaving, takes the ask back
   if (c.privacy === "private" && on && !inIt) {
     if (!(c.requests ||= []).some((r) => r.id === member.id)) c.requests.push({ id: member.id, name: member.name, at: Date.now() });
-    save(); return { club: view(c, member.id), asked: true };
+    save(); return { club: view(c, member.id), asked: true, note: "Asked. It's a private club, so the organiser says yes or no, and you'll be told. To take the ask back: POST /api/clubs/join {club, on: false}." };
   }
   if (!on) c.requests = (c.requests || []).filter((r) => r.id !== member.id);
   if (on && !inIt) c.members.push({ id: member.id, name: member.name, at: Date.now() });

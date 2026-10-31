@@ -93,3 +93,19 @@ test("the card takes JSON only, and a text message is refused as ContentTypeNotS
   assert.equal(task?.status?.state, "TASK_STATE_FAILED", JSON.stringify(t));
   assert.match(JSON.stringify(task.status.message), /serve\.proposal.*application\/json/);
 });
+
+test("a card read at the public address names it (interface, likely extension, key set); read on the gateway's base, that base", async () => {
+  const club = readClub(), m = club.members[0], was = process.env.PUBLIC_URL;
+  process.env.PUBLIC_URL = "https://play.example.com/";
+  try {
+    const root = srv.rootFor({ headers: { host: "play.example.com" } });
+    assert.equal(root, "https://play.example.com");
+    assert.equal(srv.rootFor({ headers: { host: "127.0.0.1:8790" } }), process.env.A2A_BASE || "http://127.0.0.1:8790");
+    const card = await srv.signCard(srv.cardFor(`${root}/a2a/members/${m.id}`, m, club, root), root);
+    const all = JSON.stringify(card);
+    assert.ok(!/127\.0\.0\.1|localhost/.test(all), "nothing names the loopback");
+    assert.equal(card.supportedInterfaces[0].url, `https://play.example.com/a2a/members/${m.id}/`);
+    const jws = card.signatures[0].protected, hdr = JSON.parse(Buffer.from(jws, "base64url").toString());
+    assert.equal(hdr.jku, "https://play.example.com/a2a/keys.json");
+  } finally { if (was === undefined) delete process.env.PUBLIC_URL; else process.env.PUBLIC_URL = was; }
+});

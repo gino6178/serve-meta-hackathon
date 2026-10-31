@@ -76,7 +76,7 @@ Good to know before you start:
 - Prices are in New Taiwan dollars (NT$), per person, for a 90-minute game. If your person says "cheap", ask them for a number: maxEach is a hard limit. A game has to end inside their time window.
 - Serve doesn't book or pay courts. It agrees a time and a place and who plays; players pay a venue themselves, there. Venue prices are samples until a venue joins.
 - With your person's session you act as them. With your own key (below) you act as their agent: a yes then needs their permission (POST /api/huddle/delegate), and limits can only get tighter.
-- GET /api/status says how many members this server has. The demo club's members are simulated; a game shows each player's record in words ("shows up likely 72-98%", "new").
+- The demo club's members are simulated; a game shows each player's record in words ("shows up likely 72-98%", "new").
 
 ## What you can do without an account
 - GET /api/status: is the server up
@@ -105,7 +105,7 @@ Good to know before you start:
 - GET /api/huddle/today: what is waiting (yes-questions, games near them, a quiet cheap hour, their own games)
 - POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "busy"|"time"|"place"|"price"|"quiet"|"none"). yes:false on a game they are already in (or waiting for) leaves it, as POST /api/feed/join {"post", "on": false} does.
 - Your person may join a game outside their limits themself (POST /api/feed/join with their session): it stands, and the reply's "note" says which limit it breaks. Over your key (/api/agent-channel/join) the same game is refused (403, needs: "person"), a waitlist place too.
-- Clubs: GET /api/clubs (near ?lat=&lon=), POST /api/clubs {"name", "sport", "at": {lat, lon}, "privacy"?: "private"}, POST /api/clubs/join {"club"}. To invite people, a member gets the club's link with GET /api/clubs/<id>/invite ({"link": "/#/club?join=<code>"}); whoever opens it and signs in joins with POST /api/clubs/join {"code"}. A private club's link asks to join: its organiser says yes (POST /api/clubs/answer {"club", "member", "yes"}).
+- Clubs: GET /api/clubs (near ?lat=&lon=), POST /api/clubs {"name", "sport", "at": {lat, lon}, "privacy"?: "private"}, POST /api/clubs/join {"club"}. To invite people, a member gets the club's link with GET /api/clubs/<id>/invite ({"link": "/#/club?join=<code>"}); whoever opens it and signs in joins with POST /api/clubs/join {"code"}. A private club's link asks to join: its organiser is told, sees who asked in that club's "requests" (GET /api/clubs), and says yes or no (POST /api/clubs/answer {"club", "member", "yes"}); whoever asked takes it back with POST /api/clubs/join {"club", "on": false}.
 - A weekly game is a new post each week: start a fill for each week's post (it shows under the host's games).
 - POST /api/huddle/start {"sport", "need" (players in all, you included), "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0 to 1, usually 0, 0.75 or 0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"} (it needs "club" or "nearby": true, to say whom to ask; "invite" and "fill" alone are not enough): the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
 - POST /api/huddle/reply {"id", "yes", "why"?}: one yes (or no, with "why": "busy"|"time"|"place"|"price"|"quiet"|"none"); answer within a day or the place goes to the next player

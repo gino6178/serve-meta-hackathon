@@ -160,8 +160,9 @@ class MemberExecutor {
         // (an asker on another gateway is an asker of its own here, with no rating this side knows)
         const r = likely.answer(m, { ...p, from: sc.from(p.from) }, { club: caller ? { ...club, you: { ...club.you, rating: 1500 } } : club, venues: readVenues(), breaks, travelMin });
         // the extension, when the request named it (A2A-Extensions) as this card declares it: said back in the response
-        const lu = likely.extension(BASE(), m).uri;
-        if (ctx.context?.requestedExtensions?.includes?.(lu)) ctx.context.addActivatedExtension(lu);
+        // (by its path, like the required ones: the card read at the public address names the public base)
+        const lu = (ctx.context?.requestedExtensions || []).find((u) => { try { return new URL(u).pathname === likely.EXT_PATH; } catch { return false; } });
+        if (lu) ctx.context.addActivatedExtension(lu);
         if (r.refused) { bus.publish(status(ctx, TaskState.TASK_STATE_REJECTED, likely.REFUSAL)); return; }
         bus.publish(AgentEvent.artifactUpdate({ taskId: ctx.taskId, contextId: ctx.contextId, artifact: { artifactId: "likely", name: "likely", description: "how likely this member is to say yes, as a band", parts: [part("data", r, "application/json")], metadata: undefined, extensions: [] }, lastChunk: true, append: false, metadata: undefined }));
         bus.publish(status(ctx, TaskState.TASK_STATE_COMPLETED)); return;
@@ -228,7 +229,7 @@ class MemberExecutor {
   }
 }
 
-export function cardFor(base, m, club) {
+export function cardFor(base, m, club, root = BASE()) {
   return {
     name: `${m.name}'s agent`,
     // (a real player's agent says so, and gives estimates only after they said yes; the others are simulated)
@@ -239,7 +240,7 @@ export function cardFor(base, m, club) {
     version: "1.0.0",
     // the proposal and the hold, as required A2A extensions (ext.js); serve.likely as an optional one (a member who opted
     // out declares it not and has no such skill)
-    capabilities: { streaming: false, pushNotifications: false, extensions: [...ext.declare(process.env.PUBLIC_URL || BASE()), ...(m.shares?.likely === false ? [] : [likely.extension(BASE(), m)])], extendedAgentCard: false },
+    capabilities: { streaming: false, pushNotifications: false, extensions: [...ext.declare(process.env.PUBLIC_URL || BASE()), ...(m.shares?.likely === false ? [] : [likely.extension(root, m)])], extendedAgentCard: false },
     // (in the A2A JSON form a client reads: the SDK serves the card as it is given)
     ...(required() || peer.on() ? {
       securitySchemes: { ...(required() ? { bearer: { httpAuthSecurityScheme: { description: "The gateway's token (AGENT_TOKEN), as Authorization: Bearer <token>.", scheme: "Bearer", bearerFormat: "" } } } : {}),
@@ -273,20 +274,23 @@ function cardKey() {
   keyState = { kid, jwk, key };
   return keyState;
 }
-export const keysUrl = () => `${BASE()}/a2a/keys.json`;
+export const keysUrl = (root = BASE()) => `${root}/a2a/keys.json`;
 // (the key set also carries the statements that lead to the key from the ones before it: peer.js rotateOwnKey)
 export const jwks = () => { cardKey(); return peer.keySet(DATA); };
 // (the jku is this gateway's base as the cards name it, so it is read at each signing)
-export const signCard = (card) => { const { key, kid } = cardKey(); return generateAgentCardSignature(key, { alg: "EdDSA", kid, typ: "JOSE", jku: keysUrl() })(card); };
+export const signCard = (card, root = BASE()) => { const { key, kid } = cardKey(); return generateAgentCardSignature(key, { alg: "EdDSA", kid, typ: "JOSE", jku: keysUrl(root) })(card); };
+// a card asked for at the public address names the public address (and its key there); asked for on the gateway's own
+// base (its own agents, a2a_client.js checks the card names the address it was read from) it names that base
+export const rootFor = (req) => { const pub = (process.env.PUBLIC_URL || "").replace(/\/$/, ""); try { return pub && new URL(pub).host === String(req?.headers?.["x-forwarded-host"] || req?.headers?.host || "").split(",")[0].trim() ? pub : BASE(); } catch { return BASE(); } };
 
 // one SDK request handler (and router) per member's agent, made the first time it is called (its card signed once)
 const routers = new Map();
-function routerFor(m) {
+function routerFor(m, root = BASE()) {
   // (a card says what the member shares: a new choice is a new card)
-  const k = `${m.id}|${m.shares?.likely !== false}|${!!m.shares?.exact}|${peer.on()}`;
+  const k = `${m.id}|${m.shares?.likely !== false}|${!!m.shares?.exact}|${peer.on()}|${root}`;
   if (!routers.has(k)) routers.set(k, (async () => {
-    const base = `${BASE()}/a2a/members/${m.id}`;
-    const handler = new DefaultRequestHandler(await signCard(cardFor(base, m, readClub())), new AgentTaskStore(store, m.id), new MemberExecutor(m),
+    const base = `${root}/a2a/members/${m.id}`;
+    const handler = new DefaultRequestHandler(await signCard(cardFor(base, m, readClub(), root), root), new AgentTaskStore(store, m.id), new MemberExecutor(m),
       undefined, undefined, undefined, undefined, undefined, { validateInputModes: true });
     const r = express.Router();
     r.use(`/${AGENT_CARD_PATH}`, agentCardHandler({ agentCardProvider: handler }));
@@ -314,7 +318,7 @@ app.get("/a2a/club.json", (req, res) => {
 app.get("/a2a/agents", (req, res) => { const club = readClub(), base = process.env.PUBLIC_URL || process.env.A2A_BASE || ""; res.json({ club: club.name, agents: club.members.map((m) => ({ id: m.id, name: `${m.name}'s agent`, card: `${base}/a2a/members/${m.id}/${AGENT_CARD_PATH}` })) }); });
 // -32600 an invalid request; -32700 a body that is not JSON at all (JSON-RPC 2.0, section 5.1)
 const rpcError = (message, code = -32600) => ({ jsonrpc: "2.0", id: null, error: { code, message } });
-const serveMember = (m, req, res, next) => routerFor(m).then((r) => r(req, res, next)).catch(() => res.status(500).json({ error: "this agent's card could not be made" }));
+const serveMember = (m, req, res, next) => routerFor(m, rootFor(req)).then((r) => r(req, res, next)).catch(() => res.status(500).json({ error: "this agent's card could not be made" }));
 // a peer's key set, fetched to pin it on first use (peer.js): from the peer's own origin, no redirects
 const peerKeys = (origin) => fetch(`${origin}/a2a/keys.json`, { redirect: "error", signal: AbortSignal.timeout(10000) }).then((r) => { if (!r.ok) throw new Error(`keys: HTTP ${r.status}`); return r.json(); });
 // A request from another Serve gateway: the body is read here (its hash is in the signature), the signature is checked
