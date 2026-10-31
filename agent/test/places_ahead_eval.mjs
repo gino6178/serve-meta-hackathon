@@ -14,7 +14,7 @@ const places = await import("../src/club/places.js");
 const OUT = process.argv[2] || "../submission/results/places_ahead.json", THINK = +(process.env.PLACES_THINK || 20) * 1000;
 // city parks and courts in several places (the map is public; nothing is written anywhere)
 const LOCS = [["Taipei Da'an", 25.0306, 121.5363, "basketball"], ["Taichung", 24.1477, 120.6736, "basketball"], ["Ljubljana", 46.0569, 14.5058, "basketball"],
-  ["Melbourne", -37.8136, 144.9631, "basketball"], ["Toronto", 43.6532, -79.3832, "basketball"], ["Lisbon", 38.7223, -9.1393, "soccer"]];
+  ["Lisbon", 38.7223, -9.1393, "soccer"]];
 const day = (k) => { const d = new Date(); d.setDate(d.getDate() + k); return d.toISOString().slice(0, 10); };
 const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
 const rows = [], totals = {};

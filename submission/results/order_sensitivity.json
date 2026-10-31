@@ -1,0 +1,81 @@
+{
+ "label": "Order sensitivity on the decider 196 cases (seed 7): how often a model changes its pick when only the order of the listed times changes; first = the pick is the first listed time that works; preference = the member stated a liked time and the pick is it",
+ "hw": "RTX 3090 (Glimmer, decider), the 1B student worker on the CPU",
+ "flips": {
+  "decider_reversed": {
+   "cases": 196,
+   "changed": 178
+  },
+  "decider_ownOrder": {
+   "cases": 196,
+   "changed": 122
+  },
+  "student_reversed": {
+   "cases": 173,
+   "changed": 35
+  },
+  "glimmer_ownOrder": {
+   "cases": 60,
+   "changed": 24
+  }
+ },
+ "studentReversedReadMismatch": 23,
+ "systems": {
+  "raw": {
+   "cases": 196,
+   "firstListed": 0.995,
+   "preferenceKept": [
+    7,
+    32
+   ]
+  },
+  "rawrev": {
+   "cases": 196,
+   "firstListed": 0.087,
+   "preferenceKept": [
+    19,
+    32
+   ]
+  },
+  "rawown": {
+   "cases": 196,
+   "firstListed": 0.374,
+   "preferenceKept": [
+    12,
+    32
+   ]
+  },
+  "stud": {
+   "cases": 196,
+   "firstListed": 0.454,
+   "preferenceKept": [
+    30,
+    32
+   ]
+  },
+  "studrev": {
+   "cases": 196,
+   "firstListed": 0.329,
+   "preferenceKept": [
+    23,
+    32
+   ]
+  },
+  "gl": {
+   "cases": 120,
+   "firstListed": 0.583,
+   "preferenceKept": [
+    19,
+    22
+   ]
+  },
+  "glown": {
+   "cases": 60,
+   "firstListed": 0.55,
+   "preferenceKept": [
+    11,
+    13
+   ]
+  }
+ }
+}

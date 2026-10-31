@@ -515,6 +515,25 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
   Repair@1/@2 0.857/0.956 to 0.880/0.970, a gain that comes from catching more, since the stand-in model repairs the
   same way whatever the error says. On the GPU with Muse Glimmer, on the 6 weeks both arms finished
   (`submission/results/tool_reliability_real.json`, one run each): no difference, 3 of 6 reached the goal either way.
+- **The order the times are read in, measured.** After Magentic Marketplace (the first proposal takes most choices), on
+  the decider's 196 cases with only the order of the listed times changed (`test/decider_eval.mjs` gl, glown, rawrev,
+  rawown, stud, studrev; `submission/results/order_sensitivity.json`): the one-token decider picks the first listed
+  time that works in 99.5% of cases and changes its pick in 178 of 196 when the list is reversed, so what it reads is
+  mostly the order; Muse Glimmer's own answer changed in 24 of 60 cases in each member's own order (keeping the stated
+  preference about as often, 11 of 13 against 19 of 22); the 1B student changed in 35 of 173 reversed, and in 23 more
+  its reading of which times work no longer matched code (those go to Glimmer). `a2a/talk.js` ownOrder (A2A_SHUFFLE=1)
+  gives each member's models an order of its own, matched back by id; it stays off, since no order kept preferences
+  better, and the host's order is its best guess for the group. The decider's letters are not used as soft labels.
+- **A second round when no time works for everyone.** `a2a/stretch.js` (A2A_STRETCH=off for the talk as it was), after
+  CalBench (graded costs beat yes or no): with shared calendars, when the sets do not meet, each member's agent marks
+  the listed times its member could make by stretching one of its own limits, as far as it allowed (rules.stretch:
+  minutes past endBy, before notBefore, over maxTrip; never the calendar, other games or days off), by code; your agent
+  takes the time whose largest stretch, counting what each member stretched in the last 60 days, is smallest.
+  Simulated club, code only (`test/stretch_sim.mjs`, `submission/results/stretch.json`, half the members allowing a
+  stretch, an assumption): requests with no common time 4.4% of singles and 15.9% of doubles; games found 95.6% to
+  95.9% (singles) and 84.1% to 85.4% (doubles); with everyone allowing it 96.5% and 85.8%. Small, because most of those
+  requests fail on a day off or the calendar, which do not stretch. The burden ledger is unit-tested only: no game in
+  the simulated season needed a stretch.
 
 ## What is where
 
