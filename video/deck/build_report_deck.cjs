@@ -374,7 +374,7 @@ async function img(file, width = 1800) {
   techCol(M, 6.0, "The decision 1B (choosing a time)", [
     ["LoRA SFT on Glimmer's choices", "28", "used", "rank 16, 4,868 cases, 20 min on one A100"],
     ["One-pass scoring of declared options", "20", "used", "softmax over the valid letters; no text written"],
-    ["More teacher answers per case", "27", "used", "hardest vs Glimmer's majority 71.5% → 73.0% (near run-to-run noise)"],
+    ["More teacher answers per case", "27", "used", "served as v4: int4 hardest 67.0% → 69.5%, test 88.5% → 88.9% vs v3"],
     ["Order augmentation", "–", "meas", "flips when reversed 15.6% → 1.6%, for 1.5 points of agreement"],
     ["Soft labels, KL at T = 2", "27", "tried", "agreement and calibration both worse"],
     ["The decider's letters as soft labels", "27", "tried", "99.5% of its picks were the first time listed"],
