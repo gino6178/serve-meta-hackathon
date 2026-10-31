@@ -537,7 +537,7 @@ function reasons(t, g) {
 const dateFor = (day, now) => { if (/^\d{4}-/.test(day)) return day; const d = new Date(now); for (let i = 0; i < 7; i++) { if (T.DAYS[d.getDay()] === day) return T.ymd(d); d.setDate(d.getDate() + 1); } return T.ymd(now); };
 // games near the member, posted by others, that still have room, best for them first
 export function gamesFor(me, { now = new Date(), n = 3 } = {}) {
-  const t = T.get(me), today = T.ymd(now), mine = P.busyAt(me);
+  const t = T.get(me), today = T.ymd(now), mine = P.busyAt(me), clubs = new Set(C.mine(me).map((c) => c.id));
   return P.openInvites(me, (room) => C.canSee(room, me)).map((g) => {
     const date = dateFor(g.invite.day, now), at = g.invite.at || (g.room ? C.find(g.room)?.at : null);
     if (date < today || (date === today && g.invite.start <= `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`)) return null;
@@ -549,8 +549,9 @@ export function gamesFor(me, { now = new Date(), n = 3 } = {}) {
     // not when they already play within three hours of it
     const at0 = startMs({ date, start: g.invite.start });
     if (mine.some((x) => Math.abs(x - at0) < CLASH)) return null;
-    return { post: g.id, agentMay: mayAgentSayYes(me, { post: g.id }), host: g.host, hostTrust: trustOf(g.hostId), gate: g.invite.gate || null, sport: g.invite.sport, date, start: g.invite.start, when: when(gm), where: g.invite.where, left: g.invite.spots - g.invite.going, km: at && t.home ? k : null, each: gm.each, score: +T.worth(t, { ...gm, each: gm.each ?? 0 }).toFixed(2), why: reasons(t, gm), club: g.room ? C.find(g.room)?.name || null : null };
-  }).filter(Boolean).filter((g) => (t.sports.length ? t.sports : [...new Set(C.mine(me).map((c) => c.sport))]).includes(g.sport) || (!t.sports.length && !C.mine(me).length)).sort((a, b) => b.score - a.score).slice(0, n);
+    return { post: g.id, agentMay: mayAgentSayYes(me, { post: g.id }), host: g.host, hostTrust: trustOf(g.hostId), gate: g.invite.gate || null, sport: g.invite.sport, date, start: g.invite.start, when: when(gm), where: g.invite.where, left: g.invite.spots - g.invite.going, km: at && t.home ? k : null, each: gm.each, score: +T.worth(t, { ...gm, each: gm.each ?? 0 }).toFixed(2), why: reasons(t, gm), club: g.room ? C.find(g.room)?.name || null : null, room: g.room || null };
+  // (a game in one of their own clubs shows whatever its sport: joining a basketball club says they play it)
+  }).filter(Boolean).filter((g) => (g.room && clubs.has(g.room)) || (t.sports.length ? t.sports : [...new Set(C.mine(me).map((c) => c.sport))]).includes(g.sport) || (!t.sports.length && !C.mine(me).length)).sort((a, b) => b.score - a.score).slice(0, n);
 }
 // the cheapest quiet hour near the member at a time that suits them, with what the venue's agent would take
 export async function dealFor(me, { now = new Date() } = {}) {
@@ -651,9 +652,14 @@ export function answerGame(me, postId, yes, why = null, { now = new Date(), byAg
   P.notForMe(me, postId);
   return { line: r.line, taste: r.taste };
 }
-export function forget(me) {
-  const d = data();
+// name: theirs as it was (the account is gone by now); a game still being worked out says they left, and its host is told
+export function forget(me, name = null) {
+  const d = data(), who = String(name || "Someone").split(" ")[0];
   d.huddles = d.huddles.filter((h) => h.host !== me);
-  for (const h of d.huddles) { h.invited = h.invited.filter((x) => x !== me); h.players = h.players.filter((x) => x !== me); delete h.answers[me]; }
+  for (const h of d.huddles) {
+    const was = h.players.includes(me) || h.invited.includes(me);
+    h.invited = h.invited.filter((x) => x !== me); h.players = h.players.filter((x) => x !== me); delete h.answers[me];
+    if (was && ["talking", "asking", "on"].includes(h.status)) { const t = `${who} left Serve, so they're out of this game.`; line(h, "host", t, { who }); P.notify(h.host, "huddle", `${t} (${h.sport}${h.pick ? ` ${when(h.pick)}` : ""})`, { huddle: h.id }); }
+  }
   delete d.nudged[me]; save(); T.forget(me); Tr.forget(me);
 }

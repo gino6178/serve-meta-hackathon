@@ -651,7 +651,9 @@ test("the last spot taken: the game is on, and the host and every player hear it
   assert.equal(P.publicInvite(id).going, 0);
   assert.equal(P.publicInvite(id).names, undefined, "the link card never says who is going");
   P.join("leo", id);
-  assert.deepEqual(P.takeNotices("app"), [], "one of two spots: not yet");
+  const first = P.takeNotices("app");
+  assert.equal(first.length, 1, "one of two spots: the host hears who joined"); assert.equal(first[0].kind, "joined");
+  assert.match(first[0].text, /^Leo is in your badminton Thu 19:00\./);
   P.join("hana", id);
   const host = P.takeNotices("app"), leo = P.takeNotices("leo");
   assert.equal(host.length, 1); assert.equal(host[0].kind, "gameon");

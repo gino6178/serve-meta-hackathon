@@ -80,7 +80,7 @@ test("the agent channel: only a fresh request signed by a registered key, for th
   assert.equal(M.checkAgent(req("POST", signed(k, "POST", p, body)), body, "/api/agent-channel/join").why, "wrong-request");
   assert.equal(M.checkAgent(req("POST", signed(agentKey(), "POST", p, body)), body, p).why, "unknown-peer", "a key nobody registered");
   M.revokeAgent(member.id, agent.id);
-  assert.equal(M.checkAgent(req("POST", signed(k, "POST", p, body)), body, p).why, "unknown-peer", "a revoked key stops at once");
+  assert.equal(M.checkAgent(req("POST", signed(k, "POST", p, body)), body, p).why, "revoked", "a revoked key stops at once, and says so");
   assert.ok(M.refusals().length >= 5, "every refusal is logged");
 });
 
@@ -201,5 +201,13 @@ test("a club's invite link: members share it, a public club is joined by it, a p
   await route("POST", "/api/clubs/join", { code }, as(cy));
   assert.equal((S.data().notices || []).filter((x) => x.player === ana.id && x.kind === "club").length, 1, "the organiser, once");
   assert.ok((await route("POST", "/api/clubs/answer", { club: priv.id, member: cy.id, yes: true }, as(ana))).body.club.members === 2);
+  assert.match(ask.body.note, /organiser says yes or no/);
+  const told = (S.data().notices || []).filter((x) => x.player === cy.id && x.kind === "club");
+  assert.equal(told.length, 1, "whoever asked is told the answer"); assert.match(told[0].text, /said yes: you're in Quiet Doubles/);
   assert.equal((await route("POST", "/api/clubs/join", { code: "nope" }, as(cy))).code, 404);
+  // the organiser leaves Serve: the club passes to its longest-standing member, who is told
+  assert.equal((await route("POST", "/api/members/leave", {}, as(ana))).code, 200);
+  const handed = (S.data().notices || []).filter((x) => x.player === cy.id && x.kind === "club" && /yours to run/.test(x.text));
+  assert.equal(handed.length, 1, JSON.stringify(S.data().notices.filter((x) => x.player === cy.id)));
+  assert.match(handed[0].text, /^Ana left Serve, so Quiet Doubles is yours to run now\.$/);
 });

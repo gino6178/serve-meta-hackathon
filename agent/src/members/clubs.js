@@ -186,13 +186,14 @@ export function makeDraw(owner, id, b) {
   return { club: view(c, owner.id), draw: r.draw };
 }
 export function forget(player) {
-  let changed = false;
+  let changed = false; const handed = [];
   for (const c of data().clubs) {
     if (!c.members.some((m) => m.id === player) && !(c.requests || []).some((r) => r.id === player)) continue;
     c.members = c.members.filter((m) => m.id !== player); c.requests = (c.requests || []).filter((r) => r.id !== player); changed = true;
     if (c.program?.entrants) c.program.entrants = c.program.entrants.filter((e) => e.id !== player);
-    if (c.owner === player && c.members.length) c.owner = c.members[0].id;
+    if (c.owner === player && c.members.length) { c.owner = c.members[0].id; handed.push({ club: c.name, to: c.owner }); }
   }
   data().clubs = data().clubs.filter((c) => c.members.length);
   if (changed) save();
+  return handed; // the clubs that passed to their longest-standing member, who is told (members/api.js)
 }

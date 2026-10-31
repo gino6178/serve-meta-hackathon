@@ -177,6 +177,9 @@ export function checkAgent(req, body, p, now = Date.now()) {
   const r = checkToken(token, { method: req.method, path: p, body, now, audience: AUDIENCE, seen,
     keyFor: (kid) => { const m = Object.values(data().members).find((x) => x.kind === "agent" && x.kid === kid && !x.revoked); return m ? { peer: m.id, key: { x: m.x } } : null; } });
   if (!r.ok && r.why === "wrong-audience") r.message = `aud must be "${AUDIENCE}"`;
+  // (a key its person revoked says so, not that nobody knows it)
+  if (!r.ok && r.why === "unknown-peer") { let kid = null; try { kid = JSON.parse(Buffer.from(String(token).split(".")[0], "base64url")).kid; } catch { /* malformed: as it was */ }
+    if (kid && Object.values(data().members).some((x) => x.kind === "agent" && x.kid === kid && x.revoked)) { r.why = "revoked"; r.message = "this agent key was revoked by its person"; } }
   if (!r.ok) {
     // a known agent's key on a request that failed the check counts against that agent (trust.js)
     try { const kid = JSON.parse(Buffer.from(String(token).split(".")[0], "base64url").toString()).kid; const m = Object.values(data().members).find((x) => x.kind === "agent" && x.kid === kid); if (m?.owner && m.worked && ["replay", "bad-signature"].includes(r.why)) badSignature(m.owner, r.why); } catch { /* not a token we can read */ }

@@ -133,7 +133,12 @@ export async function route(req, res, u, { json, o, forget }) {
       return out(r);
     }
     if (p === "/api/clubs/join" && req.method === "POST") return out(C.join(me, String(cb.club || ""), cb.on !== false));
-    if (p === "/api/clubs/answer" && req.method === "POST") return out(C.answer(me, String(cb.club || ""), String(cb.member || ""), cb.yes === true));
+    // (whoever asked is told the answer, as the ask promised)
+    if (p === "/api/clubs/answer" && req.method === "POST") {
+      const r = C.answer(me, String(cb.club || ""), String(cb.member || ""), cb.yes === true);
+      if (!r.error) P.notify(String(cb.member), "club", cb.yes === true ? `${me.name.split(" ")[0]} said yes: you're in ${r.club.name}.` : `${me.name.split(" ")[0]} said no to joining ${r.club.name} for now.`, { club: r.club.id });
+      return out(r);
+    }
     if (p === "/api/clubs/roster" && req.method === "POST") return out(await C.setRoster(me, String(cb.club || ""), cb.names, (t, who) => P.moderate(t, who)));
     if (p === "/api/clubs/session" && req.method === "POST") return out(C.planSession(me, String(cb.club || ""), cb));
     if (p === "/api/clubs/enter" && req.method === "POST") return out(C.enter(me, String(cb.club || ""), cb));
@@ -183,7 +188,7 @@ export async function route(req, res, u, { json, o, forget }) {
   }
   if (p === "/api/members/agents" && req.method === "POST") { const r = M.addAgent(me.id, b); return send(r.error ? 400 : 200, r); }
   if (p === "/api/members/agents/revoke" && req.method === "POST") { const r = M.revokeAgent(me.id, String(b.id || "")); return send(r.error ? 400 : 200, r); }
-  if (p === "/api/members/leave" && req.method === "POST") { const names = { [me.id]: M.nameOf(me.id) }, ids = M.leave(me.id); for (const id of ids) { forget?.(id, { name: names[id] || null }); C.forget(id); H.forget(id); Sk.store().forget(id); } return send(200, { deleted: ids }); }
+  if (p === "/api/members/leave" && req.method === "POST") { const names = { [me.id]: M.nameOf(me.id) }, ids = M.leave(me.id); for (const id of ids) { forget?.(id, { name: names[id] || null }); for (const h of C.forget(id) || []) P.notify(h.to, "club", `${String(names[id] || "The organiser").split(" ")[0]} left Serve, so ${h.club} is yours to run now.`); H.forget(id, names[id] || null); Sk.store().forget(id); } return send(200, { deleted: ids }); }
   if (p === "/api/members/refusals") return send(200, { refusals: M.refusals() });
   return send(404, { error: "no such route" });
 }

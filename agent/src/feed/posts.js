@@ -47,6 +47,8 @@ const othersNames = () => [...(deps.club().members || []).map((m) => m.name), ..
 // Llama Guard's categories that keep a person's text out of the feed: what stops a message to the agent, and also
 // defamation (S5) and privacy (S7). (S6, specialized advice, is for what models write; a member may say their knee hurts.)
 export const BLOCK_POST = [...guardRules.BLOCK_IN, "S5", "S7"];
+// words of harm: with none of them, Llama Guard's S1 on its own is left to the club's standard (moderate)
+const HARM = /\b(kill\w*|murder\w*|stab\w*|shoot (you|him|her|them|up)|shot (you|him|her|them)|hurt\w*|beat (you|him|her|them)( up)?|attack\w*|punch\w*|kick (you|him|her|them)|knife|knives|guns?|bomb\w*|blood\w*|die|dead|death|threat\w*|break your|smash your (face|head)|choke\w*|strangl\w*|burn (you|him|her|them|your)|rape\w*|hunt (you|him|her|them) down|where you live|after the game,? (wait|watch)|regret it)\b/i;
 // what Prompt Guard reads beside the text: the text folded back to plain letters (NFKC, lookalike letters from other
 // scripts, zero-width marks, letters spaced or dotted apart), so a rewrite that only changes how it looks reads the
 // same (test/feed_unit.mjs, the adaptive red team)
@@ -79,7 +81,10 @@ export async function moderate(text, player) {
   const stop = guardRules.stopsIn(g, text);
   if (stop?.includes("S11")) return { helpline: true, why: guardRules.refusal(["S11"]), categories: stop };
   const cats = guardRules.flagged(g, text);
-  if (g.safe === false && cats.some((c) => BLOCK_POST.includes(c))) return { refused: true, why: `Not posted: ${T.plainWhy(cats)}.`, categories: cats, check: "llama-guard" };
+  // (Llama Guard alone, S1 with no word of harm in the text, as "Serve test round 27" was: the club's standard below,
+  // which reads veiled threats, decides; anything else it flags is refused here)
+  const deferred = cats.length === 1 && cats[0] === "S1" && !HARM.test(text);
+  if (g.safe === false && !deferred && cats.some((c) => BLOCK_POST.includes(c))) return { refused: true, why: `Not posted: ${T.plainWhy(cats)}.`, categories: cats, check: "llama-guard" };
   if (g.safe == null) return { down: true };
   const k = await deps.standard(text);
   if (k.verdict == null) return { down: true };
@@ -300,6 +305,8 @@ export function join(player, postId, on = true, { via = "feed", agent = false } 
     promote(p); // the first on the waitlist is offered the spot (first, so the host's count shows the offer)
     notify(host, "left", `${nm} can't make your ${v.sport} ${dayWords(v.day)} ${v.start}. ${spotsLine(p)}`, { post: p.id });
   }
+  // (the host hears who joined, as they hear who left; a game that fills says "Game on" instead)
+  if (on && !full(v)) notify(host, "joined", `${nm} is in your ${v.sport} ${dayWords(v.day)} ${v.start}. ${spotsLine(p)}`, { post: p.id });
   if (on && full(v)) gameOn(p);
   return { post: view(p, player) };
 }
