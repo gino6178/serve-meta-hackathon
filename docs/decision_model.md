@@ -107,8 +107,8 @@ full scale: the goal became saving tokens, not matching Glimmer more closely, so
 ## int4, and serving on the CPU
 
 The adapter is merged into the base and converted to GGUF with llama.cpp (`convert_hf_to_gguf.py`), then quantized to
-Q4_K_M and Q4_0 (`llama-quantize`; `distill/export.sh`). The served files are `serve-jev-1b-v3-Q4_K_M.gguf` (0.8 GB) and
-`serve-jev-3b-v3-Q4_K_M.gguf` (2.0 GB). The worker (`distill/worker.py`, llama-cpp-python) runs on the GPU server's CPU at 8
+Q4_K_M and Q4_0 (`llama-quantize`; `distill/export.sh`). The served file is `serve-jev-1b-v4-Q4_K_M.gguf` (0.8 GB, round 4 below; `serve-jev-1b-v3-Q4_K_M.gguf`
+before it), and `serve-jev-3b-v3-Q4_K_M.gguf` (2.0 GB) is the 3B option. The worker (`distill/worker.py`, llama-cpp-python) runs on the GPU server's CPU at 8
 threads and `nice -n 19`, because the CPU is shared with the 3090's offloaded Glimmer layers and the CPU guards. It
 works as follows:
 - It computes the vocabulary logits only at the positions it reads (the markers and the answer).
@@ -252,6 +252,10 @@ while another job held about 34 of its 64 threads (load 90 to 105). Each arm ran
 - The persona arms ran 30 minutes apart, so a few talks differ (31 and 29 movable). The counts are per arm.
 
 ## Round 4: more Glimmer answers, soft labels, order augmentation (1B)
+
+**Served from 31 October.** v4 int4 is ahead of v3 int4 on both held-out sets (test 88.9% against 88.5%; the hardest,
+against Glimmer's majority, 69.5% against 67.0%), neither difference significant, so it replaced v3 at the same
+threshold (0.6). Its int4 loses about 3.5 points to its bf16 on the hardest cases (McNemar p = 0.039).
 
 A fourth round on the 1B student, trained on the A100 VM. Every number is in `submission/results/dec1b.json`, with the
 selection rule written before the comparison, intervals from a bootstrap over members, and the raw predictions of the

@@ -6,7 +6,7 @@
 #   ~/serve/jev/code/serve.sh [gguf name] [threads, default 8] [options' order: time|listed, as trained]
 set -u
 J=~/serve/jev
-G="${1:-serve-jev-1b-v3-Q4_K_M.gguf}"; T="${2:-8}"; O="${3:-time}"
+G="${1:-serve-jev-1b-v4-Q4_K_M.gguf}"; T="${2:-8}"; O="${3:-time}"
 ss -ltn | grep -q ":11447 " && { echo "decision worker already on :11447"; exit 0; }
 cd "$J" && setsid -f nice -n 19 env CUDA_VISIBLE_DEVICES="" "$J/env/bin/python" code/worker.py --gguf "models/$G" --tokenizer models/official-3B --port 11447 --threads "$T" --order "$O" >> "$J/worker.log" 2>&1 < /dev/null
 for i in $(seq 1 60); do curl -s -m 2 127.0.0.1:11447/health && { echo; exit 0; }; sleep 1; done
