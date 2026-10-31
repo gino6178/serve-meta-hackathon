@@ -454,16 +454,14 @@ choose their settings. All four are on.
   choices per doubles request fell from 0.261 to 0.109. (With private calendars it finds no more games:
   `test/rank_sim.mjs`.)
 - **Two cheap reads that agree.** When the 1B student is unsure and the one-token decider not sure enough, but both pick
-  the same time (the student with at least 0.3 now that it answers alone from 0.5, the decider 0.5), that time is the counter (`a2a/talk.js` A2A_AGREE; `distill/agree_cascade.py`,
+  the same time (each at least 0.5), that time is the counter (`a2a/talk.js` A2A_AGREE; `distill/agree_cascade.py`,
   `submission/results/agree_cascade.json`): on the decider's 196 cases, split in halves 500 times, the choices answered
   without Glimmer's full answer went from 72.1% to 79.0%, matching Glimmer's own answer 68.9% of the time instead of
   69.6% (Glimmer matches itself 73.5%).
-- **The 1B student takes nearly every choice.** Its threshold is 0.5 instead of 0.6 (`agents/student.js`
-  A2A_STUDENT_SURE), since most choices are not hard. With the int4 file as served
-  ([docs/decision_model.md](docs/decision_model.md)): on the 500 ordinary held-out cases it answers 99.0% instead of
-  96.0%, agreement 89.6% instead of 89.9%; on the 196 hardest it answers 96.9% instead of 73.0%, and agreement falls
-  from 68.4% to 61.2% (Glimmer again: 73.5%). A trade for Glimmer's GPU, not a free gain. A pick whose reading of which
-  times work differs from code's still goes to Glimmer.
+- **A lower student threshold, tried and not kept.** At 0.5 instead of 0.6 (`A2A_STUDENT_SURE`), with the int4 file as
+  served ([docs/decision_model.md](docs/decision_model.md)), the 1B answers 96.9% of the 196 hardest choices instead of
+  73.0%, but its agreement with Glimmer there falls from 68.4% to 61.2% (Glimmer again: 73.5%); on the 500 ordinary
+  ones 99.0% instead of 96.0%, agreement 89.6% instead of 89.9%. The threshold stays at 0.6.
 - **Early exit from Glimmer's reasoning.** `agents/early.js` (A2A_EARLY=off to turn it off), after DEER: the full answer
   is streamed, the options are read at each break in its reasoning once it is 1,000 characters long, and the first read
   0.98 sure stops it. Run for real on the RTX 3090, one answer at a time on 30 cases (`submission/results/early_exit_ab.json`):

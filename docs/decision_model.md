@@ -12,7 +12,7 @@ agreement when the CPU is free. It reads the facts once and returns a probabilit
 TypeSafe's Jev does (a "decision" model: options declared in advance, scored in parallel, instead of text generated token
 by token). In `a2a.js` `fullAnswer` it is a tier in front of Glimmer, **on by default** (`A2A_STUDENT=off` to compare):
 
-- It answers when its pick's probability reaches `A2A_STUDENT_SURE` (0.5; 0.6 until the last day) and its own reading of which times work
+- It answers when its pick's probability reaches `A2A_STUDENT_SURE` (0.6) and its own reading of which times work
   matches code's. Otherwise Muse Glimmer answers. Glimmer also answers when the worker is down, busy with another
   decision for more than 8 s, or slower than 20 s, so a talk never stops on it.
 - Code keeps every hard rule (`breaks()`): its options are only the times that keep them. It can choose a time the
@@ -24,9 +24,8 @@ In short:
 - **Fewer Glimmer calls.** In talks with the simulated club it cut Muse Glimmer's member answers by 54 to 67%, with no
   rule broken.
 - **Close to Glimmer's own spread.** On held-out members it agrees with Glimmer about as often as Glimmer agrees with
-  itself (89.5% against 88.8%). On the hardest cases it is 12 points under Glimmer's spread at the served threshold
-  (0.5), 5 points at the earlier 0.6.
-- **Stated preferences kept.** It keeps the member's stated preference in 30 of 32 cases (Glimmer 27).
+  itself (89.5% against 88.8%). On the hardest cases it is 5 points under Glimmer's spread at the served threshold.
+- **Stated preferences kept.** It keeps the member's stated preference in 29 of 32 cases (Glimmer 27).
 - **No change in the Autopilot.** The Autopilot weeks barely reach it (see the end-to-end results).
 
 ## The question, and its options
@@ -179,20 +178,19 @@ against its other two. These are the int4 files as served:
 | Sure at | 1B: decider answered / agreement / preference | 1B: test answered / agreement | 3B: decider answered / agreement / preference | 3B: test answered / agreement |
 |---|---|---|---|---|
 | 0 | 100% / 60.7% / 30 of 32 | 100% / 89.4% | 100% / 69.4% / 26 | 100% / 90.2% |
-| **0.5** | **96.9% / 61.2% / 30** | **99.0% / 89.6%** | 98.0% / 70.4% / 26 | 100% / 90.2% |
-| 0.6 | 73.0% / 68.4% / 29 | 96.0% / 89.9% | 80.6% / 70.4% / 25 | 97.6% / 90.6% |
+| 0.5 | 96.9% / 61.2% / 30 | 99.0% / 89.6% | 98.0% / 70.4% / 26 | 100% / 90.2% |
+| **0.6** | **73.0% / 68.4% / 29** | **96.0% / 89.9%** | 80.6% / 70.4% / 25 | 97.6% / 90.6% |
 | 0.7 | 50.0% / 75.5% / 30 | 92.6% / 90.7% | 61.7% / 73.0% / 27 | 95.8% / 90.3% |
 | 0.8 | 34.2% / 75.0% / 28 | 87.4% / 90.9% | 43.4% / 75.0% / 27 | 92.6% / 90.4% |
 | 0.9 | 27.6% / 75.5% / 28 | 78.4% / 90.0% | 30.6% / 75.0% / 27 | 86.4% / 89.3% |
 | Glimmer alone | 73.5% / 27 of 32 | 88.3% | | |
 
-The served point is the 1B at 0.5 (it was 0.6 until the last day). On the decider's cases it answers 96.9% of the
-choices, with agreement 12 points under Glimmer's own (68.4% at 0.6, 5 points under) and the stated preference at 30 of
-32. On the test set it answers 99.0%, above Glimmer's agreement with itself. The change trades agreement on the hardest
-choices for keeping Glimmer's GPU free: most choices are not hard, and on them the two thresholds barely differ
-(89.6% against 89.9%). `A2A_STUDENT_SURE=0.6` restores the earlier point. After the student, two cheap reads that agree
-(the student at 0.3 or more and the decider at 0.5 or more on the same time) settle a choice before Glimmer's full
-answer (`a2a/talk.js` A2A_AGREE; `distill/agree_cascade.py`, measured with the student at 0.6). The 3B does better at every threshold (0.5: 98% of the decider's choices, 3 points under Glimmer), but takes
+The served point is the 1B at 0.6. On the decider's cases it answers 73% of the choices with agreement 5 points under
+Glimmer's own, and the stated preference at 29 of 32. On the test set it answers 96%, above Glimmer's agreement with
+itself. We tried 0.5 on the last day: it answers 96.9% of the decider's cases, but agreement there falls to 61.2%, 12
+points under Glimmer's own, so the served point stayed at 0.6. After the student, two cheap reads that agree (the
+student and the decider each giving the same time at least 0.5) settle a choice before Glimmer's full answer
+(`a2a/talk.js` A2A_AGREE; `distill/agree_cascade.py`). The 3B does better at every threshold (0.5: 98% of the decider's choices, 3 points under Glimmer), but takes
 about three times as long on the CPU. On a busy server that means more decisions turned away to Glimmer
 (`A2A_STUDENT_SURE=0.5` with `serve.sh serve-jev-3b-v3-Q4_K_M.gguf` serves it).
 

@@ -220,13 +220,12 @@ Following FrugalGPT [19], decisions pass through layers, each taking only what t
 - **Layer 0, code (milliseconds):** free times, calendar clashes, trips and every hard rule. The game's card comes from
   this layer: on a local copy it appeared 7 ms after the request at the median (97 ms at most, 9 runs).
 - **Layer 1, our own distilled model (about 0.9 s):** the Llama 3.2 1B we trained from Muse Glimmer (2.6) answers when
-  it is at least 0.5 sure, which is nearly every choice: 99.0% of ordinary ones and 96.9% of the hardest.
+  it is at least 0.6 sure: 96.0% of ordinary choices and 73.0% of the hardest.
 - **Two cheap reads that agree.** When the student is unsure, the decider (0.53 s) reads Glimmer's choice in one token.
   It keeps its pick alone when the chance that it differs from Glimmer's full answer is under 5%; and when the student
-  (at least 0.3 sure) and the decider (at least 0.5) pick the same time, that time stands. On the decider's 196 hardest
-  cases, split in halves 500 times, with the student at the earlier 0.6, this rule raised the choices settled without
-  Glimmer's full answer from 72.1% to 79.0%, matching Glimmer 68.9% of the time instead of 69.6% (Glimmer matches
-  itself 73.5%). Now that the student answers from 0.5, it applies only to the few choices left.
+  and the decider each give the same time at least 0.5, that time stands. On the decider's 196 hardest
+  cases, split in halves 500 times, this rule raised the choices settled without Glimmer's full answer from 72.1% to
+  79.0%, matching Glimmer 68.9% of the time instead of 69.6% (Glimmer matches itself 73.5%).
 - **Layer 2, Muse Glimmer (about 20 to 40 s), stopped early when it is sure.** Only the few choices still open reach
   it, streamed to the screen step by step (NDJSON). Following DEER [23], once its reasoning is 1,000 characters long the
   options are read at each break in it, and the first read that is 0.98 sure ends the answer. On the RTX 3090, one
@@ -256,14 +255,13 @@ person's hard rules.
 |---|---|---|
 | Agreement with Glimmer on all 500 held-out cases (every case answered; always taking the first listed time: 82.7%) | 88.8% (with itself) | **89.5%** (88.5% after int4) |
 | Time per choice | about 40 s, on the RTX 3090 | **about 0.9 s, on the CPU** |
-| Cases it answers at 0.5 sure (the served threshold) | all | 99.0% of 500; 96.9% of the 196 hardest (the asked time breaks a rule, calendars shared) |
-| Agreement with Glimmer at 0.5 sure, with Glimmer on the rest | 88.3% on the 500; 73.5% on the hardest (Glimmer again) | 89.6% on the 500; 61.2% on the hardest |
+| Cases it answers at 0.6 sure (the served threshold) | all | 96.0% of 500; 73.0% of the 196 hardest (the asked time breaks a rule, calendars shared) |
+| Agreement with Glimmer at 0.6 sure, with Glimmer on the rest | 88.3% on the 500; 73.5% on the hardest (Glimmer again) | 89.9% on the 500; 68.4% on the hardest |
 
-The threshold was 0.6 until the last day: there it answered 96.0% of the 500 and 73.0% of the hardest, with agreement
-89.9% and 68.4%. Most choices are not hard, so we lowered it to 0.5 to keep Glimmer's GPU free: on the hardest it now
-leaves 3.1% of the choices to the layers after it instead of 27.0%, at a cost of 7.2 points of agreement there (0.3 on
-the 500). This is a trade, not a free gain; `A2A_STUDENT_SURE=0.6` restores the earlier point. A pick whose reading of
-which times work differs from code's still goes to Glimmer. At 0.6, in talks with the simulated club, it cut Glimmer's
+We tried a lower threshold on the last day. At 0.5 the student answers 96.9% of the hardest instead of 73.0%, leaving
+3.1% to the layers after it instead of 27.0%, but its agreement there falls from 68.4% to 61.2% (0.3 points on the
+500), so the served threshold stays at 0.6 and the hardest choices keep going to the decider and Glimmer. A pick whose reading of
+which times work differs from code's still goes to Glimmer. In talks with the simulated club, it cut Glimmer's
 member answers by 67% (ordinary talks) and 54% (with private calendars on), with no rule broken. When it is unsure, busy for
 8 s or silent for 20 s, Glimmer answers instead. With 500 cases each agreement rate is good to about 3 points either
 way, so the student matches Glimmer as closely as Glimmer matches itself, about 44 times faster than its full answer.
@@ -273,7 +271,7 @@ answers 89% of them and differs from Glimmer on only 7%.
 
 **Why distil, when the one-pass decider takes 0.53 s?** The decider is still Glimmer, so it needs the GPU that every
 agent's reasoning and the video models share, and it keeps a pick only when it is that sure (about 8% of choices). The
-student runs on the CPU, answers 99.0% of the 500 test cases on its own, and leaves the GPU free for the work only Glimmer
+student runs on the CPU, answers 96% of the 500 test cases on its own, and leaves the GPU free for the work only Glimmer
 can do.
 
 **What surprised us.** Four findings from running Meta's models in a product, each measured:
