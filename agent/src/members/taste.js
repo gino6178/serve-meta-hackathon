@@ -12,6 +12,7 @@
 //   data/taste.json (TASTE_FILE): { members: { <id>: { home, sports, raw, cells, maxKm, priceCap, answers, learned } } }
 import path from "node:path";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
+import * as prefs from "../memory/prefs.js";
 
 const FILE = () => path.resolve(process.env.TASTE_FILE || "data/taste.json");
 let db = null, from = null;
@@ -37,9 +38,10 @@ const rad = (d) => (d * Math.PI) / 180;
 export const km = (a, b) => { const h = Math.sin(rad(b.lat - a.lat) / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lon - a.lon) / 2) ** 2; return 12742 * Math.asin(Math.sqrt(h)); };
 
 const blank = () => ({ home: null, sports: [], open: false, windows: [], limitKm: null, limitEach: null, delegate: null, raw: { time: 0, place: 0, price: 0, quiet: 0 }, cells: {}, maxKm: 5, priceCap: 250, answers: [], learned: [], asked: 0 });
-export const get = (id) => ({ ...blank(), ...(data().members[id] || {}) });
-const put = (id, t) => { data().members[id] = t; save(); return t; };
-export function forget(id) { if (data().members[id]) { delete data().members[id]; save(); } }
+// said: the member's dated preference records, settled (memory/prefs.js; read here, never stored with the taste)
+export const get = (id) => ({ ...blank(), ...(data().members[id] || {}), said: prefs.resolve(prefs.stored(id)) });
+const put = (id, { said, ...t }) => { data().members[id] = t; save(); return { ...t, said }; };
+export function forget(id) { prefs.forget(id); if (data().members[id]) { delete data().members[id]; save(); } }
 export function reset(id) { const t = get(id); return put(id, { ...blank(), home: t.home, sports: t.sports, open: t.open }); }
 // open to people nearby: other members' agents may ask this member's agent for a game (huddle.js), within about 5 km
 export function setOpen(id, on) { const t = get(id); if (on && !t.home) return { error: "Share your rough area first, so people nearby can find you.", code: 400 }; return { taste: view(put(id, { ...t, open: !!on })) }; }
@@ -123,12 +125,12 @@ const near = (a, b) => a.date === b.date && Math.abs(+a.start.slice(0, 2) + +a.s
 // a hard no, whatever the weights say: busy then, already turned down, far over the price or the distance they gave
 export function hardNos(t, o) {
   const out = [], one = (x) => { const r = hardNo(x, o); return r; };
-  for (const k of ["windows", "km", "each", "busy", "declined"]) {
-    const tt = { ...t, windows: k === "windows" ? t.windows : [], limitKm: k === "km" ? t.limitKm : null, limitEach: k === "each" ? t.limitEach : null, busyAt: k === "busy" ? t.busyAt : [], declined: k === "declined" ? t.declined : [], maxKm: 1e9, priceCap: 1e9 };
+  for (const k of ["windows", "km", "each", "busy", "declined", "said"]) {
+    const tt = { ...t, windows: k === "windows" ? t.windows : [], limitKm: k === "km" ? t.limitKm : null, limitEach: k === "each" ? t.limitEach : null, busyAt: k === "busy" ? t.busyAt : [], declined: k === "declined" ? t.declined : [], said: k === "said" ? t.said : null, maxKm: 1e9, priceCap: 1e9 };
     const r = one(tt); if (r && !out.includes(r)) out.push(r);
   }
   // the learned soft lines, except where the person set a hard limit of their own (as in hardNo)
-  const soft = hardNo({ ...t, windows: [], limitKm: null, limitEach: null, busyAt: [], declined: [], ...(t.limitKm ? { maxKm: 1e9 } : {}), ...(t.limitEach != null ? { priceCap: 1e9 } : {}) }, o); if (soft && !out.includes(soft)) out.push(soft);
+  const soft = hardNo({ ...t, windows: [], limitKm: null, limitEach: null, busyAt: [], declined: [], said: null, ...(t.limitKm ? { maxKm: 1e9 } : {}), ...(t.limitEach != null ? { priceCap: 1e9 } : {}) }, o); if (soft && !out.includes(soft)) out.push(soft);
   return out;
 }
 export function hardNo(t, o) {
@@ -137,6 +139,9 @@ export function hardNo(t, o) {
   if (t.limitEach != null && o.each > t.limitEach) return "price";
   if ((t.busyAt || []).some((x) => near(x, o))) return "busy";
   if ((t.declined || []).some((x) => x.date === o.date && x.start === o.start)) return "time";
+  // a time of the week they said no to, unless something newer says yes (prefs.js: the newest record wins)
+  const said = t.said && prefs.timeAt(t.said, DAYS[dateOf(o.date).getDay()], o.start);
+  if (said && said.value === "no" && said.confidence >= prefs.HARD) return "time";
   // the learned soft lines, only where the person hasn't set a hard limit of their own (theirs decides)
   if (t.limitEach == null && o.each > 0 && o.each > t.priceCap * 1.15 && (t.raw.price || 0) > 0.2) return "price";
   if (t.limitKm == null && o.km != null && o.km > t.maxKm * 1.6) return "place";
@@ -195,6 +200,8 @@ export function reply(id, o, yes, why = null) {
     if (why === "quiet") line = "Too crowded: I'll look for quieter hours.";
   } else { nudgeCell(t, cell, -0.25); line = `Not that one. I'll count ${cellWords(cell)} a bit less.`; }
   t.answers = [...t.answers, { at: Date.now(), kind: yes ? "yes" : "no", cell, why }].slice(-40);
+  // a dated record of it (one answer: too weak to be a hard rule, strong enough to overrule an older "no" or "yes")
+  if (yes || why === "time") prefs.record(id, { kind: "time", key: cell.replace(" ", "-").toLowerCase(), value: yes ? "yes" : "no" }, { source: { type: "reply", text: `${yes ? "yes" : "no, the time"}: ${o.date} ${o.start}` }, confidence: prefs.CONF.reply, explicit: false });
   say(t, line);
   return { taste: view(put(id, t)), line };
 }
@@ -261,7 +268,7 @@ export function question(id, { places = [], now = new Date(), force = false } = 
   }
   const qid = `q${t.asked || 0}-${axes.join("")}`;
   const out = { id: qid, axes, a: { ...a, text: gameText(a) }, b: { ...b, text: gameText(b) }, n, of: SURE_AT, ask: n === 0 ? "Which of these would you rather play?" : "One more: which would you pick?" };
-  data().members[id] = { ...get(id), lastQ: out }; save();
+  put(id, { ...get(id), lastQ: out });
   return out;
 }
 
@@ -280,6 +287,6 @@ export function view(t) {
   const w = weights(t), pairs = t.answers.filter((a) => a.kind === "pair").length;
   const grid = Object.fromEntries(DAYS.flatMap((d) => PARTS.map((p) => [`${d} ${p}`, +timeFit(t, `${d} ${p}`).toFixed(2)])));
   return { home: t.home, sports: t.sports, open: !!t.open, windows: t.windows || [], limitKm: t.limitKm ?? null, limitEach: t.limitEach ?? null, delegate: t.delegate || null, weights: Object.fromEntries(FACTORS.map((k) => [k, +w[k].toFixed(2)])), grid, maxKm: +t.maxKm.toFixed(1), priceCap: Math.round(t.priceCap),
-    answers: t.answers.length, pairs, sure: Math.min(1, t.answers.length / SURE_AT), summary: summary(t), learned: t.learned.slice(-8).reverse() };
+    answers: t.answers.length, pairs, sure: Math.min(1, t.answers.length / SURE_AT), summary: summary(t), learned: t.learned.slice(-8).reverse(), ...(t.said?.all?.length ? { said: prefs.view(t.said) } : {}) };
 }
 export const isSure = (t) => t.answers.length >= SURE_AT;
