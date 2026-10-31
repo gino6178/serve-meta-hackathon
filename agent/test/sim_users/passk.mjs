@@ -15,7 +15,7 @@ export function beliefOf(text) {
   const t = String(text || "");
   if (/(^|\n)Booked:|^Your agent said yes for you:/.test(t)) return "booked";
   if (/I'll book it as soon as (they say|.* says?) yes|I'll book it once everyone has said yes/.test(t)) return "waiting";
-  if (/No deal|[Nn]othing is booked|wasn't booked|No other opening|No game to suggest|OK, not this week|you're out of it|isn't waiting for you|couldn't be booked|OK, dropped|nothing booked/.test(t)) return "none";
+  if (/No deal|[Nn]othing is booked|wasn't booked|No other opening|No game to suggest|OK, not this week|you're out of it|isn't waiting for you|couldn't be booked|OK, dropped|nothing booked|called off|\bis off\b|stopped looking/.test(t)) return "none";
   return null;
 }
 
