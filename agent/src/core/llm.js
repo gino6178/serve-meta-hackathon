@@ -45,6 +45,37 @@ if (KEY) HEADERS.authorization = `Bearer ${KEY}`;
 const FALLBACK = process.env.LLM_FALLBACK === "on" && process.env.META_API_KEY && process.env.LLM_URL !== process.env.LLM_FALLBACK_URL
   ? { url: (process.env.LLM_FALLBACK_URL || "https://api.meta.ai/v1").replace(/\/$/, ""), model: process.env.LLM_FALLBACK_MODEL || "muse-spark-1.3", key: process.env.META_API_KEY } : null;
 export const fallbackOn = () => !!FALLBACK;
+// Routing by length (LLM_ROUTE, on by default with Ollama): what a call sends decides which model answers it.
+//   - short (LLM_SMALL_MAX, 700 tokens at most, as estimated at 3.5 characters a token), at a site where our 1B was
+//     checked and holds up (LLM_SMALL_SITES): our own Llama 3.2 1B, distilled from Muse Glimmer (LLM_SMALL_MODEL,
+//     serve-1b on the same Ollama), with no reasoning. A reply that is empty, or does not fit its JSON Schema, is asked
+//     again of Glimmer (chatJSON's second try). The 1B's main work is the agents' choices between times, where it
+//     scores the options in one pass (agents/student.js); as a writer it holds up only on narrow tasks. Checked with
+//     every short site on it: in test/e2e.mjs it filed training on the wrong day, logged games wrongly and could not
+//     turn a wish into a sentence (9 checks failed); in test/feed_redteam.mjs it let 2 of 6 hostile comments through;
+//     in test/redteam.mjs it obeyed 4 of 10 court reviews that told it to say "good". With the sites below only, both
+//     red teams and the end-to-end test pass as they do with Glimmer alone.
+//   - longer, or any other site: Muse Glimmer, as before; and always for a tool loop or a call with images.
+//   - very long (LLM_LONG_MIN, 12,000 tokens; Glimmer's Ollama has 16,384 of context, less its reasoning and reply):
+//     Muse Spark on the Meta Model API (with META_API_KEY; LLM_LONG_API=off keeps them on Glimmer). Only these leave the
+//     server.
+const ROUTE = () => process.env.LLM_ROUTE !== "off" && API === "ollama";
+const SMALL = process.env.LLM_SMALL_MODEL || "serve-1b";
+const SMALL_MAX = () => +(process.env.LLM_SMALL_MAX || 700), LONG_MIN = () => +(process.env.LLM_LONG_MIN || 12000);
+const LONG = process.env.LLM_LONG_API !== "off" && process.env.META_API_KEY && API === "ollama"
+  ? { url: (process.env.LLM_FALLBACK_URL || "https://api.meta.ai/v1").replace(/\/$/, ""), model: process.env.LLM_FALLBACK_MODEL || "muse-spark-1.3", key: process.env.META_API_KEY } : null;
+// the sites checked with the 1B: wording a game ask, a court's name in English, a memory's beliefs, a paper's
+// summary and a member's question about the feed (both behind the feed's own checks)
+const SMALL_SITES = () => new Set((process.env.LLM_SMALL_SITES || "ask.word,places.english,memory.beliefs,feed.paper,feed.answer").split(",").filter(Boolean));
+export const tokensOf = (messages) => Math.ceil(messages.reduce((a, m) => a + String(m.content || "").length + (m.tool_calls ? JSON.stringify(m.tool_calls).length : 0), 0) / 3.5);
+// which model a call goes to: "small", "local" or "api"
+export function tierOf(messages, { site = "", tools = false } = {}) {
+  if (!ROUTE()) return "local";
+  const n = tokensOf(messages);
+  if (n >= LONG_MIN() && (LONG || FALLBACK)) return "api";
+  if (tools || !SMALL_SITES().has(site) || messages.some((m) => m.images?.length)) return "local";
+  return n <= SMALL_MAX() ? "small" : "local";
+}
 // worth trying the fallback for: the server is not there, or it failed (5xx); never a 4xx (the request itself), never a timeout
 const unreachable = (e) => /fetch failed|ECONNREFUSED|ECONNRESET|EHOSTUNREACH|ENOTFOUND|socket hang up|LLM server 5\d\d/i.test(`${e?.message} ${e?.cause?.code || ""} ${e?.cause?.message || ""}`);
 // a conversation as the OpenAI protocol has it: Ollama's tool calls get ids, their arguments become JSON strings, and
@@ -61,18 +92,18 @@ function toOpenAI(messages) {
   });
 }
 // one call on the fallback, as the caller would have had it from the model server
-async function onFallback(site, messages, { maxTokens, temperature, format = null, tools = null, budget = 0, timeoutMs = TIMEOUT, why }) {
+async function onFallback(site, messages, { maxTokens, temperature, format = null, tools = null, budget = 0, timeoutMs = TIMEOUT, why, to = FALLBACK }) {
   const t0 = Date.now();
-  const r = await fetch(`${FALLBACK.url}/chat/completions`, {
-    method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${FALLBACK.key}` }, signal: AbortSignal.timeout(timeoutMs),
+  const r = await fetch(`${to.url}/chat/completions`, {
+    method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${to.key}` }, signal: AbortSignal.timeout(timeoutMs),
     // Muse Spark always reasons: the reply's room includes the reasoning budget, at the lowest effort it takes
-    body: JSON.stringify({ model: FALLBACK.model, messages: toOpenAI(messages), max_completion_tokens: maxTokens + Math.max(budget, 600), temperature, reasoning_effort: "low",
+    body: JSON.stringify({ model: to.model, messages: toOpenAI(messages), max_completion_tokens: maxTokens + Math.max(budget, 600), temperature, reasoning_effort: "low",
       ...(tools ? { tools } : {}), ...(format ? { response_format: { type: "json_schema", json_schema: { name: "reply", schema: format } } } : {}) }),
   });
   if (!r.ok) throw new Error(`fallback ${r.status}: ${(await r.text()).slice(0, 200)}`);
   const j = await r.json(), m = j.choices?.[0]?.message || {}, secs = (Date.now() - t0) / 1000;
   await debug(messages, j);
-  toSpan(record({ site, model: FALLBACK.model, prompt: j.usage?.prompt_tokens || 0, cached: j.usage?.prompt_tokens_details?.cached_tokens || 0, output: j.usage?.completion_tokens || 0,
+  toSpan(record({ site, model: to.model, prompt: j.usage?.prompt_tokens || 0, cached: j.usage?.prompt_tokens_details?.cached_tokens || 0, output: j.usage?.completion_tokens || 0,
     reasoning: j.usage?.completion_tokens_details?.reasoning_tokens || 0, seconds: +secs.toFixed(2), empty: !(m.content || "").trim() && !m.tool_calls?.length, budget, fallback: why, trace: traceId() }), j.choices?.[0]?.finish_reason);
   return { m, secs, n: j.usage?.completion_tokens };
 }
@@ -173,7 +204,19 @@ const marked = (fn) => async (...a) => { try { return await fn(...a); } catch (e
 export function chat(messages, opts = {}) {
   const site = opts.site || siteOf();
   return callSpan(site, { "gen_ai.request.temperature": opts.temperature ?? 0.4, "gen_ai.request.max_tokens": opts.maxTokens ?? 420, "serve.format": !!opts.format, ...(opts.format ? { "gen_ai.output.type": "json" } : {}) }, marked(async () => {
-    try { return await rawChat(messages, { ...opts, site }); } catch (e) {
+    // the tier by length (tierOf): a very long call goes to the Meta Model API, a short one to our 1B, which hands an
+    // empty reply (or a call it could not take) on to Glimmer
+    const tier = opts.tier || tierOf(messages, { site });
+    active()?.setAttributes({ "serve.tier": tier });
+    if (tier === "api") {
+      const to = LONG || FALLBACK;
+      const { m, secs, n } = await onFallback(site, messages, { maxTokens: opts.maxTokens ?? 420, temperature: opts.temperature ?? 0.4, format: opts.format || null, budget: budgetOf(site, opts.budget ?? null), timeoutMs: opts.timeoutMs, why: "long", to });
+      return { text: (m.content || "").replace(THINK, "").trim(), logprobs: null, timing: { ...timing(secs, n ? n / secs : null), device: `Meta Model API (${to.model})` }, tier };
+    }
+    if (tier === "small") {
+      try { const r = await rawChat(messages, { ...opts, site, model: SMALL, think: false, budget: 0, extra: { ...(opts.extra || {}), tier } }); if (r.text.trim()) return { ...r, tier }; } catch { /* Glimmer takes it */ }
+    }
+    try { return { ...(await rawChat(messages, { ...opts, site })), tier: "local" }; } catch (e) {
       if (!FALLBACK || !unreachable(e)) throw e;
       active()?.setAttributes({ "serve.fallback": FALLBACK.model });
       const { m, secs, n } = await onFallback(site, messages, { maxTokens: opts.maxTokens ?? 420, temperature: opts.temperature ?? 0.4, format: opts.format || null, budget: budgetOf(site, opts.budget ?? null), timeoutMs: opts.timeoutMs, why: String(e.message || e).slice(0, 80) });
@@ -184,7 +227,7 @@ export function chat(messages, opts = {}) {
 // an image on a message: Ollama takes base64 in `images`; an OpenAI-compatible server takes image_url parts (data URIs)
 const mimeOf = (b64) => (b64.startsWith("iVBOR") ? "image/png" : b64.startsWith("UklGR") ? "image/webp" : "image/jpeg");
 const openaiMessages = (ms) => ms.map(({ images, ...m }) => (images?.length ? { ...m, content: [{ type: "text", text: m.content }, ...images.map((b) => ({ type: "image_url", image_url: { url: `data:${mimeOf(b)};base64,${b}` } }))] } : m));
-async function rawChat(messages, { maxTokens = 420, temperature = 0.4, site = siteOf(), format = null, think = null, budget: own = null, logprobs = 0, extra = null, timeoutMs = TIMEOUT } = {}) {
+async function rawChat(messages, { maxTokens = 420, temperature = 0.4, site = siteOf(), format = null, think = null, budget: own = null, logprobs = 0, extra = null, timeoutMs = TIMEOUT, model = MODEL } = {}) {
   // (the wait for a slot counts against the call's time limit, so a call never outlives what its caller waits for)
   const prio = priorityOf(), w0 = Date.now(), release = await acquire(prio, timeoutMs), q = { queuedMs: Date.now() - w0, priority: prio ? "background" : "now" };
   if (q.queuedMs >= timeoutMs) { release(); throw slotError(timeoutMs); }
@@ -195,12 +238,12 @@ async function rawChat(messages, { maxTokens = 420, temperature = 0.4, site = si
       // OpenAI's protocol: images go as image_url parts, a schema as response_format, and the usage block has the counts
       const r = await send(`${BASE}/chat/completions`, {
         signal: ctl.signal,
-        body: JSON.stringify({ model: MODEL, messages: META_API() ? toOpenAI(messages) : openaiMessages(messages), ...limits(maxTokens, budget), temperature, ...(format ? { response_format: { type: "json_schema", json_schema: { name: "reply", schema: format } } } : {}) }),
+        body: JSON.stringify({ model, messages: META_API() ? toOpenAI(messages) : openaiMessages(messages), ...limits(maxTokens, budget), temperature, ...(format ? { response_format: { type: "json_schema", json_schema: { name: "reply", schema: format } } } : {}) }),
       });
       const j = await r.json();
       const secs = (Date.now() - t0) / 1000, n = j.usage?.completion_tokens;
       await debug(messages, j);
-      toSpan(record({ site, model: MODEL, ...q, prompt: j.usage?.prompt_tokens || 0, cached: j.usage?.prompt_tokens_details?.cached_tokens || 0, output: n || 0, reasoning: j.usage?.completion_tokens_details?.reasoning_tokens || 0,
+      toSpan(record({ site, model, ...q, prompt: j.usage?.prompt_tokens || 0, cached: j.usage?.prompt_tokens_details?.cached_tokens || 0, output: n || 0, reasoning: j.usage?.completion_tokens_details?.reasoning_tokens || 0,
         seconds: +secs.toFixed(2), empty: !(j.choices[0].message.content || "").trim(), budget, format: !!format, trace: traceId() }), j.choices[0].finish_reason);
       const said = j.choices[0].message.content || "";
       // (a server that sends its own timing is taken at its word)
@@ -209,13 +252,13 @@ async function rawChat(messages, { maxTokens = 420, temperature = 0.4, site = si
     // Ollama's own chat: thinking set per call, the reply budget plus the reasoning budget as num_predict
     const r = await send(`${ROOT}/api/chat`, {
       signal: ctl.signal,
-      body: JSON.stringify({ model: MODEL, messages, stream: false, think: level, keep_alive: "24h", ...(format ? { format } : {}),
+      body: JSON.stringify({ model, messages, stream: false, think: level, keep_alive: "24h", ...(format ? { format } : {}),
         ...(logprobs ? { logprobs: true, top_logprobs: logprobs } : {}), options: { num_predict: maxTokens + budget, temperature } }),
     });
     const j = await r.json();
     const secs = (Date.now() - t0) / 1000;
     await debug(messages, j);
-    ledgerRow(site, j, secs, { budget, format: !!format, ...q, ...(extra || {}) });
+    ledgerRow(site, j, secs, { model, budget, format: !!format, ...q, ...(extra || {}) });
     // the speed by Ollama's own clock for the generation (eval_duration, in ns), which leaves the prompt out
     const genSecs = j.eval_duration / 1e9;
     return { text: (j.message?.content || "").replace(THINK, "").trim(), logprobs: j.logprobs || null,
@@ -230,7 +273,8 @@ export async function chatJSON(messages, schema, { site = siteOf(), tries = 2, .
   for (let k = 0; k < tries; k++) {
     let text = "";
     // (no slot came free in time: asking again would only wait again, past what the caller waits for)
-    try { ({ text } = await chat(msgs, { ...opts, site, format: schema })); } catch (e) { errors = [String(e.message || e)]; if (e.slot) break; continue; }
+    // (a reply from the 1B that does not fit is asked again of Glimmer: the second try never goes to the small model)
+    try { ({ text } = await chat(msgs, { ...opts, site, format: schema, ...(k && (opts.tier || tierOf(messages, { site })) === "small" ? { tier: "local" } : {}) })); } catch (e) { errors = [String(e.message || e)]; if (e.slot) break; continue; }
     let value;
     try { value = JSON.parse(text); errors = validate(schema, value); } catch { errors = ["not JSON"]; }
     if (!errors.length) return { value, errors: [], tries: k + 1 };
@@ -336,10 +380,13 @@ export function chatTools(messages, tools, opts = {}) {
   // words instead, a refusal among them; never the words)
   return callSpan(site, { "gen_ai.request.temperature": opts.temperature ?? 0.2, "gen_ai.request.max_tokens": opts.maxTokens ?? 500, "serve.tools": tools.length }, marked(async () => {
     let out;
-    try { out = await rawChatTools(messages, tools, { ...opts, site }); } catch (e) {
-      if (!FALLBACK || !unreachable(e)) throw e;
-      active()?.setAttributes({ "serve.fallback": FALLBACK.model });
-      const { m, secs } = await onFallback(site, messages, { maxTokens: opts.maxTokens ?? 500, temperature: opts.temperature ?? 0.2, tools, budget: budgetOf(site, opts.budget ?? null), why: String(e.message || e).slice(0, 80) });
+    // (a tool loop never goes to the 1B; a very long one goes to the Meta Model API, tierOf)
+    const tier = tierOf(messages, { site, tools: true });
+    try { if (tier === "api") throw Object.assign(new Error("long"), { long: true }); out = await rawChatTools(messages, tools, { ...opts, site }); } catch (e) {
+      if (!e.long && (!FALLBACK || !unreachable(e))) throw e;
+      const to = e.long ? LONG || FALLBACK : FALLBACK;
+      active()?.setAttributes({ "serve.fallback": to.model, "serve.tier": e.long ? "api" : "local" });
+      const { m, secs } = await onFallback(site, messages, { maxTokens: opts.maxTokens ?? 500, temperature: opts.temperature ?? 0.2, tools, budget: budgetOf(site, opts.budget ?? null), why: e.long ? "long" : String(e.message || e).slice(0, 80), to });
       const calls = (m.tool_calls || []).map((c) => { const tool = tools.find((x) => x.function?.name === c.function?.name); const args = safeJSON(c.function?.arguments); const errors = tool ? validate(tool.function.parameters || {}, args) : [`no tool called ${c.function?.name}`]; return { id: c.id, name: c.function?.name, args, ...(errors.length ? { errors } : {}) }; });
       out = { text: (m.content || "").replace(THINK, "").trim(), calls, message: { role: "assistant", content: m.content || "", tool_calls: m.tool_calls }, seconds: +secs.toFixed(2), fallback: true };
     }

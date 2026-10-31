@@ -471,6 +471,18 @@ choose their settings. All four are on.
   takes the reasoning again (prompt tokens 1,074 to 4,885). Read after the fact on 119 cases
   (`submission/results/early_exit.json`), 1.7% of answers differ from the full one.
 
+## Which model answers: by length
+
+`core/llm.js` routes each call by how long it is (LLM_ROUTE). A short call at a site where our distilled 1B was checked
+(LLM_SMALL_SITES: wording a game ask, a court's name in English, a memory's beliefs, a paper's summary, a question
+about the feed) goes to the 1B (`serve-1b` on Glimmer's Ollama, `distill/Modelfile.serve-1b`); anything longer, or
+anywhere else, to Muse Glimmer; a very long call (12,000 tokens or more) to Muse Spark on the Meta Model API. A 1B
+reply that is empty or does not fit its schema is asked again of Glimmer. The 1B's main work stays the agents'
+choices between times (the student). Every short site was tried on the 1B first: it filed training on the wrong day,
+logged games wrongly and could not phrase a wish (9 end-to-end checks failed), let 2 of 6 hostile comments through
+the post standard, and obeyed 4 of 10 court reviews that told it what to say. With the checked sites only, the
+end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer alone.
+
 ## What is where
 
 | Folder | What it holds |
