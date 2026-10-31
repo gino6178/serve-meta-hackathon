@@ -138,10 +138,11 @@ export function tinyRead(m, cur, ok, all, opts = {}, net = loadTimes()) {
   return { p, rows, pick: rows[top], top: p[top], doubt: doubtOf(net.doubt, doubtX(p, rows, caseX)) };
 }
 export const tinyStats = { asked: 0, answered: 0, doubted: 0 };
-// m, cur, ok, all as studentAnswer; opts.why: why the proposed time does not work (talk.js breaks). Returns a decision in
-// fullAnswer's shape (without its sentence), or null for the student and Glimmer.
+// m, cur, ok, all as studentAnswer; opts.why: why the proposed time does not work (talk.js breaks; none, and the
+// proposed time works: not this layer's question). Returns a decision in fullAnswer's shape (without its sentence), or
+// null for the student and Glimmer.
 export function tinyAnswer(m, cur, ok, all, opts = {}) {
-  if (!tinyOn() || !m.rulesComplete || !cur?.id || all.some((x) => !x.id)) return null;
+  if (!tinyOn() || !opts.why || !m.rulesComplete || !cur?.id || all.some((x) => !x.id)) return null;
   const alts = ok.filter((x) => x !== cur);
   if (alts.length < 2) return null;
   const t0 = process.hrtime.bigint(), net = loadTimes(), r = tinyRead(m, cur, ok, all, opts, net);

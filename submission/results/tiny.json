@@ -1,0 +1,370 @@
+{
+ "about": "The tiny layer (agent/src/agents/tiny.js, A2A_TINY; agent/src/feed/tiny_text.js via feed/moderation.js prefilter, FEED_TINY), both off by default. docs/tiny_models.md.",
+ "cpu": "Intel(R) Core(TM) i5-9400F CPU @ 2.90GHz, node v24.16.0, one thread",
+ "times": {
+  "data": "real teacher labels: Muse Glimmer's choices on the student's teacher sets (simulated club members); test = seed 7, 500 cases x 3 answers; decider = the one-pass decider's 196 cases, graded against `full`",
+  "size_kb": 27.6,
+  "model": {
+   "hidden": 8,
+   "ensemble": 4,
+   "inputs": 71,
+   "fit_cases": 3834,
+   "calibration_cases": 1334
+  },
+  "latency_ms": {
+   "ms_p50": 0.0631,
+   "ms_p95": 0.1728,
+   "ms_max": 13.299,
+   "calls": 500
+  },
+  "js_vs_trainer_max_abs_diff": 4.18e-05,
+  "agreement_with_glimmer_all_cases": {
+   "test": 0.8847,
+   "decider": 0.6939,
+   "reference": {
+    "glimmer_with_itself_test": 0.888,
+    "glimmer_full2_vs_full_decider": 0.7347,
+    "first_listed_test": 0.8267,
+    "first_listed_decider": 0.5816,
+    "student_1b_test": 0.895,
+    "student_1b_decider": 0.633,
+    "student_source": "docs/decision_model.md (bf16, each answer / vs full)"
+   }
+  },
+  "stated_preference_decider": "31 of 32",
+  "thresholds": {
+   "eps": 0.05,
+   "crc_all_cases": 0.18837585297334639,
+   "ltt_answered": null,
+   "strict_answered_empirical": 0.08565026235277823,
+   "served": 0.18837585297334639
+  },
+  "served_threshold": {
+   "test": {
+    "cases": 500,
+    "answered": 299,
+    "answered_share": 0.598,
+    "disagreement_answered": 0.0435,
+    "disagreement_over_all": 0.026,
+    "with_student": {
+     "cases": 500,
+     "student_calls_saved": 299,
+     "glimmer_calls_before": 19,
+     "glimmer_calls_saved": 5,
+     "cascade_agreement_without_tiny": 0.8993,
+     "cascade_agreement_with_tiny": 0.9033,
+     "tiny_vs_student_on_answered": 0.99
+    }
+   },
+   "decider": {
+    "cases": 196,
+    "answered": 28,
+    "answered_share": 0.1429,
+    "disagreement_answered": 0.0357,
+    "disagreement_over_all": 0.0051,
+    "with_student": {
+     "cases": 196,
+     "student_calls_saved": 28,
+     "glimmer_calls_before": 57,
+     "glimmer_calls_saved": 1,
+     "cascade_agreement_without_tiny": 0.7041,
+     "cascade_agreement_with_tiny": 0.7092,
+     "tiny_vs_student_on_answered": 0.9643
+    }
+   }
+  },
+  "crc_threshold_5pct_over_all_cases": {
+   "test": {
+    "cases": 500,
+    "answered": 412,
+    "answered_share": 0.824,
+    "disagreement_answered": 0.0591,
+    "disagreement_over_all": 0.0487,
+    "with_student": {
+     "cases": 500,
+     "student_calls_saved": 412,
+     "glimmer_calls_before": 19,
+     "glimmer_calls_saved": 9,
+     "cascade_agreement_without_tiny": 0.8993,
+     "cascade_agreement_with_tiny": 0.9053,
+     "tiny_vs_student_on_answered": 0.983
+    }
+   },
+   "decider": {
+    "cases": 196,
+    "answered": 69,
+    "answered_share": 0.352,
+    "disagreement_answered": 0.1159,
+    "disagreement_over_all": 0.0408,
+    "with_student": {
+     "cases": 196,
+     "student_calls_saved": 69,
+     "glimmer_calls_before": 57,
+     "glimmer_calls_saved": 2,
+     "cascade_agreement_without_tiny": 0.7041,
+     "cascade_agreement_with_tiny": 0.7143,
+     "tiny_vs_student_on_answered": 0.9275
+    }
+   }
+  },
+  "coverage_at_fixed_disagreement_oracle": {
+   "test": {
+    "2%": 0.336,
+    "5%": 0.694,
+    "10%": 0.97
+   },
+   "decider": {
+    "2%": 0.1071,
+    "5%": 0.2449,
+    "10%": 0.3265
+   }
+  },
+  "other_sets_at_served": {
+   "shared": {
+    "cases": 209,
+    "agreement_all": 0.8732,
+    "first_listed_agreement": 0.8062,
+    "answered": 170,
+    "answered_share": 0.8134,
+    "disagreement_answered": 0.0618,
+    "disagreement_over_all": 0.0502,
+    "with_student": {
+     "cases": 177,
+     "student_calls_saved": 144,
+     "glimmer_calls_before": 0,
+     "glimmer_calls_saved": 0,
+     "cascade_agreement_without_tiny": 0.8955,
+     "cascade_agreement_with_tiny": 0.8785,
+     "tiny_vs_student_on_answered": 0.9583
+    }
+   },
+   "demo": {
+    "cases": 150,
+    "agreement_all": 0.8267,
+    "first_listed_agreement": 0.7022,
+    "answered": 109,
+    "answered_share": 0.7267,
+    "disagreement_answered": 0.0734,
+    "disagreement_over_all": 0.0533,
+    "with_student": {
+     "cases": 150,
+     "student_calls_saved": 109,
+     "glimmer_calls_before": 19,
+     "glimmer_calls_saved": 18,
+     "cascade_agreement_without_tiny": 0.8956,
+     "cascade_agreement_with_tiny": 0.8956,
+     "tiny_vs_student_on_answered": 0.9725
+    }
+   },
+   "varied": {
+    "cases": 300,
+    "agreement_all": 0.7967,
+    "first_listed_agreement": 0.5533,
+    "answered": 186,
+    "answered_share": 0.62,
+    "disagreement_answered": 0.078,
+    "disagreement_over_all": 0.0483,
+    "with_student": {
+     "cases": 300,
+     "student_calls_saved": 186,
+     "glimmer_calls_before": 17,
+     "glimmer_calls_saved": 9,
+     "cascade_agreement_without_tiny": 0.8633,
+     "cascade_agreement_with_tiny": 0.87,
+     "tiny_vs_student_on_answered": 0.9301
+    }
+   }
+  },
+  "notes": [
+   "with_student: the bf16 1B student's saved probabilities (sure at 0.6 with its reading of which times work right); Glimmer calls are those the student leaves (the decider and A2A_AGREE tiers not counted)",
+   "cascade agreement: the tiny layer where it answers, the student where sure, else Glimmer (test: its first answer graded against the other two; decider: full2 against full)"
+  ]
+ },
+ "moderation": {
+  "data": "simulated: synthetic comments (templates and Muse Glimmer-written chat), labeled by Prompt Guard 2, code, Llama Guard 3 1B and Muse Glimmer's feed.standard",
+  "size_kb": 87.1,
+  "weights_kb": 64,
+  "latency_ms": {
+   "ms_p50": 0.0327,
+   "ms_p95": 0.0697,
+   "ms_max": 9.251,
+   "calls": 3914
+  },
+  "js_vs_trainer_mismatches": "0 of 12",
+  "labels": {
+   "source": "simulated (synthetic comments, labeled by Prompt Guard 2, code, Llama Guard 3 1B and Muse Glimmer's feed.standard)",
+   "train": 2875,
+   "test": 1039,
+   "families_train": 70,
+   "families_test": 37
+  },
+  "model": {
+   "dim": 65536,
+   "C": 0.3,
+   "nonzero_weights": 40709,
+   "scale": 0.00708115054294467
+  },
+  "thresholds": {
+   "minP": 0.5,
+   "maxDoubt": 0.04,
+   "eps": 0.001,
+   "out_of_fold_fine_passed": 63
+  },
+  "test_held_out": {
+   "items": 1039,
+   "passed_without_model": 31,
+   "passed_share": 0.0298,
+   "fine": 271,
+   "fine_passed": 30,
+   "fine_passed_share": 0.1107,
+   "hostile_or_injected": 762,
+   "hostile_or_injected_passed": 0,
+   "refused_by_a_check": 294,
+   "refused_by_a_check_passed": 1,
+   "sent_onward_by_rule": 414,
+   "by_intent": {
+    "benign": {
+     "n": 277,
+     "passed": 31
+    },
+    "hostile": {
+     "n": 590,
+     "passed": 0
+    },
+    "injection": {
+     "n": 172,
+     "passed": 0
+    }
+   },
+   "by_disguise": {
+    "bidi": {
+     "n": 63,
+     "passed": 0
+    },
+    "fullwidth": {
+     "n": 50,
+     "passed": 0
+    },
+    "homoglyph": {
+     "n": 67,
+     "passed": 0
+    },
+    "leet": {
+     "n": 45,
+     "passed": 0
+    },
+    "none": {
+     "n": 369,
+     "passed": 0
+    },
+    "spaced": {
+     "n": 106,
+     "passed": 0
+    },
+    "zerowidth": {
+     "n": 62,
+     "passed": 0
+    }
+   },
+   "benign_by_lang": {
+    "en": {
+     "n": 53,
+     "passed": 0
+    },
+    "mix": {
+     "n": 102,
+     "passed": 9
+    },
+    "zh": {
+     "n": 20,
+     "passed": 0
+    },
+    "zh-Hant": {
+     "n": 96,
+     "passed": 21
+    }
+   },
+   "benign_refused_by_checks": 6,
+   "harmful_passed_by_checks": 474,
+   "harmful_max_p": 0.9486
+  },
+  "train": {
+   "items": 2875,
+   "passed_without_model": 330,
+   "passed_share": 0.1148,
+   "fine": 1470,
+   "fine_passed": 330,
+   "fine_passed_share": 0.2245,
+   "hostile_or_injected": 1322,
+   "hostile_or_injected_passed": 0,
+   "refused_by_a_check": 671,
+   "refused_by_a_check_passed": 0,
+   "sent_onward_by_rule": 604,
+   "by_intent": {
+    "benign": {
+     "n": 1553,
+     "passed": 330
+    },
+    "hostile": {
+     "n": 1012,
+     "passed": 0
+    },
+    "injection": {
+     "n": 310,
+     "passed": 0
+    }
+   },
+   "by_disguise": {
+    "bidi": {
+     "n": 127,
+     "passed": 0
+    },
+    "fullwidth": {
+     "n": 97,
+     "passed": 0
+    },
+    "homoglyph": {
+     "n": 75,
+     "passed": 0
+    },
+    "leet": {
+     "n": 88,
+     "passed": 0
+    },
+    "none": {
+     "n": 801,
+     "passed": 0
+    },
+    "zerowidth": {
+     "n": 134,
+     "passed": 0
+    }
+   },
+   "benign_by_lang": {
+    "en": {
+     "n": 602,
+     "passed": 39
+    },
+    "mix": {
+     "n": 272,
+     "passed": 72
+    },
+    "zh": {
+     "n": 128,
+     "passed": 37
+    },
+    "zh-Hans": {
+     "n": 276,
+     "passed": 104
+    },
+    "zh-Hant": {
+     "n": 192,
+     "passed": 78
+    }
+   },
+   "benign_refused_by_checks": 83,
+   "harmful_passed_by_checks": 734,
+   "harmful_max_p": 0.057
+  }
+ }
+}
