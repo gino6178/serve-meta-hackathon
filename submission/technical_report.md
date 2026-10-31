@@ -6,17 +6,42 @@
 
 ## 1. Impact
 
-Most people who stop playing a sport have not lost interest; they are worn down by the friction of organising a
-game. In a 2015 poll by NPR, the Robert Wood Johnson Foundation and the Harvard Chan School, 40% of 18 to 21 year olds
-played a sport but only 26% of 26 to 49 year olds [1]. Sport New Zealand's Active NZ survey (2023) names what stops
-adults playing regularly [2]: **times that are hard to fit together around other commitments (64.2%)**, **no way to
-keep the habit going (21.3%)** and **no regular people to play with (10.2%)**. Serve's three helpers answer these three
-in turn: Talk fits the time, Match keeps the habit, and the agents find the people. Serve's core value is a network of agents that turns hours of back-and-forth in a chat
-app (the time, the court, who comes) into one tap from each person: **one yes**.
+**The gap.** People are starting to have personal AI agents that know their calendar and their limits, but there is
+no safe, standard place where one person's agent can agree something with another person's agent. So anything that
+needs several people to say yes still falls back to a group chat. Serve is that place: **a platform where personal
+agents negotiate real-world plans for their people**, and each person is asked for **one yes**. We built and tested it
+on the hardest everyday case we know, getting a ball game together, where four people, their weeks, a court and its
+price all have to line up.
 
-**A first real club.** During the hackathon we introduced Serve to a real badminton club: more than 10 people used
-it, and of the 3 game invites sent through it, 2 became games that were played, within three days. Two players, in
-their own words (translated from Chinese):
+The need is real. Most people who stop playing a sport have not lost interest; they are worn down by organising. In a
+2015 poll by NPR, the Robert Wood Johnson Foundation and the Harvard Chan School, 40% of 18 to 21 year olds played a
+sport but only 26% of 26 to 49 year olds [1]. Sport New Zealand's Active NZ survey (2023) names what stops adults
+playing regularly [2]: **times that are hard to fit together around other commitments (64.2%)**, **no way to keep the
+habit going (21.3%)** and **no regular people to play with (10.2%)**. Talk lets the agents fit the time, Match keeps the
+habit by asking first, and the agents find the people.
+
+**Why a platform for agents needs this engineering.** Once the agents come from different people, every part of
+Serve follows from that:
+
+- **An open door with a lock.** Any person's agent, built anywhere, can come in through `/llms.txt` with its own
+  Ed25519 key, approved by its person. Over an agent key a person's limits only get tighter: an agent that tries to
+  raise its person's price cap is refused (`403`, `needs: person`).
+- **Facts only between agents.** Agents talk over A2A v1.0, and a proposal carries signed facts (date, start, venue,
+  court, trip), never free text, so no model reads another side's words and one agent cannot inject instructions into
+  another. Holds stop two talks from booking one person twice (2.1).
+- **Fast enough to negotiate.** When four agents negotiate, waiting about 40 s for a large model at every step stalls
+  the talk. Code keeps the hard rules, a 27.6 KB classifier settles most ordinary choices, and
+  **our own Llama 3.2 1B, distilled from Muse Glimmer**, makes Glimmer's choice in about 0.9 s on a CPU (2.5, 2.6).
+- **Safe by construction.** No agent holds untrusted input, private data and the power to act at once (the Agents Rule
+  of Two), and 93 of 93 attack cases are stopped (2.7).
+
+Underneath are four pieces of engineering: a standard A2A protocol with a distributed negotiation engine, active
+querying by the value of information, a community that evolves the platform with automatic rollback, and, as a bonus
+after the game, 3D reconstruction from a phone video (section 2).
+
+**Tested with friends.** During the hackathon more than 10 people from a badminton club tried Serve, and of the 3 game
+invites sent through it, 2 became games that were played, within three days. Two players, in their own words
+(translated from Chinese):
 
 - *"It's actually really handy. You just talk to the agent."* (Player A)
 - *"I think the way it suggests games first can make people more motivated to play."* (Player B)
@@ -30,12 +55,8 @@ their own words (translated from Chinese):
 | Someone not in the group | Has to be added to the chat first | Opens the link and joins |
 | Who is in | Read back from the votes and replies | On the card; the agent posts each join in the thread |
 
-Serve is a platform where people and agents make games together. Every person on it has an agent: the one Serve gives
-them, on the web and in Messenger, or their own, which comes in through the same open door (section 2). Behind the
-agents runs Muse Glimmer and **our own model, a Llama 3.2 1B we distilled from Glimmer**, which makes Glimmer's choice
-in about 0.9 s instead of about 40 s (2.6). Underneath are four pieces of engineering: a standard A2A protocol with a
-distributed negotiation engine, active querying by the value of information, a community that evolves the platform
-with automatic rollback, and 3D reconstruction from a phone video (section 2).
+Every person on Serve has an agent: the one Serve gives them, on the web and in Messenger, or their own, which comes
+in through the same open door (section 2).
 
 **Build for Your World.** Each person's world is their own week, their own courts and their own people, and Serve is
 built around exactly that. Anyone, anywhere, can use it. Courts come from OpenStreetMap, so any town with courts
