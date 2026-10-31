@@ -58,7 +58,7 @@ export const DECISION = {
   type: "object", additionalProperties: false, required: ["intent"],
   properties: {
     ...MEMBER_REPLY.properties,
-    tier: { enum: ["quick", "draft", "agent", "rules", "student", "decider", "agree", "early"] }, confidence: { type: "number", minimum: 0, maximum: 1 },
+    tier: { enum: ["quick", "draft", "agent", "rules", "student", "decider", "agree", "early", "tiny"] }, confidence: { type: "number", minimum: 0, maximum: 1 },
     // the listed times it does not answer about (its member's disclosure budget, disclosure.js): neither a yes nor a no
     withheld: { type: "array", maxItems: 12, items: { type: "string", pattern: "^t\\d{1,2}$" } },
     usage: { type: "object", additionalProperties: { type: "number", minimum: 0 } },
