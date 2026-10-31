@@ -50,9 +50,9 @@ place or one sport.
   open and the people they play best with are free, it asks first: "Thursday 19:00: Leo is free. Want a game?"
 - **Talk, agents agreeing on their own.** The person only says they want to play. Each player's agent agrees the time,
   the people and the court with the others' agents in the background.
-- **Body, scheduling around the body.** The player's own body log and health-app export become scheduling limits:
-  doubles instead of singles while a knee is sore, one game fewer in a heavy week. **A body log is not medical advice**:
-  Serve gives no diagnosis, treatment or dose, and a highlight clip is for sharing, never for coaching or scoring.
+- **Pace, scheduling around exercise load.** Training load from the player's health-app export becomes a scheduling
+  limit: one game fewer in a heavy week, doubles instead of singles. Pace plans around load and fatigue only, with no
+  diagnosis, treatment or injury advice, and a highlight reel is for sharing with friends, never for coaching or scoring.
 
 **For groups nobody organises:** children's sessions with fair turns and no child accounts, gentle daytime doubles
 for older adults, and charity round-robins that record pledges but handle no money, each with its rules in code.
@@ -299,9 +299,7 @@ can do.
   about 0.9 s instead of about 40 s.
 - **Glimmer can decide in one token.** Read with no chat template, Glimmer's next token gives a probability for each
   option, so the one-pass decider gets its choice in 0.53 s with no reasoning at all.
-- **Llama Guard 3 reads sports injuries as medical advice, and a club name as a threat.** Its S6 category flagged 6 to
-  8 of 15 ordinary injury-care answers. S6 now blocks a text only when code also finds a dose, a medicine to take, or a
-  condition the player is said to have. On the live site it refused a club named "Serve test round 27" as violence
+- **Llama Guard 3 refused a club name as a threat.** On the live site it refused a club named "Serve test round 27" as violence
   (S9 once, S1 on a later run): S9 now counts only with a weapon word in the text, and S1 alone with no word of harm is
   left to the club's standard, which Glimmer reads; the feed red team still stops 13 of 13.
 
@@ -358,7 +356,7 @@ of 93) pass as with Glimmer alone.
 | Kind | Model | Runs on | Its job in Serve |
 |---|---|---|---|
 | Our models | Llama 3.2 1B Instruct, distilled by us twice | Server CPU (int4), and Glimmer's Ollama for short text | One trained from Glimmer's decisions picks among times as Glimmer would, about 44 times faster (2.6); one trained from Glimmer's short answers takes short text at six checked sites (section 3) |
-| Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its S6 flag so sports injuries are not read as medical advice |
+| Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its flags so ordinary sports chat is not misread as harm |
 | Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes, every post and comment) before a model reads it |
 | Meaning | DRAMA (drama-base) | Server CPU | Memory by meaning (768 dimensions) and a softmax head that catches game requests the regular expressions miss |
 | Speech | Omnilingual ASR (CTC 1B) | Server CPU | Voice notes in Messenger, for players who can't type |

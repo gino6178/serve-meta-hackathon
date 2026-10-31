@@ -41,7 +41,7 @@ async function img(file, width = 1800) {
     { placeholder: { options: { name: "body", type: "body", x: M, y: 4.05, w: 8.6, h: 1.2, fontSize: 20, color: "C9D6CE", valign: "top", align: "left", margin: 0 }, text: "" } },
   ] });
   pres.defineSlideMaster({ title: "CONTENT", background: { color: "FFFFFF" }, slideNumber: { x: W - 1.0, y: H - 0.45, w: 0.5, h: 0.3, fontSize: 10, color: HEX.soft, align: "right" }, objects: [
-    { placeholder: { options: { name: "title", type: "title", x: M, y: 0.4, w: W - 2 * M, h: 0.85, fontSize: 28, bold: true, color: C.text1, valign: "middle", align: "left", margin: 0 }, text: "" } },
+    { placeholder: { options: { name: "title", type: "title", x: M, y: 0.28, w: W - 2 * M, h: 0.95, fontSize: 24, bold: true, color: C.text1, valign: "middle", align: "left", margin: 0 }, text: "" } },
     { text: { text: "Serve · technical report", options: { x: M, y: H - 0.45, w: 4, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0 } } },
   ] });
 
@@ -54,6 +54,19 @@ async function img(file, width = 1800) {
     swarm: await img(path.join(__dirname, "swarm.png"), 2400),
     pain: await img(path.join(SHOTS, "pain_scene.png"), 1920),
   };
+  // whole panels cut from the four-panel flow: the invite, the agents agreeing, the Messenger booking
+  const crop = async (file, left, width, height) => {
+    const buf = await sharp(file).extract({ left, top: 0, width, height }).png().toBuffer();
+    return { data: "image/png;base64," + buf.toString("base64"), ratio: height / width };
+  };
+  const FLOW = path.join(SHOTS, "flow_four.png");
+  const P = { invite: await crop(FLOW, 0, 590, 885), agents: await crop(FLOW, 625, 590, 885), messenger: await crop(FLOW, 1880, 436, 885) };
+  // the main slides are tagged and put first, in this order; every untagged slide follows as the appendix
+  const MAIN = ["cover", "pain", "solution", "club", "models", "surprises", "tiers", "distill", "a2a", "ranking", "reels", "testing", "security", "community", "roadmap", "appendix"];
+  const KEYS = [];
+  let nextKey = null;
+  const addSlide = pres.addSlide.bind(pres);
+  pres.addSlide = (o) => { KEYS.push(nextKey); nextKey = null; return addSlide(o); };
   // the paper-style figures (figures.py), one per slide, numbered in order, each with its caption
   const FIG = {};
   for (const f of fs.readdirSync(path.join(__dirname, "figs")).filter((x) => x.endsWith(".png"))) FIG[f.slice(0, -4)] = await img(path.join(__dirname, "figs", f), 2600);
@@ -67,11 +80,15 @@ async function img(file, width = 1800) {
     return head ? [{ text: head + " ", options: { bold: true, bullet: true } }, { text: rest, options: { breakLine: br } }] : [{ text: rest, options: { bullet: true, breakLine: br } }];
   }).flat();
   const card = (s, x, y, w, h, fill = HEX.card) => s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, fill: { color: fill }, line: { color: fill }, rectRadius: 0.08 });
-  const stat = (s, x, y, w, big, label, color = HEX.green) => {
-    card(s, x, y, w, 1.65);
-    s.addText(big, { isTextBox: true, x: x + 0.25, y: y + 0.18, w: w - 0.5, h: 0.75, fontSize: 36, bold: true, color, margin: 0, fontFace: THEME.headFontFace });
-    s.addText(label, { isTextBox: true, x: x + 0.25, y: y + 0.92, w: w - 0.5, h: 0.65, fontSize: 13, color: HEX.muted, margin: 0, valign: "top" });
+  // a key number, big and green, with its label under it
+  const stat = (s, x, y, w, big, label, color = HEX.green, o = {}) => {
+    const h = o.h || 1.65;
+    card(s, x, y, w, h, o.fill);
+    s.addText(big, { isTextBox: true, x: x + 0.25, y: y + 0.15, w: w - 0.5, h: 0.8, fontSize: o.size || 40, bold: true, color, margin: 0, fontFace: THEME.headFontFace, valign: "middle" });
+    s.addText(label, { isTextBox: true, x: x + 0.25, y: y + 0.95, w: w - 0.5, h: h - 1.0, fontSize: 12.5, color: HEX.muted, margin: 0, valign: "top" });
   };
+  // sources as a small footnote above the footer
+  const foot = (s, t) => s.addText(t, { isTextBox: true, x: M, y: H - 0.78, w: W - 2 * M - 0.6, h: 0.3, fontSize: 9, color: HEX.soft, margin: 0, valign: "bottom" });
   const picture = (s, im, x, y, w, maxH) => { let ww = w, hh = w * im.ratio; if (maxH && hh > maxH) { hh = maxH; ww = hh / im.ratio; } s.addImage({ data: im.data, x: x + (w - ww) / 2, y, w: ww, h: hh }); return hh; };
   const bar = (s, labels, values, o) => s.addChart(pres.charts.BAR, [{ name: o.name || "value", labels, values }], {
     x: o.x, y: o.y, w: o.w, h: o.h, barDir: o.dir || "bar", chartColors: o.colors || [HEX.green], showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: o.fmt || "0.0", dataLabelFontSize: 12, dataLabelColor: HEX.ink,
@@ -92,7 +109,7 @@ async function img(file, width = 1800) {
     let w = area.w, h = w * im.ratio; if (h > area.h) { h = area.h; w = h / im.ratio; }
     s.addImage({ data: im.data, x: area.x + (area.w - w) / 2, y: area.y, w, h });
     figNo++;
-    s.addText([{ text: `Fig. ${figNo} | `, options: { bold: true, color: HEX.ink } }, { text: cap, options: { color: HEX.muted } }], { isTextBox: true, x: area.x, y: area.y + h + 0.12, w: area.w, h: 0.75, fontSize: 11, margin: 0, valign: "top" });
+    s.addText([{ text: cap, options: { color: HEX.muted } }], { isTextBox: true, x: area.x, y: area.y + h + 0.12, w: area.w, h: 0.75, fontSize: 11, margin: 0, valign: "top" });
   };
   // a box with a bold head and a smaller line under it
   const box = (s, x, y, w, h, head, sub, fill = HEX.card, ink = HEX.ink) => {
@@ -100,28 +117,180 @@ async function img(file, width = 1800) {
     s.addText([{ text: head, options: { bold: true, fontSize: 14, breakLine: !!sub } }, ...(sub ? [{ text: sub, options: { fontSize: 11.5, color: ink === "FFFFFF" ? "D9EBDF" : HEX.muted } }] : [])], { isTextBox: true, x: x + 0.15, y, w: w - 0.3, h, valign: "middle", align: "center", margin: 0, color: ink });
   };
 
-  // 1. title
+  // 1. cover: the name, the line, the track, three numbers
+  nextKey = "cover";
   let s = pres.addSlide({ masterName: "DARK" });
-  picture(s, I.chats, W - 3.6, 0.6, 2.9, 6.3);
-  title(s, "Serve: Play more.\nManage less.");
-  s.addText("Technical report · Meta Global AI Developer Hackathon 2026 · Indie Developer track", { placeholder: "body" });
-  s.addText("play.theminimallab.com · github.com/gino6178/serve-meta-hackathon", { isTextBox: true, x: M, y: H - 1.0, w: 9, h: 0.4, fontSize: 14, color: "9FB3A7", margin: 0 });
-  note(s, "Serve is a platform where people and agents make games together. This deck follows the technical report: impact, technical depth, Meta models, and what is not done yet.");
+  s.addShape(pres.shapes.OVAL, { x: M, y: 0.75, w: 0.32, h: 0.32, fill: { color: "2FBF71" }, line: { color: "2FBF71" } });
+  s.addText("serve", { isTextBox: true, x: M + 0.45, y: 0.6, w: 3, h: 0.6, fontSize: 30, bold: true, color: "FFFFFF", margin: 0, valign: "middle" });
+  title(s, "Play more.\nManage less.");
+  s.addText("Your agent agrees the game with your friends' agents, so each person only says yes once.", { placeholder: "body" });
+  s.addText("Track: Indie Developer  |  Build for Your World  |  Built Oct 27 – Nov 4, 2026", { isTextBox: true, x: M, y: 5.45, w: 8.6, h: 0.4, fontSize: 15, bold: true, color: "2FBF71", margin: 0 });
+  s.addText("Technical report · Meta Global AI Developer Hackathon 2026 · play.theminimallab.com · github.com/gino6178/serve-meta-hackathon", { isTextBox: true, x: M, y: H - 0.9, w: 11, h: 0.4, fontSize: 12, color: "9FB3A7", margin: 0 });
+  [["10+", "people in a real badminton club"], ["0.9 s", "our own distilled Llama 3.2 1B, on CPU"], ["177", "AI testers in 28 rounds"]].forEach(([b, d], i) => {
+    const y = 1.6 + i * 1.3;
+    s.addText(b, { isTextBox: true, x: 9.7, y, w: 3.0, h: 0.7, fontSize: 44, bold: true, color: "2FBF71", margin: 0, fontFace: THEME.headFontFace });
+    s.addText(d, { isTextBox: true, x: 9.7, y: y + 0.7, w: 3.0, h: 0.4, fontSize: 13, color: "C9D6CE", margin: 0 });
+  });
+  note(s, "Serve is a sports social platform where people and their agents make games together. This deck: the pain, the product, a real club, Meta's models, the technical depth, the testing, and the roadmap. Detail is in the appendix.");
+
+  // 3. the solution: a group-chat poll against Serve, and the three pillars
+  nextKey = "solution";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Serve replaces the organiser's group-chat poll with one yes from each person");
+  const lane = (x, w, head, color, steps) => {
+    s.addText(head, { isTextBox: true, x, y: 1.3, w, h: 0.4, fontSize: 16, bold: true, color, margin: 0 });
+    steps.forEach(([t, who], i) => {
+      const y = 1.78 + i * 0.52, mine = who === "me", fill = mine ? (color === HEX.green ? HEX.green : "E4E6E5") : HEX.card;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: mine ? x + 0.8 : x, y, w: w - 0.8, h: 0.44, fill: { color: fill }, line: { color: fill }, rectRadius: 0.1 });
+      s.addText(t, { isTextBox: true, x: (mine ? x + 0.8 : x) + 0.18, y, w: w - 1.15, h: 0.44, fontSize: 12, color: mine && color === HEX.green ? "FFFFFF" : HEX.ink, valign: "middle", margin: 0 });
+    });
+  };
+  lane(M, 5.8, "Group chat: the organiser does everything", HEX.muted, [["Anyone up for badminton this week?", "me"], ["Maybe Thu? / Sat works / not Fri", "them"], ["Poll: Tue 19 · Thu 20 · Sat 10", "me"], ["Votes trickle in over a day", "them"], ["Books the court, posts the result", "me"], ["Someone new? Add them to the chat first", "me"]]);
+  lane(M + 6.3, W - 2 * M - 6.3, "Serve: one sentence, one tap each", HEX.green, [["“Doubles on Saturday”", "me"], ["The card: the day, the nearest court, in 7 ms", "them"], ["The players' agents agree the time in the background", "them"], ["Each person taps once: one yes", "me"], ["Booked; the agent posts each join in the thread", "them"]]);
+  [["Match", "asks first", "“Thursday 19:00: Leo is free. Want a game?” It learns your usual times and the people you play best with.", HEX.green], ["Talk", "agents agree on their own", "You only say you want to play. Your agent agrees the time, the people and the court with theirs.", HEX.blue], ["Pace", "schedules around your load", "Exercise load from a health-app export becomes a scheduling limit: one game fewer in a heavy week.", HEX.amber]].forEach(([h, sub, d, c], i) => {
+    const x = M + i * 4.1, y = 5.0;
+    card(s, x, y, 3.85, 1.6);
+    s.addShape(pres.shapes.OVAL, { x: x + 0.2, y: y + 0.2, w: 0.5, h: 0.5, fill: { color: c }, line: { color: c } });
+    s.addText([{ text: h + "  ", options: { bold: true, fontSize: 17 } }, { text: sub, options: { fontSize: 11.5, color: HEX.muted } }], { isTextBox: true, x: x + 0.85, y: y + 0.2, w: 2.85, h: 0.5, margin: 0, color: HEX.ink, valign: "middle" });
+    s.addText(d, { isTextBox: true, x: x + 0.2, y: y + 0.8, w: 3.45, h: 0.75, fontSize: 11.5, color: HEX.ink, margin: 0, valign: "top" });
+  });
+  note(s, "Settled when: in the group chat, when everyone has voted and the organiser posts; in Serve, when the spots fill. Pace plans around exercise load and fatigue only: no diagnosis, no treatment, no injury advice. Any town with courts on OpenStreetMap, any ball sport, in a browser and in Messenger.");
+
+  // 4. a real club
+  nextKey = "club";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "A real badminton club used it: 2 of 3 invites became games within 3 days");
+  card(s, M, 1.4, 5.7, 2.75, HEX.greenBg);
+  text(s, [{ text: "“It's actually really handy. You just talk to the agent.”", options: { italic: true, fontSize: 17, breakLine: true } }, { text: "Player A", options: { fontSize: 11, color: HEX.muted, breakLine: true } }, { text: "“The way it suggests games first can make people more motivated to play.”", options: { italic: true, fontSize: 17, breakLine: true } }, { text: "Player B (both translated from Chinese)", options: { fontSize: 11, color: HEX.muted } }], { x: M + 0.3, y: 1.6, w: 5.1, h: 2.45, paraSpaceAfter: 4 });
+  [["10+", "people of the club used Serve"], ["2 of 3", "invites became games played"], ["3 days", "from invite to the games"]].forEach(([b, d], i) => stat(s, M + i * 1.95, 4.4, 1.8, b, d, HEX.green, { size: 30 }));
+  const shotH = 3.3;
+  let sx = M + 6.1;
+  [[P.invite, "1  Say it: an invite"], [P.agents, "2  The agents agree"], [P.messenger, "3  One tap, in Messenger"]].forEach(([im, cap]) => {
+    const w = shotH / im.ratio;
+    s.addImage({ data: im.data, x: sx, y: 1.4, w, h: shotH });
+    s.addShape(pres.shapes.RECTANGLE, { x: sx, y: 1.4, w, h: shotH, fill: { type: "none" }, line: { color: HEX.line, width: 0.75 } });
+    s.addText(cap, { isTextBox: true, x: sx, y: 1.4 + shotH + 0.08, w, h: 0.3, fontSize: 11, bold: true, color: HEX.green, margin: 0 });
+    sx += w + 0.1;
+  });
+  text(s, "The same agent works in the web app and in Messenger. Anyone's own agent can come in through /llms.txt with its own Ed25519 key, and over an agent key a person's limits only get tighter.", { x: M + 6.1, y: 5.25, w: W - 2 * M - 6.1, h: 1.0, fontSize: 12.5, color: HEX.muted });
+  note(s, "More than 10 people of a real badminton club used Serve during the hackathon; of the 3 game invites sent through it, 2 became games that were played within three days. The Messenger panel shows the agent's real replies from the Messenger end-to-end test.");
+
+  // 7. the tiered engine, with the tiny layer
+  nextKey = "tiers";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Most decisions never reach the big model: code, a 27.6 KB classifier, then our 1B");
+  [["LAYER 0", "Code", "every hard rule: free times, clashes, trips", "7 ms", "the game's card (median)"], ["TINY LAYER", "27.6 KB classifier", "small MLPs on facts code holds, with a doubt model", "0.06 ms", "answers 59.8% of ordinary choices"], ["OUR MODEL", "Llama 3.2 1B, distilled", "int4 on the CPU; answers when at least 0.6 sure", "0.9 s", "96.0% of ordinary, 73.0% of the hardest"], ["WHAT IS LEFT", "Muse Glimmer 30B", "on the RTX 3090, stopped early when sure (DEER)", "21.3 s", "596 → 420 tokens an answer"]].forEach(([k, n, d, b, l], i) => {
+    const x = M + i * 3.07, w = 2.82, hi = i === 2;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.4, w, h: 3.25, fill: { color: hi ? HEX.greenBg : HEX.card }, line: { color: hi ? HEX.green : HEX.card, width: hi ? 2 : 0.5 }, rectRadius: 0.08 });
+    s.addText([{ text: k, options: { fontSize: 10.5, color: HEX.muted, bold: true, breakLine: true } }, { text: n, options: { fontSize: 17, bold: true, breakLine: true } }, { text: d, options: { fontSize: 11.5, color: HEX.muted } }], { isTextBox: true, x: x + 0.2, y: 1.55, w: w - 0.4, h: 1.45, margin: 0, valign: "top", color: HEX.ink });
+    s.addText(b, { isTextBox: true, x: x + 0.2, y: 3.05, w: w - 0.4, h: 0.8, fontSize: 40, bold: true, color: i === 3 ? HEX.ink : HEX.green, margin: 0, fontFace: THEME.headFontFace, valign: "middle" });
+    s.addText(l, { isTextBox: true, x: x + 0.2, y: 3.85, w: w - 0.4, h: 0.65, fontSize: 11.5, color: HEX.muted, margin: 0, valign: "top" });
+    if (i < 3) arrow(s, x + w + 0.02, 3.0, x + 3.05, 3.0);
+  });
+  s.addText("Agreement with Glimmer's full answer, 500 held-out cases", { isTextBox: true, x: M, y: 4.95, w: 8, h: 0.35, fontSize: 13, bold: true, color: HEX.ink, margin: 0 });
+  [["Our 1B", 89.5, HEX.green], ["Glimmer, with itself", 88.8, HEX.soft]].forEach(([n, v, c], i) => {
+    const y = 5.4 + i * 0.5, full = 8.4;
+    s.addText(n, { isTextBox: true, x: M, y, w: 2.3, h: 0.4, fontSize: 13, bold: true, color: HEX.ink, margin: 0, valign: "middle" });
+    s.addShape(pres.shapes.RECTANGLE, { x: M + 2.4, y: y + 0.05, w: full * v / 100, h: 0.3, fill: { color: c }, line: { color: c } });
+    s.addText(v.toFixed(1) + "%", { isTextBox: true, x: M + 2.5 + full * v / 100, y, w: 1.2, h: 0.4, fontSize: 16, bold: true, color: c === HEX.green ? HEX.green : HEX.ink, margin: 0, valign: "middle" });
+  });
+  foot(s, "A cascade cheapest first, following FrugalGPT [19]; early exit after DEER [23]. Times: the card on a local copy, the 1B on the server CPU, Glimmer on the RTX 3090. Detail in the appendix.");
+  note(s, "Before any of them, Match works ahead of time, so the agents have often agreed a game before anyone waits at all. Every wait shows a moving bar within 250 ms.");
+
+  // 8. distillation, one page
+  nextKey = "distill";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Distilled from 4,868 Glimmer choices: a 0.8 GB 1B on CPU agrees 89.5% of the time");
+  [["Real agent calls", "the talks' own code builds each case"], ["Glimmer labels", "4,868 training choices"], ["One prompt", "~240 tokens, letters in time order"], ["LoRA, Llama 3.2 1B", "rank 16, 20 min on one A100"], ["int4 GGUF", "Q4_K_M, 0.8 GB"], ["CPU worker", "8 threads, prefix cache"]].forEach(([h, d], i) => {
+    const x = M + i * 2.05;
+    box(s, x, 1.35, 1.85, 1.05, h, d, i === 3 ? HEX.green : HEX.card, i === 3 ? "FFFFFF" : HEX.ink);
+    if (i < 5) arrow(s, x + 1.86, 1.87, x + 2.04, 1.87);
+  });
+  figure(s, "case", "A real held-out hard case (s009): the 1B reads which times work, checked against code, then scores the valid options in one forward pass; t2 at 0.673 clears 0.6, as both Glimmer answers did.", { x: M, y: 2.6, w: 6.6, h: 3.3 });
+  [["89.5%", "agreement with Glimmer (Glimmer with itself: 88.8%)"], ["0.052", "calibration error: its confidence can be trusted"], ["20.2%", "picks changed when the list was reversed (one-token decider: 90.8%)"], ["2 losses", "choice over valid letters only, and yes/no per time against code's truth"]].forEach(([b, d], i) => stat(s, M + 6.9 + (i % 2) * 2.67, 2.6 + Math.floor(i / 2) * 1.85, 2.5, b, d, HEX.green, { size: 32, h: 1.7 }));
+  foot(s, "LoRA SFT on hard labels [28, 29]; soft labels at T = 2 and the decider's letters were tried and not kept [27]. Every technique and its result is in the appendix.");
+  note(s, "Teacher: the same Glimmer blob as our server. Round 4 with more teacher answers per case was served. The decider mostly reads the order of the list, so its letters are not used as soft labels.");
+
+  // 9. A2A and holds
+  nextKey = "a2a";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "A2A with facts only and 30-minute holds: double bookings fell from 11 of 12 to 0");
+  stat(s, M, 1.4, 5.6, "11/12 → 0/12", "pairs of simultaneous talks that booked one member twice, without and with holds", HEX.green, { size: 40 });
+  stat(s, M, 3.2, 2.7, "0.73", "fairness of venues (shortest trip: 0.59), 2.3 min more travel a game", HEX.green, { size: 34 });
+  stat(s, M + 2.9, 3.2, 2.7, "20 / 20", "recovery checks with the gateway killed at 5 points", HEX.green, { size: 34 });
+  text(s, [{ text: "Facts only: ", options: { bold: true } }, { text: "a proposal carries { id, date, start, venue, court, trip }, signed with Ed25519. No model reads another side's words; sentences between agents are templates code fills. Settled in one round by intersection." }], { x: M, y: 5.05, w: 5.6, h: 1.3, fontSize: 12.5 });
+  figure(s, "holds", "(a) Double bookings without and with holds (n = 12 each, 95% Wilson intervals). (b) Fairness of booked games under three venue rules.", { x: M + 6.0, y: 1.4, w: W - 2 * M - 6.0, h: 4.5 });
+  foot(s, "A2A v1.0 [3]; Contract Net [4] with a one-shot intersection [5]; leases [6] with resource ordering [7]; JWS over canonical JSON [8, 9].");
+  note(s, "Holds are leases asked in a fixed order, all or nothing. 22 of 22 recovery checks across two machines.");
+
+  // 10. ranking and value of information
+  nextKey = "ranking";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Rank by everyone's chance of a yes, then ask the one question worth most");
+  stat(s, M, 1.4, 5.95, "73.9% → 89.1%", "doubles requests whose first proposed time keeps every player's rules", HEX.green, { size: 36, h: 1.45 });
+  stat(s, M + 6.15, 1.4, 5.95, "40.7% → 51.9%", "games found after one yes-or-no question, by the value of information", HEX.green, { size: 36, h: 1.45 });
+  figure(s, "ranking", "3,000 simulated requests each; product of chances with a least-misery floor of 0.15.", { x: M, y: 3.05, w: 5.95, h: 3.0 });
+  figure(s, "voi", "20,000 simulated requests each; Beta beliefs over what agents accepted, never a calendar.", { x: M + 6.15, y: 3.05, w: 5.95, h: 3.0 });
+  foot(s, "Least misery after group recommenders [26]; value of information over Beta posteriors [24, 25]. Every question is charged to a disclosure budget: at most 3 asks a week.");
+  note(s, "With shared calendars the first time proposed decides whether each agent can say yes by code or must ask a model; model choices per doubles request fell from 0.261 to 0.109.");
+
+  // 12. testing, one page
+  nextKey = "testing";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "177 AI testers in 28 rounds sent 17,432 requests; core-flow bugs reached zero by round 25");
+  [["177", "fresh AI testers, six a round"], ["28", "rounds, a fix and a deploy after each"], ["17,432", "requests logged"], ["0", "server errors in 146 replayed sessions"]].forEach(([b, d], i) => stat(s, M + i * 3.07, 1.4, 2.85, b, d));
+  figure(s, "rounds", "(a) Bugs per round; from round 21 only core-flow bugs count. Rounds 26–28 were harder: a new copy, the live site, a copy with the server's own models. (b) Share of clean reports.", { x: M, y: 3.25, w: W - 2 * M, h: 2.85 });
+  foot(s, "The testers were AI models, not people: new agents arriving cold, member agents and web users at phone and laptop size. Round 28's flows also run as one script: 12 of 12 checks pass.");
+  note(s, "Between October 29 and 31. Round 27 ran on the live site with test accounts in a private club, removed afterwards; round 28 on a local copy that calls the server's own models.");
+
+  // 15. traction, roadmap and the bonus categories
+  nextKey = "roadmap";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "9 days of real-world traction, and the road to production");
+  card(s, M, 1.35, 4.6, 3.2, HEX.greenBg);
+  s.addText("Built Oct 27 – Nov 4, 2026", { isTextBox: true, x: M + 0.25, y: 1.45, w: 4.1, h: 0.4, fontSize: 14, bold: true, color: HEX.green, margin: 0 });
+  [["10+", "people in a real club"], ["2 of 3", "invites played"], ["177", "AI testers, 28 rounds"], ["Live", "play.theminimallab.com"]].forEach(([b, d], i) => {
+    const x = M + 0.25 + (i % 2) * 2.15, y = 1.95 + Math.floor(i / 2) * 1.25;
+    s.addText(b, { isTextBox: true, x, y, w: 2.0, h: 0.65, fontSize: 32, bold: true, color: HEX.green, margin: 0, fontFace: THEME.headFontFace });
+    s.addText(d, { isTextBox: true, x, y: y + 0.62, w: 2.0, h: 0.4, fontSize: 11.5, color: HEX.ink, margin: 0 });
+  });
+  s.addText("Next, toward production", { isTextBox: true, x: M + 4.9, y: 1.35, w: 7, h: 0.4, fontSize: 15, bold: true, color: HEX.ink, margin: 0 });
+  [["Venues join", "real quiet-hour prices replace the sample prices"], ["More real clubs", "beyond one club, most evidence is still agents and simulation"], ["The community loop on members", "an idea surfaces once 5 different members ask for it"], ["Less waiting", "move more of Glimmer's 20–40 s path to the small models"], ["Longer reels", "orbit replays beyond today's ±6–12°"]].forEach(([h, d], i) => {
+    const y = 1.85 + i * 0.54;
+    s.addShape(pres.shapes.OVAL, { x: M + 4.9, y: y + 0.06, w: 0.34, h: 0.34, fill: { color: HEX.green }, line: { color: HEX.green } });
+    s.addText(String(i + 1), { isTextBox: true, x: M + 4.9, y: y + 0.06, w: 0.34, h: 0.34, fontSize: 11, bold: true, color: "FFFFFF", align: "center", valign: "middle", margin: 0 });
+    s.addText([{ text: h + ": ", options: { bold: true } }, { text: d, options: { color: HEX.muted } }], { isTextBox: true, x: M + 5.4, y, w: W - 2 * M - 5.4, h: 0.46, fontSize: 12.5, color: HEX.ink, margin: 0, valign: "middle" });
+  });
+  [["Best Build on Meta Open Weight Models", "Muse Glimmer, our two distilled Llama 3.2 1Bs, Llama Guard 3, Prompt Guard 2, SAM 2.1, Sapiens2 and MapAnything, on our own GPUs"], ["Best Agentic Use-Case", "every person's agent negotiates over A2A v1.0 with signed facts, holds and one well-chosen question"], ["Best Creative Build", "social reels from one phone video: 3D orbit replays and automatic highlights friends share"]].forEach(([h, d], i) => {
+    const x = M + i * 4.1;
+    card(s, x, 4.8, 3.85, 1.55);
+    s.addText([{ text: h, options: { bold: true, fontSize: 13, color: HEX.green, breakLine: true } }, { text: d, options: { fontSize: 11.5 } }], { isTextBox: true, x: x + 0.2, y: 4.9, w: 3.45, h: 1.38, margin: 0, valign: "top", color: HEX.ink, paraSpaceAfter: 4 });
+  });
+  foot(s, "Live: play.theminimallab.com · Code: github.com/gino6178/serve-meta-hackathon · Every number from submission/results/ · Everything built in the hackathon except the TrackNetV5 library.");
+  note(s, "Serve turns hours of back-and-forth into one yes from each person. The roadmap is what production needs next; the appendix holds every benchmark and ablation.");
+
+  // the appendix divider
+  nextKey = "appendix";
+  s = pres.addSlide({ masterName: "DARK" });
+  title(s, "Appendix");
+  s.addText("Full Benchmark & Ablation Data", { placeholder: "body" });
+  note(s, "Everything after this slide is the detail behind the main slides: every figure, the techniques tried, the testing rounds and the references.");
 
   // 2. impact: the pain, as a scene (Muse Image), with the three barriers beside it
+  nextKey = "pain";
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "The pain: people stop playing because organising is hard");
+  title(s, "People stop playing because organising is hard: 64.2% cannot fit the times");
   picture(s, I.pain, M, 1.4, 7.5, 5.0);
   s.addText("Illustration made with Muse Image (Meta Model API)", { isTextBox: true, x: M, y: 6.45, w: 7.5, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0, italic: true });
   s.addText("What stops adults playing regularly", { isTextBox: true, x: 8.55, y: 1.5, w: 4.2, h: 0.4, fontSize: 15, bold: true, color: HEX.ink, margin: 0 });
-  [["64.2%", "times that are hard to fit around other commitments", HEX.red, "Talk"], ["21.3%", "no way to keep the habit going", HEX.ink, "Match"], ["10.2%", "no regular people to play with", HEX.ink, "the agents"]].forEach(([v, d, c, who], i) => {
+  [["64.2%", "times that are hard to fit around other commitments", HEX.red, "Talk"], ["21.3%", "no way to keep the habit going", HEX.ink, "Match"], ["26%", "of 26 to 49 year olds play a sport, against 40% at 18 to 21", HEX.ink, "all three"]].forEach(([v, d, c, who], i) => {
     const y = 2.05 + i * 1.45;
     s.addText(v, { isTextBox: true, x: 8.55, y, w: 1.9, h: 0.75, fontSize: 34, bold: true, color: c, margin: 0, valign: "middle" });
     s.addText(d, { isTextBox: true, x: 10.5, y, w: 2.25, h: 0.75, fontSize: 12.5, color: HEX.ink, margin: 0, valign: "middle" });
     s.addText(`answered by ${who}`, { isTextBox: true, x: 8.55, y: y + 0.78, w: 4.2, h: 0.35, fontSize: 11.5, color: HEX.green, bold: true, margin: 0 });
   });
-  s.addText("Sport New Zealand, Active NZ survey, 2023 [2]", { isTextBox: true, x: 8.55, y: 6.45, w: 4.2, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0 });
-  note(s, "Most people who stop playing have not lost interest; they are worn down by organising: the organiser chases a group chat, the calendar fills with crosses, one friend works late, one has a sore knee, one has a baby, and the court stays empty.");
+  s.addText("[1] NPR, RWJF and Harvard Chan, 2015; [2] Sport New Zealand, Active NZ, 2023", { isTextBox: true, x: 8.55, y: 6.45, w: 4.2, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0 });
+  note(s, "Most people who stop playing have not lost interest; they are worn down by organising: the organiser chases a group chat, the calendar fills with crosses, one friend works late, one is worn out after a heavy week, one has a baby, and the court stays empty.");
 
   // 2a. the pain, in numbers
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -129,35 +298,10 @@ async function img(file, width = 1800) {
   figure(s, "pain", "(a) Share of people who play a sport, by age (NPR, RWJF and Harvard Chan poll, 2015). (b) Barriers adults name for not playing regularly (Sport New Zealand, Active NZ, 2023). Talk answers the first barrier, Match the second, the agents the third.");
   note(s, "Most people who stop playing have not lost interest; they are worn down by organising. Serve turns hours of back-and-forth into one yes from each person.");
 
-  // 2b. a group-chat poll against Serve, step by step
-  s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "A group-chat poll against Serve, step by step");
-  const lane = (x, w, head, color, steps) => {
-    s.addText(head, { isTextBox: true, x, y: 1.35, w, h: 0.45, fontSize: 18, bold: true, color, margin: 0 });
-    steps.forEach(([t, who], i) => {
-      const y = 1.95 + i * 0.78, mine = who === "me";
-      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: mine ? x + 0.9 : x, y, w: w - 0.9, h: 0.62, fill: { color: mine ? (color === HEX.green ? HEX.green : "E4E6E5") : HEX.card }, line: { color: mine ? (color === HEX.green ? HEX.green : "E4E6E5") : HEX.card }, rectRadius: 0.12 });
-      s.addText(t, { isTextBox: true, x: (mine ? x + 0.9 : x) + 0.2, y, w: w - 1.3, h: 0.62, fontSize: 13, color: mine && color === HEX.green ? "FFFFFF" : HEX.ink, valign: "middle", margin: 0 });
-    });
-  };
-  lane(M, 5.7, "Group chat: the organiser does everything", HEX.muted, [["Anyone up for badminton this week?", "me"], ["Maybe Thu? / Sat works / not Fri", "them"], ["Poll: Tue 19 · Thu 20 · Sat 10", "me"], ["Votes trickle in over a day", "them"], ["Books the court, posts the result", "me"], ["Someone new? Add them to the chat first", "me"]]);
-  lane(M + 6.4, W - 2 * M - 6.4, "Serve: one sentence, one tap each", HEX.green, [["“Doubles on Saturday”", "me"], ["The card: the day, the nearest court, 7 ms", "them"], ["The players' agents agree the time in the background", "them"], ["Each person taps once: one yes", "me"], ["Booked; the agent posts each join in the thread", "them"]]);
-  note(s, "Settled when: in the group chat, when everyone has voted and the organiser posts; in Serve, when the spots fill. Someone not in the group opens the link and joins.");
-
-  // 3. a first real club, and the flow
-  s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "A first real club: 3 invites, 2 games played in three days");
-  picture(s, I.flow, M, 1.4, W - 2 * M, 3.3);
-  card(s, M, 4.95, 5.9, 1.65);
-  text(s, [{ text: "More than 10 people", options: { bold: true, breakLine: true } }, { text: "of a real badminton club used Serve during the hackathon; of the 3 game invites sent through it, 2 became games that were played." }], { x: M + 0.25, y: 5.12, w: 5.4, h: 1.4, fontSize: 14 });
-  card(s, M + 6.2, 4.95, W - 2 * M - 6.2, 1.65, HEX.greenBg);
-  text(s, [{ text: "“It's actually really handy. You just talk to the agent.”", options: { italic: true, breakLine: true } }, { text: "“The way it suggests games first can make people more motivated to play.”", options: { italic: true, breakLine: true } }, { text: "Players A and B, translated from Chinese", options: { fontSize: 11, color: HEX.muted } }], { x: M + 6.45, y: 5.12, w: W - 2 * M - 6.7, h: 1.4, fontSize: 14 });
-  note(s, "On the web a sentence becomes an invite, the players' agents agree the time, one tap books it; in Messenger the same booking, with the agent's real replies from the Messenger end-to-end test.");
-
   // 3b. the three helpers, and anyone anywhere
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "Three helpers take the friction out, for anyone, anywhere");
-  [["Match", "asks first", "“Thursday 19:00: Leo is free. Want a game?” It learns the player's usual times and asks when one is open and the people they play best with are free.", HEX.green], ["Talk", "agents agree on their own", "The person only says they want to play. Each player's agent agrees the time, the people and the court with the others' agents in the background.", HEX.blue], ["Body", "schedules around the body", "A body log and health-app export become scheduling limits: doubles while a knee is sore, one game fewer in a heavy week. Not medical advice.", HEX.amber]].forEach(([h, sub, d, c], i) => {
+  [["Match", "asks first", "“Thursday 19:00: Leo is free. Want a game?” It learns the player's usual times and asks when one is open and the people they play best with are free.", HEX.green], ["Talk", "agents agree on their own", "The person only says they want to play. Each player's agent agrees the time, the people and the court with the others' agents in the background.", HEX.blue], ["Pace", "schedules around your load", "Training load from a health-app export becomes a scheduling limit: one game fewer in a heavy week, doubles instead of singles. No diagnosis, no treatment, no dose.", HEX.amber]].forEach(([h, sub, d, c], i) => {
     const x = M + i * 4.1;
     card(s, x, 1.4, 3.85, 2.75);
     s.addShape(pres.shapes.OVAL, { x: x + 0.25, y: 1.6, w: 0.6, h: 0.6, fill: { color: c }, line: { color: c } });
@@ -285,8 +429,9 @@ async function img(file, width = 1800) {
   note(s, "One answer now also teaches about similar hours: the first talk lands 68.9% to 73.7%. Every question is charged to the disclosure budget; at most 3 asks a week.");
 
   // 9. community loop
+  nextKey = "community";
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "A community that evolves the platform, and rolls itself back");
+  title(s, "Members evolve the platform; an anytime-valid test cuts false rollbacks from 22% to 0.6%");
   const steps = ["Unmet request", "One sentence, shared only with a yes", "Screened", "Idea and quadratic vote", "Spec and class", "Nine gates", "Canary of members", "Kept, or rolled back"];
   steps.forEach((t, i) => {
     const x = M + i * 1.53, last = i === steps.length - 1;
@@ -298,28 +443,16 @@ async function img(file, width = 1800) {
   note(s, "It draws on the Darwin Godel Machine (tests read-only), AlphaEvolve (keep a change only when evaluators pass it), Clio (minimum cluster sizes) and CaMeL.");
 
   // 10. 3D and highlights
+  nextKey = "reels";
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "3D replays and automatic highlights from one phone video");
+  title(s, "Social reels from one phone video give friends a reason to book the next game");
   picture(s, I.strip, M, 1.4, W - 2 * M);
   text(s, "An automatic highlight as the pipeline cut it (clip: Badminton klub Ljubljana, CC BY 3.0)", { x: M, y: 3.75, w: W - 2 * M, h: 0.35, fontSize: 11, color: HEX.muted });
-  stat(s, M, 4.3, 3.0, "1.00 / 0.79", "precision / recall of the learned arc threshold (first rule: 0.45 / 0.64)");
-  stat(s, M + 3.2, 4.3, 2.7, "87%", "Muse Wonder agreed with the labels, and says why");
-  stat(s, M + 6.1, 4.3, 2.7, "19.9 s", "a moment on the RTX 3090, models loaded");
+  stat(s, M, 4.3, 3.0, "1.00 / 0.79", "precision / recall of the learned arc threshold (first rule: 0.45 / 0.64)", HEX.green, { size: 30 });
+  stat(s, M + 3.2, 4.3, 2.7, "87%", "Muse Wonder agreed with the labels, and says why", HEX.green, { size: 30 });
+  stat(s, M + 6.1, 4.3, 2.7, "19.9 s", "a moment on the RTX 3090, models loaded", HEX.green, { size: 30 });
   text(s, bullets([["MapAnything", "reads depth and the camera; SAM 2.1 cuts the player out."], ["RT-DETR", "follows the right player on all three test clips, about 2× faster than DETR."]]), { x: M + 9.1, y: 4.35, w: W - 2 * M - 9.1, h: 2.2, fontSize: 13, paraSpaceAfter: 8 });
-  note(s, "Arcs of about 6 to 12 degrees look like a real camera move; a learned threshold on the share of invented pixels picks the widest arc that still looks right, or falls back to a zoom.");
-
-  // 11. tiered decision engine
-  s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "A tiered decision engine: each layer takes what is left");
-  const tiers = [["Code", "milliseconds", "Free times, clashes, trips, every hard rule; the game's card in 7 ms (median)"], ["Our 1B student", "about 0.9 s, CPU", "Answers when at least 0.6 sure: 96.0% of ordinary choices, 73.0% of the hardest"], ["Two cheap reads that agree", "0.53 s", "The one-token decider and the student on the same time: settled without Glimmer 72.1% → 79.0%"], ["Muse Glimmer, stopped early", "20 to 40 s", "Early exit after DEER: 596 → 420 tokens an answer, no later (22.3 s → 21.3 s)"]];
-  tiers.forEach(([n, t, d], i) => {
-    const y = 1.45 + i * 1.25, shade = ["E9F3EC", "D3E8DB", "BCDCC9", "A6D0B7"][i];
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: M + i * 0.35, y, w: 3.4, h: 1.05, fill: { color: shade }, line: { color: shade }, rectRadius: 0.08 });
-    s.addText([{ text: n, options: { bold: true, breakLine: true, fontSize: 15 } }, { text: t, options: { fontSize: 12, color: HEX.muted } }], { isTextBox: true, x: M + i * 0.35 + 0.2, y, w: 3.0, h: 1.05, valign: "middle", margin: 0, color: HEX.ink });
-    s.addText(d, { isTextBox: true, x: M + i * 0.35 + 3.6, y, w: W - 2 * M - i * 0.35 - 3.6, h: 1.05, fontSize: 14, valign: "middle", margin: 0, color: HEX.ink });
-  });
-  text(s, "Following FrugalGPT. Before any of them, Match works ahead of time, so the agents have often agreed a game before anyone waits at all.", { x: M, y: 6.5, w: W - 2 * M, h: 0.4, fontSize: 13, color: HEX.muted });
-  note(s, "Every wait the person starts shows a moving bar and a status line within 250 ms.");
+  note(s, "A reel is for sharing, never for coaching or scoring: it answers the habit barrier (21.3%), giving friends a reason to book the next game. Arcs of about 6 to 12 degrees look like a real camera move; a learned threshold on the share of invented pixels picks the widest arc that still looks right, or falls back to a zoom.");
 
   // 12. booking step by step
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -361,7 +494,7 @@ async function img(file, width = 1800) {
 
   // 13d. three training rounds, and round 4
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Three training rounds, then round 4's variants");
+  title(s, "Four training rounds: more teacher answers won the hardest cases");
   figure(s, "rounds_1b", "(a) Agreement with Glimmer on the 196 hardest cases over three rounds (3B student; 95% intervals; dashed: Glimmer with itself). (b) Round 4 variants of the 1B (bf16): agreement with the majority of Glimmer's other answers against how often the pick changes when the list is reversed.");
   note(s, "Round 3's letters in time order fixed the stated preference (26 of 32, Glimmer 27). In round 4, more teacher answers per case gave the best agreement; order augmentation nearly removed the order effect.");
 
@@ -423,18 +556,20 @@ async function img(file, width = 1800) {
   note(s, "The decision 1B's round 4 was measured in bf16 before the VM was preempted; the chosen variant is the one with more teacher answers per case. Rationale and active selection were not run.");
 
   // 14. what surprised us
+  nextKey = "surprises";
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "What surprised us, running Meta's models in a product");
-  [["Glimmer reasons even when told not to", "84% of the tokens it wrote over 2,755 calls were reasoning; 9% of calls came back empty. Every call now asks for think \"low\" with 900 tokens of room."], ["A 1B agrees with Glimmer as often as Glimmer agrees with itself", "89.5% against 88.8% on 500 held-out cases, in 0.9 s instead of about 40 s."], ["Glimmer can decide in one token", "Read with no chat template, its next token gives a probability for each option: 0.53 s, no reasoning. It mostly reads the order, though: 99.5% of picks were the first time listed."], ["Llama Guard 3 reads sports injuries as medical advice", "Its S6 category flagged 6 to 8 of 15 ordinary injury-care answers; S6 now blocks only when code also finds a dose, a medicine or a condition."]].forEach(([h, d], i) => {
+  title(s, "Four things that surprised us running Meta's models in a product");
+  [["Glimmer reasons even when told not to", "84% of the tokens it wrote over 2,755 calls were reasoning; 9% of calls came back empty. Every call now asks for think \"low\" with 900 tokens of room."], ["A 1B agrees with Glimmer as often as Glimmer agrees with itself", "89.5% against 88.8% on 500 held-out cases, in 0.9 s instead of about 40 s."], ["Glimmer can decide in one token", "Read with no chat template, its next token gives a probability for each option: 0.53 s, no reasoning. It mostly reads the order, though: 99.5% of picks were the first time listed."], ["Llama Guard 3 refused a club name as violence", "“Serve test round 27” was refused on the live site (S9, then S1). S9 now needs a weapon word; S1 alone with no word of harm goes to the club's standard. Feed red team still 13 of 13."]].forEach(([h, d], i) => {
     const x = M + (i % 2) * 6.15, y = 1.45 + Math.floor(i / 2) * 2.65;
     card(s, x, y, 5.95, 2.4);
     s.addText([{ text: h, options: { bold: true, breakLine: true, fontSize: 17, color: HEX.green } }, { text: d, options: { fontSize: 14 } }], { isTextBox: true, x: x + 0.3, y: y + 0.2, w: 5.35, h: 2.05, valign: "top", margin: 0, color: HEX.ink, paraSpaceAfter: 6 });
   });
-  note(s, "Four findings, each measured. The order finding was measured after the report: on 196 hard cases the one-token decider picked the first listed time 99.5% of the time.");
+  note(s, "Four findings, each measured. The club-name refusal came from the live site in round 27. The order finding was measured after the report: on 196 hard cases the one-token decider picked the first listed time 99.5% of the time.");
 
   // 15. security
+  nextKey = "security";
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Security, and a failure the agents found");
+  title(s, "Rule of Two, two guards and a hardened 1B: 93 of 93 attacks stopped");
   stat(s, M, 1.45, 2.6, "93 / 93", "attack cases stopped, named by OWASP LLM Top 10 risk");
   // untrusted text, layer by layer
   s.addText("Untrusted text (posts, comments, reviews, wishes), layer by layer", { isTextBox: true, x: M + 2.9, y: 1.45, w: 9.2, h: 0.35, fontSize: 13, bold: true, color: HEX.ink, margin: 0 });
@@ -459,11 +594,13 @@ async function img(file, width = 1800) {
   });
   card(s, M, 5.05, W - 2 * M, 1.25, "FBEAE9");
   text(s, [{ text: "A failure, and the fix. ", options: { bold: true, color: HEX.red } }, { text: "A tester working as a host could work out how many people nearby were open to being asked, first from a count, then from the talk. Now nearby people appear only once they can actually play, and everyone else sees only published badge words; later rounds re-checked it and found nothing. The Agents Rule of Two: no agent holds untrusted input, private data and the power to act at once." }], { x: M + 0.3, y: 5.15, w: W - 2 * M - 0.6, h: 1.1, fontSize: 13 });
+  text(s, [{ text: "A second 1B, distilled for short text: ", options: { bold: true, color: HEX.green } }, { text: "on 446 attacks it never saw in training, hostile comments that got through fell from 65 of 71 (the first 1B) to 8 of 71 (Glimmer: 0)." }], { x: M, y: 6.4, w: W - 2 * M, h: 0.4, fontSize: 13 });
   note(s, "93 attack cases all stopped; crash and recovery checks are on the A2A slide.");
 
   // 16. Meta models and routing by length
+  nextKey = "models";
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Meta models, and which one answers: by length");
+  title(s, "Meta's models: on our own GPUs for privacy, the API where it helps");
   // where each model runs: our server (data stays there) and the Meta Model API
   const zone = (x, w, head, sub, groups) => {
     card(s, x, 1.35, w, 3.65);
@@ -491,7 +628,7 @@ async function img(file, width = 1800) {
 
   // 17. upgrades since the report
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Measured since the report: six agent upgrades");
+  title(s, "Six agent upgrades, each measured before and after");
   figure(s, "upgrades", "Each upgrade before and after, on its own scale. Send gate, preference records and the stretch round are simulated; tool checks use injected faults; courts judged ahead ran on the RTX 3090 (4 cities); the tiny layer is held-out agreement on the hardest choices, against the 1B.");
   note(s, "Send gate (Thompson sampling with a burden cost), preference records (newest wins), tool checks (typed repair, postconditions), judging ahead (speculative actions), stretch round (graded costs), tiny layer.");
 
@@ -512,17 +649,6 @@ async function img(file, width = 1800) {
   title(s, "Six flow bugs found by difficult simulated people, fixed");
   figure(s, "fixes", "(a) Failures in 160 code-only runs with the difficult club (25% difficult people), before and after the fixes. (b) pass^k with Muse Glimmer (8 requests x 4 runs): a request counts only if every run succeeds. The pass^k gains are small and their intervals still include no change.");
   note(s, "The after runs are on main, which also has the other upgrades merged since the before runs.");
-
-  // 18. not done yet
-  s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "What is not done yet");
-  [["Most validation is simulated", "Beyond one real club and two games, the evidence comes from AI agents, simulated members and local copies."], ["The slow path still exists", "When the small models are unsure, Glimmer takes about 20 to 40 s; the steps stream in, but it is still a wait."], ["Venues are samples", "No venue has joined yet, so quiet-hour prices are sample prices."], ["The community loop has not run on real members", "An idea shows only once 5 different members ask for it."], ["Orbit replays are short", "Only arcs of about ±6 to 12° look right; otherwise a zoom."]].forEach(([h, d], i) => {
-    const y = 1.45 + i * 1.02;
-    s.addShape(pres.shapes.OVAL, { x: M, y: y + 0.12, w: 0.42, h: 0.42, fill: { color: HEX.amber }, line: { color: HEX.amber } });
-    s.addText(String(i + 1), { isTextBox: true, x: M, y: y + 0.12, w: 0.42, h: 0.42, fontSize: 14, bold: true, color: "FFFFFF", align: "center", valign: "middle", margin: 0 });
-    s.addText([{ text: h, options: { bold: true, breakLine: true, fontSize: 16 } }, { text: d, options: { fontSize: 14, color: HEX.muted } }], { isTextBox: true, x: M + 0.7, y, w: W - 2 * M - 0.7, h: 0.92, valign: "top", margin: 0, color: HEX.ink });
-  });
-  note(s, "Said plainly: this is a nine-day build, validated mostly by agents and simulation.");
 
   // 18b. references and sources
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -573,13 +699,18 @@ async function img(file, width = 1800) {
   });
   note(s, "References 1 to 26 are on the previous references slide (the report's own list); 27 on are the algorithms behind the distillation, the tiny layer and the agent upgrades.");
 
-  // 19. close
-  s = pres.addSlide({ masterName: "DARK" });
-  title(s, "One yes from each person");
-  s.addText("Live: play.theminimallab.com · Code: github.com/gino6178/serve-meta-hackathon · Every number from submission/results/", { placeholder: "body" });
-  note(s, "Serve turns hours of back-and-forth into one tap from each person.");
-
   await pres.writeFile({ fileName: OUT });
   if (THEME_JS) { const { applyTheme } = require(THEME_JS); await applyTheme(OUT, THEME); }
+  // put the main slides first, in MAIN's order, then the rest as the appendix in the order they were made
+  const JSZip = require("jszip");
+  const zip = await JSZip.loadAsync(fs.readFileSync(OUT));
+  let xml = await zip.file("ppt/presentation.xml").async("string");
+  const ids = [...xml.matchAll(/<p:sldId [^>]*\/>/g)].map((m) => m[0]);
+  if (ids.length !== KEYS.length) throw new Error(`${ids.length} slides, ${KEYS.length} keys`);
+  for (const k of MAIN) if (!KEYS.includes(k)) throw new Error(`no slide ${k}`);
+  const order = [...MAIN.map((k) => KEYS.indexOf(k)), ...KEYS.map((k, i) => (k ? -1 : i)).filter((i) => i >= 0)];
+  xml = xml.replace(/<p:sldIdLst>[\s\S]*?<\/p:sldIdLst>/, "<p:sldIdLst>" + order.map((i) => ids[i]).join("") + "</p:sldIdLst>");
+  zip.file("ppt/presentation.xml", xml);
+  fs.writeFileSync(OUT, await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
   console.log("wrote", OUT);
 })();
