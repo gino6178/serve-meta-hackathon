@@ -53,6 +53,10 @@ async function img(file, width = 1800) {
     chats: await img(path.join(SHOTS, "v3/agent_chats.png"), 700),
     swarm: await img(path.join(__dirname, "swarm.png"), 2400),
   };
+  // the paper-style figures (figures.py), one per slide, numbered in order, each with its caption
+  const FIG = {};
+  for (const f of fs.readdirSync(path.join(__dirname, "figs")).filter((x) => x.endsWith(".png"))) FIG[f.slice(0, -4)] = await img(path.join(__dirname, "figs", f), 2600);
+  let figNo = 0;
   const note = (s, t) => s.addNotes(t);
   const title = (s, t) => s.addText(t, { placeholder: "title" });
   const text = (s, runs, o) => s.addText(runs, { isTextBox: true, margin: 0, fontSize: 15, color: HEX.ink, valign: "top", paraSpaceAfter: 6, ...o });
@@ -81,6 +85,14 @@ async function img(file, width = 1800) {
     showTitle: !!o.title, title: o.title, titleFontSize: 13, titleColor: HEX.muted, valAxisMinVal: o.min ?? 0, valAxisMaxVal: o.max, lineSize: 2.5, lineDataSymbol: "circle", lineDataSymbolSize: 7,
     ...(o.catTitle ? { showCatAxisTitle: true, catAxisTitle: o.catTitle, catAxisTitleFontSize: 11, catAxisTitleColor: HEX.muted } : {}) });
   const arrow = (s, x1, y1, x2, y2, color = HEX.soft) => s.addShape(pres.shapes.LINE, { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1) || 0.001, h: Math.abs(y2 - y1) || 0.001, flipV: y2 < y1, line: { color, width: 2, endArrowType: "triangle" } });
+  // a figure filling the slide's body, centred, with "Fig. n" and its caption under it
+  const figure = (s, name, cap, area = { x: M, y: 1.3, w: W - 2 * M, h: 4.85 }) => {
+    const im = FIG[name]; if (!im) throw new Error(`no figure ${name}`);
+    let w = area.w, h = w * im.ratio; if (h > area.h) { h = area.h; w = h / im.ratio; }
+    s.addImage({ data: im.data, x: area.x + (area.w - w) / 2, y: area.y, w, h });
+    figNo++;
+    s.addText([{ text: `Fig. ${figNo} | `, options: { bold: true, color: HEX.ink } }, { text: cap, options: { color: HEX.muted } }], { isTextBox: true, x: area.x, y: area.y + h + 0.12, w: area.w, h: 0.75, fontSize: 11, margin: 0, valign: "top" });
+  };
   // a box with a bold head and a smaller line under it
   const box = (s, x, y, w, h, head, sub, fill = HEX.card, ink = HEX.ink) => {
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, fill: { color: fill }, line: { color: fill }, rectRadius: 0.08 });
@@ -95,22 +107,11 @@ async function img(file, width = 1800) {
   s.addText("play.theminimallab.com · github.com/gino6178/serve-meta-hackathon", { isTextBox: true, x: M, y: H - 1.0, w: 9, h: 0.4, fontSize: 14, color: "9FB3A7", margin: 0 });
   note(s, "Serve is a platform where people and agents make games together. This deck follows the technical report: impact, technical depth, Meta models, and what is not done yet.");
 
-  // 2. impact: the three barriers
+  // 2. impact: the pain
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "The pain: people stop playing because organising is hard");
-  // who plays, by age
-  bar(s, ["18 to 21", "26 to 49"], [40, 26], { x: M, y: 1.4, w: 3.6, h: 4.2, dir: "col", title: "Play a sport, by age (%)", fmt: "0", max: 50, colors: [HEX.soft] });
-  text(s, "NPR, RWJF and Harvard Chan poll, 2015", { x: M, y: 5.65, w: 3.6, h: 0.35, fontSize: 11, color: HEX.muted });
-  // what stops them, each answered by a helper
-  bar(s, ["No regular people to play with", "No way to keep the habit going", "Times hard to fit around other commitments"], [10.2, 21.3, 64.2], { x: M + 3.9, y: 1.4, w: 5.3, h: 4.2, title: "What stops adults playing regularly (%)", fmt: "0.0", max: 80, colors: [HEX.red] });
-  text(s, "Sport New Zealand, Active NZ survey, 2023", { x: M + 3.9, y: 5.65, w: 5.3, h: 0.35, fontSize: 11, color: HEX.muted });
-  [["Talk", "fits the time: the agents agree it among themselves"], ["Match", "keeps the habit: it asks first, at the player's usual times"], ["The agents", "find the people: free players nearby, ranked"]].forEach(([h, d], i) => {
-    const y = 1.55 + i * 1.33;
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: M + 9.5, y, w: W - 2 * M - 9.5, h: 1.13, fill: { color: HEX.greenBg }, line: { color: HEX.greenBg }, rectRadius: 0.08 });
-    s.addText([{ text: h, options: { bold: true, fontSize: 16, color: HEX.green, breakLine: true } }, { text: d, options: { fontSize: 12 } }], { isTextBox: true, x: M + 9.7, y, w: W - 2 * M - 9.9, h: 1.13, valign: "middle", margin: 0, color: HEX.ink });
-  });
-  text(s, [{ text: "Most people who stop have not lost interest: they are worn down by organising. Serve turns hours of back-and-forth into " }, { text: "one yes from each person.", options: { bold: true, color: HEX.green } }], { x: M, y: 6.25, w: W - 2 * M, h: 0.5, fontSize: 15 });
-  note(s, "40% of 18 to 21 year olds played a sport but only 26% of 26 to 49 year olds. The top barrier, times that are hard to fit together, is 64.2%. Each barrier maps to one of Serve's helpers.");
+  figure(s, "pain", "(a) Share of people who play a sport, by age (NPR, RWJF and Harvard Chan poll, 2015). (b) Barriers adults name for not playing regularly (Sport New Zealand, Active NZ, 2023). Talk answers the first barrier, Match the second, the agents the third.");
+  note(s, "Most people who stop playing have not lost interest; they are worn down by organising. Serve turns hours of back-and-forth into one yes from each person.");
 
   // 2b. a group-chat poll against Serve, step by step
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -185,22 +186,14 @@ async function img(file, width = 1800) {
   // 4b. the rounds, in numbers
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "Round by round: bugs fell to zero, clean reports rose to 6 of 6");
-  const R = Array.from({ length: 20 }, (_, i) => String(i + 6));
-  multi(s, pres.charts.BAR, [{ name: "Bugs reported", labels: R, values: [5, 9, 10, 10, 13, 6, 19, 16, 11, 8, 9, 7, 10, 9, 9, 2, 2, 3, 4, 0] }], { x: M, y: 1.35, w: 8.0, h: 2.75, colors: [HEX.red], values: true, title: "Bugs reported per round (rounds 21 to 25: core flows only)", catTitle: "round", max: 22 });
-  multi(s, pres.charts.LINE, [{ name: "Clean reports (of 6)", labels: R, values: [2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 4, 4, 3, 4, 6] }], { x: M, y: 4.15, w: 8.0, h: 2.55, colors: [HEX.green], values: true, title: "Testers whose report came back CLEAN (of 6)", catTitle: "round", max: 6 });
-  stat(s, M + 8.4, 1.4, W - 2 * M - 8.4, "153", "AI testers, one report each");
-  stat(s, M + 8.4, 3.2, W - 2 * M - 8.4, "16,713", "requests logged, with a hash of the session, never the session");
-  stat(s, M + 8.4, 5.0, W - 2 * M - 8.4, "6 of 6", "clean in round 25, on every core flow");
-  note(s, "Rounds 1 to 5 used free-form reports before the verdict line. A few reported bugs turned out to be the test setup, not Serve. From round 21 the rule changed to core flows only, which let the loop end on a clear rule.");
+  figure(s, "rounds", "(a) Bugs reported per round by six fresh AI testers; from round 21 only core-flow bugs count (shaded). (b) Testers whose report came back clean. 153 testers in 25 rounds, 16,713 requests logged.");
+  note(s, "Rounds 1 to 5 used free-form reports before the verdict line; a few reported bugs were the test setup, not Serve.");
 
   // 4c. every session, every request
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "146 tester sessions from the logs: every request, in order");
-  picture(s, I.swarm, M, 1.3, 9.2, 5.3);
-  text(s, [{ text: "One row per tester session, rounds 4 to 25; one dot per request at its time since the session began.", options: { breakLine: true } }, { text: "● ", options: { color: HEX.green } }, { text: "2xx answered  " }, { text: "● ", options: { color: HEX.amber } }, { text: "4xx refused or not found", options: { breakLine: true } }, { text: "11,525 requests drawn: 10,135 answered, 1,389 refused, not found or invalid, and no server errors (5xx)." }], { x: M + 9.5, y: 1.4, w: W - 2 * M - 9.5, h: 3.6, fontSize: 13, paraSpaceAfter: 10 });
-  card(s, M + 9.5, 5.1, W - 2 * M - 9.5, 1.5, HEX.greenBg);
-  text(s, [{ text: "An agent with only the address ", options: { bold: true } }, { text: "was doing useful work by its third request and found its person a Sunday 09:00 tennis game, free, 2.6 km away." }], { x: M + 9.7, y: 5.22, w: W - 2 * M - 9.9, h: 1.3, fontSize: 12.5 });
-  note(s, "Built from each round's requests.jsonl (video/shotcraft/public/swarm/sessions.json, video/deck/make_swarm.py). The same sessions are replayed side by side in the demo film.");
+  figure(s, "swarm", "One row per tester session (rounds 4 to 25), one mark per request at its time since the session began: 10,135 answered (2xx), 1,389 refused, not found or invalid (4xx), no server errors (5xx).");
+  note(s, "Built from each round's requests.jsonl; the same sessions are replayed side by side in the demo film.");
 
   // 4d. what the testers found
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -249,29 +242,21 @@ async function img(file, width = 1800) {
 
   // 6b. holds, recovery, fairness
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Holds, recovery and the fairest venue, measured");
-  bar(s, ["With holds", "Without holds"], [0, 11], { x: M, y: 1.4, w: 3.9, h: 3.4, dir: "col", title: "Pairs of talks that booked one member twice (of 12)", fmt: "0", max: 12, colors: [HEX.red] });
-  bar(s, ["Nash product", "Shortest total trip", "Minimax (Serve)"], [0.58, 0.59, 0.73], { x: M + 4.2, y: 1.4, w: 4.3, h: 3.4, title: "Fairness score of the booked games", fmt: "0.00", max: 0.9, colors: [HEX.green] });
-  stat(s, M + 8.8, 1.4, W - 2 * M - 8.8, "20 / 20", "recovery checks, the gateway killed at 5 points in a booking; nothing booked twice");
-  stat(s, M + 8.8, 3.2, W - 2 * M - 8.8, "22 / 22", "checks across two machines, 12 talks at once, +185 ms a request");
-  text(s, bullets([["Holds, all or nothing:", "every player's agent holds the agreed time for 30 minutes, asked in a fixed order (leases with resource ordering)."], ["The fairest venue:", "the longest trip shortest, from home areas, never addresses; at 2.3 more minutes per game over 12 simulated games, and no one ever got a longer longest trip than the best venue possible."], ["Durable:", "saved before every round, answered once, idempotent booking."]]), { x: M, y: 5.05, w: W - 2 * M, h: 1.7, fontSize: 13, paraSpaceAfter: 6 });
-  note(s, "With two talks at once for one member, 11 of 12 pairs booked the member twice without holds and 0 of 12 with them.");
+  title(s, "Holds stop double bookings; fair venues cost 2.3 min a game");
+  figure(s, "holds", "(a) Pairs of simultaneous talks for one member that booked the member twice, without and with 30-minute holds (n = 12 each; 95% Wilson intervals). (b) Fairness score of the booked games under three venue rules (12 simulated games). Recovery: 20 of 20 checks with the gateway killed at 5 points; 22 of 22 across two machines.");
+  note(s, "Holds are leases asked in a fixed order (resource ordering), all or nothing.");
 
   // 7. ranking by the chance everyone accepts
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Times ranked by the chance everyone says yes");
-  text(s, bullets([["The product of each player's chance of a yes,", "with a least-misery floor: a time where anyone's chance is under 0.15 goes to the back."], ["Why it matters:", "with shared calendars, the first time proposed decides whether each agent can say yes by code or must ask a model."], ["3,000 simulated requests of each kind;", "with private calendars it found no more games."]]), { x: M, y: 1.5, w: 4.6, h: 4.8, fontSize: 15, paraSpaceAfter: 12 });
-  bar(s, ["Doubles, now", "Doubles, before", "Singles, now", "Singles, before"], [89.1, 73.9, 92.4, 89.8], { x: M + 5.0, y: 1.4, w: 7.1, h: 3.3, title: "First time proposed keeps every player's rules (%)", max: 100, fmt: "0.0", colors: [HEX.green] });
-  stat(s, M + 5.0, 4.95, 7.1, "0.261 → 0.109", "model choices per doubles request, so most doubles talks need no model at all");
-  note(s, "Before, times were ordered by how many players had them free. Now they are ordered by the chance that every player accepts.");
+  title(s, "Ranking times by the chance everyone says yes");
+  figure(s, "ranking", "(a) Requests whose first proposed time keeps every player's rules, before (the time most players had free) and now (product of each player's chance of a yes, least-misery floor 0.15); 3,000 simulated requests each, 95% intervals. (b) Model choices left per doubles request.");
+  note(s, "With shared calendars the first time proposed decides whether each agent can say yes by code or must ask a model. With private calendars it found no more games.");
 
   // 8. value of information
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "When talks fail, ask the one question worth most");
-  bar(s, ["No question", "A random question", "The likeliest pair", "Value of information"], [40.7, 44.4, 48.2, 51.9], { x: M, y: 1.4, w: 6.4, h: 3.6, title: "Game found, one question then one talk (%), 20,000 requests each", min: 0, max: 60, colors: [HEX.green] });
-  text(s, bullets([["A belief per player and hour,", "a Beta posterior over what the agent has seen of that player's agent, never their calendar."], ["One answer teaches about similar hours", "(after Pep and VPL): Brier 0.223 → 0.200; first talk lands 68.9% → 73.7%, or 75.1% → 79.2% with one question first."], ["Private by budget:", "every free-or-busy question is charged to the disclosure budget; an agent that keeps asking learns at most 24 of 112 weekly hours in 28 days."], ["At most 3 asks a week,", "and an .ics calendar can be imported (busy times only)."]]), { x: M + 6.8, y: 1.45, w: W - 2 * M - 6.8, h: 5.2, fontSize: 14, paraSpaceAfter: 10 });
-  text(s, "Each rate is good to about 0.7 points either way.", { x: M, y: 5.15, w: 6.4, h: 0.4, fontSize: 12, color: HEX.muted });
-  note(s, "The agent neither gives up nor asks the player again: it asks the single yes-or-no question whose answer most raises the expected chance of a game.");
+  figure(s, "voi", "Games found after one yes-or-no question and one more talk, by question strategy; 20,000 simulated requests each (8 players, 6 times, hidden availability), 95% intervals. Beliefs are Beta posteriors over what each agent was seen to accept, never a calendar.");
+  note(s, "One answer now also teaches about similar hours: the first talk lands 68.9% to 73.7%. Every question is charged to the disclosure budget; at most 3 asks a week.");
 
   // 9. community loop
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -283,10 +268,7 @@ async function img(file, width = 1800) {
     s.addText(t, { isTextBox: true, x: x + 0.08, y: 1.5, w: 1.22, h: 1.25, fontSize: 12, bold: true, color: last ? "FFFFFF" : HEX.ink, align: "center", valign: "middle", margin: 0 });
   });
   text(s, bullets([["Code makes every decision;", "models only write short sentences that code checks. The class comes from what a change does, never from the draft."], ["Nine gates:", "policy, a code scan, unit tests, the crash matrix, the red team, Messenger end to end, the planner test, the spec's oracle and a privacy canary."], ["Anything bigger goes to a person:", "the builder agent writes it on a branch with read-only tests and no network."]]), { x: M, y: 3.1, w: 6.6, h: 3.6, fontSize: 14, paraSpaceAfter: 10 });
-  stat(s, M + 7.0, 3.1, 2.55, "0.6%", "harmless changes rolled back (anytime-valid test)");
-  stat(s, M + 9.75, 3.1, 2.4, "22%", "with a z-test checked at every look", HEX.red);
-  card(s, M + 7.0, 5.0, W - 2 * M - 7.0, 1.6, HEX.greenBg);
-  text(s, "In 20,000 simulated 7-day canaries of 5 members, looked at every 5 minutes. The price is caution: a bad change (thumbs down 25% → 60%) was caught in 61% of canaries.", { x: M + 7.25, y: 5.15, w: W - 2 * M - 7.5, h: 1.35, fontSize: 13 });
+  figure(s, "canary", "Harmless changes rolled back in 20,000 simulated 7-day canaries of 5 members, looked at every 5 minutes (95% Wilson intervals). The price is caution: a bad change (thumbs down 25% to 60%) was caught in 61%.", { x: M + 6.9, y: 3.0, w: W - 2 * M - 6.9, h: 3.0 });
   note(s, "It draws on the Darwin Godel Machine (tests read-only), AlphaEvolve (keep a change only when evaluators pass it), Clio (minimum cluster sizes) and CaMeL.");
 
   // 10. 3D and highlights
@@ -321,14 +303,9 @@ async function img(file, width = 1800) {
 
   // 13. our 1B
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Our own model: a Llama 3.2 1B distilled from Muse Glimmer");
-  stat(s, M, 1.45, 2.9, "89.5%", "agreement with Glimmer on 500 held-out cases (Glimmer with itself: 88.8%)");
-  stat(s, M + 3.1, 1.45, 2.9, "0.9 s", "a choice on the CPU, about 44× faster than Glimmer's ~40 s");
-  stat(s, M + 6.2, 1.45, 2.9, "0.052", "expected calibration error: its confidence can be trusted");
-  stat(s, M + 9.3, 1.45, W - 2 * M - 9.3, "4,868", "of Glimmer's choices distilled");
-  text(s, bullets([["A decision model, like TypeSafe's Jev:", "options declared in advance and scored together in one read; it never writes text that could break a rule."], ["Served at 0.6 sure:", "answers 96.0% of 500 and 73.0% of the 196 hardest; agreement 89.9% and 68.4% (Glimmer again: 73.5%)."], ["0.5 was tried and not kept:", "96.9% of the hardest answered, but agreement there fell to 61.2%."], ["In talks with the simulated club:", "Glimmer's member answers cut by 67% (54% with private calendars), no rule broken."]]), { x: M, y: 3.45, w: 6.6, h: 3.3, fontSize: 14, paraSpaceAfter: 9 });
-  bar(s, ["Our 1B student (CPU)", "One-token decider (GPU)", "Glimmer, full answer (GPU)"], [0.9, 0.53, 40], { x: M + 6.9, y: 3.35, w: W - 2 * M - 6.9, h: 3.35, title: "Seconds per choice", fmt: "0.0#", max: 48, colors: [HEX.green] });
-  note(s, "Why distil when the decider takes 0.53 s? The decider is still Glimmer and needs the GPU; the student runs on the CPU and leaves the GPU free for work only Glimmer can do.");
+  title(s, "Our own 1B makes Glimmer's choice in 0.9 s instead of 40 s");
+  figure(s, "speed", "Time for one choice between listed times (log scale). The 1B (Llama 3.2 1B distilled from 4,868 of Glimmer's choices, int4) runs on the CPU and agrees with Glimmer on 89.5% of 500 held-out cases, against Glimmer's 88.8% with itself.");
+  note(s, "Why distil when the decider takes 0.53 s? The decider is still Glimmer and needs the GPU; the student runs on the CPU and leaves the GPU free.");
 
   // 13b. how it was made: the distillation pipeline
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -353,49 +330,32 @@ async function img(file, width = 1800) {
   // 13c. one decision, as the student reads it
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "One decision, one forward pass: a real held-out case");
-  text(s, "Case s009, from the 196 hardest: the player asked for a time that ends after the member's “home by” limit on Tuesday. The student's own numbers, from the saved predictions:", { x: M, y: 1.35, w: W - 2 * M, h: 0.6, fontSize: 14, color: HEX.muted });
-  // its reading of each time
-  s.addText("Its reading: does each time work? (P at the works? marker)", { isTextBox: true, x: M, y: 2.1, w: 5.6, h: 0.4, fontSize: 14, bold: true, color: HEX.ink, margin: 0 });
-  [["t1, the asked time", 0.0], ["t2", 1.0], ["t3", 1.0], ["t4", 1.0], ["t5", 1.0]].forEach(([n, p], i) => {
-    const y = 2.6 + i * 0.62, ok = p >= 0.5;
-    card(s, M, y, 5.6, 0.5, ok ? HEX.greenBg : "FBEAE9");
-    s.addText(n, { isTextBox: true, x: M + 0.2, y, w: 3.4, h: 0.5, fontSize: 13, color: HEX.ink, valign: "middle", margin: 0 });
-    s.addText(`${p.toFixed(1)}  ${ok ? "works" : "breaks a rule"}`, { isTextBox: true, x: M + 3.4, y, w: 2.0, h: 0.5, fontSize: 13, bold: true, color: ok ? HEX.green : HEX.red, valign: "middle", align: "right", margin: 0 });
-  });
-  text(s, "Matches code's truth (t2 to t5 work), so it may answer.", { x: M, y: 5.75, w: 5.6, h: 0.4, fontSize: 13, color: HEX.green, bold: true });
-  bar(s, ["can't play", "t5", "t4", "t3", "t2"], [0.0001, 0.001, 0.008, 0.318, 0.673], { x: M + 6.1, y: 2.05, w: W - 2 * M - 6.1, h: 3.6, title: "Its choice: softmax over the valid letters", fmt: "0.000", max: 1, colors: [HEX.green] });
-  card(s, M + 6.1, 5.75, W - 2 * M - 6.1, 0.95, HEX.greenBg);
-  text(s, [{ text: "t2 at 0.673, above the 0.6 threshold: answered in one read. ", options: { bold: true } }, { text: "Glimmer's two full answers both chose t2." }], { x: M + 6.3, y: 5.85, w: W - 2 * M - 6.5, h: 0.8, fontSize: 13 });
-  note(s, "From submission/results/decision_model/preds_1b_v3_decider.jsonl (bf16 predictions). Below 0.6, or if its reading of which times work differed from code's, the case would go on to the decider and Glimmer.");
+  figure(s, "case", "Case s009 from the 196 hardest (the asked time ends after the member's home-by limit). (a) The 1B's own reading of whether each time works, checked against code's before it may answer. (b) Its probabilities over the valid options: t2 at 0.673 clears the 0.6 threshold, and both of Glimmer's answers chose t2.");
+  note(s, "From submission/results/decision_model/preds_1b_v3_decider.jsonl (bf16 predictions).");
 
-  // 13d. three training rounds, and the threshold
+  // 13d. three training rounds, and round 4
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Three training rounds, then the threshold");
-  multi(s, pres.charts.BAR, [{ name: "Agreement on the hardest cases (%)", labels: ["1. private calendars", "2. + asked times", "3. letters in time order"], values: [58.7, 69.4, 69.4] }],
-    { x: M, y: 1.4, w: 5.6, h: 4.3, colors: [HEX.green], values: true, fmt: "0.0", title: "Agreement with Glimmer on the hardest cases (%), 3B student", max: 80 });
-  text(s, "Round 1 never saw an asked time. Round 2 read “the earliest start” as the earliest hour: the stated preference kept in 18 of 32. Round 3's letters in time order fixed it: 26 of 32 (Glimmer 27).", { x: M, y: 5.8, w: 5.6, h: 0.95, fontSize: 12, color: HEX.muted });
-  const TH = ["0", "0.5", "0.6", "0.7", "0.8", "0.9"];
-  multi(s, pres.charts.LINE, [
-    { name: "Hardest: share it answers", labels: TH, values: [100, 96.9, 73.0, 50.0, 34.2, 27.6] },
-    { name: "Hardest: agreement with Glimmer", labels: TH, values: [60.7, 61.2, 68.4, 75.5, 75.0, 75.5] },
-    { name: "Test: share it answers", labels: TH, values: [100, 99.0, 96.0, 92.6, 87.4, 78.4] },
-    { name: "Test: agreement with Glimmer", labels: TH, values: [89.4, 89.6, 89.9, 90.7, 90.9, 90.0] },
-  ], { x: M + 5.9, y: 1.4, w: W - 2 * M - 5.9, h: 4.3, colors: [HEX.green, HEX.red, "7FBF9E", "E59A94"], title: "The served 1B, int4, by threshold (%)", catTitle: "sure at", min: 0, max: 100 });
-  card(s, M + 5.9, 5.8, W - 2 * M - 5.9, 0.95, HEX.greenBg);
-  text(s, [{ text: "Served at 0.6: ", options: { bold: true } }, { text: "answers 96% of ordinary choices and 73% of the hardest; 0.5 answers more but agrees less (61.2%)." }], { x: M + 6.1, y: 5.9, w: W - 2 * M - 6.3, h: 0.8, fontSize: 13 });
-  note(s, "The cascade is the student where it is sure and Glimmer elsewhere. Glimmer alone agrees with itself 73.5% on the hardest cases and 88.3% on the test set.");
+  title(s, "Three training rounds, then round 4's variants");
+  figure(s, "rounds_1b", "(a) Agreement with Glimmer on the 196 hardest cases over three rounds (3B student; 95% intervals; dashed: Glimmer with itself). (b) Round 4 variants of the 1B (bf16): agreement with the majority of Glimmer's other answers against how often the pick changes when the list is reversed.");
+  note(s, "Round 3's letters in time order fixed the stated preference (26 of 32, Glimmer 27). In round 4, more teacher answers per case gave the best agreement; order augmentation nearly removed the order effect.");
 
-  // 13e. can its confidence be trusted
+  // 13e. the threshold
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Its confidence can be trusted: calibration on 500 held-out cases");
-  const BINS = ["0.5–0.6 (15)", "0.6–0.7 (16)", "0.7–0.8 (21)", "0.8–0.9 (41)", "0.9–1.0 (404)"];
-  multi(s, pres.charts.BAR, [{ name: "Its confidence (mean)", labels: BINS, values: [57.0, 63.6, 75.2, 86.5, 98.5] }, { name: "How often Glimmer agreed", labels: BINS, values: [66.7, 68.8, 65.1, 76.4, 94.4] }],
-    { x: M, y: 1.4, w: 7.6, h: 4.9, colors: [HEX.soft, HEX.green], values: true, fmt: "0", title: "By confidence bin (cases in brackets), %", catTitle: "confidence bin", max: 110 });
-  stat(s, M + 8.0, 1.45, W - 2 * M - 8.0, "0.052", "expected calibration error (10 bins)");
-  stat(s, M + 8.0, 3.3, W - 2 * M - 8.0, "89% / 7%", "at 0.8 sure: share it answers / disagreement with Glimmer");
-  card(s, M + 8.0, 5.15, W - 2 * M - 8.0, 1.5, HEX.greenBg);
-  text(s, "404 of 500 cases sit above 0.9, where it is close (98.5% against 94.4%); in the middle bins it is off by up to 10 points. The routing threshold uses conformal risk control.", { x: M + 8.2, y: 5.25, w: W - 2 * M - 8.4, h: 1.3, fontSize: 12.5 });
-  note(s, "From submission/results/student_calibration.json, bf16 predictions; the served int4 picks the same option on 492 of 500 test cases.");
+  title(s, "The threshold decides what the 1B answers itself");
+  figure(s, "threshold", "Share of choices the served int4 1B answers itself, and its agreement with Glimmer (the rest answered by Glimmer), by confidence threshold. (a) 500 ordinary held-out cases. (b) The 196 hardest. Dashed: Glimmer with itself. Served at 0.6.");
+  note(s, "0.5 answers more of the hardest (96.9%) but agrees less (61.2%), so the served threshold stays 0.6.");
+
+  // 13g. calibration
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Its confidence can be trusted");
+  figure(s, "calibration", "Reliability of the 1B's confidence on 500 held-out cases: agreement with Glimmer against mean confidence per bin (marker size by bin size; 95% Wilson intervals; bins under 5 cases omitted). Expected calibration error 0.052.");
+  note(s, "From submission/results/student_calibration.json, bf16; the served int4 picks the same option on 492 of 500.");
+
+  // 13h. order sensitivity
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "The one-token decider mostly reads the order, not the preference");
+  figure(s, "order", "Picks that changed when only the order of the listed times changed, on the 196 hardest cases (95% Wilson intervals). Glimmer asked again in the same order is the baseline for its own sampling.");
+  note(s, "So the decider's letters are not used as soft labels, and per-member shuffling stays off: no order kept preferences better.");
 
   // 13f. every distillation technique we tried, what it did, and its reference
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -442,14 +402,7 @@ async function img(file, width = 1800) {
   [["Glimmer reasons even when told not to", "84% of the tokens it wrote over 2,755 calls were reasoning; 9% of calls came back empty. Every call now asks for think \"low\" with 900 tokens of room."], ["A 1B agrees with Glimmer as often as Glimmer agrees with itself", "89.5% against 88.8% on 500 held-out cases, in 0.9 s instead of about 40 s."], ["Glimmer can decide in one token", "Read with no chat template, its next token gives a probability for each option: 0.53 s, no reasoning. It mostly reads the order, though: 99.5% of picks were the first time listed."], ["Llama Guard 3 reads sports injuries as medical advice", "Its S6 category flagged 6 to 8 of 15 ordinary injury-care answers; S6 now blocks only when code also finds a dose, a medicine or a condition."]].forEach(([h, d], i) => {
     const x = M + (i % 2) * 6.15, y = 1.45 + Math.floor(i / 2) * 2.65;
     card(s, x, y, 5.95, 2.4);
-    s.addText([{ text: h, options: { bold: true, breakLine: true, fontSize: 16, color: HEX.green } }, { text: d, options: { fontSize: 12 } }], { isTextBox: true, x: x + 0.3, y: y + 0.2, w: 3.3, h: 2.05, valign: "top", margin: 0, color: HEX.ink, paraSpaceAfter: 6 });
-    // a small chart of each finding
-    const cx = x + 3.7, cy = y + 0.15, cw = 2.1, ch = 2.1;
-    const base = { x: cx, y: cy, w: cw, h: ch, showLegend: false, dataLabelFontSize: 10, dataLabelColor: HEX.ink, catAxisLabelColor: HEX.muted, catAxisLabelFontSize: 9, valAxisHidden: true, valGridLine: { style: "none" }, catGridLine: { style: "none" }, catAxisLabelFontFace: "+mn-lt", dataLabelFontFace: "+mn-lt" };
-    if (i === 0) s.addChart(pres.charts.DOUGHNUT, [{ name: "tokens", labels: ["reasoning", "answer"], values: [84, 16] }], { ...base, chartColors: [HEX.red, HEX.green], showPercent: true, showLegend: true, legendPos: "b", legendFontSize: 9, legendColor: HEX.muted, holeSize: 55, dataLabelColor: "FFFFFF" });
-    if (i === 1) s.addChart(pres.charts.BAR, [{ name: "agreement", labels: ["Glimmer vs itself", "Our 1B"], values: [88.8, 89.5] }], { ...base, barDir: "col", chartColors: [HEX.green], showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.0", valAxisMinVal: 80, valAxisMaxVal: 92 });
-    if (i === 2) s.addChart(pres.charts.DOUGHNUT, [{ name: "picks", labels: ["first listed", "other"], values: [99.5, 0.5] }], { ...base, chartColors: [HEX.amber, HEX.soft], showPercent: true, showLegend: true, legendPos: "b", legendFontSize: 9, legendColor: HEX.muted, holeSize: 55, dataLabelColor: "FFFFFF" });
-    if (i === 3) s.addChart(pres.charts.BAR, [{ name: "flagged", labels: ["fewest runs", "most runs"], values: [6, 8] }], { ...base, barDir: "col", chartColors: [HEX.red], showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0", valAxisMinVal: 0, valAxisMaxVal: 15, showTitle: true, title: "of 15 injury-care answers", titleFontSize: 9, titleColor: HEX.muted, titleFontFace: "+mn-lt" });
+    s.addText([{ text: h, options: { bold: true, breakLine: true, fontSize: 17, color: HEX.green } }, { text: d, options: { fontSize: 14 } }], { isTextBox: true, x: x + 0.3, y: y + 0.2, w: 5.35, h: 2.05, valign: "top", margin: 0, color: HEX.ink, paraSpaceAfter: 6 });
   });
   note(s, "Four findings, each measured. The order finding was measured after the report: on 196 hard cases the one-token decider picked the first listed time 99.5% of the time.");
 
@@ -512,52 +465,27 @@ async function img(file, width = 1800) {
 
   // 17. upgrades since the report
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Measured since the report: seven more agent upgrades");
-  const ups = [["Send gate", "When not to ask: opt-outs 37.7% → 26.2%, games from asks 3.97 → 4.39 (simulated)"], ["Preference records", "Newest word wins: stale-preference decisions 95% → 17% once the player says it (simulated)"], ["Tool-call checks", "Silent failures passed as success 53 of 53 → 0 of 56 (fault injection)"], ["Courts judged ahead", "Wait after moving the time 49.0 s → 25.7 s, at twice the judgings (RTX 3090)"], ["Harder simulated users", "With 25% difficult people pass^1 0.69 → 0.38; six flow bugs found, then fixed"], ["Order of the options", "Glimmer changed 40% of answers in a new order, against 26.5% asked again in the same order; kept as is"], ["Stretch round", "Games found +0.3 (singles) and +1.3 points (doubles): small, reported as such"]];
-  // before and after, each on its own scale: [label, before, after, how to write a value]
-  const pairs = [["opt-outs", 37.7, 26.2, (v) => `${v}%`], ["stale decisions", 95, 17, (v) => `${v}%`], ["silent failures passed", 100, 0, (v) => `${v}%`], ["wait", 49.0, 25.7, (v) => `${v.toFixed(1)} s`], ["pass^1", 0.69, 0.38, (v) => v.toFixed(2)], ["answers changed", 26.5, 40, (v) => `${v}%`], ["doubles games", 84.1, 85.4, (v) => `${v}%`]];
-  ups.forEach(([h, d], i) => {
-    const col = i < 4 ? 0 : 1, row = i < 4 ? i : i - 4, x = M + col * 6.15, y = 1.45 + row * 1.3;
-    card(s, x, y, 5.95, 1.12);
-    s.addText([{ text: h, options: { bold: true, breakLine: true, fontSize: 15, color: HEX.green } }, { text: d, options: { fontSize: 11 } }], { isTextBox: true, x: x + 0.25, y: y + 0.08, w: 3.5, h: 0.98, valign: "middle", margin: 0, color: HEX.ink });
-    const [lab, a, b, fmt] = pairs[i], max = Math.max(a, b) || 1, bx = x + 3.85, bw = 0.85;
-    [[a, i === 5 ? "same order" : i === 4 ? "cooperative" : "before", HEX.soft], [b, i === 5 ? "new order" : i === 4 ? "difficult" : "after", i === 4 ? HEX.red : HEX.green]].forEach(([v, t, c], k) => {
-      const yy = y + 0.2 + k * 0.42, len = Math.max(0.03, (bw * v) / max);
-      s.addShape(pres.shapes.RECTANGLE, { x: bx, y: yy, w: len, h: 0.26, fill: { color: c }, line: { color: c } });
-      s.addText(`${fmt(v)} ${t}`, { isTextBox: true, x: bx + len + 0.05, y: yy - 0.04, w: 1.2, h: 0.34, fontSize: 10, color: HEX.muted, margin: 0, valign: "middle" });
-    });
-  });
-  text(s, "Each from a 2024–2026 paper, built and measured against what ran before; most numbers are simulated and say so (README, submission/results/).", { x: M + 6.15, y: 5.4, w: 5.95, h: 1.0, fontSize: 13, color: HEX.muted });
-  note(s, "After the report: send gate (Oralytics, EOPA), preference records (PersonaMem, Mem0), tool checks (JSONSchemaBench, ToolMaze), judging ahead (Speculative Actions), pass^k (tau-bench, Sim2Real), order (Magentic Marketplace), stretch round (CalBench).");
+  title(s, "Measured since the report: six agent upgrades");
+  figure(s, "upgrades", "Each upgrade before and after, on its own scale. Send gate, preference records and the stretch round are simulated; tool checks use injected faults; courts judged ahead ran on the RTX 3090 (4 cities); the tiny layer is held-out agreement on the hardest choices, against the 1B.");
+  note(s, "Send gate (Thompson sampling with a burden cost), preference records (newest wins), tool checks (typed repair, postconditions), judging ahead (speculative actions), stretch round (graded costs), tiny layer.");
 
   // 17b. the tiny layer
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "A 27.6 KB classifier in front of the 1B, on by default");
-  multi(s, pres.charts.BAR, [
-    { name: "Ordinary choices (500)", labels: ["Tiny layer (27.6 KB)", "Our 1B (0.8 GB)", "Glimmer vs itself", "First listed time"], values: [88.5, 89.5, 88.8, 82.7] },
-    { name: "Hardest choices (196)", labels: ["Tiny layer (27.6 KB)", "Our 1B (0.8 GB)", "Glimmer vs itself", "First listed time"], values: [69.4, 63.3, 73.5, 58.2] },
-  ], { x: M, y: 1.4, w: 7.6, h: 4.6, colors: [HEX.soft, HEX.green], values: true, fmt: "0.0", title: "Agreement with Glimmer over all held-out cases (%)", min: 0, max: 100 });
-  stat(s, M + 8.0, 1.4, W - 2 * M - 8.0, "0.06 ms", "a choice on one CPU thread, in plain JS (the 1B: about 0.9 s)");
-  stat(s, M + 8.0, 3.2, W - 2 * M - 8.0, "59.8% / 4.3%", "of ordinary choices it answers itself / disagreement among them");
-  card(s, M + 8.0, 5.0, W - 2 * M - 8.0, 1.7, HEX.greenBg);
-  text(s, "Four small MLPs over facts code holds per option (weekday, hour, trip, distance from the asked time, the member's habits and rules), and a doubt model that sends anything it doubts to the 1B and Glimmer. Measured offline; the post prefilter (87 KB) stays off: it passed 0 of 762 hostile comments but only 11% of ordinary ones.", { x: M + 8.2, y: 5.1, w: W - 2 * M - 8.4, h: 1.55, fontSize: 11 });
-  text(s, "Trained on the student's 4,868 Glimmer choices; on the hardest choices it agrees with Glimmer more often than our 1B.", { x: M, y: 6.15, w: 7.6, h: 0.55, fontSize: 12, color: HEX.muted });
-  note(s, "From submission/results/tiny.json. It saves 299 of 500 student calls on ordinary choices but only a few Glimmer calls, since the student already answers what it is sure of; overall agreement rises from 89.9% to 90.3%.");
+  figure(s, "tiny", "Agreement with Glimmer over all held-out cases (95% Wilson intervals). The tiny layer is small MLPs over facts code holds, with a doubt model; 0.06 ms a choice. It answers 59.8% of ordinary choices itself at 4.3% disagreement and sends the rest on.");
+  note(s, "From submission/results/tiny.json. The 87 KB post prefilter stays off: it passed 0 of 762 hostile comments but only 11% of ordinary ones.");
 
-  // 17c. six flow bugs the difficult users found, fixed
+  // 17d. the text 1B
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "A 1B distilled for short text resists attacks it never saw");
+  figure(s, "text1b", "Attacks that succeeded on 446 held-out items built from attack templates not used in training, for the model alone with no guards in front (95% Wilson intervals). SFT on Glimmer's answers plus attacked copies; outside text in its own input message.");
+  note(s, "Only answer.learn joins the 1B's sites; the post standard stays with Glimmer (8 of 71 hostile comments passed, against 0). SecAlign++ was tried and not kept: it blocked 8 of 32 ordinary comments.");
+
+  // 17c. six flow fixes
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "Six flow bugs found by difficult simulated people, fixed");
-  multi(s, pres.charts.BAR, [
-    { name: "Before the fixes", labels: ["False “booked”", "Asker left waiting", "Searches that looped", "Asked again after a no"], values: [12, 19, 16, 19] },
-    { name: "After", labels: ["False “booked”", "Asker left waiting", "Searches that looped", "Asked again after a no"], values: [0, 0, 0, 0] },
-  ], { x: M, y: 1.4, w: 7.4, h: 4.2, colors: [HEX.red, HEX.green], values: true, fmt: "0", title: "Failures in 160 code-only runs, difficult club", max: 22 });
-  multi(s, pres.charts.BAR, [
-    { name: "Cooperative club", labels: ["pass^1", "pass^4"], values: [0.69, 0.50] },
-    { name: "Difficult club, before", labels: ["pass^1", "pass^4"], values: [0.38, 0.25] },
-    { name: "Difficult club, after", labels: ["pass^1", "pass^4"], values: [0.47, 0.38] },
-  ], { x: M + 7.7, y: 1.4, w: W - 2 * M - 7.7, h: 4.2, colors: [HEX.soft, HEX.red, HEX.green], values: true, fmt: "0.00", title: "With Muse Glimmer (8 requests × 4)", max: 0.8 });
-  text(s, [{ text: "25% difficult people ", options: { bold: true } }, { text: "(the flipper, the ghost, the budget person, the drifter, the vague one); pass^k counts a request only if every one of k runs succeeds (τ-bench). Now: a back-out by message is confirmed and acted on, an ask lapses with its hold, a vague reply is asked once more with buttons, a stated day off is kept, the search leaves out everyone who said no, and everyone asked is told. The pass^k gains are small and their intervals still include no change." }], { x: M, y: 5.75, w: W - 2 * M, h: 1.0, fontSize: 12 });
-  note(s, "From submission/results/sim_users_hard.json. The after runs are on main, which also has the other upgrades merged since the before runs.");
+  figure(s, "fixes", "(a) Failures in 160 code-only runs with the difficult club (25% difficult people), before and after the fixes. (b) pass^k with Muse Glimmer (8 requests x 4 runs): a request counts only if every run succeeds. The pass^k gains are small and their intervals still include no change.");
+  note(s, "The after runs are on main, which also has the other upgrades merged since the before runs.");
 
   // 18. not done yet
   s = pres.addSlide({ masterName: "CONTENT" });
