@@ -251,6 +251,88 @@ while another job held about 34 of its 64 threads (load 90 to 105). Each arm ran
   idle 8-thread Xeon the 1B takes 0.9 s, and on our server at low load about 2 s.
 - The persona arms ran 30 minutes apart, so a few talks differ (31 and 29 movable). The counts are per arm.
 
+## Round 4: more Glimmer answers, soft labels, order augmentation (1B)
+
+A fourth round on the 1B student, trained on the A100 VM. Every number is in `submission/results/dec1b.json`, with the
+selection rule written before the comparison, intervals from a bootstrap over members, and the raw predictions of the
+chosen variant in `submission/results/dec1b/`. It was cut short: **phase 2 (the rationale loss, active selection, and
+both combined with order augmentation) was not run to the end and is not reported.** Its Glimmer answers were collected
+(583 for the active arm, 1,275 short rationales) but no variant using them was scored.
+
+**A new reference for the hard cases.** Glimmer answered the decider's 196 cases three more times (4 to 5 answers per
+case). "Vs majority" grades a pick against the majority of Glimmer's *other* answers, and grades each Glimmer answer the
+same way, so the two numbers share a reference. Glimmer reaches 76.7% [72.5, 80.6] there (73.5% one answer against
+another). The earlier metrics are kept beside it.
+
+**Day-1 check: the one-token decider's letters are mostly position.** Read in the listed order, its pick agrees with
+Glimmer's answers 63.5% on the decider's cases (85.8% on test), and it picks the first listed time 87% of the time
+(Glimmer: 57% and 83%). Reversing the order changes its pick on 88% of the decider's cases. Averaged over four orders
+(listed, reversed, two shuffles) it falls to 55.6% (71.7% on test), below the student. So it was not used as a soft
+target. The soft labels are Glimmer's votes (`distill/day1_decider.py`).
+
+**Variants** (bf16, short prompts; KL 0.5 and 0.9 at T = 1 were not trained: with at most two votes per training case
+their gradient equals KL 0's):
+
+| | Test, each answer | Test ECE raw / scaled | Decider, vs majority | Decider, vs `full` | Decider at 0.6: answered / cascade vs `full` | Picks that change when the times are reversed (test / decider) |
+|---|---|---|---|---|---|---|
+| 1b_v3 (served) | 89.5% | 0.052 / 0.018 | 68.5% [62.8, 74.3] | 63.3% | 70.9% / 70.4% | 13.2% / 26.0% |
+| rerun of 1b_v3's recipe | 88.9% | 0.053 / 0.025 | 71.5% [65.8, 77.1] | 65.8% | 73.5% / 69.9% | 15.6% / 22.5% |
+| order augmentation (half the prompts shuffled) | 88.7% | 0.046 / 0.013 | 69.9% | 66.3% | 65.8% / 71.9% | **1.6% / 14.8%** |
+| **+ 1 Glimmer answer for 700 random cases** (chosen) | 89.4% [87.1, 91.5] | 0.044 / 0.017 | **73.0% [67.6, 78.2]** | 67.9% | **77.5% / 74.0%** | 11.6% / 28.1% |
+| same, KL 0.5 at T = 2 | 88.3% | 0.085 / 0.033 | 66.3% | 60.7% | 76.5% / 69.9% | 14.4% / 24.0% |
+| same, KL 0.9 at T = 2 | 89.1% | 0.087 / 0.020 | 67.9% | 63.3% | 80.6% / 68.4% | 10.4% / 11.2% |
+
+- **The gain is near run-to-run noise.** Rerunning the shipped recipe moved the decider's cases 3 points (68.5 to 71.5)
+  with nothing changed. The chosen variant against that rerun, paired by case: +1.0 [−3.2, +5.3] on the decider's cases
+  against the majority, +0.8 [−0.9, +2.4] on test. Against 1b_v3: +4.6 [+1.0, +8.5] on the decider's cases, 0.0 on test.
+  Its gap to Glimmer's own spread on the decider's cases is −3.8 [−9.6, +1.6] (1b_v3: −8.2 [−13.9, −2.6]).
+- **Temperature 2 hurt.** Softened targets made the student underconfident and less accurate on the hard cases.
+- **Order augmentation does what it says.** Test picks that change under reversal fell from 15.6% to 1.6%. It costs a
+  little agreement, because Glimmer's own answers depend on the order (it picks the first listed time 83% of the time on
+  test). Matching Glimmer more closely here partly means copying its position bias.
+- Chosen by the rule written before the comparison (`selection_rule` in the results): the highest decider agreement
+  against the majority, within 0.5 points of 1b_v3 on test, ECE no worse. The decider's cases are both the criterion and
+  a reported set, so the chosen variant's number there is optimistic.
+
+**int4.** `serve-jev-1b-v4-Q4_K_M.gguf` (llama.cpp Q4_K_M, no importance matrix, 0.8 GB) on the VM's CPU, as the worker
+runs it:
+
+| | Test, each answer | Decider, vs majority / vs `full` | At 0.6: decider answered / cascade vs `full` | Test ECE | Same pick as its bf16 (test / decider) |
+|---|---|---|---|---|---|
+| 1b_v3 Q4_K_M (served) | 88.5% | 67.0% / 60.7% | 73.0% / 68.4% | 0.042 | 492 / 183 |
+| v4 Q4_K_M | 88.9% | 69.5% / 62.8% | 74.5% / 70.9% | 0.039 | 492 / 184 |
+
+- **int4 costs v4 on the hard cases.** Its decider agreement drops from 73.0% to 69.5% against the majority. The paired
+  McNemar test against its bf16 is significant there: 10 against 2, p = 0.039; against `full`, 11 against 1, p = 0.006.
+  On test it is not (5 against 2, p = 0.45). So rule 3 (an int4 file not significantly worse than bf16) is **not met**
+  by this file.
+- Against the served int4 1b_v3, paired: +2.0 [−2.6, +7.0] on the decider's cases and +0.6 [−1.0, +2.5] on test. Better
+  on every point estimate, significant on none.
+- For the rerun baseline, Q4_K_M with an importance matrix from Serve's own decision prompts (`distill/export_r4.sh`)
+  matched bf16 on 488 of 500 test and 186 of 196 decider cases, and without it 495 and 184. Neither was significantly
+  worse than bf16. Q5_K_M and Q6_K were not measured.
+- 1.37 s per decision at p50 on 100 test cases (VM Xeon, 8 threads, while other jobs used the CPU), 234 tokens.
+
+**Calibration and threshold.** The int4 file's temperature fitted on val is 1.3 (test ECE 0.039 raw, 0.015 scaled;
+decider 0.058 and 0.030). `A2A_STUDENT_TEMP` (new, default 1) applies it in `student.js`. After scaling, 0.55 is the
+served operating point: on the decider's cases 76.5% answered with the cascade at 70.4% against `full` (raw 0.6: 74.5%,
+70.9%), and on test 95% answered. Conformal risk control at 5% on val gives 0.79 after scaling (test 81% answered,
+4.9% disagreement over all; decider 26% answered). Recommended: `A2A_STUDENT_TEMP=1.3 A2A_STUDENT_SURE=0.55`, or
+`A2A_STUDENT_SURE=0.6` alone for the same operating point.
+
+**Against the tiny classifier.** The 27.6 KB classifier now in front of the student is reported at 88.5% on test and
+69.4% on the decider's cases (not measured in this round). The v4 int4 file is at 88.9% on test (each answer) and 69.5%
+against the majority on the decider's cases, 62.8% against `full`. Within noise of the tiny classifier on both.
+
+**Glimmer spent:** 588 answers on the decider's cases, 700 for the random arm and 583 for the active arm (one each, 117
+cases shared), and the decider read 4 times per case on the decider and test sets. These answers were asked without
+the JSON Schema as a grammar and parsed from text, then checked against `MEMBER_REPLY`. On the VM's llama-server,
+grammar sampling held 24 parallel answers to the speed of one. Otherwise they used the gateway's prompt and settings.
+
+Reproduce (VM): `node distill/glimmer_more.mjs full jev/data/<set> 1 1 <ids> 32` and `... decider jev/data/<set> 4`,
+`bash distill/run_r4.sh 1b_r4_R_k0 --more <random ids> --kl_w 0`, `python3 distill/dec1b_report.py --variants ...`,
+`python3 distill/dec1b_results.py ...`.
+
 ## What these numbers do not show
 
 - **The members are simulated.** The student matches what Muse Glimmer chose for simulated members, not what real
