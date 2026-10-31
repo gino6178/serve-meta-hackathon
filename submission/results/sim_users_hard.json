@@ -1,0 +1,10700 @@
+{
+ "simulated": true,
+ "note": "Simulated people only (agent/test/sim_users/personas.json); the gateway, its agents and the model are real. pass^k after tau-bench (arXiv 2406.12045); difficult people after Sim2Real (arXiv 2603.11245).",
+ "at": "2026-10-31T06:49:00.375Z",
+ "seeds": {
+  "scenarios": 23,
+  "club": 17,
+  "persona": 20261105
+ },
+ "difficult": {
+  "u05": "vague",
+  "u04": "ghost",
+  "u18": "drifter",
+  "u13": "budget",
+  "u08": "flipper"
+ },
+ "kinds": {
+  "flipper": "says yes to every game put to them, even on a day they turn out to be busy, then backs out by message once it is booked (70% of trials)",
+  "ghost": "answers nothing (half the trials) or answers after the hold has lapsed (the other half)",
+  "budget": "gives up without saying so after 1-2 questions or 3-5 messages from the agent in one go",
+  "drifter": "stopped playing on one of their usual days this week, tells their agent once, then turns that day down",
+  "vague": "answers in vague words instead of tapping a button (75% of questions)"
+ },
+ "share": 0.25,
+ "setup": {
+  "start": "2026-11-09T09:00:00",
+  "leaseMs": 60000,
+  "lateMs": 90000,
+  "bailMs": 15000,
+  "quietMs": 15000
+ },
+ "errors": 0,
+ "arms": {
+  "real/coop": {
+   "arm": "coop",
+   "scenarios": 12,
+   "trials": 4,
+   "runs": 48,
+   "passk": {
+    "1": {
+     "value": 0.563,
+     "ci95": [
+      0.31,
+      0.77
+     ]
+    },
+    "2": {
+     "value": 0.444,
+     "ci95": [
+      0.19,
+      0.67
+     ]
+    },
+    "3": {
+     "value": 0.375,
+     "ci95": [
+      0.13,
+      0.63
+     ]
+    },
+    "4": {
+     "value": 0.333,
+     "ci95": [
+      0.08,
+      0.58
+     ]
+    }
+   },
+   "honestk": {
+    "1": {
+     "value": 0.938,
+     "ci95": [
+      0.88,
+      1
+     ]
+    },
+    "2": {
+     "value": 0.875,
+     "ci95": [
+      0.75,
+      1
+     ]
+    },
+    "3": {
+     "value": 0.813,
+     "ci95": [
+      0.63,
+      1
+     ]
+    },
+    "4": {
+     "value": 0.75,
+     "ci95": [
+      0.5,
+      1
+     ]
+    }
+   },
+   "pass": {
+    "k": 27,
+    "n": 48,
+    "rate": 0.563,
+    "ci95": [
+     0.42,
+     0.69
+    ]
+   },
+   "honest": {
+    "k": 45,
+    "n": 48,
+    "rate": 0.938,
+    "ci95": [
+     0.83,
+     0.98
+    ]
+   },
+   "falseBooked": {
+    "k": 0,
+    "n": 48,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.07
+    ],
+    "reports": 0
+   },
+   "fellApartAfterYes": {
+    "k": 16,
+    "n": 48,
+    "rate": 0.333,
+    "ci95": [
+     0.22,
+     0.47
+    ]
+   },
+   "bookedThenFell": {
+    "k": 0,
+    "n": 48,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.07
+    ]
+   },
+   "yesNeverBooked": {
+    "k": 16,
+    "n": 48,
+    "rate": 0.333,
+    "ci95": [
+     0.22,
+     0.47
+    ]
+   },
+   "leftWaiting": {
+    "k": 3,
+    "n": 48,
+    "rate": 0.063,
+    "ci95": [
+     0.02,
+     0.17
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 48,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.07
+    ]
+   },
+   "loops": {
+    "k": 4,
+    "n": 48,
+    "rate": 0.083,
+    "ci95": [
+     0.03,
+     0.2
+    ]
+   },
+   "capped": {
+    "k": 0,
+    "n": 48,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.07
+    ]
+   },
+   "byKind": {
+    "cooperative": {
+     "runs": 48,
+     "pass": 27,
+     "rate": 0.563,
+     "ci95": [
+      0.42,
+      0.69
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 3,
+     "fellApart": 16
+    }
+   },
+   "noDifficultInvolved": {
+    "runs": 48,
+    "pass": 27,
+    "rate": 0.563
+   },
+   "byAskerKind": {
+    "cooperative": {
+     "runs": 48,
+     "pass": 27,
+     "rate": 0.563
+    }
+   },
+   "model": {
+    "calls": 192,
+    "seconds": 3689,
+    "studentCalls": 0,
+    "llm": "muse-glimmer (Ollama :11435), student worker :11447 wired in",
+    "wallMinutes": 74
+   }
+  },
+  "real8/coop": {
+   "arm": "coop",
+   "scenarios": 8,
+   "trials": 4,
+   "runs": 32,
+   "passk": {
+    "1": {
+     "value": 0.688,
+     "ci95": [
+      0.44,
+      0.94
+     ]
+    },
+    "2": {
+     "value": 0.583,
+     "ci95": [
+      0.27,
+      0.88
+     ]
+    },
+    "3": {
+     "value": 0.531,
+     "ci95": [
+      0.19,
+      0.88
+     ]
+    },
+    "4": {
+     "value": 0.5,
+     "ci95": [
+      0.13,
+      0.88
+     ]
+    }
+   },
+   "honestk": {
+    "1": {
+     "value": 0.969,
+     "ci95": [
+      0.91,
+      1
+     ]
+    },
+    "2": {
+     "value": 0.938,
+     "ci95": [
+      0.81,
+      1
+     ]
+    },
+    "3": {
+     "value": 0.906,
+     "ci95": [
+      0.72,
+      1
+     ]
+    },
+    "4": {
+     "value": 0.875,
+     "ci95": [
+      0.63,
+      1
+     ]
+    }
+   },
+   "pass": {
+    "k": 22,
+    "n": 32,
+    "rate": 0.688,
+    "ci95": [
+     0.51,
+     0.82
+    ]
+   },
+   "honest": {
+    "k": 31,
+    "n": 32,
+    "rate": 0.969,
+    "ci95": [
+     0.84,
+     0.99
+    ]
+   },
+   "falseBooked": {
+    "k": 0,
+    "n": 32,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.11
+    ],
+    "reports": 0
+   },
+   "fellApartAfterYes": {
+    "k": 5,
+    "n": 32,
+    "rate": 0.156,
+    "ci95": [
+     0.07,
+     0.32
+    ]
+   },
+   "bookedThenFell": {
+    "k": 0,
+    "n": 32,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.11
+    ]
+   },
+   "yesNeverBooked": {
+    "k": 5,
+    "n": 32,
+    "rate": 0.156,
+    "ci95": [
+     0.07,
+     0.32
+    ]
+   },
+   "leftWaiting": {
+    "k": 1,
+    "n": 32,
+    "rate": 0.031,
+    "ci95": [
+     0.01,
+     0.16
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 32,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.11
+    ]
+   },
+   "loops": {
+    "k": 4,
+    "n": 32,
+    "rate": 0.125,
+    "ci95": [
+     0.05,
+     0.28
+    ]
+   },
+   "capped": {
+    "k": 0,
+    "n": 32,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.11
+    ]
+   },
+   "byKind": {
+    "cooperative": {
+     "runs": 32,
+     "pass": 22,
+     "rate": 0.688,
+     "ci95": [
+      0.51,
+      0.82
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 1,
+     "fellApart": 5
+    }
+   },
+   "noDifficultInvolved": {
+    "runs": 32,
+    "pass": 22,
+    "rate": 0.688
+   },
+   "byAskerKind": {
+    "cooperative": {
+     "runs": 32,
+     "pass": 22,
+     "rate": 0.688
+    }
+   },
+   "model": {
+    "calls": 129,
+    "seconds": 2501,
+    "studentCalls": 0,
+    "llm": "muse-glimmer (Ollama :11435), student worker :11447 wired in",
+    "wallMinutes": 49
+   }
+  },
+  "real8/hard": {
+   "arm": "hard",
+   "scenarios": 8,
+   "trials": 4,
+   "runs": 32,
+   "passk": {
+    "1": {
+     "value": 0.375,
+     "ci95": [
+      0.13,
+      0.63
+     ]
+    },
+    "2": {
+     "value": 0.25,
+     "ci95": [
+      0,
+      0.5
+     ]
+    },
+    "3": {
+     "value": 0.25,
+     "ci95": [
+      0,
+      0.5
+     ]
+    },
+    "4": {
+     "value": 0.25,
+     "ci95": [
+      0,
+      0.5
+     ]
+    }
+   },
+   "honestk": {
+    "1": {
+     "value": 0.75,
+     "ci95": [
+      0.5,
+      1
+     ]
+    },
+    "2": {
+     "value": 0.646,
+     "ci95": [
+      0.29,
+      1
+     ]
+    },
+    "3": {
+     "value": 0.625,
+     "ci95": [
+      0.25,
+      1
+     ]
+    },
+    "4": {
+     "value": 0.625,
+     "ci95": [
+      0.25,
+      1
+     ]
+    }
+   },
+   "pass": {
+    "k": 12,
+    "n": 32,
+    "rate": 0.375,
+    "ci95": [
+     0.23,
+     0.55
+    ]
+   },
+   "honest": {
+    "k": 24,
+    "n": 32,
+    "rate": 0.75,
+    "ci95": [
+     0.58,
+     0.87
+    ]
+   },
+   "falseBooked": {
+    "k": 3,
+    "n": 32,
+    "rate": 0.094,
+    "ci95": [
+     0.03,
+     0.24
+    ],
+    "reports": 3
+   },
+   "fellApartAfterYes": {
+    "k": 12,
+    "n": 32,
+    "rate": 0.375,
+    "ci95": [
+     0.23,
+     0.55
+    ]
+   },
+   "bookedThenFell": {
+    "k": 3,
+    "n": 32,
+    "rate": 0.094,
+    "ci95": [
+     0.03,
+     0.24
+    ]
+   },
+   "yesNeverBooked": {
+    "k": 9,
+    "n": 32,
+    "rate": 0.281,
+    "ci95": [
+     0.16,
+     0.45
+    ]
+   },
+   "leftWaiting": {
+    "k": 5,
+    "n": 32,
+    "rate": 0.156,
+    "ci95": [
+     0.07,
+     0.32
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 32,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.11
+    ]
+   },
+   "loops": {
+    "k": 4,
+    "n": 32,
+    "rate": 0.125,
+    "ci95": [
+     0.05,
+     0.28
+    ]
+   },
+   "capped": {
+    "k": 0,
+    "n": 32,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.11
+    ]
+   },
+   "byKind": {
+    "budget": {
+     "runs": 4,
+     "pass": 4,
+     "rate": 1,
+     "ci95": [
+      0.51,
+      1
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 0,
+     "fellApart": 0
+    },
+    "cooperative": {
+     "runs": 29,
+     "pass": 12,
+     "rate": 0.414,
+     "ci95": [
+      0.26,
+      0.59
+     ],
+     "falseBooked": 3,
+     "leftWaiting": 5,
+     "fellApart": 12
+    },
+    "drifter": {
+     "runs": 8,
+     "pass": 4,
+     "rate": 0.5,
+     "ci95": [
+      0.22,
+      0.78
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 0,
+     "fellApart": 4
+    },
+    "flipper": {
+     "runs": 9,
+     "pass": 2,
+     "rate": 0.222,
+     "ci95": [
+      0.06,
+      0.55
+     ],
+     "falseBooked": 3,
+     "leftWaiting": 0,
+     "fellApart": 7
+    },
+    "ghost": {
+     "runs": 4,
+     "pass": 1,
+     "rate": 0.25,
+     "ci95": [
+      0.05,
+      0.7
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 3,
+     "fellApart": 3
+    },
+    "vague": {
+     "runs": 6,
+     "pass": 1,
+     "rate": 0.167,
+     "ci95": [
+      0.03,
+      0.56
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 2,
+     "fellApart": 2
+    }
+   },
+   "noDifficultInvolved": {
+    "runs": 10,
+    "pass": 5,
+    "rate": 0.5
+   },
+   "byAskerKind": {
+    "cooperative": {
+     "runs": 28,
+     "pass": 11,
+     "rate": 0.393
+    },
+    "vague": {
+     "runs": 4,
+     "pass": 1,
+     "rate": 0.25
+    }
+   },
+   "model": {
+    "calls": 280,
+    "seconds": 4741,
+    "studentCalls": 0,
+    "llm": "muse-glimmer (Ollama :11435), student worker :11447 wired in",
+    "wallMinutes": 91
+   }
+  },
+  "fake/coop": {
+   "arm": "coop",
+   "scenarios": 20,
+   "trials": 8,
+   "runs": 160,
+   "passk": {
+    "1": {
+     "value": 0.525,
+     "ci95": [
+      0.36,
+      0.68
+     ]
+    },
+    "2": {
+     "value": 0.396,
+     "ci95": [
+      0.25,
+      0.57
+     ]
+    },
+    "3": {
+     "value": 0.322,
+     "ci95": [
+      0.17,
+      0.5
+     ]
+    },
+    "4": {
+     "value": 0.278,
+     "ci95": [
+      0.12,
+      0.46
+     ]
+    },
+    "5": {
+     "value": 0.249,
+     "ci95": [
+      0.09,
+      0.43
+     ]
+    },
+    "6": {
+     "value": 0.229,
+     "ci95": [
+      0.08,
+      0.42
+     ]
+    },
+    "7": {
+     "value": 0.212,
+     "ci95": [
+      0.06,
+      0.41
+     ]
+    },
+    "8": {
+     "value": 0.2,
+     "ci95": [
+      0.05,
+      0.4
+     ]
+    }
+   },
+   "honestk": {
+    "1": {
+     "value": 0.925,
+     "ci95": [
+      0.86,
+      0.98
+     ]
+    },
+    "2": {
+     "value": 0.866,
+     "ci95": [
+      0.76,
+      0.95
+     ]
+    },
+    "3": {
+     "value": 0.82,
+     "ci95": [
+      0.68,
+      0.94
+     ]
+    },
+    "4": {
+     "value": 0.783,
+     "ci95": [
+      0.63,
+      0.92
+     ]
+    },
+    "5": {
+     "value": 0.754,
+     "ci95": [
+      0.58,
+      0.91
+     ]
+    },
+    "6": {
+     "value": 0.73,
+     "ci95": [
+      0.54,
+      0.9
+     ]
+    },
+    "7": {
+     "value": 0.713,
+     "ci95": [
+      0.51,
+      0.9
+     ]
+    },
+    "8": {
+     "value": 0.7,
+     "ci95": [
+      0.5,
+      0.9
+     ]
+    }
+   },
+   "pass": {
+    "k": 84,
+    "n": 160,
+    "rate": 0.525,
+    "ci95": [
+     0.45,
+     0.6
+    ]
+   },
+   "honest": {
+    "k": 148,
+    "n": 160,
+    "rate": 0.925,
+    "ci95": [
+     0.87,
+     0.96
+    ]
+   },
+   "falseBooked": {
+    "k": 0,
+    "n": 160,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.02
+    ],
+    "reports": 0
+   },
+   "fellApartAfterYes": {
+    "k": 73,
+    "n": 160,
+    "rate": 0.456,
+    "ci95": [
+     0.38,
+     0.53
+    ]
+   },
+   "bookedThenFell": {
+    "k": 0,
+    "n": 160,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.02
+    ]
+   },
+   "yesNeverBooked": {
+    "k": 73,
+    "n": 160,
+    "rate": 0.456,
+    "ci95": [
+     0.38,
+     0.53
+    ]
+   },
+   "leftWaiting": {
+    "k": 12,
+    "n": 160,
+    "rate": 0.075,
+    "ci95": [
+     0.04,
+     0.13
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 160,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.02
+    ]
+   },
+   "loops": {
+    "k": 8,
+    "n": 160,
+    "rate": 0.05,
+    "ci95": [
+     0.03,
+     0.1
+    ]
+   },
+   "capped": {
+    "k": 0,
+    "n": 160,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.02
+    ]
+   },
+   "byKind": {
+    "cooperative": {
+     "runs": 160,
+     "pass": 84,
+     "rate": 0.525,
+     "ci95": [
+      0.45,
+      0.6
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 12,
+     "fellApart": 73
+    }
+   },
+   "noDifficultInvolved": {
+    "runs": 160,
+    "pass": 84,
+    "rate": 0.525
+   },
+   "byAskerKind": {
+    "cooperative": {
+     "runs": 160,
+     "pass": 84,
+     "rate": 0.525
+    }
+   },
+   "model": {
+    "calls": 777,
+    "seconds": 0,
+    "studentCalls": 0,
+    "llm": "fake model (code only)",
+    "wallMinutes": 44
+   }
+  },
+  "fake/hard": {
+   "arm": "hard",
+   "scenarios": 20,
+   "trials": 8,
+   "runs": 160,
+   "passk": {
+    "1": {
+     "value": 0.35,
+     "ci95": [
+      0.21,
+      0.49
+     ]
+    },
+    "2": {
+     "value": 0.202,
+     "ci95": [
+      0.08,
+      0.34
+     ]
+    },
+    "3": {
+     "value": 0.143,
+     "ci95": [
+      0.04,
+      0.27
+     ]
+    },
+    "4": {
+     "value": 0.113,
+     "ci95": [
+      0.02,
+      0.24
+     ]
+    },
+    "5": {
+     "value": 0.093,
+     "ci95": [
+      0.01,
+      0.21
+     ]
+    },
+    "6": {
+     "value": 0.077,
+     "ci95": [
+      0,
+      0.19
+     ]
+    },
+    "7": {
+     "value": 0.063,
+     "ci95": [
+      0,
+      0.17
+     ]
+    },
+    "8": {
+     "value": 0.05,
+     "ci95": [
+      0,
+      0.15
+     ]
+    }
+   },
+   "honestk": {
+    "1": {
+     "value": 0.806,
+     "ci95": [
+      0.69,
+      0.91
+     ]
+    },
+    "2": {
+     "value": 0.698,
+     "ci95": [
+      0.54,
+      0.85
+     ]
+    },
+    "3": {
+     "value": 0.632,
+     "ci95": [
+      0.45,
+      0.81
+     ]
+    },
+    "4": {
+     "value": 0.587,
+     "ci95": [
+      0.4,
+      0.78
+     ]
+    },
+    "5": {
+     "value": 0.554,
+     "ci95": [
+      0.35,
+      0.76
+     ]
+    },
+    "6": {
+     "value": 0.53,
+     "ci95": [
+      0.32,
+      0.75
+     ]
+    },
+    "7": {
+     "value": 0.512,
+     "ci95": [
+      0.31,
+      0.75
+     ]
+    },
+    "8": {
+     "value": 0.5,
+     "ci95": [
+      0.3,
+      0.75
+     ]
+    }
+   },
+   "pass": {
+    "k": 56,
+    "n": 160,
+    "rate": 0.35,
+    "ci95": [
+     0.28,
+     0.43
+    ]
+   },
+   "honest": {
+    "k": 129,
+    "n": 160,
+    "rate": 0.806,
+    "ci95": [
+     0.74,
+     0.86
+    ]
+   },
+   "falseBooked": {
+    "k": 12,
+    "n": 160,
+    "rate": 0.075,
+    "ci95": [
+     0.04,
+     0.13
+    ],
+    "reports": 12
+   },
+   "fellApartAfterYes": {
+    "k": 83,
+    "n": 160,
+    "rate": 0.519,
+    "ci95": [
+     0.44,
+     0.59
+    ]
+   },
+   "bookedThenFell": {
+    "k": 12,
+    "n": 160,
+    "rate": 0.075,
+    "ci95": [
+     0.04,
+     0.13
+    ]
+   },
+   "yesNeverBooked": {
+    "k": 71,
+    "n": 160,
+    "rate": 0.444,
+    "ci95": [
+     0.37,
+     0.52
+    ]
+   },
+   "leftWaiting": {
+    "k": 19,
+    "n": 160,
+    "rate": 0.119,
+    "ci95": [
+     0.08,
+     0.18
+    ]
+   },
+   "noAnswer": {
+    "k": 0,
+    "n": 160,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.02
+    ]
+   },
+   "loops": {
+    "k": 16,
+    "n": 160,
+    "rate": 0.1,
+    "ci95": [
+     0.06,
+     0.16
+    ]
+   },
+   "capped": {
+    "k": 0,
+    "n": 160,
+    "rate": 0,
+    "ci95": [
+     0,
+     0.02
+    ]
+   },
+   "byKind": {
+    "budget": {
+     "runs": 15,
+     "pass": 9,
+     "rate": 0.6,
+     "ci95": [
+      0.36,
+      0.8
+     ],
+     "falseBooked": 6,
+     "leftWaiting": 0,
+     "fellApart": 6
+    },
+    "cooperative": {
+     "runs": 141,
+     "pass": 54,
+     "rate": 0.383,
+     "ci95": [
+      0.31,
+      0.47
+     ],
+     "falseBooked": 6,
+     "leftWaiting": 19,
+     "fellApart": 77
+    },
+    "drifter": {
+     "runs": 31,
+     "pass": 7,
+     "rate": 0.226,
+     "ci95": [
+      0.11,
+      0.4
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 0,
+     "fellApart": 24
+    },
+    "flipper": {
+     "runs": 41,
+     "pass": 7,
+     "rate": 0.171,
+     "ci95": [
+      0.09,
+      0.31
+     ],
+     "falseBooked": 12,
+     "leftWaiting": 3,
+     "fellApart": 34
+    },
+    "ghost": {
+     "runs": 40,
+     "pass": 9,
+     "rate": 0.225,
+     "ci95": [
+      0.12,
+      0.38
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 8,
+     "fellApart": 26
+    },
+    "vague": {
+     "runs": 13,
+     "pass": 2,
+     "rate": 0.154,
+     "ci95": [
+      0.04,
+      0.42
+     ],
+     "falseBooked": 0,
+     "leftWaiting": 4,
+     "fellApart": 5
+    }
+   },
+   "noDifficultInvolved": {
+    "runs": 60,
+    "pass": 34,
+    "rate": 0.567
+   },
+   "byAskerKind": {
+    "budget": {
+     "runs": 8,
+     "pass": 2,
+     "rate": 0.25
+    },
+    "cooperative": {
+     "runs": 120,
+     "pass": 53,
+     "rate": 0.442
+    },
+    "drifter": {
+     "runs": 8,
+     "pass": 0,
+     "rate": 0
+    },
+    "flipper": {
+     "runs": 8,
+     "pass": 0,
+     "rate": 0
+    },
+    "ghost": {
+     "runs": 8,
+     "pass": 0,
+     "rate": 0
+    },
+    "vague": {
+     "runs": 8,
+     "pass": 1,
+     "rate": 0.125
+    }
+   },
+   "model": {
+    "calls": 1854,
+    "seconds": 1,
+    "studentCalls": 0,
+    "llm": "fake model (code only)",
+    "wallMinutes": 75
+   }
+  }
+ },
+ "hardMinusCoop": {
+  "real8": {
+   "scenarios": 8,
+   "byK": {
+    "1": {
+     "a": 0.688,
+     "b": 0.375,
+     "delta": -0.313,
+     "ci95": [
+      -0.53,
+      -0.09
+     ]
+    },
+    "2": {
+     "a": 0.583,
+     "b": 0.25,
+     "delta": -0.333,
+     "ci95": [
+      -0.65,
+      -0.06
+     ]
+    },
+    "3": {
+     "a": 0.531,
+     "b": 0.25,
+     "delta": -0.281,
+     "ci95": [
+      -0.62,
+      -0.03
+     ]
+    },
+    "4": {
+     "a": 0.5,
+     "b": 0.25,
+     "delta": -0.25,
+     "ci95": [
+      -0.62,
+      0
+     ]
+    }
+   }
+  },
+  "fake": {
+   "scenarios": 20,
+   "byK": {
+    "1": {
+     "a": 0.525,
+     "b": 0.35,
+     "delta": -0.175,
+     "ci95": [
+      -0.31,
+      -0.05
+     ]
+    },
+    "2": {
+     "a": 0.396,
+     "b": 0.202,
+     "delta": -0.194,
+     "ci95": [
+      -0.36,
+      -0.05
+     ]
+    },
+    "3": {
+     "a": 0.322,
+     "b": 0.143,
+     "delta": -0.179,
+     "ci95": [
+      -0.35,
+      -0.04
+     ]
+    },
+    "4": {
+     "a": 0.278,
+     "b": 0.113,
+     "delta": -0.165,
+     "ci95": [
+      -0.34,
+      -0.02
+     ]
+    },
+    "5": {
+     "a": 0.249,
+     "b": 0.093,
+     "delta": -0.156,
+     "ci95": [
+      -0.32,
+      -0.02
+     ]
+    },
+    "6": {
+     "a": 0.229,
+     "b": 0.077,
+     "delta": -0.152,
+     "ci95": [
+      -0.31,
+      -0.01
+     ]
+    },
+    "7": {
+     "a": 0.212,
+     "b": 0.063,
+     "delta": -0.149,
+     "ci95": [
+      -0.31,
+      -0.01
+     ]
+    },
+    "8": {
+     "a": 0.2,
+     "b": 0.05,
+     "delta": -0.15,
+     "ci95": [
+      -0.3,
+      0
+     ]
+    }
+   }
+  }
+ },
+ "armsNote": "real/coop: 12 scenarios x 4 trials on Muse Glimmer; real8/coop and real8/hard: the first 8 of those scenarios x 4, the paired comparison (the hard arm was cut to 8 scenarios to keep model time near two hours); fake/*: the same seeds, 20 scenarios x 8 trials on the fake model (every member agent says yes to every listed time), the code-only slice. The student worker (:11447) was wired in but never called: in these talks every member answer came from code (acceptable sets, rules), so the model time is Glimmer reading requests and answering chat.",
+ "discarded": "Hard-arm runs made before the flipper was changed to say yes on busy days (a flipper who only said yes when free never backed out, because a busy date is busy in every trial) were thrown away and the arm rerun; 4 real and 9 fake runs of the 16-scenario first plan beyond s12 (coop) are left out (incomplete k).",
+ "modelTime": {
+  "realGlimmerSeconds": 8430,
+  "note": "summed time of the gateway calls to Glimmer, queueing included (the server is shared with the live site); two runs at a time"
+ },
+ "failureModes": {
+  "real": {
+   "runs": 32,
+   "backOuts": 3,
+   "backOutReplies": [
+    "Got it, I’ll note you can’t make Thursday 20:00 with Daniel at Midtown Community Gym. Want me to find another slot for you this week or message Daniel to resche",
+    "Got it, I’ve noted you can’t make Thu 2026-11-12 at 20:00 Singles Thursday 20:00 at Midtown Community Gym with Daniel.\n\nDo you want me to try to reschedule with",
+    "Got it, I’ve noted you can’t make Thursday 20:00 with Daniel at Midtown Community Gym.\n\nWant me to try to find another slot this week or reschedule that game wi"
+   ],
+   "backOutCancelled": 0,
+   "backOutPartnerFalseBooked": 3,
+   "backOutAskerToldNothing": 3,
+   "ghost": {
+    "questions": 5,
+    "silent": 3,
+    "late": 2,
+    "lateReplies": [
+     "confirm:no -> OK, you're out of it. I've let go of the time and told Fang's agent.",
+     "confirm:yes -> Booked: Singles Wednesday 20:00 at Riverside Sports Centre with Fang. It's in your calenda"
+    ],
+    "runsAskerWaiting": 3
+   },
+   "vague": {
+    "texts": 5,
+    "replies": [
+     "possibly, ask me again closer to the day -> Got it, I’ll check in closer to the day. Want me to line up a game for club night Wed at 19:00 at Riverside Sports Club?",
+     "maybe! will know later -> Got it, I’ll leave it open for now. Just let me know when you’re sure and I can line it up. Want me to check courts or your week in the mean",
+     "could be ok I guess? -> Got it. What are you thinking could be ok? I can line up a game, check your week, or look at courts if you want.",
+     "hmm maybe, depends on work -> Got it, work comes first. I can keep an eye on your usual times and line up a game when you’re free. Want me to try /game for you this week?",
+     "could be ok I guess? -> Happy to help — what are you thinking about? I can line up a game at your usual times, check your calendar, or look at your body log if you "
+    ],
+    "runsLeftWaiting": 2,
+    "runs": 5
+   },
+   "drifter": {
+    "questions": 12,
+    "onDroppedDay": 12
+   },
+   "budget": {
+    "gaveUp": 0,
+    "decisions": {
+     "within tolerance": 4
+    }
+   },
+   "loops": 4,
+   "capped": 0,
+   "reaskedAfterNo": 5,
+   "askedThenNotTold": 3
+  },
+  "fake": {
+   "runs": 160,
+   "backOuts": 12,
+   "backOutReplies": [
+    "Sounds good.",
+    "Sounds good.",
+    "Sounds good.",
+    "Sounds good.",
+    "Sounds good.",
+    "Sounds good."
+   ],
+   "backOutCancelled": 0,
+   "backOutPartnerFalseBooked": 12,
+   "backOutAskerToldNothing": 12,
+   "ghost": {
+    "questions": 41,
+    "silent": 21,
+    "late": 20,
+    "lateReplies": [
+     "confirm:yes -> That game isn't waiting for you any more.",
+     "confirm:yes -> That game isn't waiting for you any more.",
+     "confirm:yes -> Booked: Doubles Wednesday 20:00 at North District Gym with Tseng, Fang, Liao. It's in your",
+     "confirm:no -> OK, you're out of it. I've let go of the time and told Fang's agent.",
+     "confirm:yes -> Booked: Singles Wednesday 20:00 at Riverside Sports Centre with Fang. It's in your calenda",
+     "confirm:yes -> That game isn't waiting for you any more.",
+     "confirm:yes -> Booked: Doubles Wednesday 20:00 at North District Gym with Tseng, Fang, Liao. It's in your",
+     "confirm:yes -> That game isn't waiting for you any more.",
+     "confirm:yes -> That game isn't waiting for you any more.",
+     "confirm:yes -> Booked: Singles Wednesday 20:00 at Riverside Sports Centre with Fang. It's in your calenda",
+     "confirm:yes -> Booked: Doubles Wednesday 20:00 at North District Gym with Tseng, Fang, Liao. It's in your",
+     "confirm:yes -> Booked: Doubles Thursday 20:00 at Riverside Sports Centre with Arnav, Chiang, Daniel. It's",
+     "confirm:yes -> Booked: Singles Wednesday 20:00 at Riverside Sports Centre with Fang. It's in your calenda",
+     "confirm:no -> That game isn't waiting for you any more.",
+     "confirm:yes -> Booked: Singles Wednesday 20:00 at Riverside Sports Centre with Fang. It's in your calenda",
+     "confirm:no -> That game isn't waiting for you any more.",
+     "confirm:yes -> Booked: Doubles Thursday 20:00 at Riverside Sports Centre with Arnav, Chiang, Daniel. It's"
+    ],
+    "runsAskerWaiting": 8
+   },
+   "vague": {
+    "texts": 11,
+    "replies": [
+     "possibly, ask me again closer to the day -> Sounds good.",
+     "maybe! will know later -> Sounds good.",
+     "could be ok I guess? -> Sounds good.",
+     "hmm maybe, depends on work -> Sounds good.",
+     "could be ok I guess? -> Sounds good."
+    ],
+    "runsLeftWaiting": 4,
+    "runs": 11
+   },
+   "drifter": {
+    "questions": 47,
+    "onDroppedDay": 39
+   },
+   "budget": {
+    "gaveUp": 0,
+    "decisions": {
+     "within tolerance": 15
+    }
+   },
+   "loops": 16,
+   "capped": 0,
+   "reaskedAfterNo": 19,
+   "askedThenNotTold": 52
+  },
+  "definitions": {
+   "reaskedAfterNo": "runs where a partner who answered Cant make it was asked again about the same game",
+   "askedThenNotTold": "people asked Are you in? whose last message is still that question when no game stands",
+   "drifter": "questions put to the drifter, and how many were about the day they had told their agent they no longer play"
+  }
+ },
+ "runs": {
+  "real/coop": [
+   {
+    "scen": "s1",
+    "trial": 0,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 35.8
+   },
+   {
+    "scen": "s2",
+    "trial": 0,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 53.8
+   },
+   {
+    "scen": "s3",
+    "trial": 0,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 33.3
+   },
+   {
+    "scen": "s4",
+    "trial": 0,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 67
+   },
+   {
+    "scen": "s5",
+    "trial": 0,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 129.9
+   },
+   {
+    "scen": "s6",
+    "trial": 0,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 43.3
+   },
+   {
+    "scen": "s7",
+    "trial": 0,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 29.6
+   },
+   {
+    "scen": "s8",
+    "trial": 0,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 32.4
+   },
+   {
+    "scen": "s9",
+    "trial": 0,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 53.3
+   },
+   {
+    "scen": "s10",
+    "trial": 0,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 50
+   },
+   {
+    "scen": "s11",
+    "trial": 0,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 131.1
+   },
+   {
+    "scen": "s12",
+    "trial": 0,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 58.8
+   },
+   {
+    "scen": "s1",
+    "trial": 1,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 55.1
+   },
+   {
+    "scen": "s2",
+    "trial": 1,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 114.2
+   },
+   {
+    "scen": "s3",
+    "trial": 1,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 39.1
+   },
+   {
+    "scen": "s4",
+    "trial": 1,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 111.6
+   },
+   {
+    "scen": "s5",
+    "trial": 1,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 217.7
+   },
+   {
+    "scen": "s6",
+    "trial": 1,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 50.9
+   },
+   {
+    "scen": "s7",
+    "trial": 1,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 43.2
+   },
+   {
+    "scen": "s8",
+    "trial": 1,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 81.8
+   },
+   {
+    "scen": "s9",
+    "trial": 1,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 87.2
+   },
+   {
+    "scen": "s10",
+    "trial": 1,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 71.1
+   },
+   {
+    "scen": "s11",
+    "trial": 1,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 71.9
+   },
+   {
+    "scen": "s12",
+    "trial": 1,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 81.3
+   },
+   {
+    "scen": "s1",
+    "trial": 2,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 52.2
+   },
+   {
+    "scen": "s2",
+    "trial": 2,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 155.6
+   },
+   {
+    "scen": "s3",
+    "trial": 2,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 49
+   },
+   {
+    "scen": "s4",
+    "trial": 2,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 81.6
+   },
+   {
+    "scen": "s5",
+    "trial": 2,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 210
+   },
+   {
+    "scen": "s6",
+    "trial": 2,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 49.3
+   },
+   {
+    "scen": "s7",
+    "trial": 2,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 38.7
+   },
+   {
+    "scen": "s8",
+    "trial": 2,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 47.8
+   },
+   {
+    "scen": "s9",
+    "trial": 2,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 107.9
+   },
+   {
+    "scen": "s10",
+    "trial": 2,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 88.7
+   },
+   {
+    "scen": "s11",
+    "trial": 2,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 121.6
+   },
+   {
+    "scen": "s12",
+    "trial": 2,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 77.5
+   },
+   {
+    "scen": "s1",
+    "trial": 3,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 58.4
+   },
+   {
+    "scen": "s2",
+    "trial": 3,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 121.2
+   },
+   {
+    "scen": "s3",
+    "trial": 3,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 74.3
+   },
+   {
+    "scen": "s4",
+    "trial": 3,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 82.3
+   },
+   {
+    "scen": "s5",
+    "trial": 3,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 202.7
+   },
+   {
+    "scen": "s6",
+    "trial": 3,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 50.6
+   },
+   {
+    "scen": "s7",
+    "trial": 3,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 46.5
+   },
+   {
+    "scen": "s8",
+    "trial": 3,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 42.5
+   },
+   {
+    "scen": "s9",
+    "trial": 3,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 45.9
+   },
+   {
+    "scen": "s10",
+    "trial": 3,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 38.8
+   },
+   {
+    "scen": "s11",
+    "trial": 3,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 80.3
+   },
+   {
+    "scen": "s12",
+    "trial": 3,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 22.4
+   }
+  ],
+  "real8/hard": [
+   {
+    "scen": "s1",
+    "trial": 0,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 148
+   },
+   {
+    "scen": "s2",
+    "trial": 0,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 187.4
+   },
+   {
+    "scen": "s3",
+    "trial": 0,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 159.6
+   },
+   {
+    "scen": "s4",
+    "trial": 0,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u09"
+    ],
+    "loop": false,
+    "modelSeconds": 356.1
+   },
+   {
+    "scen": "s5",
+    "trial": 0,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 370.5
+   },
+   {
+    "scen": "s6",
+    "trial": 0,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 176.9
+   },
+   {
+    "scen": "s7",
+    "trial": 0,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 176.6
+   },
+   {
+    "scen": "s8",
+    "trial": 0,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 129.3
+   },
+   {
+    "scen": "s1",
+    "trial": 1,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 92.6
+   },
+   {
+    "scen": "s3",
+    "trial": 1,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 80.5
+   },
+   {
+    "scen": "s2",
+    "trial": 1,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 93.6
+   },
+   {
+    "scen": "s4",
+    "trial": 1,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 90.8
+   },
+   {
+    "scen": "s5",
+    "trial": 1,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 180.5
+   },
+   {
+    "scen": "s6",
+    "trial": 1,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 80.3
+   },
+   {
+    "scen": "s8",
+    "trial": 1,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague",
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 85.5
+   },
+   {
+    "scen": "s7",
+    "trial": 1,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget",
+     "flipper"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 107.3
+   },
+   {
+    "scen": "s1",
+    "trial": 2,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 71.2
+   },
+   {
+    "scen": "s3",
+    "trial": 2,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "vague"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 67.1
+   },
+   {
+    "scen": "s2",
+    "trial": 2,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 125
+   },
+   {
+    "scen": "s4",
+    "trial": 2,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u09"
+    ],
+    "loop": false,
+    "modelSeconds": 149.8
+   },
+   {
+    "scen": "s6",
+    "trial": 2,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 80.1
+   },
+   {
+    "scen": "s5",
+    "trial": 2,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 195
+   },
+   {
+    "scen": "s7",
+    "trial": 2,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 102.3
+   },
+   {
+    "scen": "s1",
+    "trial": 3,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 100.1
+   },
+   {
+    "scen": "s8",
+    "trial": 2,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 153.3
+   },
+   {
+    "scen": "s2",
+    "trial": 3,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 103.2
+   },
+   {
+    "scen": "s3",
+    "trial": 3,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "vague"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 149.9
+   },
+   {
+    "scen": "s4",
+    "trial": 3,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u09"
+    ],
+    "loop": false,
+    "modelSeconds": 194
+   },
+   {
+    "scen": "s5",
+    "trial": 3,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 269.8
+   },
+   {
+    "scen": "s6",
+    "trial": 3,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 127
+   },
+   {
+    "scen": "s7",
+    "trial": 3,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 166
+   },
+   {
+    "scen": "s8",
+    "trial": 3,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 171.7
+   }
+  ],
+  "fake/coop": [
+   {
+    "scen": "s1",
+    "trial": 0,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 0,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 0,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 0,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 0,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 0,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 0,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 0,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 0,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 0,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 0,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 0,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 0,
+    "asker": "u18",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 0,
+    "asker": "u13",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 0,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 0,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 0,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 0,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 0,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 0,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 1,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 1,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 1,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 1,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 1,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 1,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 1,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 1,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 1,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 1,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 1,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 1,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 1,
+    "asker": "u18",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 1,
+    "asker": "u13",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 1,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 1,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 1,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 1,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 1,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 1,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 2,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 2,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 2,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 2,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 2,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 2,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 2,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 2,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 2,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 2,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 2,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 2,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 2,
+    "asker": "u18",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 2,
+    "asker": "u13",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 2,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 2,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 2,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 2,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 2,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 2,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 3,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 3,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 3,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 3,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 3,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 3,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 3,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 3,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 3,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 3,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 3,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 3,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 3,
+    "asker": "u18",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 3,
+    "asker": "u13",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 3,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 3,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 3,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 3,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 3,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 3,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 4,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 4,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 4,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 4,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 4,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 4,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 4,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 4,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 4,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 4,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 4,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 4,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 4,
+    "asker": "u18",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 4,
+    "asker": "u13",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 4,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 4,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 4,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 4,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 4,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 4,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 5,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 5,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 5,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 5,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 5,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 5,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 5,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 5,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 5,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 5,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 5,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 5,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 5,
+    "asker": "u18",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 5,
+    "asker": "u13",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 5,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 5,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 5,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 5,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 5,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 5,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 6,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 6,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 6,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 6,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 6,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 6,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 6,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 6,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 6,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 6,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 6,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 6,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 6,
+    "asker": "u18",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 6,
+    "asker": "u13",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 6,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 6,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 6,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 6,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 6,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 6,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 7,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 7,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 7,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 7,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 7,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 7,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 7,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 7,
+    "asker": "u05",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 7,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 7,
+    "asker": "u04",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 7,
+    "asker": "u08",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 7,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 7,
+    "asker": "u18",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 7,
+    "asker": "u13",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 7,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 7,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 7,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 7,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 7,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 7,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   }
+  ],
+  "fake/hard": [
+   {
+    "scen": "s1",
+    "trial": 0,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0.1
+   },
+   {
+    "scen": "s2",
+    "trial": 0,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0.1
+   },
+   {
+    "scen": "s3",
+    "trial": 0,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 0,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0.1
+   },
+   {
+    "scen": "s4",
+    "trial": 0,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u09"
+    ],
+    "loop": false,
+    "modelSeconds": 0.1
+   },
+   {
+    "scen": "s6",
+    "trial": 0,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 0,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 0,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 0,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 0,
+    "asker": "u08",
+    "askerKind": "flipper",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "flipper",
+     null,
+     null,
+     "drifter",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0.1
+   },
+   {
+    "scen": "s12",
+    "trial": 0,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 0,
+    "asker": "u18",
+    "askerKind": "drifter",
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "drifter",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 0,
+    "asker": "u13",
+    "askerKind": "budget",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "budget",
+     "flipper"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 0,
+    "asker": "u04",
+    "askerKind": "ghost",
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "ghost",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 0,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     "flipper",
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 0,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 0,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 0,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 0,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 0,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 1,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 1,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 1,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 1,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 1,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 1,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 1,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget",
+     "flipper"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 1,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague",
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 1,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 1,
+    "asker": "u08",
+    "askerKind": "flipper",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "flipper",
+     null,
+     null,
+     "drifter",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 1,
+    "asker": "u04",
+    "askerKind": "ghost",
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "ghost",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 1,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 1,
+    "asker": "u18",
+    "askerKind": "drifter",
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "drifter",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 1,
+    "asker": "u13",
+    "askerKind": "budget",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "budget",
+     "flipper"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 1,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     "flipper",
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 1,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 1,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 1,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 1,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 1,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost",
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 2,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 2,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "vague"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 2,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u09"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 2,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 2,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 2,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 2,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 2,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 2,
+    "asker": "u04",
+    "askerKind": "ghost",
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 2,
+    "asker": "u08",
+    "askerKind": "flipper",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "flipper",
+     null,
+     null,
+     "drifter",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 2,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 2,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 2,
+    "asker": "u18",
+    "askerKind": "drifter",
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "drifter",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 2,
+    "asker": "u13",
+    "askerKind": "budget",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "budget",
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u13"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 2,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     "flipper",
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 2,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 2,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 2,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 2,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost",
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 2,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 3,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 3,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 3,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "vague"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 3,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 3,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u09"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 3,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 3,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 3,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 3,
+    "asker": "u04",
+    "askerKind": "ghost",
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 3,
+    "asker": "u08",
+    "askerKind": "flipper",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "flipper",
+     null,
+     null,
+     "drifter",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 3,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 3,
+    "asker": "u18",
+    "askerKind": "drifter",
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "drifter",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 3,
+    "asker": "u13",
+    "askerKind": "budget",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "budget",
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u13"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 3,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 3,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 3,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 3,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 3,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 3,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 4,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 3,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     "flipper",
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 4,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "vague"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 4,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u09"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 4,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 4,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 4,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 4,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 4,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 4,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 4,
+    "asker": "u08",
+    "askerKind": "flipper",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "flipper",
+     null,
+     null,
+     "drifter",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 4,
+    "asker": "u04",
+    "askerKind": "ghost",
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 4,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 4,
+    "asker": "u18",
+    "askerKind": "drifter",
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "drifter",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 4,
+    "asker": "u13",
+    "askerKind": "budget",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "budget",
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u13"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 4,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost",
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 4,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 4,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     "flipper",
+     "ghost",
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 4,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 4,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 4,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 5,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 5,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "vague"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 5,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u09"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 5,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 5,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 5,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 5,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 5,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 5,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 5,
+    "asker": "u04",
+    "askerKind": "ghost",
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 5,
+    "asker": "u08",
+    "askerKind": "flipper",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "flipper",
+     null,
+     null,
+     "drifter",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 5,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 5,
+    "asker": "u18",
+    "askerKind": "drifter",
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "drifter",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 5,
+    "asker": "u13",
+    "askerKind": "budget",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "budget",
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u13"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 5,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     "flipper",
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 5,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 5,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 5,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 5,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 5,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 6,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 6,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "vague"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 6,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u09"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 6,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 6,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 6,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 6,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 6,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 6,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 6,
+    "asker": "u08",
+    "askerKind": "flipper",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "flipper",
+     null,
+     null,
+     "drifter",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 6,
+    "asker": "u04",
+    "askerKind": "ghost",
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 6,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 6,
+    "asker": "u18",
+    "askerKind": "drifter",
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "drifter",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 6,
+    "asker": "u13",
+    "askerKind": "budget",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "budget",
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u13"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 6,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 6,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 6,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     "flipper",
+     "ghost",
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 6,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 6,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 6,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s1",
+    "trial": 7,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "08:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s2",
+    "trial": 7,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s3",
+    "trial": 7,
+    "asker": "u12",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s5",
+    "trial": 7,
+    "asker": "u06",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "flipper",
+     null,
+     "drifter"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s4",
+    "trial": 7,
+    "asker": "u09",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "flipper"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s6",
+    "trial": 7,
+    "asker": "u02",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "10:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s7",
+    "trial": 7,
+    "asker": "u17",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "13:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     "drifter",
+     "budget"
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s8",
+    "trial": 7,
+    "asker": "u05",
+    "askerKind": "vague",
+    "slot": {
+     "date": "2026-11-15",
+     "day": "Sun",
+     "start": "16:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "vague"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s9",
+    "trial": 7,
+    "asker": "u15",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     "ghost"
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s11",
+    "trial": 7,
+    "asker": "u08",
+    "askerKind": "flipper",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "flipper",
+     null,
+     null,
+     "drifter",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": true,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s12",
+    "trial": 7,
+    "asker": "u20",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s13",
+    "trial": 7,
+    "asker": "u18",
+    "askerKind": "drifter",
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "19:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "drifter",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s14",
+    "trial": 7,
+    "asker": "u13",
+    "askerKind": "budget",
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "14:00",
+     "format": "singles"
+    },
+    "kinds": [
+     "budget",
+     "flipper"
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "booked",
+    "falseBooked": [
+     "u13"
+    ],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s15",
+    "trial": 7,
+    "asker": "u10",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     null,
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s16",
+    "trial": 7,
+    "asker": "u14",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-12",
+     "day": "Thu",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     null,
+     "flipper",
+     "ghost",
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s10",
+    "trial": 7,
+    "asker": "u04",
+    "askerKind": "ghost",
+    "slot": {
+     "date": "2026-11-11",
+     "day": "Wed",
+     "start": "20:00",
+     "format": "doubles"
+    },
+    "kinds": [
+     "ghost",
+     null,
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s17",
+    "trial": 7,
+    "asker": "u07",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s18",
+    "trial": 7,
+    "asker": "u11",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-10",
+     "day": "Tue",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null
+    ],
+    "pass": false,
+    "honest": true,
+    "askerBelief": "none",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s19",
+    "trial": 7,
+    "asker": "u01",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": false,
+    "honest": false,
+    "askerBelief": "waiting",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   },
+   {
+    "scen": "s20",
+    "trial": 7,
+    "asker": "u19",
+    "askerKind": null,
+    "slot": {
+     "date": "2026-11-14",
+     "day": "Sat",
+     "start": "09:00",
+     "format": "singles"
+    },
+    "kinds": [
+     null,
+     null
+    ],
+    "pass": true,
+    "honest": true,
+    "askerBelief": "booked",
+    "falseBooked": [],
+    "loop": false,
+    "modelSeconds": 0
+   }
+  ]
+ }
+}

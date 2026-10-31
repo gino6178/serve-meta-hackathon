@@ -245,8 +245,8 @@ function report(files = null) {
   for (const r of ok) (groups[r.file] ||= []).push(r);
   const arms = Object.fromEntries(Object.entries(groups).map(([k, rs]) => [k, { arm: rs[0].arm, ...summarize(rs, { kMax: 8, seed: SEED }),
     model: { calls: rs.reduce((a, r) => a + r.model.calls, 0), seconds: Math.round(rs.reduce((a, r) => a + r.model.seconds, 0)), studentCalls: rs.reduce((a, r) => a + r.model.studentCalls, 0),
-      // (only a run on the real model asks the student; the fake model's arm never does)
-      llm: rs.some((r) => r.model.studentCalls > 0) ? "muse-glimmer (Ollama) and the 1B student worker" : "fake model (code only)", wallMinutes: Math.round(rs.reduce((a, r) => a + r.wallSec, 0) / 60) } }]));
+      // (only the real model takes measurable time; the fake answers at once)
+      llm: rs.some((r) => r.model.seconds > 1) ? "muse-glimmer (Ollama :11435), student worker :11447 wired in" : "fake model (code only)", wallMinutes: Math.round(rs.reduce((a, r) => a + r.wallSec, 0) / 60) } }]));
   const res = { simulated: true, note: "Simulated people only (agent/test/sim_users/personas.json); the gateway, its agents and the model are real. pass^k after tau-bench (arXiv 2406.12045); difficult people after Sim2Real (arXiv 2603.11245).",
     at: new Date().toISOString(), seeds: { scenarios: SEED, club: CLUB_SEED, persona: JSON.parse(fs.readFileSync(path.join(HERE, "personas.json"), "utf8")).seed }, difficult: HARD, kinds: H.KINDS, share: H.SHARE,
     setup: { start: START, leaseMs: LEASE, lateMs: LATE, bailMs: BAIL, quietMs: QUIET },
