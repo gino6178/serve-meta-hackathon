@@ -19,7 +19,9 @@ import { job, totals, current, calls as ledgerCalls } from "../core/ledger.js";
 import { span, traceId } from "../core/trace.js";
 import { readClub } from "../club/club.js";
 import { helpers } from "../club/play.js";
-import { negotiate, negotiation, resumeNegotiation, first, court, learned, okNums, allowedIn, PRONOUN, releaseHolds } from "../a2a/talk.js";
+import { negotiate, negotiation, resumeNegotiation, first, court, learned, okNums, allowedIn, PRONOUN, releaseHolds, holdsHere } from "../a2a/talk.js";
+import { held, leasesOn, release as dropHold } from "../club/play.js";
+import * as tc from "../core/toolcheck.js";
 import * as journal from "./autopilot_journal.js";
 import { crashPoint } from "../core/crash.js";
 import { agentAttrs, toolAttrs, errorType } from "../core/trace.js";
@@ -109,6 +111,9 @@ const TOOLS = [
 // Durable (AUTOPILOT_DURABLE, on; =0 for the run that is simply run again, to compare): every step goes in the run's
 // journal (autopilot_journal.js) before the run goes on, and resumeRuns() finishes a run a restart cut off.
 const durable = () => process.env.AUTOPILOT_DURABLE !== "0";
+// each tool's parameter names: the only field names a typed error may carry back to the model
+const PARAMS = Object.fromEntries(TOOLS.map((t) => [t.function.name, Object.keys(t.function.parameters.properties || {})]));
+export const faults = { silent: null, injected: 0 };
 const newId = () => `ap-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 export const run = (args = {}, { resume = null } = {}) => {
   const id = resume?.id || newId();
@@ -349,7 +354,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
   };
   const label = {
     get_week: () => "Checked your week", check_limits: () => "Checked your scheduling limits", recall: (a) => `Recalled what you said${a.question ? `: ${String(a.question).slice(0, 60)}` : ""}`, find_places: (a) => `Looked for public courts ${a.day} ${a.start}`, find_partners: (a) => `Looked for ${a.format} partners ${a.day} ${a.start}`,
-    negotiate: (a) => `Negotiated with ${(a.members || []).map((x) => first(club.members.find((m) => m.id === x)?.name || x)).join(", ")}'s agent${(a.members || []).length > 1 ? "s" : ""}`,
+    negotiate: (a) => `Negotiated with ${[].concat(a.members || []).map((x) => first(club.members.find((m) => m.id === x)?.name || x)).join(", ")}'s agent${[].concat(a.members || []).length > 1 ? "s" : ""}`,
     request_approval: () => "Asked you to approve", nudge: () => "Sent you a nudge", finish: () => "Finished",
   };
   const detailOf = (name, res) => res.error ? `refused: ${res.error}` : name === "get_week" ? `${res.stillNeeded} game${res.stillNeeded === 1 ? "" : "s"} still needed; usual times ${res.habitualTimes.filter((h) => !h.alreadyTaken).map((h) => `${h.day} ${h.start} (${h.played})`).join(", ") || "none open"}`
@@ -374,6 +379,57 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
   // tool calls in the order the run makes them: the same order when it is run again, given the same turns and results
   let seq = 0, talkId = null, replayed = 0;
   const DESC = Object.fromEntries(TOOLS.map((t) => [t.function.name, t.function.description]));
+  // the checks after the schema (core/toolcheck.js; TOOL_CHECKS=off for the loop as it was): a model's call whose
+  // values fit but are wrong is refused with typed errors and may be repaired twice; an action that changes state is
+  // read back after it runs
+  const T = tc.tally(), checking = tc.checksOn(), memberIds = new Set(club.members.map((m) => m.id));
+  const semantic = (name, a = {}) => {
+    const out = [], F = PARAMS[name] || [], e = (k, f) => out.push(tc.typed(k, f, F));
+    if (["find_partners", "negotiate", "find_places"].includes(name)) {
+      const d = days.find((x) => x.day === a.day);
+      if (!d) e("date_out_of_range", "day");
+      else if (offDays.has(a.day)) e("breaks_limit", "day");
+      if (!tc.realTime(a.start)) e("schema_violation", "start");
+      else if (d && name !== "find_places" && !freeAt(me.free, a.day, toMin(a.start), minutes)) e("time_out_of_range", "start");
+    }
+    if (name === "find_partners" && (Array.isArray(a.leaveOut) ? a.leaveOut : []).some((x) => !memberIds.has(x))) e("unknown_id", "leaveOut");
+    if (name === "negotiate") {
+      const ms = Array.isArray(a.members) ? a.members : [];
+      if (ms.some((x) => !memberIds.has(x))) e("unknown_id", "members");
+      else if (ms.length !== (a.format === "doubles" ? 3 : 1) || new Set(ms).size !== ms.length) e("count_out_of_range", "members");
+      else if (ms.some((x) => leftOut.has(x))) e("breaks_limit", "members");
+      if (a.place && !found[a.place]) e("unknown_id", "place");
+    }
+    return out;
+  };
+  // postconditions: the state read back after an action that reported success. A game agreed must be the talk's own
+  // record, at the same time, with every partner whose hold is kept here holding it; an approval or a nudge must be in
+  // the file on disk. (null: it took effect; else what did not)
+  const disk = () => readJSON(FILE, { pending: {} }).pending || {};
+  const POST = {
+    negotiate(res) {
+      if (!res.agreed) return null;
+      const o = agreed.at(-1), rec = o?.talk ? negotiation(o.talk)?.result?.agreed : o;
+      if (!o || !rec || rec.date !== o.date || rec.start !== o.start) return "talk";
+      if (leasesOn() && o.hold && !o.venue?.public) for (const p of o.partners || []) { const m = club.members.find((x) => x.id === p.id) || p; if (holdsHere(m) && !held(p.id).some((l) => l.ref === o.hold && l.date === o.date)) return "holds"; }
+      return null;
+    },
+    request_approval(res) { const p = disk()[id]; return (res.sent || res.draft) && !(p && p.status === (res.draft ? "draft" : "pending") && p.options?.length === agreed.length) ? "approval" : null; },
+    nudge(res) { return res.sent && !disk()[`${id}-nudge`] ? "nudge" : null; },
+  };
+  // a failed postcondition undoes what the run thought it had, and is reported as the failure it is
+  const UNDO = {
+    negotiate() { const o = agreed.pop(); if (o) releaseHolds(o); return "the talk reported a deal, but the members' holds or the talk's record are missing: the game is not agreed. Try the next candidate or time."; },
+    request_approval() { approval = null; delete db.pending[id]; save(); return "the approval request was not saved, so the player was not asked. Call request_approval again."; },
+    nudge() { delete db.pending[`${id}-nudge`]; save(); return "the nudge was not saved, so the player was not told."; },
+  };
+  // (the fault harness, test/tool_faults.mjs: faults.silent(name) true makes an action report success without its
+  // effect, as a tool that fails silently)
+  const SILENT = {
+    negotiate: (res) => !!(res.agreed && agreed.at(-1)?.hold && !agreed.at(-1).venue?.public && (dropHold(agreed.at(-1).hold), true)),
+    request_approval: (res) => !!((res.sent || res.draft) && (delete db.pending[id], save(), true)),
+    nudge: (res) => !!(res.sent && (delete db.pending[`${id}-nudge`], save(), true)),
+  };
   const call = (name, args, by, errors = null, callId = null) => span(`execute_tool ${name}`, { ...toolAttrs(name, DESC[name], id, callId), "serve.decided_by": by }, async (s) => {
     const res = await callTool(name, args, by, errors);
     // a tool call that did not do what was asked is an error of the operation (error.type), with its refusal
@@ -404,14 +460,21 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
   }
   async function runTool(k, name, args, by, errors) {
     const f = tools[name];
-    if (!f) return { error: `no tool called ${name}` };
-    // arguments that do not fit the tool's schema: the tool does not run, and the model is told what to fix
-    if (errors?.length) {
-      const res = { error: `the arguments do not fit ${name}: ${errors.slice(0, 3).join("; ")}. Call ${name} again with arguments that fit its parameters.` };
+    if (!f) {
+      if (!checking) return { error: `no tool called ${name}` };
+      const errs = [tc.typed("unknown_tool")];
+      return tc.refusal("that tool", errs, by === "model" ? tc.count(T, "?", errs) : 0);
+    }
+    // arguments that do not fit the tool's schema, or values that fit but are wrong (semantic): the tool does not run,
+    // and the model is told what to fix, typed
+    const errs = errors?.length ? (checking ? tc.fromSchema(errors, { properties: Object.fromEntries((PARAMS[name] || []).map((x) => [x, 1])) }) : []) : checking && by === "model" ? semantic(name, args || {}) : [];
+    if (errors?.length || errs.length) {
+      const res = checking ? tc.refusal(name, errs, by === "model" ? tc.count(T, name, errs) : 0) : { error: `the arguments do not fit ${name}: ${errors.slice(0, 3).join("; ")}. Call ${name} again with arguments that fit its parameters.` };
       calls++; trail.push({ name, args, res, by });
       tell({ step: label[name](args || {}), tool: name, detail: `refused: ${res.error}`, reason: args?.reason, by, error: true });
       return res;
     }
+    if (checking && by === "model") tc.count(T, name, null);
     if (["request_approval", "finish", "nudge"].includes(name) && agreed.length && staleTime(args?.reason)) args = { ...args, reason: undefined };
     // a stop the model takes while a game is still within reach is refused (notYet), and the model goes on
     const early = by === "model" && ["request_approval", "nudge", "finish"].includes(name) ? notYet() : null;
@@ -423,6 +486,12 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
     if (early) res = early;
     else try { res = await f(args || {}); } catch (e) { res = { error: String(e.message || e), threw: true }; }
     talkId = null;
+    if (!early && !res.error && faults.silent?.(name) && SILENT[name]?.(res)) faults.injected++;
+    if (checking && !early && !res.error && POST[name]) {
+      T.post.checked++;
+      const what = POST[name](res);
+      if (what) { T.post.failed++; res = { error: `postcondition failed: ${UNDO[name]()}`, kind: "postcondition_failed", failed: what, ...(name === "negotiate" ? { agreed: false } : {}) }; }
+    }
     calls++;
     trail.push({ name, args, res, by });
     if (name !== "finish") tell({ step: label[name](args || {}), tool: name, detail: detailOf(name, res), reason: args?.reason, by, error: !!res.error });
@@ -511,7 +580,7 @@ Use only member ids and times that tools returned. Give a one-sentence "reason" 
   if (!J?.once.summary && approval?.draft) finished = `I lined up ${agreed.length} game${agreed.length > 1 ? "s" : ""}, but ${aligned?.checked ? "the plan doesn't quite match what you asked for" : "I couldn't check the plan against what you asked for"}, so I haven't asked you to book ${agreed.length > 1 ? "them" : "it"}. It's a draft: please look it over first.`;
   if (J && !J.once.summary) J.rec("summary", { text: finished, replaced: summaryReplaced });
   const s1 = stats, secs = +((Date.now() - t0) / 1000).toFixed(1), needed = Math.max(0, perWeek - booked.length);
-  const report = { id, seconds: secs, toolCalls: calls, modelCalls: s1.calls - s0.calls, modelSeconds: +(s1.seconds - s0.seconds).toFixed(1), parallelPeak: s1.peak, rules: ruleTook,
+  const report = { ...(checking ? { checks: tc.summary(T) } : {}), id, seconds: secs, toolCalls: calls, modelCalls: s1.calls - s0.calls, modelSeconds: +(s1.seconds - s0.seconds).toFixed(1), parallelPeak: s1.peak, rules: ruleTook,
     replans: trail.filter((t) => t.name === "negotiate" && !t.res.agreed).length + trail.filter((t) => t.res?.error).length, refused: trail.filter((t) => t.res?.error).length, stopsRefused: pushedBack,
     needed, stoppedBy: stoppedBy || "finish", stepsLeft: Math.max(0, stepBudget - i), summaryReplaced, align: aligned && !aligned.off ? { aligned: aligned.aligned, checked: aligned.checked, seconds: aligned.seconds } : null, ...(J?.resumed ? { resumed: { turnsFromJournal: turnsReplayed, toolCallsFromJournal: replayed } } : {}) };
   db.runs = [{ id, at: t0, goal: g, agreed: agreed.map((o) => o.id), summary: finished, messenger, report }, ...db.runs.filter((x) => x.id !== id)].slice(0, 50); save();
