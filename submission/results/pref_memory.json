@@ -1,0 +1,214 @@
+{
+  "simulated": true,
+  "what": "a player's preference changes mid-stream: A no more Friday evenings (week 4), B singles to doubles (week 6), C Friday evenings fine again (week 12); the agent's weekly decisions at each habitual time, before (ask.js as it ran: habit only) and after (memory/prefs.js records settled by code, newest wins)",
+  "players": 400,
+  "weeks": 20,
+  "selfArrange": 0.3,
+  "seed": 7,
+  "model": "none (code extraction, prefs.extract)",
+  "decisions": {
+    "A": "each week 4-11: whether the agent asked for Friday 19:00 (following = not asking)",
+    "B": "each game asked for from week 6: its format (following = doubles)",
+    "C": "each week 12-19: whether the agent asked for Friday 19:00 (following = asking)"
+  },
+  "extractionNote": "phrasings by the same author as the extractor; one rule (a bare 'now' read as yes) was changed after the first run, when it turned 2 of 12 A phrasings into the opposite record",
+  "extraction": {
+    "A": {
+      "phrasings": 12,
+      "found": 10,
+      "withWrongRecord": 0,
+      "missed": [
+        "Friday evening is family time now.",
+        "Got a class on Friday evenings from now on."
+      ],
+      "wrong": []
+    },
+    "B": {
+      "phrasings": 10,
+      "found": 7,
+      "withWrongRecord": 0,
+      "missed": [
+        "Let's do doubles going forward.",
+        "Singles is too much for me now, doubles please.",
+        "Put me in doubles games."
+      ],
+      "wrong": []
+    },
+    "C": {
+      "phrasings": 10,
+      "found": 10,
+      "withWrongRecord": 0,
+      "missed": [],
+      "wrong": []
+    }
+  },
+  "runs": [
+    {
+      "say": 1,
+      "before": {
+        "A": {
+          "lagMean": 7.61,
+          "lagMedian": 8,
+          "neverFollowed": 282,
+          "staleDecisions": 3045,
+          "decisions": 3200,
+          "staleShare": 0.952
+        },
+        "B": {
+          "lagMean": 31.34,
+          "lagMedian": 32,
+          "neverFollowed": 378,
+          "staleDecisions": 12594,
+          "decisions": 12680,
+          "staleShare": 0.993
+        },
+        "C": {
+          "lagMean": 5.2,
+          "lagMedian": 8,
+          "neverFollowed": 260,
+          "staleDecisions": 2980,
+          "decisions": 3200,
+          "staleShare": 0.931
+        }
+      },
+      "after": {
+        "A": {
+          "lagMean": 1.38,
+          "lagMedian": 0,
+          "neverFollowed": 36,
+          "staleDecisions": 550,
+          "decisions": 3200,
+          "staleShare": 0.172
+        },
+        "B": {
+          "lagMean": 8.43,
+          "lagMedian": 0,
+          "neverFollowed": 98,
+          "staleDecisions": 3422,
+          "decisions": 14519,
+          "staleShare": 0.236
+        },
+        "C": {
+          "lagMean": 0,
+          "lagMedian": 0,
+          "neverFollowed": 0,
+          "staleDecisions": 0,
+          "decisions": 3200,
+          "staleShare": 0
+        }
+      }
+    },
+    {
+      "say": 0.5,
+      "before": {
+        "A": {
+          "lagMean": 7.55,
+          "lagMedian": 8,
+          "neverFollowed": 265,
+          "staleDecisions": 3021,
+          "decisions": 3200,
+          "staleShare": 0.944
+        },
+        "B": {
+          "lagMean": 31.22,
+          "lagMedian": 32,
+          "neverFollowed": 386,
+          "staleDecisions": 12590,
+          "decisions": 12641,
+          "staleShare": 0.996
+        },
+        "C": {
+          "lagMean": 5.16,
+          "lagMedian": 8,
+          "neverFollowed": 258,
+          "staleDecisions": 3001,
+          "decisions": 3200,
+          "staleShare": 0.938
+        }
+      },
+      "after": {
+        "A": {
+          "lagMean": 4.67,
+          "lagMedian": 7,
+          "neverFollowed": 140,
+          "staleDecisions": 1867,
+          "decisions": 3200,
+          "staleShare": 0.583
+        },
+        "B": {
+          "lagMean": 21.15,
+          "lagMedian": 28,
+          "neverFollowed": 255,
+          "staleDecisions": 8569,
+          "decisions": 13505,
+          "staleShare": 0.635
+        },
+        "C": {
+          "lagMean": 3.52,
+          "lagMedian": 0,
+          "neverFollowed": 176,
+          "staleDecisions": 1629,
+          "decisions": 3200,
+          "staleShare": 0.509
+        }
+      }
+    },
+    {
+      "say": 0,
+      "before": {
+        "A": {
+          "lagMean": 7.58,
+          "lagMedian": 8,
+          "neverFollowed": 264,
+          "staleDecisions": 3032,
+          "decisions": 3200,
+          "staleShare": 0.948
+        },
+        "B": {
+          "lagMean": 31.11,
+          "lagMedian": 32,
+          "neverFollowed": 389,
+          "staleDecisions": 12566,
+          "decisions": 12625,
+          "staleShare": 0.995
+        },
+        "C": {
+          "lagMean": 5.3,
+          "lagMedian": 8,
+          "neverFollowed": 265,
+          "staleDecisions": 2983,
+          "decisions": 3200,
+          "staleShare": 0.932
+        }
+      },
+      "after": {
+        "A": {
+          "lagMean": 7.58,
+          "lagMedian": 8,
+          "neverFollowed": 264,
+          "staleDecisions": 3032,
+          "decisions": 3200,
+          "staleShare": 0.948
+        },
+        "B": {
+          "lagMean": 31.11,
+          "lagMedian": 32,
+          "neverFollowed": 389,
+          "staleDecisions": 12566,
+          "decisions": 12625,
+          "staleShare": 0.995
+        },
+        "C": {
+          "lagMean": 5.3,
+          "lagMedian": 8,
+          "neverFollowed": 265,
+          "staleDecisions": 2983,
+          "decisions": 3200,
+          "staleShare": 0.932
+        }
+      }
+    }
+  ],
+  "resolveMsFor400Records": 0.404,
+  "seconds": 10.9
+}
