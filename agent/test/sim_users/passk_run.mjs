@@ -27,12 +27,12 @@ const { load: loadPersonas, asMember } = await import("./personas.mjs");
 const I = await import("./inertia.mjs");
 const H = await import("./hard.mjs");
 const { u, stream, shuffle } = await import("./rng.mjs");
-const { outcome, summarize, beliefOf } = await import("./passk.mjs");
+const { outcome, summarize, beliefOf, compare } = await import("./passk.mjs");
 
 const HERE = path.dirname(fileURLToPath(import.meta.url)), AGENT = path.resolve(HERE, "../..");
 const arg = (k, d = null) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1] : d; };
 const SEED = +arg("seed", 11), CLUB_SEED = +arg("club-seed", 5), ARM = arg("arm", "coop"), NSCEN = +arg("scenarios", 24), K = +arg("k", 4), PAR = +arg("par", 2);
-const LEASE = +arg("lease-ms", 60000), LATE = Math.round(LEASE * 1.5), BAIL = +arg("bail-ms", 15000), QUIET = +arg("quiet-ms", 15000), CAP = +arg("cap-ms", 12 * 60000);
+const LEASE = +arg("lease-ms", 60000), LATE = Math.round(LEASE * 1.5), BAIL = +arg("bail-ms", 15000), QUIET = +arg("quiet-ms", 15000), CAP = +arg("cap-ms", 12 * 60000), LOOP_MAX = +arg("loop-max", 5);
 const START = arg("start", "2026-11-09T09:00:00"), OUT = arg("out", `data/passk_${ARM}_s${SEED}.json`), ONLY = arg("only"), KEEP = process.argv.includes("--keep");
 const LLM_TARGET = (process.env.LLM_TARGET || "").replace(/\/+$/, ""), STUDENT_TARGET = (process.env.STUDENT_TARGET || "").replace(/\/+$/, "");
 if (/:(8790)\b/.test(LLM_TARGET)) throw new Error("never the live gateway");
@@ -134,6 +134,9 @@ async function runOne(sc, trial, model) {
     return null;
   };
   const flipped = new Set();
+  // a search that goes round and round (the asker asked to Book the same game again and again): the run stops after
+  // LOOP_MAX such questions, as a failure of its own, so a loop costs minutes, not the whole cap
+  let books = 0, loop = false;
   async function react(x) {
     const id = x.to, p = byId[id];
     if (!p) return;
@@ -144,6 +147,7 @@ async function runOne(sc, trial, model) {
     const pl = x.payloads, q = pl[0] || "", qk = /^pc:/.test(q) ? "confirm" : /^gm:[^:]+:book$/.test(q) ? "book" : /^gm:[^:]+:yes$/.test(q) ? "ask" : null;
     if (qk) {
       involved.add(id);
+      if (id === asker && qk === "book" && ++books > LOOP_MAX) { loop = true; log.push({ t: T(), note: `stopped: asked to Book ${books} times` }); return; }
       // (a question whose record is gone, its game dropped meanwhile, is still read off its words)
       const g = (await gameOf(q)) || whenIn(x.text); if (!g) { log.push({ t: T(), note: `no game found for ${q}` }); return; }
       const [date, start] = g.split(" ");
@@ -187,6 +191,7 @@ async function runOne(sc, trial, model) {
   for (;;) {
     await sleep(500);
     if (!timers && !hooks && !llm && Date.now() - last > QUIET) break;
+    if (loop) break;
     if (Date.now() - tStart > CAP) { log.push({ t: T(), note: "cap reached" }); break; }
   }
   // ---- what the gateway booked (its own file), and the outcome
@@ -194,7 +199,7 @@ async function runOne(sc, trial, model) {
   const bookings = bk.map((b) => ({ date: b.option?.date, start: b.option?.start, players: [...new Set([b.option?.by, ...(b.option?.partners || []).map((x) => x.id)].filter(Boolean))], cancelled: !!b.cancelled })).filter((b) => b.players.includes(asker));
   for (const b of bookings) b.players.forEach((x) => involved.add(x));
   const pending = Object.values(readJ(path.join(dir, "data/partner_confirm.json"), {})).map((x) => ({ by: x.by, waiting: x.waiting, game: `${x.option?.date} ${x.option?.start}` }));
-  const out = outcome({ asker, bookings, human, beliefs, saidYes, backedOut, gaveUp: [...gaveUp] });
+  const out = { ...outcome({ asker, bookings, human, beliefs, saidYes, backedOut, gaveUp: [...gaveUp] }), loop, capped: log.some((m) => m.note === "cap reached") };
   try { gw.kill(); } catch { /* gone */ }
   servers.forEach((x) => x.close());
   await sleep(300);
@@ -234,15 +239,20 @@ async function main() {
 // the report over one or more arms' rows (jsonl): a summary per arm, and the setup
 function report(files = null) {
   const fs_ = files || process.argv.slice(process.argv.indexOf("--report") + 1).filter((f) => f.endsWith(".jsonl"));
-  const rows = fs_.flatMap((f) => fs.readFileSync(f, "utf8").split("\n").filter(Boolean).map((l) => ({ ...JSON.parse(l), file: path.basename(f) })));
+  // (an arm is named by its folder and file: real/coop, fake/hard)
+  const rows = fs_.flatMap((f) => fs.readFileSync(f, "utf8").split("\n").filter(Boolean).map((l) => ({ ...JSON.parse(l), file: `${path.basename(path.dirname(path.resolve(f)))}/${path.basename(f, ".jsonl")}` })));
   const ok = rows.filter((r) => !r.error), groups = {};
-  for (const r of ok) (groups[`${r.file.replace(/\.jsonl$/, "")}`] ||= []).push(r);
+  for (const r of ok) (groups[r.file] ||= []).push(r);
   const arms = Object.fromEntries(Object.entries(groups).map(([k, rs]) => [k, { arm: rs[0].arm, ...summarize(rs, { kMax: 8, seed: SEED }),
-    model: { calls: rs.reduce((a, r) => a + r.model.calls, 0), seconds: Math.round(rs.reduce((a, r) => a + r.model.seconds, 0)), studentCalls: rs.reduce((a, r) => a + r.model.studentCalls, 0), wallMinutes: Math.round(rs.reduce((a, r) => a + r.wallSec, 0) / 60) } }]));
+    model: { calls: rs.reduce((a, r) => a + r.model.calls, 0), seconds: Math.round(rs.reduce((a, r) => a + r.model.seconds, 0)), studentCalls: rs.reduce((a, r) => a + r.model.studentCalls, 0),
+      // (only a run on the real model asks the student; the fake model's arm never does)
+      llm: rs.some((r) => r.model.studentCalls > 0) ? "muse-glimmer (Ollama) and the 1B student worker" : "fake model (code only)", wallMinutes: Math.round(rs.reduce((a, r) => a + r.wallSec, 0) / 60) } }]));
   const res = { simulated: true, note: "Simulated people only (agent/test/sim_users/personas.json); the gateway, its agents and the model are real. pass^k after tau-bench (arXiv 2406.12045); difficult people after Sim2Real (arXiv 2603.11245).",
     at: new Date().toISOString(), seeds: { scenarios: SEED, club: CLUB_SEED, persona: JSON.parse(fs.readFileSync(path.join(HERE, "personas.json"), "utf8")).seed }, difficult: HARD, kinds: H.KINDS, share: H.SHARE,
-    setup: { start: START, leaseMs: LEASE, lateMs: LATE, bailMs: BAIL, quietMs: QUIET, llm: LLM_TARGET || "fake model (code only)", student: STUDENT_TARGET || "off" },
-    errors: rows.filter((r) => r.error).length, arms };
+    setup: { start: START, leaseMs: LEASE, lateMs: LATE, bailMs: BAIL, quietMs: QUIET },
+    errors: rows.filter((r) => r.error).length, arms,
+    // hard against coop on the same scenarios, where both arms of a folder ran
+    hardMinusCoop: Object.fromEntries(Object.keys(groups).filter((k) => k.endsWith("/hard") && groups[k.replace(/hard$/, "coop")]).map((k) => [k.replace(/\/hard$/, ""), compare(groups[k.replace(/hard$/, "coop")], groups[k], { kMax: 8, seed: SEED })])) };
   const out = arg("out", "data/passk_report.json");
   fs.mkdirSync(path.dirname(path.resolve(out)), { recursive: true }); fs.writeFileSync(out, JSON.stringify(res, null, 1));
   for (const [k, a] of Object.entries(arms)) console.log(`${k}: pass^1 ${a.passk[1]?.value} pass^${a.trials} ${a.passk[a.trials]?.value}; false booked ${a.falseBooked.k}/${a.runs}; fell apart ${a.fellApartAfterYes.k}; left waiting ${a.leftWaiting.k}`);

@@ -68,7 +68,24 @@ export function summarize(rows, { kMax = 8, seed = 1 } = {}) {
     falseBooked: { ...count((r) => r.outcome.falseBooked.length > 0), reports: rows.reduce((a, r) => a + r.outcome.falseBooked.length, 0) },
     fellApartAfterYes: count((r) => r.outcome.fellApartAfterYes), bookedThenFell: count((r) => r.outcome.bookedThenFell.length > 0), yesNeverBooked: count((r) => r.outcome.yesNeverBooked.length > 0),
     leftWaiting: count((r) => r.outcome.leftWaiting), noAnswer: count((r) => r.outcome.noAnswer),
+    // (passk_run.mjs: a search that went round and round, stopped; a run that reached the time cap)
+    loops: count((r) => !!r.outcome.loop), capped: count((r) => !!r.outcome.capped),
     byKind, noDifficultInvolved: { runs: clean.length, pass: clean.filter((r) => r.outcome.pass).length, rate: pct(clean.filter((r) => r.outcome.pass).length, clean.length) },
     byAskerKind: Object.fromEntries([...new Set(rows.map((r) => r.askerKind || "cooperative"))].sort().map((t) => { const xs = rows.filter((r) => (r.askerKind || "cooperative") === t), k = xs.filter((r) => r.outcome.pass).length; return [t, { runs: xs.length, pass: k, rate: pct(k, xs.length) }]; })),
   };
 }
+
+// The difference between two arms on the same scenarios (b - a), pass^k for each k both have, with a bootstrap over
+// scenarios that resamples a scenario's two arms together (paired)
+export function compare(rowsA, rowsB, { kMax = 8, seed = 1 } = {}) {
+  const per = (rows) => { const m = new Map(); for (const r of rows) { const s = m.get(r.scen) || { c: 0, n: 0 }; s.n++; if (r.outcome.pass) s.c++; m.set(r.scen, s); } return m; };
+  const A = per(rowsA), B = per(rowsB), both = [...A.keys()].filter((k) => B.has(k)).map((k) => ({ a: A.get(k), b: B.get(k) }));
+  if (!both.length) return null;
+  const n = Math.min(...both.flatMap((x) => [x.a.n, x.b.n])), out = {};
+  for (let k = 1; k <= Math.min(kMax, n); k++) {
+    const d = (xs) => passK(xs.map((x) => x.b), k) - passK(xs.map((x) => x.a), k);
+    out[k] = { a: passK(both.map((x) => x.a), k), b: passK(both.map((x) => x.b), k), delta: +d(both).toFixed(3), ci95: bootstrap(both, d, { seed }) };
+  }
+  return { scenarios: both.length, byK: out };
+}
+

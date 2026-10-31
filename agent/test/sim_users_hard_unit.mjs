@@ -161,3 +161,14 @@ test("a summary: pass^1..k, per kind, with intervals", () => {
   assert.equal(s.noDifficultInvolved.runs, 8);
   assert.ok(Array.isArray(s.passk[1].ci95));
 });
+
+test("two arms on the same scenarios: the difference in pass^k, paired", async () => {
+  const { compare } = await import("./sim_users/passk.mjs");
+  const row = (scen, trial, pass) => ({ scen, trial, outcome: { pass } });
+  const a = [], b = [];
+  for (const scen of ["s1", "s2"]) for (let t = 0; t < 4; t++) { a.push(row(scen, t, true)); b.push(row(scen, t, scen === "s1" || t === 0)); }
+  const c = compare(a, b, { kMax: 4 });
+  assert.equal(c.scenarios, 2);
+  assert.equal(c.byK[1].a, 1); assert.equal(c.byK[1].b, 0.625); assert.equal(c.byK[1].delta, -0.375);
+  assert.equal(c.byK[4].delta, -0.5);
+});
