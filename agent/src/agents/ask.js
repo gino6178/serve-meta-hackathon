@@ -11,6 +11,11 @@
 // can withhold it: with ASK_TRIAL_P above 0, each daily ask point is in the "withhold" arm with that chance, by a hash
 // of (player, day), so the same day always gets the same arm. Each point is logged in the asks store (db.trial: the
 // arm, whether it asked, the answer within 24 h; ids and times only, no text) for test/ask_trial_analysis.mjs.
+// The send gate (match/gate.js, ASK_GATE=off to turn it off) then decides, for a point in the "ask" arm only, the hour
+// it goes out and whether it goes out at all, from the player's own answers in that log and a burden cost. The arm is
+// drawn before the gate and from (player, day) alone, so the trial's chance of each arm is still p at every point and
+// its contrast stays valid: what it then measures is "may ask today, when the gate says" against "may not". A day the
+// gate passes on is logged in the ask arm with asked false.
 import * as guard from "../safety/guard.js";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -29,6 +34,7 @@ import { noteOwn } from "../match/records.js";
 import { rank as bandRank } from "../match/model.js";
 import * as fb from "./freebusy.js";
 import { privateFor } from "../safety/privacy.js";
+import * as gate from "../match/gate.js";
 
 const { windows, ymd, hm, toMin, dateOf, readVenues, DAYS } = helpers;
 const FILE = path.resolve(process.env.ASK_FILE || "data/asks.json");
@@ -59,6 +65,9 @@ export const armOf = (who, day, p = TRIAL_P()) => (p > 0 && unit(`ask-trial|${wh
 export const askedThisWeek = (who, now = new Date()) => { const t0 = monday(now).getTime(); return db.trial.filter((x) => x.who === who && x.asked && x.at >= t0).length; };
 export const trialLog = () => db.trial;
 const logPoint = (row) => { db.trial.push(row); if (db.trial.length > TRIAL_KEEP) db.trial = db.trial.slice(-TRIAL_KEEP); };
+// the club's reply rates by hour for the gate's prior (match/gate.js), worked out at most once an hour
+let clubCache = null;
+const clubRates = (now) => { const k = Math.floor(now.getTime() / 36e5); if (clubCache?.k !== k) clubCache = { k, r: gate.club(db.trial, now.getTime()) }; return clubCache.r; };
 
 // the next opening: a habitual time in the next `ahead` days that is still open, the best people free then, a court
 // bands: { "date start": { memberId: band } } from the members' agents (match/rank.js bandsFor): a band goes before fit
@@ -147,7 +156,7 @@ async function word(o) {
 // ask `who` (a Messenger id, or "app"): the opening and its words, kept until answered
 // daily: the once-a-day ask nobody requested (server.js askTick), which the weekly cap and the trial apply to; an ask
 // the player asked for (/game, Another time) is neither capped nor withheld
-export const ask = (args = {}) => span("invoke_agent match", { ...agentAttrs("match"), "serve.ahead_days": args.ahead ?? 3 }, async (s) => { const r = await askNow(args); s.setAttributes({ "serve.asked": !!r.id, ...(r.capped ? { "serve.capped": true } : {}), ...(r.arm ? { "serve.trial.arm": r.arm } : {}) }); return r; });
+export const ask = (args = {}) => span("invoke_agent match", { ...agentAttrs("match"), "serve.ahead_days": args.ahead ?? 3 }, async (s) => { const r = await askNow(args); s.setAttributes({ "serve.asked": !!r.id, ...(r.capped ? { "serve.capped": true } : {}), ...(r.arm ? { "serve.trial.arm": r.arm } : {}), ...(r.why ? { "serve.gate": r.why } : {}) }); return r; });
 async function askNow({ who = "app", history = [], upcoming = [], body = null, skip = [], ahead = 3, now = new Date(), daily = false } = {}) {
   if (db.snooze[who] && db.snooze[who] > ymd(now)) return { none: `you said not this week; I'll look again on ${LONG[DAYS[dateOf(db.snooze[who]).getDay()]]}`, snoozed: db.snooze[who] };
   // a question whose time the agents moved, still waiting for the player's book or drop, gives way to the new one
@@ -158,22 +167,32 @@ async function askNow({ who = "app", history = [], upcoming = [], body = null, s
   // a daily ask point: over the week's cap, none; otherwise its arm, logged whether it asks or not
   let point = null;
   if (daily) {
+    // one point a day: with the gate on the tick looks each hour, and a day already settled stays settled
+    const today = ymd(now), had0 = db.trial.find((x) => x.who === who && x.day === today);
+    if (had0 && (had0.asked || had0.arm === "withhold" || had0.gate?.send === false)) return { none: "today's ask is settled", settled: true };
     const had = askedThisWeek(who, now), cap = WEEK_CAP();
     if (had >= cap) return { none: `I've asked you ${had} time${had > 1 ? "s" : ""} this week already`, capped: true };
-    const p = TRIAL_P(), arm = armOf(who, ymd(now), p);
-    point = { who, day: ymd(now), at: now.getTime(), p, arm, asked: arm === "ask", id: null, response: null, respondedAt: null };
+    // the arm comes first, from (player, day) alone: the gate never sees a withheld day and never changes an arm
+    const p = TRIAL_P(), arm = armOf(who, today, p);
+    point = had0 || { who, day: today, at: now.getTime(), p, arm, asked: false, id: null, response: null, respondedAt: null };
     if (arm === "withhold") { logPoint(point); save(); return { none: "not asking today", withheld: true, arm }; }
+    if (gate.on()) {
+      // in the ask arm, the gate plans the day once (the hour, or no ask): its line goes in the log and the trace
+      if (!had0) { point.gate = gate.plan({ rows: db.trial.filter((x) => x.who === who), clubRates: clubRates(now), who, day: today, now: now.getTime() }); logPoint(point); save(); }
+      if (!point.gate.send) return { none: "nothing worth asking about today", gated: true, why: point.gate.why, arm };
+      if (now.getHours() < point.gate.hour) return { none: `waiting for ${point.gate.hour}:00`, later: true, hour: point.gate.hour, why: point.gate.why, arm };
+    }
   }
   // the people free then, ordered by their agents' bands (each agent answers from its own member's records)
   const bands = await bandsFor(o, { from: who === "app" ? "you" : who }).catch(() => null);
   if (bands) { const o2 = opening({ history, upcoming, body, skip, now, ahead, bands, priv, who }); if (!o2.none && o2.date === o.date && o2.start === o.start) o = o2; }
   const w = await word(o), id = `gm-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
   db.asks[id] = { id, who, at: Date.now(), status: "asked", opening: o, text: w.text, by: w.by, input: { history, upcoming, body, skip, ahead }, ...(point ? { daily: true } : {}) };
-  if (point) logPoint({ ...point, id });
+  if (point) { Object.assign(point, { asked: true, id, sentAt: now.getTime() }); if (!db.trial.includes(point)) logPoint(point); }
   // keep the last 40
   for (const k of Object.keys(db.asks).sort((a, b) => db.asks[a].at - db.asks[b].at).slice(0, -40)) delete db.asks[k];
   save();
-  return { id, text: w.text, by: w.by, opening: o, ...(point ? { arm: point.arm } : {}) };
+  return { id, text: w.text, by: w.by, opening: o, ...(point ? { arm: point.arm, ...(point.gate ? { why: point.gate.why } : {}) } : {}) };
 }
 // "I want to play" (match/flow.js): the agents of the people likeliest to say yes are asked first, and the game they
 // agree waits for the player's yes, as a question whose time the agents set (status "moved": Book it / Drop it)
@@ -236,7 +255,7 @@ export async function answer(id, choice, { say = () => {}, tell = () => {}, work
   // the player's own yes or no to their agent's suggestion, for their own records (match/records.js)
   if ((a.status === "asked" && ["yes", "other", "week"].includes(choice)) || (a.status === "moved" && ["book", "drop"].includes(choice))) noteOwn(a.who, choice === "yes" || choice === "book", "ask");
   // the trial's response: the first answer to a daily ask, if it came within 24 hours
-  if (a.status === "asked" && ["yes", "other", "week"].includes(choice)) { const row = db.trial.find((x) => x.id === id); if (row && row.response == null && now.getTime() - row.at <= DAY) { row.response = choice; row.respondedAt = now.getTime(); } }
+  if (a.status === "asked" && ["yes", "other", "week"].includes(choice)) { const row = db.trial.find((x) => x.id === id); if (row && row.response == null && now.getTime() - (row.sentAt ?? row.at) <= DAY) { row.response = choice; row.respondedAt = now.getTime(); } }
   if (choice === "week") {
     const next = new Date(monday(now).getTime() + 7 * 864e5);
     if (a.status === "moved") await releaseHolds(a.agreed);
