@@ -62,7 +62,7 @@ const typing = (id) => graph({ recipient: { id }, sender_action: "typing_on" });
 // answers to an agent's buttons that the gateway handles itself (payloads "ap:" the Autopilot, "gm:" the Match helper's
 // "want a game?", "wx:" the weather watch), the Autopilot and the ask when a player asks for them here, and when the
 // player last wrote (the gateway fills these in)
-export const hooks = { payload: null, autopilot: null, game: null, seen: null, play: null, feed: null, video: null };
+export const hooks = { payload: null, autopilot: null, game: null, seen: null, play: null, feed: null, video: null, text: null };
 export const pocket = createPocket({ name: "Messenger", send, typing, onAutopilot: (id) => (hooks.autopilot ? hooks.autopilot(id) : Promise.resolve()), onGame: (id) => (hooks.game ? hooks.game(id) : Promise.resolve()),
   // "I want to play" (match/flow.js); without the gateway's hook, the Match helper's usual question
   onPlay: (id, text) => (hooks.play ? hooks.play(id, text) : hooks.game ? hooks.game(id) : Promise.resolve()) });
@@ -112,7 +112,7 @@ async function event(id, ev) {
     // (with /improve on, a 👍 or 👎 on an answer is also counted for the community loop, with no words)
     if (fb) { pocket.feedback(id, +fb[1], +fb[2]); signals.record(id, { kind: "thumb", feature: "answers", value: +fb[2] }); await send(id, +fb[2] > 0 ? "Thanks, noted." : "Thanks, noted: I'll do better on that."); return; }
     const qp = ev.message?.quick_reply?.payload || ev.postback?.payload || "";
-    if (/^(ap|wx|gm|pc):/.test(qp) && hooks.payload) { await hooks.payload(id, qp); return; }
+    if (/^(ap|wx|gm|pc|pd|pl):/.test(qp) && hooks.payload) { await hooks.payload(id, qp); return; }
     if (qp.startsWith("bd:")) { await pocket.bodyAnswer(id, qp); return; }
     if (qp.startsWith("sc:")) { await pocket.scoreAnswer(id, qp); return; }
     // the community loop: Share or Don't for one idea (sh:), a vote for one (qv:)
@@ -133,6 +133,8 @@ async function event(id, ev) {
     const att = (ev.message?.attachments || []).find((a) => a.type === "file" && FILES.test(a.payload?.url || ""));
     if (att && !ev.message.is_echo) { await pocket.file(id, att.payload.url, decodeURIComponent(new URL(att.payload.url).pathname.split("/").pop() || "export")); return; }
     if (ev.postback?.payload === "GET_STARTED") { await pocket.handle(id, "there", "/start"); return; }
+    // (words the gateway reads first: an answer to an open "Are you in?", a back-out from a game, match/confirm.js)
+    if (ev.message?.text && !ev.message.is_echo && hooks.text && (await hooks.text(id, ev.message.text))) return;
     if (ev.message?.text && !ev.message.is_echo) await pocket.handle(id, "there", ev.message.text);
     state.error = null;
   } catch (e) { state.error = String(e.message || e); }
