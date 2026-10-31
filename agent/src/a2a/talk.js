@@ -38,6 +38,7 @@ import * as consent from "./consent.js";
 import * as peer from "./peer.js";
 import { stretchOn, marksFor, cleanMarks, pickStretched, noteStretch } from "./stretch.js";
 import { prefsBreak } from "../memory/prefs.js";
+import { tinyAnswer } from "../agents/tiny.js";
 
 const { windows, travelMin, kmBetween, ymd, hm, toMin, dateOf, DAYS } = helpers;
 const FILE = path.resolve(process.env.A2A_FILE || "data/a2a_memory.json");
@@ -334,6 +335,8 @@ export async function fullAnswer(m, cur, choices, log, format, sport, minutes = 
     // a choice between times: the student first (A2A_STUDENT, on by default; student.js), then the one-pass decider
     // (on unless A2A_DECIDER=off), the full answer when neither is sure
     const unsure = {};
+    // the tiny layer first (A2A_TINY=1, off by default; agents/tiny.js): a few KB, answers only when it is sure
+    { const t = tinyAnswer(m, cur, choices, all, { minutes, why: curBad }); if (t) return { ...t, text: sentence(them, t, cur) }; }
     if (studentOn() && curBad && choices.length > 1) { const s = await studentAnswer(m, cur, choices, all, { minutes, format, sport, profile: profile(m), out: unsure }); if (s) return { ...s, text: sentence(them, s, cur) }; }
     if (deciderOn() && curBad && choices.length > 1) { const d = await decided(m, cur, choices, all, curBad, format, sport, unsure.pick); if (d) return d; }
   }

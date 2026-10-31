@@ -590,6 +590,20 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
   moved the time an hour after 20 s, the search took 25.7 s instead of 49.0 s on average; Muse Glimmer judged 80 times
   instead of 40, the price of guessing (the hour before was never asked for). Four searches each, on a shared GPU, so
   the times are rough.
+- **A tiny layer in front of the 1B and Glimmer** (`agents/tiny.js`, A2A_TINY=1; `feed/moderation.js` prefilter,
+  FEED_TINY=1; both off). Classifiers of 28 KB and 87 KB in plain JS, each with a doubt model that predicts when it
+  would disagree with Glimmer. Times: four small MLPs over facts code holds per option (weekday, hour, trip, distance
+  from the asked time, list position, the member's habits and rules), trained on the student's 4,868 Glimmer choices;
+  0.06 ms a choice on one CPU thread. Over all held-out cases it agrees with Glimmer 88.5% on the test set (student 89.5%,
+  Glimmer with itself 88.8%) and 69.4% on the decider's cases (student 63.3%, Glimmer 73.5%). At the served threshold it
+  answers 59.8% of the test choices with 4.3% disagreement among them, and 14.3% of the decider's with 3.6%: it saves
+  299 of 500 and 28 of 196 student calls but only 5 and 1 Glimmer calls, since the student already answers what it is
+  sure of. Conformal risk control's point (5% over all cases) answers more (82.4%, 35.2%) at 5.9% and 11.6% among them;
+  no threshold could be certified at 5% among answered cases. Feed: hashed n-grams, int8 logistic regression, rules for
+  lookalike letters and hidden characters first; 0.03 ms a comment. On held-out synthetic comments (unseen attack
+  templates and disguises; simulated, labeled by Prompt Guard 2, Llama Guard 3 and Glimmer's feed.standard) it passed 0
+  of 762 hostile or injected ones but only 30 of 271 ordinary ones (none in English), so it saves little.
+  `docs/tiny_models.md`, `submission/results/tiny.json`
 
 ## What is where
 
