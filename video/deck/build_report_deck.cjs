@@ -76,8 +76,7 @@ async function img(file, width = 1800) {
   // 1. title
   let s = pres.addSlide({ masterName: "DARK" });
   picture(s, I.chats, W - 3.6, 0.6, 2.9, 6.3);
-  title(s, "Serve: Play more.
-Manage less.");
+  title(s, "Serve: Play more.\nManage less.");
   s.addText("Technical report · Meta Global AI Developer Hackathon 2026 · Indie Developer track", { placeholder: "body" });
   s.addText("play.theminimallab.com · github.com/gino6178/serve-meta-hackathon", { isTextBox: true, x: M, y: H - 1.0, w: 9, h: 0.4, fontSize: 14, color: "9FB3A7", margin: 0 });
   note(s, "Serve is a platform where people and agents make games together. This deck follows the technical report: impact, technical depth, Meta models, and what is not done yet.");
