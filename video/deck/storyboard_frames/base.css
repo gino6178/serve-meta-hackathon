@@ -1,0 +1,5 @@
+*{box-sizing:border-box;margin:0}body{width:1600px;height:900px;font-family:"Segoe UI",Arial,sans-serif;background:#F6F8F7;color:#0A0A0B;overflow:hidden;position:relative}
+.tag{position:absolute;left:40px;top:28px;background:#14241B;color:#fff;font-size:20px;padding:6px 14px;border-radius:6px}
+.sub{position:absolute;left:0;right:0;bottom:36px;text-align:center}.sub span{background:#0A0A0B;color:#fff;font-size:26px;padding:8px 18px;border-radius:6px}
+.card{background:#fff;border-radius:18px;box-shadow:0 6px 24px rgba(0,0,0,.08);padding:28px}
+.green{color:#0A7F44}.red{color:#D1352B}.muted{color:#55555C}

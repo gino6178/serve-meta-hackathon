@@ -1,0 +1,15 @@
+<html><head><link rel="stylesheet" href="base.css"></head><body>
+<div class="tag">Most decisions never reach the big model</div>
+<div style="position:absolute;left:60px;right:60px;top:110px;display:flex;gap:22px;align-items:stretch">
+ <div class="card" style="flex:1"><div style="font-size:20px" class="muted">LAYER 0</div><div style="font-size:34px;font-weight:700;margin-top:6px">Code</div><div style="font-size:21px;margin-top:10px;height:60px">every hard rule, free times, clashes, trips</div><div style="font-size:44px;font-weight:700;margin-top:18px" class="green">7 ms</div><div style="font-size:18px" class="muted">the game's card (local copy)</div></div>
+ <div class="card" style="flex:1"><div style="font-size:20px" class="muted">TINY LAYER</div><div style="font-size:34px;font-weight:700;margin-top:6px">28 KB classifier</div><div style="font-size:21px;margin-top:10px;height:60px">plain JS, with a doubt model</div><div style="font-size:44px;font-weight:700;margin-top:18px" class="green">0.06 ms</div><div style="font-size:18px" class="muted">settles 6 in 10 ordinary choices</div></div>
+ <div class="card" style="flex:1;outline:4px solid #0A7F44"><div style="font-size:20px" class="muted">OUR MODEL</div><div style="font-size:34px;font-weight:700;margin-top:6px">Llama 3.2 1B</div><div style="font-size:21px;margin-top:10px;height:60px">distilled from 4,868 Glimmer choices, int4 on CPU</div><div style="font-size:44px;font-weight:700;margin-top:18px" class="green">0.9 s</div><div style="font-size:18px" class="muted">answers when at least 0.6 sure</div></div>
+ <div class="card" style="flex:1"><div style="font-size:20px" class="muted">ONLY WHAT IS LEFT</div><div style="font-size:34px;font-weight:700;margin-top:6px">Muse Glimmer</div><div style="font-size:21px;margin-top:10px;height:60px">30B on the RTX 3090, stopped early when sure</div><div style="font-size:44px;font-weight:700;margin-top:18px">20–40 s</div><div style="font-size:18px" class="muted">streamed step by step</div></div>
+</div>
+<div class="card" style="position:absolute;left:60px;right:60px;top:500px;height:220px">
+ <div style="font-size:22px" class="muted">Agreement with Glimmer's full answer, 500 held-out cases</div>
+ <div style="display:flex;align-items:center;margin-top:22px;gap:20px"><div style="width:300px;font-size:24px;font-weight:600">Our 1B</div><div style="height:40px;width:895px;background:#0A7F44;border-radius:6px"></div><div style="font-size:30px;font-weight:700" class="green">89.5%</div></div>
+ <div style="display:flex;align-items:center;margin-top:16px;gap:20px"><div style="width:300px;font-size:24px;font-weight:600">Glimmer, with itself</div><div style="height:40px;width:888px;background:#8A8A92;border-radius:6px"></div><div style="font-size:30px;font-weight:700">88.8%</div></div>
+</div>
+<div class="sub"><span>…agrees with Glimmer 89.5% of the time. Glimmer agrees with itself 88.8%.</span></div>
+</body></html>
