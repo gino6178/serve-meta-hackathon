@@ -19,6 +19,7 @@ import { record, current } from "./ledger.js";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { span, active, traceId, SpanKind } from "./trace.js";
 import { validate } from "./schema.js";
+import { checksOn, typed, fromSchema, say } from "./toolcheck.js";
 
 // The server and how to ask it, read once when the gateway starts. A key (MODEL_API_KEY, or LLM_API_KEY) stands for a
 // hosted API: every request carries it, and the protocol is OpenAI's unless LLM_API names another.
@@ -268,20 +269,29 @@ async function rawChat(messages, { maxTokens = 420, temperature = 0.4, site = si
 
 // a reply in a JSON Schema: the server constrains decoding to it, code parses and checks it, and a reply that does not
 // fit is asked for once more with what was wrong. Returns { value, errors } (value null when it never fitted).
-export async function chatJSON(messages, schema, { site = siteOf(), tries = 2, ...opts } = {}) {
-  let errors = ["no reply"], msgs = messages;
+// `check` (value => typed errors, core/toolcheck.js) is the call site's semantic check after the schema: a reply that
+// fits but names a time not listed, an id nobody sent or a date that does not exist is asked for again the same way.
+// With TOOL_CHECKS on, what the model hears is the typed vocabulary only (a kind and a field of the schema), never
+// text from the reply. A reply that fits the schema but never passes the check comes back with `semantic` set, for the
+// caller's own rules to settle.
+export async function chatJSON(messages, schema, { site = siteOf(), tries = 2, check = null, ...opts } = {}) {
+  let errors = ["no reply"], msgs = messages, fitted = null;
+  const kinds = [];
   for (let k = 0; k < tries; k++) {
     let text = "";
     // (no slot came free in time: asking again would only wait again, past what the caller waits for)
     // (a reply from the 1B that does not fit is asked again of Glimmer: the second try never goes to the small model)
     try { ({ text } = await chat(msgs, { ...opts, site, format: schema, ...(k && (opts.tier || tierOf(messages, { site })) === "small" ? { tier: "local" } : {}) })); } catch (e) { errors = [String(e.message || e)]; if (e.slot) break; continue; }
-    let value;
+    let value, te = [], sem = false;
     try { value = JSON.parse(text); errors = validate(schema, value); } catch { errors = ["not JSON"]; }
-    if (!errors.length) return { value, errors: [], tries: k + 1 };
-    record({ site, model: MODEL, prompt: 0, cached: 0, output: 0, reasoning: 0, seconds: 0, invalid: true, marker: true, errors: errors.slice(0, 3) });
-    msgs = [...messages, { role: "assistant", content: text.slice(0, 600) }, { role: "user", content: `That does not fit the format: ${errors.slice(0, 3).join("; ")}. Answer again as JSON that fits.` }];
+    if (!errors.length && check && checksOn()) { te = (check(value) || []).filter(Boolean); if (te.length) { fitted = value; sem = true; errors = te.map((e) => `${e.kind}${e.field ? ` (${e.field})` : ""}`); } }
+    if (!errors.length) return { value, errors: [], tries: k + 1, ...(kinds.length ? { kinds } : {}) };
+    if (!te.length) te = errors[0] === "not JSON" ? [typed("schema_violation")] : fromSchema(errors, schema);
+    kinds.push(te.map((e) => e.kind));
+    record({ site, model: MODEL, prompt: 0, cached: 0, output: 0, reasoning: 0, seconds: 0, invalid: true, marker: true, errors: errors.slice(0, 3), ...(sem ? { semantic: true } : {}) });
+    msgs = [...messages, { role: "assistant", content: text.slice(0, 600) }, { role: "user", content: checksOn() ? `That answer was refused: ${say(te)}. Answer again as JSON that fits, with that fixed.` : `That does not fit the format: ${errors.slice(0, 3).join("; ")}. Answer again as JSON that fits.` }];
   }
-  return { value: null, errors, tries };
+  return fitted ? { value: fitted, errors, tries, semantic: true, kinds } : { value: null, errors, tries, ...(kinds.length ? { kinds } : {}) };
 }
 
 // a quick pick: the model answers with one option id only (the format allows nothing else) and no reasoning, and the

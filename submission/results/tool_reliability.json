@@ -1,0 +1,365 @@
+{
+ "at": "2026-10-31T06:05:18.727Z",
+ "simulated": true,
+ "harness": "agent/test/tool_faults.mjs (fake_model.mjs faults; Autopilot loop with the stand-in model, no GPU)",
+ "rates": {
+  "schema": 0.1,
+  "semantic": 0.1,
+  "reply": 0.1,
+  "silent": 0.15
+ },
+ "runs": 120,
+ "seed": 7,
+ "notes": [
+  "The stand-in model repairs a refused call by asking for the same call again, faulty again at the same rates whatever the error said: Repair@k here measures what the checks let reach a repair, not whether typed errors help a real model repair.",
+  "Both arms start from the same seed; the random streams part once the arms behave differently (a call refused in one arm runs in the other), so the faults sent differ a little between them.",
+  "TOOL_CHECKS=off is the loop as it was, with one fix in both arms: a negotiate whose members argument is a string no longer throws in its step label."
+ ],
+ "before": {
+  "toolChecks": "off",
+  "runs": 120,
+  "goal": 72,
+  "claimedGames": 240,
+  "gamesWithoutHolds": 33,
+  "approvalsClaimed": 120,
+  "approvalsMissing": 20,
+  "falseSuccessRuns": 48,
+  "gatewayRefused": 0,
+  "postChecked": 0,
+  "postFailed": 0,
+  "goalRate": 0.6,
+  "toolCalls": {
+   "eligible": 612,
+   "schema": {
+    "sent": 56,
+    "rate": 0.092,
+    "refused": 56,
+    "ran": 0,
+    "caughtRate": 1
+   },
+   "semantic": {
+    "sent": 48,
+    "rate": 0.078,
+    "refused": 46,
+    "ran": 2,
+    "caughtRate": 0.958
+   },
+   "typedRefusals": 0,
+   "refusalsEchoingTheModelsValue": 36,
+   "byFault": {
+    "schema: missing day": {
+     "sent": 16,
+     "refused": 16
+    },
+    "semantic: member id nobody returned": {
+     "sent": 8,
+     "refused": 6
+    },
+    "semantic: day that does not exist": {
+     "sent": 15,
+     "refused": 15
+    },
+    "semantic: start outside the free windows": {
+     "sent": 7,
+     "refused": 7
+    },
+    "schema: members a string": {
+     "sent": 13,
+     "refused": 13
+    },
+    "schema: start a number": {
+     "sent": 16,
+     "refused": 16
+    },
+    "semantic: start not HH:MM": {
+     "sent": 11,
+     "refused": 11
+    },
+    "semantic: wrong number of members": {
+     "sent": 7,
+     "refused": 7
+    },
+    "schema: format not in enum": {
+     "sent": 11,
+     "refused": 11
+    }
+   },
+   "cleanCallsRefused": null
+  },
+  "repair": {
+   "all": {
+    "chains": 91,
+    "repair1": 0.857,
+    "repair2": 0.956,
+    "ranThrough": 2
+   },
+   "schema": {
+    "chains": 51,
+    "repair1": 0.922,
+    "repair2": 1,
+    "ranThrough": 0
+   },
+   "semantic": {
+    "chains": 40,
+    "repair1": 0.775,
+    "repair2": 0.9,
+    "ranThrough": 2
+   }
+  },
+  "silent": {
+   "injected": 53,
+   "caught": 0,
+   "passedAsSuccess": 53,
+   "gamesWithoutHolds": 33,
+   "approvalsMissing": 20,
+   "falseSuccessRuns": 48
+  },
+  "memberReplies": {
+   "decisions": 240,
+   "faults": 20,
+   "faultyAgain": 0,
+   "askedAgain": 0,
+   "repaired": 0,
+   "repairRate": 0,
+   "overruledByCode": 20
+  }
+ },
+ "after": {
+  "toolChecks": "on",
+  "runs": 120,
+  "goal": 120,
+  "claimedGames": 240,
+  "gamesWithoutHolds": 0,
+  "approvalsClaimed": 120,
+  "approvalsMissing": 0,
+  "falseSuccessRuns": 0,
+  "gatewayRefused": 116,
+  "postChecked": 436,
+  "postFailed": 56,
+  "goalRate": 1,
+  "toolCalls": {
+   "eligible": 660,
+   "schema": {
+    "sent": 61,
+    "rate": 0.092,
+    "refused": 61,
+    "ran": 0,
+    "caughtRate": 1
+   },
+   "semantic": {
+    "sent": 55,
+    "rate": 0.083,
+    "refused": 55,
+    "ran": 0,
+    "caughtRate": 1
+   },
+   "typedRefusals": 116,
+   "refusalsEchoingTheModelsValue": 0,
+   "byFault": {
+    "schema: missing day": {
+     "sent": 17,
+     "refused": 17
+    },
+    "semantic: member id nobody returned": {
+     "sent": 9,
+     "refused": 9
+    },
+    "semantic: day that does not exist": {
+     "sent": 12,
+     "refused": 12
+    },
+    "semantic: start outside the free windows": {
+     "sent": 13,
+     "refused": 13
+    },
+    "schema: members a string": {
+     "sent": 13,
+     "refused": 13
+    },
+    "semantic: wrong number of members": {
+     "sent": 7,
+     "refused": 7
+    },
+    "semantic: start not HH:MM": {
+     "sent": 14,
+     "refused": 14
+    },
+    "schema: start a number": {
+     "sent": 14,
+     "refused": 14
+    },
+    "schema: format not in enum": {
+     "sent": 17,
+     "refused": 17
+    }
+   },
+   "cleanCallsRefused": 0
+  },
+  "repair": {
+   "all": {
+    "chains": 100,
+    "repair1": 0.88,
+    "repair2": 0.97,
+    "ranThrough": 0
+   },
+   "schema": {
+    "chains": 55,
+    "repair1": 0.927,
+    "repair2": 0.982,
+    "ranThrough": 0
+   },
+   "semantic": {
+    "chains": 45,
+    "repair1": 0.822,
+    "repair2": 0.956,
+    "ranThrough": 0
+   }
+  },
+  "silent": {
+   "injected": 56,
+   "caught": 56,
+   "passedAsSuccess": 0,
+   "gamesWithoutHolds": 0,
+   "approvalsMissing": 0,
+   "falseSuccessRuns": 0
+  },
+  "memberReplies": {
+   "decisions": 295,
+   "faults": 22,
+   "faultyAgain": 0,
+   "askedAgain": 22,
+   "repaired": 22,
+   "repairRate": 1,
+   "overruledByCode": 0
+  }
+ },
+ "real": {
+  "at": "2026-10-31T06:04:25.458Z",
+  "simulated": false,
+  "where": "RTX 3090 server, Muse Glimmer on Ollama (shared with other experiments and the live site, LLM_SLOTS=2), test/autopilot_eval.mjs tuned weeks, in-process members",
+  "note": "The after arm was stopped after 6 of 9 weeks to save model time; the comparison is on the 6 weeks both arms completed. One run per week per arm: too few to tell a difference from run-to-run variation. The before arm ran all 9 weeks (6 reached the goal). The checks report (report.checks) was not kept by autopilot_eval.mjs, so semantic refusals and postconditions failed on the real model are not counted here.",
+  "weeksCompared": 6,
+  "before": {
+   "weeks": 6,
+   "reachedGoal": 3,
+   "finishedByRules": 4,
+   "meanSeconds": 176.2,
+   "modelCalls": 13.8,
+   "toolCalls": 15.3,
+   "refusedTotal": 15,
+   "invalidReplies": 0
+  },
+  "after": {
+   "weeks": 6,
+   "reachedGoal": 3,
+   "finishedByRules": 4,
+   "meanSeconds": 353.6,
+   "modelCalls": 14.5,
+   "toolCalls": 16,
+   "refusedTotal": 22,
+   "invalidReplies": 0
+  },
+  "beforeAllNine": {
+   "weeks": 9,
+   "reachedGoal": 6,
+   "finishedByRules": 6,
+   "meanSeconds": 238.5,
+   "modelCalls": 13.9,
+   "toolCalls": 15.1,
+   "refusedTotal": 23,
+   "invalidReplies": 1
+  },
+  "perWeek": [
+   {
+    "scenario": "Two games a week",
+    "before": {
+     "success": true,
+     "refused": 5,
+     "finishedBy": "rules",
+     "seconds": 241.8
+    },
+    "after": {
+     "success": true,
+     "refused": 7,
+     "finishedBy": "rules",
+     "seconds": 323.5
+    }
+   },
+   {
+    "scenario": "Two games, sore knee (doubles first)",
+    "before": {
+     "success": false,
+     "refused": 3,
+     "finishedBy": "rules",
+     "seconds": 148.2
+    },
+    "after": {
+     "success": false,
+     "refused": 6,
+     "finishedBy": "rules",
+     "seconds": 301.3
+    }
+   },
+   {
+    "scenario": "Three games a week",
+    "before": {
+     "success": false,
+     "refused": 3,
+     "finishedBy": "rules",
+     "seconds": 180.9
+    },
+    "after": {
+     "success": false,
+     "refused": 4,
+     "finishedBy": "rules",
+     "seconds": 400.2
+    }
+   },
+   {
+    "scenario": "Thursday already booked",
+    "before": {
+     "success": true,
+     "refused": 1,
+     "finishedBy": "model",
+     "seconds": 179.5
+    },
+    "after": {
+     "success": true,
+     "refused": 1,
+     "finishedBy": "model",
+     "seconds": 334
+    }
+   },
+   {
+    "scenario": "Tennis, one game",
+    "before": {
+     "success": true,
+     "refused": 0,
+     "finishedBy": "model",
+     "seconds": 76.1
+    },
+    "after": {
+     "success": true,
+     "refused": 1,
+     "finishedBy": "model",
+     "seconds": 296.2
+    }
+   },
+   {
+    "scenario": "Two games, Kenji just played long",
+    "before": {
+     "success": false,
+     "refused": 3,
+     "finishedBy": "rules",
+     "seconds": 230.6
+    },
+    "after": {
+     "success": false,
+     "refused": 3,
+     "finishedBy": "rules",
+     "seconds": 466.3
+    }
+   }
+  ]
+ }
+}

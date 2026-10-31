@@ -13,6 +13,7 @@
 // What the agents say to each other is made by code from the facts; the model only decides.
 import path from "node:path";
 import { chatJSON, pick, priorityOf } from "../core/llm.js";
+import { typed, realDate } from "../core/toolcheck.js";
 import { decideRaw } from "../agents/decider.js";
 import { MEMBER_REPLY, DECISION, PROPOSAL, HOLD, HELD, validate } from "../core/schema.js";
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -353,7 +354,8 @@ export async function fullAnswer(m, cur, choices, log, format, sport, minutes = 
     if (s?.text) { try { const v = JSON.parse(s.text); if (!validate(MEMBER_REPLY, v).length) streamedValue = v; } catch { /* asked again below */ } }
   }
   const drafted = streamedValue ? null : await drafts(msgs, perTry);
-  const { value } = streamedValue ? { value: streamedValue } : drafted ? { value: drafted } : await chatJSON(msgs, MEMBER_REPLY, { maxTokens: 120, temperature: 0.3, site: "a2a.answer", timeoutMs: perTry });
+  // (what code would overrule below is first sent back to the model once, typed: replyCheck)
+  const { value } = streamedValue ? { value: streamedValue } : drafted ? { value: drafted } : await chatJSON(msgs, MEMBER_REPLY, { maxTokens: 120, temperature: 0.3, site: "a2a.answer", timeoutMs: perTry, check: replyCheck(cur, choices, all, curBad) });
   if (!value) return { intent: "none", text: `${them}'s agent did not answer.`, tier: "agent" };
   const j = { ...value, tier: drafted ? "draft" : "agent" };
   if (j.intent === "counter" && j.date === cur.slot.date && toMin(j.start || "00:00") === cur.start) j.intent = "accept";
@@ -376,6 +378,21 @@ export async function fullAnswer(m, cur, choices, log, format, sport, minutes = 
   j.text = sentence(them, j, cur);
   return j;
 }
+// A member's reply checked after its schema (core/toolcheck.js), in the typed vocabulary: a counter must be a listed
+// time that keeps the member's rules (a date that does not exist, or one not listed, is date_out_of_range; a listed
+// date at another hour, breaks_limit), a yes to a time that breaks a rule is breaks_limit, and every id in "works"
+// must be one of the listed times' (unknown_id). These are what code overrules after it; the model gets one repair first.
+export const replyCheck = (cur, choices, all, curBad) => (v) => {
+  const out = [];
+  if (curBad && v.intent === "accept") out.push(typed("breaks_limit", "intent"));
+  if (v.intent === "counter") {
+    const at = [...choices, ...(curBad ? [] : [cur])].filter((x) => x && (x !== cur || !curBad) && x.slot.date === v.date);
+    if (!realDate(v.date) || !at.length) out.push(typed("date_out_of_range", "date"));
+    else if (!at.some((x) => hm(x.start) === v.start)) out.push(typed("breaks_limit", "start"));
+  }
+  if (Array.isArray(v.works) && all.some((x) => x.id) && v.works.some((w) => !all.some((x) => x.id === w))) out.push(typed("unknown_id", "works"));
+  return out;
+};
 // a member agent's answer by the decision rule (served over A2A by a2a_server.js)
 export const decide = (...a) => answer(...a);
 // the answer cut to the member's disclosure budget for this asker (disclosure.js), its sentence made again if it changed
@@ -398,6 +415,8 @@ async function answer(m, cur, choices, log, format, sport, minutes = 90) {
 // (A2A_BASE is set by server.js), or in this process (tests and evals run without a gateway, or A2A_TRANSPORT=local).
 // A member whose agent is on a peer gateway (<id>@<peer>, peer.js) is always reached over A2A, at that gateway.
 const viaA2A = (m) => peer.isRemote(m) || (process.env.A2A_TRANSPORT !== "local" && !!process.env.A2A_BASE);
+// (a member whose hold is kept in this process, so code can read it back: the Autopilot's postcondition)
+export const holdsHere = (m) => !viaA2A(m);
 // a peer gateway that does not answer now: its members are "not reachable now" at once (peer.js reachable)
 const away = async (m) => peer.isRemote(m) && !(await peer.reachable(peer.remoteOf(m).origin));
 // what went wrong reaching an agent, in words (a refusal by a peer gateway is not "could not be reached")

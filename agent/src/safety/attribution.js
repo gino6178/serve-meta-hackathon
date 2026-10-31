@@ -58,8 +58,8 @@ export function talkCause(spans, talk) {
   return { kind: "no_option", span: talk, what: OUTCOME[outcome] || OUTCOME.other, outcome };
 }
 
-const TOOL_KIND = { invalid_arguments: "model_format", unknown_tool: "model_format", stop_refused: "rule_caught", rule_refused: "rule_caught", timeout: "timeout", no_option: "no_option", tool_failed: "tool_error" };
-const TOOL_WHAT = { invalid_arguments: "its arguments did not fit", unknown_tool: "the model named a tool there is not", stop_refused: "the model tried to stop while a game was still within reach", rule_refused: "code refused it", timeout: "it ran out of time", no_option: "it found nothing", tool_failed: "the tool failed" };
+const TOOL_KIND = { invalid_arguments: "model_format", unknown_tool: "model_format", stop_refused: "rule_caught", rule_refused: "rule_caught", timeout: "timeout", no_option: "no_option", tool_failed: "tool_error", postcondition_failed: "tool_error" };
+const TOOL_WHAT = { invalid_arguments: "its arguments did not fit", unknown_tool: "the model named a tool there is not", stop_refused: "the model tried to stop while a game was still within reach", rule_refused: "code refused it", timeout: "it ran out of time", no_option: "it found nothing", tool_failed: "the tool failed", postcondition_failed: "it reported success, but code read the state back and it had not changed" };
 
 // One Autopilot run: spans of its trace. opts.badGames: games the eval's oracle rejected ("Thu 19:00"), for
 // rule_missed. Returns null when the run met its goal by the model's own steps; else { kind, label, step, tool,

@@ -97,6 +97,9 @@ export const toolAttrs = (name, description, conversation = null, callId = null)
 //   tool_failed        the tool itself failed (an exception, a service that did not answer)
 export function errorType(name, res = {}) {
   const e = String(res.error || "");
+  // (a typed refusal, core/toolcheck.js, says its kind: a schema one is invalid arguments, a failed postcondition its own
+  // type, any semantic one a refusal by code)
+  if (res.kind) return res.kind === "schema_violation" ? "invalid_arguments" : res.kind === "unknown_tool" ? "unknown_tool" : res.kind === "postcondition_failed" ? "postcondition_failed" : "rule_refused";
   if (/^the arguments do not fit/.test(e)) return "invalid_arguments";
   if (/^no tool called/.test(e)) return "unknown_tool";
   if (/^not yet:/.test(e)) return "stop_refused";

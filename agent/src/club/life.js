@@ -3,6 +3,7 @@
 // sessions in every answer, and the gateway sends reminders before a session and a check-in in the evening.
 import { chatJSON } from "../core/llm.js";
 import { FILED, EVENTS } from "../core/schema.js";
+import { typed, realDate, realTime, minutesOf } from "../core/toolcheck.js";
 import * as store from "../core/store.js"; // a player's calendar and log live on their entry there
 // Days and times the way the calendar stores them, in this machine's time zone: "2026-10-28", "19:00", "Wed".
 const DAYS = "Sun Mon Tue Wed Thu Fri Sat".split(" ");
@@ -12,6 +13,16 @@ export const hm = (d) => `${two(d.getHours())}:${two(d.getMinutes())}`;
 // when an entry begins; one without a time counts from midnight
 export const at = (e) => new Date(e.date + "T" + (e.start || "00:00"));
 const ISO_DAY = /^\d{4}-\d\d-\d\d$/;
+// entries checked after their schema (core/toolcheck.js): a date that exists, from two weeks back to a year ahead,
+// and a start and end in HH:MM, the end after the start. One that is not is asked for again, typed; one still wrong
+// after that is not filed
+const DAY_MS = 864e5, iso = (t) => new Date(t).toISOString().slice(0, 10);
+const entryErrors = (e, now) => {
+  if (!realDate(e?.date) || e.date < iso(+now - 14 * DAY_MS) || e.date > iso(+now + 366 * DAY_MS)) return [typed("date_out_of_range", "date")];
+  if ((e.start && !realTime(e.start)) || (e.end && !realTime(e.end)) || (e.start && e.end && minutesOf(e.end) <= minutesOf(e.start))) return [typed("schema_violation", "start")];
+  return [];
+};
+export const eventsCheck = (now) => (v) => (Array.isArray(v) ? v : v?.events || []).flatMap((e) => entryErrors(e, now)).slice(0, 1);
 // The next 8 days spelled out ("today = Wed 2026-10-28; tomorrow = Thu 2026-10-29; Fri = Fri 2026-10-30; ..."): the
 // model looks "Friday" or "tomorrow" up in the list rather than counting days itself.
 const calendar = (now = new Date()) => {
@@ -58,10 +69,10 @@ const minutesIn = (text) => {
 };
 // What a message is (a calendar entry, a finished session, or anything else: chat) and what to file from it.
 export const read = async (text, now = new Date()) => {
-  const { value } = await chatJSON([{ role: "system", content: PROMPT(now) }, { role: "user", content: text }], FILED, { maxTokens: 220, temperature: 0, site: "life.read" });
+  const { value } = await chatJSON([{ role: "system", content: PROMPT(now) }, { role: "user", content: text }], FILED, { maxTokens: 220, temperature: 0, site: "life.read", check: eventsCheck(now) });
   const j = value || {};
   const out = { intent: ["event", "log", "chat"].includes(j.intent) ? j.intent : "chat",
-    events: (j.events || []).filter((e) => ISO_DAY.test(e?.date || "")), log: j.log || {} };
+    events: (j.events || []).filter((e) => ISO_DAY.test(e?.date || "") && realDate(e.date)), log: j.log || {} };
   if (out.intent === "chat" && !ASKING.test(text)) out.intent = cue(text);
   if (out.intent === "event" && !out.events.length) {
     out.events = await entriesIn(text, now);
@@ -75,8 +86,8 @@ export const read = async (text, now = new Date()) => {
 const entriesIn = async (text, now) => {
   const r = await chatJSON([{ role: "system", content: `Now: ${DAYS[now.getDay()]} ${ymd(now)} ${hm(now)}. Dates: ${calendar(now)}.
 Write the calendar entries in the message as a JSON array and nothing else: [${ENTRY}]. Times are 24-hour ("7pm" is "19:00"). A weekday is the next date it has in the list.` },
-    { role: "user", content: text }], EVENTS, { maxTokens: 200, temperature: 0, site: "life.events" });
-  return (r.value || []).filter((e) => /^\d{4}-\d\d-\d\d$/.test(e?.date || ""));
+    { role: "user", content: text }], EVENTS, { maxTokens: 200, temperature: 0, site: "life.events", check: eventsCheck(now) });
+  return (r.value || []).filter((e) => /^\d{4}-\d\d-\d\d$/.test(e?.date || "") && realDate(e.date));
 };
 // The calendar. Entries keep the model's date, a time only in HH:MM, a short title and a known kind; the file keeps
 // them in order, drops what ended over two weeks ago and holds at most 80.
