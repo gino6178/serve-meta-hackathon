@@ -98,6 +98,15 @@ start, an Agent Card, OpenAPI, and a channel where every request carries the age
   longest trip again by more than 10 minutes is refused. Over 12 simulated games, no booked game gave anyone a longer
   longest trip than the best venue possible, at a cost of 2.3 minutes more total travel per game; the fairness score
   was 0.73, against 0.59 for the shortest total trip and 0.58 for a Nash product.
+- **Times ranked by the chance everyone says yes.** A game needs every player, so the times are proposed in order of
+  the product of each player's chance of a yes (from 2.2), and a time where any one player's chance is under 0.15 goes
+  to the back: a least-misery floor, as group recommenders that predict perceived fairness advise [26]. With shared
+  calendars the first time proposed decides whether each agent can say yes by code or must ask a model. Against the old
+  order (the time the most players had free), on 3,000 simulated requests of each kind, the first time kept every player's rules in
+  89.1% of doubles requests instead of 73.9% (92.4% instead of 89.8% for singles), and the model choices per doubles
+  request fell from 0.261 to 0.109. With private calendars it found no more games.
+- **Skill with uncertainty.** Each player has a rating per sport as a mean and an uncertainty, changed only by
+  competitive games that the other side confirms; children's, gentle and charity games never count.
 - **Holds, all or nothing.** An agreed time is held by every player's agent for 30 minutes, asked in a fixed order:
   leases [6] with resource ordering [7]. With two talks at once for one member, 11 of 12 pairs booked the member
   twice without holds and 0 of 12 with them.
@@ -126,9 +135,20 @@ free-or-busy channel with a disclosure budget, and talks again only on a yes.
 | **The question worth most (value of information)** | **51.9%** |
 
 With 20,000 requests each, every rate is good to about 0.7 points either way, so each step in the table is real.
-A new player starts from what the agent has seen across all players rather than a blank belief. Every free-or-busy
+A new player starts from what the agent has seen across all players rather than a blank belief.
+
+**One answer teaches about the hours like it.** At first every weekday and hour had its own belief, so a "no" for
+Tuesday at 19:00 said nothing about Tuesday at 20:00. Following Pep [24] and VPL [25], which learn a person from a few
+answers through structure shared across people, an answer now lends part of its count to the hours that go together
+in the club's own free lists (the same evening an hour or two apart, the same hour on another weeknight, the two
+weekend days), and the club's prior counts as half an answer instead of two. A window's last hour no longer counts as
+free when a 90-minute game cannot start then. On 6,000 simulated requests, with members apart from those that make the prior: Brier score 0.223 to 0.200,
+log loss 0.638 to 0.585, and the chance the first talk lands rose from 68.9% to 73.7%, or from 75.1% to 79.2% with one
+value-of-information question first. Every free-or-busy
 question is charged to the same disclosure budget as a proposal, so an agent that keeps asking learns at most 24 of
-112 weekly hours in 28 days, and what A tells B never reaches C. No one is asked more than 3 times a week.
+112 weekly hours in 28 days, and what A tells B never reaches C. No one is asked more than 3 times a week, and an optional micro-randomised trial (off by default) can measure whether
+an ask at a given moment helps, with its analysis script. A player can also import an `.ics` calendar: only its busy
+times are read, and they become weekly free windows.
 
 ### 2.3 A community that evolves the platform, with automatic rollback
 
@@ -189,20 +209,32 @@ For a highlight, Serve can stop time and move the camera round the player, from 
   finds the people (about 4 boxes a frame against DETR's 15 to 20, about 2× faster, and the right player on all three
   test clips), Sapiens2 finds the moment worth sharing (a racket's fastest swing, the top of a jump, a kick), SAM
   2.1 cuts the player out, and the clip replays that moment in slow motion with a caption Glimmer writes and code
-  checks. The presence check above keeps the zoom on the player.
+  checks. The presence check above keeps the zoom on the player. With ball tracking on, the clip can start and end
+  with the rally itself, cut where the shuttle comes into play and where it goes out.
 
 ![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](shots/highlight_strip.png)
 
 ### 2.5 A tiered decision engine, and a booking step by step
 
-Following FrugalGPT [19], decisions pass through three layers, each taking only what the one before could not settle:
+Following FrugalGPT [19], decisions pass through layers, each taking only what the one before could not settle:
 - **Layer 0, code (milliseconds):** free times, calendar clashes, trips and every hard rule. The game's card comes from
   this layer: on a local copy it appeared 7 ms after the request at the median (97 ms at most, 9 runs).
 - **Layer 1, our own distilled model (about 0.9 s):** the Llama 3.2 1B we trained from Muse Glimmer (2.6) answers when
-  it is at least 0.6 sure. The decider (0.53 s) then takes some of what is left: it keeps its pick only when the
-  chance that it differs from Glimmer's full answer is under 5%, which is true for about 8% of the choices it sees.
-- **Layer 2, Muse Glimmer (about 40 s):** only the few choices still open and the short texts, streamed to the screen
-  step by step (NDJSON). Every wait the person starts shows a moving bar and a status line within 250 ms.
+  it is at least 0.5 sure, which is nearly every choice: 99.0% of ordinary ones and 96.9% of the hardest.
+- **Two cheap reads that agree.** When the student is unsure, the decider (0.53 s) reads Glimmer's choice in one token.
+  It keeps its pick alone when the chance that it differs from Glimmer's full answer is under 5%; and when the student
+  (at least 0.3 sure) and the decider (at least 0.5) pick the same time, that time stands. On the decider's 196 hardest
+  cases, split in halves 500 times, with the student at the earlier 0.6, this rule raised the choices settled without
+  Glimmer's full answer from 72.1% to 79.0%, matching Glimmer 68.9% of the time instead of 69.6% (Glimmer matches
+  itself 73.5%). Now that the student answers from 0.5, it applies only to the few choices left.
+- **Layer 2, Muse Glimmer (about 20 to 40 s), stopped early when it is sure.** Only the few choices still open reach
+  it, streamed to the screen step by step (NDJSON). Following DEER [23], once its reasoning is 1,000 characters long the
+  options are read at each break in it, and the first read that is 0.98 sure ends the answer. On the RTX 3090, one
+  answer at a time on 30 cases, Glimmer wrote 30% fewer tokens (596 to 420 an answer) and answered no later (22.3 s to
+  21.3 s), though each read takes in the reasoning again (prompt tokens 1,074 to 4,885); read after the fact on 119
+  cases, 1.7% of answers differ from the full one. Every wait the person starts shows a moving bar and a status line
+  within 250 ms.
+- **Text, by length.** Free text (wording an invite, a summary, a reply) goes by how long the call is: see section 3.
 Before any of them, Match works ahead of time: it asks about the player's usual times before the player does, so the
 agents have often agreed a game before anyone waits at all.
 
@@ -224,10 +256,15 @@ person's hard rules.
 |---|---|---|
 | Agreement with Glimmer on all 500 held-out cases (every case answered; always taking the first listed time: 82.7%) | 88.8% (with itself) | **89.5%** (88.5% after int4) |
 | Time per choice | about 40 s, on the RTX 3090 | **about 0.9 s, on the CPU** |
-| Cases it answers at 0.6 sure | all | 96% of 500; 73% of the 196 hardest (the asked time breaks a rule, calendars shared) |
+| Cases it answers at 0.5 sure (the served threshold) | all | 99.0% of 500; 96.9% of the 196 hardest (the asked time breaks a rule, calendars shared) |
+| Agreement with Glimmer at 0.5 sure, with Glimmer on the rest | 88.3% on the 500; 73.5% on the hardest (Glimmer again) | 89.6% on the 500; 61.2% on the hardest |
 
-In talks with the simulated club it cut Glimmer's member answers by 67% (ordinary talks) and 54% (with private
-calendars on), with no rule broken. When it is unsure, busy for
+The threshold was 0.6 until the last day: there it answered 96.0% of the 500 and 73.0% of the hardest, with agreement
+89.9% and 68.4%. Most choices are not hard, so we lowered it to 0.5 to keep Glimmer's GPU free: on the hardest it now
+leaves 3.1% of the choices to the layers after it instead of 27.0%, at a cost of 7.2 points of agreement there (0.3 on
+the 500). This is a trade, not a free gain; `A2A_STUDENT_SURE=0.6` restores the earlier point. A pick whose reading of
+which times work differs from code's still goes to Glimmer. At 0.6, in talks with the simulated club, it cut Glimmer's
+member answers by 67% (ordinary talks) and 54% (with private calendars on), with no rule broken. When it is unsure, busy for
 8 s or silent for 20 s, Glimmer answers instead. With 500 cases each agreement rate is good to about 3 points either
 way, so the student matches Glimmer as closely as Glimmer matches itself, about 44 times faster than its full answer.
 
@@ -236,7 +273,7 @@ answers 89% of them and differs from Glimmer on only 7%.
 
 **Why distil, when the one-pass decider takes 0.53 s?** The decider is still Glimmer, so it needs the GPU that every
 agent's reasoning and the video models share, and it keeps a pick only when it is that sure (about 8% of choices). The
-student runs on the CPU, answers 96% of the 500 test cases on its own, and leaves the GPU free for the work only Glimmer
+student runs on the CPU, answers 99.0% of the 500 test cases on its own, and leaves the GPU free for the work only Glimmer
 can do.
 
 **What surprised us.** Four findings from running Meta's models in a product, each measured:
@@ -269,7 +306,21 @@ can do.
 ## 3. Meta models and tools
 
 Serve runs its open-weights models on our own GPU server (two RTX 3090s and their CPU), so players' data stays there,
-and calls the Meta Model API for live voice, a fallback, images and checks.
+and calls the Meta Model API for live voice, a fallback, very long calls, images and checks.
+
+**Which model answers, by length.** Each text call is routed by its estimated length. A short call (up to about 700
+tokens) at a site where our 1B was checked goes to the 1B, run as a chat model on Glimmer's Ollama with no reasoning;
+anything longer, or anywhere else, goes to Muse Glimmer; a very long call (12,000 tokens or more, near Glimmer's
+16,384-token context) goes to Muse Spark on the Meta Model API; with the fallback, these are the only text calls that
+leave our server. A 1B
+reply that is empty or does not fit its schema is asked again of Glimmer, and tool loops and images never go to the
+1B. We first sent every short call to the 1B, and it did not hold up: it filed training on the wrong day, logged games
+wrongly and could not phrase a wish (9 end-to-end checks failed), let 2 of 6 hostile comments through the post
+standard, and obeyed 4 of 10 court reviews that told it what to say. It was distilled to choose among options, not to
+read and write freely. So the 1B takes short text only at five checked sites (wording a game ask, a court's name in
+English, a memory's beliefs, a paper's summary, a question about the feed), and new sites go to Glimmer by default.
+With that list, the end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer
+alone; in the end-to-end test the 1B served 4 of about 37 model calls.
 
 #### The hackathon's models: the Muse family and SAM 3.1
 
@@ -277,7 +328,7 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 |---|---|---|---|
 | Reasoning | Muse Glimmer (30B) | RTX 3090 (GPU 1) | Every agent: the Autopilot's tool loop, each member's decision, the community specs, reading what a person wants. A JSON Schema on every call, and code checks every text |
 | Live voice | Muse Voice Transcribe | Meta Model API | 24 kHz PCM full duplex, with Kokoro speaking the reply on the server; the player can talk over the agent |
-| Fallback | Muse Spark 1.3 | Meta Model API | A fallback when the GPU server can't take a call, and an alternative model for the builder (which uses Glimmer by default) |
+| Long calls and fallback | Muse Spark 1.3 | Meta Model API | Calls of 12,000 tokens or more; a fallback when the GPU server can't take a call; an alternative model for the builder (which uses Glimmer by default) |
 | Images | Muse Image | Meta Model API | Faces for the club's agents and the art of rematch posters |
 | Cross-check | SAM 3.1 | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
 | Vision judge | Muse Wonder | Meta Model API | Judges orbit frames for defects: agreed with the labels on 87% of 84 frames |
@@ -286,7 +337,7 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 
 | Kind | Model | Runs on | Its job in Serve |
 |---|---|---|---|
-| Our model | Llama 3.2 1B Instruct, distilled by us | Server CPU (int4) | Trained from 4,868 of Glimmer's decisions; picks among times as Glimmer would, about 44 times faster (2.6) |
+| Our model | Llama 3.2 1B Instruct, distilled by us | Server CPU (int4), and Glimmer's Ollama for short text | Trained from 4,868 of Glimmer's decisions; picks among times as Glimmer would, about 44 times faster (2.6); short text at five checked sites |
 | Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its S6 flag so sports injuries are not read as medical advice |
 | Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes, every post and comment) before a model reads it |
 | Meaning | DRAMA (drama-base) | Server CPU | Memory by meaning (768 dimensions) and a softmax head that catches game requests the regular expressions miss |
@@ -307,7 +358,7 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 
 - **Most validation is simulated.** Beyond one real club and two games, the evidence comes from AI agents, simulated
   members and local copies; timings such as the 7 ms card were measured on a local copy, not the live site.
-- **The slow path still exists.** When the small models are unsure, Glimmer takes about 40 s. The person sees the steps
+- **The slow path still exists.** When the small models are unsure, Glimmer takes about 20 to 40 s. The person sees the steps
   stream in and a moving status line, but it is still a wait.
 - **Venues are samples.** No venue has joined yet, so quiet-hour prices are sample prices.
 - **The community loop has not run on real members.** An idea shows only once 5 different members ask for it, so
@@ -318,7 +369,8 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 
 - **Where the numbers come from.** Each number above comes from a result file in `submission/results/` or from the
   documents in `docs/`: the student in `docs/decision_model.md`, the decider in `docs/decider.md`, A2A and holds in
-  `contention_eval.json`, the value of information in `voi_sim.json`, the loop in `loop_eval.json`, orbits in
+  `contention_eval.json`, the value of information in `voi_sim.json` and `pref_share.json`, the time order in
+`rank_calls.json`, the agreement rule in `agree_cascade.json`, the early exit in `early_exit_ab.json` and `early_exit.json`, the loop in `loop_eval.json`, orbits in
   `submission/results/orbit/`, and the agent testing in `submission/agent_testing.md`.
 - **Built during the hackathon.** Building started on October 27, the hackathon's first day. We designed Serve and
   decided what it does and how; an AI coding agent (Claude Code) wrote code to our instructions, credited in the
@@ -353,5 +405,9 @@ and calls the Meta Model API for live voice, a fallback, images and checks.
 20. TypeSafe. Jev: decision models that score declared options in one pass. 2026.
 21. Meta. Agents Rule of Two. October 2025.
 22. Ramdas, Grünwald, Vovk and Shafer. Game-Theoretic Statistics and Safe Anytime-Valid Inference. Statistical Science, 2023.
+23. Yang et al. Dynamic Early Exit in Reasoning Models (DEER). arXiv 2504.15895, 2025.
+24. Bose et al. Pep: Cold-Start Personalization via Training-Free Priors from Structured World Models. arXiv 2602.15012, 2026.
+25. Poddar et al. Personalizing Reinforcement Learning from Human Feedback with Variational Preference Learning. arXiv 2408.10075, NeurIPS 2024.
+26. Waterschoot, Tintarev and Barile. Consensus vs. Dissent: Dynamic LLM Modeling of Subjective Preferences in Group Recommenders. arXiv 2607.10235, RecSys 2026.
 
 The decider's thresholds use conformal risk control (Angelopoulos et al., 2022); more in `docs/methods.md`.

@@ -459,11 +459,11 @@ choose their settings. All four are on.
   without Glimmer's full answer went from 72.1% to 79.0%, matching Glimmer's own answer 68.9% of the time instead of
   69.6% (Glimmer matches itself 73.5%).
 - **The 1B student takes nearly every choice.** Its threshold is 0.5 instead of 0.6 (`agents/student.js`
-  A2A_STUDENT_SURE), since most choices are not hard: on the 500 ordinary held-out cases it answers 99.4% and matches
-  the majority of Glimmer's three answers 91.1% of the time (Glimmer matches itself 88.8%); on the 196 hardest it
-  answers 95.9% instead of 70.9%, Glimmer's full answer is asked for 4.1% instead of 20.9%, and it matches Glimmer
-  69.1% of the time against 73.0% before (Glimmer matches itself 73.5%). A pick whose reading of which times work
-  differs from code's still goes to Glimmer.
+  A2A_STUDENT_SURE), since most choices are not hard. With the int4 file as served
+  ([docs/decision_model.md](docs/decision_model.md)): on the 500 ordinary held-out cases it answers 99.0% instead of
+  96.0%, agreement 89.6% instead of 89.9%; on the 196 hardest it answers 96.9% instead of 73.0%, and agreement falls
+  from 68.4% to 61.2% (Glimmer again: 73.5%). A trade for Glimmer's GPU, not a free gain. A pick whose reading of which
+  times work differs from code's still goes to Glimmer.
 - **Early exit from Glimmer's reasoning.** `agents/early.js` (A2A_EARLY=off to turn it off), after DEER: the full answer
   is streamed, the options are read at each break in its reasoning once it is 1,000 characters long, and the first read
   0.98 sure stops it. Run for real on the RTX 3090, one answer at a time on 30 cases (`submission/results/early_exit_ab.json`):
@@ -498,7 +498,7 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
 | `agent/src/loop/` | The community loop: signals, proposals, review, flags, gates and the builder |
 | `agent/src/feed/` | The club feed made by agents and people |
 | `agent/src/club/`, `body/`, `memory/`, `media/`, `channels/` | The club, Play, booking and courts near you; the body log and health import; memory by meaning; highlights, photos and voice; Messenger and the app's routes |
-| `distill/` | The decision model's distillation (a Llama 3.2 3B student) and its CPU worker |
+| `distill/` | The decision model's distillation (the served Llama 3.2 1B student, and a 3B option) and its CPU worker |
 | `ops/start.sh`, `serve.sh`, `guard.sh`, `watch.sh`, `up.sh` | Start Muse Glimmer (Ollama, GPU 1, port 11435), Llama Guard 3 (Ollama, CPU, port 11436) and the gateway (port 8790) on the GPU server, with a watchdog |
 | `video/` | The demo video pipeline (recording, narration, assembly), the sample health export (`sample_health.py`), and `video/pose/` (Sapiens2, SAM 2.1, DETR; orbit replays with MapAnything) |
 | `agent/src/members/` | Members and their own agents: sign-in, agent keys and the signed agent channel; games the agents work out together (`huddle.js`), how a member likes to play (`taste.js`), courts, quiet hours and venue prices (`deals.js`), the trust chain (`trust.js`), and the way in for agents (`discovery.js`: `/llms.txt`, the Agent Card, OpenAPI) |
