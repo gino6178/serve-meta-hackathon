@@ -10,6 +10,8 @@ import { deps } from "./deps.js";
 import * as S from "./store.js";
 import * as T from "./text.js";
 import { find, mediaView, authorOf, paused } from "./posts.js";
+import { readText } from "./tiny_text.js";
+import { record } from "../core/ledger.js";
 
 const authorId = (x) => x.by?.player || x.by?.agentOf || (x.by?.agent === "club" ? "club" : null);
 const nameOf = (x, who) => (who === "club" ? "The club's reading agent" : x.by?.type === "agent" ? `${authorOf(who) || "A member"}'s agent` : authorOf(who) || "A member");
@@ -59,3 +61,22 @@ export function act({ post, comment = null, action, reason = "", days = 7 } = {}
   return { ok: true, item: reportQueue({ all: true }).find((i) => i.post === p.id && i.comment === (comment || null)) || null, entry: S.data().audit.at(-1) };
 }
 export const auditLog = ({ n = 100 } = {}) => (S.data().audit || []).slice(-Math.max(1, Math.min(500, n))).reverse();
+
+// The tiny prefilter in front of the text checks (FEED_TINY=1; off by default): a hashed n-gram model of 64 KB
+// (tiny_text.js) says either "clearly fine" or "send onward". Clearly fine skips Prompt Guard 2, Llama Guard 3 and the
+// club's standard (code's own checks still run, posts.js moderate); everything else goes through them as before, so it
+// never refuses anything itself. On held-out synthetic comments (attack templates and a disguise it never saw) it
+// passed none of 762 hostile or injected ones, and 30 of 271 ordinary ones (11%, none of 53 in English): little is
+// saved yet (docs/tiny_models.md).
+export const tinyFeedOn = () => process.env.FEED_TINY === "1";
+export const prefilterStats = { read: 0, passed: 0 };
+export function prefilter(text) {
+  if (!tinyFeedOn()) return false;
+  const t0 = process.hrtime.bigint();
+  let r;
+  try { r = readText(text); } catch { return false; } // no weights file: everything goes onward
+  prefilterStats.read++;
+  if (r.pass) prefilterStats.passed++;
+  record({ site: "feed.tiny", model: "tiny-text", prompt: 0, cached: 0, output: 0, reasoning: 0, seconds: Number(process.hrtime.bigint() - t0) / 1e9, used: r.pass, ...(r.rule ? { rule: r.rule } : { confidence: +r.p.toFixed(3), doubt: +r.doubt.toFixed(3) }) });
+  return r.pass;
+}

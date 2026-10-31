@@ -20,6 +20,7 @@ import { lineFor } from "./line.js";
 import { find as clubOf } from "../members/clubs.js";
 import { holdInvite } from "../members/programs.js";
 import * as Consent from "../a2a/consent.js";
+import { prefilter } from "./moderation.js";
 
 const MIN = 6e4, DAY = 864e5, HOUR = 36e5;
 // a game short of its minPlayers this long before the start is called off; a spot offered from the waitlist waits this
@@ -62,6 +63,11 @@ export function folded(text) {
 // Llama Guard 3 1B lets most harassment through (veiled threats, insults, demeaning a group, asking someone for
 // photos; test/feed_redteam.mjs), which a club feed must not show. Any model not answering: the text waits.
 export async function moderate(text, player) {
+  // the tiny prefilter (FEED_TINY=1, moderation.js): a text it calls clearly fine skips the model checks, not code's
+  if (prefilter(text)) {
+    for (const b of T.personProblems(text, { author: authorOf(player), names: othersNames() })) return { refused: true, why: `Not posted: ${b.why}`, code: b.code, check: "code" };
+    return { ok: true, verdict: "tiny", standard: "tiny" };
+  }
   const plain = folded(text), r = await deps.injected(plain === text ? [text] : [text, plain], { site: "feed.person" });
   const pg = Array.isArray(r) ? r : r ? [r] : [];
   if (pg.some((x) => x?.injected === true)) return { refused: true, why: "Not posted: it is written to instruct the app's agents.", check: "prompt-guard" };
