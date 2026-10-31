@@ -1,0 +1,33 @@
+{
+ "label": "Two cheap reads that agree (A2A_AGREE) on the decider's 196 cases: answered without Glimmer, and matching Glimmer's full answer",
+ "cases": 196,
+ "glimmerSelf": 0.7347,
+ "heldOut": {
+  "halves": 500,
+  "old": {
+   "answeredWithoutGlimmer": 0.7208,
+   "matchesGlimmer": 0.6962
+  },
+  "agree": {
+   "answeredWithoutGlimmer": 0.7899,
+   "matchesGlimmer": 0.6895
+  },
+  "chosen": {
+   "(0.2, 0.5)": 233,
+   "(0.2, 0.7)": 150,
+   "(0.2, 0.0)": 117
+  }
+ },
+ "served": {
+  "lo": 0.5,
+  "dlo": 0.5,
+  "all": {
+   "answeredWithoutGlimmer": 0.7908,
+   "matchesGlimmer": 0.6939
+  },
+  "oldAll": {
+   "answeredWithoutGlimmer": 0.7194,
+   "matchesGlimmer": 0.6939
+  }
+ }
+}

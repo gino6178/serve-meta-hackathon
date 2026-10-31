@@ -10,12 +10,13 @@ import http from "node:http";
 
 // the stand-in: `next` is the next token's top alternatives it gives (token and probability); what it was asked is kept
 const seen = { generate: [], chat: 0 };
-let next = [];
+let next = [], student = null; // student: what the stand-in student worker (/decide) answers
 const srv = http.createServer((req, res) => {
   let b = "";
   req.on("data", (c) => (b += c));
   req.on("end", () => {
     const j = JSON.parse(b || "{}"), send = (o) => { res.writeHead(200, { "content-type": "application/json" }); res.end(JSON.stringify(o)); };
+    if (req.url === "/decide") { res.writeHead(200, { "content-type": "application/json" }); return res.end(JSON.stringify(student)); }
     if (req.url === "/api/generate") {
       seen.generate.push(j);
       const top = next.map(([token, p]) => ({ token, logprob: Math.log(p) }));
@@ -27,7 +28,7 @@ const srv = http.createServer((req, res) => {
 });
 await new Promise((ok) => srv.listen(0, "127.0.0.1", ok));
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-decider-"));
-Object.assign(process.env, { A2A_STUDENT: "off", LLM_URL: `http://127.0.0.1:${srv.address().port}/v1`, LLM_MODEL: "muse-glimmer", BOOKINGS_FILE: `${tmp}/bookings.json`, A2A_FILE: `${tmp}/a2a.json`, NEGOTIATIONS_FILE: `${tmp}/neg.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, A2A_LEASE: "off" });
+Object.assign(process.env, { A2A_STUDENT: "off", A2A_STUDENT_URL: `http://127.0.0.1:${srv.address().port}`, LLM_URL: `http://127.0.0.1:${srv.address().port}/v1`, LLM_MODEL: "muse-glimmer", BOOKINGS_FILE: `${tmp}/bookings.json`, A2A_FILE: `${tmp}/a2a.json`, NEGOTIATIONS_FILE: `${tmp}/neg.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, A2A_LEASE: "off" });
 const { readOptions, decisionPrompt } = await import("../src/agents/decider.js");
 const { fullAnswer } = await import("../src/a2a/talk.js");
 test.after(() => srv.close());
@@ -85,6 +86,25 @@ test("not sure, or not this week: the full answer decides", async () => {
   j = await ask();
   assert.equal(j.tier, "decider"); assert.equal(j.start, "19:00", "A2A_DECIDER_SURE sets the threshold");
   delete process.env.A2A_DECIDER_SURE;
+});
+
+test("an unsure student and a decider that agree on a time: that time, without the full answer (A2A_AGREE)", async () => {
+  process.env.A2A_DECIDER = "raw"; process.env.A2A_STUDENT = "on";
+  const unsure = (id, p) => ({ pick: { kind: "counter", id, p }, works_p: { t1: 0.99, t2: 0.01, t3: 0.99, t5: 0.99 }, ms: 200, tokens: 100, model: "test.gguf" });
+  try {
+    student = unsure("t3", 0.55); reset([[" B", 0.6], [" A", 0.4]]); // B is Saturday 9:00, t3
+    let j = await ask();
+    assert.equal(j.tier, "agree"); assert.equal(j.start, "09:00"); assert.equal(j.student, 0.55); assert.equal(seen.chat, 0);
+    student = unsure("t5", 0.55); reset([[" B", 0.6], [" A", 0.4]]);
+    j = await ask();
+    assert.equal(j.tier, "agent", "they disagree: the full answer decides"); assert.equal(seen.chat, 1);
+    student = unsure("t3", 0.4); reset([[" B", 0.6], [" A", 0.4]]);
+    j = await ask();
+    assert.equal(j.tier, "agent", "the student under A2A_AGREE_MIN: the full answer decides");
+    process.env.A2A_AGREE = "off"; student = unsure("t3", 0.55); reset([[" B", 0.6], [" A", 0.4]]);
+    j = await ask();
+    assert.equal(j.tier, "agent", "A2A_AGREE=off");
+  } finally { process.env.A2A_STUDENT = "off"; delete process.env.A2A_AGREE; student = null; }
 });
 
 test("the decider is asked only for a choice between times; on by default, A2A_DECIDER=off turns it off", async () => {

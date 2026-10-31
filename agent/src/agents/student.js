@@ -31,8 +31,8 @@ export const studentStats = { asked: 0, answered: 0, unsure: 0, mismatch: 0, err
 
 // m: the member; cur: the proposed time; ok: the listed times that keep the member's calendar and rules (by code);
 // all: every listed time; profile: what the member's agent reads about its member. Returns a decision in fullAnswer's
-// shape (without its sentence), or null for Muse Glimmer.
-export async function studentAnswer(m, cur, ok, all, { minutes = 90, format, sport, profile }) {
+// shape (without its sentence), or null for Muse Glimmer (with its unsure pick in `out.pick`, when `out` is given).
+export async function studentAnswer(m, cur, ok, all, { minutes = 90, format, sport, profile, out = null }) {
   if (!m.rulesComplete || !cur?.id || all.some((x) => !x.id) || Date.now() < downUntil) return null;
   const alts = ok.filter((x) => x !== cur);
   if (alts.length < 2) return null;
@@ -60,7 +60,8 @@ export async function studentAnswer(m, cur, ok, all, { minutes = 90, format, spo
   const sure = r.pick.p >= SURE();
   record({ site: "a2a.student", model: r.model || "student", prompt: r.tokens || 0, cached: r.reused || 0, output: 0, reasoning: 0, seconds: +((Date.now() - t0) / 1000).toFixed(3), workerMs: r.ms, workerQueuedMs: r.queued_ms, confidence: r.pick.p, used: sure && read });
   if (!read) { studentStats.mismatch++; return null; }
-  if (!sure) { studentStats.unsure++; return null; }
+  // (an unsure pick is handed back in `out`: the decider may agree with it, talk.js decided)
+  if (!sure) { studentStats.unsure++; if (out) out.pick = { id: r.pick.kind === "decline" ? "Z" : r.pick.id, p: r.pick.p }; return null; }
   studentStats.answered++;
   const tier = { tier: "student", confidence: +r.pick.p.toFixed(3) };
   if (r.pick.kind === "decline") return { intent: "decline", date: "", start: "", works: [], ...tier };

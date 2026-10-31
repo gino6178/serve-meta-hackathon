@@ -290,6 +290,8 @@ export function chatStream(messages, { maxTokens = 120, temperature = 0.3, site 
           }
           if (stopped) break;
         }
+        // (a last line with no newline after it: a server that answers in one piece)
+        if (!stopped && buf.trim()) { const j = JSON.parse(buf); if (j.done) last = j; if (j.message?.content) text += j.message.content; if (j.message?.thinking) thinking += j.message.thinking; }
       } catch (e) { if (!stopped) throw e; }
       const secs = (Date.now() - t0) / 1000;
       // (a stopped answer has no final counts: its output is estimated at four characters a token)

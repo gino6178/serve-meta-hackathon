@@ -1,0 +1,45 @@
+{
+ "simulated": true,
+ "label": "The order of the listed times (match/timerank.js) with shared calendars: requests whose first time keeps everyone's rules (agreed by code, no model), and the choices asked of a model",
+ "trials": 3000,
+ "club": "population(800): rules and free lists; the first 300 make the prior",
+ "seen": "0 to 6 past answers per member at their own free times, 10% flipped",
+ "singles": {
+  "requests": 3000,
+  "counts": {
+   "firstKeepsEveryone": 0.8977,
+   "ci": [
+    0.8868,
+    0.9085
+   ],
+   "modelChoicesPerRequest": 0.1023
+  },
+  "prob": {
+   "firstKeepsEveryone": 0.9243,
+   "ci": [
+    0.9149,
+    0.9338
+   ],
+   "modelChoicesPerRequest": 0.0757
+  }
+ },
+ "doubles": {
+  "requests": 3000,
+  "counts": {
+   "firstKeepsEveryone": 0.7387,
+   "ci": [
+    0.7229,
+    0.7544
+   ],
+   "modelChoicesPerRequest": 0.2613
+  },
+  "prob": {
+   "firstKeepsEveryone": 0.8913,
+   "ci": [
+    0.8802,
+    0.9025
+   ],
+   "modelChoicesPerRequest": 0.1087
+  }
+ }
+}

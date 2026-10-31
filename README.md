@@ -438,26 +438,32 @@ FrugalGPT, the A2A spec and others) gave thirteen ranked improvements. All are i
 
 ## Four agent upgrades from the literature, measured
 
-Four ideas from 2024–2026 papers, each built and measured against what ran before. One helped; three did not, and stay
-off or unbuilt, with the numbers.
+Four ideas from 2024–2026 papers, each built and measured against what ran before, on seeds or halves not used to
+choose their settings. All four are on.
 
-- **Shared preferences (on).** One answer now counts as evidence about the hours like it (`match/voi.js` PREF_SHARE:
+- **Shared preferences.** One answer now counts as evidence about the hours like it (`match/voi.js` PREF_SHARE:
   borrowed Beta counts, weighted by how hours go together in the club's free lists, after Pep and VPL), the prior counts
   for 0.5 answers instead of 2, and a window's last hour no longer counts as free when a 90-minute game can't start
-  then. On simulated members whose seeds were not used to choose any of it (`test/pref_sim.mjs`,
-  `submission/results/pref_share.json`): Brier score 0.223 to 0.200 and log loss 0.638 to 0.585; the chance the first
-  talk lands, 68.9% to 73.7%, and with one value-of-information question first, 75.1% to 79.2%.
-- **Ranking times by the chance everyone accepts, with a least-misery floor (off).** `match/timerank.js`, A2A_RANK=prob.
-  No difference in the requests that find a time (`test/rank_sim.mjs`: 88.4% singles, 26.3% doubles in round 1 either
-  way), because twelve listed times a round and three rounds already cover nearly every hour a player offers.
-- **Early exit from Glimmer's reasoning (off).** `agents/early.js`, A2A_EARLY=on, after DEER: read the options at each
-  break in the reasoning and stop when sure. Read after the fact (119 cases), at 0.98 an answer would come 17% sooner
-  and differ 2.5% of the time; run for real on the one RTX 3090, the reads compete with the answer for the GPU, and the
-  answer took as long (22.3 s off, 22.9 s on, 30 cases), though Glimmer wrote 34% fewer tokens
-  (`submission/results/early_exit*.json`).
-- **Conformal cascade and soft labels for the 1B student (not built).** A conformal set-size-one rule sits on the same
-  risk–coverage curve as the 0.6 threshold (5% risk: 83% answered, 5.3% differing, as the curve gives at 0.9), and the
-  student is already trained on the distribution of Glimmer's three answers per case.
+  then (`test/pref_sim.mjs`, `submission/results/pref_share.json`): Brier score 0.223 to 0.200 and log loss 0.638 to
+  0.585; the chance the first talk lands, 68.9% to 73.7%, and with one value-of-information question first, 75.1% to
+  79.2%.
+- **Times ranked by the chance everyone accepts, with a least-misery floor.** `match/timerank.js` (A2A_RANK=counts for
+  the old order). With shared calendars the time proposed first decides whether the members' agents say yes by code or
+  each has a choice for a model to make (`test/rank_calls_sim.mjs`, `submission/results/rank_calls.json`): the first
+  time kept everyone's rules in 92.4% of singles requests instead of 89.8%, and 89.1% of doubles instead of 73.9%; model
+  choices per doubles request fell from 0.261 to 0.109. (With private calendars it finds no more games:
+  `test/rank_sim.mjs`.)
+- **Two cheap reads that agree.** When the 1B student is unsure and the one-token decider not sure enough, but both pick
+  the same time with at least 0.5 each, that time is the counter (`a2a/talk.js` A2A_AGREE; `distill/agree_cascade.py`,
+  `submission/results/agree_cascade.json`): on the decider's 196 cases, split in halves 500 times, the choices answered
+  without Glimmer's full answer went from 72.1% to 79.0%, matching Glimmer's own answer 68.9% of the time instead of
+  69.6% (Glimmer matches itself 73.5%).
+- **Early exit from Glimmer's reasoning.** `agents/early.js` (A2A_EARLY=off to turn it off), after DEER: the full answer
+  is streamed, the options are read at each break in its reasoning once it is 1,000 characters long, and the first read
+  0.98 sure stops it. Run for real on the RTX 3090, one answer at a time on 30 cases (`submission/results/early_exit_ab.json`):
+  Glimmer wrote 30% fewer tokens (596 to 420 an answer) and the answer came no later (22.3 s to 21.3 s), though each read
+  takes the reasoning again (prompt tokens 1,074 to 4,885). Read after the fact on 119 cases
+  (`submission/results/early_exit.json`), 1.7% of answers differ from the full one.
 
 ## What is where
 

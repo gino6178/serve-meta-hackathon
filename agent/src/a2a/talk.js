@@ -268,12 +268,20 @@ async function drafts(msgs, timeoutMs) {
 const deciderOn = () => process.env.A2A_DECIDER !== "off", DECIDER_SURE = () => +(process.env.A2A_DECIDER_SURE || 0.85);
 // the question in the full answer's words: the member's profile, the rule, the proposed time and why it does not work
 export const deciderQuestion = (m, cur, times, why, format, sport) => ({ profile: profile(m), rule: DECIDE(first(m.name)), them: first(m.name), sport, format, cur: cur.text, why, times });
-async function decided(m, cur, choices, all, why, format, sport) {
+// Two cheap reads that agree (A2A_AGREE, on by default): when the student was unsure and the decider is not sure
+// enough on its own, but both pick the same time and each gives it at least AGREE_MIN, that time is the counter. Two
+// different models agreeing is better evidence than either's confidence: on the decider's 196 cases, split in halves
+// 500 times (thresholds chosen on one half, measured on the other), the choices answered without Glimmer's full answer
+// went from 72.1% to 79.0%, and the answers that matched Glimmer's from 69.6% to 68.9% (Glimmer matches itself on 73.5%).
+const agreeOn = () => process.env.A2A_AGREE !== "off", AGREE_MIN = () => +(process.env.A2A_AGREE_MIN || 0.5);
+async function decided(m, cur, choices, all, why, format, sport, hint = null) {
   const them = first(m.name);
   let r;
   try { r = await decideRaw(deciderQuestion(m, cur, choices, why, format, sport)); } catch { return null; }
-  if (!r.pick?.x || r.p < DECIDER_SURE()) return null;
-  const j = { intent: "counter", date: r.pick.x.slot.date, start: hm(r.pick.x.start), ...(all.some((x) => x.id) ? { works: choices.map((x) => x.id).filter(Boolean) } : {}), tier: "decider", confidence: r.p };
+  if (!r.pick?.x) return null;
+  const agree = agreeOn() && hint && hint.id === r.pick.x.id && hint.p >= AGREE_MIN() && r.p >= AGREE_MIN();
+  if (r.p < DECIDER_SURE() && !agree) return null;
+  const j = { intent: "counter", date: r.pick.x.slot.date, start: hm(r.pick.x.start), ...(all.some((x) => x.id) ? { works: choices.map((x) => x.id).filter(Boolean) } : {}), tier: r.p >= DECIDER_SURE() ? "decider" : "agree", confidence: r.p, ...(r.p >= DECIDER_SURE() ? {} : { student: hint.p }) };
   return { ...j, text: sentence(them, j, cur) };
 }
 // the full answer's messages: the member's profile, the rule, the proposed time (and why it does not work), the times
@@ -308,15 +316,16 @@ export async function fullAnswer(m, cur, choices, log, format, sport, minutes = 
     }
     // a choice between times: the student first (A2A_STUDENT, on by default; student.js), then the one-pass decider
     // (on unless A2A_DECIDER=off), the full answer when neither is sure
-    if (studentOn() && curBad && choices.length > 1) { const s = await studentAnswer(m, cur, choices, all, { minutes, format, sport, profile: profile(m) }); if (s) return { ...s, text: sentence(them, s, cur) }; }
-    if (deciderOn() && curBad && choices.length > 1) { const d = await decided(m, cur, choices, all, curBad, format, sport); if (d) return d; }
+    const unsure = {};
+    if (studentOn() && curBad && choices.length > 1) { const s = await studentAnswer(m, cur, choices, all, { minutes, format, sport, profile: profile(m), out: unsure }); if (s) return { ...s, text: sentence(them, s, cur) }; }
+    if (deciderOn() && curBad && choices.length > 1) { const d = await decided(m, cur, choices, all, curBad, format, sport, unsure.pick); if (d) return d; }
   }
   const msgs = answerMessages(m, cur, choices, log, format, sport, curBad);
   // the reply in MEMBER_REPLY's format, asked once more if it does not fit; an agent that never answers in it has not
   // said yes (it was once taken as a yes, which could book a member who never agreed)
   // two tries, each within half of what your agent waits for an A2A answer (and the model call's own limit)
   const perTry = Math.max(30000, Math.min(+(process.env.LLM_TIMEOUT_MS || 180000), Math.floor((+(process.env.A2A_TIMEOUT_MS || 270000) - 20000) / 2)));
-  // early exit (A2A_EARLY=on; early.js): a choice between times the rules left is streamed, and stopped as soon as a
+  // early exit (on unless A2A_EARLY=off; early.js): a choice between times the rules left is streamed, and stopped as soon as a
   // read of the options with the reasoning so far is sure enough; a full reply that streamed to its end is used as is
   let streamedValue = null;
   if (earlyOn() && rulesInCode() && curBad && choices.length > 1) {
@@ -576,8 +585,7 @@ async function rounds({ id = `neg-${crypto.randomUUID().slice(0, 13)}`, me, memb
   if (ps && !choices.some((x) => x.slot.date === ps.date && x.start === toMin(prefer.start))) { const x = offer(ps, toMin(prefer.start)); if (x) choices.push(x); }
   if (!choices.length) return done({ agreed: null, reason: times.length ? "no court is free when everyone is" : `${names.join(" and ")} and you have no free time in common this week`, rounds: 0, log: [] });
   // what we know about these agents goes first: the time likeliest to work for every one of them (timerank.js: the
-  // product of each member's posterior, none of them very unlikely) with A2A_RANK=prob; by default past yeses up and
-  // past noes down, which found as many games in test/rank_sim.mjs
+  // product of each member's posterior, none of them very unlikely; A2A_RANK=counts for the old past-yeses-up order)
   const mems = members.map((m) => memoryOf(m.id, now.getTime()));
   const prior = populationPrior({ members: privateCalendars ? [] : members, sport, mems: privateCalendars ? mems.filter(Boolean) : [] });
   const score = (x) => timeScore(x, mems, prior);
