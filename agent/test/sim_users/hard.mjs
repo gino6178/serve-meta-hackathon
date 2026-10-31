@@ -51,8 +51,9 @@ export const bailText = (p, day, start) => (p.lang === "zh" ? `抱歉，${ZH[day
 // Drop it, Not this week), "other" (Another time, where there is such a button), "text" (words, no tap: vague), or
 // "silent". delay: "now" or "late" (after the hold lapsed). The cooperative answer is the inertia model's
 // (answerGame, with this trial's dice); `asked` is the asker's own request, which they keep when the time is theirs.
-//   ctx { scen, trial, step, date, start, minutes, kind ("confirm" | "book" | "ask"), asked: { date, start } | null,
-//         seen: { questions, messages } so far in this scenario }
+//   ctx { scen, trial, step, date, start, minutes, kind ("confirm" | "book" | "ask" | "notice"), asked: { date, start }
+//         | null, seen: { questions, messages } so far in this scenario, club: the club seed (the drifter's day; default
+//         the seed) }
 export function answer(seed, p, type, ctx) {
   const k = key(ctx, ctx.kind, ctx.step);
   const mine = ctx.asked && ctx.asked.date === ctx.date && ctx.asked.start === ctx.start;
@@ -67,7 +68,7 @@ export function answer(seed, p, type, ctx) {
     case "budget": { const b = budgetOf(seed, p, ctx), s = ctx.seen || { questions: 0, messages: 0 };
       if (s.questions > b.questions || s.messages > b.messages) return { act: "silent", delay: "now", coop, why: `gave up (${s.questions} questions, ${s.messages} messages; tolerance ${b.questions} and ${b.messages})`, gaveUp: true };
       return { ...tap(keen), why: "within tolerance" }; }
-    case "drifter": return I.dayOf(ctx.date) === dropDay(seed, p) ? { act: "no", delay: "now", coop, why: `no longer plays on ${dropDay(seed, p)}` } : { ...tap(keen), why: "a day they still play" };
+    case "drifter": { const d = dropDay(ctx.club ?? seed, p); return I.dayOf(ctx.date) === d ? { act: "no", delay: "now", coop, why: `no longer plays on ${d}` } : { ...tap(keen), why: "a day they still play" }; }
     case "vague": return u(seed, "vague", p.id, k) < 0.75 ? { act: "text", text: vagueText(seed, p, ctx, ctx.step), delay: "now", coop, why: "vague words, no tap" } : { ...tap(keen), why: "tapped" };
     default: return { ...tap(coop), why: "cooperative" };
   }

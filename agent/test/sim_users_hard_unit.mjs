@@ -84,7 +84,8 @@ test("the drifter turns down the day they dropped, says so in words, and still p
   for (let i = 1; i < 8; i++) {
     const d = new Date("2026-11-09T12:00"); d.setDate(d.getDate() + i); const date = I.ymd(d), w = I.windows(p.free).find((x) => x.day === I.dayOf(date));
     if (!w) continue;
-    const a = H.answer(5, p, "drifter", { scen: "s1", trial: 0, step: "x", kind: "confirm", date, start: I.hm(w.from), seen: { questions: 1, messages: 1 } });
+    // (the trial's dice come from the run seed, the dropped day from the club seed)
+    const a = H.answer(99, p, "drifter", { scen: "s1", trial: 0, step: "x", kind: "confirm", date, start: I.hm(w.from), seen: { questions: 1, messages: 1 }, club: 5 });
     if (w.day === day) assert.equal(a.act, "no"); else assert.notEqual(a.why, `no longer plays on ${day}`);
   }
 });
