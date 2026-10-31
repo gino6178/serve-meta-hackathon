@@ -496,6 +496,9 @@ const gateway = http.createServer(async (req, res) => {
     if (u.pathname.startsWith("/api/") && await membersApi.route(req, res, u, { json, o, forget: (id, opts) => feedPosts.forget(id, opts) })) return;
     if (u.pathname.startsWith("/api/") && await webapi.route(req, res, u, { json, bodyOf, o })) return;
     if (u.pathname === "/api/status") {
+      // anyone may ask whether the gateway is up; the model server's address, the Messenger page and the map quota are
+      // for the gateway's own token only (a visitor saw them, agent testing round 27)
+      if (!auth.authorized(req)) { const l = await health(); return json(res, 200, { health: true, llm: { ready: !!l?.ready }, reel: reel.ready(), reelEffects: reel.effectsReady() }, o); }
       return json(res, 200, { llm: await health(), messenger: { enabled: msn.state.enabled, page: msn.state.page, error: msn.state.error, lastEvent: msn.state.lastEvent }, reel: reel.ready(), reelEffects: reel.effectsReady(), places: places.ready(), health: true,
         players: store.players().length }, o);
     }

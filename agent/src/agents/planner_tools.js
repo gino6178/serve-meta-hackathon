@@ -2,17 +2,21 @@
 // 2026: tools left unused across sessions are pruned, and a turn stuck repeating a failure gets one redirect note,
 // 18 to 31% lower cost for coding agents). Every tool's schema is read again on every step of the planner's loop, so
 // a tool the week cannot use costs its tokens at every step.
-//   - pruning (PLANNER_PRUNE, on unless "off"): by what code knows of this run (the week and the body are read by code
+//   - pruning (PLANNER_PRUNE=on): by what code knows of this run (the week and the body are read by code
 //     before the first step, a court near a club only matters outdoors or once no club court was free, memory only
 //     when there are notes), and by use: a tool no run used in the last 10 runs
 //     is left out until something needs it. Nothing a tool can do is lost: a tool comes back the moment its rule holds.
-//   - loops (PLANNER_LOOPS, on unless "off"): the same call failing twice, or three failed calls in a row, gets one
+//   - loops (PLANNER_LOOPS=on): the same call failing twice, or three failed calls in a row, gets one
 //     note naming what is not working and the next steps that are open, at most twice a run. Code decides; no model.
 import path from "node:path";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
 
-export const pruneOn = () => process.env.PLANNER_PRUNE !== "off";
-export const loopsOn = () => process.env.PLANNER_LOOPS !== "off";
+// both off by default (PLANNER_PRUNE=on, PLANNER_LOOPS=on to try them): on 9 planner weeks each, on an A100, the
+// pruned list read 18% fewer tokens a call but the runs took more calls (14.8 to 18.9) and missed the cached prefix
+// more often (fresh tokens a call 253 to 347), so a run cost no less; weeks reaching the goal 6, 8 and 4 of 9 in
+// three runs, too noisy to tell (submission/results/planner_tools.json)
+export const pruneOn = () => process.env.PLANNER_PRUNE === "on";
+export const loopsOn = () => process.env.PLANNER_LOOPS === "on";
 const FILE = () => path.resolve(process.env.PLANNER_TOOLS_FILE || "data/planner_tools.json");
 const WINDOW = 10;
 

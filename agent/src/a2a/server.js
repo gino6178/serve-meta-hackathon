@@ -235,7 +235,7 @@ export function cardFor(base, m, club) {
     description: m.real ? `Agrees games for ${first(m.name)}, a player of ${club.name} on Serve: answers a proposed time with yes, another time that suits ${first(m.name)}, or not this week. A real player's agent.`
       : `Agrees games for ${first(m.name)}, a member of ${club.name} on Serve: answers a proposed time with yes, another time that suits ${first(m.name)}, or not this week. A simulated member of the demo club.`,
     supportedInterfaces: [{ url: `${base}/`, protocolBinding: "JSONRPC", tenant: "", protocolVersion: A2A_PROTOCOL_VERSION }],
-    provider: { organization: m.real ? "Serve" : "Serve demo club (simulated members)", url: `${process.env.A2A_BASE || ""}/a2a/agents` },
+    provider: { organization: m.real ? "Serve" : "Serve demo club (simulated members)", url: `${process.env.PUBLIC_URL || process.env.A2A_BASE || ""}/a2a/agents` },
     version: "1.0.0",
     // the proposal and the hold, as required A2A extensions (ext.js); serve.likely as an optional one (a member who opted
     // out declares it not and has no such skill)
@@ -310,7 +310,8 @@ app.get("/a2a/club.json", (req, res) => {
   res.json({ kind: "serve.club", name: clubSlug(), title: club.name, protocol: "a2a/1.0", keys: "/a2a/keys.json",
     members: club.members.filter((m) => !m.real).map((m) => ({ id: m.id, name: m.name, level: m.level, sports: m.sports || ["badminton"], prefers: m.prefers || "any" })) });
 });
-app.get("/a2a/agents", (req, res) => { const club = readClub(), base = process.env.A2A_BASE || ""; res.json({ club: club.name, agents: club.members.map((m) => ({ id: m.id, name: `${m.name}'s agent`, card: `${base}/a2a/members/${m.id}/${AGENT_CARD_PATH}` })) }); });
+// (the directory is read by agents outside: it names the public address, not the loopback the gateway talks to itself on)
+app.get("/a2a/agents", (req, res) => { const club = readClub(), base = process.env.PUBLIC_URL || process.env.A2A_BASE || ""; res.json({ club: club.name, agents: club.members.map((m) => ({ id: m.id, name: `${m.name}'s agent`, card: `${base}/a2a/members/${m.id}/${AGENT_CARD_PATH}` })) }); });
 // -32600 an invalid request; -32700 a body that is not JSON at all (JSON-RPC 2.0, section 5.1)
 const rpcError = (message, code = -32600) => ({ jsonrpc: "2.0", id: null, error: { code, message } });
 const serveMember = (m, req, res, next) => routerFor(m).then((r) => r(req, res, next)).catch(() => res.status(500).json({ error: "this agent's card could not be made" }));

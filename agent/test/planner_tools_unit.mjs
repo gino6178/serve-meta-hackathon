@@ -7,7 +7,7 @@ import os from "node:os";
 import path from "node:path";
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-ptools-"));
-process.env.PLANNER_TOOLS_FILE = `${tmp}/tools.json`;
+process.env.PLANNER_TOOLS_FILE = `${tmp}/tools.json`; process.env.PLANNER_PRUNE = "on"; process.env.PLANNER_LOOPS = "on";
 const pt = await import("../src/agents/planner_tools.js");
 after(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
@@ -23,7 +23,7 @@ test("what the week can use: read by code first, courts only outdoors or after n
   assert.deepEqual(names(pt.offered(T, { pre: true, agreed: 1 })), names(pt.offered(T, { pre: true, agreed: 0 })), "the list stays the same through the run (the cached prefix)");
   assert.ok(names(pt.offered(T, { pre: false })).includes("check_limits"), "without code reading the body first, the model asks for it");
   process.env.PLANNER_PRUNE = "off";
-  try { assert.equal(pt.offered(T, {}).length, T.length); } finally { delete process.env.PLANNER_PRUNE; }
+  try { assert.equal(pt.offered(T, {}).length, T.length); } finally { process.env.PLANNER_PRUNE = "on"; }
 });
 
 test("by use: a tool no run used in the last 10 is left out, never the core of the loop", () => {
@@ -49,5 +49,5 @@ test("a loop gets one note: the same call failing twice, or three failures in a 
   assert.equal(w.after("negotiate", { members: ["s4"] }, no), null, "at most two notes");
   assert.equal(w.notes, 2);
   process.env.PLANNER_LOOPS = "off";
-  try { const v = pt.loopWatch(); v.after("negotiate", { a: 1 }, no); assert.equal(v.after("negotiate", { a: 1 }, no), null); } finally { delete process.env.PLANNER_LOOPS; }
+  try { const v = pt.loopWatch(); v.after("negotiate", { a: 1 }, no); assert.equal(v.after("negotiate", { a: 1 }, no), null); } finally { process.env.PLANNER_LOOPS = "on"; }
 });

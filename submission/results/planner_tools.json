@@ -1,0 +1,38 @@
+{
+ "label": "Planner tools cut to what the week can use, and loop notes (planner_tools.js), on 9 planner weeks each (test/autopilot_eval.mjs) on an A100 VM, one run per week per arm; no 1B worker, memory and routing off in all arms",
+ "arms": {
+  "off": {
+   "weeks": 9,
+   "reachedGoal": 6,
+   "promptPerRun": 35964,
+   "freshPerRun": 3742,
+   "outputPerRun": 3006,
+   "callsPerRun": 14.8,
+   "promptPerCall": 2434,
+   "freshPerCall": 253,
+   "secondsPerRun": 119.3
+  },
+  "on, list changing with the run": {
+   "weeks": 9,
+   "reachedGoal": 8,
+   "promptPerRun": 34422,
+   "freshPerRun": 7816,
+   "outputPerRun": 3799,
+   "callsPerRun": 16.2,
+   "promptPerCall": 2122,
+   "freshPerCall": 482,
+   "secondsPerRun": 138.2
+  },
+  "on, one list for the run": {
+   "weeks": 9,
+   "reachedGoal": 4,
+   "promptPerRun": 37885,
+   "freshPerRun": 6548,
+   "outputPerRun": 4472,
+   "callsPerRun": 18.9,
+   "promptPerCall": 2006,
+   "freshPerCall": 347,
+   "secondsPerRun": 96.2
+  }
+ }
+}
