@@ -9,7 +9,7 @@ import { u, stream, shuffle, pick } from "./rng.mjs";
 import * as I from "./inertia.mjs";
 
 export const KINDS = {
-  flipper: "says yes readily, then backs out by message once the game is booked (70% of trials)",
+  flipper: "says yes to every game put to them, even on a day they turn out to be busy, then backs out by message once it is booked (70% of trials)",
   ghost: "answers nothing (half the trials) or answers after the hold has lapsed (the other half)",
   budget: "gives up without saying so after 1-2 questions or 3-5 messages from the agent in one go",
   drifter: "stopped playing on one of their usual days this week, tells their agent once, then turns that day down",
@@ -63,7 +63,8 @@ export function answer(seed, p, type, ctx) {
   // (a difficult person who would have let it lie answers, where their difficulty is about how they answer)
   const keen = coop === "ignore" ? "yes" : coop;
   switch (type) {
-    case "flipper": return { ...tap(I.freeThen(seed, p, ctx.date, ctx.start, ctx.minutes || 90) || mine ? "yes" : keen), why: "says yes readily" };
+    // (yes even when that day is taken: the yes is the easy answer, the backing out comes later)
+    case "flipper": return { ...tap("yes"), why: "says yes to everything" };
     case "ghost": { const g = ghostMode(seed, p, ctx); return g === "silent" ? { act: "silent", delay: "now", coop, why: "ghost: never answers" } : { ...tap(keen), delay: "late", why: "ghost: answers after the hold lapsed" }; }
     case "budget": { const b = budgetOf(seed, p, ctx), s = ctx.seen || { questions: 0, messages: 0 };
       if (s.questions > b.questions || s.messages > b.messages) return { act: "silent", delay: "now", coop, why: `gave up (${s.questions} questions, ${s.messages} messages; tolerance ${b.questions} and ${b.messages})`, gaveUp: true };

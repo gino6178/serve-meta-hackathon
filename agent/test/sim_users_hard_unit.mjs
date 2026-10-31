@@ -44,10 +44,9 @@ test("a cooperative person answers as the inertia model does, and keeps their ow
   assert.equal(trials((t) => H.backsOut(9, p, null, { scen: "s1", trial: t })).filter(Boolean).length, 0, "nobody cooperative backs out");
 });
 
-test("the flipper says yes when free, then backs out in about 70% of trials", () => {
+test("the flipper says yes to everything, then backs out in about 70% of trials", () => {
   const p = one("flipper"), ys = trials((t) => H.answer(9, p, "flipper", ctx(p, t)));
-  const free = ys.filter((a, t) => I.freeThen(9, p, ctx(p, t).date, ctx(p, t).start));
-  assert.ok(free.every((a) => a.act === "yes"));
+  assert.ok(ys.every((a) => a.act === "yes" && a.delay === "now"), "yes every time, busy or not");
   const out = trials((t) => H.backsOut(9, p, "flipper", { scen: "s1", trial: t })).filter(Boolean).length / 400;
   assert.ok(out > 0.6 && out < 0.8, `backs out ${out}`);
   assert.match(H.bailText(p, "Tue", "19:00"), /19:00/);
