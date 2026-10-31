@@ -79,7 +79,11 @@ async function arm(checks) {
 
 const before = await arm(false), afterArm = await arm(true);
 const res = { at: new Date().toISOString(), simulated: true, harness: "agent/test/tool_faults.mjs (fake_model.mjs faults; Autopilot loop with the stand-in model, no GPU)",
-  rates: { ...RATES, silent: SILENT }, runs: RUNS, seed: SEED, before, after: afterArm };
+  rates: { ...RATES, silent: SILENT }, runs: RUNS, seed: SEED,
+  notes: ["The stand-in model repairs a refused call by asking for the same call again, faulty again at the same rates whatever the error said: Repair@k here measures what the checks let reach a repair, not whether typed errors help a real model repair.",
+    "Both arms start from the same seed; the random streams part once the arms behave differently (a call refused in one arm runs in the other), so the faults sent differ a little between them.",
+    "TOOL_CHECKS=off is the loop as it was, with one fix in both arms: a negotiate whose members argument is a string no longer throws in its step label."],
+  before, after: afterArm };
 const real = path.resolve(OUT.replace(/\.json$/, "_real.json"));
 if (fs.existsSync(real)) res.real = JSON.parse(fs.readFileSync(real, "utf8"));
 fs.mkdirSync(path.dirname(path.resolve(OUT)), { recursive: true });
