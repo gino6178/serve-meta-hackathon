@@ -48,15 +48,15 @@ test("the tiers by length: short to the 1B (at a checked site), longer to Glimme
 test("a short call is answered by the 1B, with no reasoning", async () => {
   reset();
   const r = await chatJSON(msgs(300), SCHEMA, { site: "social.caption" });
-  assert.equal(r.value.caption, "from serve-1b");
-  assert.equal(asked.length, 1); assert.equal(asked[0].model, "serve-1b"); assert.equal(asked[0].think, false);
+  assert.equal(r.value.caption, "from serve-1b-text");
+  assert.equal(asked.length, 1); assert.equal(asked[0].model, "serve-1b-text"); assert.equal(asked[0].think, false);
 });
 
 test("a 1B reply that does not fit is asked again of Glimmer", async () => {
-  reset(); bad = new Set(["serve-1b"]);
+  reset(); bad = new Set(["serve-1b-text"]);
   const r = await chatJSON(msgs(300), SCHEMA, { site: "social.caption" });
   assert.equal(r.value.caption, "from muse-glimmer");
-  assert.deepEqual(asked.map((a) => a.model), ["serve-1b", "muse-glimmer"]);
+  assert.deepEqual(asked.map((a) => a.model), ["serve-1b-text", "muse-glimmer"]);
 });
 
 test("longer calls go to Glimmer; very long ones to the Meta Model API with its key", async () => {

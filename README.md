@@ -604,6 +604,21 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
   templates and disguises; simulated, labeled by Prompt Guard 2, Llama Guard 3 and Glimmer's feed.standard) it passed 0
   of 762 hostile or injected ones but only 30 of 271 ordinary ones (none in English), so it saves little.
   `docs/tiny_models.md`, `submission/results/tiny.json`
+- **A 1B distilled for short text** (`distill/text_*`, `submission/results/text1b.json`). Glimmer answered 1,039
+  synthetic inputs through the real call sites. That gave 858 training and 166 held-out answers, held out by input source.
+  Llama 3.2 1B Instruct got a LoRA SFT on them, plus 371 copies with injected or obfuscated text that keep Glimmer's
+  answer to the clean text, plus a KL term toward Glimmer's verdict logprobs at `feed.standard` and `places.judge`.
+  On the 1B route, outside text now goes in an `input` message of its own (`llm.js`). Held-out agreement with Glimmer
+  went up from the old `serve-1b` to the new model: `answer.learn` 0/30 to 30/30, `feed.standard` 13/23 to 23/23,
+  `places.judge` 9/20 to 15/20, `life.read` 0/59 to 34/59. On a new set of 446 attacks whose templates never appeared
+  in training, it passed 8 of 71 hostile comments (Glimmer 0, old 1B 65). Poisoned reviews turned 7 of 180 bad courts
+  "good" (Glimmer 5, old 1B 98). With every short site on it, the end-to-end test passed. Both red teams failed only
+  the flood check, because it called "Free shuttles number 3" spam; without `feed.standard` they pass 13/13 and 93/93.
+  SecAlign++ DPO after the SFT cut injected passes (5 to 2 of 71) but blocked 8 of 32 ordinary comments and lowered
+  agreement everywhere, so it is not used. An importance matrix and Q5_K_M did not help consistently. Recommended:
+  add `answer.learn` to the five sites. The others are not ready yet: `places.judge` (verdict 15/20), `memory.update`,
+  `life.read` and `loop.paraphrase` held-out agreement is too low, `answer` and `body.summary` got too few labels, and
+  `feed.standard` fails.
 
 ## What is where
 
