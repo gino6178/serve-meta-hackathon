@@ -14,14 +14,13 @@ after(() => fs.rmSync(tmp, { recursive: true, force: true }));
 const T = ["get_week", "check_limits", "find_places", "find_partners", "negotiate", "recall", "request_approval", "nudge", "finish"].map((name) => ({ type: "function", function: { name } }));
 const names = (ts) => ts.map((t) => t.function.name);
 
-test("what the week can use: read by code first, courts only outdoors or after no court, approval only once agreed", () => {
+test("what the week can use: read by code first, courts only outdoors or after no court, the same list all run", () => {
   pt.forgetRuns();
-  assert.deepEqual(names(pt.offered(T, { pre: true, agreed: 0 })), ["get_week", "find_partners", "negotiate", "nudge", "finish"]);
+  assert.deepEqual(names(pt.offered(T, { pre: true, agreed: 0 })), ["get_week", "find_partners", "negotiate", "request_approval", "nudge", "finish"]);
   assert.ok(names(pt.offered(T, { pre: true, outdoor: true })).includes("find_places"));
   assert.ok(names(pt.offered(T, { pre: true, courtFailed: true })).includes("find_places"), "a club court that was not free brings it back");
   assert.ok(names(pt.offered(T, { pre: true, notes: true })).includes("recall"));
-  const agreed = names(pt.offered(T, { pre: true, agreed: 1 }));
-  assert.ok(agreed.includes("request_approval") && !agreed.includes("nudge"));
+  assert.deepEqual(names(pt.offered(T, { pre: true, agreed: 1 })), names(pt.offered(T, { pre: true, agreed: 0 })), "the list stays the same through the run (the cached prefix)");
   assert.ok(names(pt.offered(T, { pre: false })).includes("check_limits"), "without code reading the body first, the model asks for it");
   process.env.PLANNER_PRUNE = "off";
   try { assert.equal(pt.offered(T, {}).length, T.length); } finally { delete process.env.PLANNER_PRUNE; }

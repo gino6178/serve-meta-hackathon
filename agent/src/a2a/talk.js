@@ -177,7 +177,8 @@ const says = {
   // with private calendars: the next times from your player's week, after none of the last ones worked for everyone
   next: (cur, also) => `None of those works for everyone. How about ${cur.text}?${also.length ? ` Also possible: ${also.join(", ")}.` : ""} Your player's week has them free, with a court.`,
   // the second round (stretch.js): the same times, asked which could work if a member stretched a limit of its own
-  stretch: () => "None of these works for everyone. Which could work if your player stretched one of their own limits, and by how many minutes?",
+  // (says nothing about anyone's rules: no word here that could hint at a member's health or calendar)
+  stretch: () => "None of these works for everyone. Which could work with a little give on your player's end time, start time or trip, and by how many minutes?",
 };
 
 // One member's agent answering a proposal: Muse Glimmer, from what the member shares; its time is checked by the

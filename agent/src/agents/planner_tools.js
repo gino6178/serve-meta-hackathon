@@ -4,7 +4,7 @@
 // a tool the week cannot use costs its tokens at every step.
 //   - pruning (PLANNER_PRUNE, on unless "off"): by what code knows of this run (the week and the body are read by code
 //     before the first step, a court near a club only matters outdoors or once no club court was free, memory only
-//     when there are notes, approval only once a game is agreed), and by use: a tool no run used in the last 10 runs
+//     when there are notes), and by use: a tool no run used in the last 10 runs
 //     is left out until something needs it. Nothing a tool can do is lost: a tool comes back the moment its rule holds.
 //   - loops (PLANNER_LOOPS, on unless "off"): the same call failing twice, or three failed calls in a row, gets one
 //     note naming what is not working and the next steps that are open, at most twice a run. Code decides; no model.
@@ -27,8 +27,9 @@ export function offered(tools, ctx = {}) {
     find_places: !!(ctx.outdoor || ctx.courtFailed),
     find_partners: true, negotiate: true,
     recall: !!ctx.notes,
-    request_approval: (ctx.agreed || 0) > 0,
-    nudge: (ctx.agreed || 0) === 0,
+    // (kept for the whole run: a tool list that changes part way breaks Ollama's cached prefix, and every token
+    // after it is read again; measured, fresh tokens per call doubled when these two came and went)
+    request_approval: true, nudge: true,
     finish: true,
   };
   return tools.filter((t) => {
