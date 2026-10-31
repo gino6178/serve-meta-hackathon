@@ -101,6 +101,7 @@ test("a card read at the public address names it (interface, likely extension, k
     const root = srv.rootFor({ headers: { host: "play.example.com" } });
     assert.equal(root, "https://play.example.com");
     assert.equal(srv.rootFor({ headers: { host: "127.0.0.1:8790" } }), process.env.A2A_BASE || "http://127.0.0.1:8790");
+    assert.equal(srv.rootFor({ headers: { host: "127.0.0.1:8790", "x-serve-public": "1" } }), "https://play.example.com", "through the public address's proxy");
     const card = await srv.signCard(srv.cardFor(`${root}/a2a/members/${m.id}`, m, club, root), root);
     const all = JSON.stringify(card);
     assert.ok(!/127\.0\.0\.1|localhost/.test(all), "nothing names the loopback");

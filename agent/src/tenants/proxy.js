@@ -99,11 +99,13 @@ process.on("SIGTERM", () => process.exit(0));
 
 // the browser's own origin must be this address's (a page elsewhere is refused), then the gateways hear INTERNAL
 const sameOrigin = (req) => { const o = req.headers.origin; if (!o) return true; try { return new URL(o).host === req.headers.host; } catch { return false; } };
-const DROP = new Set(["host", "origin", "authorization", "connection", "x-forwarded-for", "x-forwarded-proto", "x-forwarded-host", "forwarded", "x-real-ip", "cf-connecting-ip", "cf-ipcountry", "cf-ray", "cf-visitor", "cdn-loop", "true-client-ip"]);
+const DROP = new Set(["host", "origin", "authorization", "connection", "x-forwarded-for", "x-forwarded-proto", "x-forwarded-host", "forwarded", "x-real-ip", "cf-connecting-ip", "cf-ipcountry", "cf-ray", "cf-visitor", "cdn-loop", "true-client-ip", "x-serve-public"]);
 function headersFor(req, { token }) {
   const h = {};
   for (const [k, v] of Object.entries(req.headers)) if (!DROP.has(k)) h[k] = v;
   if (req.headers.origin) h.origin = INTERNAL;
+  // (what came in at the public address: a member's Agent Card then names that address, a2a/server.js rootFor)
+  h["x-serve-public"] = "1";
   if (token) h.authorization = `Bearer ${TOKEN}`;
   return h;
 }

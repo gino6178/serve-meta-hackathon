@@ -281,7 +281,8 @@ export const jwks = () => { cardKey(); return peer.keySet(DATA); };
 export const signCard = (card, root = BASE()) => { const { key, kid } = cardKey(); return generateAgentCardSignature(key, { alg: "EdDSA", kid, typ: "JOSE", jku: keysUrl(root) })(card); };
 // a card asked for at the public address names the public address (and its key there); asked for on the gateway's own
 // base (its own agents, a2a_client.js checks the card names the address it was read from) it names that base
-export const rootFor = (req) => { const pub = (process.env.PUBLIC_URL || "").replace(/\/$/, ""); try { return pub && new URL(pub).host === String(req?.headers?.["x-forwarded-host"] || req?.headers?.host || "").split(",")[0].trim() ? pub : BASE(); } catch { return BASE(); } };
+// (the public address's proxy, tenants/proxy.js, drops Host and says x-serve-public instead)
+export const rootFor = (req) => { const pub = (process.env.PUBLIC_URL || "").replace(/\/$/, ""), h = req?.headers || {}; try { return pub && (h["x-serve-public"] === "1" || new URL(pub).host === String(h["x-forwarded-host"] || h.host || "").split(",")[0].trim()) ? pub : BASE(); } catch { return BASE(); } };
 
 // one SDK request handler (and router) per member's agent, made the first time it is called (its card signed once)
 const routers = new Map();
