@@ -481,6 +481,19 @@ logged games wrongly and could not phrase a wish (9 end-to-end checks failed), l
 the post standard, and obeyed 4 of 10 court reviews that told it what to say. With the checked sites only, the
 end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer alone.
 
+## More agent upgrades, measured
+
+- **When not to send.** `match/gate.js` (ASK_GATE=off for the fixed 12:00 ask) decides the hour of the daily "Match
+  asks first" ask, and whether to send it at all: a Beta posterior per player on "answered within 2 hours" for each hour
+  (weekday or weekend), started from the club's rate, Thompson-sampled once a day, times a draw of the player's chance
+  of a yes, less a burden cost for recent unanswered asks and "not this week" (after Oralytics, EOPA, ProPerSim and
+  arXiv 2410.04596); under the weekly cap, and after the trial's arm, so the trial's randomisation is unchanged. In
+  simulation only (`test/ask_gate_sim.mjs`, `submission/results/ask_gate.json`; hidden reply windows, interest and
+  annoyance; 20 held-out seeds of 300 players, 12 weeks), against the 12:00 ask: asks 23.9 to 21.4 a player, answered
+  within 2 h 7.5 to 10.1, games from asks 3.97 to 4.39 (+0.42, 95% 0.33 to 0.50), opt-outs 37.7% to 26.2% of players
+  (-11.5 points, 9.9 to 13.2). Against the one best fixed hour (20:00): the same games (+0.00, -0.10 to 0.10), 9.2 points
+  fewer opt-outs. Choosing only the hour and always sending found more games (4.81) but more opt-outs (32.7%).
+
 ## What is where
 
 | Folder | What it holds |

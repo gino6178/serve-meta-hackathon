@@ -11,6 +11,8 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-ask-trial-"));
 Object.assign(process.env, { ASK_FILE: `${tmp}/asks.json`, BOOKINGS_FILE: `${tmp}/bookings.json`, STORE_FILE: `${tmp}/players.json`, MATCH_RECORDS_FILE: `${tmp}/records.json`, MATCH_AUDIT_FILE: `${tmp}/audit.json`,
   MATCH_STATE_FILE: `${tmp}/state.json`, MATCH_DEMO_RECORDS: "0", A2A_TRANSPORT: "local", LLM_URL: "http://127.0.0.1:9/v1", GUARD: "off", MEMORY: "off", TRACE_FILE: `${tmp}/traces.jsonl`, LEDGER_FILE: `${tmp}/ledger.jsonl` });
 delete process.env.ASK_TRIAL_P; delete process.env.ASK_WEEK_CAP;
+// the behaviour before the send gate (ASK_GATE=off): ask_gate_unit.mjs tests the gate with the trial and the cap
+process.env.ASK_GATE = "off";
 const ask = await import("../src/agents/ask.js");
 const at = (d, h = 9) => new Date(2026, 10, d, h, 0); // November 2026: Mon 2, Mon 9
 
