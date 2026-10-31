@@ -95,6 +95,15 @@ test("a member's reply checked: a counter not listed, a date that does not exist
   assert.deepEqual(bad({ intent: "accept", works: ["t9"] }), [{ kind: "breaks_limit", field: "intent" }, { kind: "unknown_id", field: "works" }]);
 });
 
+test("calendar entries checked: a date that exists, in range, times in order", async () => {
+  const { eventsCheck } = await import("../src/club/life.js");
+  const now = new Date("2026-10-31T10:00:00"), c = eventsCheck(now);
+  assert.deepEqual(c([{ date: "2026-11-03", start: "19:00", end: "20:30", title: "Training", kind: "training" }]), []);
+  assert.deepEqual(c([{ date: "2026-11-31", title: "x", kind: "other" }]), [{ kind: "date_out_of_range", field: "date" }]);
+  assert.deepEqual(c({ intent: "event", events: [{ date: "2029-01-01", title: "x", kind: "other" }] }), [{ kind: "date_out_of_range", field: "date" }]);
+  assert.deepEqual(c([{ date: "2026-11-03", start: "21:00", end: "20:00", title: "x", kind: "other" }]), [{ kind: "schema_violation", field: "start" }]);
+});
+
 test("the Autopilot: faulty calls refused typed (no value echoed) and repaired; the week still lined up", async () => {
   const now = new Date(); now.setHours(10, 0, 0, 0);
   play.clearLeases();

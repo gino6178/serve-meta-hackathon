@@ -10,6 +10,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { chat } from "../core/llm.js";
+import { realDate } from "../core/toolcheck.js";
 import { readClub } from "./club.js";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
 import * as fb from "../agents/freebusy.js";
@@ -158,7 +159,7 @@ Return JSON only: {"sport": ${SPORTS.map((s) => `"${s}"`).join(" | ")}, "days": 
     // a window no longer than the game itself leaves one start time; "evening" means the whole evening
     if (hhmm(j.from) && hhmm(j.to) && toMin(j.to) - toMin(j.from) <= (+j.minutes || 90)) j.to = hm(Math.min(22 * 60, toMin(j.from) + 4 * 60));
     const intent = {
-      days: (Array.isArray(j.days) ? j.days : []).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d >= today && d <= last),
+      days: (Array.isArray(j.days) ? j.days : []).filter((d) => realDate(d) && d >= today && d <= last), // (a date that exists: core/toolcheck.js)
       from: hhmm(j.from), to: hhmm(j.to), minutes: [60, 90, 120].includes(+j.minutes) ? +j.minutes : 90,
       format: ["doubles", "singles"].includes(j.format) ? j.format : "any",
       with: (Array.isArray(j.with) ? j.with : []).filter((id) => members.some((m) => m.id === id)),
