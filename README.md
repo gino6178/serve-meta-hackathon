@@ -497,15 +497,30 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
   saw 3 of 32. On 12 cooperative requests pass^1 is 0.56 and pass^4 0.33. With the fake model (code only), 20 requests × 8
   runs: pass^1 0.53 to 0.35, pass^8 0.20 to 0.05. By kind (fake model): flipper 7 of 41 runs passed, ghost 9 of 40, vague 2 of 13,
   drifter 7 of 31; runs where no difficult person took part passed 34 of 60. The person who gives up after a few
-  questions never got that far (a partner is asked once), so this run measures nothing about them. What failed, not
-  fixed: a back-out sent as a message is noted in chat ("want me to reschedule?") but the booking stands and the
-  partner still holds "Booked" (3 of 3 real, 12 of 12 fake); a partner who never answers leaves the asker on "I'll book it
-  as soon as they say yes" with no timeout or follow-up, and a yes after the hold lapsed still books; a vague reply to
-  "Are you in?" gets a chat answer ("I'll check in closer to the day") while the question stays open; the agent told
-  "no Saturdays" said it would keep them off, yet all 12 questions later put to that person were for Saturday games (the
-  member's agent reads the stored profile); after "Can't make it" the new search leaves out only that partner, so
-  people who already said no are asked again (13 real runs). It can go round without end (8 real runs; the harness stops a run
-  after five "Book it?" questions). People asked "Are you in?" are not told when someone else's no drops the game.
+  questions never got that far (a partner is asked once), so this run measures nothing about them. Six things failed:
+  a back-out sent as a message was noted in chat but the booking stood and the partner still held "Booked" (3 of 3
+  real, 12 of 12 fake); a partner who never answered left the asker waiting with no timeout; a vague reply to "Are you
+  in?" got a chat answer ("I'll check in closer to the day") while the question stayed open; the agent told "no
+  Saturdays" said it would keep them off, yet all 12 questions later put to that person were for Saturday games;
+  after "Can't make it" the new search left out only that partner, so people who had said no were asked again, and it
+  could go round without end; people asked "Are you in?" were not told when someone else's no dropped the game.
+  All six are now fixed in `match/confirm.js` (`test/confirm_unit.mjs`). A back-out in words is checked with one quick
+  reply ("Drop out of Thursday 19:00?"), then the game is called off, everyone is told and the host's agent looks
+  again. The ask lapses with the hold, after one nudge, and a late yes is put to the asker again. Vague words get the
+  question once more with three buttons, and a second vague answer counts as no answer. A stated change of days
+  becomes a preference record the member's agent keeps. A new search leaves out everyone who said no or let the ask
+  lapse, and stops after three searches. Everyone who was asked hears when the game is off. Rerun on the same seeds
+  and scenarios, difficult club: false "booked" went from 3 of 32 to 0 (Glimmer) and 12 of 160 to 0 (fake). Askers left
+  waiting went from 5 to 0 and 19 to 0. Searches that looped went from 4 to 0 and 16 to 0. People asked again after a
+  no went from 5 to 0 and 19 to 0. Questions to the drifter about their dropped day went from 12 of 12 to none asked,
+  and 39 of 47 to 0 of 8. pass^1 went from 0.38 to 0.47 on Glimmer (8 × 4; paired difference +0.09, 95% CI −0.06 to
+  +0.31) and from 0.35 to 0.39 with the fake model (20 × 8; +0.04, CI −0.03 to +0.14). pass^k rose more: pass^4 from
+  0.25 to 0.38 on Glimmer (CI 0 to +0.38) and pass^8 from 0.05 to 0.15 with the fake model (CI 0 to +0.25). The
+  cooperative club did not gain: pass^1 0.69 to 0.66 on Glimmer and 0.53 to 0.49 fake, pass^4 0.50 to 0.38 on
+  Glimmer (CI −0.37 to 0). These "after" runs are on main, which also has other agent changes merged since the
+  "before" runs, so not every difference is these fixes (`submission/results/sim_users_hard.json`, "afterFixes").
+  Still open: the asker's own vague answer to "Book it?"
+  gets a chat reply (only "Are you in?" is covered), and the ghost passed none of its 4 Glimmer runs.
 
 `core/llm.js` routes each call by how long it is (LLM_ROUTE). A short call at a site where our distilled 1B was checked
 (LLM_SMALL_SITES: wording a game ask, a court's name in English, a memory's beliefs, a paper's summary, a question
