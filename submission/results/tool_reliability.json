@@ -1,0 +1,231 @@
+{
+ "at": "2026-10-31T04:52:27.881Z",
+ "simulated": true,
+ "harness": "agent/test/tool_faults.mjs (fake_model.mjs faults; Autopilot loop with the stand-in model, no GPU)",
+ "rates": {
+  "schema": 0.1,
+  "semantic": 0.1,
+  "reply": 0.1,
+  "silent": 0.15
+ },
+ "runs": 120,
+ "seed": 7,
+ "before": {
+  "toolChecks": "off",
+  "runs": 120,
+  "goal": 72,
+  "claimedGames": 240,
+  "gamesWithoutHolds": 33,
+  "approvalsClaimed": 120,
+  "approvalsMissing": 20,
+  "falseSuccessRuns": 48,
+  "gatewayRefused": 0,
+  "postChecked": 0,
+  "postFailed": 0,
+  "goalRate": 0.6,
+  "toolCalls": {
+   "eligible": 612,
+   "schema": {
+    "sent": 56,
+    "rate": 0.092,
+    "refused": 56,
+    "ran": 0,
+    "caughtRate": 1
+   },
+   "semantic": {
+    "sent": 48,
+    "rate": 0.078,
+    "refused": 46,
+    "ran": 2,
+    "caughtRate": 0.958
+   },
+   "typedRefusals": 0,
+   "refusalsEchoingTheModelsValue": 36,
+   "byFault": {
+    "schema: missing day": {
+     "sent": 16,
+     "refused": 16
+    },
+    "semantic: member id nobody returned": {
+     "sent": 8,
+     "refused": 6
+    },
+    "semantic: day that does not exist": {
+     "sent": 15,
+     "refused": 15
+    },
+    "semantic: start outside the free windows": {
+     "sent": 7,
+     "refused": 7
+    },
+    "schema: members a string": {
+     "sent": 13,
+     "refused": 13
+    },
+    "schema: start a number": {
+     "sent": 16,
+     "refused": 16
+    },
+    "semantic: start not HH:MM": {
+     "sent": 11,
+     "refused": 11
+    },
+    "semantic: wrong number of members": {
+     "sent": 7,
+     "refused": 7
+    },
+    "schema: format not in enum": {
+     "sent": 11,
+     "refused": 11
+    }
+   },
+   "cleanCallsRefused": null
+  },
+  "repair": {
+   "all": {
+    "chains": 91,
+    "repair1": 0.857,
+    "repair2": 0.956,
+    "ranThrough": 2
+   },
+   "schema": {
+    "chains": 51,
+    "repair1": 0.922,
+    "repair2": 1,
+    "ranThrough": 0
+   },
+   "semantic": {
+    "chains": 40,
+    "repair1": 0.775,
+    "repair2": 0.9,
+    "ranThrough": 2
+   }
+  },
+  "silent": {
+   "injected": 53,
+   "caught": 0,
+   "passedAsSuccess": 53,
+   "gamesWithoutHolds": 33,
+   "approvalsMissing": 20,
+   "falseSuccessRuns": 48
+  },
+  "memberReplies": {
+   "decisions": 240,
+   "faults": 20,
+   "faultyAgain": 0,
+   "askedAgain": 0,
+   "repaired": 0,
+   "repairRate": 0,
+   "overruledByCode": 20
+  }
+ },
+ "after": {
+  "toolChecks": "on",
+  "runs": 120,
+  "goal": 120,
+  "claimedGames": 240,
+  "gamesWithoutHolds": 0,
+  "approvalsClaimed": 120,
+  "approvalsMissing": 0,
+  "falseSuccessRuns": 0,
+  "gatewayRefused": 116,
+  "postChecked": 436,
+  "postFailed": 56,
+  "goalRate": 1,
+  "toolCalls": {
+   "eligible": 660,
+   "schema": {
+    "sent": 61,
+    "rate": 0.092,
+    "refused": 61,
+    "ran": 0,
+    "caughtRate": 1
+   },
+   "semantic": {
+    "sent": 55,
+    "rate": 0.083,
+    "refused": 55,
+    "ran": 0,
+    "caughtRate": 1
+   },
+   "typedRefusals": 116,
+   "refusalsEchoingTheModelsValue": 0,
+   "byFault": {
+    "schema: missing day": {
+     "sent": 17,
+     "refused": 17
+    },
+    "semantic: member id nobody returned": {
+     "sent": 9,
+     "refused": 9
+    },
+    "semantic: day that does not exist": {
+     "sent": 12,
+     "refused": 12
+    },
+    "semantic: start outside the free windows": {
+     "sent": 13,
+     "refused": 13
+    },
+    "schema: members a string": {
+     "sent": 13,
+     "refused": 13
+    },
+    "semantic: wrong number of members": {
+     "sent": 7,
+     "refused": 7
+    },
+    "semantic: start not HH:MM": {
+     "sent": 14,
+     "refused": 14
+    },
+    "schema: start a number": {
+     "sent": 14,
+     "refused": 14
+    },
+    "schema: format not in enum": {
+     "sent": 17,
+     "refused": 17
+    }
+   },
+   "cleanCallsRefused": 0
+  },
+  "repair": {
+   "all": {
+    "chains": 100,
+    "repair1": 0.88,
+    "repair2": 0.97,
+    "ranThrough": 0
+   },
+   "schema": {
+    "chains": 55,
+    "repair1": 0.927,
+    "repair2": 0.982,
+    "ranThrough": 0
+   },
+   "semantic": {
+    "chains": 45,
+    "repair1": 0.822,
+    "repair2": 0.956,
+    "ranThrough": 0
+   }
+  },
+  "silent": {
+   "injected": 56,
+   "caught": 56,
+   "passedAsSuccess": 0,
+   "gamesWithoutHolds": 0,
+   "approvalsMissing": 0,
+   "falseSuccessRuns": 0
+  },
+  "memberReplies": {
+   "decisions": 295,
+   "faults": 22,
+   "faultyAgain": 0,
+   "askedAgain": 22,
+   "repaired": 22,
+   "repairRate": 1,
+   "overruledByCode": 0
+  }
+ }
+}
