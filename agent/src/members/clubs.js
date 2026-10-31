@@ -89,9 +89,10 @@ export function join(member, id, on = true) {
   if (on && !inIt) c.members.push({ id: member.id, name: member.name, at: Date.now() });
   if (!on && inIt) c.members = c.members.filter((m) => m.id !== member.id);
   if (!c.members.length) data().clubs = data().clubs.filter((x) => x !== c);
-  else if (c.owner === member.id && !on) c.owner = c.members[0].id; // the longest-standing member takes it over
+  let handed = null;
+  if (c.members.length && c.owner === member.id && !on) handed = c.owner = c.members[0].id; // the longest-standing member takes it over (and is told: members/api.js)
   save();
-  return { club: c.members.length ? view(c, member.id) : null };
+  return { club: c.members.length ? view(c, member.id) : null, ...(handed ? { handed: { club: c.name, to: handed } } : {}) };
 }
 // ---- a club's invite link (#/club?join=<code>) ----
 // any member shares it; opening it joins a public club, and asks to join a private one (its owner still says yes). The

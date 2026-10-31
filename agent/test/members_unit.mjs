@@ -205,6 +205,13 @@ test("a club's invite link: members share it, a public club is joined by it, a p
   const told = (S.data().notices || []).filter((x) => x.player === cy.id && x.kind === "club");
   assert.equal(told.length, 1, "whoever asked is told the answer"); assert.match(told[0].text, /said yes: you're in Quiet Doubles/);
   assert.equal((await route("POST", "/api/clubs/join", { code: "nope" }, as(cy))).code, 404);
+  // the organiser leaves the club: it passes to the longest-standing member, who is told
+  const dee = M.demo("Dee Wu").member;
+  const own = (await route("POST", "/api/clubs", { name: "Dawn Doubles", sport: "badminton", at }, as(dee))).body.club;
+  await route("POST", "/api/clubs/join", { club: own.id }, as(ben));
+  const left = await route("POST", "/api/clubs/join", { club: own.id, on: false }, as(dee));
+  assert.equal(left.code, 200); assert.equal(left.body.handed, undefined, "who takes over is not in the leaver's answer");
+  assert.ok((S.data().notices || []).some((x) => x.player === ben.id && /^Dee left Dawn Doubles, so it's yours to run now\.$/.test(x.text)));
   // the organiser leaves Serve: the club passes to its longest-standing member, who is told
   assert.equal((await route("POST", "/api/members/leave", {}, as(ana))).code, 200);
   const handed = (S.data().notices || []).filter((x) => x.player === cy.id && x.kind === "club" && /yours to run/.test(x.text));

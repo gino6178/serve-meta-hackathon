@@ -132,7 +132,11 @@ export async function route(req, res, u, { json, o, forget }) {
       if (r.asked && c && !was) P.notify(c.owner, "club", `${me.name.split(" ")[0]} asked to join ${c.name} through its link. Say yes or no on the club's page.`);
       return out(r);
     }
-    if (p === "/api/clubs/join" && req.method === "POST") return out(C.join(me, String(cb.club || ""), cb.on !== false));
+    if (p === "/api/clubs/join" && req.method === "POST") {
+      const r = C.join(me, String(cb.club || ""), cb.on !== false);
+      if (r.handed) { P.notify(r.handed.to, "club", `${me.name.split(" ")[0]} left ${r.handed.club}, so it's yours to run now.`); delete r.handed; }
+      return out(r);
+    }
     // (whoever asked is told the answer, as the ask promised)
     if (p === "/api/clubs/answer" && req.method === "POST") {
       const r = C.answer(me, String(cb.club || ""), String(cb.member || ""), cb.yes === true);
@@ -203,7 +207,7 @@ async function channel(req, res, p, send) {
   let b = {}; try { b = obj(JSON.parse(raw.toString() || "{}")); } catch { return send(400, { error: "the body is not JSON" }); }
   const out = (r) => send(r.error ? r.code || 400 : 200, r);
   if (p === "/api/agent-channel/me" && req.method === "GET") return send(200, { member: M.view(M.get(owner)), agent: M.view(ag), audience: M.AUDIENCE });
-  if (p === "/api/agent-channel/feed" && req.method === "GET") return send(200, P.feed(owner, { n: 20 }));
+  if (p === "/api/agent-channel/feed" && req.method === "GET") return send(200, P.feed(owner, { n: 20, keep: true }));
   if (p === "/api/agent-channel/post" && req.method === "POST" && b.invite) {
     const t = T.get(owner), v = b.invite, date = /^\d{4}-/.test(String(v.day)) ? v.day : null;
     const why = date && /^\d{2}:\d{2}$/.test(String(v.start)) ? T.hardNos(t, { date, start: v.start, km: t.home && v.at ? +T.km(t.home, v.at).toFixed(1) : null, each: +v.each || 0 }) : [];

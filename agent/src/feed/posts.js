@@ -595,19 +595,20 @@ export function view(p, viewer) {
     ...(p.media ? { media: mediaView(p.media) } : {}),
     ...(p.paper ? { paper: p.paper, forWhom: p.forWhom, sport: p.sport } : {}),
     ...(p.game ? { game: p.game } : {}), ...(p.open ? { open: p.open } : {}), ...(p.credit ? { credit: p.credit } : {}),
-    ...(p.invite ? { invite: { ...p.invite, shareUrl: `/#/invite?id=${p.id}`, joinedAt: undefined, confirmBy: p.invite.offered?.[viewer] || null, offered: offers(p.invite), going: inGame(p.invite).length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const w = Tr.words(Tr.badge(p.by.player || p.by.agentOf)); return { show: w.show, agent: w.agent, level: w.level }; })(), names: sameApart(inGame(p.invite).map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member")))), joined: p.invite.going.includes(viewer), full: full(p.invite), ...(mine && fillInfo(p.id) ? { filling: fillInfo(p.id) } : {}) } } : {}),
+    ...(p.invite ? { invite: { ...p.invite, shareUrl: p.room && clubOf(p.room)?.privacy === "private" ? null : `/#/invite?id=${p.id}`, joinedAt: undefined, confirmBy: p.invite.offered?.[viewer] || null, offered: offers(p.invite), going: inGame(p.invite).length, waitlist: (p.invite.waitlist || []).length, waiting: (p.invite.waitlist || []).includes(viewer), host: (() => { const w = Tr.words(Tr.badge(p.by.player || p.by.agentOf)); return { show: w.show, agent: w.agent, level: w.level }; })(), names: sameApart(inGame(p.invite).map((x) => (x === viewer ? "You" : first(authorOf(x) || "A member")))), joined: p.invite.going.includes(viewer), full: full(p.invite), ...(mine && fillInfo(p.id) ? { filling: fillInfo(p.id) } : {}) } } : {}),
     ...(p.simulated ? { simulated: true } : {}), ...(p.held ? { held: true } : {}), ...(p.hidden ? { hidden: true } : {}),
     likes: p.likes.length, liked: p.likes.includes(viewer),
     comments: p.comments.filter((c) => (!c.held && !c.hidden) || c.by.player === viewer).map((c) => commentView(c, viewer)),
     reported: (p.reports || []).some((r) => r.player === viewer),
   };
 }
-export function feed(viewer, { before = Infinity, n = 30, room = null } = {}) {
+// keep: the member's agent reading it (the agent channel) sees the notices and leaves them for the member
+export function feed(viewer, { before = Infinity, n = 30, room = null, keep = false } = {}) {
   // one club's posts, or (no room) the club feed everyone shares
   const db = S.data(), all = db.posts.filter((p) => p.at < before && (room ? p.room === room : !p.room) && visible(p, viewer)).sort((a, b) => b.at - a.at);
   const posts = all.slice(0, Math.min(60, Math.max(1, n))).map((p) => view(p, viewer));
   const notices = (db.notices || []).filter((x) => x.player === viewer);
-  if (notices.length) S.change((d) => { d.notices = d.notices.filter((x) => x.player !== viewer); });
+  if (notices.length && !keep) S.change((d) => { d.notices = d.notices.filter((x) => x.player !== viewer); });
   return { posts, more: all.length > posts.length, notices: notices.map((x) => x.text) };
 }
 
@@ -615,9 +616,15 @@ export function feed(viewer, { before = Infinity, n = 30, room = null } = {}) {
 // (name: theirs, when the member record is already gone, for the hosts of the games they leave)
 export function forget(player, { name = null } = {}) {
   const out = { posts: 0, comments: 0, likes: 0, reports: 0, drafts: 0, media: 0 }, nm = first(name || authorOf(player) || "A member");
-  const freed = [], offeredTo = []; // games they were in: the waitlist is offered their spot (and the host told, once)
+  const freed = [], offeredTo = [], cancelled = []; // games they were in: the waitlist is offered their spot (and the host told, once)
   S.change((d) => {
-    for (const p of d.posts.filter((x) => x.by.player === player || x.by.agentOf === player)) { if (p.media) { S.dropMedia(p.media); out.media++; } }
+    for (const p of d.posts.filter((x) => x.by.player === player || x.by.agentOf === player)) {
+      if (p.media) { S.dropMedia(p.media); out.media++; }
+      // a game they posted is off: everyone in it or waiting for a spot is told, and its notices go
+      if (p.invite && !p.hidden) { const v = p.invite; for (const x of new Set([...v.going, ...(v.waitlist || [])])) if (x !== player) cancelled.push({ x, text: `${nm} left Serve, so their ${v.sport} game ${dayWords(v.day)} ${v.start} at ${v.where} is off.`, post: p.id }); }
+    }
+    const gone = new Set(cancelled.map((c) => c.post));
+    d.notices = (d.notices || []).filter((x) => !gone.has(x.post));
     const n = d.posts.length;
     d.posts = d.posts.filter((x) => x.by.player !== player && x.by.agentOf !== player);
     out.posts = n - d.posts.length;
@@ -649,6 +656,7 @@ export function forget(player, { name = null } = {}) {
     const v = p.invite;
     if (freed.includes(p)) notify(p.by.player || p.by.agentOf, "left", `${nm} left Serve, so they can't make your ${v.sport} ${dayWords(v.day)} ${v.start}. ${spotsLine(p)}`, { post: p.id });
   }
+  for (const c of cancelled) notify(c.x, "called-off", c.text, { post: c.post });
   return out;
 }
 // what the feed holds about one player, for /forget's check and the tests: counts only

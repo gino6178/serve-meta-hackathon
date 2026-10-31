@@ -48,3 +48,38 @@ test("someone who leaves Serve drops out of a game being worked out: the talk sa
   const notes = (S.data().notices || []).filter((x) => x.player === mia && x.kind === "huddle");
   assert.ok(notes.some((x) => /Joe left Serve/.test(x.text)), "the host is told");
 });
+
+test("a host who leaves Serve: everyone in their game, or waiting for a spot, is told it is off, once", async () => {
+  const S = await import("../src/feed/store.js");
+  const at = { lat: 25.04, lon: 121.55 }, mk = (n) => M.demo(n).member.id;
+  const lily = mk("Lily Wang"), ben = mk("Ben Ho"), liv = mk("Liv Chen"), mia = mk("Mia Su");
+  const d = new Date(); d.setDate(d.getDate() + 4);
+  const r = await P.post(lily, { text: "Doubles, 2 spots", invite: { sport: "badminton", day: T.ymd(d), start: "19:00", where: "Daan Sports Center", spots: 2, at, each: 100 } });
+  for (const x of [ben, liv, mia]) P.join(x, r.post.id);
+  P.forget(lily, { name: "Lily Wang" });
+  for (const x of [ben, liv, mia]) {
+    const n = (S.data().notices || []).filter((y) => y.player === x && y.post === r.post.id);
+    assert.equal(n.length, 1, `${x}: ${JSON.stringify(n)}`); assert.equal(n[0].kind, "called-off");
+    assert.match(n[0].text, /^Lily left Serve, so their badminton game .+ 19:00 at Daan Sports Center is off\.$/);
+  }
+});
+
+test("the member's agent reading the feed sees the notices and leaves them for the member; the member's own read takes them", () => {
+  const who = M.demo("Nia Test").member.id;
+  P.notify(who, "gameon", "Game on: test.");
+  assert.deepEqual(P.feed(who, { keep: true }).notices, ["Game on: test."]);
+  assert.deepEqual(P.feed(who, { keep: true }).notices, ["Game on: test."], "still there for the member");
+  assert.deepEqual(P.feed(who).notices, ["Game on: test."]);
+  assert.deepEqual(P.feed(who).notices, [], "taken once by the member");
+});
+
+test("a private club's game carries no share link (strangers could not open it); a public one does", async () => {
+  const at = { lat: 25.04, lon: 121.55 }, host = M.demo("Ivy Test").member.id;
+  const d = new Date(); d.setDate(d.getDate() + 5); const day = T.ymd(d);
+  const priv = (await C.start(M.get(host), { name: "Closed doubles", sport: "badminton", about: "x", where: "Hall", at, privacy: "private" }, async () => ({ ok: true }))).club.id;
+  const open = (await C.start(M.get(host), { name: "Open doubles", sport: "badminton", about: "x", where: "Hall", at }, async () => ({ ok: true }))).club.id;
+  const a = await P.post(host, { text: "Doubles", invite: { sport: "badminton", day, start: "18:00", where: "Hall", spots: 2, at, each: 0 }, room: priv });
+  const b = await P.post(host, { text: "Doubles", invite: { sport: "badminton", day, start: "21:30", where: "Hall", spots: 2, at, each: 0 }, room: open });
+  assert.equal(a.post.invite.shareUrl, null);
+  assert.equal(b.post.invite.shareUrl, `/#/invite?id=${b.post.id}`);
+});
