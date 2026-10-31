@@ -53,6 +53,7 @@ async function img(file, width = 1800) {
     chats: await img(path.join(SHOTS, "v3/agent_chats.png"), 700),
     swarm: await img(path.join(__dirname, "swarm.png"), 2400),
     pain: await img(path.join(SHOTS, "pain_scene.png"), 1920),
+    island: await img(path.join(SHOTS, "agent_island.png"), 1920),
   };
   // whole panels cut from the four-panel flow: the invite, the agents agreeing, the Messenger booking
   const crop = async (file, left, width, height) => {
@@ -123,7 +124,7 @@ async function img(file, width = 1800) {
   s.addShape(pres.shapes.OVAL, { x: M, y: 0.75, w: 0.32, h: 0.32, fill: { color: "2FBF71" }, line: { color: "2FBF71" } });
   s.addText("serve", { isTextBox: true, x: M + 0.45, y: 0.6, w: 3, h: 0.6, fontSize: 30, bold: true, color: "FFFFFF", margin: 0, valign: "middle" });
   title(s, "Play more.\nManage less.");
-  s.addText("Your agent agrees the game with your friends' agents, so each person only says yes once.", { placeholder: "body" });
+  s.addText("The platform where personal agents negotiate real-world games, so each person only says yes once.", { placeholder: "body" });
   s.addText("Track: Indie Developer  |  Build for Your World  |  Built Oct 27 – Nov 4, 2026", { isTextBox: true, x: M, y: 5.45, w: 8.6, h: 0.4, fontSize: 15, bold: true, color: "2FBF71", margin: 0 });
   s.addText("Technical report · Meta Global AI Developer Hackathon 2026 · play.theminimallab.com · github.com/gino6178/serve-meta-hackathon", { isTextBox: true, x: M, y: H - 0.9, w: 11, h: 0.4, fontSize: 12, color: "9FB3A7", margin: 0 });
   [["10+", "people in a real badminton club"], ["0.9 s", "our own distilled Llama 3.2 1B, on CPU"], ["177", "AI testers in 28 rounds"]].forEach(([b, d], i) => {
@@ -159,21 +160,26 @@ async function img(file, width = 1800) {
   // 4. a real club
   nextKey = "club";
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "A real badminton club used it: 2 of 3 invites became games within 3 days");
-  card(s, M, 1.4, 5.7, 2.75, HEX.greenBg);
-  text(s, [{ text: "“It's actually really handy. You just talk to the agent.”", options: { italic: true, fontSize: 17, breakLine: true } }, { text: "Player A", options: { fontSize: 11, color: HEX.muted, breakLine: true } }, { text: "“The way it suggests games first can make people more motivated to play.”", options: { italic: true, fontSize: 17, breakLine: true } }, { text: "Player B (both translated from Chinese)", options: { fontSize: 11, color: HEX.muted } }], { x: M + 0.3, y: 1.6, w: 5.1, h: 2.45, paraSpaceAfter: 4 });
-  [["10+", "people of the club used Serve"], ["2 of 3", "invites became games played"], ["3 days", "from invite to the games"]].forEach(([b, d], i) => stat(s, M + i * 1.95, 4.4, 1.8, b, d, HEX.green, { size: 30 }));
-  const shotH = 3.3;
-  let sx = M + 6.1;
-  [[P.invite, "1  Say it: an invite"], [P.agents, "2  The agents agree"], [P.messenger, "3  One tap, in Messenger"]].forEach(([im, cap]) => {
+  title(s, "An open door for any personal agent (/llms.txt), tested with 10+ friends");
+  // the door: an outside agent arrives, registers its key, and cannot loosen its person's limit
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: M, y: 1.4, w: 6.5, h: 4.95, fill: { color: "0F1A14" }, line: { color: "0F1A14" }, rectRadius: 0.1 });
+  const term = [["any person's agent, from anywhere", "7FA08C"], ["$ curl play.theminimallab.com/llms.txt", "CFE3D6"], ["  a six-call quick start for agents", "7FA08C"], ["$ POST /api/members/agents", "CFE3D6"], ["  its own Ed25519 public key, approved by its person", "7FA08C"], ["200 agent registered", "5FD18E"], ["$ POST /api/agent-channel/huddle/limits", "CFE3D6"], ['  signed: {"maxEach": 400}   (her limit: NT$150)', "7FA08C"], ["403 · needs: person", "FF7A6E"]];
+  s.addText(term.map(([t, c], k) => ({ text: t, options: { color: c, bold: k === 8, fontSize: k === 8 ? 20 : 13.5, breakLine: k < term.length - 1, paraSpaceBefore: [1, 3, 6, 8].includes(k) ? 8 : 0 } })), { isTextBox: true, x: M + 0.35, y: 1.6, w: 5.8, h: 3.75, fontFace: "Consolas", margin: 0, valign: "top" });
+  s.addText("✓ Over an agent key, a person's limits only get tighter: the agent can negotiate for its person, never past them.", { isTextBox: true, x: M + 0.35, y: 5.4, w: 5.8, h: 0.8, fontSize: 13, color: "5FD18E", margin: 0, valign: "top" });
+  // the friends' test
+  const shotH = 2.55;
+  let sx = M + 6.85;
+  [[P.invite, "1  An invite"], [P.agents, "2  Agents agree"], [P.messenger, "3  One tap"]].forEach(([im, cap]) => {
     const w = shotH / im.ratio;
     s.addImage({ data: im.data, x: sx, y: 1.4, w, h: shotH });
     s.addShape(pres.shapes.RECTANGLE, { x: sx, y: 1.4, w, h: shotH, fill: { type: "none" }, line: { color: HEX.line, width: 0.75 } });
-    s.addText(cap, { isTextBox: true, x: sx, y: 1.4 + shotH + 0.08, w, h: 0.3, fontSize: 11, bold: true, color: HEX.green, margin: 0 });
+    s.addText(cap, { isTextBox: true, x: sx, y: 1.4 + shotH + 0.06, w: w + 0.1, h: 0.28, fontSize: 10.5, bold: true, color: HEX.green, margin: 0 });
     sx += w + 0.1;
   });
-  text(s, "The same agent works in the web app and in Messenger. Anyone's own agent can come in through /llms.txt with its own Ed25519 key, and over an agent key a person's limits only get tighter.", { x: M + 6.1, y: 5.25, w: W - 2 * M - 6.1, h: 1.0, fontSize: 12.5, color: HEX.muted });
-  note(s, "More than 10 people of a real badminton club used Serve during the hackathon; of the 3 game invites sent through it, 2 became games that were played within three days. The Messenger panel shows the agent's real replies from the Messenger end-to-end test.");
+  [["10+", "friends tried it"], ["2 of 3", "invites became games"], ["3 days", "from invite to games"]].forEach(([b, d], i) => stat(s, M + 6.85 + i * 1.78, 4.4, 1.66, b, d, HEX.green, { size: 26, h: 1.3 }));
+  text(s, [{ text: "“It's actually really handy. You just talk to the agent.”", options: { italic: true } }], { x: M + 6.85, y: 5.85, w: W - 2 * M - 6.85, h: 0.5, fontSize: 13, color: HEX.ink });
+  foot(s, "A2A v1.0 Agent Cards are signed (JWS, Ed25519); round 28's testers checked the 403 on a copy with the server's models. Quote translated from Chinese.");
+  note(s, "Any personal agent, built anywhere, can come in through /llms.txt with its own Ed25519 key, and code keeps it inside its person's limits. More than 10 friends from a badminton club tried Serve during the hackathon; of the 3 game invites sent through it, 2 became games played within three days. The Messenger panel shows the agent's real replies from the Messenger end-to-end test.");
 
   // 7. the tiered engine, with the tiny layer
   nextKey = "tiers";
@@ -279,12 +285,13 @@ async function img(file, width = 1800) {
   // 2. impact: the pain, as a scene (Muse Image), with the three barriers beside it
   nextKey = "pain";
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "People stop playing because organising is hard: 64.2% cannot fit the times");
-  picture(s, I.pain, M, 1.4, 7.5, 5.0);
-  s.addText("Illustration made with Muse Image (Meta Model API)", { isTextBox: true, x: M, y: 6.45, w: 7.5, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0, italic: true });
-  s.addText("What stops adults playing regularly", { isTextBox: true, x: 8.55, y: 1.5, w: 4.2, h: 0.4, fontSize: 15, bold: true, color: HEX.ink, margin: 0 });
+  title(s, "The gap: everyone is getting a personal agent, but agents have nowhere to coordinate");
+  s.addText("So a game that needs four people still runs on a group chat, and fitting the times is what stops most adults.", { isTextBox: true, x: M, y: 1.2, w: W - 2 * M, h: 0.35, fontSize: 14, color: HEX.muted, margin: 0 });
+  picture(s, I.island, M, 1.7, 7.6, 4.7);
+  s.addText("Illustration made with Muse Image (Meta Model API); the locks are each friend's agent, with no way to reach the others", { isTextBox: true, x: M, y: 6.45, w: 7.5, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0, italic: true });
+  s.addText("What stops adults playing regularly", { isTextBox: true, x: 8.55, y: 1.75, w: 4.2, h: 0.4, fontSize: 15, bold: true, color: HEX.ink, margin: 0 });
   [["64.2%", "times that are hard to fit around other commitments", HEX.red, "Talk"], ["21.3%", "no way to keep the habit going", HEX.ink, "Match"], ["26%", "of 26 to 49 year olds play a sport, against 40% at 18 to 21", HEX.ink, "all three"]].forEach(([v, d, c, who], i) => {
-    const y = 2.05 + i * 1.45;
+    const y = 2.25 + i * 1.38;
     s.addText(v, { isTextBox: true, x: 8.55, y, w: 1.9, h: 0.75, fontSize: 34, bold: true, color: c, margin: 0, valign: "middle" });
     s.addText(d, { isTextBox: true, x: 10.5, y, w: 2.25, h: 0.75, fontSize: 12.5, color: HEX.ink, margin: 0, valign: "middle" });
     s.addText(`answered by ${who}`, { isTextBox: true, x: 8.55, y: y + 0.78, w: 4.2, h: 0.35, fontSize: 11.5, color: HEX.green, bold: true, margin: 0 });

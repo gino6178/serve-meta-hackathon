@@ -16,14 +16,14 @@ const ZH = "Microsoft JhengHei";
 
 // each shot: its id as in the Markdown, the picture, and whether it is reused (♻️) or new (🆕)
 const SHOTS = [
-  ["0-1", "v2_1.png", "♻️ 沿用 v2"], ["0-2", "pain_scene.png", "🆕 Q 版插畫，做成動態"], ["0-3", "pain_before_after.png", "🆕 轉場，接網站實錄"],
+  ["0-1", "v2_1.png", "♻️ 沿用 v2"], ["0-2", "island.png", "🆕 Q 版插畫 + 鎖頭，做成動態"], ["0-3", "pain_before_after.png", "🆕 轉場，接網站實錄"],
   ["1-1", "flow_four.png", "🆕 新錄（示意：現有截圖）"], ["1-2", "v2_52.png", "♻️ v2 分割畫面 + 🆕 JSON 疊圖"], ["1-3", "v2_22.png", "♻️ 沿用 v2"],
-  ["1-4", "club.png", "🆕 示意圖（HTML 繪製）"], ["2-1", "v2_87.png", "♻️ 沿用 v2"], ["3-1", "tiers.png", "🆕 示意圖（HTML 繪製）"],
-  ["3-2", "guard.png", "🆕 示意圖（HTML 繪製）"], ["3-3", "swarm_v3.png", "♻️ swarm 影片，數字更新"], ["3-4", "v2_150.png", "♻️ 沿用 v2（Rule of Two 圖拿掉揭露預算）"], ["4", "v2_157.png", "♻️ 沿用 v2，下方文字照腳本換"],
+  ["1-4", "byoa.png", "🆕 示意圖（HTML 繪製）"], ["2-1", "v2_87.png", "♻️ 沿用 v2"], ["3-1", "tiers.png", "🆕 示意圖（HTML 繪製）"],
+  ["3-2", "guard.png", "🆕 示意圖（HTML 繪製）"], ["3-3", "swarm_v3.png", "♻️ swarm 影片，數字更新"], ["3-4", "v2_150.png", "♻️ 沿用 v2（Rule of Two 圖拿掉揭露預算）"], ["4", "endcard.png", "♻️ v2 版型，文字照腳本換（示意）"],
 ];
 
 // a Chinese name for the shots the Markdown names by their file
-const HEADS = { "0-1": "開場封面", "2-1": "精華影片", "4": "片尾" };
+const HEADS = { "0-1": "開場封面", "2-1": "打完球的附加樂趣：精華影片", "4": "片尾" };
 // the Markdown: each shot's header, screen lines, Chinese and English narration, corner label
 function parse() {
   const md = fs.readFileSync(MD, "utf8").replace(/\r/g, ""), out = {};
@@ -45,24 +45,24 @@ async function img(file, width = 1800) {
   const m = await sharp(buf).metadata();
   return { data: "image/png;base64," + buf.toString("base64"), ratio: m.height / m.width };
 }
-const seg = (id) => ({ 0: ["開場與痛點", "Impact"], 1: ["怎麼運作", "Demo + Tooling"], 2: ["精華影片", "Demo + Tooling"], 3: ["技術深度", "Depth + Tooling"], 4: ["片尾", ""] })[id[0]];
+const seg = (id) => ({ 0: ["開場與痛點", "Impact"], 1: ["怎麼運作", "Demo + Tooling"], 2: ["附加樂趣", "Demo + Tooling"], 3: ["技術深度", "Depth + Tooling"], 4: ["片尾", ""] })[id[0]];
 
 (async () => {
   const S = parse();
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
-  pres.title = "Serve video storyboard v3";
+  pres.title = "Serve video storyboard v3.1";
   pres.theme = { headFontFace: ZH, bodyFontFace: ZH };
   const W = 13.333, H = 7.5, M = 0.5;
   pres.defineSlideMaster({ title: "SHOT", background: { color: "FFFFFF" }, slideNumber: { x: W - 1.0, y: H - 0.42, w: 0.5, h: 0.3, fontSize: 10, color: HEX.soft, align: "right" },
-    objects: [{ text: { text: "Serve · 影片分鏡稿 v3（審核用）", options: { x: M, y: H - 0.42, w: 5, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0, fontFace: ZH } } }] });
+    objects: [{ text: { text: "Serve · 影片分鏡稿 v3.1（審核用）", options: { x: M, y: H - 0.42, w: 5, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0, fontFace: ZH } } }] });
   const T = (s, t, o) => s.addText(t, { isTextBox: true, margin: 0, fontFace: ZH, color: HEX.ink, ...o });
 
   // cover
   let s = pres.addSlide();
   s.background = { color: HEX.dark };
-  T(s, "Serve 影片分鏡稿 v3", { x: M + 0.3, y: 2.2, w: 11, h: 1.0, fontSize: 44, bold: true, color: "FFFFFF" });
-  T(s, "2:45 · 13 個鏡頭 · 英文旁白 370 字 · 每頁附預期畫面", { x: M + 0.3, y: 3.3, w: 11, h: 0.6, fontSize: 22, color: "C9D6CE" });
+  T(s, "Serve 影片分鏡稿 v3.1", { x: M + 0.3, y: 2.2, w: 11, h: 1.0, fontSize: 44, bold: true, color: "FFFFFF" });
+  T(s, `2:45 · 13 個鏡頭 · 英文旁白 ${Object.values(S).reduce((n, x) => n + (x.en ? x.en.split(/\s+/).length : 0), 0)} 字 · 主軸：個人 agent 之間的協商平台`, { x: M + 0.3, y: 3.3, w: 11, h: 0.6, fontSize: 22, color: "C9D6CE" });
   T(s, "預期畫面：v2 影片的實際畫格、會沿用的素材，或為還沒錄的鏡頭用 HTML 畫的示意圖。所有數字對照 submission/technical_report.md", { x: M + 0.3, y: 4.2, w: 11.5, h: 0.9, fontSize: 15, color: "9FB3A7" });
 
   // the timeline
@@ -106,7 +106,7 @@ const seg = (id) => ({ 0: ["開場與痛點", "Impact"], 1: ["怎麼運作", "De
     s.addShape(pres.shapes.RECTANGLE, { x: rx, y: fy + 2.9, w: rw, h: 2.3, fill: { color: HEX.card }, line: { color: HEX.card } });
     T(s, "中文（審稿用）", { x: rx + 0.2, y: fy + 3.02, w: rw - 0.4, h: 0.3, fontSize: 11, bold: true, color: HEX.muted });
     T(s, x.zh || "—", { x: rx + 0.2, y: fy + 3.35, w: rw - 0.4, h: 1.75, fontSize: 12.5, valign: "top", fit: "shrink" });
-    if (x.en) { const n = x.en.split(/\s+/).length; T(s, `${n} 字 · 約 ${Math.round(n / 140 * 60)} 秒（每分鐘 140 字）`, { x: rx, y: fy + 5.3, w: rw, h: 0.3, fontSize: 10, color: HEX.soft, align: "right" }); }
+    if (x.en) { const n = x.en.split(/\s+/).length; T(s, `${n} 字 · 約 ${Math.round(n / 150 * 60)} 秒（每分鐘 150 字）`, { x: rx, y: fy + 5.3, w: rw, h: 0.3, fontSize: 10, color: HEX.soft, align: "right" }); }
   }
 
   // decisions left to the author, from the Markdown
