@@ -92,16 +92,16 @@ test("an unsure student and a decider that agree on a time: that time, without t
   process.env.A2A_DECIDER = "raw"; process.env.A2A_STUDENT = "on";
   const unsure = (id, p) => ({ pick: { kind: "counter", id, p }, works_p: { t1: 0.99, t2: 0.01, t3: 0.99, t5: 0.99 }, ms: 200, tokens: 100, model: "test.gguf" });
   try {
-    student = unsure("t3", 0.55); reset([[" B", 0.6], [" A", 0.4]]); // B is Saturday 9:00, t3
+    student = unsure("t3", 0.45); reset([[" B", 0.6], [" A", 0.4]]); // B is Saturday 9:00, t3
     let j = await ask();
-    assert.equal(j.tier, "agree"); assert.equal(j.start, "09:00"); assert.equal(j.student, 0.55); assert.equal(seen.chat, 0);
-    student = unsure("t5", 0.55); reset([[" B", 0.6], [" A", 0.4]]);
+    assert.equal(j.tier, "agree"); assert.equal(j.start, "09:00"); assert.equal(j.student, 0.45); assert.equal(seen.chat, 0);
+    student = unsure("t5", 0.45); reset([[" B", 0.6], [" A", 0.4]]);
     j = await ask();
     assert.equal(j.tier, "agent", "they disagree: the full answer decides"); assert.equal(seen.chat, 1);
-    student = unsure("t3", 0.4); reset([[" B", 0.6], [" A", 0.4]]);
+    student = unsure("t3", 0.25); reset([[" B", 0.6], [" A", 0.4]]);
     j = await ask();
-    assert.equal(j.tier, "agent", "the student under A2A_AGREE_MIN: the full answer decides");
-    process.env.A2A_AGREE = "off"; student = unsure("t3", 0.55); reset([[" B", 0.6], [" A", 0.4]]);
+    assert.equal(j.tier, "agent", "the student under A2A_AGREE_STUDENT: the full answer decides");
+    process.env.A2A_AGREE = "off"; student = unsure("t3", 0.45); reset([[" B", 0.6], [" A", 0.4]]);
     j = await ask();
     assert.equal(j.tier, "agent", "A2A_AGREE=off");
   } finally { process.env.A2A_STUDENT = "off"; delete process.env.A2A_AGREE; student = null; }

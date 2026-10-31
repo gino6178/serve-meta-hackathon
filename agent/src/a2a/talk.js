@@ -273,13 +273,15 @@ export const deciderQuestion = (m, cur, times, why, format, sport) => ({ profile
 // different models agreeing is better evidence than either's confidence: on the decider's 196 cases, split in halves
 // 500 times (thresholds chosen on one half, measured on the other), the choices answered without Glimmer's full answer
 // went from 72.1% to 79.0%, and the answers that matched Glimmer's from 69.6% to 68.9% (Glimmer matches itself on 73.5%).
-const agreeOn = () => process.env.A2A_AGREE !== "off", AGREE_MIN = () => +(process.env.A2A_AGREE_MIN || 0.5);
+// (the student answers on its own from 0.5, student.js, so agreement matters for its picks from 0.3 to 0.5; the decider's
+// must reach 0.5)
+const agreeOn = () => process.env.A2A_AGREE !== "off", AGREE_STUDENT = () => +(process.env.A2A_AGREE_STUDENT || 0.3), AGREE_MIN = () => +(process.env.A2A_AGREE_MIN || 0.5);
 async function decided(m, cur, choices, all, why, format, sport, hint = null) {
   const them = first(m.name);
   let r;
   try { r = await decideRaw(deciderQuestion(m, cur, choices, why, format, sport)); } catch { return null; }
   if (!r.pick?.x) return null;
-  const agree = agreeOn() && hint && hint.id === r.pick.x.id && hint.p >= AGREE_MIN() && r.p >= AGREE_MIN();
+  const agree = agreeOn() && hint && hint.id === r.pick.x.id && hint.p >= AGREE_STUDENT() && r.p >= AGREE_MIN();
   if (r.p < DECIDER_SURE() && !agree) return null;
   const j = { intent: "counter", date: r.pick.x.slot.date, start: hm(r.pick.x.start), ...(all.some((x) => x.id) ? { works: choices.map((x) => x.id).filter(Boolean) } : {}), tier: r.p >= DECIDER_SURE() ? "decider" : "agree", confidence: r.p, ...(r.p >= DECIDER_SURE() ? {} : { student: hint.p }) };
   return { ...j, text: sentence(them, j, cur) };

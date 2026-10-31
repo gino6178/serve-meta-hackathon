@@ -17,10 +17,13 @@ import { helpers } from "../club/play.js";
 const { hm } = helpers;
 export const studentOn = () => process.env.A2A_STUDENT !== "off";
 const URL_ = () => (process.env.A2A_STUDENT_URL || "http://127.0.0.1:11447").replace(/\/$/, "");
-// 0.6, for the 1B student the worker serves by default: the point on the curve that saves the most Glimmer calls while
-// its agreement with Glimmer stays within about 5 points of Glimmer's own, and the member's stated preference holds
-// (0.5 for the 3B student). docs/decision_model.md has the curve.
-const SURE = () => +(process.env.A2A_STUDENT_SURE || 0.6);
+// 0.5, for the 1B student the worker serves by default: most of these choices are not hard, so the student takes
+// nearly all of them. On the 500 ordinary held-out cases it answers 99.4% at 0.5 and matches the majority of Glimmer's
+// three answers 91.1% of the time (Glimmer matches itself 88.8%); on the 196 hardest (the asked time breaks a rule,
+// calendars shared) it answers 95.9% instead of 70.9% at 0.6, matching Glimmer 69.1% of the time against 73.0% for the
+// cascade at 0.6 (Glimmer matches itself 73.5%), and Glimmer's full answer is asked for 4.1% of them instead of 20.9%.
+// A pick whose reading of which times work differs from code's still goes to Glimmer, whatever its confidence.
+const SURE = () => +(process.env.A2A_STUDENT_SURE || 0.5);
 // how long a decision may take on the worker in all, and how long it may wait there for the one before it (the worker
 // answers one at a time; one that would wait longer is turned away at once, and Glimmer answers it)
 const WAIT = () => +(process.env.A2A_STUDENT_TIMEOUT_MS || 20000), QUEUE = () => +(process.env.A2A_STUDENT_MAX_WAIT_MS || 8000);
