@@ -483,6 +483,39 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
 
 ## More agent upgrades, measured
 
+- **Harder simulated users, and pass^k.** LLM-simulated users are kinder than people and make agents look better
+  (Sim2Real, arXiv 2603.11245), and tau-bench (arXiv 2406.12045) counts a task only if the agent gets it right every
+  time it is repeated (pass^k). Five of the trial club's twenty people now have a kind of difficulty: one says yes, then
+  backs out by message after the booking; one never answers or answers late; one gives up after a few questions; one
+  stops playing on a day mid-week and tells their agent; one answers in vague words instead of tapping
+  (`test/sim_users/hard.mjs`). Each answer comes from seeded dice. `test/sim_users/passk_run.mjs` runs each request k
+  times on a fresh real gateway (partners confirm on Messenger, holds lapse after 60 s). It reports pass^k, success by
+  kind of person, games that fall apart after a yes, and false "booked" messages (`submission/results/sim_users_hard.json`,
+  simulated, seeds 23 and 17). On Muse Glimmer, over the same 8 requests × 4 runs, pass^1 fell from 0.69 with the
+  cooperative club to 0.38 with the difficult one (difference −0.31, 95% CI −0.53 to −0.09). pass^4 fell from 0.50 to
+  0.25 (CI of the difference −0.62 to 0). Cooperative people saw 0 of 32 false "booked" messages; the difficult club
+  saw 3 of 32. On 12 cooperative requests pass^1 is 0.56 and pass^4 0.33. With the fake model (code only), 20 requests × 8
+  runs: pass^1 0.53 to 0.35, pass^8 0.20 to 0.05. By kind (fake model): flipper 7 of 41 runs passed, ghost 9 of 40, vague 2 of 13,
+  drifter 7 of 31; runs where no difficult person took part passed 34 of 60. The person who gives up after a few
+  questions never got that far (a partner is asked once), so this run measures nothing about them. What failed, not
+  fixed: a back-out sent as a message is noted in chat ("want me to reschedule?") but the booking stands and the
+  partner still holds "Booked" (3 of 3 real, 12 of 12 fake); a partner who never answers leaves the asker on "I'll book it
+  as soon as they say yes" with no timeout or follow-up, and a yes after the hold lapsed still books; a vague reply to
+  "Are you in?" gets a chat answer ("I'll check in closer to the day") while the question stays open; the agent told
+  "no Saturdays" said it would keep them off, yet all 12 questions later put to that person were for Saturday games (the
+  member's agent reads the stored profile); after "Can't make it" the new search leaves out only that partner, so
+  people who already said no are asked again (13 real runs). It can go round without end (8 real runs; the harness stops a run
+  after five "Book it?" questions). People asked "Are you in?" are not told when someone else's no drops the game.
+
+`core/llm.js` routes each call by how long it is (LLM_ROUTE). A short call at a site where our distilled 1B was checked
+(LLM_SMALL_SITES: wording a game ask, a court's name in English, a memory's beliefs, a paper's summary, a question
+about the feed) goes to the 1B (`serve-1b` on Glimmer's Ollama, `distill/Modelfile.serve-1b`); anything longer, or
+anywhere else, to Muse Glimmer; a very long call (12,000 tokens or more) to Muse Spark on the Meta Model API. A 1B
+reply that is empty or does not fit its schema is asked again of Glimmer. The 1B's main work stays the agents'
+choices between times (the student). Every short site was tried on the 1B first: it filed training on the wrong day,
+logged games wrongly and could not phrase a wish (9 end-to-end checks failed), let 2 of 6 hostile comments through
+the post standard, and obeyed 4 of 10 court reviews that told it what to say. With the checked sites only, the
+end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer alone.
 - **When not to send.** `match/gate.js` (ASK_GATE=off for the fixed 12:00 ask) decides the hour of the daily "Match
   asks first" ask, and whether to send it at all: a Beta posterior per player on "answered within 2 hours" for each hour
   (weekday or weekend), started from the club's rate, Thompson-sampled once a day, times a draw of the player's chance
