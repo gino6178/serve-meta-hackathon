@@ -37,6 +37,7 @@ const healthImport = await import("./body/health.js");
 const places = await import("./club/places.js");
 const pocketMod = await import("./club/pocket.js");
 const asks = await import("./agents/ask.js");
+const askGate = await import("./match/gate.js");
 const matchmaking = await import("./match/index.js");
 const routerMod = await import("./match/router.js");
 const ledger = await import("./core/ledger.js");
@@ -303,16 +304,21 @@ const flagOr = (read, fallback) => { try { const v = read(); return Number.isFin
 // once a day at ASK_HOUR (12:00), for Messenger players who wrote in the last day (Messenger's standard messaging
 // window): the Match helper asks about the next three days, if the week is short of the goal. For a beta member in a
 // canary the hour (ask.hour) and the days ahead (ask.ahead) are the flags' values. The daily ask counts toward the
-// player's weekly cap (ASK_WEEK_CAP) and may be withheld by the trial (ASK_TRIAL_P); a forced tick is neither
+// player's weekly cap (ASK_WEEK_CAP) and may be withheld by the trial (ASK_TRIAL_P); a forced tick is neither. With
+// the send gate on (ASK_GATE, match/gate.js) the hour is the gate's, learned per player, and some days it does not ask
 async function askTick(now = new Date(), force = false) {
   let n = 0;
   for (const p of store.players()) {
     if (!msn.state.enabled || p.prefs.ask === false) continue;
-    if (!force && now.getHours() !== flagOr(() => loopParts.flags.get("ask.hour", p.id), +(process.env.ASK_HOUR ?? 12))) continue;
-    const today = life.ymd(now);
-    if (!force && (p.prefs.lastAsk === today || !p.lastSeen || Date.now() - p.lastSeen > 23 * 36e5 || asks.open(p.id))) continue;
-    store.setPref(p.id, "lastAsk", today);
+    // with the send gate on (match/gate.js), it looks once an hour within ASK_GATE_HOURS and the gate picks the hour
+    const gated = askGate.on(), [g0, g1] = askGate.hours(), hr = now.getHours();
+    if (!force && (gated ? hr < g0 || hr > g1 : hr !== flagOr(() => loopParts.flags.get("ask.hour", p.id), +(process.env.ASK_HOUR ?? 12)))) continue;
+    const today = life.ymd(now), slot = gated ? `${today}@${hr}` : today;
+    if (!force && (p.prefs.lastAsk === today || p.prefs.askLook === slot || !p.lastSeen || Date.now() - p.lastSeen > 23 * 36e5 || asks.open(p.id))) continue;
+    store.setPref(p.id, gated ? "askLook" : "lastAsk", slot);
     const r = await club.asPlayer(p.id, () => gameFor(p.id, { ahead: force ? 7 : flagOr(() => loopParts.flags.get("ask.ahead", p.id), 3), quiet: true, daily: !force })).catch(() => null);
+    // the day is done unless the gate is waiting for a later hour
+    if (gated && !r?.later) store.setPref(p.id, "lastAsk", today);
     if (r && !r.none) n++;
   }
   return n;
