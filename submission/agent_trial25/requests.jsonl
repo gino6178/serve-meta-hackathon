@@ -1,561 +1,307 @@
-{"t":1793379125547,"ms":6,"who":"","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793379128998,"ms":1,"who":"","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793379181194,"ms":2,"who":"web:http://127.0.0.1:5190","sess":null,"m":"GET","p":"/api/auth/providers","s":200}
-{"t":1793379182591,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379182594,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379182597,"ms":5,"who":"web:http://127.0.0.1:5190","sess":"eff95b63","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379182602,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"eff95b63","m":"GET","p":"/api/huddle/nudge","s":401}
-{"t":1793379195207,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/auth/demo","s":204}
-{"t":1793379195210,"ms":7,"who":"web:http://127.0.0.1:5190","sess":null,"m":"POST","p":"/api/auth/demo","s":200}
-{"t":1793379195290,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/me","s":204}
-{"t":1793379195292,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/me","s":200}
-{"t":1793379195314,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379195316,"ms":10,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed","s":200}
-{"t":1793379200883,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379200886,"ms":3,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379211204,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379211206,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379211208,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379211208,"ms":4,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379214942,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/places/near","s":204}
-{"t":1793379214944,"ms":8020,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/places/near","s":200}
-{"t":1793379241210,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379241211,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379241213,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379241214,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379254519,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379254524,"ms":7,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/clubs","s":200}
-{"t":1793379254552,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379254565,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/c-8040c86c/invite","s":204}
-{"t":1793379254567,"ms":3,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs/c-8040c86c/invite","s":200}
-{"t":1793379254579,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379254581,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed","s":200}
-{"t":1793379271207,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379271208,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379271210,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379271211,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379272082,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"GET","p":"/api/clubs/invite","s":200}
-{"t":1793379272367,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"GET","p":"/api/clubs/invite","s":200}
-{"t":1793379276583,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"GET","p":"/api/auth/providers","s":200}
-{"t":1793379276589,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"GET","p":"/api/clubs","s":401}
-{"t":1793379284093,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/auth/demo","s":204}
-{"t":1793379284097,"ms":2,"who":"web:http://127.0.0.1:5190","sess":null,"m":"POST","p":"/api/auth/demo","s":200}
-{"t":1793379284166,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/invite","s":204}
-{"t":1793379284168,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379284170,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379284172,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"b157a6bd","m":"GET","p":"/api/clubs/invite","s":200}
-{"t":1793379284174,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"b157a6bd","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379284178,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"b157a6bd","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379289692,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/join","s":204}
-{"t":1793379289695,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"b157a6bd","m":"POST","p":"/api/clubs/join","s":200}
-{"t":1793379289705,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379289710,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"b157a6bd","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379289721,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/c-8040c86c/invite","s":204}
-{"t":1793379289723,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"b157a6bd","m":"GET","p":"/api/clubs/c-8040c86c/invite","s":200}
-{"t":1793379289730,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379289735,"ms":3,"who":"web:http://127.0.0.1:5190","sess":"b157a6bd","m":"GET","p":"/api/feed","s":200}
-{"t":1793379293993,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379294588,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379294592,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379294593,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379294595,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379294604,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379299669,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/places/near","s":204}
-{"t":1793379299671,"ms":8010,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/places/near","s":200}
-{"t":1793379315972,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379315975,"ms":4,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/clubs","s":200}
-{"t":1793379316062,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379316074,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/c-2a5d417d/invite","s":204}
-{"t":1793379316079,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs/c-2a5d417d/invite","s":200}
-{"t":1793379316085,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379316088,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed","s":200}
-{"t":1793379324485,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379324485,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379324487,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379324488,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379332751,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"GET","p":"/api/clubs/invite","s":200}
-{"t":1793379333184,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"GET","p":"/api/clubs/invite","s":200}
-{"t":1793379336758,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"GET","p":"/api/auth/providers","s":200}
-{"t":1793379336764,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"GET","p":"/api/clubs","s":401}
-{"t":1793379343199,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/auth/demo","s":204}
-{"t":1793379343202,"ms":3,"who":"web:http://127.0.0.1:5190","sess":null,"m":"POST","p":"/api/auth/demo","s":200}
-{"t":1793379343254,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/invite","s":204}
-{"t":1793379343255,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379343255,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379343257,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs/invite","s":200}
-{"t":1793379343258,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379343258,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379347318,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/join","s":204}
-{"t":1793379347322,"ms":4,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"POST","p":"/api/clubs/join","s":200}
-{"t":1793379351773,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379351777,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379352194,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379352209,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379352211,"ms":4,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379352265,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379352267,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379352305,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/c-2a5d417d/invite","s":204}
-{"t":1793379352307,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs/c-2a5d417d/invite","s":200}
-{"t":1793379352319,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379352322,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed","s":200}
-{"t":1793379356055,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/answer","s":204}
-{"t":1793379356059,"ms":5,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/clubs/answer","s":200}
-{"t":1793379362810,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379362812,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379362812,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379362814,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379362816,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379362816,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379363009,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/c-2a5d417d/invite","s":204}
-{"t":1793379363011,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs/c-2a5d417d/invite","s":200}
-{"t":1793379363212,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379363215,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed","s":200}
-{"t":1793379372302,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/places/near","s":204}
-{"t":1793379372306,"ms":8012,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/places/near","s":200}
-{"t":1793379387240,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/post","s":204}
-{"t":1793379387242,"ms":8,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"POST","p":"/api/feed/post","s":200}
-{"t":1793379387294,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379387296,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379387309,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379387310,"ms":3,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed","s":200}
-{"t":1793379392735,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379392736,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379392738,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379392739,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379397338,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379397341,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379397351,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379397352,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379397439,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/c-2a5d417d/invite","s":204}
-{"t":1793379397441,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs/c-2a5d417d/invite","s":200}
-{"t":1793379397476,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379397479,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed","s":200}
-{"t":1793379405039,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/join","s":204}
-{"t":1793379405041,"ms":18,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793379409339,"ms":8,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793379418361,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/join","s":204}
-{"t":1793379418364,"ms":49,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793379426052,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/me","s":204}
-{"t":1793379426052,"ms":3,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379426055,"ms":3,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793379426060,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379426108,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/needs","s":204}
-{"t":1793379426110,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/needs","s":200}
-{"t":1793379427346,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379427346,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379427348,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379427350,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379429940,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793379429942,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379429950,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379429966,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/needs","s":200}
-{"t":1793379438291,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379438294,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379438669,"ms":4,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379438679,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379438679,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379438682,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379438683,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379438699,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/c-2a5d417d/invite","s":204}
-{"t":1793379438701,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs/c-2a5d417d/invite","s":200}
-{"t":1793379438718,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379438723,"ms":3,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed","s":200}
-{"t":1793379468658,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379468659,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379468661,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379468662,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379481476,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379481478,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379481484,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379481485,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379481487,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379481490,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379481530,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs/c-2a5d417d/invite","s":204}
-{"t":1793379481532,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/clubs/c-2a5d417d/invite","s":200}
-{"t":1793379481543,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed","s":204}
-{"t":1793379481548,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed","s":200}
-{"t":1793379511244,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379511245,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379511247,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379511248,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379516379,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/delete","s":204}
-{"t":1793379516383,"ms":5,"who":"web:http://127.0.0.1:5190","sess":"d76b9491","m":"POST","p":"/api/feed/delete","s":200}
-{"t":1793379522259,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/today","s":204}
-{"t":1793379522261,"ms":14,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793379523043,"ms":8,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793379523051,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379523052,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379523054,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379523056,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379523187,"ms":5,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793379530599,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/clubs","s":204}
-{"t":1793379530611,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/clubs","s":200}
-{"t":1793379535559,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/me","s":204}
-{"t":1793379535561,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793379535576,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/needs","s":204}
-{"t":1793379535578,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/needs","s":200}
-{"t":1793379544661,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/start","s":204}
-{"t":1793379544664,"ms":4,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/huddle/start","s":400}
-{"t":1793379552841,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379552842,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379552844,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379552844,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379557956,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/home","s":204}
-{"t":1793379557958,"ms":245,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/huddle/home","s":200}
-{"t":1793379558208,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/me","s":204}
-{"t":1793379558210,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793379570859,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/start","s":204}
-{"t":1793379570861,"ms":58,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793379570920,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/me","s":204}
-{"t":1793379570921,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/one","s":204}
-{"t":1793379570922,"ms":5,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793379570928,"ms":4,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793379582850,"ms":1,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379582851,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379582854,"ms":0,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379582855,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379585429,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/cancel","s":204}
-{"t":1793379585431,"ms":14,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793379585449,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/me","s":204}
-{"t":1793379585451,"ms":5,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793379595993,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/question","s":204}
-{"t":1793379595994,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/trust","s":204}
-{"t":1793379595996,"ms":3,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/question","s":200}
-{"t":1793379595999,"ms":2,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/trust","s":200}
-{"t":1793379605046,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/members/calendar/ics","s":204}
-{"t":1793379605048,"ms":42,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"POST","p":"/api/members/calendar/ics","s":200}
-{"t":1793379612852,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379612852,"ms":0,"who":"web:http://127.0.0.1:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379612854,"ms":1,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379612856,"ms":3,"who":"web:http://127.0.0.1:5190","sess":"9036e4a2","m":"GET","p":"/api/huddle/nudge","s":200}
-{"t":1793379617759,"ms":1,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379617760,"ms":1,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379617761,"ms":1,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379617762,"ms":0,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379617766,"ms":1,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379617767,"ms":1,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/huddle/nudge","s":401}
-{"t":1793379617768,"ms":0,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379617769,"ms":0,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/huddle/nudge","s":401}
-{"t":1793379622690,"ms":0,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/today","s":204}
-{"t":1793379622691,"ms":0,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379622694,"ms":1,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/huddle/today","s":401}
-{"t":1793379622700,"ms":1,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/huddle/nudge","s":401}
-{"t":1793379653262,"ms":0,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379653262,"ms":1,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379653265,"ms":1,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379653266,"ms":0,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/huddle/nudge","s":401}
-{"t":1793379683062,"ms":1,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379683064,"ms":1,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379683066,"ms":1,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379683067,"ms":1,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/huddle/nudge","s":401}
-{"t":1793379712251,"ms":0,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/feed/notices","s":204}
-{"t":1793379712253,"ms":1,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793379712254,"ms":1,"who":"web:http://localhost:5190","sess":null,"m":"OPTIONS","p":"/api/huddle/nudge","s":204}
-{"t":1793379712256,"ms":1,"who":"web:http://localhost:5190","sess":"e2442cda","m":"GET","p":"/api/huddle/nudge","s":401}
-{"t":1793445455615,"ms":6,"who":"","sess":null,"m":"GET","p":"/","s":200}
-{"t":1793445455697,"ms":1,"who":"","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445482751,"ms":0,"who":"newA","sess":null,"m":"GET","p":"/","s":200}
-{"t":1793445482856,"ms":0,"who":"newA","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445486254,"ms":0,"who":"newA","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445486953,"ms":2,"who":"newA","sess":null,"m":"GET","p":"/api/auth/providers","s":200}
-{"t":1793445487035,"ms":6,"who":"newA","sess":null,"m":"GET","p":"/api/status","s":200}
-{"t":1793445490434,"ms":8,"who":"newA","sess":null,"m":"POST","p":"/api/auth/demo","s":200}
-{"t":1793445490999,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/","s":200}
-{"t":1793445491119,"ms":0,"who":"newB","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445494190,"ms":8,"who":"newA","sess":"1fb173c8","m":"POST","p":"/api/huddle/home","s":200}
-{"t":1793445494526,"ms":3,"who":"newA","sess":"1fb173c8","m":"POST","p":"/api/huddle/sports","s":200}
-{"t":1793445494668,"ms":3,"who":"newA","sess":"1fb173c8","m":"POST","p":"/api/huddle/limits","s":200}
-{"t":1793445494793,"ms":43,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445494938,"ms":0,"who":"newB","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445495083,"ms":0,"who":"newB","sess":null,"m":"GET","p":"/privacy.txt","s":200}
-{"t":1793445495192,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/.well-known/agent-card.json","s":200}
-{"t":1793445495281,"ms":2,"who":"newB","sess":null,"m":"GET","p":"/api/openapi.json","s":200}
-{"t":1793445499337,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/openapi.json","s":200}
-{"t":1793445499876,"ms":15,"who":"newA","sess":"1fb173c8","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445500233,"ms":0,"who":"grace","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445503307,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/status","s":200}
-{"t":1793445503382,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/auth/providers","s":200}
-{"t":1793445503426,"ms":1,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445503471,"ms":1,"who":"newB","sess":null,"m":"POST","p":"/api/auth/demo","s":200}
-{"t":1793445506585,"ms":1,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445507340,"ms":1,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/me","s":200}
-{"t":1793445507424,"ms":2,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/home","s":200}
-{"t":1793445507517,"ms":3,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/sports","s":200}
-{"t":1793445507592,"ms":3,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/limits","s":200}
-{"t":1793445507662,"ms":14,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445507930,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/me","s":200}
-{"t":1793445507992,"ms":6,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445508069,"ms":1,"who":"grace","sess":null,"m":"GET","p":"/api/openapi.json","s":200}
-{"t":1793445508237,"ms":1,"who":"ken","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445509705,"ms":1,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445512495,"ms":8,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/feed","s":200}
-{"t":1793445512618,"ms":1,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793445512755,"ms":2,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/clubs","s":200}
-{"t":1793445512955,"ms":7,"who":"newB","sess":null,"m":"GET","p":"/api/trust/chain","s":200}
-{"t":1793445513180,"ms":2,"who":"newB","sess":null,"m":"GET","p":"/api/trust/verify","s":200}
-{"t":1793445513780,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/me","s":200}
-{"t":1793445513885,"ms":9,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445514046,"ms":0,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/limits","s":404}
-{"t":1793445514158,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/sports","s":404}
-{"t":1793445514358,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/home","s":404}
-{"t":1793445515422,"ms":3,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/huddle/limits","s":200}
-{"t":1793445515505,"ms":35,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445515623,"ms":1,"who":"mia","sess":null,"m":"GET","p":"/","s":200}
-{"t":1793445516373,"ms":0,"who":"mia","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445518483,"ms":1,"who":"ken","sess":null,"m":"GET","p":"/api/openapi.json","s":200}
-{"t":1793445519551,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/invite","s":200}
-{"t":1793445519689,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/invite","s":200}
-{"t":1793445519806,"ms":1,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/one","s":404}
-{"t":1793445519928,"ms":1,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445520036,"ms":0,"who":"newB","sess":null,"m":"GET","p":"/api/huddle/today","s":401}
-{"t":1793445521028,"ms":1,"who":"mia","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445521164,"ms":1,"who":"mia","sess":null,"m":"GET","p":"/api/auth/providers","s":200}
-{"t":1793445521272,"ms":1,"who":"mia","sess":null,"m":"GET","p":"/api/status","s":200}
-{"t":1793445522502,"ms":1,"who":"tom","sess":null,"m":"GET","p":"/","s":200}
-{"t":1793445522606,"ms":0,"who":"tom","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445523803,"ms":4,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445524092,"ms":2,"who":"mia","sess":null,"m":"POST","p":"/api/auth/demo","s":200}
-{"t":1793445524768,"ms":21,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/game","s":200}
-{"t":1793445524851,"ms":2,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/game","s":200}
-{"t":1793445524930,"ms":3,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445525012,"ms":1,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445525013,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/invite","s":200}
-{"t":1793445525117,"ms":8,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445525842,"ms":1,"who":"tom","sess":null,"m":"GET","p":"/llms.txt","s":200}
-{"t":1793445527906,"ms":3,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445527296,"ms":694,"who":"mia","sess":"99d9865f","m":"POST","p":"/api/huddle/home","s":200}
-{"t":1793445528051,"ms":3,"who":"mia","sess":"99d9865f","m":"POST","p":"/api/huddle/sports","s":200}
-{"t":1793445528114,"ms":3,"who":"mia","sess":"99d9865f","m":"POST","p":"/api/huddle/limits","s":200}
-{"t":1793445529637,"ms":3,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/limits","s":200}
-{"t":1793445529709,"ms":3,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445529820,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445530904,"ms":0,"who":"newA","sess":null,"m":"GET","p":"/api/openapi.json","s":200}
-{"t":1793445531057,"ms":3,"who":"tom","sess":null,"m":"POST","p":"/api/auth/demo","s":200}
-{"t":1793445532001,"ms":4,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445531513,"ms":860,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/huddle/home","s":200}
-{"t":1793445532435,"ms":4,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/huddle/sports","s":200}
-{"t":1793445532522,"ms":3,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/huddle/limits","s":200}
-{"t":1793445532863,"ms":9,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445535609,"ms":1,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445535760,"ms":1,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/needs","s":200}
-{"t":1793445535922,"ms":6,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/places","s":200}
-{"t":1793445535935,"ms":1,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445536114,"ms":2,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/feed","s":200}
-{"t":1793445536135,"ms":1,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/needs","s":200}
-{"t":1793445536227,"ms":11,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445536295,"ms":1,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/trust","s":200}
-{"t":1793445536428,"ms":0,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/deal","s":404}
-{"t":1793445536560,"ms":1,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/members","s":404}
-{"t":1793445536661,"ms":2,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/feed","s":200}
-{"t":1793445538156,"ms":3,"who":"mia","sess":"99d9865f","m":"POST","p":"/api/huddle/answer","s":200}
-{"t":1793445538310,"ms":4,"who":"mia","sess":"99d9865f","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445539088,"ms":3,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/huddle/home","s":200}
-{"t":1793445539164,"ms":1,"who":"tom","sess":null,"m":"GET","p":"/api/openapi.json","s":200}
-{"t":1793445542443,"ms":2,"who":"newB","sess":null,"m":"POST","p":"/api/auth/demo","s":200}
-{"t":1793445544132,"ms":2,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445546657,"ms":1,"who":"newB","sess":"7c794270","m":"GET","p":"/api/me","s":200}
-{"t":1793445546839,"ms":2,"who":"newB","sess":"7c794270","m":"GET","p":"/api/feed","s":200}
-{"t":1793445546931,"ms":0,"who":"newB","sess":"7c794270","m":"GET","p":"/api/invite","s":200}
-{"t":1793445547045,"ms":6,"who":"newB","sess":"7c794270","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445547207,"ms":1,"who":"newB","sess":"7c794270","m":"GET","p":"/api/clubs","s":200}
-{"t":1793445548090,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445548163,"ms":2,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445548514,"ms":0,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793445548596,"ms":6,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445548690,"ms":18,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793445548857,"ms":3,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445552225,"ms":2,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/feed/post","s":400}
-{"t":1793445556011,"ms":0,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445556600,"ms":7,"who":"newB","sess":null,"m":"GET","p":"/a2a/agents","s":200}
-{"t":1793445556713,"ms":3,"who":"newB","sess":null,"m":"GET","p":"/.well-known/agent-card.json","s":404}
-{"t":1793445556854,"ms":3,"who":"newB","sess":null,"m":"GET","p":"/.well-known/agent-card.json","s":404}
-{"t":1793445556984,"ms":1,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/feed/post","s":400}
-{"t":1793445556992,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/members/de-3412e584a418","s":401}
-{"t":1793445557099,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/members/de-b234100f4420","s":401}
-{"t":1793445557581,"ms":0,"who":"newB","sess":null,"m":"GET","p":"/api/clubs/c-dad8cf02","s":401}
-{"t":1793445557830,"ms":2,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/clubs/c-dad8cf02/invite","s":200}
-{"t":1793445558121,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793445558207,"ms":5,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445558329,"ms":2,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/feed","s":200}
-{"t":1793445561034,"ms":1,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445561101,"ms":2,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/status","s":200}
-{"t":1793445561751,"ms":1,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/feed/post","s":400}
-{"t":1793445565911,"ms":1,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/feed/post","s":400}
-{"t":1793445567846,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/invite","s":200}
-{"t":1793445567910,"ms":11,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445567986,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/invite","s":200}
-{"t":1793445568063,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793445570774,"ms":2,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/feed","s":200}
-{"t":1793445570885,"ms":6,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/places","s":200}
-{"t":1793445572059,"ms":3,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/members/agents","s":200}
-{"t":1793445573850,"ms":0,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445573940,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445575618,"ms":1,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/feed/post","s":400}
-{"t":1793445575808,"ms":4,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/places","s":200}
-{"t":1793445578190,"ms":4,"who":"newB","sess":null,"m":"GET","p":"/api/agent-channel/me","s":401}
-{"t":1793445578460,"ms":2,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/limits","s":401}
-{"t":1793445578677,"ms":2,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/limits","s":401}
-{"t":1793445578877,"ms":2,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/game","s":401}
-{"t":1793445579461,"ms":14,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445579719,"ms":0,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/places","s":200}
-{"t":1793445579863,"ms":4,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/places","s":200}
-{"t":1793445579979,"ms":4,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/places","s":200}
-{"t":1793445580046,"ms":1,"who":"ken","sess":null,"m":"GET","p":"/api/status","s":200}
-{"t":1793445581001,"ms":8,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445581120,"ms":9,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445581233,"ms":0,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/invite","s":200}
-{"t":1793445581368,"ms":7,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445584564,"ms":3,"who":"newA","sess":"1fb173c8","m":"GET","p":"/api/huddle/places","s":200}
-{"t":1793445584690,"ms":1,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445585217,"ms":2,"who":"newB","sess":null,"m":"GET","p":"/api/agent-channel/me","s":401}
-{"t":1793445585443,"ms":2,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/limits","s":401}
-{"t":1793445585648,"ms":3,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/limits","s":401}
-{"t":1793445585864,"ms":1,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/game","s":401}
-{"t":1793445586520,"ms":5,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/start","s":400}
-{"t":1793445587643,"ms":1,"who":"tom","sess":"da7dd8dd","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445589303,"ms":12,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445589513,"ms":10,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445590348,"ms":3,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445592102,"ms":2,"who":"newB","sess":null,"m":"GET","p":"/api/agent-channel/me","s":200}
-{"t":1793445592302,"ms":1,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/limits","s":403}
-{"t":1793445592563,"ms":3,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/limits","s":200}
-{"t":1793445592763,"ms":1,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/game","s":403}
-{"t":1793445595650,"ms":4,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445598061,"ms":3,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445598182,"ms":3,"who":"mia","sess":"99d9865f","m":"POST","p":"/api/huddle/answer","s":200}
-{"t":1793445601678,"ms":2,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/delegate","s":200}
-{"t":1793445602016,"ms":1,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/delegate","s":403}
-{"t":1793445602446,"ms":2,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/game","s":403}
-{"t":1793445602819,"ms":2,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/game","s":200}
-{"t":1793445603019,"ms":11,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/join","s":200}
-{"t":1793445603099,"ms":1,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/invite","s":200}
-{"t":1793445603434,"ms":0,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445605967,"ms":2,"who":"tom","sess":"da7dd8dd","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445606949,"ms":19,"who":"mia","sess":"99d9865f","m":"POST","p":"/api/huddle/reply","s":200}
-{"t":1793445607171,"ms":6,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445607566,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445611732,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445611948,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/openapi.json","s":200}
-{"t":1793445614956,"ms":15,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/huddle/reply","s":200}
-{"t":1793445615519,"ms":3,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/feed/post","s":409}
-{"t":1793445615648,"ms":4,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445616765,"ms":3,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445617029,"ms":1,"who":"mia","sess":null,"m":"GET","p":"/api/openapi.json","s":200}
-{"t":1793445619081,"ms":2,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/feed","s":200}
-{"t":1793445619191,"ms":0,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793445619369,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/invite","s":200}
-{"t":1793445620037,"ms":12,"who":"newB","sess":"7c794270","m":"POST","p":"/api/feed/post","s":200}
-{"t":1793445622020,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/invite","s":200}
-{"t":1793445622106,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793445623135,"ms":2,"who":"tom","sess":"da7dd8dd","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445623902,"ms":4,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445624178,"ms":2,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/trust","s":200}
-{"t":1793445625032,"ms":8,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445626519,"ms":1,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/game","s":403}
-{"t":1793445626649,"ms":2,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/game","s":409}
-{"t":1793445627381,"ms":35,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/start","s":200}
-{"t":1793445628798,"ms":2,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445629001,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/invite","s":200}
-{"t":1793445631489,"ms":1,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/places","s":200}
-{"t":1793445634249,"ms":2,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445635259,"ms":10,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445635337,"ms":2,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445635415,"ms":3,"who":"newB","sess":"7c794270","m":"GET","p":"/api/feed","s":200}
-{"t":1793445638597,"ms":2,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/feed","s":200}
-{"t":1793445642367,"ms":1,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445642516,"ms":4,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445643116,"ms":2,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/feed","s":200}
-{"t":1793445643236,"ms":1,"who":"grace","sess":null,"m":"GET","p":"/api/trust/chain","s":200}
-{"t":1793445643329,"ms":1,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/trust","s":200}
-{"t":1793445648158,"ms":7,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445649356,"ms":3,"who":"tom","sess":"da7dd8dd","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445650317,"ms":15,"who":"mia","sess":"99d9865f","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793445650716,"ms":3,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445650808,"ms":5,"who":"mia","sess":"99d9865f","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445652086,"ms":1,"who":"grace","sess":null,"m":"GET","p":"/api/trust/chain","s":200}
-{"t":1793445652232,"ms":0,"who":"grace","sess":null,"m":"GET","p":"/api/trust/chain","s":200}
-{"t":1793445655238,"ms":2,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445655865,"ms":2,"who":"tom","sess":"da7dd8dd","m":"GET","p":"/api/feed","s":200}
-{"t":1793445655968,"ms":6,"who":"tom","sess":"da7dd8dd","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445659013,"ms":3,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793445659103,"ms":1,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/huddle/cancel","s":409}
-{"t":1793445659208,"ms":10,"who":"grace","sess":"f71d35c1","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445659407,"ms":7,"who":"grace","sess":"f71d35c1","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445660348,"ms":15,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/reply","s":200}
-{"t":1793445660505,"ms":2,"who":"newB","sess":"7c794270","m":"POST","p":"/api/feed/post","s":409}
-{"t":1793445664575,"ms":8,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793445664641,"ms":2,"who":"tom","sess":"da7dd8dd","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445669205,"ms":2,"who":"newB","sess":null,"m":"POST","p":"/api/auth/demo","s":200}
-{"t":1793445669395,"ms":7,"who":"newB","sess":"13350472","m":"POST","p":"/api/feed/post","s":200}
-{"t":1793445674925,"ms":2,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/game","s":409}
-{"t":1793445675012,"ms":2,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/feed/join","s":409}
-{"t":1793445675082,"ms":5,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/feed/post","s":200}
-{"t":1793445675221,"ms":3,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445682293,"ms":4,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/game","s":409}
-{"t":1793445682784,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/agent-channel/me","s":200}
-{"t":1793445683115,"ms":6,"who":"newB","sess":null,"m":"GET","p":"/api/agent-channel/me","s":401}
-{"t":1793445683670,"ms":4,"who":"newB","sess":null,"m":"GET","p":"/api/agent-channel/me","s":401}
-{"t":1793445683947,"ms":2,"who":"newB","sess":null,"m":"POST","p":"/api/agent-channel/huddle/limits","s":401}
-{"t":1793445684111,"ms":0,"who":"newB","sess":null,"m":"GET","p":"/api/me","s":401}
-{"t":1793445684588,"ms":1,"who":"tom","sess":null,"m":"GET","p":"/api/invite","s":200}
-{"t":1793445684695,"ms":10,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445692418,"ms":0,"who":"newB","sess":"7c794270","m":"GET","p":"/api/huddle/one","s":404}
-{"t":1793445692601,"ms":0,"who":"newB","sess":null,"m":"GET","p":"/api/huddle/one","s":401}
-{"t":1793445692719,"ms":2,"who":"newB","sess":"7c794270","m":"GET","p":"/api/agent-channel/feed","s":401}
-{"t":1793445692841,"ms":1,"who":"newB","sess":"7c794270","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445693004,"ms":1,"who":"newB","sess":"7c794270","m":"GET","p":"/api/me","s":200}
-{"t":1793445693164,"ms":2,"who":"newB","sess":"7c794270","m":"GET","p":"/api/huddle/trust","s":200}
-{"t":1793445693265,"ms":9,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445693563,"ms":1,"who":"newB","sess":null,"m":"GET","p":"/api/trust/chain","s":200}
-{"t":1793445693659,"ms":1,"who":"tom","sess":"da7dd8dd","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793445693973,"ms":6,"who":"tom","sess":"da7dd8dd","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445699913,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445699976,"ms":3,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445704542,"ms":29,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445704641,"ms":1,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/start","s":400}
-{"t":1793445704725,"ms":1,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/start","s":400}
-{"t":1793445704803,"ms":33,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445704914,"ms":2,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/deal","s":200}
-{"t":1793445705657,"ms":4,"who":"tom","sess":"da7dd8dd","m":"POST","p":"/api/feed/delete","s":200}
-{"t":1793445705812,"ms":1,"who":"tom","sess":null,"m":"GET","p":"/api/invite","s":404}
-{"t":1793445706120,"ms":1,"who":"tom","sess":null,"m":"GET","p":"/api/status","s":200}
-{"t":1793445706703,"ms":5,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/feed/post","s":200}
-{"t":1793445714255,"ms":6,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/game","s":200}
-{"t":1793445714404,"ms":1,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/invite","s":200}
-{"t":1793445714620,"ms":1,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445714799,"ms":1,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/feed/join","s":200}
-{"t":1793445714937,"ms":3,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445722593,"ms":5,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445722771,"ms":11,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793445722882,"ms":4,"who":"newB","sess":"c61285e7","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793445723012,"ms":4,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445726867,"ms":4,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445730508,"ms":3,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445734942,"ms":3,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445739143,"ms":3,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445748207,"ms":3,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/members/agents","s":200}
-{"t":1793445751213,"ms":4,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445751410,"ms":0,"who":"newB","sess":"c61285e7","m":"GET","p":"/api/clubs","s":200}
-{"t":1793445756021,"ms":5,"who":"ken","sess":null,"m":"GET","p":"/api/agent-channel/huddle/today","s":200}
-{"t":1793445756231,"ms":3,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/delegate","s":200}
-{"t":1793445761315,"ms":1,"who":"ken","sess":null,"m":"POST","p":"/api/agent-channel/huddle/game","s":403}
-{"t":1793445761563,"ms":3,"who":"ken","sess":null,"m":"GET","p":"/api/agent-channel/huddle/today","s":200}
-{"t":1793445779905,"ms":6,"who":"ken","sess":null,"m":"POST","p":"/api/agent-channel/huddle/game","s":200}
-{"t":1793445780128,"ms":2,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445780404,"ms":0,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/feed/notices","s":200}
-{"t":1793445780599,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/me","s":200}
-{"t":1793445787882,"ms":3,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/limits","s":200}
-{"t":1793445788050,"ms":13,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/start","s":200}
-{"t":1793445823858,"ms":1,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/one","s":200}
-{"t":1793445824060,"ms":3,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/today","s":200}
-{"t":1793445830273,"ms":0,"who":"ken","sess":null,"m":"GET","p":"/api/invite","s":200}
-{"t":1793445830337,"ms":1,"who":"ken","sess":null,"m":"GET","p":"/api/invite","s":200}
-{"t":1793445830419,"ms":1,"who":"ken","sess":null,"m":"GET","p":"/api/trust/chain","s":200}
-{"t":1793445840026,"ms":2,"who":"ken","sess":null,"m":"GET","p":"/api/agent-channel/huddle/today","s":200}
-{"t":1793445840424,"ms":2,"who":"ken","sess":null,"m":"GET","p":"/api/agent-channel/huddle/me","s":200}
-{"t":1793445840586,"ms":1,"who":"ken","sess":null,"m":"GET","p":"/api/trust/chain","s":200}
-{"t":1793445853360,"ms":5,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/feed/delete","s":200}
-{"t":1793445853585,"ms":3,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793445853785,"ms":3,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793445853963,"ms":3,"who":"ken","sess":"d9ebcc41","m":"POST","p":"/api/huddle/cancel","s":200}
-{"t":1793445854206,"ms":3,"who":"ken","sess":"d9ebcc41","m":"GET","p":"/api/huddle/today","s":200}
+{"t": 1793445455615, "ms": 6, "who": "", "sess": null, "m": "GET", "p": "/", "s": 200}
+{"t": 1793445455697, "ms": 1, "who": "", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445482751, "ms": 0, "who": "newA", "sess": null, "m": "GET", "p": "/", "s": 200}
+{"t": 1793445482856, "ms": 0, "who": "newA", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445486254, "ms": 0, "who": "newA", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445486953, "ms": 2, "who": "newA", "sess": null, "m": "GET", "p": "/api/auth/providers", "s": 200}
+{"t": 1793445487035, "ms": 6, "who": "newA", "sess": null, "m": "GET", "p": "/api/status", "s": 200}
+{"t": 1793445490434, "ms": 8, "who": "newA", "sess": null, "m": "POST", "p": "/api/auth/demo", "s": 200}
+{"t": 1793445490999, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/", "s": 200}
+{"t": 1793445491119, "ms": 0, "who": "newB", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445494190, "ms": 8, "who": "newA", "sess": "1fb173c8", "m": "POST", "p": "/api/huddle/home", "s": 200}
+{"t": 1793445494526, "ms": 3, "who": "newA", "sess": "1fb173c8", "m": "POST", "p": "/api/huddle/sports", "s": 200}
+{"t": 1793445494668, "ms": 3, "who": "newA", "sess": "1fb173c8", "m": "POST", "p": "/api/huddle/limits", "s": 200}
+{"t": 1793445494793, "ms": 43, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445494938, "ms": 0, "who": "newB", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445495083, "ms": 0, "who": "newB", "sess": null, "m": "GET", "p": "/privacy.txt", "s": 200}
+{"t": 1793445495192, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/.well-known/agent-card.json", "s": 200}
+{"t": 1793445495281, "ms": 2, "who": "newB", "sess": null, "m": "GET", "p": "/api/openapi.json", "s": 200}
+{"t": 1793445499337, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/openapi.json", "s": 200}
+{"t": 1793445499876, "ms": 15, "who": "newA", "sess": "1fb173c8", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445500233, "ms": 0, "who": "grace", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445503307, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/status", "s": 200}
+{"t": 1793445503382, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/auth/providers", "s": 200}
+{"t": 1793445503426, "ms": 1, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445503471, "ms": 1, "who": "newB", "sess": null, "m": "POST", "p": "/api/auth/demo", "s": 200}
+{"t": 1793445506585, "ms": 1, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445507340, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/me", "s": 200}
+{"t": 1793445507424, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/home", "s": 200}
+{"t": 1793445507517, "ms": 3, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/sports", "s": 200}
+{"t": 1793445507592, "ms": 3, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/limits", "s": 200}
+{"t": 1793445507662, "ms": 14, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445507930, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/me", "s": 200}
+{"t": 1793445507992, "ms": 6, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445508069, "ms": 1, "who": "grace", "sess": null, "m": "GET", "p": "/api/openapi.json", "s": 200}
+{"t": 1793445508237, "ms": 1, "who": "ken", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445509705, "ms": 1, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445512495, "ms": 8, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445512618, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/feed/notices", "s": 200}
+{"t": 1793445512755, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/clubs", "s": 200}
+{"t": 1793445512955, "ms": 7, "who": "newB", "sess": null, "m": "GET", "p": "/api/trust/chain", "s": 200}
+{"t": 1793445513180, "ms": 2, "who": "newB", "sess": null, "m": "GET", "p": "/api/trust/verify", "s": 200}
+{"t": 1793445513780, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/me", "s": 200}
+{"t": 1793445513885, "ms": 9, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445514046, "ms": 0, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/limits", "s": 404}
+{"t": 1793445514158, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/sports", "s": 404}
+{"t": 1793445514358, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/home", "s": 404}
+{"t": 1793445515422, "ms": 3, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/huddle/limits", "s": 200}
+{"t": 1793445515505, "ms": 35, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445515623, "ms": 1, "who": "mia", "sess": null, "m": "GET", "p": "/", "s": 200}
+{"t": 1793445516373, "ms": 0, "who": "mia", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445518483, "ms": 1, "who": "ken", "sess": null, "m": "GET", "p": "/api/openapi.json", "s": 200}
+{"t": 1793445519551, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445519689, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445519806, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/one", "s": 404}
+{"t": 1793445519928, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445520036, "ms": 0, "who": "newB", "sess": null, "m": "GET", "p": "/api/huddle/today", "s": 401}
+{"t": 1793445521028, "ms": 1, "who": "mia", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445521164, "ms": 1, "who": "mia", "sess": null, "m": "GET", "p": "/api/auth/providers", "s": 200}
+{"t": 1793445521272, "ms": 1, "who": "mia", "sess": null, "m": "GET", "p": "/api/status", "s": 200}
+{"t": 1793445522502, "ms": 1, "who": "tom", "sess": null, "m": "GET", "p": "/", "s": 200}
+{"t": 1793445522606, "ms": 0, "who": "tom", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445523803, "ms": 4, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445524092, "ms": 2, "who": "mia", "sess": null, "m": "POST", "p": "/api/auth/demo", "s": 200}
+{"t": 1793445524768, "ms": 21, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/game", "s": 200}
+{"t": 1793445524851, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/game", "s": 200}
+{"t": 1793445524930, "ms": 3, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445525012, "ms": 1, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445525013, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445525117, "ms": 8, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445525842, "ms": 1, "who": "tom", "sess": null, "m": "GET", "p": "/llms.txt", "s": 200}
+{"t": 1793445527906, "ms": 3, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445527296, "ms": 694, "who": "mia", "sess": "99d9865f", "m": "POST", "p": "/api/huddle/home", "s": 200}
+{"t": 1793445528051, "ms": 3, "who": "mia", "sess": "99d9865f", "m": "POST", "p": "/api/huddle/sports", "s": 200}
+{"t": 1793445528114, "ms": 3, "who": "mia", "sess": "99d9865f", "m": "POST", "p": "/api/huddle/limits", "s": 200}
+{"t": 1793445529637, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/limits", "s": 200}
+{"t": 1793445529709, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445529820, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445530904, "ms": 0, "who": "newA", "sess": null, "m": "GET", "p": "/api/openapi.json", "s": 200}
+{"t": 1793445531057, "ms": 3, "who": "tom", "sess": null, "m": "POST", "p": "/api/auth/demo", "s": 200}
+{"t": 1793445532001, "ms": 4, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445531513, "ms": 860, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/huddle/home", "s": 200}
+{"t": 1793445532435, "ms": 4, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/huddle/sports", "s": 200}
+{"t": 1793445532522, "ms": 3, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/huddle/limits", "s": 200}
+{"t": 1793445532863, "ms": 9, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445535609, "ms": 1, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445535760, "ms": 1, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/needs", "s": 200}
+{"t": 1793445535922, "ms": 6, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/places", "s": 200}
+{"t": 1793445535935, "ms": 1, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445536114, "ms": 2, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445536135, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/needs", "s": 200}
+{"t": 1793445536227, "ms": 11, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445536295, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/trust", "s": 200}
+{"t": 1793445536428, "ms": 0, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/deal", "s": 404}
+{"t": 1793445536560, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/members", "s": 404}
+{"t": 1793445536661, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445538156, "ms": 3, "who": "mia", "sess": "99d9865f", "m": "POST", "p": "/api/huddle/answer", "s": 200}
+{"t": 1793445538310, "ms": 4, "who": "mia", "sess": "99d9865f", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445539088, "ms": 3, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/huddle/home", "s": 200}
+{"t": 1793445539164, "ms": 1, "who": "tom", "sess": null, "m": "GET", "p": "/api/openapi.json", "s": 200}
+{"t": 1793445542443, "ms": 2, "who": "newB", "sess": null, "m": "POST", "p": "/api/auth/demo", "s": 200}
+{"t": 1793445544132, "ms": 2, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445546657, "ms": 1, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/me", "s": 200}
+{"t": 1793445546839, "ms": 2, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445546931, "ms": 0, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445547045, "ms": 6, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445547207, "ms": 1, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/clubs", "s": 200}
+{"t": 1793445548090, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445548163, "ms": 2, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445548514, "ms": 0, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/feed/notices", "s": 200}
+{"t": 1793445548596, "ms": 6, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445548690, "ms": 18, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/huddle/cancel", "s": 200}
+{"t": 1793445548857, "ms": 3, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445552225, "ms": 2, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/feed/post", "s": 400}
+{"t": 1793445556011, "ms": 0, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445556600, "ms": 7, "who": "newB", "sess": null, "m": "GET", "p": "/a2a/agents", "s": 200}
+{"t": 1793445556713, "ms": 3, "who": "newB", "sess": null, "m": "GET", "p": "/.well-known/agent-card.json", "s": 404}
+{"t": 1793445556854, "ms": 3, "who": "newB", "sess": null, "m": "GET", "p": "/.well-known/agent-card.json", "s": 404}
+{"t": 1793445556984, "ms": 1, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/feed/post", "s": 400}
+{"t": 1793445556992, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/members/de-3412e584a418", "s": 401}
+{"t": 1793445557099, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/members/de-b234100f4420", "s": 401}
+{"t": 1793445557581, "ms": 0, "who": "newB", "sess": null, "m": "GET", "p": "/api/clubs/c-dad8cf02", "s": 401}
+{"t": 1793445557830, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/clubs/c-dad8cf02/invite", "s": 200}
+{"t": 1793445558121, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/feed/notices", "s": 200}
+{"t": 1793445558207, "ms": 5, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445558329, "ms": 2, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445561034, "ms": 1, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445561101, "ms": 2, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/status", "s": 200}
+{"t": 1793445561751, "ms": 1, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/feed/post", "s": 400}
+{"t": 1793445565911, "ms": 1, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/feed/post", "s": 400}
+{"t": 1793445567846, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445567910, "ms": 11, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445567986, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445568063, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/feed/notices", "s": 200}
+{"t": 1793445570774, "ms": 2, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445570885, "ms": 6, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/places", "s": 200}
+{"t": 1793445572059, "ms": 3, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/members/agents", "s": 200}
+{"t": 1793445573850, "ms": 0, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445573940, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445575618, "ms": 1, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/feed/post", "s": 400}
+{"t": 1793445575808, "ms": 4, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/places", "s": 200}
+{"t": 1793445578190, "ms": 4, "who": "newB", "sess": null, "m": "GET", "p": "/api/agent-channel/me", "s": 401}
+{"t": 1793445578460, "ms": 2, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/limits", "s": 401}
+{"t": 1793445578677, "ms": 2, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/limits", "s": 401}
+{"t": 1793445578877, "ms": 2, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/game", "s": 401}
+{"t": 1793445579461, "ms": 14, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445579719, "ms": 0, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/places", "s": 200}
+{"t": 1793445579863, "ms": 4, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/places", "s": 200}
+{"t": 1793445579979, "ms": 4, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/places", "s": 200}
+{"t": 1793445580046, "ms": 1, "who": "ken", "sess": null, "m": "GET", "p": "/api/status", "s": 200}
+{"t": 1793445581001, "ms": 8, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445581120, "ms": 9, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445581233, "ms": 0, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445581368, "ms": 7, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445584564, "ms": 3, "who": "newA", "sess": "1fb173c8", "m": "GET", "p": "/api/huddle/places", "s": 200}
+{"t": 1793445584690, "ms": 1, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445585217, "ms": 2, "who": "newB", "sess": null, "m": "GET", "p": "/api/agent-channel/me", "s": 401}
+{"t": 1793445585443, "ms": 2, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/limits", "s": 401}
+{"t": 1793445585648, "ms": 3, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/limits", "s": 401}
+{"t": 1793445585864, "ms": 1, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/game", "s": 401}
+{"t": 1793445586520, "ms": 5, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/start", "s": 400}
+{"t": 1793445587643, "ms": 1, "who": "tom", "sess": "da7dd8dd", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445589303, "ms": 12, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445589513, "ms": 10, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445590348, "ms": 3, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445592102, "ms": 2, "who": "newB", "sess": null, "m": "GET", "p": "/api/agent-channel/me", "s": 200}
+{"t": 1793445592302, "ms": 1, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/limits", "s": 403}
+{"t": 1793445592563, "ms": 3, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/limits", "s": 200}
+{"t": 1793445592763, "ms": 1, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/game", "s": 403}
+{"t": 1793445595650, "ms": 4, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445598061, "ms": 3, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445598182, "ms": 3, "who": "mia", "sess": "99d9865f", "m": "POST", "p": "/api/huddle/answer", "s": 200}
+{"t": 1793445601678, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/delegate", "s": 200}
+{"t": 1793445602016, "ms": 1, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/delegate", "s": 403}
+{"t": 1793445602446, "ms": 2, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/game", "s": 403}
+{"t": 1793445602819, "ms": 2, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/game", "s": 200}
+{"t": 1793445603019, "ms": 11, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/join", "s": 200}
+{"t": 1793445603099, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445603434, "ms": 0, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445605967, "ms": 2, "who": "tom", "sess": "da7dd8dd", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445606949, "ms": 19, "who": "mia", "sess": "99d9865f", "m": "POST", "p": "/api/huddle/reply", "s": 200}
+{"t": 1793445607171, "ms": 6, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445607566, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445611732, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445611948, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/openapi.json", "s": 200}
+{"t": 1793445614956, "ms": 15, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/huddle/reply", "s": 200}
+{"t": 1793445615519, "ms": 3, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/feed/post", "s": 409}
+{"t": 1793445615648, "ms": 4, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445616765, "ms": 3, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445617029, "ms": 1, "who": "mia", "sess": null, "m": "GET", "p": "/api/openapi.json", "s": 200}
+{"t": 1793445619081, "ms": 2, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445619191, "ms": 0, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/feed/notices", "s": 200}
+{"t": 1793445619369, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445620037, "ms": 12, "who": "newB", "sess": "7c794270", "m": "POST", "p": "/api/feed/post", "s": 200}
+{"t": 1793445622020, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445622106, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/feed/notices", "s": 200}
+{"t": 1793445623135, "ms": 2, "who": "tom", "sess": "da7dd8dd", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445623902, "ms": 4, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445624178, "ms": 2, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/trust", "s": 200}
+{"t": 1793445625032, "ms": 8, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445626519, "ms": 1, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/game", "s": 403}
+{"t": 1793445626649, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/game", "s": 409}
+{"t": 1793445627381, "ms": 35, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/start", "s": 200}
+{"t": 1793445628798, "ms": 2, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445629001, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445631489, "ms": 1, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/places", "s": 200}
+{"t": 1793445634249, "ms": 2, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445635259, "ms": 10, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445635337, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445635415, "ms": 3, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445638597, "ms": 2, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445642367, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445642516, "ms": 4, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445643116, "ms": 2, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445643236, "ms": 1, "who": "grace", "sess": null, "m": "GET", "p": "/api/trust/chain", "s": 200}
+{"t": 1793445643329, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/trust", "s": 200}
+{"t": 1793445648158, "ms": 7, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445649356, "ms": 3, "who": "tom", "sess": "da7dd8dd", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445650317, "ms": 15, "who": "mia", "sess": "99d9865f", "m": "POST", "p": "/api/huddle/cancel", "s": 200}
+{"t": 1793445650716, "ms": 3, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445650808, "ms": 5, "who": "mia", "sess": "99d9865f", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445652086, "ms": 1, "who": "grace", "sess": null, "m": "GET", "p": "/api/trust/chain", "s": 200}
+{"t": 1793445652232, "ms": 0, "who": "grace", "sess": null, "m": "GET", "p": "/api/trust/chain", "s": 200}
+{"t": 1793445655238, "ms": 2, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445655865, "ms": 2, "who": "tom", "sess": "da7dd8dd", "m": "GET", "p": "/api/feed", "s": 200}
+{"t": 1793445655968, "ms": 6, "who": "tom", "sess": "da7dd8dd", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445659013, "ms": 3, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/huddle/cancel", "s": 200}
+{"t": 1793445659103, "ms": 1, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/huddle/cancel", "s": 409}
+{"t": 1793445659208, "ms": 10, "who": "grace", "sess": "f71d35c1", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445659407, "ms": 7, "who": "grace", "sess": "f71d35c1", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445660348, "ms": 15, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/reply", "s": 200}
+{"t": 1793445660505, "ms": 2, "who": "newB", "sess": "7c794270", "m": "POST", "p": "/api/feed/post", "s": 409}
+{"t": 1793445664575, "ms": 8, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/huddle/cancel", "s": 200}
+{"t": 1793445664641, "ms": 2, "who": "tom", "sess": "da7dd8dd", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445669205, "ms": 2, "who": "newB", "sess": null, "m": "POST", "p": "/api/auth/demo", "s": 200}
+{"t": 1793445669395, "ms": 7, "who": "newB", "sess": "13350472", "m": "POST", "p": "/api/feed/post", "s": 200}
+{"t": 1793445674925, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/game", "s": 409}
+{"t": 1793445675012, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/feed/join", "s": 409}
+{"t": 1793445675082, "ms": 5, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/feed/post", "s": 200}
+{"t": 1793445675221, "ms": 3, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445682293, "ms": 4, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/game", "s": 409}
+{"t": 1793445682784, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/agent-channel/me", "s": 200}
+{"t": 1793445683115, "ms": 6, "who": "newB", "sess": null, "m": "GET", "p": "/api/agent-channel/me", "s": 401}
+{"t": 1793445683670, "ms": 4, "who": "newB", "sess": null, "m": "GET", "p": "/api/agent-channel/me", "s": 401}
+{"t": 1793445683947, "ms": 2, "who": "newB", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/limits", "s": 401}
+{"t": 1793445684111, "ms": 0, "who": "newB", "sess": null, "m": "GET", "p": "/api/me", "s": 401}
+{"t": 1793445684588, "ms": 1, "who": "tom", "sess": null, "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445684695, "ms": 10, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445692418, "ms": 0, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/huddle/one", "s": 404}
+{"t": 1793445692601, "ms": 0, "who": "newB", "sess": null, "m": "GET", "p": "/api/huddle/one", "s": 401}
+{"t": 1793445692719, "ms": 2, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/agent-channel/feed", "s": 401}
+{"t": 1793445692841, "ms": 1, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445693004, "ms": 1, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/me", "s": 200}
+{"t": 1793445693164, "ms": 2, "who": "newB", "sess": "7c794270", "m": "GET", "p": "/api/huddle/trust", "s": 200}
+{"t": 1793445693265, "ms": 9, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445693563, "ms": 1, "who": "newB", "sess": null, "m": "GET", "p": "/api/trust/chain", "s": 200}
+{"t": 1793445693659, "ms": 1, "who": "tom", "sess": "da7dd8dd", "m": "GET", "p": "/api/feed/notices", "s": 200}
+{"t": 1793445693973, "ms": 6, "who": "tom", "sess": "da7dd8dd", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445699913, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445699976, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445704542, "ms": 29, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445704641, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/start", "s": 400}
+{"t": 1793445704725, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/start", "s": 400}
+{"t": 1793445704803, "ms": 33, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445704914, "ms": 2, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/deal", "s": 200}
+{"t": 1793445705657, "ms": 4, "who": "tom", "sess": "da7dd8dd", "m": "POST", "p": "/api/feed/delete", "s": 200}
+{"t": 1793445705812, "ms": 1, "who": "tom", "sess": null, "m": "GET", "p": "/api/invite", "s": 404}
+{"t": 1793445706120, "ms": 1, "who": "tom", "sess": null, "m": "GET", "p": "/api/status", "s": 200}
+{"t": 1793445706703, "ms": 5, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/feed/post", "s": 200}
+{"t": 1793445714255, "ms": 6, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/game", "s": 200}
+{"t": 1793445714404, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445714620, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445714799, "ms": 1, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/feed/join", "s": 200}
+{"t": 1793445714937, "ms": 3, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445722593, "ms": 5, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445722771, "ms": 11, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/cancel", "s": 200}
+{"t": 1793445722882, "ms": 4, "who": "newB", "sess": "c61285e7", "m": "POST", "p": "/api/huddle/cancel", "s": 200}
+{"t": 1793445723012, "ms": 4, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445726867, "ms": 4, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445730508, "ms": 3, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445734942, "ms": 3, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445739143, "ms": 3, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445748207, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/members/agents", "s": 200}
+{"t": 1793445751213, "ms": 4, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445751410, "ms": 0, "who": "newB", "sess": "c61285e7", "m": "GET", "p": "/api/clubs", "s": 200}
+{"t": 1793445756021, "ms": 5, "who": "ken", "sess": null, "m": "GET", "p": "/api/agent-channel/huddle/today", "s": 200}
+{"t": 1793445756231, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/delegate", "s": 200}
+{"t": 1793445761315, "ms": 1, "who": "ken", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/game", "s": 403}
+{"t": 1793445761563, "ms": 3, "who": "ken", "sess": null, "m": "GET", "p": "/api/agent-channel/huddle/today", "s": 200}
+{"t": 1793445779905, "ms": 6, "who": "ken", "sess": null, "m": "POST", "p": "/api/agent-channel/huddle/game", "s": 200}
+{"t": 1793445780128, "ms": 2, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445780404, "ms": 0, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/feed/notices", "s": 200}
+{"t": 1793445780599, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/me", "s": 200}
+{"t": 1793445787882, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/limits", "s": 200}
+{"t": 1793445788050, "ms": 13, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/start", "s": 200}
+{"t": 1793445823858, "ms": 1, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/one", "s": 200}
+{"t": 1793445824060, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/today", "s": 200}
+{"t": 1793445830273, "ms": 0, "who": "ken", "sess": null, "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445830337, "ms": 1, "who": "ken", "sess": null, "m": "GET", "p": "/api/invite", "s": 200}
+{"t": 1793445830419, "ms": 1, "who": "ken", "sess": null, "m": "GET", "p": "/api/trust/chain", "s": 200}
+{"t": 1793445840026, "ms": 2, "who": "ken", "sess": null, "m": "GET", "p": "/api/agent-channel/huddle/today", "s": 200}
+{"t": 1793445840424, "ms": 2, "who": "ken", "sess": null, "m": "GET", "p": "/api/agent-channel/huddle/me", "s": 200}
+{"t": 1793445840586, "ms": 1, "who": "ken", "sess": null, "m": "GET", "p": "/api/trust/chain", "s": 200}
+{"t": 1793445853360, "ms": 5, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/feed/delete", "s": 200}
+{"t": 1793445853585, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/cancel", "s": 200}
+{"t": 1793445853785, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/cancel", "s": 200}
+{"t": 1793445853963, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "POST", "p": "/api/huddle/cancel", "s": 200}
+{"t": 1793445854206, "ms": 3, "who": "ken", "sess": "d9ebcc41", "m": "GET", "p": "/api/huddle/today", "s": 200}
