@@ -15,13 +15,22 @@
 - 畫面：深色點陣背景，serve logo 和 **Play more. Manage less.**，左上角 `Meta Global AI Developer Hackathon 2026 · Indie Developer`
 - 聲音：音樂淡入，沒有旁白
 
-**0-2（0:05–0:16）♻️ pain**
-- 畫面：群組對話「週四誰有空？」「少一咖」「球場沒了」；右下角浮出長條圖：`64.2% · times that are hard to fit together`，來源小字 `Sport NZ, Active NZ 2023`
+**0-2（0:05–0:16）🆕 Q 版情境圖 `submission/shots/pain_scene.png`**
+- 畫面：用 Muse Image 生成的 Q 版插畫（技術簡報第 2 頁同一張），分層做成動態：
+  1. 先出現累壞的主辦人，手機裡的問號泡泡一個一個冒出來、越堆越多
+  2. 牆上月曆一格一格打上紅叉，時鐘轉起來
+  3. 上方四個想法泡泡依序彈出：加班、膝蓋冰敷、抱小孩、聳肩
+  4. 鏡頭往右平移到空球場，地上一支球拍和一顆羽球
+  - 右下角浮出 `64.2% · times that are hard to fit together`，來源小字 `Sport NZ, Active NZ 2023`
+  - 角落小字 `illustration: Muse Image`
+- 備案：`submission/shots/pain_tangle.png`（四個朋友被纏成一團的訊息線綁住），一樣是 Q 版，可以當 0-2 的第二個鏡頭
 - 中文：多數人不打球，不是不愛了。紐西蘭的全國調查裡，64% 的成年人說擋住他們的是同一件事：時間湊不起來。約一場球，就是好幾個小時的群組訊息。
 - 英文：Most adults who stop playing haven't lost interest. In New Zealand's national survey, 64% name the same thing: times that won't fit together. One game can mean hours of group chat.
 
-**0-3（0:16–0:28）🆕 網站實錄**
-- 畫面：手機版 play.theminimallab.com，打一句 "badminton Thursday evening" → 卡片出現 → 朋友按 Join → 卡片上的人數跳動
+**0-3（0:16–0:28）🆕 轉場 ＋ 網站實錄**
+- 畫面：
+  1. 前 3 秒用 `submission/shots/pain_before_after.png`：左半是被訊息泡泡淹沒的人，一條綠色虛線由左往右掃過，右半亮起：同一個人和三個朋友在球場上開心打球，頭上一個綠色勾勾
+  2. 接著切到手機版 play.theminimallab.com：打一句 "badminton Thursday evening" → 卡片出現 → 朋友按 Join → 卡片上的人數跳動
 - 中文：所以我做了 Serve：一個讓人和 agent 一起約球的平台。你的 agent 跟大家的 agent 談好時間、球場和人，最後只問你一件事：一個「好」。
 - 英文：So I built Serve: a platform where people and their agents make games together. Your agent sorts out the time, the court and the players with everyone else's, and asks you for one thing: one yes.
 
@@ -113,11 +122,13 @@
 
 1. **定位**：v2「我的一週」→ v3「人和 agent 一起約球的平台」，跟現在的報告、網站、README 一致
 2. **拿掉**：語音和膝蓋那段、記分板和 Elo、IG 分享、揭露預算 97.6%→32.4%、片尾的 65/65 和 22/22。前三段和主線無關；後兩項是舊數字，報告現在寫 93/93
-3. **新增**：一句話開局、真實社團、自己的 agent 從開放的門進來、小分類器分層、AI 測試者
+3. **新增**：Q 版情境圖開場（Muse Image 生成，跟技術簡報痛點頁同一張）、一句話開局、真實社團、自己的 agent 從開放的門進來、小分類器分層、AI 測試者
 4. **蒸餾的說法**：v2 是「模擬社團裡少問 Glimmer 54–67%」；v3 改成一致率 89.5% vs 88.8%、0.9 s vs 40 s，報告裡這是主要結果
 5. **DETR**：報告現在預設偵測器是 RT-DETR（不是 Meta 的），所以旁白不再點名 DETR，只講 Sapiens2、SAM 2.1、MapAnything
 
 ## 要你決定的
+
+0. **開場插畫**：三張 Q 版圖都在 `submission/shots/`（`pain_scene.png` 主圖、`pain_before_after.png` 轉場、`pain_tangle.png` 備案）。要換風格或重畫哪一張，跟我說要改什麼就好
 
 1. **AI 測試者那段**的數字：swarm 影片目前重播 146 個 session，畫面上的數字還是舊的（153、16,713）。我建議用 v3 的數字重新輸出那段（新增第 26 輪和第 28 輪的請求紀錄）
 2. **Llama Guard「round 27」那句**：講出來可能被看成在揭 Meta 模型的短處。我建議保留，因為誠實、又展示了我們怎麼處理，但你可以拿掉

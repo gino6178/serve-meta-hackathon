@@ -52,6 +52,7 @@ async function img(file, width = 1800) {
     booking: await img(path.join(SHOTS, "booking_sequence.svg"), 1900),
     chats: await img(path.join(SHOTS, "v3/agent_chats.png"), 700),
     swarm: await img(path.join(__dirname, "swarm.png"), 2400),
+    pain: await img(path.join(SHOTS, "pain_scene.png"), 1920),
   };
   // the paper-style figures (figures.py), one per slide, numbered in order, each with its caption
   const FIG = {};
@@ -107,9 +108,24 @@ async function img(file, width = 1800) {
   s.addText("play.theminimallab.com · github.com/gino6178/serve-meta-hackathon", { isTextBox: true, x: M, y: H - 1.0, w: 9, h: 0.4, fontSize: 14, color: "9FB3A7", margin: 0 });
   note(s, "Serve is a platform where people and agents make games together. This deck follows the technical report: impact, technical depth, Meta models, and what is not done yet.");
 
-  // 2. impact: the pain
+  // 2. impact: the pain, as a scene (Muse Image), with the three barriers beside it
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "The pain: people stop playing because organising is hard");
+  picture(s, I.pain, M, 1.4, 7.5, 5.0);
+  s.addText("Illustration made with Muse Image (Meta Model API)", { isTextBox: true, x: M, y: 6.45, w: 7.5, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0, italic: true });
+  s.addText("What stops adults playing regularly", { isTextBox: true, x: 8.55, y: 1.5, w: 4.2, h: 0.4, fontSize: 15, bold: true, color: HEX.ink, margin: 0 });
+  [["64.2%", "times that are hard to fit around other commitments", HEX.red, "Talk"], ["21.3%", "no way to keep the habit going", HEX.ink, "Match"], ["10.2%", "no regular people to play with", HEX.ink, "the agents"]].forEach(([v, d, c, who], i) => {
+    const y = 2.05 + i * 1.45;
+    s.addText(v, { isTextBox: true, x: 8.55, y, w: 1.9, h: 0.75, fontSize: 34, bold: true, color: c, margin: 0, valign: "middle" });
+    s.addText(d, { isTextBox: true, x: 10.5, y, w: 2.25, h: 0.75, fontSize: 12.5, color: HEX.ink, margin: 0, valign: "middle" });
+    s.addText(`answered by ${who}`, { isTextBox: true, x: 8.55, y: y + 0.78, w: 4.2, h: 0.35, fontSize: 11.5, color: HEX.green, bold: true, margin: 0 });
+  });
+  s.addText("Sport New Zealand, Active NZ survey, 2023 [2]", { isTextBox: true, x: 8.55, y: 6.45, w: 4.2, h: 0.3, fontSize: 10, color: HEX.soft, margin: 0 });
+  note(s, "Most people who stop playing have not lost interest; they are worn down by organising: the organiser chases a group chat, the calendar fills with crosses, one friend works late, one has a sore knee, one has a baby, and the court stays empty.");
+
+  // 2a. the pain, in numbers
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "The pain, in numbers");
   figure(s, "pain", "(a) Share of people who play a sport, by age (NPR, RWJF and Harvard Chan poll, 2015). (b) Barriers adults name for not playing regularly (Sport New Zealand, Active NZ, 2023). Talk answers the first barrier, Match the second, the agents the third.");
   note(s, "Most people who stop playing have not lost interest; they are worn down by organising. Serve turns hours of back-and-forth into one yes from each person.");
 
