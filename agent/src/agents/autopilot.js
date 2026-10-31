@@ -28,6 +28,8 @@ import * as bodyContext from "../body/context.js";
 import * as places from "../club/places.js";
 import * as memory from "../memory/memory.js";
 import * as beliefs from "../memory/beliefs.js";
+import * as prefs from "../memory/prefs.js";
+import * as prefsOf from "../memory/prefs_of.js";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
 import * as flags from "../loop/flags.js";
 import { extras, checkedSummary } from "./autopilot_why.js";
@@ -161,15 +163,26 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
   if (J && !J.once.memory) J.rec("memory", { notes: fromMemory });
   // what holds about the player, abstracted from their notes once a week, each belief with the notes it cites
   // (memory/beliefs.js); a run on notes handed in (the evals) has none
-  const standing = J?.once.beliefs ? J.once.beliefs.list : notes ? [] : await beliefs.current(player || messenger || "app").catch(() => []);
-  if (J && !J.once.beliefs) J.rec("beliefs", { list: standing });
+  const standing0 = J?.once.beliefs ? J.once.beliefs.list : notes ? [] : await beliefs.current(player || messenger || "app").catch(() => []);
+  if (J && !J.once.beliefs) J.rec("beliefs", { list: standing0 });
   // the rules in what the player told their agent (memory.js rules, from live notes: a member left out, a weekday
   // off), kept by code as leaveOut is, so they can only take options away; a replaced or expired note has none
   const kept = notes ? [] : memory.rules(player || messenger || "app", now.getTime());
-  const offDays = new Set(kept.filter((x) => x.kind === "avoid_day").map((x) => x.day));
-  for (const x of kept) if (x.kind === "avoid_person" && club.members.some((m) => m.id === x.who)) leftOut.add(x.who);
+  // the player's preferences as dated records, settled by code, newest first (memory/prefs.js): they take in those
+  // rules, what code finds in every note, the beliefs and the habit, so a rule a newer note overrules no longer holds
+  // and a standing belief a newer note contradicts is not read. PREF_RECORDS=off keeps the rules alone, as before.
+  const Ps = notes || !prefs.on() ? null : prefsOf.of(player || messenger || "app", { now: now.getTime() });
+  const standing = Ps ? prefsOf.fresh(Ps, standing0) : standing0;
+  const offDays = new Set(Ps ? prefs.offDays(Ps) : kept.filter((x) => x.kind === "avoid_day").map((x) => x.day));
+  for (const id of Ps ? prefs.leftOut(Ps) : kept.filter((x) => x.kind === "avoid_person").map((x) => x.who)) if (club.members.some((m) => m.id === id)) leftOut.add(id);
   const ruleText = (x) => `${x.kind === "avoid_person" ? `${first(club.members.find((m) => m.id === x.who)?.name || x.who)} left out` : `no games on ${x.day}`}${x.until ? ` until ${x.until}` : ""}`;
-  if (kept.length) tell({ step: "Followed what you told your agent", tool: "memory", detail: kept.map((x) => `${ruleText(x)} (you said on ${x.said})`).join(" · ") });
+  const names = Object.fromEntries(club.members.map((m) => [m.id, first(m.name)]));
+  const shownRules = Ps ? Ps.current.filter((r) => r.confidence >= prefs.HARD && (r.value === "no" || r.kind === "format")).map((r) => `${prefs.say(r, names)}${r.until ? ` until ${r.until}` : ""} (${r.explicit ? "you said on" : "from your notes up to"} ${ymd(new Date(r.since))})`)
+    : kept.map((x) => `${ruleText(x)} (you said on ${x.said})`);
+  // a time the player said no to, after they last played then; the format they last said, unless the body log says doubles
+  const saidNo = (day, start) => (Ps ? prefs.slotAllowed(Ps, { day, start, hist }) : null);
+  const saidFormat = (day, start, format) => { if (!Ps || bp.format === "doubles") return null; const f = prefs.formatFor(Ps, { hist, day, start, prefers: club.you.prefers }); return f.rec && f.rec.confidence >= prefs.HARD && f.format !== format ? `The player plays ${f.format} now (said on ${ymd(new Date(f.rec.since))}): use ${f.format}` : null; };
+  if (shownRules.length) tell({ step: "Followed what you told your agent", tool: "memory", detail: shownRules.join(" · ") });
   const tools = {
     async recall({ question = "" } = {}) {
       if (!memory.memoryOn()) return { notes: [], note: "memory is off" };
@@ -207,7 +220,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
     },
     get_week() {
       const need = Math.max(0, perWeek - booked.length - agreed.length);
-      const open = habit.map((h) => { const d = days.find((x) => x.day === h.day); return d && { ...h, date: d.date, taken: booked.some((b) => b.date === d.date) || agreed.some((a) => a.date === d.date) || offDays.has(h.day) }; }).filter(Boolean);
+      const open = habit.map((h) => { const d = days.find((x) => x.day === h.day); return d && { ...h, date: d.date, taken: booked.some((b) => b.date === d.date) || agreed.some((a) => a.date === d.date) || offDays.has(h.day) || !!saidNo(h.day, h.start) }; }).filter(Boolean);
       const best = Object.entries(chem).sort((a, b) => b[1].score - a[1].score).slice(0, 3).map(([mid, c]) => { const m = club.members.find((x) => x.id === mid); return m && { id: mid, name: m.name, games: c.n, ranLonger: `${c.ext}%` }; }).filter(Boolean);
       // when the usual times run out, the player's other free times this week, on days with no game yet
       const left = open.filter((h) => !h.taken).length, soon = now.getHours() * 60 + now.getMinutes() + 60;
@@ -217,7 +230,7 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       return { today: `${DAYS[now.getDay()]} ${ymd(now)}`, goal: `${perWeek} ${g.sport} games this week${perWeek !== g.perWeek ? ` (one fewer than usual: your load is ${org.load.acwr} times your usual week)` : ""}`, gameMinutes: minutes, booked: booked.map((b) => `${DAYS[dateOf(b.date).getDay()]} ${b.start}`), agreed: agreed.map((a) => `${a.day} ${a.start}`), stillNeeded: need,
         habitualTimes: open.map((h) => ({ day: h.day, start: h.start, date: h.date, played: `${h.count} of the last ${h.weeks} weeks`, usualMinutes: h.minutes, alreadyTaken: h.taken })),
         ...(other.length ? { otherFreeTimes: other, otherNote: "your usual times are not enough this week: these are other times you are free" } : {}),
-        playsBestWith: best, healthLimit: limit || null, ...(kept.length ? { playerRules: kept.map(ruleText), playerRulesNote: "kept by code: these people and days are already left out" } : {}), ...(standing.length ? { standingBeliefs: standing, standingNote: "what holds about the player, each from several of their notes: plan by these first" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? "with a health limit, doubles first; call check_limits" : body?.log?.length || body?.workouts?.length ? "call check_limits before choosing" : undefined };
+        playsBestWith: best, healthLimit: limit || null, ...(shownRules.length ? { playerRules: shownRules, playerRulesNote: "kept by code: these people, days and times are already left out; the newest thing the player said wins" } : {}), ...(standing.length ? { standingBeliefs: standing, standingNote: "what holds about the player, each from several of their notes: plan by these first" } : {}), ...(fromMemory.length ? { fromMemory: fromMemory.map(({ note, on }) => ({ note, said: on })) } : {}), note: limit ? "with a health limit, doubles first; call check_limits" : body?.log?.length || body?.workouts?.length ? "call check_limits before choosing" : undefined };
     },
     find_partners({ day, start, format = "singles", leaveOut = [] }, quiet = false) {
       // someone the player asked to leave out stays out of this run: these candidates, the stop check's, the rules'
@@ -225,6 +238,9 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       const d = days.find((x) => x.day === day);
       if (!d) return { error: `${day} is not in the next seven days` };
       if (offDays.has(day)) return { error: `No games on ${day}: the player asked for that` };
+      const no = saidNo(day, start || "19:00"), fm = saidFormat(day, start || "19:00", format);
+      if (no) return { error: `Not ${day} ${start}: ${no.replace(/^you/, "the player")}` };
+      if (fm) return { error: fm };
       const st = toMin(start || "19:00");
       if (!freeAt(me.free, day, st, minutes)) return { error: `You are not usually free ${day} ${start}; pick one of your habitual times` };
       if (bp.pause.includes(`${g.sport} ${format}`) || bp.pause.includes(g.sport)) return { error: `${g.sport} ${format} is paused while ${org.parts.find((p) => p.physio)?.name || "a sore part"} settles; try doubles` };
@@ -256,6 +272,9 @@ async function runWeek({ you = {}, history = [], goal = {}, ratings = {}, upcomi
       const d = days.find((x) => x.day === day), ms = members.map((mid) => club.members.find((m) => m.id === mid)).filter(Boolean);
       if (!d) return { error: `${day} is not in the next seven days` };
       if (offDays.has(day)) return { error: `No games on ${day}: the player asked for that` };
+      const no = saidNo(day, start), fm = saidFormat(day, start, format);
+      if (no) return { error: `Not ${day} ${start}: ${no.replace(/^you/, "the player")}` };
+      if (fm) return { error: fm };
       if (ms.length !== (format === "doubles" ? 3 : 1)) return { error: `${format} needs ${format === "doubles" ? "three members" : "one member"}; got ${ms.length}` };
       if (place && !found[place]) return { error: `${place} is not a place find_places returned` };
       const out = ms.filter((m) => leftOut.has(m.id));
