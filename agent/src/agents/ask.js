@@ -29,6 +29,8 @@ import { noteOwn } from "../match/records.js";
 import { rank as bandRank } from "../match/model.js";
 import * as fb from "./freebusy.js";
 import { privateFor } from "../safety/privacy.js";
+import * as prefs from "../memory/prefs.js";
+import * as prefsOf from "../memory/prefs_of.js";
 
 const { windows, ymd, hm, toMin, dateOf, readVenues, DAYS } = helpers;
 const FILE = path.resolve(process.env.ASK_FILE || "data/asks.json");
@@ -63,7 +65,10 @@ const logPoint = (row) => { db.trial.push(row); if (db.trial.length > TRIAL_KEEP
 // the next opening: a habitual time in the next `ahead` days that is still open, the best people free then, a court
 // bands: { "date start": { memberId: band } } from the members' agents (match/rank.js bandsFor): a band goes before fit
 // priv: private calendars (freebusy.js): each member's agent says only whether its member is free at a time asked about
-export function opening({ history = [], upcoming = [], body = null, skip = [], now = new Date(), ahead = 3, bands = null, priv = false, who = "you" } = {}) {
+// said: the player's preference records, settled (memory/prefs.js; read from their notes when not given): a time they
+// said no to after they last played then is skipped, a time they said yes to is asked about even with no habit there,
+// the format they last stated is used unless the games since say otherwise, and a member they left out is not asked
+export function opening({ history = [], upcoming = [], body = null, skip = [], now = new Date(), ahead = 3, bands = null, priv = false, who = "you", said = null } = {}) {
   const club = readClub(), venues = readVenues(), me = { id: "you", name: "You", area: club.you.area, free: club.you.free };
   const hist = [...(club.you.history || []), ...history];
   const org = organize({ log: body?.log || [], workouts: body?.workouts || [], days: body?.days || [], games: hist, now }), bp = org.plan;
@@ -73,6 +78,7 @@ export function opening({ history = [], upcoming = [], body = null, skip = [], n
   const week = [...hist.filter((h) => h.date >= wk0 && h.date <= today), ...upcoming.filter((u) => u.date >= wk0 && u.date < wk1)];
   if (week.length >= perWeek) return { none: `you already have ${week.length} game${week.length > 1 ? "s" : ""} this week, your goal is ${perWeek}` };
   const sore = org.parts.filter((p) => p.active), chem = chemistry(hist);
+  const Ps = said || prefsOf.of(who === "you" ? "app" : who, { now: now.getTime() }), out = new Set(prefs.leftOut(Ps)), refused = [];
   const soon = now.getHours() * 60 + now.getMinutes() + 180; // at least three hours' notice, for everyone's agent
   const slots = [];
   // a new player has no habit yet (two games at one weekday and time in eight weeks): their agent asks about the free
@@ -84,9 +90,18 @@ export function opening({ history = [], upcoming = [], body = null, skip = [], n
     if (upcoming.some((u) => u.date === date) || hist.some((h) => h.date === date)) continue;
     const times = stated ? windows(me.free).filter((w) => w.day === d.getDay()).flatMap((w) => Array.from({ length: Math.max(0, Math.floor((w.to - w.from - 90) / 60) + 1) }, (_, k) => ({ day, start: hm(w.from + 60 * k), count: 0, weeks: 8, share: 0, minutes: 90, sport: club.you.sports?.[0] || goal.sport, stated: true })))
       : usual.filter((x) => x.day === day);
+    // a time of the week they said suits them, in a window they are free, where no habit is (stated, as for a new player)
+    if (!stated) for (const w of prefs.wantedTimes(Ps).filter((x) => x.day === day)) {
+      const PART_AT = { early: 7 * 60, morning: 9 * 60, afternoon: 14 * 60, evening: 18 * 60 };
+      const win = windows(me.free).find((x) => x.day === d.getDay() && Math.max(x.from, PART_AT[w.part]) + 90 <= x.to && prefs.partOf(hm(Math.max(x.from, PART_AT[w.part]))) === w.part);
+      const start = win && hm(Math.max(win.from, PART_AT[w.part]));
+      if (start && !times.some((t) => prefs.partOf(t.start) === w.part)) times.push({ day, start, count: 0, weeks: 8, share: 0, minutes: 90, sport: club.you.sports?.[0] || goal.sport, stated: true });
+    }
     for (const h of times) {
       if (i === 0 && toMin(h.start) < soon) continue;
       if (skip.includes(`${date} ${h.start}`)) continue;
+      const no = prefs.slotAllowed(Ps, { day, start: h.start, hist });
+      if (no) { refused.push(`${day} ${h.start} (${no})`); continue; }
       slots.push({ ...h, date });
     }
   }
@@ -94,13 +109,12 @@ export function opening({ history = [], upcoming = [], body = null, skip = [], n
   for (const s of slots) {
     const sport = s.sport || goal.sport || "badminton";
     if (bp.avoid.includes(sport) || bp.pause.includes(sport)) { held.push(`${sport} on ${s.day}`); continue; }
-    // the format they play at that time, unless the body log says doubles
-    const fmts = hist.filter((h) => DAYS[dateOf(h.date).getDay()] === s.day && h.start === s.start).map((h) => h.format || "singles");
-    let format = bp.format || (!fmts.length && club.you.prefers === "doubles" ? "doubles" : fmts.filter((f) => f === "doubles").length > fmts.length / 2 ? "doubles" : "singles");
+    // the format they last said, or else the one they play at that time (prefs.js formatFor), unless the body log says doubles
+    let format = bp.format || prefs.formatFor(Ps, { hist, day: s.day, start: s.start, prefers: club.you.prefers }).format;
     if (bp.pause.includes(`${sport} ${format}`)) format = "doubles";
     const minutes = Math.min(bp.capMinutes || 999, s.minutes || 90, 90), st = toMin(s.start);
     if (!freeAt(me.free, s.day, st, minutes)) continue;
-    const free = club.members.filter((m) => (m.sports || ["badminton"]).includes(sport) && (m.prefers === "any" || m.prefers === format || sport !== "badminton") && fb.free(m, { date: s.date, start: st, minutes, asker: who, priv }) && !skip.includes(`${s.date} ${s.start} ${m.id}`)
+    const free = club.members.filter((m) => !out.has(m.id) && (m.sports || ["badminton"]).includes(sport) && (m.prefers === "any" || m.prefers === format || sport !== "badminton") && fb.free(m, { date: s.date, start: st, minutes, asker: who, priv }) && !skip.includes(`${s.date} ${s.start} ${m.id}`)
       // someone already booked into a game then (by another player) is not free
       && !playing(m.id, s.date).some((g) => g.from < st + minutes && st < g.to));
     const asked = bands?.[`${s.date} ${s.start}`];
@@ -126,7 +140,7 @@ export function opening({ history = [], upcoming = [], body = null, skip = [], n
       candidates: ranked.slice(0, 12).map(({ m, fit }) => ({ id: m.id, score: +fit.toFixed(2) })), likely: Object.fromEntries(pick.filter((x) => x.b).map(({ m, b }) => [m.id, b])),
     };
   }
-  return { none: held.length ? `I'm holding ${held.join(" and ")} back while ${sore.map((p) => `your ${p.name}`).join(" and ")} settle${sore.length > 1 ? "" : "s"}` : slots.length ? "nobody you play with is free at your usual times with a court" : `no usual time of yours is open in the next ${ahead === 3 ? "three" : ahead} days` };
+  return { none: held.length ? `I'm holding ${held.join(" and ")} back while ${sore.map((p) => `your ${p.name}`).join(" and ")} settle${sore.length > 1 ? "" : "s"}` : slots.length ? "nobody you play with is free at your usual times with a court" : refused.length ? `your usual times in the next ${ahead === 3 ? "three" : ahead} days are ones you said no to: ${refused.join(", ")}` : `no usual time of yours is open in the next ${ahead === 3 ? "three" : ahead} days` };
 }
 
 // the ask, in words: Muse Glimmer writes it from the facts, code checks it, and the template is the fallback
