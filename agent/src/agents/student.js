@@ -21,6 +21,15 @@ const URL_ = () => (process.env.A2A_STUDENT_URL || "http://127.0.0.1:11447").rep
 // its agreement with Glimmer stays within about 5 points of Glimmer's own, and the member's stated preference holds
 // (0.5 for the 3B student). docs/decision_model.md has the curve.
 const SURE = () => +(process.env.A2A_STUDENT_SURE || 0.6);
+// temperature scaling of the worker's option probabilities before the threshold (A2A_STUDENT_TEMP, 1 = as the worker
+// sends them): a student whose confidence was recalibrated on held-out cases is served with its fitted temperature and
+// the threshold refit after it (docs/decision_model.md, round 4)
+const TEMP = () => +(process.env.A2A_STUDENT_TEMP || 1);
+export function tempered(options, T = TEMP()) {
+  if (!(T > 0) || T === 1 || !options?.length) return options;
+  const z = options.map((o) => Math.log(Math.max(o.p, 1e-9)) / T), m = Math.max(...z), e = z.map((v) => Math.exp(v - m)), s = e.reduce((a, b) => a + b, 0);
+  return options.map((o, i) => ({ ...o, p: e[i] / s }));
+}
 // how long a decision may take on the worker in all, and how long it may wait there for the one before it (the worker
 // answers one at a time; one that would wait longer is turned away at once, and Glimmer answers it)
 const WAIT = () => +(process.env.A2A_STUDENT_TIMEOUT_MS || 20000), QUEUE = () => +(process.env.A2A_STUDENT_MAX_WAIT_MS || 8000);
@@ -48,6 +57,7 @@ export async function studentAnswer(m, cur, ok, all, { minutes = 90, format, spo
     const res = await fetch(`${URL_()}/decide`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(WAIT()) });
     r = await res.json();
     if (!res.ok || !r.pick) throw new Error(r.error || `worker ${res.status}`);
+    if (TEMP() !== 1 && Array.isArray(r.options)) { r.options = tempered(r.options); r.pick = r.options.reduce((a, b) => (b.p > a.p ? b : a)); }
   } catch (e) {
     studentStats.errors++;
     if (/ECONNREFUSED|fetch failed/.test(String(e.cause?.code || e.message))) downUntil = Date.now() + 60000;

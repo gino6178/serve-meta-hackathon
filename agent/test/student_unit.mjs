@@ -10,7 +10,7 @@ import http from "node:http";
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-student-"));
 Object.assign(process.env, { A2A_TINY: "off", BOOKINGS_FILE: `${tmp}/bookings.json`, A2A_FILE: `${tmp}/a2a.json`, NEGOTIATIONS_FILE: `${tmp}/neg.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, LLM_URL: "http://127.0.0.1:9/v1" });
 const { breaks, decide, fullAnswer } = await import("../src/a2a/talk.js");
-const { studentAnswer } = await import("../src/agents/student.js");
+const { studentAnswer, tempered } = await import("../src/agents/student.js");
 const { validate, DECISION } = await import("../src/core/schema.js");
 const ledger = await import("../src/core/ledger.js");
 
@@ -46,6 +46,20 @@ test("unsure, or its own reading of the times differs from code's: Muse Glimmer 
   assert.equal(await studentAnswer(m, cur, ok, all, opts), null, "it read the Friday as working");
   const rows = ledger.calls(50).filter((r) => r.site === "a2a.student");
   assert.ok(rows.length >= 3 && rows.every((r) => r.model === "test.gguf"), "every call is in the ledger");
+});
+
+test("A2A_STUDENT_TEMP: the option probabilities are tempered before the threshold (unset: as the worker sends them)", async () => {
+  const o = [{ id: "t2", p: 0.8 }, { id: "t3", p: 0.15 }, { id: null, p: 0.05 }];
+  assert.equal(tempered(o, 1), o, "T = 1 changes nothing");
+  const t2 = tempered(o, 2);
+  assert.ok(Math.abs(t2.reduce((a, x) => a + x.p, 0) - 1) < 1e-9 && t2[0].p < 0.8 && t2[0].p > 0.5, "softer at T = 2, still summing to 1");
+  reply = pick("t3", 0.65);
+  process.env.A2A_STUDENT_TEMP = "2";
+  assert.equal(await studentAnswer(m, cur, ok, all, opts), null, "0.65 at T = 2 is under 0.6: Glimmer answers");
+  process.env.A2A_STUDENT_TEMP = "0.5";
+  assert.equal((await studentAnswer(m, cur, ok, all, opts)).tier, "student", "sharper at T = 0.5: the student answers");
+  delete process.env.A2A_STUDENT_TEMP;
+  assert.equal((await studentAnswer(m, cur, ok, all, opts)).tier, "student", "unset: 0.65 against 0.6, as before");
 });
 
 test("only the real choice, and only for a member whose limits are all in code", async () => {
