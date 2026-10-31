@@ -280,7 +280,8 @@ export function summary(t) {
   if (!n) return "I don't know how you like to play yet. Answer a few quick questions and I'll negotiate for you the way you would.";
   const even = w[order[0]] - w[order[3]] < 0.08;
   return [even ? "So far you weigh time, distance, price and a quiet court about the same." : `${SAY[order[0]][0].toUpperCase() + SAY[order[0]].slice(1)} matters most to you, then ${SAY[order[1]]}.`,
-    likes.length ? `You like ${likes.join(", ").replace(/, ([^,]+)$/, " and $1")}.` : "", avoid.length ? `You'd rather not play ${avoid.join(" or ")}.` : "",
+    // (said as a liking only after a few answers: one yes to a time the agents picked is not a preference yet)
+    likes.length ? (n >= 3 ? `You like ${likes.join(", ").replace(/, ([^,]+)$/, " and $1")}.` : `So far you said yes to ${likes.join(", ").replace(/, ([^,]+)$/, " and $1")}.`) : "", avoid.length ? `You'd rather not play ${avoid.join(" or ")}.` : "",
     `${t.limitKm ? `You'll go up to ${t.limitKm} km (your limit)` : `You'll go about ${t.maxKm.toFixed(0)} km`}${w.price > 0.2 ? ` and aim to pay under ${Math.round(t.priceCap)} each` : ""}.`].filter(Boolean).join(" ");
 }
 export function view(t) {

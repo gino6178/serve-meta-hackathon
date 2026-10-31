@@ -140,7 +140,7 @@ export function inviteOf(x) {
   if (!x) return { invite: null };
   const sport = String(x.sport || "").toLowerCase(), day = String(x.day || ""), start = String(x.start || ""), where = T.tidy(x.where, 60), spots = Math.round(+x.spots);
   if (!SPORTS.includes(sport)) return { error: `The sport must be one of: ${SPORTS.join(", ")}.` };
-  if (!/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun|\d{4}-\d{2}-\d{2})$/.test(day) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(start)) return { error: "Say the day (Mon to Sun, or a date) and the time (HH:MM)." };
+  if (!/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun|\d{4}-\d{2}-\d{2})$/.test(day) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(start)) return { error: "Give the game's day and time in the invite: invite.day (Mon to Sun, or YYYY-MM-DD) and invite.start (HH:MM). See /llms.txt." };
   if (/^\d{4}-/.test(day) && localDay(new Date(`${day}T12:00`).getTime()) !== day) return { error: "That date doesn't exist: use YYYY-MM-DD." };
   if (/^\d{4}-/.test(day) && day < localDay(deps.now())) return { error: "That date has passed: pick today or a later day." };
   if (!where) return { error: "Say where you'll play." };
