@@ -137,6 +137,28 @@ async function img(file, width = 1800) {
   text(s, [{ text: "“It's actually really handy. You just talk to the agent.”", options: { italic: true, breakLine: true } }, { text: "“The way it suggests games first can make people more motivated to play.”", options: { italic: true, breakLine: true } }, { text: "Players A and B, translated from Chinese", options: { fontSize: 11, color: HEX.muted } }], { x: M + 6.45, y: 5.12, w: W - 2 * M - 6.7, h: 1.4, fontSize: 14 });
   note(s, "On the web a sentence becomes an invite, the players' agents agree the time, one tap books it; in Messenger the same booking, with the agent's real replies from the Messenger end-to-end test.");
 
+  // 3b. the three helpers, and anyone anywhere
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Three helpers take the friction out, for anyone, anywhere");
+  [["Match", "asks first", "“Thursday 19:00: Leo is free. Want a game?” It learns the player's usual times and asks when one is open and the people they play best with are free.", HEX.green], ["Talk", "agents agree on their own", "The person only says they want to play. Each player's agent agrees the time, the people and the court with the others' agents in the background.", HEX.blue], ["Body", "schedules around the body", "A body log and health-app export become scheduling limits: doubles while a knee is sore, one game fewer in a heavy week. Not medical advice.", HEX.amber]].forEach(([h, sub, d, c], i) => {
+    const x = M + i * 4.1;
+    card(s, x, 1.4, 3.85, 2.75);
+    s.addShape(pres.shapes.OVAL, { x: x + 0.25, y: 1.6, w: 0.6, h: 0.6, fill: { color: c }, line: { color: c } });
+    s.addText(String(i + 1), { isTextBox: true, x: x + 0.25, y: 1.6, w: 0.6, h: 0.6, fontSize: 18, bold: true, color: "FFFFFF", align: "center", valign: "middle", margin: 0 });
+    s.addText([{ text: h, options: { bold: true, fontSize: 18, breakLine: true } }, { text: sub, options: { fontSize: 12, color: HEX.muted } }], { isTextBox: true, x: x + 1.0, y: 1.55, w: 2.7, h: 0.75, margin: 0, color: HEX.ink, valign: "middle" });
+    s.addText(d, { isTextBox: true, x: x + 0.25, y: 2.45, w: 3.4, h: 1.6, fontSize: 12.5, color: HEX.ink, margin: 0, valign: "top" });
+  });
+  s.addText("Build for Your World: any town with courts on OpenStreetMap, any ball sport, in a phone's browser and in Messenger", { isTextBox: true, x: M, y: 4.4, w: W - 2 * M, h: 0.4, fontSize: 14, bold: true, color: HEX.green, margin: 0 });
+  ["badminton", "tennis", "pickleball", "table tennis", "basketball", "volleyball", "soccer"].forEach((sp, i) => {
+    const x = M + i * 1.73;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 4.95, w: 1.58, h: 0.5, fill: { color: HEX.greenBg }, line: { color: HEX.greenBg }, rectRadius: 0.25 });
+    s.addText(sp, { isTextBox: true, x, y: 4.95, w: 1.58, h: 0.5, fontSize: 12, color: HEX.green, bold: true, align: "center", valign: "middle", margin: 0 });
+  });
+  [["Groups nobody organises", "children's sessions with fair turns and no child accounts, gentle daytime doubles for older adults, charity round-robins that record pledges but handle no money"], ["Quiet courts", "a group's agent asks a venue's agent for a quiet-hour price, so venues fill empty hours"]].forEach(([h, d], i) => {
+    s.addText([{ text: h + ": ", options: { bold: true } }, { text: d }], { isTextBox: true, x: M + i * 6.15, y: 5.75, w: 5.95, h: 0.95, fontSize: 12.5, color: HEX.ink, margin: 0, valign: "top" });
+  });
+  note(s, "The demo town sits on Taipei, with prices in NT$, but nothing in Serve is tied to one place or one sport.");
+
   // 4. validated by agents
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "Validated by 153 AI agents in 25 rounds: how a round worked");
@@ -200,19 +222,40 @@ async function img(file, width = 1800) {
   // 6. A2A: facts only, one round, holds
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "A2A v1.0: facts only, settled in one round by intersection");
-  text(s, bullets([
-    ["Facts only.", "A proposal carries each time as {id, date, start, venue, court, trip}; sentences between agents are templates filled by code, so no agent's model reads another side's words."],
-    ["One round, by intersection.", "The host lists up to 12 times that fit every calendar; each agent marks the ones that work, and that is binding. Contract Net with a one-shot intersection."],
-    ["Durable and signed.", "Saved before every round, answered once, idempotent booking; Agent Cards signed (Ed25519 JWS over canonical JSON)."],
-    ["To the standard.", "jku on cards, the proposal and hold extensions declared and required, the protocol's own error codes."],
-  ]), { x: M, y: 1.45, w: 6.6, h: 5.2, fontSize: 15, paraSpaceAfter: 10 });
-  stat(s, M + 7.0, 1.45, 2.65, "0 of 12", "double bookings with holds (11 of 12 without)");
-  stat(s, M + 9.85, 1.45, 2.3, "20 / 20", "recovery checks, gateway killed at 5 points");
-  stat(s, M + 7.0, 3.35, 2.65, "22 / 22", "checks across two machines, 12 talks at once");
-  stat(s, M + 9.85, 3.35, 2.3, "185 ms", "added per request by the cross-machine hop");
-  card(s, M + 7.0, 5.25, W - 2 * M - 7.0, 1.35, HEX.greenBg);
-  text(s, [{ text: "The fairest venue. ", options: { bold: true } }, { text: "Code picks the venue whose longest trip is shortest. Fairness score 0.73, against 0.59 (shortest total trip) and 0.58 (Nash), at 2.3 more minutes per game." }], { x: M + 7.25, y: 5.38, w: W - 2 * M - 7.5, h: 1.15, fontSize: 13 });
-  note(s, "Holds are leases with resource ordering: all or nothing, 30 minutes, asked in a fixed order.");
+  // the host's agent, the proposal of facts, three members' agents, their sets, the intersection
+  box(s, M, 2.55, 2.0, 1.4, "Host's agent", "lists up to 12 times that fit every calendar and have a court", HEX.green, "FFFFFF");
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: M + 2.35, y: 2.45, w: 2.55, h: 1.6, fill: { color: "FFFFFF" }, line: { color: HEX.line, width: 1 }, rectRadius: 0.06 });
+  s.addText([{ text: "serve.proposal", options: { bold: true, fontSize: 12, breakLine: true, color: HEX.green } }, { text: "{ id, date, start,\n  venue, court, trip }", options: { fontFace: "Consolas", fontSize: 12, breakLine: true } }, { text: "facts only, signed (Ed25519)", options: { fontSize: 10.5, color: HEX.muted } }], { isTextBox: true, x: M + 2.5, y: 2.5, w: 2.3, h: 1.5, margin: 0, valign: "middle", color: HEX.ink });
+  arrow(s, M + 2.02, 3.25, M + 2.33, 3.25);
+  const sets = [["Ana's agent", ["t1", "t2", "t4"]], ["Leo's agent", ["t2", "t3", "t4"]], ["Kenji's agent", ["t2", "t4", "t5"]]];
+  sets.forEach(([n, ws], k) => {
+    const y = 1.4 + k * 1.3;
+    arrow(s, M + 4.92, 3.25, M + 5.3, y + 0.5);
+    card(s, M + 5.32, y, 3.1, 1.05);
+    s.addText(n, { isTextBox: true, x: M + 5.5, y: y + 0.08, w: 2.8, h: 0.35, fontSize: 13, bold: true, color: HEX.ink, margin: 0 });
+    ["t1", "t2", "t3", "t4", "t5"].forEach((t, j) => {
+      const on = ws.includes(t), c = on ? ((t === "t2" || t === "t4") ? HEX.green : "8CC5A6") : "E1E4E2";
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: M + 5.5 + j * 0.55, y: y + 0.5, w: 0.48, h: 0.38, fill: { color: c }, line: { color: c }, rectRadius: 0.05 });
+      s.addText(t, { isTextBox: true, x: M + 5.5 + j * 0.55, y: y + 0.5, w: 0.48, h: 0.38, fontSize: 11, bold: on, color: on ? "FFFFFF" : HEX.soft, align: "center", valign: "middle", margin: 0 });
+    });
+    arrow(s, M + 8.44, y + 0.5, M + 8.85, 3.25);
+  });
+  box(s, M + 8.9, 2.45, 3.2, 1.6, "Intersection: t2, t4", "every agent's set is binding; code takes the best, t2. Most talks end in round one", HEX.greenBg);
+  s.addText("Illustrative sets. Hard rules (days off, the latest finish, the longest trip) take times off before any model sees the list.", { isTextBox: true, x: M + 5.32, y: 5.35, w: 6.8, h: 0.5, fontSize: 11, color: HEX.muted, margin: 0 });
+  [["Contract Net + one-shot intersection", "a simple distributed constraint satisfaction"], ["No model reads another side's words", "sentences between agents are templates filled by code"], ["To the standard", "jku on cards, proposal and hold extensions required, the protocol's error codes"]].forEach(([h, d], i) => {
+    s.addText([{ text: h, options: { bold: true, fontSize: 13, breakLine: true } }, { text: d, options: { fontSize: 11.5, color: HEX.muted } }], { isTextBox: true, x: M + i * 4.1, y: 6.0, w: 3.9, h: 0.75, margin: 0, color: HEX.ink, valign: "top" });
+  });
+  note(s, "A proposal carries each time as id, date, start, venue, court and trip, nothing else; an answer carries intent, date, start and the times that work. No agent can inject instructions into another.");
+
+  // 6b. holds, recovery, fairness
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Holds, recovery and the fairest venue, measured");
+  bar(s, ["With holds", "Without holds"], [0, 11], { x: M, y: 1.4, w: 3.9, h: 3.4, dir: "col", title: "Pairs of talks that booked one member twice (of 12)", fmt: "0", max: 12, colors: [HEX.red] });
+  bar(s, ["Nash product", "Shortest total trip", "Minimax (Serve)"], [0.58, 0.59, 0.73], { x: M + 4.2, y: 1.4, w: 4.3, h: 3.4, title: "Fairness score of the booked games", fmt: "0.00", max: 0.9, colors: [HEX.green] });
+  stat(s, M + 8.8, 1.4, W - 2 * M - 8.8, "20 / 20", "recovery checks, the gateway killed at 5 points in a booking; nothing booked twice");
+  stat(s, M + 8.8, 3.2, W - 2 * M - 8.8, "22 / 22", "checks across two machines, 12 talks at once, +185 ms a request");
+  text(s, bullets([["Holds, all or nothing:", "every player's agent holds the agreed time for 30 minutes, asked in a fixed order (leases with resource ordering)."], ["The fairest venue:", "the longest trip shortest, from home areas, never addresses; at 2.3 more minutes per game over 12 simulated games, and no one ever got a longer longest trip than the best venue possible."], ["Durable:", "saved before every round, answered once, idempotent booking."]]), { x: M, y: 5.05, w: W - 2 * M, h: 1.7, fontSize: 13, paraSpaceAfter: 6 });
+  note(s, "With two talks at once for one member, 11 of 12 pairs booked the member twice without holds and 0 of 12 with them.");
 
   // 7. ranking by the chance everyone accepts
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -360,35 +403,78 @@ async function img(file, width = 1800) {
   [["Glimmer reasons even when told not to", "84% of the tokens it wrote over 2,755 calls were reasoning; 9% of calls came back empty. Every call now asks for think \"low\" with 900 tokens of room."], ["A 1B agrees with Glimmer as often as Glimmer agrees with itself", "89.5% against 88.8% on 500 held-out cases, in 0.9 s instead of about 40 s."], ["Glimmer can decide in one token", "Read with no chat template, its next token gives a probability for each option: 0.53 s, no reasoning. It mostly reads the order, though: 99.5% of picks were the first time listed."], ["Llama Guard 3 reads sports injuries as medical advice", "Its S6 category flagged 6 to 8 of 15 ordinary injury-care answers; S6 now blocks only when code also finds a dose, a medicine or a condition."]].forEach(([h, d], i) => {
     const x = M + (i % 2) * 6.15, y = 1.45 + Math.floor(i / 2) * 2.65;
     card(s, x, y, 5.95, 2.4);
-    s.addText([{ text: h, options: { bold: true, breakLine: true, fontSize: 17, color: HEX.green } }, { text: d, options: { fontSize: 14 } }], { isTextBox: true, x: x + 0.3, y: y + 0.2, w: 5.35, h: 2.0, valign: "top", margin: 0, color: HEX.ink, paraSpaceAfter: 6 });
+    s.addText([{ text: h, options: { bold: true, breakLine: true, fontSize: 16, color: HEX.green } }, { text: d, options: { fontSize: 12 } }], { isTextBox: true, x: x + 0.3, y: y + 0.2, w: 3.3, h: 2.05, valign: "top", margin: 0, color: HEX.ink, paraSpaceAfter: 6 });
+    // a small chart of each finding
+    const cx = x + 3.7, cy = y + 0.15, cw = 2.1, ch = 2.1;
+    const base = { x: cx, y: cy, w: cw, h: ch, showLegend: false, dataLabelFontSize: 10, dataLabelColor: HEX.ink, catAxisLabelColor: HEX.muted, catAxisLabelFontSize: 9, valAxisHidden: true, valGridLine: { style: "none" }, catGridLine: { style: "none" }, catAxisLabelFontFace: "+mn-lt", dataLabelFontFace: "+mn-lt" };
+    if (i === 0) s.addChart(pres.charts.DOUGHNUT, [{ name: "tokens", labels: ["reasoning", "answer"], values: [84, 16] }], { ...base, chartColors: [HEX.red, HEX.green], showPercent: true, showLegend: true, legendPos: "b", legendFontSize: 9, legendColor: HEX.muted, holeSize: 55, dataLabelColor: "FFFFFF" });
+    if (i === 1) s.addChart(pres.charts.BAR, [{ name: "agreement", labels: ["Glimmer vs itself", "Our 1B"], values: [88.8, 89.5] }], { ...base, barDir: "col", chartColors: [HEX.green], showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.0", valAxisMinVal: 80, valAxisMaxVal: 92 });
+    if (i === 2) s.addChart(pres.charts.DOUGHNUT, [{ name: "picks", labels: ["first listed", "other"], values: [99.5, 0.5] }], { ...base, chartColors: [HEX.amber, HEX.soft], showPercent: true, showLegend: true, legendPos: "b", legendFontSize: 9, legendColor: HEX.muted, holeSize: 55, dataLabelColor: "FFFFFF" });
+    if (i === 3) s.addChart(pres.charts.BAR, [{ name: "flagged", labels: ["fewest runs", "most runs"], values: [6, 8] }], { ...base, barDir: "col", chartColors: [HEX.red], showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0", valAxisMinVal: 0, valAxisMaxVal: 15, showTitle: true, title: "of 15 injury-care answers", titleFontSize: 9, titleColor: HEX.muted, titleFontFace: "+mn-lt" });
   });
   note(s, "Four findings, each measured. The order finding was measured after the report: on 196 hard cases the one-token decider picked the first listed time 99.5% of the time.");
 
   // 15. security
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "Security, and a failure the agents found");
-  stat(s, M, 1.45, 3.0, "93 / 93", "attack cases stopped, named by OWASP LLM Top 10 risk");
-  text(s, bullets([["Prompt Guard 2 first:", "every post and comment, before Llama Guard 3 and code."], ["A signed record of every yes:", "each entry signed and chained to the one before, so a yes cannot be changed or removed unseen."], ["No-shows, with no money:", "show-up fades with a 60-day half-life and is shown as a range in words; a short game is called off 3 hours before; a freed spot goes to the waitlist with 12 hours to confirm."], ["The Agents Rule of Two:", "no agent holds untrusted input, private data and the power to act at once."]]), { x: M + 3.4, y: 1.45, w: W - 2 * M - 3.4, h: 3.4, fontSize: 15, paraSpaceAfter: 9 });
-  card(s, M, 5.0, W - 2 * M, 1.6, "FBEAE9");
-  text(s, [{ text: "A failure, and the fix. ", options: { bold: true, color: HEX.red } }, { text: "A tester working as a host could work out how many people nearby were open to being asked, first from a count, then from the talk. Now nearby people appear only once they can actually play, and everyone else sees only published badge words; later rounds re-checked it and found nothing." }], { x: M + 0.3, y: 5.15, w: W - 2 * M - 0.6, h: 1.35, fontSize: 14 });
+  stat(s, M, 1.45, 2.6, "93 / 93", "attack cases stopped, named by OWASP LLM Top 10 risk");
+  // untrusted text, layer by layer
+  s.addText("Untrusted text (posts, comments, reviews, wishes), layer by layer", { isTextBox: true, x: M + 2.9, y: 1.45, w: 9.2, h: 0.35, fontSize: 13, bold: true, color: HEX.ink, margin: 0 });
+  [["Text in", "a post, a review"], ["Prompt Guard", "2 (86M): injections"], ["Llama Guard", "3 (1B): harms"], ["Code checks", "numbers, names, links"], ["Then a model", "never the one that acts"]].forEach(([h, d], i) => {
+    const x = M + 2.9 + i * 1.86;
+    box(s, x, 1.9, 1.62, 1.15, h, d, i === 0 ? "FBEAE9" : i === 4 ? HEX.green : HEX.card, i === 4 ? "FFFFFF" : HEX.ink);
+    if (i < 4) arrow(s, x + 1.63, 2.47, x + 1.84, 2.47);
+  });
+  // the signed chain of yeses
+  s.addText("A signed record of every yes", { isTextBox: true, x: M, y: 3.4, w: 6, h: 0.35, fontSize: 13, bold: true, color: HEX.ink, margin: 0 });
+  ["yes #1", "yes #2", "yes #3", "yes #4"].forEach((t, i) => {
+    const x = M + i * 1.55;
+    box(s, x, 3.85, 1.3, 0.85, t, "signed · hash of the last", HEX.greenBg);
+    if (i < 3) arrow(s, x + 1.31, 4.27, x + 1.53, 4.27, HEX.green);
+  });
+  // no-shows without money
+  s.addText("No-shows, with no money", { isTextBox: true, x: M + 6.6, y: 3.4, w: 5.5, h: 0.35, fontSize: 13, bold: true, color: HEX.ink, margin: 0 });
+  [["60 days", "half-life of a show-up record, shown in words"], ["3 h", "before: a short game is called off"], ["12 h", "to confirm a freed spot"]].forEach(([b, d], i) => {
+    const x = M + 6.6 + i * 1.85;
+    card(s, x, 3.85, 1.7, 0.85);
+    s.addText([{ text: b, options: { bold: true, fontSize: 16, color: HEX.green, breakLine: true } }, { text: d, options: { fontSize: 9.5, color: HEX.muted } }], { isTextBox: true, x: x + 0.12, y: 3.85, w: 1.5, h: 0.85, margin: 0, valign: "middle" });
+  });
+  card(s, M, 5.05, W - 2 * M, 1.25, "FBEAE9");
+  text(s, [{ text: "A failure, and the fix. ", options: { bold: true, color: HEX.red } }, { text: "A tester working as a host could work out how many people nearby were open to being asked, first from a count, then from the talk. Now nearby people appear only once they can actually play, and everyone else sees only published badge words; later rounds re-checked it and found nothing. The Agents Rule of Two: no agent holds untrusted input, private data and the power to act at once." }], { x: M + 0.3, y: 5.15, w: W - 2 * M - 0.6, h: 1.1, fontSize: 13 });
   note(s, "93 attack cases all stopped; crash and recovery checks are on the A2A slide.");
 
   // 16. Meta models and routing by length
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "Meta models, and which one answers: by length");
-  const rows = [["Muse Glimmer (30B)", "RTX 3090", "Every agent's reasoning; a JSON Schema on every call"], ["Our Llama 3.2 1B", "Server CPU, int4", "Choices between times; short text at five checked sites"], ["Muse Spark 1.3", "Meta Model API", "Calls of 12,000+ tokens, and the fallback"], ["Muse Voice Transcribe", "Meta Model API", "Live voice, full duplex"], ["Muse Image · Muse Wonder · SAM 3.1", "Meta Model API", "Agent faces and posters · orbit judge (87%) · outline cross-check (0.974 IoU)"], ["Llama Guard 3 · Prompt Guard 2", "Server CPU", "Safety on Messenger, wishes, posts and reviews"], ["DRAMA · Omnilingual ASR", "Server CPU", "Memory by meaning, game-request router · voice notes"], ["SAM 2.1 · Sapiens2 · MapAnything", "RTX 3090", "Highlights and 3D replays"]];
-  s.addTable([[{ text: "Model", options: { bold: true, color: "FFFFFF", fill: { color: HEX.green } } }, { text: "Runs on", options: { bold: true, color: "FFFFFF", fill: { color: HEX.green } } }, { text: "Its job in Serve", options: { bold: true, color: "FFFFFF", fill: { color: HEX.green } } }], ...rows.map((r, i) => r.map((t) => ({ text: t, options: { fill: { color: i % 2 ? "FFFFFF" : HEX.card } } })))],
-    { x: M, y: 1.4, w: 7.6, colW: [2.6, 1.7, 3.3], fontSize: 11.5, color: HEX.ink, border: { type: "none" }, margin: [0.05, 0.08, 0.05, 0.08], rowH: 0.42 });
-  card(s, M + 7.9, 1.4, W - 2 * M - 7.9, 5.2, HEX.greenBg);
-  text(s, [{ text: "Routing by length", options: { bold: true, fontSize: 17, color: HEX.green, breakLine: true } },
-    { text: "Short (≤ ~700 tokens) at a checked site → our 1B", options: { bullet: true, breakLine: true } }, { text: "Longer, or anywhere else → Muse Glimmer", options: { bullet: true, breakLine: true } }, { text: "12,000+ tokens → Muse Spark", options: { bullet: true, breakLine: true } },
-    { text: "Every short site was tried on the 1B first: 9 end-to-end checks failed, 2 of 6 hostile comments got through, 4 of 10 injected reviews were obeyed. So only five checked sites, and the red team stays 93 of 93.", options: { breakLine: false } }], { x: M + 8.15, y: 1.6, w: W - 2 * M - 8.4, h: 4.9, fontSize: 13.5, paraSpaceAfter: 8 });
+  // where each model runs: our server (data stays there) and the Meta Model API
+  const zone = (x, w, head, sub, groups) => {
+    card(s, x, 1.35, w, 3.65);
+    s.addText([{ text: head, options: { bold: true, fontSize: 15, breakLine: true } }, { text: sub, options: { fontSize: 11, color: HEX.muted } }], { isTextBox: true, x: x + 0.2, y: 1.42, w: w - 0.4, h: 0.6, margin: 0, color: HEX.ink });
+    groups.forEach(([g, ms, c], k) => {
+      const y = 2.1 + k * 0.95;
+      s.addText(g, { isTextBox: true, x: x + 0.2, y, w: 1.15, h: 0.8, fontSize: 11, bold: true, color: HEX.muted, margin: 0, valign: "middle" });
+      ms.forEach((mname, j) => {
+        const bw = (w - 1.55 - 0.1 * (ms.length - 1)) / ms.length, bx = x + 1.35 + j * (bw + 0.1);
+        s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: bx, y: y + 0.08, w: bw, h: 0.64, fill: { color: c }, line: { color: c }, rectRadius: 0.06 });
+        s.addText(mname, { isTextBox: true, x: bx + 0.05, y: y + 0.08, w: bw - 0.1, h: 0.64, fontSize: 10.5, bold: true, color: c === HEX.green ? "FFFFFF" : HEX.ink, align: "center", valign: "middle", margin: 0 });
+      });
+    });
+  };
+  zone(M, 7.0, "Our GPU server (two RTX 3090s and their CPU)", "players' data stays here", [["GPU 1", ["Muse Glimmer 30B: every agent's reasoning"], HEX.green], ["CPU", ["Our 1B", "Tiny layer", "Llama Guard 3", "Prompt Guard 2", "DRAMA", "Speech (ASR)"], HEX.greenBg], ["GPU 0", ["SAM 2.1", "Sapiens2", "MapAnything", "DETR / RT-DETR"], HEX.greenBg]]);
+  zone(M + 7.3, W - 2 * M - 7.3, "Meta Model API", "only what needs it", [["Text", ["Muse Spark 1.3: long calls, fallback"], "DCE6F5"], ["Voice", ["Muse Voice Transcribe"], "DCE6F5"], ["Vision", ["Muse Image", "Muse Wonder", "SAM 3.1"], "DCE6F5"]]);
+  // the length scale
+  s.addText("Which model answers a text call, by its length in tokens", { isTextBox: true, x: M, y: 5.2, w: 8, h: 0.35, fontSize: 13, bold: true, color: HEX.ink, margin: 0 });
+  [[0, 1.6, "≤ 700, checked site: our 1B", HEX.green, "FFFFFF"], [1.6, 7.6, "longer, or any other site: Muse Glimmer (16,384-token context)", HEX.greenBg, HEX.ink], [9.2, W - 2 * M - 9.2, "12,000+: Muse Spark", "DCE6F5", HEX.ink]].forEach(([x0, w0, t, c, ink]) => {
+    s.addShape(pres.shapes.RECTANGLE, { x: M + x0, y: 5.65, w: w0, h: 0.55, fill: { color: c }, line: { color: "FFFFFF", width: 1 } });
+    s.addText(t, { isTextBox: true, x: M + x0 + 0.1, y: 5.65, w: w0 - 0.2, h: 0.55, fontSize: 11, bold: true, color: ink, valign: "middle", margin: 0 });
+  });
+  s.addText("Every short site was tried on the 1B first: 9 end-to-end checks failed, 2 of 6 hostile comments got through and 4 of 10 injected reviews were obeyed, so only five checked sites go to it.", { isTextBox: true, x: M, y: 6.3, w: W - 2 * M, h: 0.45, fontSize: 11.5, color: HEX.muted, margin: 0 });
   note(s, "Open weights run on our own GPU server so players' data stays there; the Meta Model API handles live voice, long calls, images and checks.");
 
   // 17. upgrades since the report
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "Measured since the report: seven more agent upgrades");
-  const ups = [["Send gate", "When not to ask: opt-outs 37.7% → 26.2%, games from asks 3.97 → 4.39 (simulated)"], ["Preference records", "Newest word wins: stale-preference decisions 95% → 17% once the player says it (simulated)"], ["Tool-call checks", "Silent failures passed as success 53 of 53 → 0 of 56 (fault injection)"], ["Courts judged ahead", "Wait after moving the time 49.0 s → 25.7 s, at twice the judgings (RTX 3090)"], ["Harder simulated users", "With 25% difficult people pass^1 0.69 → 0.38; six flow bugs found and being fixed"], ["Order of the options", "Glimmer changed 40% of answers in a new order, against 26.5% asked again in the same order; kept as is"], ["Stretch round", "Games found +0.3 (singles) and +1.3 points (doubles): small, reported as such"]];
+  const ups = [["Send gate", "When not to ask: opt-outs 37.7% → 26.2%, games from asks 3.97 → 4.39 (simulated)"], ["Preference records", "Newest word wins: stale-preference decisions 95% → 17% once the player says it (simulated)"], ["Tool-call checks", "Silent failures passed as success 53 of 53 → 0 of 56 (fault injection)"], ["Courts judged ahead", "Wait after moving the time 49.0 s → 25.7 s, at twice the judgings (RTX 3090)"], ["Harder simulated users", "With 25% difficult people pass^1 0.69 → 0.38; six flow bugs found, then fixed"], ["Order of the options", "Glimmer changed 40% of answers in a new order, against 26.5% asked again in the same order; kept as is"], ["Stretch round", "Games found +0.3 (singles) and +1.3 points (doubles): small, reported as such"]];
   // before and after, each on its own scale: [label, before, after, how to write a value]
   const pairs = [["opt-outs", 37.7, 26.2, (v) => `${v}%`], ["stale decisions", 95, 17, (v) => `${v}%`], ["silent failures passed", 100, 0, (v) => `${v}%`], ["wait", 49.0, 25.7, (v) => `${v.toFixed(1)} s`], ["pass^1", 0.69, 0.38, (v) => v.toFixed(2)], ["answers changed", 26.5, 40, (v) => `${v}%`], ["doubles games", 84.1, 85.4, (v) => `${v}%`]];
   ups.forEach(([h, d], i) => {
@@ -405,6 +491,35 @@ async function img(file, width = 1800) {
   text(s, "Each from a 2024–2026 paper, built and measured against what ran before; most numbers are simulated and say so (README, submission/results/).", { x: M + 6.15, y: 5.4, w: 5.95, h: 1.0, fontSize: 13, color: HEX.muted });
   note(s, "After the report: send gate (Oralytics, EOPA), preference records (PersonaMem, Mem0), tool checks (JSONSchemaBench, ToolMaze), judging ahead (Speculative Actions), pass^k (tau-bench, Sim2Real), order (Magentic Marketplace), stretch round (CalBench).");
 
+  // 17b. the tiny layer
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "A 27.6 KB classifier in front of the 1B, on by default");
+  multi(s, pres.charts.BAR, [
+    { name: "Ordinary choices (500)", labels: ["Tiny layer (27.6 KB)", "Our 1B (0.8 GB)", "Glimmer vs itself", "First listed time"], values: [88.5, 89.5, 88.8, 82.7] },
+    { name: "Hardest choices (196)", labels: ["Tiny layer (27.6 KB)", "Our 1B (0.8 GB)", "Glimmer vs itself", "First listed time"], values: [69.4, 63.3, 73.5, 58.2] },
+  ], { x: M, y: 1.4, w: 7.6, h: 4.6, colors: [HEX.soft, HEX.green], values: true, fmt: "0.0", title: "Agreement with Glimmer over all held-out cases (%)", min: 0, max: 100 });
+  stat(s, M + 8.0, 1.4, W - 2 * M - 8.0, "0.06 ms", "a choice on one CPU thread, in plain JS (the 1B: about 0.9 s)");
+  stat(s, M + 8.0, 3.2, W - 2 * M - 8.0, "59.8% / 4.3%", "of ordinary choices it answers itself / disagreement among them");
+  card(s, M + 8.0, 5.0, W - 2 * M - 8.0, 1.7, HEX.greenBg);
+  text(s, "Four small MLPs over facts code holds per option (weekday, hour, trip, distance from the asked time, the member's habits and rules), and a doubt model that sends anything it doubts to the 1B and Glimmer. Measured offline; the post prefilter (87 KB) stays off: it passed 0 of 762 hostile comments but only 11% of ordinary ones.", { x: M + 8.2, y: 5.1, w: W - 2 * M - 8.4, h: 1.55, fontSize: 11 });
+  text(s, "Trained on the student's 4,868 Glimmer choices; on the hardest choices it agrees with Glimmer more often than our 1B.", { x: M, y: 6.15, w: 7.6, h: 0.55, fontSize: 12, color: HEX.muted });
+  note(s, "From submission/results/tiny.json. It saves 299 of 500 student calls on ordinary choices but only a few Glimmer calls, since the student already answers what it is sure of; overall agreement rises from 89.9% to 90.3%.");
+
+  // 17c. six flow bugs the difficult users found, fixed
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Six flow bugs found by difficult simulated people, fixed");
+  multi(s, pres.charts.BAR, [
+    { name: "Before the fixes", labels: ["False “booked”", "Asker left waiting", "Searches that looped", "Asked again after a no"], values: [12, 19, 16, 19] },
+    { name: "After", labels: ["False “booked”", "Asker left waiting", "Searches that looped", "Asked again after a no"], values: [0, 0, 0, 0] },
+  ], { x: M, y: 1.4, w: 7.4, h: 4.2, colors: [HEX.red, HEX.green], values: true, fmt: "0", title: "Failures in 160 code-only runs, difficult club", max: 22 });
+  multi(s, pres.charts.BAR, [
+    { name: "Cooperative club", labels: ["pass^1", "pass^4"], values: [0.69, 0.50] },
+    { name: "Difficult club, before", labels: ["pass^1", "pass^4"], values: [0.38, 0.25] },
+    { name: "Difficult club, after", labels: ["pass^1", "pass^4"], values: [0.47, 0.38] },
+  ], { x: M + 7.7, y: 1.4, w: W - 2 * M - 7.7, h: 4.2, colors: [HEX.soft, HEX.red, HEX.green], values: true, fmt: "0.00", title: "With Muse Glimmer (8 requests × 4)", max: 0.8 });
+  text(s, [{ text: "25% difficult people ", options: { bold: true } }, { text: "(the flipper, the ghost, the budget person, the drifter, the vague one); pass^k counts a request only if every one of k runs succeeds (τ-bench). Now: a back-out by message is confirmed and acted on, an ask lapses with its hold, a vague reply is asked once more with buttons, a stated day off is kept, the search leaves out everyone who said no, and everyone asked is told. The pass^k gains are small and their intervals still include no change." }], { x: M, y: 5.75, w: W - 2 * M, h: 1.0, fontSize: 12 });
+  note(s, "From submission/results/sim_users_hard.json. The after runs are on main, which also has the other upgrades merged since the before runs.");
+
   // 18. not done yet
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "What is not done yet");
@@ -415,6 +530,17 @@ async function img(file, width = 1800) {
     s.addText([{ text: h, options: { bold: true, breakLine: true, fontSize: 16 } }, { text: d, options: { fontSize: 14, color: HEX.muted } }], { isTextBox: true, x: M + 0.7, y, w: W - 2 * M - 0.7, h: 0.92, valign: "top", margin: 0, color: HEX.ink });
   });
   note(s, "Said plainly: this is a nine-day build, validated mostly by agents and simulation.");
+
+  // 18b. references and sources
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "References, and where every number comes from");
+  const REFS = ["NPR, RWJF and Harvard Chan: Sports and Health in America, 2015", "Sport New Zealand: Active NZ survey, 2023", "Agent2Agent (A2A) Protocol v1.0, Linux Foundation", "Smith: The Contract Net Protocol, 1980", "Yokoo et al.: Distributed Constraint Satisfaction, 1998", "Gray and Cheriton: Leases, SOSP 1989", "Havender: Avoiding Deadlock, 1968", "RFC 7515 JSON Web Signature; RFC 8785 JSON Canonicalization", "Lalley and Weyl: Quadratic Voting, 2018", "LlamaFirewall, arXiv 2505.03574", "Darwin Gödel Machine, arXiv 2505.22954", "AlphaEvolve, arXiv 2506.13131", "Clio, arXiv 2412.13678", "CaMeL, arXiv 2503.18813", "MapAnything, 3DV 2026", "SAM 2, 2024", "RT-DETR, CVPR 2024", "FrugalGPT, arXiv 2305.05176", "TypeSafe: Jev decision models, 2026", "Meta: Agents Rule of Two, 2025", "Ramdas et al.: Safe Anytime-Valid Inference, 2023", "DEER: Dynamic Early Exit, arXiv 2504.15895", "Pep, arXiv 2602.15012", "VPL, NeurIPS 2024", "Consensus vs. Dissent, RecSys 2026", "τ-bench, arXiv 2406.12045; Sim2Real gap, arXiv 2603.11245"];
+  [REFS.slice(0, 13), REFS.slice(13)].forEach((col, c) => {
+    s.addText(col.map((r, i) => ({ text: `${c * 13 + i + 1}. ${r}`, options: { breakLine: i < col.length - 1 } })), { isTextBox: true, x: M + c * 4.25, y: 1.35, w: 4.05, h: 5.4, fontSize: 10.5, color: HEX.ink, margin: 0, valign: "top", paraSpaceAfter: 3 });
+  });
+  card(s, M + 8.6, 1.35, W - 2 * M - 8.6, 5.35, HEX.greenBg);
+  text(s, [{ text: "Where the numbers come from", options: { bold: true, fontSize: 14, color: HEX.green, breakLine: true } }, { text: "Each number is from a result file in submission/results/ or from docs/ in the repository: the student in docs/decision_model.md, the agent testing in submission/agent_testing.md.", options: { breakLine: true } }, { text: "Real and simulated: the badminton club is real people; the demo club, the evaluation clubs and the testers' members are simulated, and the testers were AI models.", options: { breakLine: true } }, { text: "Built during the hackathon, from October 27; an AI coding agent wrote code to our instructions, credited in the commits." }], { x: M + 8.8, y: 1.5, w: W - 2 * M - 9.0, h: 5.1, fontSize: 11.5, paraSpaceAfter: 8 });
+  note(s, "Code: github.com/gino6178/serve-meta-hackathon, with the full evaluation in README.md and docs/.");
 
   // 19. close
   s = pres.addSlide({ masterName: "DARK" });
