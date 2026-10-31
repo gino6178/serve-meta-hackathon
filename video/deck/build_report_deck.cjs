@@ -397,6 +397,45 @@ async function img(file, width = 1800) {
   text(s, "404 of 500 cases sit above 0.9, where it is close (98.5% against 94.4%); in the middle bins it is off by up to 10 points. The routing threshold uses conformal risk control.", { x: M + 8.2, y: 5.25, w: W - 2 * M - 8.4, h: 1.3, fontSize: 12.5 });
   note(s, "From submission/results/student_calibration.json, bf16 predictions; the served int4 picks the same option on 492 of 500 test cases.");
 
+  // 13f. every distillation technique we tried, what it did, and its reference
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Distillation techniques we tried, and what each did");
+  const ST = { used: [HEX.green, "used"], tried: [HEX.amber, "tried, not kept"], no: [HEX.soft, "not run"], meas: [HEX.blue, "measured"] };
+  const techCol = (x, w, head, rows) => {
+    s.addText(head, { isTextBox: true, x, y: 1.3, w, h: 0.4, fontSize: 15, bold: true, color: HEX.ink, margin: 0 });
+    rows.forEach(([name, ref, st, d], i) => {
+      const y = 1.75 + i * 0.48, [c, lab] = ST[st];
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h: 0.44, fill: { color: i % 2 ? "FFFFFF" : HEX.card }, line: { color: i % 2 ? "FFFFFF" : HEX.card }, rectRadius: 0.05 });
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x + 0.08, y: y + 0.09, w: 1.05, h: 0.26, fill: { color: c }, line: { color: c }, rectRadius: 0.13 });
+      s.addText(lab, { isTextBox: true, x: x + 0.08, y: y + 0.09, w: 1.05, h: 0.26, fontSize: 8, bold: true, color: "FFFFFF", align: "center", valign: "middle", margin: 0 });
+      s.addText([{ text: `${name} `, options: { bold: true } }, { text: `[${ref}] `, options: { color: HEX.blue } }, { text: d, options: { color: HEX.muted } }], { isTextBox: true, x: x + 1.22, y, w: w - 1.3, h: 0.44, fontSize: 9.5, color: HEX.ink, margin: 0, valign: "middle" });
+    });
+  };
+  techCol(M, 6.0, "The decision 1B (choosing a time)", [
+    ["LoRA SFT on Glimmer's choices", "28", "used", "rank 16, 4,868 cases, 20 min on one A100"],
+    ["One-pass scoring of declared options", "20", "used", "softmax over the valid letters; no text written"],
+    ["More teacher answers per case", "27", "used", "hardest vs Glimmer's majority 71.5% → 73.0% (near run-to-run noise)"],
+    ["Order augmentation", "–", "meas", "flips when reversed 15.6% → 1.6%, for 1.5 points of agreement"],
+    ["Soft labels, KL at T = 2", "27", "tried", "agreement and calibration both worse"],
+    ["The decider's letters as soft labels", "27", "tried", "99.5% of its picks were the first time listed"],
+    ["Rationale as an auxiliary loss", "30", "no", "cut off when the VM was preempted"],
+    ["Temperature scaling", "31", "meas", "T 1.35–1.5 on val; test ECE 0.044 → 0.017 (A2A_STUDENT_TEMP)"],
+    ["Conformal risk control", "32", "meas", "0.79 at 5% risk; the served 0.6 is a trade for more answers"],
+    ["int4 with an importance matrix", "34, 33", "meas", "no significant change against bf16 (McNemar p ≥ 0.34)"],
+  ]);
+  techCol(M + 6.25, W - 2 * M - 6.25, "The text 1B, and the tiny layer", [
+    ["SFT on Glimmer's answers + attacked copies", "28", "used", "hostile comments passed 65/71 → 8/71 (Glimmer 0)"],
+    ["Outside text in its own input message", "35", "used", "on the 1B route only; Glimmer's prompts unchanged"],
+    ["Soft labels on the verdict", "27", "meas", "Glimmer is almost always certain: little to learn"],
+    ["SecAlign++ preference training", "36, 37", "tried", "injected passes 5 → 2 of 71, but 8 of 32 ordinary blocked"],
+    ["int4 with an importance matrix", "34", "tried", "no consistent gain over plain Q4_K_M"],
+    ["Tiny MLPs on facts code holds", "–", "used", "27.6 KB; hardest 69.4% (the 1B 63.3%)"],
+    ["A doubt model + conformal threshold", "32", "used", "answers 59.8% of ordinary choices at 4.3% disagreement"],
+    ["Hashed n-grams, int8 logistic regression", "38", "tried", "post prefilter 87 KB: safe, but passes only 11%"],
+  ]);
+  s.addText("[n] = references on the last slides. Text 1B and tiny layer: submission/results/text1b.json and tiny.json; the decision 1B: its round-4 run (bf16).", { isTextBox: true, x: M, y: 6.6, w: W - 2 * M, h: 0.3, fontSize: 10, color: HEX.muted, margin: 0 });
+  note(s, "The decision 1B's round 4 was measured in bf16 before the VM was preempted; the chosen variant is the one with more teacher answers per case. Rationale and active selection were not run.");
+
   // 14. what surprised us
   s = pres.addSlide({ masterName: "CONTENT" });
   title(s, "What surprised us, running Meta's models in a product");
@@ -533,14 +572,52 @@ async function img(file, width = 1800) {
 
   // 18b. references and sources
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "References, and where every number comes from");
-  const REFS = ["NPR, RWJF and Harvard Chan: Sports and Health in America, 2015", "Sport New Zealand: Active NZ survey, 2023", "Agent2Agent (A2A) Protocol v1.0, Linux Foundation", "Smith: The Contract Net Protocol, 1980", "Yokoo et al.: Distributed Constraint Satisfaction, 1998", "Gray and Cheriton: Leases, SOSP 1989", "Havender: Avoiding Deadlock, 1968", "RFC 7515 JSON Web Signature; RFC 8785 JSON Canonicalization", "Lalley and Weyl: Quadratic Voting, 2018", "LlamaFirewall, arXiv 2505.03574", "Darwin Gödel Machine, arXiv 2505.22954", "AlphaEvolve, arXiv 2506.13131", "Clio, arXiv 2412.13678", "CaMeL, arXiv 2503.18813", "MapAnything, 3DV 2026", "SAM 2, 2024", "RT-DETR, CVPR 2024", "FrugalGPT, arXiv 2305.05176", "TypeSafe: Jev decision models, 2026", "Meta: Agents Rule of Two, 2025", "Ramdas et al.: Safe Anytime-Valid Inference, 2023", "DEER: Dynamic Early Exit, arXiv 2504.15895", "Pep, arXiv 2602.15012", "VPL, NeurIPS 2024", "Consensus vs. Dissent, RecSys 2026", "τ-bench, arXiv 2406.12045; Sim2Real gap, arXiv 2603.11245"];
+  title(s, "References 1 to 26, and where every number comes from");
+  const REFS = ["NPR, RWJF and Harvard Chan: Sports and Health in America, 2015", "Sport New Zealand: Active NZ survey, 2023", "Agent2Agent (A2A) Protocol v1.0, Linux Foundation", "Smith: The Contract Net Protocol, 1980", "Yokoo et al.: Distributed Constraint Satisfaction, 1998", "Gray and Cheriton: Leases, SOSP 1989", "Havender: Avoiding Deadlock, 1968", "RFC 7515, JSON Web Signature", "RFC 8785, JSON Canonicalization Scheme", "Lalley and Weyl: Quadratic Voting, 2018", "LlamaFirewall, arXiv 2505.03574", "Darwin Gödel Machine, arXiv 2505.22954", "AlphaEvolve, arXiv 2506.13131", "Clio, arXiv 2412.13678", "CaMeL, arXiv 2503.18813", "MapAnything, 3DV 2026", "SAM 2, 2024", "RT-DETR, CVPR 2024", "FrugalGPT, arXiv 2305.05176", "TypeSafe: Jev decision models, 2026", "Meta: Agents Rule of Two, 2025", "Ramdas et al.: Safe Anytime-Valid Inference, 2023", "DEER: Dynamic Early Exit, arXiv 2504.15895", "Pep, arXiv 2602.15012", "VPL, NeurIPS 2024", "Consensus vs. Dissent, RecSys 2026"];
   [REFS.slice(0, 13), REFS.slice(13)].forEach((col, c) => {
     s.addText(col.map((r, i) => ({ text: `${c * 13 + i + 1}. ${r}`, options: { breakLine: i < col.length - 1 } })), { isTextBox: true, x: M + c * 4.25, y: 1.35, w: 4.05, h: 5.4, fontSize: 10.5, color: HEX.ink, margin: 0, valign: "top", paraSpaceAfter: 3 });
   });
   card(s, M + 8.6, 1.35, W - 2 * M - 8.6, 5.35, HEX.greenBg);
   text(s, [{ text: "Where the numbers come from", options: { bold: true, fontSize: 14, color: HEX.green, breakLine: true } }, { text: "Each number is from a result file in submission/results/ or from docs/ in the repository: the student in docs/decision_model.md, the agent testing in submission/agent_testing.md.", options: { breakLine: true } }, { text: "Real and simulated: the badminton club is real people; the demo club, the evaluation clubs and the testers' members are simulated, and the testers were AI models.", options: { breakLine: true } }, { text: "Built during the hackathon, from October 27; an AI coding agent wrote code to our instructions, credited in the commits." }], { x: M + 8.8, y: 1.5, w: W - 2 * M - 9.0, h: 5.1, fontSize: 11.5, paraSpaceAfter: 8 });
   note(s, "Code: github.com/gino6178/serve-meta-hackathon, with the full evaluation in README.md and docs/.");
+
+  // 18c. the algorithm behind each part
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "The algorithm behind each part, with its reference");
+  const algos = [
+    ["Negotiation", "Contract Net with a one-shot intersection; distributed constraint satisfaction", "4, 5"],
+    ["Holds", "leases with resource ordering (no deadlock)", "6, 7"],
+    ["Signed cards and consent", "JWS over canonical JSON, Ed25519; a hash chain", "8, 9"],
+    ["Asking one question", "value of information over Beta posteriors; shared structure across people", "24, 25"],
+    ["Ranking times", "product of chances with a least-misery floor", "26"],
+    ["Decision tiers", "a cascade of models, cheapest first", "19"],
+    ["Early exit", "dynamic early exit from reasoning", "23"],
+    ["Rollback", "an anytime-valid e-process test", "22"],
+    ["Votes", "quadratic voting", "10"],
+    ["When to send", "Thompson sampling with a burden cost", "39, 40"],
+    ["Preference memory", "typed records, the newest wins", "41, 42"],
+    ["Tool calls", "schema, then typed semantic checks and bounded repair", "43, 44"],
+    ["Courts judged ahead", "speculative actions", "45"],
+    ["Harder testing", "pass^k with difficult simulated people", "46, 47"],
+    ["Order of options", "the first-proposal bias, measured", "48"],
+    ["Second round", "graded costs instead of yes or no", "49"],
+  ];
+  algos.forEach(([part, how, ref], i) => {
+    const col = i < 8 ? 0 : 1, row = i % 8, x = M + col * 6.15, y = 1.35 + row * 0.66;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: 5.95, h: 0.56, fill: { color: row % 2 ? "FFFFFF" : HEX.card }, line: { color: row % 2 ? "FFFFFF" : HEX.card }, rectRadius: 0.05 });
+    s.addText(part, { isTextBox: true, x: x + 0.15, y, w: 1.9, h: 0.56, fontSize: 12, bold: true, color: HEX.green, valign: "middle", margin: 0 });
+    s.addText([{ text: how + " " }, { text: `[${ref}]`, options: { color: HEX.blue, bold: true } }], { isTextBox: true, x: x + 2.1, y, w: 3.75, h: 0.56, fontSize: 11, color: HEX.ink, valign: "middle", margin: 0 });
+  });
+  note(s, "Each part of Serve and the published algorithm it follows; the numbers in brackets are the references on the last slides.");
+
+  // 18d. algorithm references, continued
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "References 27 to 49: the algorithms we used");
+  const REFS2 = ["Hinton, Vinyals and Dean: Distilling the Knowledge in a Neural Network, arXiv 1503.02531, 2015", "Hu et al.: LoRA: Low-Rank Adaptation of Large Language Models, ICLR 2022", "Agarwal et al.: On-Policy Distillation of Language Models (GKD), ICLR 2024", "Hsieh et al.: Distilling Step-by-Step, Findings of ACL 2023", "Guo et al.: On Calibration of Modern Neural Networks, ICML 2017", "Angelopoulos et al.: Conformal Risk Control, arXiv 2208.02814", "McNemar: the sampling error of the difference between correlated proportions, Psychometrika 1947", "llama.cpp: quantization with an importance matrix (imatrix), ggml-org", "Chen et al.: StruQ: Defending Against Prompt Injection with Structured Queries, arXiv 2402.06363", "Chen et al.: SecAlign: Defending Against Prompt Injection with Preference Optimization, arXiv 2410.05451", "Rafailov et al.: Direct Preference Optimization, NeurIPS 2023", "Weinberger et al.: Feature Hashing for Large Scale Multitask Learning, ICML 2009", "Thompson: On the likelihood that one unknown probability exceeds another, Biometrika 1933", "Kim et al.: ProPerSim, proactive and personalized assistants, arXiv 2509.21730", "Mem0: scalable long-term memory for agents, arXiv 2504.19413", "PersonaMem: dynamic user preferences, arXiv 2504.14225", "JSONSchemaBench, arXiv 2501.10868", "ReliabilityBench, arXiv 2601.06112", "Speculative Actions, arXiv 2510.04371", "τ-bench: pass^k for tool agents, arXiv 2406.12045", "Sim2Real gap of simulated users, arXiv 2603.11245", "Magentic Marketplace, arXiv 2510.25779", "CalBench, arXiv 2605.09823"];
+  [REFS2.slice(0, 12), REFS2.slice(12)].forEach((col, c) => {
+    s.addText(col.map((r, i) => ({ text: `${27 + c * 12 + i}. ${r}`, options: { breakLine: i < col.length - 1 } })), { isTextBox: true, x: M + c * 6.15, y: 1.35, w: 5.95, h: 5.4, fontSize: 11, color: HEX.ink, margin: 0, valign: "top", paraSpaceAfter: 5 });
+  });
+  note(s, "References 1 to 26 are on the previous references slide (the report's own list); 27 on are the algorithms behind the distillation, the tiny layer and the agent upgrades.");
 
   // 19. close
   s = pres.addSlide({ masterName: "DARK" });
