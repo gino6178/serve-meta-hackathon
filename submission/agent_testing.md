@@ -1,11 +1,11 @@
 # Testing Serve with AI agents
 
-Between October 29 and October 30, 2026 we ran 25 rounds of testing in which AI agents used Serve the way its users
+Between October 29 and October 31, 2026 we ran 28 rounds of testing in which AI agents used Serve the way its users
 would: as a person's own agent arriving with nothing but the address, as a member's agent hosting and answering
 games, and as a person clicking through the website on a phone or a laptop. After every round we fixed what they
 found, ran the unit tests, checked the pages in a browser, deployed, and started the next round with new testers.
 
-**153 AI testers, one report each. 16,713 requests logged. The last round came back clean on every core flow.**
+**177 AI testers, one report each. 17,432 requests logged.** Round 25 came back clean on every core flow; rounds 26 to 28 were harder (the live site, then a local copy with the server's own models) and found new faults, all fixed.
 
 Every report and every round's request log is in this folder: `trial/` (round 1), `agent_trial/` (round 2) and
 `agent_trialN/` (round N+1). The judging rules a tester followed are in `agent_trial20/verdict_rules.txt`.
@@ -63,10 +63,31 @@ a clear rule.
 | 23 | agent_trial22 | 6 | 3 of 6 | 3 | 848 |
 | 24 | agent_trial23 | 6 | 4 of 6 | 4 | 855 |
 | 25 | agent_trial24 | 6 | **6 of 6** | **0** | 787 |
+| 26 | agent_trial25 | 6 | 2 of 6 | 8 (and 1 blocker) | 307 |
+| 27 (live site) | agent_trial26_live | 4 | 1 of 4 | 9 (and 1 blocker) | not logged |
+| 28 (live, read-only and first try) | agent_trial28/live | 4 | 1 of 4 | 3 (and 2 blockers) | not logged |
+| 28 (copy with the real models, run 1) | agent_trial28/copy_run1 | 3 | 1 of 3 | 4 (and 2 blockers) | 161 |
+| 28 (run 2) | agent_trial28/copy_run2 | 3 | 2 of 3 | 2 | not kept |
+| 28 (run 3) | agent_trial28/copy_run3 | 4 | 1 of 4 | 7 | 251 |
 
 Rounds 1 to 5 used free-form reports, before the verdict line. "Bugs reported" is what the testers counted; a few
 turned out to be the test setup (a member name the seed didn't have, browser tabs left open by earlier rounds, two
 test courts with the same name) and are not bugs in Serve. Rounds 21 to 25 count core-flow bugs only.
+
+**Rounds 26 to 28.** Round 26 ran six Haiku testers on a local copy as before. Round 27 went to the live site with the
+owner's approval: test accounts named "Test … (round 27)", everything inside one private test club, no nearby options,
+and each tester removed what it made. Its organiser could not start: Llama Guard 3 refused the club name "Serve test
+round 27" as violence, so the other two never joined. In round 28 a tester declined to create accounts on the live
+site, and write tests moved to a local copy that runs the same code behind the same proxy and calls the server's own
+Muse Glimmer, Llama Guard 3 and Prompt Guard 2 (the earlier copies had no language model). Blockers in round 28 were
+mostly the testers' own polling scripts and the copy's first set-up (Prompt Guard took longer than its timeout to
+load on Windows); the faults in Serve were real: the club name (S1, after S9), a person who asked to join a private
+club never told the answer, a game in one's own club hidden by the sport filter, the host not told who joined, a host
+leaving Serve without their players hearing the game was off, an agent's read of the feed taking its person's notices,
+a club passed on without telling the new organiser, a revoked key answered as unknown, and a share link for a private
+club's game that strangers could not open. After the fixes, 12 of 12 checks over HTTP pass on the copy
+(`agent_trial28/copy_run3/e2e_after_fixes.py`). "Not logged" means the live site, which keeps no request log of this
+kind; run 2's log was lost when the file was moved while the gateway held it.
 
 ## What the testers found, by kind
 

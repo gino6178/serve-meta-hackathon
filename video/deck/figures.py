@@ -81,18 +81,23 @@ def fig_pain():
 
 # 2. agent testing, round by round
 def fig_rounds():
-    r = np.arange(6, 26)
-    bugs = [5, 9, 10, 10, 13, 6, 19, 16, 11, 8, 9, 7, 10, 9, 9, 2, 2, 3, 4, 0]
-    clean = [2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 4, 4, 3, 4, 6]
+    # rounds 26 to 28 were harder (26: a new copy; 27: the live site; 28: a copy with the server's own models, its runs
+    # summed), and had 6, 4 and 14 reports, so panel (b) is a share
+    r = np.arange(6, 29)
+    bugs = [5, 9, 10, 10, 13, 6, 19, 16, 11, 8, 9, 7, 10, 9, 9, 2, 2, 3, 4, 0, 8, 9, 16]
+    clean = [2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 4, 4, 3, 4, 6, 2, 1, 5]
+    n = [6] * 20 + [6, 4, 14]
+    share = [c / k for c, k in zip(clean, n)]
     fig, (a, b) = plt.subplots(2, 1, figsize=(W, H + 0.6), sharex=True, gridspec_kw={"hspace": 0.35})
-    for ax in (a, b): ax.axvspan(20.5, 25.5, color="#EEF5F0", zorder=0)
+    for ax in (a, b): ax.axvspan(20.5, 25.5, color="#EEF5F0", zorder=0); ax.axvspan(25.5, 28.5, color="#FBEFE6", zorder=0)
     a.bar(r, bugs, color=[RED if x < 21 else "#E79A93" for x in r], width=0.7, zorder=2)
     a.set_ylabel("Bugs reported"); a.set_ylim(0, 22); a.set_title("Bugs reported per round"); panel(a, "a")
     a.text(23, 18, "core flows only\n(from round 21)", ha="center", fontsize=11, color=GREEN)
-    b.plot(r, clean, "-o", color=GREEN, lw=2, ms=6, zorder=3)
-    b.set_ylim(0, 7.2); b.set_yticks(range(0, 7)); b.set_ylabel("Clean reports (of 6)"); b.set_xlabel("Testing round")
+    a.text(27, 18, "harder:\nreal models", ha="center", fontsize=11, color=AMBER)
+    b.plot(r, share, "-o", color=GREEN, lw=2, ms=6, zorder=3)
+    b.set_ylim(0, 1.1); b.set_yticks([0, 0.25, 0.5, 0.75, 1], ["0", "25%", "50%", "75%", "100%"]); b.set_ylabel("Clean reports"); b.set_xlabel("Testing round")
     b.set_title("Testers whose report came back clean"); panel(b, "b"); b.set_xticks(r)
-    b.text(24.4, 6.55, "6 of 6 in round 25", ha="right", va="center", fontsize=12, color=GREEN)
+    b.text(24.6, 1.03, "6 of 6 in round 25", ha="right", va="center", fontsize=12, color=GREEN)
     save(fig, "rounds", aligned=True)
 
 

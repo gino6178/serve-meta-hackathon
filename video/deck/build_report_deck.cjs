@@ -162,7 +162,7 @@ async function img(file, width = 1800) {
 
   // 4. validated by agents
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Validated by 153 AI agents in 25 rounds: how a round worked");
+  title(s, "Validated by 177 AI agents in 28 rounds: how a round worked");
   // the loop
   const loopSteps = [["Fresh local copy", "same code as the live site; 12 neighbours, 3 clubs, 3 open games"], ["Six new testers", "each a fresh model with only a persona and the address"], ["One verdict line", "CLEAN, or n BLOCKER, m BUG; every request logged"], ["Fix what they found", "then unit tests, a browser check, deploy"]];
   loopSteps.forEach(([h, d], i) => {
@@ -181,12 +181,12 @@ async function img(file, width = 1800) {
     s.addText(d, { isTextBox: true, x: x + 0.25, y: y + 0.85, w: 3.4, h: 0.85, fontSize: 12, color: HEX.muted, valign: "top", margin: 0 });
   });
   text(s, "From round 21 a bug meant a problem in a core flow: getting a game, yes or no, joining and leaving, calling off, limits and permission, privacy, trust records. The testers were AI models, not people.", { x: M, y: 6.05, w: W - 2 * M, h: 0.7, fontSize: 12, color: HEX.muted });
-  note(s, "Between October 29 and 30, 25 rounds. After every round we fixed what they found, ran the unit tests, checked the pages in a browser, deployed, and started the next round with new testers.");
+  note(s, "Between October 29 and 31, 28 rounds. After every round we fixed what they found, ran the unit tests, checked the pages in a browser, deployed, and started the next round with new testers. Round 27 ran on the live site with test accounts in a private club; round 28 on a local copy that calls the server's own models.");
 
   // 4b. the rounds, in numbers
   s = pres.addSlide({ masterName: "CONTENT" });
-  title(s, "Round by round: bugs fell to zero, clean reports rose to 6 of 6");
-  figure(s, "rounds", "(a) Bugs reported per round by six fresh AI testers; from round 21 only core-flow bugs count (shaded). (b) Testers whose report came back clean. 153 testers in 25 rounds, 16,713 requests logged.");
+  title(s, "Zero bugs by round 25; the harder rounds found more");
+  figure(s, "rounds", "(a) Bugs reported per round by fresh AI testers; from round 21 only core-flow bugs count (green). Rounds 26 to 28 (orange): a new copy, the live site, then a copy with the server's own models (round 28's four runs summed). (b) Share of reports that came back clean (6, 4 and 14 reports in rounds 26 to 28). 177 testers in 28 rounds, 17,432 requests logged.");
   note(s, "Rounds 1 to 5 used free-form reports before the verdict line; a few reported bugs were the test setup, not Serve.");
 
   // 4c. every session, every request
@@ -204,6 +204,16 @@ async function img(file, width = 1800) {
     s.addText([{ text: h, options: { bold: true, fontSize: 16, color: HEX.ink, breakLine: true } }, { text: "Found: ", options: { bold: true, fontSize: 12, color: HEX.red } }, { text: a, options: { fontSize: 12, breakLine: true } }, { text: "Now: ", options: { bold: true, fontSize: 12, color: HEX.green } }, { text: b, options: { fontSize: 12 } }], { isTextBox: true, x: x + 0.25, y: y + 0.2, w: 3.35, h: 2.1, valign: "top", margin: 0, color: HEX.ink, paraSpaceAfter: 6 });
   });
   note(s, "Grouped by kind from the 25 rounds' reports (submission/agent_testing.md).");
+
+  // 4e. the harder rounds: the live site, then the real models
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Rounds 26 to 28: the live site, then a copy with the real models");
+  [["Round 27, live site", "Test accounts in one private club, removed afterwards. Llama Guard 3 refused the club name “Serve test round 27” as violence.", "S9 counts only with a weapon word; S1 alone, with no word of harm, goes to the club's standard. Feed red team 13 of 13."], ["Round 28, a real-model copy", "A tester declined to create accounts on the live site.", "Write tests run on a copy with the same code and proxy, calling the server's Glimmer, Llama Guard 3 and Prompt Guard 2; the live site gets read-only checks."], ["Joining a private club", "Whoever asked was never told the answer; a club's game was hidden from a member by the sport filter.", "The answer is a notice; a game in one's own club always shows."], ["A host who leaves Serve", "Their game vanished: the players and the waitlist heard nothing; the club passed on in silence.", "Everyone in it is told the game is off; the next organiser is told."], ["The person's notices", "An agent reading the feed took its person's notices away.", "The agent sees them and leaves them for the person."], ["Checked over HTTP", "Each fix had a unit test, but the flows had only been run by the testers.", "The same flows as one script on the copy: 12 of 12 checks pass."]].forEach(([h, a, b], i) => {
+    const x = M + (i % 3) * 4.1, y = 1.4 + Math.floor(i / 3) * 2.65;
+    card(s, x, y, 3.85, 2.45);
+    s.addText([{ text: h, options: { bold: true, fontSize: 16, color: HEX.ink, breakLine: true } }, { text: "Found: ", options: { bold: true, fontSize: 12, color: HEX.red } }, { text: a, options: { fontSize: 12, breakLine: true } }, { text: "Now: ", options: { bold: true, fontSize: 12, color: HEX.green } }, { text: b, options: { fontSize: 12 } }], { isTextBox: true, x: x + 0.25, y: y + 0.2, w: 3.35, h: 2.1, valign: "top", margin: 0, color: HEX.ink, paraSpaceAfter: 6 });
+  });
+  note(s, "From the reports in submission/agent_trial25, agent_trial26_live and agent_trial28 (submission/agent_testing.md). The testers were AI models, not people.");
 
   // 5. the rule, and the architecture
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -460,7 +470,7 @@ async function img(file, width = 1800) {
     s.addShape(pres.shapes.RECTANGLE, { x: M + x0, y: 5.65, w: w0, h: 0.55, fill: { color: c }, line: { color: "FFFFFF", width: 1 } });
     s.addText(t, { isTextBox: true, x: M + x0 + 0.1, y: 5.65, w: w0 - 0.2, h: 0.55, fontSize: 11, bold: true, color: ink, valign: "middle", margin: 0 });
   });
-  s.addText("Every short site was tried on the 1B first: 9 end-to-end checks failed, 2 of 6 hostile comments got through and 4 of 10 injected reviews were obeyed, so only five checked sites go to it.", { isTextBox: true, x: M, y: 6.3, w: W - 2 * M, h: 0.45, fontSize: 11.5, color: HEX.muted, margin: 0 });
+  s.addText("Every short site was tried on the 1B first: 9 end-to-end checks failed, 2 of 6 hostile comments got through and 4 of 10 injected reviews were obeyed, so a second 1B was distilled for short text, and it takes six checked sites.", { isTextBox: true, x: M, y: 6.3, w: W - 2 * M, h: 0.45, fontSize: 11.5, color: HEX.muted, margin: 0 });
   note(s, "Open weights run on our own GPU server so players' data stays there; the Meta Model API handles live voice, long calls, images and checks.");
 
   // 17. upgrades since the report

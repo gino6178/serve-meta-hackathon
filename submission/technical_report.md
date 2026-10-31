@@ -59,12 +59,15 @@ for older adults, and charity round-robins that record pledges but handle no mon
 **Quiet courts:** the group's agent can ask a venue's agent for a quiet-hour price, so venues fill empty hours.
 
 **How it was validated in nine days.** A long trial with real players is not possible in a nine-day build, so Serve
-was also checked by agents. Over 25 rounds, a fresh set of independent AI agents used it each round (six a round, five
-to ten in the first five rounds; 153 in all), each a new model given only a persona and the address, on fresh local
-copies running the same code as the live site (16,713 logged requests). What they found was fixed between rounds, and
-the six agents of the last round found no fault in a core flow. Three more agents were given only the address and a
-request: the best of them was doing useful work by its third request to the API and found its person a Sunday 09:00
-tennis game, free, 2.6 km away.
+was also checked by agents. Over 28 rounds, a fresh set of independent AI agents used it each round (177 reports in
+all), each a new model given only a persona and the address (17,432 logged requests). Rounds 1 to 26 ran on fresh local
+copies running the same code as the live site; round 25 was the first with no fault in a core flow. Round 27 went to
+the live site itself, with test accounts in a private club; round 28 ran the write flows on a local copy that also uses
+the server's own models (Muse Glimmer, Llama Guard 3, Prompt Guard 2), so the safety checks a post goes through are the
+real ones. Those harder rounds found new faults (a club name refused as a threat, a host leaving Serve without telling
+their players, an agent reading its person's notices away), all fixed and checked again over HTTP. Three more agents
+were given only the address and a request: the best of them was doing useful work by its third request to the API and
+found its person a Sunday 09:00 tennis game, free, 2.6 km away.
 
 ## 2. Technical depth
 
@@ -219,6 +222,11 @@ For a highlight, Serve can stop time and move the camera round the player, from 
 Following FrugalGPT [19], decisions pass through layers, each taking only what the one before could not settle:
 - **Layer 0, code (milliseconds):** free times, calendar clashes, trips and every hard rule. The game's card comes from
   this layer: on a local copy it appeared 7 ms after the request at the median (97 ms at most, 9 runs).
+- **A tiny layer first (0.06 ms):** four small networks in plain JavaScript (28 KB), trained on the same 4,868 Glimmer
+  choices over facts code already holds (weekday, hour, trip, distance from the asked time, the member's habits), each
+  with a doubt model that predicts when it would disagree with Glimmer. Over all held-out cases it agrees with Glimmer
+  88.5% (69.4% on the hardest); at its threshold it answers 59.8% of ordinary choices, disagreeing on 4.3% of them, so
+  most choices never reach a model at all.
 - **Layer 1, our own distilled model (about 0.9 s):** the Llama 3.2 1B we trained from Muse Glimmer (2.6) answers when
   it is at least 0.6 sure: 96.0% of ordinary choices and 73.0% of the hardest.
 - **Two cheap reads that agree.** When the student is unsure, the decider (0.53 s) reads Glimmer's choice in one token.
@@ -269,6 +277,14 @@ way, so the student matches Glimmer as closely as Glimmer matches itself, about 
 Its confidence can be trusted: over the 500 held-out cases its expected calibration error is 0.052, and at 0.8 sure it
 answers 89% of them and differs from Glimmer on only 7%.
 
+**A fourth round, served from 31 October.** Trained again on an A100 with one more Glimmer answer for 700 random
+cases, and graded on the hardest cases against the majority of Glimmer's other answers (Glimmer itself reaches 76.7%
+there), the new int4 file is ahead of the one it replaced on both held-out sets: 88.9% against 88.5% on test, and
+69.5% against 67.0% on the hardest, neither difference significant, so it took over at the same threshold. Its int4
+loses about 3.5 points to its own bf16 on the hardest cases (McNemar p = 0.039). Shuffling half the training prompts
+cut the picks that change when the times are listed in reverse from 15.6% to 1.6%, but it was not chosen: Glimmer
+itself picks the first listed time 83% of the time on test, so matching Glimmer partly means copying that habit.
+
 **Why distil, when the one-pass decider takes 0.53 s?** The decider is still Glimmer, so it needs the GPU that every
 agent's reasoning and the video models share, and it keeps a pick only when it is that sure (about 8% of choices). The
 student runs on the CPU, answers 96% of the 500 test cases on its own, and leaves the GPU free for the work only Glimmer
@@ -283,9 +299,11 @@ can do.
   about 0.9 s instead of about 40 s.
 - **Glimmer can decide in one token.** Read with no chat template, Glimmer's next token gives a probability for each
   option, so the one-pass decider gets its choice in 0.53 s with no reasoning at all.
-- **Llama Guard 3 reads sports injuries as medical advice.** Its S6 category flagged 6 to 8 of 15 ordinary injury-care
-  answers. S6 now blocks a text only when code also finds a dose, a medicine to take, or a condition the player is said
-  to have.
+- **Llama Guard 3 reads sports injuries as medical advice, and a club name as a threat.** Its S6 category flagged 6 to
+  8 of 15 ordinary injury-care answers. S6 now blocks a text only when code also finds a dose, a medicine to take, or a
+  condition the player is said to have. On the live site it refused a club named "Serve test round 27" as violence
+  (S9 once, S1 on a later run): S9 now counts only with a weapon word in the text, and S1 alone with no word of harm is
+  left to the club's standard, which Glimmer reads; the feed red team still stops 13 of 13.
 
 ### 2.7 Security, and a failure the agents found
 
@@ -315,10 +333,14 @@ reply that is empty or does not fit its schema is asked again of Glimmer, and to
 1B. We first sent every short call to the 1B, and it did not hold up: it filed training on the wrong day, logged games
 wrongly and could not phrase a wish (9 end-to-end checks failed), let 2 of 6 hostile comments through the post
 standard, and obeyed 4 of 10 court reviews that told it what to say. It was distilled to choose among options, not to
-read and write freely. So the 1B takes short text only at five checked sites (wording a game ask, a court's name in
-English, a memory's beliefs, a paper's summary, a question about the feed), and new sites go to Glimmer by default.
-With that list, the end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer
-alone; in the end-to-end test the 1B served 4 of about 37 model calls.
+read and write freely. So we distilled a second 1B for short text: Glimmer answered 1,039 inputs through the real call
+sites, and the 1B learned them with LoRA, plus 371 copies carrying injected or disguised text that keep Glimmer's answer
+to the clean text, and outside text now arrives in a message of its own. On 446 attacks whose templates it never saw,
+it let 8 of 71 hostile comments through (Glimmer 0, the first 1B 65), and poisoned reviews turned 7 of 180 bad courts
+"good" (Glimmer 5, the first 1B 98). It takes short text at six checked sites (wording a game ask, a court's name in
+English, a memory's beliefs, a paper's summary, a question about the feed, what a member's answer teaches), and new
+sites go to Glimmer by default. With that list, the end-to-end test, the feed red team (13 of 13) and the red team (93
+of 93) pass as with Glimmer alone.
 
 #### The hackathon's models: the Muse family and SAM 3.1
 
@@ -335,7 +357,7 @@ alone; in the end-to-end test the 1B served 4 of about 37 model calls.
 
 | Kind | Model | Runs on | Its job in Serve |
 |---|---|---|---|
-| Our model | Llama 3.2 1B Instruct, distilled by us | Server CPU (int4), and Glimmer's Ollama for short text | Trained from 4,868 of Glimmer's decisions; picks among times as Glimmer would, about 44 times faster (2.6); short text at five checked sites |
+| Our models | Llama 3.2 1B Instruct, distilled by us twice | Server CPU (int4), and Glimmer's Ollama for short text | One trained from Glimmer's decisions picks among times as Glimmer would, about 44 times faster (2.6); one trained from Glimmer's short answers takes short text at six checked sites (section 3) |
 | Safety | Llama Guard 3 1B | Server CPU | Both ways in Messenger and on community wishes; code checks its S6 flag so sports injuries are not read as medical advice |
 | Safety | Prompt Guard 2 (86M) | Server CPU | Untrusted text (Google reviews of courts, community wishes, every post and comment) before a model reads it |
 | Meaning | DRAMA (drama-base) | Server CPU | Memory by meaning (768 dimensions) and a softmax head that catches game requests the regular expressions miss |
@@ -369,7 +391,9 @@ alone; in the end-to-end test the 1B served 4 of about 37 model calls.
   documents in `docs/`: the student in `docs/decision_model.md`, the decider in `docs/decider.md`, A2A and holds in
   `contention_eval.json`, the value of information in `voi_sim.json` and `pref_share.json`, the time order in
 `rank_calls.json`, the agreement rule in `agree_cascade.json`, the early exit in `early_exit_ab.json` and `early_exit.json`, the loop in `loop_eval.json`, orbits in
-  `submission/results/orbit/`, and the agent testing in `submission/agent_testing.md`.
+  `submission/results/orbit/`, the student's fourth round in `dec1b.json`, the tiny layer in `tiny.json`, the text 1B in
+  `text1b.json`, and the agent testing in `submission/agent_testing.md` (rounds 26 to 28 in `agent_trial25/`,
+  `agent_trial26_live/` and `agent_trial28/`).
 - **Built during the hackathon.** Building started on October 27, the hackathon's first day. We designed Serve and
   decided what it does and how; an AI coding agent (Claude Code) wrote code to our instructions, credited in the
   repository's commits, and every change went through the tests. The one earlier piece is TrackNetV5, our published shuttle
