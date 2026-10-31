@@ -37,8 +37,10 @@ def main():
     args = a.parse_args(); E = os.path.expanduser(args.exp)
     res = {"what": "Llama 3.2 1B Instruct, LoRA-distilled from Muse Glimmer's short answers at the gateway's call sites (distill/text_*.py, text_*.mjs)",
            "set": json.load(open(f"{E}/data/set/summary.json")),
-           "train": json.load(open(f"{E}/runs/{args.run}/args.json")),
-           "heldout": {"serve-1b-text": json.load(open(f"{E}/results/heldout_{args.run}.summary.json")), "serve-1b (old)": json.load(open(f"{E}/results/heldout_serve-1b.summary.json"))},
+           "train": {r: json.load(open(f"{E}/runs/{r}/args.json")) for r in args.run.split(",")},
+           "heldout": {os.path.basename(f)[8:-13]: json.load(open(f)) for f in sorted(glob.glob(f"{E}/results/heldout_*.summary.json"))},
+           "attacks_heldout": {os.path.basename(f)[8:-5]: json.load(open(f))["kinds"] for f in sorted(glob.glob(f"{E}/results/attacks_*.json"))},
+           "calibration": {os.path.basename(f)[6:-5]: json.load(open(f)) for f in sorted(glob.glob(f"{E}/results/calib_*.json"))},
            "checks": {c: check_run(f"{E}/checks/{c}") for c in args.checks.split(",") if c}}
     if args.note: res["note"] = args.note
     json.dump(res, open(args.out, "w"), indent=1, ensure_ascii=False)

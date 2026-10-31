@@ -11,7 +11,7 @@ export PATH="${NODE_DIR:-$HOME/serve/node/bin}:$PATH" LLM_URL="${LLM_URL:-http:/
 export GUARD_PYTHON="${GUARD_PYTHON:-/home/gino/serve/asr/env/bin/python}" GUARD_HF_CACHE="${GUARD_HF_CACHE:-/mnt/nas/shuttlecoach-meta/hf}" EMBED_URL="${EMBED_URL:-http://127.0.0.1:11434}"
 for c in e2e rt; do rm -rf "$EXP/gw-$LABEL-$c"; mkdir -p "$EXP/gw-$LABEL-$c"; cp -r "$EXP/repo/agent" "$EXP/repo/web" "$EXP/repo/distill" "$EXP/gw-$LABEL-$c/"; done
 echo "$(date +%T) $LABEL small=$SMALL sites=$SITES" > "$OUT/env.txt"
-( cd "$EXP/gw-$LABEL-e2e/agent" && GW_PORT=18889 GRAPH_PORT=18896 timeout 2400 node test/e2e.mjs > "$OUT/e2e.log" 2>&1; echo "E2E_EXIT $?" >> "$OUT/e2e.log"; cp data/ledger.jsonl "$OUT/e2e_ledger.jsonl" 2>/dev/null ) &
+( cd "$EXP/gw-$LABEL-e2e/agent" && GW_PORT=18889 GRAPH_PORT=18896 timeout 2400 node test/e2e.mjs > "$OUT/e2e.log" 2>&1; echo "E2E_EXIT $?" >> "$OUT/e2e.log"; cp data/test-ledger.jsonl "$OUT/e2e_ledger.jsonl" 2>/dev/null ) &
 ( cd "$EXP/gw-$LABEL-rt/agent" && timeout 1800 node test/feed_redteam.mjs > "$OUT/feed_redteam.log" 2>&1; echo "FEED_RT_EXIT $?" >> "$OUT/feed_redteam.log"
   timeout 2400 node test/redteam.mjs > "$OUT/redteam.log" 2>&1; echo "RT_EXIT $?" >> "$OUT/redteam.log"; cp data/redteam.json data/redteam/ledger.jsonl "$OUT/" 2>/dev/null ) &
 wait
