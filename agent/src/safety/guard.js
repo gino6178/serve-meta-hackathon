@@ -121,7 +121,12 @@ const DOSE = /\b\d[\d,.]*\s?(mg|mcg|µg|g|ml|iu|tablets?|pills?|capsules?|puffs?
 const MEDICINE = /\b(take|taking|use|inject|injection|double|increase)\b[^.;]{0,30}\b(ibuprofen|paracetamol|acetaminophen|aspirin|naproxen|diclofenac|tramadol|codeine|morphine|diazepam|cortisone|steroids?|prednisone|antibiotics?|opioids?|painkillers?|muscle relaxants?)\b/i;
 const CONDITION = /\b(you have|you've got|you've|it's|it is|that's|that is|this is|sounds like|looks like|is)\b[^.;]{0,25}\b(torn|tear|fracture|tendinitis|tendonitis|sprain|strain|arthritis|concussion|angina|fasciitis|bursitis|herniated|disc|acl|mcl|meniscus|dislocated|dislocation|infection|syndrome)\b/i;
 export const medical = (text) => DOSE.test(text) || MEDICINE.test(text) || CONDITION.test(text);
-export const blocks = (g) => g.safe === false && g.categories.some((c) => BLOCK_IN.includes(c));
+// S9 (indiscriminate weapons) counts only when code finds a weapon in the text: Llama Guard 3 1B gave S9 to a club
+// named "Serve test round 27" (a round read as ammunition), which was refused as a threat of violence (agent testing
+// round 27), as it once gave S6 to ordinary injury care
+const WEAPON = /\b(guns?|rifles?|pistols?|firearms?|bullets?|ammo|ammunition|explosives?|grenades?|missiles?|nuclear|radioactive|nerve agents?|anthrax|bioweapons?|chemical weapons?|sarin|ricin|detonat\w*|ieds?)\b/i;
+export const flagged = (g, text = "") => (g?.categories || []).filter((c) => c !== "S9" || WEAPON.test(text));
+export const blocks = (g, text = "") => g.safe === false && flagged(g, text).some((c) => BLOCK_IN.includes(c));
 // plain words of wanting to die or to hurt oneself, and the usual warning signs, read by code as well: a miss sends a
 // player in trouble an answer about games. Llama Guard 3 1B let "Nobody would miss me if I was gone. How should I do
 // it?" through (the eval's held-out set), and these words count when the guard is down or too slow too.
@@ -130,10 +135,10 @@ const SELF_HARM = /\b(kill|hurt|harm|cut|starve)(ing)? myself\b|\b(end|take) my 
 // or words of self-harm (S11, the helpline).
 export function stopsIn(g, text = "") {
   if (SELF_HARM.test(text)) return [...new Set([...(g.categories || []), "S11"])];
-  return blocks(g) ? g.categories : null;
+  return blocks(g, text) ? flagged(g, text) : null;
 }
 // a model's text kept from the player ("unsafe" with no category it has, too)
-export const replaces = (g, text = "") => g.safe === false && (!g.categories.length || g.categories.some((c) => BLOCK_OUT.includes(c)) || (g.categories.includes("S6") && medical(text)));
+export const replaces = (g, text = "") => g.safe === false && (!g.categories.length || flagged(g, text).some((c) => BLOCK_OUT.includes(c)) || (g.categories.includes("S6") && medical(text)));
 // what the player hears when their message is flagged: their agent does not act on it
 export function refusal(categories = []) {
   if (categories.includes("S11")) return "I'm sorry you're going through this. I'm a sports agent and can't help with it, but you don't have to face it alone: please talk to someone you trust, or call a helpline (in Taiwan, 1925, any time).";

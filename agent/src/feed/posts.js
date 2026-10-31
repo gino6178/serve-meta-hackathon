@@ -78,7 +78,8 @@ export async function moderate(text, player) {
   const g = await deps.screen([{ role: "user", content: text }], { site: "feed.person", timeoutMs: +(process.env.GUARD_OUT_TIMEOUT_MS || 8000) });
   const stop = guardRules.stopsIn(g, text);
   if (stop?.includes("S11")) return { helpline: true, why: guardRules.refusal(["S11"]), categories: stop };
-  if (g.safe === false && g.categories.some((c) => BLOCK_POST.includes(c))) return { refused: true, why: `Not posted: ${T.plainWhy(g.categories)}.`, categories: g.categories, check: "llama-guard" };
+  const cats = guardRules.flagged(g, text);
+  if (g.safe === false && cats.some((c) => BLOCK_POST.includes(c))) return { refused: true, why: `Not posted: ${T.plainWhy(cats)}.`, categories: cats, check: "llama-guard" };
   if (g.safe == null) return { down: true };
   const k = await deps.standard(text);
   if (k.verdict == null) return { down: true };
@@ -112,7 +113,8 @@ export async function screenPhoto(m, player) {
   }
   const g = await deps.screen([{ role: "user", content: `A photo for the club feed. It shows: ${v.describe}${text ? `\nText in the photo: ${text}` : ""}` }], { site: "feed.photo.guard", timeoutMs: +(process.env.GUARD_OUT_TIMEOUT_MS || 8000) });
   if (g.safe == null) return { down: true, seconds };
-  if (g.safe === false && g.categories.some((c) => BLOCK_POST.includes(c))) return { refused: true, why: `Not posted: the photo ${T.plainWhy(g.categories).replace(/^it /, "")}.`, check: "llama-guard", categories: g.categories, seconds };
+  const pc = guardRules.flagged(g, `${v.describe} ${text || ""}`);
+  if (g.safe === false && pc.some((c) => BLOCK_POST.includes(c))) return { refused: true, why: `Not posted: the photo ${T.plainWhy(pc).replace(/^it /, "")}.`, check: "llama-guard", categories: pc, seconds };
   return { ok: true, verdict: "ok", describe: v.describe, text, llamaGuard: g.safe ? "safe" : g.categories.join(","), seconds };
 }
 // a post's checks, text and photo together: refused if either is, waiting if either could not be checked
