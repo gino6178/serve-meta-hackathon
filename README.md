@@ -567,6 +567,14 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
   95.9% (singles) and 84.1% to 85.4% (doubles); with everyone allowing it 96.5% and 85.8%. Small, because most of those
   requests fail on a day off or the calendar, which do not stretch. The burden ledger is unit-tested only: no game in
   the simulated season needed a stretch.
+- **Courts near you, judged ahead.** `club/places.js` (PLACES_SPECULATE=off to turn it off), after Speculative Actions:
+  a place's verdict is kept for an hour by the facts it was judged on (in memory only, as Google's terms ask for
+  reviews), a judging still running is joined, English names are kept with the map, and after a search the same places
+  are judged for the hour after and the hour before as background work. For real on the RTX 3090 (4 cities, OpenStreetMap
+  and Open-Meteo, no Google key; `test/places_ahead_eval.mjs`, `submission/results/places_ahead.json`): when the person
+  moved the time an hour after 20 s, the search took 25.7 s instead of 49.0 s on average; Muse Glimmer judged 80 times
+  instead of 40, the price of guessing (the hour before was never asked for). Four searches each, on a shared GPU, so
+  the times are rough.
 
 ## What is where
 

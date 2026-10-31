@@ -1,0 +1,119 @@
+{
+ "label": "Judging ahead on courts near you (places.js PLACES_SPECULATE): the wait for a search after the person moves the time an hour, with judging ahead off and on; Muse Glimmer on the RTX 3090, OpenStreetMap and Open-Meteo, no Google key",
+ "think": 20,
+ "locations": 4,
+ "rows": [
+  {
+   "mode": "off",
+   "name": "Taipei Da'an",
+   "sport": "basketball",
+   "date": "2026-11-02",
+   "places": 5,
+   "firstSec": 89.3,
+   "secondSec": 44.4,
+   "judged": 10,
+   "reused": 0,
+   "joined": 0
+  },
+  {
+   "mode": "off",
+   "name": "Taichung",
+   "sport": "basketball",
+   "date": "2026-11-02",
+   "places": 5,
+   "firstSec": 85.8,
+   "secondSec": 52,
+   "judged": 10,
+   "reused": 0,
+   "joined": 0
+  },
+  {
+   "mode": "off",
+   "name": "Ljubljana",
+   "sport": "basketball",
+   "date": "2026-11-02",
+   "places": 5,
+   "firstSec": 91.3,
+   "secondSec": 47.4,
+   "judged": 10,
+   "reused": 0,
+   "joined": 0
+  },
+  {
+   "mode": "off",
+   "name": "Lisbon",
+   "sport": "soccer",
+   "date": "2026-11-02",
+   "places": 5,
+   "firstSec": 95.9,
+   "secondSec": 52.2,
+   "judged": 10,
+   "reused": 0,
+   "joined": 0
+  },
+  {
+   "mode": "on",
+   "name": "Taipei Da'an",
+   "sport": "basketball",
+   "date": "2026-11-03",
+   "places": 5,
+   "firstSec": 49.8,
+   "secondSec": 27,
+   "judged": 10,
+   "reused": 1,
+   "joined": 4
+  },
+  {
+   "mode": "on",
+   "name": "Taichung",
+   "sport": "basketball",
+   "date": "2026-11-03",
+   "places": 5,
+   "firstSec": 49.1,
+   "secondSec": 24.8,
+   "judged": 10,
+   "reused": 5,
+   "joined": 5
+  },
+  {
+   "mode": "on",
+   "name": "Ljubljana",
+   "sport": "basketball",
+   "date": "2026-11-03",
+   "places": 5,
+   "firstSec": 67,
+   "secondSec": 27.8,
+   "judged": 10,
+   "reused": 1,
+   "joined": 4
+  },
+  {
+   "mode": "on",
+   "name": "Lisbon",
+   "sport": "soccer",
+   "date": "2026-11-03",
+   "places": 5,
+   "firstSec": 64.2,
+   "secondSec": 23.1,
+   "judged": 10,
+   "reused": 2,
+   "joined": 3
+  }
+ ],
+ "off": {
+  "searches": 4,
+  "secondMeanSec": 49,
+  "firstMeanSec": 90.6,
+  "judged": 40,
+  "reused": 0,
+  "joined": 0
+ },
+ "on": {
+  "searches": 4,
+  "secondMeanSec": 25.7,
+  "firstMeanSec": 57.5,
+  "judged": 80,
+  "reused": 19,
+  "joined": 16
+ }
+}
