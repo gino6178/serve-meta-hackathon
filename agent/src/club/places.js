@@ -11,7 +11,8 @@
 import * as guard from "../safety/guard.js";
 import fs from "node:fs";
 import path from "node:path";
-import { chatJSON } from "../core/llm.js";
+import crypto from "node:crypto";
+import { chatJSON, withPriority } from "../core/llm.js";
 import { VERDICT, NAMES } from "../core/schema.js";
 import { okNums, allowedIn } from "../a2a/talk.js";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
@@ -131,7 +132,22 @@ export function rules(p, sport, start, w) {
 }
 
 const norm = (t) => String(t).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+// A verdict is kept for an hour by the facts it was judged on (the place, the sport, the time, the forecast and the
+// reviews read), in memory only: Google's terms do not let reviews be stored, and a reason may quote one. A judging
+// still running is joined, not started again, so a search that asks for what is being judged ahead waits for that.
+const verdicts = new Map(), VERDICT_MS = 3600e3;
+export const verdictStats = { judged: 0, reused: 0, joined: 0 };
 export async function judge(p, sport, date, start, w) {
+  const k = crypto.createHash("sha256").update(JSON.stringify([sport, date, start, p.id, p.name, p.dist, p.tags || {}, p.rating ?? null, (p.reviews || []).map((r) => r.text), w && outdoor(p) ? [w.rain, w.temp, w.wind] : !!w])).digest("hex");
+  const hit = verdicts.get(k);
+  if (hit && Date.now() - hit.at < VERDICT_MS) { verdictStats[hit.done ? "reused" : "joined"]++; return hit.v; }
+  for (const [x, e] of verdicts) if (Date.now() - e.at >= VERDICT_MS) verdicts.delete(x);
+  const e = { at: Date.now(), done: false, v: judged(p, sport, date, start, w) };
+  verdicts.set(k, e); verdictStats.judged++;
+  e.v.then(() => { e.done = true; }, () => verdicts.delete(k));
+  return e.v;
+}
+async function judged(p, sport, date, start, w) {
   // Prompt Guard 2 first: a review written to instruct a model is left out, and the judge never reads it
   if (p.reviews?.length) { const g = await guard.injected(p.reviews.map((r) => r.text)); const kept = p.reviews.filter((r, k) => !g[k].injected); if (kept.length < p.reviews.length) p = { ...p, reviews: kept, reviewsLeftOut: p.reviews.length - kept.length }; }
   const facts = [`Place: ${p.name}${p.count > 1 ? ` (${p.count} courts)` : ""}${p.address ? `, ${p.address}` : ""}, ${p.dist} m away.`, `Wanted: ${sport} on ${date} at ${start}.`, `Map tags: ${tagWords(p).join("; ")}.`,
@@ -159,7 +175,9 @@ export async function judge(p, sport, date, start, w) {
 
 // names on the map are in the local language: one Muse Glimmer call gives every one in English (the map's own
 // English name wins when it has one; the original is kept beside it)
+// (a name in English is map data, so it is saved with the map's places and never asked for twice)
 async function english(list) {
+  for (const p of list) { const e = cache[`en:${p.name}`]; if (e && /[^\x00-\x7F]/.test(p.name)) { p.local = p.name; p.name = e; } }
   const todo = list.filter((p) => /[^\x00-\x7F]/.test(p.name));
   if (!todo.length) return;
   try {
@@ -168,7 +186,8 @@ async function english(list) {
       { role: "user", content: todo.map((p, i) => `${i + 1}: ${p.name}`).join("\n") },
     ], NAMES, { maxTokens: 300, temperature: 0, site: "places.english" });
     if (!j) return;
-    todo.forEach((p, i) => { const e = String(j[i + 1] || "").trim(); if (e && !/[^\x00-\x7F]/.test(e)) { p.local = p.name; p.name = e.slice(0, 80); } });
+    todo.forEach((p, i) => { const e = String(j[i + 1] || "").trim(); if (e && !/[^\x00-\x7F]/.test(e)) { cache[`en:${p.name}`] = e.slice(0, 80); p.local = p.name; p.name = e.slice(0, 80); } });
+    save();
   } catch { /* names stay as mapped */ }
 }
 
@@ -221,8 +240,23 @@ export async function search({ lat, lon, sport = "basketball", date, start = "19
   judged.sort((a, b) => order[a.verdict] - order[b.verdict] || a.dist - b.dist);
   const g = judged.filter((p) => p.verdict === "good").length;
   tell({ step: "Judged every place", tool: "verify", detail: `${g} good, ${judged.filter((p) => p.verdict === "maybe").length} maybe, ${judged.filter((p) => p.verdict === "no").length} no · ${judged.filter((p) => p.by === "model").length} by Muse Glimmer, every reason checked against its source` });
+  if (speculateOn()) setTimeout(() => ahead(here, sport, date, start, pick).catch(() => {}), 0);
   // reviews go back with their author and the link to Google Maps; only the ones a reason quotes
   return { here, sport, date, start, weather: w, google: judged.some((p) => p.rating != null), reviews: judged.some((p) => p.reviews?.length), places: judged.map((p) => ({ ...p, reviews: (p.reviews || []).filter((r) => p.reasons.some((x) => x.review === r.n)).map(({ n, stars, when, text, author, authorUrl }) => ({ n, stars, when, text, author, authorUrl })) })) };
+}
+
+// Judging ahead (PLACES_SPECULATE, on unless "off"), after Speculative Actions (ICLR 2026: guess the next action and
+// start it while the person looks at this one; a wrong guess costs only the work). After a search, the same places
+// are judged for the hour after and the hour before, as background work (behind anything a person waits for), so
+// moving the time on the map finds them judged. Only the model's verdict is done ahead: nothing is shown or stored.
+export const speculateOn = () => process.env.PLACES_SPECULATE !== "off";
+const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+export const nextStarts = (start) => { const [h, m] = start.split(":").map(Number), t = h * 60 + m; return [t + 60, t - 60].filter((x) => x >= 7 * 60 && x <= 22 * 60).map(hhmm); };
+async function ahead(here, sport, date, start, pick) {
+  for (const alt of nextStarts(start)) {
+    const w = await forecast(here.lat, here.lon, date, alt);
+    await withPriority("background", () => Promise.all(pick.map((p) => judge(p, sport, date, alt, w))));
+  }
 }
 
 // the map under a route, drawn by the app in its own style: roads, rivers and parks from OpenStreetMap, no labels

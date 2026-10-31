@@ -27,6 +27,7 @@ import { DefaultRequestHandler, AgentEvent, UnauthenticatedUser } from "@a2a-js/
 import { agentCardHandler, jsonRpcHandler, UserBuilder } from "@a2a-js/sdk/server/express";
 import { readClub } from "../club/club.js";
 import { decide, first, when, holdAnswer, inTalk, breaks, budgeted } from "./talk.js";
+import { marksFor } from "./stretch.js";
 import { validate, PROPOSAL, HOLD, LIKELY } from "../core/schema.js";
 import * as likely from "../match/likely.js";
 import { decided as noteAnswer } from "../match/hooks.js";
@@ -209,9 +210,11 @@ class MemberExecutor {
       if (j0.intent === "none") { bus.publish(status(ctx, TaskState.TASK_STATE_FAILED, j0.text)); return; }
       // what the member's disclosure budget lets this asker learn (disclosure.js): a time over it is withheld
       const j = budgeted(m, p.from || "you", cur, choices, j0);
-      const data = { intent: j.intent, ...(j.intent === "counter" ? { date: j.date, start: j.start } : {}), ...(Array.isArray(j.works) ? { works: j.works } : {}), ...(j.withheld?.length ? { withheld: j.withheld } : {}), tier: j.tier, ...(j.confidence != null ? { confidence: j.confidence } : {}), ...(j.usage ? { usage: j.usage } : {}) };
+      // asked which times could work with a limit stretched (stretch.js, a second round): code marks them, no model
+      const marks = p.stretch ? marksFor(m, choices, j.works || [], minutes, breaks, j.withheld || []) : {};
+      const data = { intent: j.intent, ...(j.intent === "counter" ? { date: j.date, start: j.start } : {}), ...(Array.isArray(j.works) ? { works: j.works } : {}), ...(j.withheld?.length ? { withheld: j.withheld } : {}), ...(Object.keys(marks).length ? { stretch: marks } : {}), tier: j.tier, ...(j.confidence != null ? { confidence: j.confidence } : {}), ...(j.usage ? { usage: j.usage } : {}) };
       // the times it said work, so a hold for one of them can be checked later
-      const key = (x) => `${x.slot.date} ${hm(x.start)}`, works = new Set(data.works || []);
+      const key = (x) => `${x.slot.date} ${hm(x.start)}`, works = new Set([...(data.works || []), ...Object.keys(marks)]);
       const oks = [...choices.filter((x) => x.id && works.has(x.id)).map(key), ...(data.intent === "accept" ? [key(cur)] : []), ...(data.intent === "counter" ? [`${data.date} ${data.start}`] : [])];
       remember(mid, { agent: m.id, contextId: ref, fp, when: cur.text, decision: data, oks, text: j.text, at: Date.now() });
       settle({ fp, decision: data, text: j.text });

@@ -13,6 +13,11 @@
 //   raw     the decider over the times that work (the tier A2A_DECIDER=raw adds), one pass, one token
 //   rawall  the decider over every listed time but the proposed one, those that break a rule too: what one pass knows
 //           of the rules without code (its pick is graded by breaks())
+// The order the times are read in (A2A_SHUFFLE, talk.js ownOrder), each over the same cases:
+//   gl, glown   Muse Glimmer's own answer alone (no student, decider or early exit), the times as listed / in the
+//               member's own order
+//   rawrev, rawown   the decider over the times that work, reversed / in the member's own order
+//   stud, studrev    the 1B student (its pick whether or not it is sure), the offers as listed / reversed
 //   node test/decider_eval.mjs raw.json full,full2,raw,rawall
 // Each row has its wall seconds and its compute seconds (the server's own time reading the prompt and writing; it
 // leaves out the wait for a slot on a shared server), and DECIDER_HW names the hardware.
@@ -30,6 +35,8 @@ delete process.env.A2A_DECIDER; // the full answer is the current path; the deci
 const { population } = await import("../src/club/population.js");
 const { shared, court, breaks, when, first, fullAnswer, forgetMemory, deciderQuestion } = await import("../src/a2a/talk.js");
 const { decideRaw } = await import("../src/agents/decider.js");
+const { studentAnswer } = await import("../src/agents/student.js");
+const { ownOrder } = await import("../src/a2a/talk.js");
 const { readClub } = await import("../src/club/club.js");
 const { helpers } = await import("../src/club/play.js");
 const ledger = await import("../src/core/ledger.js");
@@ -105,13 +112,21 @@ async function one(system, c) {
   return ledger.job("case", async (jb) => {
     const t0 = Date.now(), row = { system: sysName(system), id: c.id, member: m.id, rule: c.rule, works: c.works.map((x) => x.id), liked: c.liked, listed: c.listed.length };
     try {
-      if (system.startsWith("full")) {
+      if (system === "gl" || system === "glown") {
+        const j = await fullAnswer(m, c.cur, c.listed, [], "singles", "badminton", MIN);
+        Object.assign(row, { pick: idOf(c, j), tier: j.tier, fixed: j.tier === "rules" });
+      } else if (system.startsWith("stud")) {
+        const all = system === "studrev" ? [c.cur, ...c.listed.filter((x) => x !== c.cur).reverse()] : c.listed, out = {};
+        const s = await studentAnswer({ ...m, rulesComplete: true }, c.cur, c.works, all, { minutes: MIN, format: "singles", sport: "badminton", profile: deciderQuestion(m, c.cur, c.works, c.why, "singles", "badminton").profile, out });
+        const id = s ? (s.intent === "decline" ? "Z" : idOf(c, s)) : out.pick?.id;
+        Object.assign(row, { pick: id || "none", p: s ? s.confidence : out.pick?.p, calls: 1 });
+      } else if (system.startsWith("full")) {
         const j = await fullAnswer(m, c.cur, c.listed, [], "singles", "badminton", MIN);
         // tier "rules": code had to correct the model's answer (a counter that is not a listed time that works)
         Object.assign(row, { pick: idOf(c, j), tier: j.tier, fixed: j.tier === "rules", worksSaid: j.worksRaw ?? null });
       } else {
         // raw: the times that work (as the tier gets them); rawall: every listed time but the proposed one
-        const times = system.startsWith("rawall") ? c.listed.filter((x) => x !== c.cur) : c.works;
+        const times = system.startsWith("rawall") ? c.listed.filter((x) => x !== c.cur) : system.startsWith("rawrev") ? [...c.works].reverse() : system.startsWith("rawown") ? ownOrder(m.id, c.works) : c.works;
         const r = await decideRaw({ ...deciderQuestion(m, c.cur, times, c.why, "singles", "badminton"), variant: VARIANT, orders: ORDERS });
         Object.assign(row, { pick: r.pick ? (r.pick.x ? r.pick.x.id : "Z") : "none", p: r.p, mass: r.mass, dist: r.dist, token: r.token, error: r.error });
       }
@@ -128,6 +143,9 @@ forgetMemory();
 for (const system of SYSTEMS.split(",")) {
   const todo = cases.filter((c) => !have.has(`${sysName(system)}|${c.id}`));
   if (!todo.length || Date.now() - t00 >= MAX_MS) continue;
+  // Glimmer alone for the order systems; the member's own order only for glown
+  if (system === "gl" || system === "glown") Object.assign(process.env, { A2A_DECIDER: "off", A2A_EARLY: "off", A2A_SHUFFLE: system === "glown" ? "1" : "0" });
+  else { delete process.env.A2A_DECIDER; delete process.env.A2A_EARLY; delete process.env.A2A_SHUFFLE; }
   // each finished case is saved at once (a run stopped half way keeps what it did)
   const t0 = Date.now(), rows = await pool(todo, system.startsWith("raw") ? RAW_PAR : PAR, async (c) => { const r = await one(system, c); done.push(r); fs.writeFileSync(RAW, JSON.stringify(done)); return r; });
   const n = rows.length, mean = (k) => +(rows.reduce((a, r) => a + (r[k] || 0), 0) / Math.max(1, n)).toFixed(2);

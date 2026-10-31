@@ -35,6 +35,7 @@ import { populationPrior } from "../match/voi.js";
 import * as critic from "./critic.js";
 import * as consent from "./consent.js";
 import * as peer from "./peer.js";
+import { stretchOn, marksFor, cleanMarks, pickStretched, noteStretch } from "./stretch.js";
 
 const { windows, travelMin, kmBetween, ymd, hm, toMin, dateOf, DAYS } = helpers;
 const FILE = path.resolve(process.env.A2A_FILE || "data/a2a_memory.json");
@@ -172,6 +173,8 @@ const says = {
   move: (cur, asked) => `${asked ? "Moving the game to" : "How about"} ${cur.text}${asked ? ", the time asked for; it fits everyone's calendar and a court is free." : "? It fits everyone's calendar."}`,
   // with private calendars: the next times from your player's week, after none of the last ones worked for everyone
   next: (cur, also) => `None of those works for everyone. How about ${cur.text}?${also.length ? ` Also possible: ${also.join(", ")}.` : ""} Your player's week has them free, with a court.`,
+  // the second round (stretch.js): the same times, asked which could work if a member stretched a limit of its own
+  stretch: () => "None of these works for everyone. Which could work if your player stretched one of their own limits, and by how many minutes?",
 };
 
 // One member's agent answering a proposal: Muse Glimmer, from what the member shares; its time is checked by the
@@ -297,12 +300,22 @@ Return JSON only: {"intent": "accept" | "counter" | "decline", "date": "YYYY-MM-
   if (!log.length || log.at(-1).from !== "you") msgs.push({ role: "user", content: `Proposal: ${sport} ${format}, ${cur.text}.` });
   return msgs;
 }
+// The order the models read the listed times in (A2A_SHUFFLE=1): the host lists them best first for the group, and a model
+// asked to choose leans to what comes first (Magentic Marketplace: the first proposal takes 60 to 100% of choices). So
+// each member's models read them in an order of their own, fixed by the member and the times (the same question reads
+// the same way twice), and what they pick is matched back by id, so code never depends on the order.
+export const shuffleOn = () => process.env.A2A_SHUFFLE === "1";
+export function ownOrder(memberId, xs) {
+  const key = (x) => crypto.createHash("sha256").update(`${memberId}|${x.id || `${x.slot?.date} ${x.start}`}`).digest("hex");
+  return xs.map((x) => [key(x), x]).sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([, x]) => x);
+}
 export async function fullAnswer(m, cur, choices, log, format, sport, minutes = 90) {
   const them = first(m.name), all = choices;
   let curBad = null;
   if (rulesInCode()) {
     curBad = breaks(m, cur, minutes);
     choices = choices.filter((x) => !breaks(m, x, minutes));
+    if (shuffleOn() && choices.length > 1) choices = ownOrder(m.id, choices);
     if (!choices.length) return { intent: "decline", text: sentence(them, { intent: "decline" }, cur), tier: "rules", why: curBad || "no listed time fits the member's calendar and rules", ...(all.some((x) => x.id) ? { works: [] } : {}) };
     // What the facts already decide is not asked (A2A_ROUTE, on by default): the listed times left keep the member's calendar and
     // rules, so they are the ones that work; by the decision rule a proposed time that works is a yes, and with one time
@@ -388,18 +401,18 @@ const away = async (m) => peer.isRemote(m) && !(await peer.reachable(peer.remote
 const failed = (them, m, e) => /signature/.test(String(e?.message)) ? `${them}'s agent's card does not check out.` : peer.isRemote(m) && /\b40[13]\b/.test(String(e?.message)) ? `${them}'s gateway refused this gateway's request.`
   : /not signed by peer/.test(String(e?.message)) ? `${them}'s agent's answer did not come from their gateway.`
   : peer.isRemote(m) ? `${them}'s agent is not reachable now.` : `${them}'s agent could not be reached.`;
-async function ask(m, cur, choices, log, { format, sport, minutes, id, round, mine, from = "you", at = null }) {
+async function ask(m, cur, choices, log, { format, sport, minutes, id, round, mine, from = "you", at = null, stretch = false }) {
   // (the matchmaker counts the asks each member gets; in process, the member's answer goes to its own records, as
   // a2a_server.js does over A2A; and it is cut to the member's disclosure budget, disclosure.js, as there)
   proposed(m.id, round);
-  if (!viaA2A(m)) return inTalk(id, () => answer(m, cur, choices, log, format, sport, minutes)).then((j) => budgeted(m, from, cur, choices, j, at ? at.getTime() : Date.now())).then((j) => { noteAnswer(m.id, { from, date: cur.slot.date, start: hm(cur.start), intent: j.intent, works: j.works, ref: id }); return j; });
+  if (!viaA2A(m)) return inTalk(id, () => answer(m, cur, choices, log, format, sport, minutes)).then((j) => budgeted(m, from, cur, choices, j, at ? at.getTime() : Date.now())).then((j) => { noteAnswer(m.id, { from, date: cur.slot.date, start: hm(cur.start), intent: j.intent, works: j.works, ref: id }); return stretch ? { ...j, stretch: marksFor(m, choices, j.works || [], minutes, breaks, j.withheld || []) } : j; });
   const them = first(m.name), trip = (x) => x.c.travel.find((t) => t.id === m.id)?.min;
   if (await away(m)) return { intent: "none", unreachable: true, text: `${them}'s agent is not reachable now.`, tier: "agent", error: "its gateway does not answer" };
   // facts only, no sentences: the receiving agent writes each time out itself, from the date, the start, the venue (whose
   // name it looks up) and its member's own trip, so nothing your agent wrote reaches its model (and nobody else's trip)
   const w = (x) => ({ ...(x.id ? { id: x.id } : {}), date: x.slot.date, start: hm(x.start), venue: x.c.v.id, court: x.c.court, ...(trip(x) != null ? { trip: trip(x) } : {}) });
   const sent = [cur, ...choices.filter((x) => x !== cur)].slice(0, 12);
-  const data = { kind: "serve.proposal", sport, format, minutes, proposal: w(cur), choices: sent.map(w), say: mine, from };
+  const data = { kind: "serve.proposal", sport, format, minutes, proposal: w(cur), choices: sent.map(w), say: mine, from, ...(stretch ? { stretch: true } : {}) };
   // a proposal that would not fit is ours to fix, not the other agent's silence
   const bad = validate(PROPOSAL, data);
   if (bad.length) return { intent: "none", ours: true, text: `Your agent could not put the proposal for ${them} in the protocol's form (${bad[0]}).`, tier: "agent", error: bad.slice(0, 2).join("; ") };
@@ -427,6 +440,7 @@ async function ask(m, cur, choices, log, { format, sport, minutes, id, round, mi
   }
   // the times its agent did not answer about (its disclosure budget): neither a yes nor a no
   if (Array.isArray(d.withheld)) j.withheld = d.withheld.filter((w) => sent.some((x) => x.id === w));
+  if (stretch && d.stretch) j.stretch = cleanMarks(d.stretch, new Set(sent.map((x) => x.id).filter(Boolean)));
   j.text = sentence(them, j, cur);
   return j;
 }
@@ -628,7 +642,7 @@ async function rounds({ id = `neg-${crypto.randomUUID().slice(0, 13)}`, me, memb
   }
   const logs = Object.fromEntries(members.map((m) => [m.id, all.filter((x) => x.from === m.id || x.from === "you")]));
   if (!resume) mine = says.propose(sport, format, cur, ordered.slice(1, 3).map((x) => when(x.slot.date, hm(x.start))));
-  let searchOn = false;
+  let searchOn = false, stretchAsk = false;
   for (let round = from; round <= 3; round++) {
     // a member whose gateway does not answer now: the round is not sent at all (the other agents are not asked for
     // nothing), and the talk ends at once
@@ -645,7 +659,7 @@ async function rounds({ id = `neg-${crypto.randomUUID().slice(0, 13)}`, me, memb
     // (what a member's agent withheld, disclosure.js: the proposed time, and how many listed times it answered about)
     const hid = (j) => !!j.withheld?.includes(cur.id), told = (j) => (j.withheld ? offered.filter((x) => !j.withheld.includes(x.id)).length : offered.length);
     askedPairs += offered.length * members.filter((m) => !wanted.has(m.id)).length;
-    const replies = await Promise.all(members.map((m) => (wanted.has(m.id) ? { intent: "accept", text: `${first(m.name)} asked for this time.`, auto: true } : ask(m, cur, offered, logs[m.id], { format, sport, minutes, id, round, mine, from: me.id, at: now }))));
+    const replies = await Promise.all(members.map((m) => (wanted.has(m.id) ? { intent: "accept", text: `${first(m.name)} asked for this time.`, auto: true } : ask(m, cur, offered, logs[m.id], { format, sport, minutes, id, round, mine, from: me.id, at: now, stretch: stretchAsk }))));
     const secs = (Date.now() - t0) / 1000;
     for (const j of replies) if (j.usage) { theirs ||= {}; for (const [k, v] of Object.entries(j.usage)) theirs[k] = +((theirs[k] || 0) + v).toFixed(2); }
     const counters = [];
@@ -698,7 +712,8 @@ async function rounds({ id = `neg-${crypto.randomUUID().slice(0, 13)}`, me, memb
     // first); a time someone ruled out is never proposed (tabu). If no time works for everyone, the talk ends now with
     // who ruled what out, rather than after rounds of proposals that cannot land.
     if (replies.every((j) => Array.isArray(j.works))) {
-      const works = replies.map((j) => new Set(j.works)), common = offered.filter((x) => works.every((w) => w.has(x.id)));
+      const works = replies.map((j) => new Set(j.works));
+      let common = offered.filter((x) => works.every((w) => w.has(x.id))), stretched = null;
       // NEGOTIATION_DETAIL=1 (the evals): each agent's set, what its model said before code made it consistent, and the
       // times offered with everyone's trip, so the sets can be graded against what is known to work
       const detail = () => (process.env.NEGOTIATION_DETAIL === "1" ? { acceptableRaw: Object.fromEntries(members.map((m, k) => [m.id, replies[k].worksRaw ?? null])),
@@ -714,6 +729,17 @@ async function rounds({ id = `neg-${crypto.randomUUID().slice(0, 13)}`, me, memb
           tell({ step: `Round ${round}: no listed time works for everyone`, tool: "a2a", detail: `${offered.length} times ruled out; listing the next ${listed.length} from your week` });
           continue;
         }
+      }
+      // shared calendars, nothing works for everyone: once more, asking what could work with a member's own limit
+      // stretched (stretch.js); then the time that asks least of whoever has given way least
+      if (!common.length && !privateCalendars && stretchOn()) {
+        if (!stretchAsk && round < 3) {
+          stretchAsk = true; mine = says.stretch();
+          tell({ step: `Round ${round}: no listed time works for everyone`, tool: "a2a", detail: "asking each agent which times could work if its player stretched one of their own limits" });
+          continue;
+        }
+        const p = stretchAsk && pickStretched(offered, members, works, replies.map((j) => j.stretch || {}), now.getTime());
+        if (p) { common = [p.x]; stretched = p.by; }
       }
       if (!common.length) {
         const none = members.filter((m, k) => !works[k].size);
@@ -748,7 +774,11 @@ async function rounds({ id = `neg-${crypto.randomUUID().slice(0, 13)}`, me, memb
         all.push(m1); say(m1);
       }
       tell({ step: members.length > 1 ? `All ${members.length + 1} agents agreed` : "Both agents agreed", tool: "verify", detail: `${pickT.text}: one of ${common.length} listed time${common.length > 1 ? "s" : ""} that work for everyone (acceptable sets), checked against every calendar and the court's timetable` });
-      return done({ agreed: { ...option(pickT.slot, pickT.start, minutes, pickT.c, members, format, sport, true), talk: id, ...(leasesOn() ? { hold: id } : {}) }, rounds: round, log: all, text: pickT.text, common: common.length, acceptable, ...detail() });
+      if (stretched) {
+        noteStretch(stretched, id, now.getTime());
+        tell({ step: "A time with a limit stretched", tool: "verify", detail: Object.entries(stretched).map(([mid, min]) => `${first(members.find((m) => m.id === mid).name)}'s agent stretches a limit by ${min} min, as far as they allowed`).join("; ") });
+      }
+      return done({ agreed: { ...option(pickT.slot, pickT.start, minutes, pickT.c, members, format, sport, true), talk: id, ...(leasesOn() ? { hold: id } : {}), ...(stretched ? { stretch: stretched } : {}) }, rounds: round, log: all, text: pickT.text, common: common.length, acceptable, ...(stretched ? { stretched } : {}), ...detail() });
     }
     const declined = replies.map((j, k) => j.intent === "decline" && members[k]).filter(Boolean);
     if (declined.length) return done({ agreed: null, reason: `${declined.map((m) => first(m.name)).join(" and ")} declined`, declined: declined.map((m) => m.id), rounds: round, log: all });

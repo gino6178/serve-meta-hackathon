@@ -58,10 +58,12 @@ export const DECISION = {
   type: "object", additionalProperties: false, required: ["intent"],
   properties: {
     ...MEMBER_REPLY.properties,
-    tier: { enum: ["quick", "draft", "agent", "rules", "student", "decider"] }, confidence: { type: "number", minimum: 0, maximum: 1 },
+    tier: { enum: ["quick", "draft", "agent", "rules", "student", "decider", "agree", "early"] }, confidence: { type: "number", minimum: 0, maximum: 1 },
     // the listed times it does not answer about (its member's disclosure budget, disclosure.js): neither a yes nor a no
     withheld: { type: "array", maxItems: 12, items: { type: "string", pattern: "^t\\d{1,2}$" } },
     usage: { type: "object", additionalProperties: { type: "number", minimum: 0 } },
+    // asked in a second round (a2a/stretch.js): the listed times that could work with a limit stretched, in minutes
+    stretch: { type: "object", additionalProperties: { type: "integer", minimum: 1, maximum: 120 } },
   },
 };
 // what a Serve proposal carries over A2A (a2a.js sends it, a2a_server.js reads it): facts only, nothing in free text,
@@ -73,7 +75,9 @@ const OFFER = { type: "object", additionalProperties: false, required: ["date", 
 // who asks: an id on the gateway (a member's, or "you" for the gateway's own player), never free text
 const ASKER = { type: "string", pattern: "^[A-Za-z0-9_.:-]{1,64}$" };
 export const PROPOSAL = { type: "object", additionalProperties: false, required: ["kind", "sport", "format", "proposal", "choices"], properties: { kind: { const: "serve.proposal" }, sport: { enum: GAME_SPORTS }, format: { enum: ["singles", "doubles"] },
-  minutes: { type: "integer", minimum: 30, maximum: 240 }, proposal: OFFER, choices: { type: "array", minItems: 1, maxItems: 12, items: OFFER }, say: { type: "string", maxLength: 400 }, from: ASKER } };
+  minutes: { type: "integer", minimum: 30, maximum: 240 }, proposal: OFFER, choices: { type: "array", minItems: 1, maxItems: 12, items: OFFER }, say: { type: "string", maxLength: 400 }, from: ASKER,
+  // a second round: which listed times could work with a limit of the member's own stretched (a2a/stretch.js)
+  stretch: { type: "boolean" } } };
 // "how likely is a yes" (docs/agent_matchmaking_plan.md, section 5): the asker, the game and up to twelve times, facts
 // only; the answer is a band, nothing else (match/likely.js answers it, match/ask.js sends it)
 export const BANDS = ["unlikely", "maybe", "likely", "very likely"];

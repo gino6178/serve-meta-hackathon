@@ -1,0 +1,57 @@
+{
+ "simulated": true,
+ "label": "The second round (a2a/stretch.js): requests with no common time, games a stretch round lands, and how stretched minutes fall with and without the burden ledger; code only, no model",
+ "seed": 11,
+ "stretchShare": 1,
+ "minutes": 90,
+ "week": "2026-11-01",
+ "landing": {
+  "singles": {
+   "requests": 4000,
+   "listedSomething": 3036,
+   "noCommonTime": 126,
+   "noCommonShare": 0.0415,
+   "landedByStretch": 20,
+   "landedShareOfNoCommon": 0.1587,
+   "gamesBefore": 0.9585,
+   "gamesAfter": 0.9651,
+   "meanLargestStretchMin": 2.7,
+   "meanMembersStretching": 1
+  },
+  "doubles": {
+   "requests": 4000,
+   "listedSomething": 641,
+   "noCommonTime": 104,
+   "noCommonShare": 0.1622,
+   "landedByStretch": 13,
+   "landedShareOfNoCommon": 0.125,
+   "gamesBefore": 0.8378,
+   "gamesAfter": 0.858,
+   "meanLargestStretchMin": 3,
+   "meanMembersStretching": 1.1
+  }
+ },
+ "burden": {
+  "club": 40,
+  "requests": 1500,
+  "format": "doubles",
+  "withLedger": {
+   "games": 141,
+   "stretchedGames": 0,
+   "totalMinutes": 0,
+   "giniAll": 0,
+   "maxMinutes": 0,
+   "membersWhoStretched": 0,
+   "giniAmongThoseWhoCan": 0
+  },
+  "withoutLedger": {
+   "games": 141,
+   "stretchedGames": 0,
+   "totalMinutes": 0,
+   "giniAll": 0,
+   "maxMinutes": 0,
+   "membersWhoStretched": 0,
+   "giniAmongThoseWhoCan": 0
+  }
+ }
+}
