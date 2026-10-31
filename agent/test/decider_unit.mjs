@@ -28,7 +28,7 @@ const srv = http.createServer((req, res) => {
 });
 await new Promise((ok) => srv.listen(0, "127.0.0.1", ok));
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-decider-"));
-Object.assign(process.env, { A2A_STUDENT: "off", A2A_STUDENT_URL: `http://127.0.0.1:${srv.address().port}`, LLM_URL: `http://127.0.0.1:${srv.address().port}/v1`, LLM_MODEL: "muse-glimmer", BOOKINGS_FILE: `${tmp}/bookings.json`, A2A_FILE: `${tmp}/a2a.json`, NEGOTIATIONS_FILE: `${tmp}/neg.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, A2A_LEASE: "off" });
+Object.assign(process.env, { A2A_TINY: "off", A2A_STUDENT: "off", A2A_STUDENT_URL: `http://127.0.0.1:${srv.address().port}`, LLM_URL: `http://127.0.0.1:${srv.address().port}/v1`, LLM_MODEL: "muse-glimmer", BOOKINGS_FILE: `${tmp}/bookings.json`, A2A_FILE: `${tmp}/a2a.json`, NEGOTIATIONS_FILE: `${tmp}/neg.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, A2A_LEASE: "off" });
 const { readOptions, decisionPrompt } = await import("../src/agents/decider.js");
 const { fullAnswer } = await import("../src/a2a/talk.js");
 test.after(() => srv.close());

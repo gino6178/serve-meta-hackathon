@@ -42,7 +42,7 @@ const srv = http.createServer((req, res) => {
 });
 await new Promise((ok) => srv.listen(0, "127.0.0.1", ok));
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-early-"));
-Object.assign(process.env, { A2A_STUDENT: "off", A2A_DECIDER: "off", A2A_EARLY: "on", A2A_EARLY_FROM: "0", LLM_URL: `http://127.0.0.1:${srv.address().port}/v1`, LLM_MODEL: "muse-glimmer", BOOKINGS_FILE: `${tmp}/bookings.json`, A2A_FILE: `${tmp}/a2a.json`,
+Object.assign(process.env, { A2A_TINY: "off", A2A_STUDENT: "off", A2A_DECIDER: "off", A2A_EARLY: "on", A2A_EARLY_FROM: "0", LLM_URL: `http://127.0.0.1:${srv.address().port}/v1`, LLM_MODEL: "muse-glimmer", BOOKINGS_FILE: `${tmp}/bookings.json`, A2A_FILE: `${tmp}/a2a.json`,
   NEGOTIATIONS_FILE: `${tmp}/neg.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, A2A_LEASE: "off" });
 const { fullAnswer } = await import("../src/a2a/talk.js");
 const { withNotes } = await import("../src/agents/decider.js");

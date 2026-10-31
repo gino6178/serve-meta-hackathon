@@ -8,7 +8,7 @@ import path from "node:path";
 import http from "node:http";
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-student-"));
-Object.assign(process.env, { BOOKINGS_FILE: `${tmp}/bookings.json`, A2A_FILE: `${tmp}/a2a.json`, NEGOTIATIONS_FILE: `${tmp}/neg.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, LLM_URL: "http://127.0.0.1:9/v1" });
+Object.assign(process.env, { A2A_TINY: "off", BOOKINGS_FILE: `${tmp}/bookings.json`, A2A_FILE: `${tmp}/a2a.json`, NEGOTIATIONS_FILE: `${tmp}/neg.json`, LEDGER_FILE: `${tmp}/ledger.jsonl`, TRACE_FILE: `${tmp}/traces.jsonl`, LLM_URL: "http://127.0.0.1:9/v1" });
 const { breaks, decide, fullAnswer } = await import("../src/a2a/talk.js");
 const { studentAnswer } = await import("../src/agents/student.js");
 const { validate, DECISION } = await import("../src/core/schema.js");

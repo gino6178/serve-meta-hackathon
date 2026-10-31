@@ -1,4 +1,4 @@
-// The tiny layer: a classifier of a few KB in front of the student (A2A_TINY=1; off by default). Same question as the
+// The tiny layer: a classifier of a few KB in front of the student (on unless A2A_TINY=off). Same question as the
 // student (student.js): the proposed time breaks the member's calendar or a hard rule and two or more listed times keep
 // them; ask for one of those, or say the member can't play this week. It reads no text model: each option is a row of
 // facts code already holds (weekday, start hour, the member's trip and its rank, how far from the asked time, place in
@@ -15,7 +15,9 @@
 import fs from "node:fs";
 import { record } from "../core/ledger.js";
 
-export const tinyOn = () => process.env.A2A_TINY === "1";
+// on by default: it agrees with Glimmer more often than the 1B on the hardest choices (69.4% against 63.3%) and about as
+// often on ordinary ones (88.5% against 89.5%), answering only below the doubt threshold (docs/tiny_models.md)
+export const tinyOn = () => process.env.A2A_TINY !== "off";
 const hmOf = (min) => `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
 const toMin = (s) => { const [h, m] = String(s).split(":").map(Number); return h * 60 + (m || 0); };
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

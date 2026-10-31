@@ -590,8 +590,8 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
   moved the time an hour after 20 s, the search took 25.7 s instead of 49.0 s on average; Muse Glimmer judged 80 times
   instead of 40, the price of guessing (the hour before was never asked for). Four searches each, on a shared GPU, so
   the times are rough.
-- **A tiny layer in front of the 1B and Glimmer** (`agents/tiny.js`, A2A_TINY=1; `feed/moderation.js` prefilter,
-  FEED_TINY=1; both off). Classifiers of 28 KB and 87 KB in plain JS, each with a doubt model that predicts when it
+- **A tiny layer in front of the 1B and Glimmer** (`agents/tiny.js`, on, A2A_TINY=off to turn it off; `feed/moderation.js` prefilter,
+  FEED_TINY=1, off). Classifiers of 28 KB and 87 KB in plain JS, each with a doubt model that predicts when it
   would disagree with Glimmer. Times: four small MLPs over facts code holds per option (weekday, hour, trip, distance
   from the asked time, list position, the member's habits and rules), trained on the student's 4,868 Glimmer choices;
   0.06 ms a choice on one CPU thread. Over all held-out cases it agrees with Glimmer 88.5% on the test set (student 89.5%,

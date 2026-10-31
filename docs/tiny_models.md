@@ -1,11 +1,12 @@
 # The tiny layer: classifiers of a few KB in front of the 1B and Muse Glimmer
 
 Two classifiers small enough to run inside the gateway, in plain JS on one CPU thread, answer the easy cases in well
-under a millisecond and send anything they doubt onward. Both are **off by default**.
+under a millisecond and send anything they doubt onward. The time classifier is **on by default**, since it agrees
+with Glimmer at least as often as the 1B (more on the hardest choices); the feed prefilter is off, as it saves little.
 
 | | Switch | Weights | What it answers | What it sends onward |
 |---|---|---|---|---|
-| Time choice | `A2A_TINY=1` (`agents/tiny.js`) | `tiny_times.json`, 28 KB | a member's choice between listed times, before the student | anything its doubt model doubts |
+| Time choice | on; `A2A_TINY=off` (`agents/tiny.js`) | `tiny_times.json`, 28 KB | a member's choice between listed times, before the student | anything its doubt model doubts |
 | Feed prefilter | `FEED_TINY=1` (`feed/moderation.js` prefilter) | `tiny_text.json`, 87 KB (64 KB of int8 weights, base64) | "clearly fine": skips Prompt Guard 2, Llama Guard 3 and the club's standard | everything else, to those checks as before |
 
 Each has a second, doubt model that reads the first one's answer (its top probability, margin, entropy, and a few facts
@@ -147,8 +148,8 @@ the trainer agree on all 12 check comments.
 ## Wiring
 
 - **Times.** `tinyAnswer(m, cur, ok, all, opts)` in `agents/tiny.js` has `studentAnswer`'s shape and returns null when
-  `A2A_TINY` is not `1`, when the member's limits are not all in code, with fewer than two times left, or when it
-  doubts. `a2a/talk.js` is not changed here. The hook, in `fullAnswer`, just before the student's line:
+  `A2A_TINY` is `off`, when the member's limits are not all in code, with fewer than two times left, or when it
+  doubts. The hook, in `a2a/talk.js` `fullAnswer`, just before the student's line:
 
   ```js
   { const t = tinyAnswer(m, cur, choices, all, { minutes, why: curBad }); if (t) return { ...t, text: sentence(them, t, cur) }; }

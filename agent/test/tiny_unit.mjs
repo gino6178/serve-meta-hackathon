@@ -27,9 +27,9 @@ const cur = t("t1", "2026-11-06", "Fri", 19), tue = t("t2", "2026-11-03", "Tue",
 const all = [cur, tue, sat, sun], ok = all.filter((x) => !breaks(m, x, 90));
 const opts = { minutes: 90, why: "no games on Fri" };
 
-test("off by default: the student and Glimmer answer as before", () => {
-  delete process.env.A2A_TINY;
-  assert.equal(tinyAnswer(m, cur, ok, all, opts), null);
+test("A2A_TINY=off: the student and Glimmer answer as before", () => {
+  process.env.A2A_TINY = "off";
+  try { assert.equal(tinyAnswer(m, cur, ok, all, opts), null); } finally { delete process.env.A2A_TINY; }
 });
 
 test("on, sure: a counter to a time code kept, with code's set of times, in the protocol's shape", () => {
