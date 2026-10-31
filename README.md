@@ -473,7 +473,8 @@ choose their settings. All four are on.
 
 `core/llm.js` routes each call by how long it is (LLM_ROUTE). A short call at a site where our distilled 1B was checked
 (LLM_SMALL_SITES: wording a game ask, a court's name in English, a memory's beliefs, a paper's summary, a question
-about the feed) goes to the 1B (`serve-1b` on Glimmer's Ollama, `distill/Modelfile.serve-1b`); anything longer, or
+about the feed, a lesson from a game's notes) goes to the 1B distilled for short text (`serve-1b-text` on Glimmer's
+Ollama, `distill/Modelfile.serve-1b-text`; before it, the decision model run as a chat model, `serve-1b`); anything longer, or
 anywhere else, to Muse Glimmer; a very long call (12,000 tokens or more) to Muse Spark on the Meta Model API. A 1B
 reply that is empty or does not fit its schema is asked again of Glimmer. The 1B's main work stays the agents'
 choices between times (the student). Every short site was tried on the 1B first: it filed training on the wrong day,
@@ -522,15 +523,21 @@ end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass a
   Still open: the asker's own vague answer to "Book it?"
   gets a chat reply (only "Are you in?" is covered), and the ghost passed none of its 4 Glimmer runs.
 
-`core/llm.js` routes each call by how long it is (LLM_ROUTE). A short call at a site where our distilled 1B was checked
-(LLM_SMALL_SITES: wording a game ask, a court's name in English, a memory's beliefs, a paper's summary, a question
-about the feed) goes to the 1B (`serve-1b` on Glimmer's Ollama, `distill/Modelfile.serve-1b`); anything longer, or
-anywhere else, to Muse Glimmer; a very long call (12,000 tokens or more) to Muse Spark on the Meta Model API. A 1B
-reply that is empty or does not fit its schema is asked again of Glimmer. The 1B's main work stays the agents'
-choices between times (the student). Every short site was tried on the 1B first: it filed training on the wrong day,
-logged games wrongly and could not phrase a wish (9 end-to-end checks failed), let 2 of 6 hostile comments through
-the post standard, and obeyed 4 of 10 court reviews that told it what to say. With the checked sites only, the
-end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer alone.
+- **A 1B distilled for short text** (`distill/text_*`, `submission/results/text1b.json`). Glimmer answered 1,039
+  synthetic inputs through the real call sites. That gave 858 training and 166 held-out answers, held out by input source.
+  Llama 3.2 1B Instruct got a LoRA SFT on them, plus 371 copies with injected or obfuscated text that keep Glimmer's
+  answer to the clean text, plus a KL term toward Glimmer's verdict logprobs at `feed.standard` and `places.judge`.
+  On the 1B route, outside text now goes in an `input` message of its own (`llm.js`). Held-out agreement with Glimmer
+  went up from the old `serve-1b` to the new model: `answer.learn` 0/30 to 30/30, `feed.standard` 13/23 to 23/23,
+  `places.judge` 9/20 to 15/20, `life.read` 0/59 to 34/59. On a new set of 446 attacks whose templates never appeared
+  in training, it passed 8 of 71 hostile comments (Glimmer 0, old 1B 65). Poisoned reviews turned 7 of 180 bad courts
+  "good" (Glimmer 5, old 1B 98). With every short site on it, the end-to-end test passed. Both red teams failed only
+  the flood check, because it called "Free shuttles number 3" spam; without `feed.standard` they pass 13/13 and 93/93.
+  SecAlign++ DPO after the SFT cut injected passes (5 to 2 of 71) but blocked 8 of 32 ordinary comments and lowered
+  agreement everywhere, so it is not used. An importance matrix and Q5_K_M did not help consistently. Recommended:
+  add `answer.learn` to the five sites. The others are not ready yet: `places.judge` (verdict 15/20), `memory.update`,
+  `life.read` and `loop.paraphrase` held-out agreement is too low, `answer` and `body.summary` got too few labels, and
+  `feed.standard` fails.
 - **When not to send.** `match/gate.js` (ASK_GATE=off for the fixed 12:00 ask) decides the hour of the daily "Match
   asks first" ask, and whether to send it at all: a Beta posterior per player on "answered within 2 hours" for each hour
   (weekday or weekend), started from the club's rate, Thompson-sampled once a day, times a draw of the player's chance
