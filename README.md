@@ -481,6 +481,22 @@ logged games wrongly and could not phrase a wish (9 end-to-end checks failed), l
 the post standard, and obeyed 4 of 10 court reviews that told it what to say. With the checked sites only, the
 end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer alone.
 
+## More agent upgrades, measured
+
+- **Tool calls checked after the schema, repaired from typed errors, and read back.** `core/toolcheck.js` (TOOL_CHECKS=off
+  for the loop as it was), after JSONSchemaBench, ReliabilityBench and ToolMaze. A call that fits its schema but names a
+  day outside the week, a start outside the player's free windows, an id nobody returned or the wrong number of members
+  is refused in a fixed vocabulary (unknown_id, date_out_of_range, breaks_limit, ...), never echoing the model's values,
+  and may be repaired twice; members' replies (`a2a/talk.js`) and calendar entries (`club/life.js`) get the same check in
+  chatJSON. negotiate, request_approval and nudge are read back after they report success. Simulated with injected faults
+  (`test/tool_faults.mjs`, `submission/results/tool_reliability.json`, 120 weeks per arm, about 9% schema and 8% semantic
+  faults, 15% silent failures): semantic faults caught 46 of 48 before and 55 of 55 after; 36 refusals echoed the model's
+  value before, none after; silent failures passed as success 53 of 53 before and 0 of 56 after (48 runs claimed games
+  or an approval that were not there, against 0); weeks reaching the goal with the state intact 72 to 120 of 120.
+  Repair@1/@2 0.857/0.956 to 0.880/0.970, a gain that comes from catching more, since the stand-in model repairs the
+  same way whatever the error says. On the GPU with Muse Glimmer, on the 6 weeks both arms finished
+  (`submission/results/tool_reliability_real.json`, one run each): no difference, 3 of 6 reached the goal either way.
+
 ## What is where
 
 | Folder | What it holds |

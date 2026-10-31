@@ -1,5 +1,5 @@
 {
- "at": "2026-10-31T04:56:44.417Z",
+ "at": "2026-10-31T06:05:18.727Z",
  "simulated": true,
  "harness": "agent/test/tool_faults.mjs (fake_model.mjs faults; Autopilot loop with the stand-in model, no GPU)",
  "rates": {
@@ -232,5 +232,134 @@
    "repairRate": 1,
    "overruledByCode": 0
   }
+ },
+ "real": {
+  "at": "2026-10-31T06:04:25.458Z",
+  "simulated": false,
+  "where": "RTX 3090 server, Muse Glimmer on Ollama (shared with other experiments and the live site, LLM_SLOTS=2), test/autopilot_eval.mjs tuned weeks, in-process members",
+  "note": "The after arm was stopped after 6 of 9 weeks to save model time; the comparison is on the 6 weeks both arms completed. One run per week per arm: too few to tell a difference from run-to-run variation. The before arm ran all 9 weeks (6 reached the goal). The checks report (report.checks) was not kept by autopilot_eval.mjs, so semantic refusals and postconditions failed on the real model are not counted here.",
+  "weeksCompared": 6,
+  "before": {
+   "weeks": 6,
+   "reachedGoal": 3,
+   "finishedByRules": 4,
+   "meanSeconds": 176.2,
+   "modelCalls": 13.8,
+   "toolCalls": 15.3,
+   "refusedTotal": 15,
+   "invalidReplies": 0
+  },
+  "after": {
+   "weeks": 6,
+   "reachedGoal": 3,
+   "finishedByRules": 4,
+   "meanSeconds": 353.6,
+   "modelCalls": 14.5,
+   "toolCalls": 16,
+   "refusedTotal": 22,
+   "invalidReplies": 0
+  },
+  "beforeAllNine": {
+   "weeks": 9,
+   "reachedGoal": 6,
+   "finishedByRules": 6,
+   "meanSeconds": 238.5,
+   "modelCalls": 13.9,
+   "toolCalls": 15.1,
+   "refusedTotal": 23,
+   "invalidReplies": 1
+  },
+  "perWeek": [
+   {
+    "scenario": "Two games a week",
+    "before": {
+     "success": true,
+     "refused": 5,
+     "finishedBy": "rules",
+     "seconds": 241.8
+    },
+    "after": {
+     "success": true,
+     "refused": 7,
+     "finishedBy": "rules",
+     "seconds": 323.5
+    }
+   },
+   {
+    "scenario": "Two games, sore knee (doubles first)",
+    "before": {
+     "success": false,
+     "refused": 3,
+     "finishedBy": "rules",
+     "seconds": 148.2
+    },
+    "after": {
+     "success": false,
+     "refused": 6,
+     "finishedBy": "rules",
+     "seconds": 301.3
+    }
+   },
+   {
+    "scenario": "Three games a week",
+    "before": {
+     "success": false,
+     "refused": 3,
+     "finishedBy": "rules",
+     "seconds": 180.9
+    },
+    "after": {
+     "success": false,
+     "refused": 4,
+     "finishedBy": "rules",
+     "seconds": 400.2
+    }
+   },
+   {
+    "scenario": "Thursday already booked",
+    "before": {
+     "success": true,
+     "refused": 1,
+     "finishedBy": "model",
+     "seconds": 179.5
+    },
+    "after": {
+     "success": true,
+     "refused": 1,
+     "finishedBy": "model",
+     "seconds": 334
+    }
+   },
+   {
+    "scenario": "Tennis, one game",
+    "before": {
+     "success": true,
+     "refused": 0,
+     "finishedBy": "model",
+     "seconds": 76.1
+    },
+    "after": {
+     "success": true,
+     "refused": 1,
+     "finishedBy": "model",
+     "seconds": 296.2
+    }
+   },
+   {
+    "scenario": "Two games, Kenji just played long",
+    "before": {
+     "success": false,
+     "refused": 3,
+     "finishedBy": "rules",
+     "seconds": 230.6
+    },
+    "after": {
+     "success": false,
+     "refused": 3,
+     "finishedBy": "rules",
+     "seconds": 466.3
+    }
+   }
+  ]
  }
 }
