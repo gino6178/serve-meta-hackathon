@@ -5,6 +5,9 @@
 //      still compare; points with p = 0 (the trial off) carry no contrast and are left out of it. The interval is a
 //      bootstrap over players (points of one player are not independent), 95%, seeded.
 //   2. the response rate (an answer within 24 hours) to the asks made, by week since sign-up (the player's linkedAt).
+// With the send gate on (match/gate.js), an ask-arm point the gate passed on counts in the ask arm (asked false; "sent"
+// counts the asks that went out): the contrast is "may ask today, when the gate says" against "may not". Both arms'
+// points are logged at the day's first look, so the 48 hours start at the same time of day in each.
 // A game counts from the player's record (games) and the matches in their calendar (events, kind "match"), by its start.
 //   node test/ask_trial_analysis.mjs [--asks data/asks.json] [--store data/players.json] [--json]
 // (ASK_FILE and STORE_FILE are the defaults, as the gateway reads them)
@@ -36,7 +39,7 @@ export function analyze(rows, players, { now = Date.now(), boot = 1000, seed = 7
   const byArm = {};
   for (const arm of ["ask", "withhold"]) {
     const xs = pts.filter((r) => r.arm === arm && r.done);
-    byArm[arm] = { points: xs.length, players: new Set(xs.map((r) => r.who)).size, games48h: xs.reduce((s, r) => s + r.games, 0), meanGames48h: xs.length ? +(xs.reduce((s, r) => s + r.games, 0) / xs.length).toFixed(3) : null, anyGame48h: xs.length ? +(xs.filter((r) => r.games > 0).length / xs.length).toFixed(3) : null };
+    byArm[arm] = { points: xs.length, sent: xs.filter((r) => r.asked).length, players: new Set(xs.map((r) => r.who)).size, games48h: xs.reduce((s, r) => s + r.games, 0), meanGames48h: xs.length ? +(xs.reduce((s, r) => s + r.games, 0) / xs.length).toFixed(3) : null, anyGame48h: xs.length ? +(xs.filter((r) => r.games > 0).length / xs.length).toFixed(3) : null };
   }
   const drawn = pts.filter((r) => r.done && r.p > 0 && r.p < 1), est = contrast(drawn);
   let ci = null;
