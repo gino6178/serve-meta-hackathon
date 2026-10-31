@@ -15,17 +15,17 @@ const prefs = await import("../src/memory/prefs.js");
 const option = (partners, extra = {}) => ({ date: "2026-11-12", day: "Thu", start: "19:00", end: "20:30", minutes: 90, format: partners.length > 1 ? "doubles" : "singles", sport: "badminton", court: 2, venue: { id: "v1", name: "Midtown Gym" }, partners: partners.map((id) => ({ id, name: `${id.toUpperCase()} Person` })), ...extra });
 let n = 0;
 function world({ bookings = [], lease = 60000 } = {}) {
-  const t = { now: 1_800_000_000_000 }, sent = [], research = [], booked = [], called = [], records = [];
+  const t = { now: 1_800_000_000_000 }, sent = [], research = [], refs = [], booked = [], called = [], records = [];
   const c = C.createConfirm({
     file: path.join(dir, `p${++n}.json`), chainsFile: path.join(dir, `c${n}.json`), leaseMs: () => lease, now: () => t.now,
     send: async (id, text, opts = {}) => { sent.push({ id, text, buttons: (opts.buttons || []).map((b) => b.payload) }); },
     describe: (o, id) => `${o.format} ${o.day} ${o.start} (for ${id})`, releaseHolds: async () => {},
-    book: async (by, o) => { booked.push({ by, o }); return {}; }, research: async (by, o, leaveOut) => { research.push({ by, leaveOut: [...leaveOut] }); },
+    book: async (by, o) => { booked.push({ by, o }); return {}; }, research: async (by, o, leaveOut) => { research.push({ by, leaveOut: [...leaveOut] }); refs.push(leaveOut); },
     bookingsOf: (id) => bookings.filter((b) => !b.cancelled && [b.option.by, ...b.option.partners.map((p) => p.id)].includes(id)),
     callOff: async (b) => { b.cancelled = true; called.push(b.id); }, recheck: async () => ({ ok: true }),
     record: (id, r, meta) => { records.push({ id, r }); return prefs.record(id, r, meta); }, nameOf: (id) => `${id.toUpperCase()} Person`,
   });
-  return { c, t, sent, research, booked, called, records, to: (id) => sent.filter((m) => m.id === id) };
+  return { c, t, sent, research, refs, booked, called, records, to: (id) => sent.filter((m) => m.id === id) };
 }
 const idOf = (w, who) => /pc:([\w-]+):/.exec(w.to(who).at(-1).buttons[0])[1];
 
@@ -165,4 +165,17 @@ test("6. a game called off by one person's no is told to everyone who was asked"
   await w.c.tap("u4", id, "yes");
   assert.match(w.to("u4").at(-1).text, /That game is off \(U3\)/);
   assert.equal(w.booked.length, 0);
+});
+
+test("5. a no that lands after another no ended the ask still keeps that person out of the next search", async () => {
+  const w = world();
+  await w.c.ask("u1", "U1 Person", option(["u2", "u3", "u4"]), ["u2", "u3", "u4"].map((id) => ({ id, name: id })));
+  const id = idOf(w, "u2");
+  await w.c.tap("u2", id, "no");
+  assert.deepEqual(w.research[0].leaveOut, ["u2"]);
+  await w.c.tap("u3", id, "other");
+  assert.deepEqual(w.refs[0], ["u2", "u3"], "the running search's own list gets it");
+  await w.c.ask("u1", "U1 Person", option(["u5", "u6", "u7"]), ["u5", "u6", "u7"].map((x) => ({ id: x, name: x })));
+  await w.c.tap("u5", idOf(w, "u5"), "no");
+  assert.deepEqual([...w.research[1].leaveOut].sort(), ["u2", "u3", "u5"]);
 });

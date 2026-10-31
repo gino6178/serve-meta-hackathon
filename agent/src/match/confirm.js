@@ -81,6 +81,9 @@ export function createConfirm(deps) {
   const sync = (P) => { P.waiting = waitingOf(P); };
   const BUTTONS = (id) => [{ title: "I'm in", payload: `pc:${id}:yes` }, { title: "Can't make it", payload: `pc:${id}:no` }, { title: "Another time", payload: `pc:${id}:other` }];
   // the request's chain: who said no or let the ask lapse, and how many searches it has had (one per asker, a day)
+  // the list a running search was given is the same array, so a no that lands while it runs still reaches it
+  const live = {};
+  const leave = (by, id, kind = "no") => { const c = chainOf(by), list = kind === "lapse" ? c.lapsed : c.no; if (!list.includes(id)) list.push(id); if (live[by] && !live[by].includes(id)) live[by].push(id); };
   const chainOf = (by) => { const c = chains[by]; return c && now() - c.at < DAY ? c : (chains[by] = { no: [], lapsed: [], rounds: 0, at: now() }); };
 
   async function ask(by, byName, o, who) {
@@ -95,7 +98,7 @@ export function createConfirm(deps) {
   async function off(P, cause, kind) {
     P.status = kind === "lapse" ? "lapsed" : "off"; P.endedAt = now(); P.offWhy = cause.map((id) => first(nameOf(P, id))).join(" and ");
     const c = chainOf(P.by), list = kind === "lapse" ? c.lapsed : c.no;
-    for (const id of cause) if (!list.includes(id)) list.push(id);
+    for (const id of cause) leave(P.by, id, kind);
     sync(P); save();
     await Promise.resolve(deps.releaseHolds(P.option)).catch(() => {});
     const g = short(P.option), why = kind === "lapse" ? `${P.offWhy} didn't answer in time` : `${P.offWhy} can't make it`;
@@ -107,7 +110,7 @@ export function createConfirm(deps) {
   async function searchAgain(by, o, lead) {
     const c = chainOf(by);
     c.rounds++; c.at = now(); save();
-    const out = [...new Set([...c.no, ...c.lapsed])];
+    const out = (live[by] = [...new Set([...c.no, ...c.lapsed])]);
     if (c.rounds > MAX_ROUNDS) {
       delete chains[by]; save();
       return deps.send(by, `${lead} I've now asked ${out.length} ${out.length === 1 ? "person" : "people"} for ${short(o)} and none could make it, so I've stopped looking. Send /game to try another time.`);
@@ -128,6 +131,8 @@ export function createConfirm(deps) {
     const P = pending[id], me = P?.asked[psid];
     if (!P || !me) return deps.send(psid, "That game isn't waiting for you any more.");
     if (P.status === "lapsed" && me.state === "lapsed") return value === "yes" ? late(P, psid) : deps.send(psid, "OK. That time had already lapsed, so nothing changes.");
+    // (a no that arrives after someone else's no ended the ask still counts: the next search leaves them out too)
+    if (P.status !== "open" && value !== "yes" && me.state === "waiting") { me.state = "no"; leave(P.by, psid); sync(P); save(); }
     if (P.status !== "open") return deps.send(psid, P.offWhy ? `That game is off (${P.offWhy}), so nothing is booked.` : "That game isn't waiting for you any more.");
     if (me.state !== "waiting") return deps.send(psid, me.state === "yes" ? "You're already in." : "That game isn't waiting for you any more.");
     if (value !== "yes") { me.state = "no"; return off(P, [psid], "no"); }
@@ -215,7 +220,7 @@ export function createConfirm(deps) {
     if (psid === o.by || !o.by) { for (const x of others) await deps.send(x, `${first(nm(psid))} called off ${deps.describe(o, x)}, so nothing is booked.`).catch(() => {}); return; }
     for (const x of others.filter((k) => k !== o.by)) await deps.send(x, `${first(nm(psid))} dropped out of ${deps.describe(o, x)}, so it's called off and nothing is booked.`).catch(() => {});
     // the host's agent looks for someone else, leaving out the one who dropped out (the same chain as a no)
-    const c = chainOf(o.by); if (!c.no.includes(psid)) c.no.push(psid); save();
+    leave(o.by, psid); save();
     return searchAgain(o.by, o, `${first(nm(psid))} dropped out of ${deps.describe(o, o.by)}, so it's called off and nothing is booked.`);
   }
   return { ask, tap, tick, text, dropTap, lateTap, pending, chains };
