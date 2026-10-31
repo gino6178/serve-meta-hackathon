@@ -127,7 +127,7 @@ async function runOne(sc, trial, model) {
   const gameOf = async (payload) => {
     const [kind, id] = payload.split(":");
     for (let k = 0; k < 10; k++) {
-      if (kind === "pc") { const o = readJ(path.join(dir, "data/partner_confirm.json"), {})[id]?.option; if (o) return `${o.date} ${o.start}`; }
+      if (kind === "pc" || kind === "pl") { const o = readJ(path.join(dir, "data/partner_confirm.json"), {})[id]?.option; if (o) return `${o.date} ${o.start}`; }
       if (kind === "gm") { const a = readJ(path.join(dir, "data/asks.json"), { asks: {} }).asks?.[id], o = a?.agreed || a?.opening; if (o) return `${o.date} ${o.start}`; }
       await sleep(300);
     }
@@ -137,6 +137,9 @@ async function runOne(sc, trial, model) {
   // a search that goes round and round (the asker asked to Book the same game again and again): the run stops after
   // LOOP_MAX such questions, as a failure of its own, so a loop costs minutes, not the whole cap
   let books = 0, loop = false;
+  // (one answer per person and ask: a nudge about an ask they already answered, or chose to leave, changes nothing;
+  // only vague words leave it open, so the question asked again gets a fresh answer)
+  const decided = new Map();
   async function react(x) {
     const id = x.to, p = byId[id];
     if (!p) return;
@@ -144,7 +147,11 @@ async function runOne(sc, trial, model) {
     s.messages++; if (x.payloads.length) s.questions++;
     const b = beliefOf(x.text);
     if (b) (beliefs[id] ||= []).push({ kind: b, game: b === "none" ? null : whenIn(x.text), t: x.t });
-    const pl = x.payloads, q = pl[0] || "", qk = /^pc:/.test(q) ? "confirm" : /^gm:[^:]+:book$/.test(q) ? "book" : /^gm:[^:]+:yes$/.test(q) ? "ask" : null;
+    const pl = x.payloads, q = pl[0] || "", qk = /^pc:/.test(q) ? "confirm" : /^(gm:[^:]+:book|pl:[^:]+:yes)$/.test(q) ? "book" : /^gm:[^:]+:yes$/.test(q) ? "ask" : null;
+    // "Drop out of ...?" (the gateway checking a back-out in words): yes from the one who backed out, else no
+    if (/^pd:/.test(q)) { const mine = backedOut.some((y) => y.id === id); log.push({ t: T(), decide: id, kind: "drop", act: mine ? "yes" : "no" }); return hook(id, { text: x.buttons[mine ? 0 : 1], quick_reply: { payload: pl[mine ? 0 : 1] } }, `drop:${mine ? "yes" : "no"}`); }
+    const askId = /^pc:/.test(q) ? `${id}|${q.split(":")[1]}` : null;
+    if (askId && decided.has(askId) && decided.get(askId) !== "text") { log.push({ t: T(), note: `${id} already answered ${q.split(":")[1]}` }); return; }
     if (qk) {
       involved.add(id);
       if (id === asker && qk === "book" && ++books > LOOP_MAX) { loop = true; log.push({ t: T(), note: `stopped: asked to Book ${books} times` }); return; }
@@ -153,13 +160,14 @@ async function runOne(sc, trial, model) {
       const [date, start] = g.split(" ");
       const a = H.answer(SEED, p, kind, { ...ctx0, step: `${qk}:${g}:${s.questions}`, kind: qk, date, start, asked: id === asker ? sc.slot : null, seen: s, club: CLUB_SEED });
       if (a.gaveUp) gaveUp.add(id);
+      if (askId) decided.set(askId, a.act);
       log.push({ t: T(), decide: id, kind: qk, game: g, act: a.act, delay: a.delay, why: a.why });
       const go = async () => {
         if (a.act === "silent") return;
         if (a.act === "text") return hook(id, { text: a.text }, "vague");
         if (a.act === "yes") { set(id, g, "in"); saidYes.push({ id, game: g }); return hook(id, { text: x.buttons[0], quick_reply: { payload: pl[0] } }, `${qk}:yes`); }
         // another time where there is such a button (Want a game?), else no
-        const k = qk === "ask" ? (a.act === "other" ? 1 : 2) : 1;
+        const k = qk === "ask" ? (a.act === "other" ? 1 : 2) : a.act === "other" && pl.length > 2 ? 2 : 1;
         set(id, g, "out"); return hook(id, { text: x.buttons[k], quick_reply: { payload: pl[k] } }, `${qk}:${a.act}`);
       };
       if (a.delay === "late") later(LATE, go); else await go();
@@ -190,7 +198,9 @@ async function runOne(sc, trial, model) {
   await hook(asker, { text }, "request");
   for (;;) {
     await sleep(500);
-    if (!timers && !hooks && !llm && Date.now() - last > QUIET) break;
+    // (an ask still open at the gateway, or a late yes waiting for the asker, keeps the run going: its clock may act)
+    const open = Object.values(readJ(path.join(dir, "data/partner_confirm.json"), {})).some((x) => x && (x.status === "open" || x.late));
+    if (!timers && !hooks && !llm && !open && Date.now() - last > QUIET) break;
     if (loop) break;
     if (Date.now() - tStart > CAP) { log.push({ t: T(), note: "cap reached" }); break; }
   }

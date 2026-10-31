@@ -10696,5 +10696,7148 @@
     "modelSeconds": 0
    }
   ]
+ },
+ "afterFixes": {
+  "note": "The six failure modes fixed in agent/src/match/confirm.js (branch up/fixflow), then the same harness, seeds and scenarios rerun: the fake model 20 requests x 8 runs per club, Muse Glimmer 8 x 4 per club (two runs at a time). Before = the runs above (real8/*, fake/*).",
+  "commit": "9941f2a",
+  "glimmerRanBefore": "The Glimmer slice ran on the commit before the last fix (a no that lands after another no in doubles; it changes re-asks only). The fake slice ran on the final commit.",
+  "arms": {
+   "real8/coop": {
+    "arm": "coop",
+    "scenarios": 8,
+    "trials": 4,
+    "runs": 32,
+    "passk": {
+     "1": {
+      "value": 0.656,
+      "ci95": [
+       0.41,
+       0.88
+      ]
+     },
+     "2": {
+      "value": 0.521,
+      "ci95": [
+       0.25,
+       0.81
+      ]
+     },
+     "3": {
+      "value": 0.438,
+      "ci95": [
+       0.16,
+       0.78
+      ]
+     },
+     "4": {
+      "value": 0.375,
+      "ci95": [
+       0.13,
+       0.75
+      ]
+     }
+    },
+    "honestk": {
+     "1": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "2": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "3": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "4": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     }
+    },
+    "pass": {
+     "k": 21,
+     "n": 32,
+     "rate": 0.656,
+     "ci95": [
+      0.48,
+      0.8
+     ]
+    },
+    "honest": {
+     "k": 32,
+     "n": 32,
+     "rate": 1,
+     "ci95": [
+      0.89,
+      1
+     ]
+    },
+    "falseBooked": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ],
+     "reports": 0
+    },
+    "fellApartAfterYes": {
+     "k": 6,
+     "n": 32,
+     "rate": 0.188,
+     "ci95": [
+      0.09,
+      0.35
+     ]
+    },
+    "bookedThenFell": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ]
+    },
+    "yesNeverBooked": {
+     "k": 6,
+     "n": 32,
+     "rate": 0.188,
+     "ci95": [
+      0.09,
+      0.35
+     ]
+    },
+    "leftWaiting": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ]
+    },
+    "noAnswer": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ]
+    },
+    "loops": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ]
+    },
+    "capped": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ]
+    },
+    "byKind": {
+     "cooperative": {
+      "runs": 32,
+      "pass": 21,
+      "rate": 0.656,
+      "ci95": [
+       0.48,
+       0.8
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 6
+     }
+    },
+    "noDifficultInvolved": {
+     "runs": 32,
+     "pass": 21,
+     "rate": 0.656
+    },
+    "model": {
+     "calls": 117,
+     "seconds": 1174,
+     "studentCalls": 0,
+     "llm": "muse-glimmer (Ollama :11435), student worker :11447 wired in",
+     "wallMinutes": 29
+    }
+   },
+   "real8/hard": {
+    "arm": "hard",
+    "scenarios": 8,
+    "trials": 4,
+    "runs": 32,
+    "passk": {
+     "1": {
+      "value": 0.469,
+      "ci95": [
+       0.19,
+       0.78
+      ]
+     },
+     "2": {
+      "value": 0.375,
+      "ci95": [
+       0.13,
+       0.75
+      ]
+     },
+     "3": {
+      "value": 0.375,
+      "ci95": [
+       0.13,
+       0.75
+      ]
+     },
+     "4": {
+      "value": 0.375,
+      "ci95": [
+       0.13,
+       0.75
+      ]
+     }
+    },
+    "honestk": {
+     "1": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "2": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "3": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "4": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     }
+    },
+    "pass": {
+     "k": 15,
+     "n": 32,
+     "rate": 0.469,
+     "ci95": [
+      0.31,
+      0.64
+     ]
+    },
+    "honest": {
+     "k": 32,
+     "n": 32,
+     "rate": 1,
+     "ci95": [
+      0.89,
+      1
+     ]
+    },
+    "falseBooked": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ],
+     "reports": 0
+    },
+    "fellApartAfterYes": {
+     "k": 12,
+     "n": 32,
+     "rate": 0.375,
+     "ci95": [
+      0.23,
+      0.55
+     ]
+    },
+    "bookedThenFell": {
+     "k": 3,
+     "n": 32,
+     "rate": 0.094,
+     "ci95": [
+      0.03,
+      0.24
+     ]
+    },
+    "yesNeverBooked": {
+     "k": 9,
+     "n": 32,
+     "rate": 0.281,
+     "ci95": [
+      0.16,
+      0.45
+     ]
+    },
+    "leftWaiting": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ]
+    },
+    "noAnswer": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ]
+    },
+    "loops": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ]
+    },
+    "capped": {
+     "k": 0,
+     "n": 32,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.11
+     ]
+    },
+    "byKind": {
+     "budget": {
+      "runs": 4,
+      "pass": 4,
+      "rate": 1,
+      "ci95": [
+       0.51,
+       1
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 0
+     },
+     "cooperative": {
+      "runs": 29,
+      "pass": 15,
+      "rate": 0.517,
+      "ci95": [
+       0.34,
+       0.69
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 12
+     },
+     "flipper": {
+      "runs": 9,
+      "pass": 5,
+      "rate": 0.556,
+      "ci95": [
+       0.27,
+       0.81
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 7
+     },
+     "ghost": {
+      "runs": 4,
+      "pass": 0,
+      "rate": 0,
+      "ci95": [
+       0,
+       0.49
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 4
+     },
+     "vague": {
+      "runs": 6,
+      "pass": 2,
+      "rate": 0.333,
+      "ci95": [
+       0.1,
+       0.7
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 1
+     }
+    },
+    "noDifficultInvolved": {
+     "runs": 10,
+     "pass": 5,
+     "rate": 0.5
+    },
+    "model": {
+     "calls": 251,
+     "seconds": 2902,
+     "studentCalls": 0,
+     "llm": "muse-glimmer (Ollama :11435), student worker :11447 wired in",
+     "wallMinutes": 62
+    }
+   },
+   "fake/coop": {
+    "arm": "coop",
+    "scenarios": 20,
+    "trials": 8,
+    "runs": 160,
+    "passk": {
+     "1": {
+      "value": 0.494,
+      "ci95": [
+       0.31,
+       0.66
+      ]
+     },
+     "2": {
+      "value": 0.388,
+      "ci95": [
+       0.22,
+       0.57
+      ]
+     },
+     "3": {
+      "value": 0.329,
+      "ci95": [
+       0.17,
+       0.51
+      ]
+     },
+     "4": {
+      "value": 0.291,
+      "ci95": [
+       0.13,
+       0.48
+      ]
+     },
+     "5": {
+      "value": 0.263,
+      "ci95": [
+       0.11,
+       0.44
+      ]
+     },
+     "6": {
+      "value": 0.239,
+      "ci95": [
+       0.08,
+       0.43
+      ]
+     },
+     "7": {
+      "value": 0.219,
+      "ci95": [
+       0.06,
+       0.41
+      ]
+     },
+     "8": {
+      "value": 0.2,
+      "ci95": [
+       0.05,
+       0.4
+      ]
+     }
+    },
+    "honestk": {
+     "1": {
+      "value": 0.994,
+      "ci95": [
+       0.98,
+       1
+      ]
+     },
+     "2": {
+      "value": 0.988,
+      "ci95": [
+       0.96,
+       1
+      ]
+     },
+     "3": {
+      "value": 0.981,
+      "ci95": [
+       0.94,
+       1
+      ]
+     },
+     "4": {
+      "value": 0.975,
+      "ci95": [
+       0.93,
+       1
+      ]
+     },
+     "5": {
+      "value": 0.969,
+      "ci95": [
+       0.91,
+       1
+      ]
+     },
+     "6": {
+      "value": 0.963,
+      "ci95": [
+       0.89,
+       1
+      ]
+     },
+     "7": {
+      "value": 0.956,
+      "ci95": [
+       0.87,
+       1
+      ]
+     },
+     "8": {
+      "value": 0.95,
+      "ci95": [
+       0.85,
+       1
+      ]
+     }
+    },
+    "pass": {
+     "k": 79,
+     "n": 160,
+     "rate": 0.494,
+     "ci95": [
+      0.42,
+      0.57
+     ]
+    },
+    "honest": {
+     "k": 159,
+     "n": 160,
+     "rate": 0.994,
+     "ci95": [
+      0.97,
+      1
+     ]
+    },
+    "falseBooked": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ],
+     "reports": 0
+    },
+    "fellApartAfterYes": {
+     "k": 76,
+     "n": 160,
+     "rate": 0.475,
+     "ci95": [
+      0.4,
+      0.55
+     ]
+    },
+    "bookedThenFell": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ]
+    },
+    "yesNeverBooked": {
+     "k": 76,
+     "n": 160,
+     "rate": 0.475,
+     "ci95": [
+      0.4,
+      0.55
+     ]
+    },
+    "leftWaiting": {
+     "k": 1,
+     "n": 160,
+     "rate": 0.006,
+     "ci95": [
+      0,
+      0.03
+     ]
+    },
+    "noAnswer": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ]
+    },
+    "loops": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ]
+    },
+    "capped": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ]
+    },
+    "byKind": {
+     "cooperative": {
+      "runs": 160,
+      "pass": 79,
+      "rate": 0.494,
+      "ci95": [
+       0.42,
+       0.57
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 1,
+      "fellApart": 76
+     }
+    },
+    "noDifficultInvolved": {
+     "runs": 160,
+     "pass": 79,
+     "rate": 0.494
+    },
+    "model": {
+     "calls": 750,
+     "seconds": 0,
+     "studentCalls": 0,
+     "llm": "fake model (code only)",
+     "wallMinutes": 57
+    }
+   },
+   "fake/hard": {
+    "arm": "hard",
+    "scenarios": 20,
+    "trials": 8,
+    "runs": 160,
+    "passk": {
+     "1": {
+      "value": 0.394,
+      "ci95": [
+       0.24,
+       0.56
+      ]
+     },
+     "2": {
+      "value": 0.264,
+      "ci95": [
+       0.12,
+       0.45
+      ]
+     },
+     "3": {
+      "value": 0.22,
+      "ci95": [
+       0.07,
+       0.4
+      ]
+     },
+     "4": {
+      "value": 0.201,
+      "ci95": [
+       0.05,
+       0.38
+      ]
+     },
+     "5": {
+      "value": 0.188,
+      "ci95": [
+       0.05,
+       0.36
+      ]
+     },
+     "6": {
+      "value": 0.175,
+      "ci95": [
+       0.04,
+       0.35
+      ]
+     },
+     "7": {
+      "value": 0.163,
+      "ci95": [
+       0.02,
+       0.33
+      ]
+     },
+     "8": {
+      "value": 0.15,
+      "ci95": [
+       0,
+       0.3
+      ]
+     }
+    },
+    "honestk": {
+     "1": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "2": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "3": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "4": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "5": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "6": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "7": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     },
+     "8": {
+      "value": 1,
+      "ci95": [
+       1,
+       1
+      ]
+     }
+    },
+    "pass": {
+     "k": 63,
+     "n": 160,
+     "rate": 0.394,
+     "ci95": [
+      0.32,
+      0.47
+     ]
+    },
+    "honest": {
+     "k": 160,
+     "n": 160,
+     "rate": 1,
+     "ci95": [
+      0.98,
+      1
+     ]
+    },
+    "falseBooked": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ],
+     "reports": 0
+    },
+    "fellApartAfterYes": {
+     "k": 80,
+     "n": 160,
+     "rate": 0.5,
+     "ci95": [
+      0.42,
+      0.58
+     ]
+    },
+    "bookedThenFell": {
+     "k": 12,
+     "n": 160,
+     "rate": 0.075,
+     "ci95": [
+      0.04,
+      0.13
+     ]
+    },
+    "yesNeverBooked": {
+     "k": 69,
+     "n": 160,
+     "rate": 0.431,
+     "ci95": [
+      0.36,
+      0.51
+     ]
+    },
+    "leftWaiting": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ]
+    },
+    "noAnswer": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ]
+    },
+    "loops": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ]
+    },
+    "capped": {
+     "k": 0,
+     "n": 160,
+     "rate": 0,
+     "ci95": [
+      0,
+      0.02
+     ]
+    },
+    "byKind": {
+     "budget": {
+      "runs": 15,
+      "pass": 9,
+      "rate": 0.6,
+      "ci95": [
+       0.36,
+       0.8
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 6
+     },
+     "cooperative": {
+      "runs": 141,
+      "pass": 61,
+      "rate": 0.433,
+      "ci95": [
+       0.35,
+       0.52
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 74
+     },
+     "drifter": {
+      "runs": 8,
+      "pass": 0,
+      "rate": 0,
+      "ci95": [
+       0,
+       0.32
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 8
+     },
+     "flipper": {
+      "runs": 41,
+      "pass": 13,
+      "rate": 0.317,
+      "ci95": [
+       0.2,
+       0.47
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 34
+     },
+     "ghost": {
+      "runs": 40,
+      "pass": 8,
+      "rate": 0.2,
+      "ci95": [
+       0.1,
+       0.35
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 27
+     },
+     "vague": {
+      "runs": 13,
+      "pass": 4,
+      "rate": 0.308,
+      "ci95": [
+       0.13,
+       0.58
+      ],
+      "falseBooked": 0,
+      "leftWaiting": 0,
+      "fellApart": 3
+     }
+    },
+    "noDifficultInvolved": {
+     "runs": 60,
+     "pass": 34,
+     "rate": 0.567
+    },
+    "model": {
+     "calls": 1735,
+     "seconds": 1,
+     "studentCalls": 0,
+     "llm": "fake model (code only)",
+     "wallMinutes": 93
+    }
+   }
+  },
+  "hardMinusCoop": {
+   "real8": {
+    "scenarios": 8,
+    "byK": {
+     "1": {
+      "a": 0.656,
+      "b": 0.469,
+      "delta": -0.187,
+      "ci95": [
+       -0.44,
+       0
+      ]
+     },
+     "2": {
+      "a": 0.521,
+      "b": 0.375,
+      "delta": -0.146,
+      "ci95": [
+       -0.46,
+       0.13
+      ]
+     },
+     "3": {
+      "a": 0.438,
+      "b": 0.375,
+      "delta": -0.063,
+      "ci95": [
+       -0.41,
+       0.25
+      ]
+     },
+     "4": {
+      "a": 0.375,
+      "b": 0.375,
+      "delta": 0,
+      "ci95": [
+       -0.37,
+       0.38
+      ]
+     }
+    }
+   },
+   "fake": {
+    "scenarios": 20,
+    "byK": {
+     "1": {
+      "a": 0.494,
+      "b": 0.394,
+      "delta": -0.1,
+      "ci95": [
+       -0.23,
+       0.01
+      ]
+     },
+     "2": {
+      "a": 0.388,
+      "b": 0.264,
+      "delta": -0.124,
+      "ci95": [
+       -0.28,
+       0.01
+      ]
+     },
+     "3": {
+      "a": 0.329,
+      "b": 0.22,
+      "delta": -0.109,
+      "ci95": [
+       -0.28,
+       0.03
+      ]
+     },
+     "4": {
+      "a": 0.291,
+      "b": 0.201,
+      "delta": -0.09,
+      "ci95": [
+       -0.26,
+       0.05
+      ]
+     },
+     "5": {
+      "a": 0.263,
+      "b": 0.188,
+      "delta": -0.075,
+      "ci95": [
+       -0.24,
+       0.07
+      ]
+     },
+     "6": {
+      "a": 0.239,
+      "b": 0.175,
+      "delta": -0.064,
+      "ci95": [
+       -0.24,
+       0.08
+      ]
+     },
+     "7": {
+      "a": 0.219,
+      "b": 0.163,
+      "delta": -0.056,
+      "ci95": [
+       -0.24,
+       0.09
+      ]
+     },
+     "8": {
+      "a": 0.2,
+      "b": 0.15,
+      "delta": -0.05,
+      "ci95": [
+       -0.25,
+       0.1
+      ]
+     }
+    }
+   }
+  },
+  "beforeAfter": {
+   "real8/coop": {
+    "before": {
+     "runs": 32,
+     "pass": 22,
+     "falseBooked": 0,
+     "leftWaiting": 1,
+     "loops": 4,
+     "reaskedAfterNo": 5,
+     "askedThenNotTold": 3,
+     "backOuts": 0,
+     "backOutFalseBooked": 0,
+     "ghostAskerWaiting": 0,
+     "vagueLeftWaiting": 0,
+     "drifterAskedOnDroppedDay": "0 of 20"
+    },
+    "after": {
+     "runs": 32,
+     "pass": 21,
+     "falseBooked": 0,
+     "leftWaiting": 0,
+     "loops": 0,
+     "reaskedAfterNo": 4,
+     "askedThenNotTold": 0,
+     "backOuts": 0,
+     "backOutFalseBooked": 0,
+     "ghostAskerWaiting": 0,
+     "vagueLeftWaiting": 0,
+     "drifterAskedOnDroppedDay": "0 of 8"
+    }
+   },
+   "real8/hard": {
+    "before": {
+     "runs": 32,
+     "pass": 12,
+     "falseBooked": 3,
+     "leftWaiting": 5,
+     "loops": 4,
+     "reaskedAfterNo": 5,
+     "askedThenNotTold": 3,
+     "backOuts": 3,
+     "backOutFalseBooked": 3,
+     "ghostAskerWaiting": 3,
+     "vagueLeftWaiting": 2,
+     "drifterAskedOnDroppedDay": "12 of 12"
+    },
+    "after": {
+     "runs": 32,
+     "pass": 15,
+     "falseBooked": 0,
+     "leftWaiting": 0,
+     "loops": 0,
+     "reaskedAfterNo": 0,
+     "askedThenNotTold": 0,
+     "backOuts": 3,
+     "backOutFalseBooked": 0,
+     "ghostAskerWaiting": 0,
+     "vagueLeftWaiting": 0,
+     "drifterAskedOnDroppedDay": "0 of 0"
+    }
+   },
+   "fake/coop": {
+    "before": {
+     "runs": 160,
+     "pass": 84,
+     "falseBooked": 0,
+     "leftWaiting": 12,
+     "loops": 8,
+     "reaskedAfterNo": 16,
+     "askedThenNotTold": 35,
+     "backOuts": 0,
+     "backOutFalseBooked": 0,
+     "ghostAskerWaiting": 0,
+     "vagueLeftWaiting": 0,
+     "drifterAskedOnDroppedDay": "0 of 58"
+    },
+    "after": {
+     "runs": 160,
+     "pass": 79,
+     "falseBooked": 0,
+     "leftWaiting": 1,
+     "loops": 0,
+     "reaskedAfterNo": 0,
+     "askedThenNotTold": 2,
+     "backOuts": 0,
+     "backOutFalseBooked": 0,
+     "ghostAskerWaiting": 0,
+     "vagueLeftWaiting": 0,
+     "drifterAskedOnDroppedDay": "0 of 28"
+    }
+   },
+   "fake/hard": {
+    "before": {
+     "runs": 160,
+     "pass": 56,
+     "falseBooked": 12,
+     "leftWaiting": 19,
+     "loops": 16,
+     "reaskedAfterNo": 19,
+     "askedThenNotTold": 52,
+     "backOuts": 12,
+     "backOutFalseBooked": 12,
+     "ghostAskerWaiting": 8,
+     "vagueLeftWaiting": 4,
+     "drifterAskedOnDroppedDay": "39 of 47"
+    },
+    "after": {
+     "runs": 160,
+     "pass": 63,
+     "falseBooked": 0,
+     "leftWaiting": 0,
+     "loops": 0,
+     "reaskedAfterNo": 0,
+     "askedThenNotTold": 0,
+     "backOuts": 12,
+     "backOutFalseBooked": 0,
+     "ghostAskerWaiting": 0,
+     "vagueLeftWaiting": 0,
+     "drifterAskedOnDroppedDay": "0 of 8"
+    }
+   }
+  },
+  "passkAfterMinusBefore": {
+   "real8/coop": {
+    "scenarios": 8,
+    "byK": {
+     "1": {
+      "a": 0.688,
+      "b": 0.656,
+      "delta": -0.032,
+      "ci95": [
+       -0.09,
+       0
+      ]
+     },
+     "2": {
+      "a": 0.583,
+      "b": 0.521,
+      "delta": -0.062,
+      "ci95": [
+       -0.19,
+       0
+      ]
+     },
+     "3": {
+      "a": 0.531,
+      "b": 0.438,
+      "delta": -0.093,
+      "ci95": [
+       -0.28,
+       0
+      ]
+     },
+     "4": {
+      "a": 0.5,
+      "b": 0.375,
+      "delta": -0.125,
+      "ci95": [
+       -0.37,
+       0
+      ]
+     }
+    }
+   },
+   "real8/hard": {
+    "scenarios": 8,
+    "byK": {
+     "1": {
+      "a": 0.375,
+      "b": 0.469,
+      "delta": 0.094,
+      "ci95": [
+       -0.06,
+       0.31
+      ]
+     },
+     "2": {
+      "a": 0.25,
+      "b": 0.375,
+      "delta": 0.125,
+      "ci95": [
+       0,
+       0.38
+      ]
+     },
+     "3": {
+      "a": 0.25,
+      "b": 0.375,
+      "delta": 0.125,
+      "ci95": [
+       0,
+       0.38
+      ]
+     },
+     "4": {
+      "a": 0.25,
+      "b": 0.375,
+      "delta": 0.125,
+      "ci95": [
+       0,
+       0.38
+      ]
+     }
+    }
+   },
+   "fake/coop": {
+    "scenarios": 20,
+    "byK": {
+     "1": {
+      "a": 0.525,
+      "b": 0.494,
+      "delta": -0.031,
+      "ci95": [
+       -0.1,
+       0.03
+      ]
+     },
+     "2": {
+      "a": 0.396,
+      "b": 0.388,
+      "delta": -0.008,
+      "ci95": [
+       -0.06,
+       0.06
+      ]
+     },
+     "3": {
+      "a": 0.322,
+      "b": 0.329,
+      "delta": 0.007,
+      "ci95": [
+       -0.06,
+       0.09
+      ]
+     },
+     "4": {
+      "a": 0.278,
+      "b": 0.291,
+      "delta": 0.013,
+      "ci95": [
+       -0.08,
+       0.12
+      ]
+     },
+     "5": {
+      "a": 0.249,
+      "b": 0.263,
+      "delta": 0.014,
+      "ci95": [
+       -0.09,
+       0.13
+      ]
+     },
+     "6": {
+      "a": 0.229,
+      "b": 0.239,
+      "delta": 0.01,
+      "ci95": [
+       -0.11,
+       0.14
+      ]
+     },
+     "7": {
+      "a": 0.212,
+      "b": 0.219,
+      "delta": 0.007,
+      "ci95": [
+       -0.13,
+       0.15
+      ]
+     },
+     "8": {
+      "a": 0.2,
+      "b": 0.2,
+      "delta": 0,
+      "ci95": [
+       -0.15,
+       0.15
+      ]
+     }
+    }
+   },
+   "fake/hard": {
+    "scenarios": 20,
+    "byK": {
+     "1": {
+      "a": 0.35,
+      "b": 0.394,
+      "delta": 0.044,
+      "ci95": [
+       -0.03,
+       0.14
+      ]
+     },
+     "2": {
+      "a": 0.202,
+      "b": 0.264,
+      "delta": 0.062,
+      "ci95": [
+       -0.02,
+       0.18
+      ]
+     },
+     "3": {
+      "a": 0.143,
+      "b": 0.22,
+      "delta": 0.077,
+      "ci95": [
+       -0.01,
+       0.21
+      ]
+     },
+     "4": {
+      "a": 0.113,
+      "b": 0.201,
+      "delta": 0.088,
+      "ci95": [
+       0,
+       0.23
+      ]
+     },
+     "5": {
+      "a": 0.093,
+      "b": 0.188,
+      "delta": 0.095,
+      "ci95": [
+       0,
+       0.24
+      ]
+     },
+     "6": {
+      "a": 0.077,
+      "b": 0.175,
+      "delta": 0.098,
+      "ci95": [
+       0,
+       0.25
+      ]
+     },
+     "7": {
+      "a": 0.063,
+      "b": 0.163,
+      "delta": 0.1,
+      "ci95": [
+       0,
+       0.25
+      ]
+     },
+     "8": {
+      "a": 0.05,
+      "b": 0.15,
+      "delta": 0.1,
+      "ci95": [
+       0,
+       0.25
+      ]
+     }
+    }
+   }
+  },
+  "modelTime": {
+   "glimmerSeconds": 4076
+  },
+  "runs": {
+   "real8/coop": [
+    {
+     "scen": "s1",
+     "trial": 0,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 0,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 0,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 0,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 0,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 0,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 0,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 0,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 1,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 1,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 1,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 1,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 1,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 1,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 1,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 1,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 2,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 2,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 2,
+     "asker": "u12",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 2,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 2,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 2,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 2,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 2,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 3,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 3,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 3,
+     "asker": "u12",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 3,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 3,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 3,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 3,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 3,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    }
+   ],
+   "real8/hard": [
+    {
+     "scen": "s1",
+     "trial": 0,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 0,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 0,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 0,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 0,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 0,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 0,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 0,
+     "asker": "u05",
+     "kinds": [
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 1,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 1,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 1,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 1,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 1,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 1,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 1,
+     "asker": "u05",
+     "kinds": [
+      "vague",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 1,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget",
+      "flipper"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 2,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 2,
+     "asker": "u12",
+     "kinds": [
+      null,
+      "vague",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 2,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 2,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 2,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 2,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 2,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 3,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 2,
+     "asker": "u05",
+     "kinds": [
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 3,
+     "asker": "u12",
+     "kinds": [
+      null,
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 3,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 3,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 3,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 3,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 3,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 3,
+     "asker": "u05",
+     "kinds": [
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    }
+   ],
+   "fake/coop": [
+    {
+     "scen": "s3",
+     "trial": 0,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 0,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 0,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 0,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 0,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 0,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 0,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 0,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 0,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 0,
+     "asker": "u04",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 0,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 0,
+     "asker": "u18",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 0,
+     "asker": "u13",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 0,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 0,
+     "asker": "u14",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 0,
+     "asker": "u08",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": false,
+     "askerBelief": "waiting",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 0,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 0,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 0,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 1,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 1,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 1,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 1,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 1,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 1,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 1,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 0,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 1,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 1,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 1,
+     "asker": "u04",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 1,
+     "asker": "u08",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 1,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 1,
+     "asker": "u18",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 1,
+     "asker": "u13",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 1,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 1,
+     "asker": "u14",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 1,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 1,
+     "asker": "u11",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 1,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 1,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 2,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 2,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 2,
+     "asker": "u12",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 2,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 2,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 2,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 2,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 2,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 2,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 2,
+     "asker": "u04",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 2,
+     "asker": "u08",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 2,
+     "asker": "u18",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 2,
+     "asker": "u13",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 2,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 2,
+     "asker": "u14",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 2,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 2,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 2,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 2,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 2,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 3,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 3,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 3,
+     "asker": "u12",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 3,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 3,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 3,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 3,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 3,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 3,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 3,
+     "asker": "u04",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 3,
+     "asker": "u08",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 3,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 3,
+     "asker": "u18",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 3,
+     "asker": "u13",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 3,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 3,
+     "asker": "u14",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 3,
+     "asker": "u11",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 3,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 4,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 4,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 3,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 4,
+     "asker": "u12",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 3,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 4,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 4,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 4,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 4,
+     "asker": "u17",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 4,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 4,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 4,
+     "asker": "u04",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 4,
+     "asker": "u08",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 4,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 4,
+     "asker": "u18",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 4,
+     "asker": "u13",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 4,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 4,
+     "asker": "u14",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 4,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 4,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 4,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 4,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 5,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 5,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 5,
+     "asker": "u12",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 5,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 5,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 5,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 5,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 5,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 5,
+     "asker": "u04",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 5,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 5,
+     "asker": "u18",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 5,
+     "asker": "u13",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 5,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 5,
+     "asker": "u08",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 5,
+     "asker": "u14",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 5,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 5,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 5,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 5,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 5,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 6,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 6,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 6,
+     "asker": "u12",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 6,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 6,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 6,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 6,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 6,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 6,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 6,
+     "asker": "u04",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 6,
+     "asker": "u08",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 6,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 6,
+     "asker": "u18",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 6,
+     "asker": "u13",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 6,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 6,
+     "asker": "u14",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 6,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 6,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 6,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 6,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 7,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 7,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 7,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 7,
+     "asker": "u09",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 7,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 7,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 7,
+     "asker": "u17",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 7,
+     "asker": "u05",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 7,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 7,
+     "asker": "u04",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 7,
+     "asker": "u18",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 7,
+     "asker": "u13",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 7,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 7,
+     "asker": "u14",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 7,
+     "asker": "u08",
+     "kinds": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 7,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 7,
+     "asker": "u11",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 7,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 7,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 7,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    }
+   ],
+   "fake/hard": [
+    {
+     "scen": "s3",
+     "trial": 0,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 0,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 0,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 0,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper",
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 0,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 0,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 0,
+     "asker": "u05",
+     "kinds": [
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 0,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 0,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 0,
+     "asker": "u08",
+     "kinds": [
+      "flipper",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 0,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 0,
+     "asker": "u18",
+     "kinds": [
+      "drifter",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 0,
+     "asker": "u13",
+     "kinds": [
+      "budget",
+      "flipper"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 0,
+     "asker": "u14",
+     "kinds": [
+      null,
+      "flipper",
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 0,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 0,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 0,
+     "asker": "u04",
+     "kinds": [
+      "ghost",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 0,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 1,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 0,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 1,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 1,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 0,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 1,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 1,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 1,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 1,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget",
+      "flipper"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 1,
+     "asker": "u05",
+     "kinds": [
+      "vague",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 1,
+     "asker": "u08",
+     "kinds": [
+      "flipper",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 1,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 1,
+     "asker": "u18",
+     "kinds": [
+      "drifter",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 1,
+     "asker": "u13",
+     "kinds": [
+      "budget",
+      "flipper"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 1,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 1,
+     "asker": "u04",
+     "kinds": [
+      "ghost",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 1,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 1,
+     "asker": "u11",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 1,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 1,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 1,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      "ghost",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 1,
+     "asker": "u14",
+     "kinds": [
+      null,
+      "flipper",
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 2,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 2,
+     "asker": "u12",
+     "kinds": [
+      null,
+      "vague",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 2,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 2,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 2,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 2,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 2,
+     "asker": "u05",
+     "kinds": [
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 2,
+     "asker": "u04",
+     "kinds": [
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 2,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 2,
+     "asker": "u08",
+     "kinds": [
+      "flipper",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 2,
+     "asker": "u18",
+     "kinds": [
+      "drifter",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 2,
+     "asker": "u13",
+     "kinds": [
+      "budget",
+      "flipper"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 2,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 2,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 2,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 2,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 2,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 2,
+     "asker": "u14",
+     "kinds": [
+      null,
+      "flipper",
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 2,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 2,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      "ghost",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 3,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 3,
+     "asker": "u12",
+     "kinds": [
+      null,
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 3,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 3,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 3,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 3,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 3,
+     "asker": "u05",
+     "kinds": [
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 3,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 3,
+     "asker": "u04",
+     "kinds": [
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 3,
+     "asker": "u08",
+     "kinds": [
+      "flipper",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 3,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 3,
+     "asker": "u18",
+     "kinds": [
+      "drifter",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 3,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 3,
+     "asker": "u13",
+     "kinds": [
+      "budget",
+      "flipper"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 3,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 3,
+     "asker": "u11",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 3,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 3,
+     "asker": "u14",
+     "kinds": [
+      null,
+      "flipper",
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 3,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 4,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 3,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 4,
+     "asker": "u12",
+     "kinds": [
+      null,
+      "vague",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 4,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 4,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 4,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 4,
+     "asker": "u17",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 4,
+     "asker": "u05",
+     "kinds": [
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 4,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 4,
+     "asker": "u04",
+     "kinds": [
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 4,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 4,
+     "asker": "u08",
+     "kinds": [
+      "flipper",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 4,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 4,
+     "asker": "u18",
+     "kinds": [
+      "drifter",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 4,
+     "asker": "u13",
+     "kinds": [
+      "budget",
+      "flipper"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 4,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 4,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 4,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 4,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 4,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      "ghost",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 5,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 4,
+     "asker": "u14",
+     "kinds": [
+      null,
+      "flipper",
+      "ghost",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 5,
+     "asker": "u12",
+     "kinds": [
+      null,
+      "vague"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 5,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 5,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 5,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 5,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 5,
+     "asker": "u05",
+     "kinds": [
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 5,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 5,
+     "asker": "u04",
+     "kinds": [
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 5,
+     "asker": "u08",
+     "kinds": [
+      "flipper",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 5,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 5,
+     "asker": "u18",
+     "kinds": [
+      "drifter",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 5,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 5,
+     "asker": "u13",
+     "kinds": [
+      "budget",
+      "flipper"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 5,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 5,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 5,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 5,
+     "asker": "u14",
+     "kinds": [
+      null,
+      "flipper",
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 5,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 6,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 5,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 6,
+     "asker": "u12",
+     "kinds": [
+      null,
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 6,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 6,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 6,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 6,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 6,
+     "asker": "u05",
+     "kinds": [
+      "vague",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 6,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 6,
+     "asker": "u04",
+     "kinds": [
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 6,
+     "asker": "u08",
+     "kinds": [
+      "flipper",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 6,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 6,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 6,
+     "asker": "u18",
+     "kinds": [
+      "drifter",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 6,
+     "asker": "u13",
+     "kinds": [
+      "budget",
+      "flipper"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 6,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 6,
+     "asker": "u11",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 6,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 6,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 6,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 6,
+     "asker": "u14",
+     "kinds": [
+      null,
+      "flipper",
+      "ghost",
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s1",
+     "trial": 7,
+     "asker": "u01",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s3",
+     "trial": 7,
+     "asker": "u12",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s4",
+     "trial": 7,
+     "asker": "u09",
+     "kinds": [
+      null,
+      "flipper"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s5",
+     "trial": 7,
+     "asker": "u06",
+     "kinds": [
+      null,
+      null,
+      "flipper",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s6",
+     "trial": 7,
+     "asker": "u02",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s7",
+     "trial": 7,
+     "asker": "u17",
+     "kinds": [
+      null,
+      "budget"
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s8",
+     "trial": 7,
+     "asker": "u05",
+     "kinds": [
+      "vague"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s9",
+     "trial": 7,
+     "asker": "u15",
+     "kinds": [
+      null,
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s2",
+     "trial": 7,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null,
+      "ghost"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s11",
+     "trial": 7,
+     "asker": "u08",
+     "kinds": [
+      "flipper",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s13",
+     "trial": 7,
+     "asker": "u18",
+     "kinds": [
+      "drifter",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s14",
+     "trial": 7,
+     "asker": "u13",
+     "kinds": [
+      "budget",
+      "flipper"
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s10",
+     "trial": 7,
+     "asker": "u04",
+     "kinds": [
+      "ghost",
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s12",
+     "trial": 7,
+     "asker": "u20",
+     "kinds": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s16",
+     "trial": 7,
+     "asker": "u14",
+     "kinds": [
+      null,
+      "flipper",
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s18",
+     "trial": 7,
+     "asker": "u11",
+     "kinds": [
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s15",
+     "trial": 7,
+     "asker": "u10",
+     "kinds": [
+      null,
+      null,
+      "ghost",
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s20",
+     "trial": 7,
+     "asker": "u19",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s17",
+     "trial": 7,
+     "asker": "u07",
+     "kinds": [
+      null,
+      null
+     ],
+     "pass": false,
+     "honest": true,
+     "askerBelief": "none",
+     "falseBooked": [],
+     "loop": false
+    },
+    {
+     "scen": "s19",
+     "trial": 7,
+     "asker": "u01",
+     "kinds": [
+      null,
+      null,
+      null
+     ],
+     "pass": true,
+     "honest": true,
+     "askerBelief": "booked",
+     "falseBooked": [],
+     "loop": false
+    }
+   ]
+  },
+  "otherChanges": "main at f87c394 also carries preference records, tool checks, the send gate and a stretch round merged after the before runs; the cooperative club fell a little (Glimmer pass^4 0.50 to 0.38, CI of the difference -0.37 to 0), which these fixes do not explain on their own",
+  "notFixed": [
+   "the asker's own vague answer to Book it? still gets a chat reply (only Are you in? is covered)",
+   "a late yes is put to the asker only when the search has not moved on; otherwise the late person is told the game moved on",
+   "no waitlist offer on a drop-out: the host's agent searches again instead"
+  ]
  }
 }

@@ -154,39 +154,39 @@ async function autopilotFor(psid) {
 // confirm, on by default; /confirm off) is not committed by their agent's yes in the talk. Their agent holds the time and
 // asks them, with buttons, the way a booking waits for the asker's own yes. All in: the game is booked. Backing out:
 // the hold is let go, the asker hears so, and the asker's agent looks for someone else (leaving them out).
-const PENDING_FILE = path.resolve(process.env.CONFIRM_FILE || "data/partner_confirm.json");
-const pending = readJSON(PENDING_FILE, {});
-const savePending = () => writeJSON(PENDING_FILE, pending);
+// The asks themselves, their clock, words in place of a tap, a back-out after the booking, and the search that
+// follows a no: match/confirm.js (each rule there came from the pass^k harness, test/sim_users/passk_run.mjs).
+const confirmMod = await import("./match/confirm.js");
+const prefsMod = await import("./memory/prefs.js");
 const needsYes = (psid, o) => (club.clubPlayers() && psid ? o.partners.filter((p) => p.id !== psid && store.get(p.id) && matchSettings.get(p.id).confirm !== false) : []);
-async function askPartners(psid, o, who) {
-  const id = `pc-${Date.now().toString(36)}${crypto.randomBytes(3).toString("hex")}`, me = { id: psid, name: club.readClub().you?.name || "a club member" };
-  pending[id] = { id, by: psid, byName: me.name, option: o, waiting: who.map((p) => p.id), at: Date.now() }; savePending();
-  for (const p of who) await msn.direct(p.id, `${me.name.split(" ")[0]} wants a game with you: ${autopilot.describe({ ...o, partners: [me, ...o.partners.filter((x) => x.id !== p.id)] })}. Your agent is holding the time for you. Are you in?`,
-    { tag: msn.REMINDER.tag, buttons: [{ title: "I'm in", payload: `pc:${id}:yes` }, { title: "Can't make it", payload: `pc:${id}:no` }] }).catch(() => {});
-  return { asking: who.map((p) => p.name) };
-}
+// a game as one player sees it: everyone else in it, the host included (o.byName when the host is the one acting)
+const describeFor = (o, id) => { const all = [...(o.by ? [{ id: o.by, name: club.readClub().members.find((m) => m.id === o.by)?.name || o.byName || store.get(o.by)?.name || "a club member" }] : []), ...o.partners.filter((p) => p.id !== o.by)]; return autopilot.describe({ ...o, partners: all.filter((x) => x.id !== id) }); };
+const upcomingBookings = (id) => { const today = life.ymd(new Date()); return play.bookings().filter((b) => b.option && b.option.date >= today && [b.option.by, ...(b.option.partners || []).map((x) => x.id)].includes(id)); };
+const confirm = confirmMod.createConfirm({
+  file: process.env.CONFIRM_FILE || "data/partner_confirm.json", chainsFile: process.env.CONFIRM_CHAINS_FILE || "data/confirm_chains.json",
+  leaseMs: () => +(process.env.A2A_LEASE_MS || 30 * 60000),
+  send: (id, text, opts = {}) => msn.direct(id, text, { ...(opts.reminder ? { tag: msn.REMINDER.tag } : {}), ...(opts.buttons ? { buttons: opts.buttons } : {}) }),
+  describe: describeFor,
+  releaseHolds: (o) => a2aMod.releaseHolds(o, { why: "dropped" }),
+  book: (by, o) => club.asPlayer(by, async () => (await bookFor(by, [o], { confirmed: true }))[0]),
+  research: (by, o, leaveOut) => club.asPlayer(by, async () => {
+    const r = await asks.request({ who: by, text: `I want to play ${o.format} on ${o.day} at ${o.start}`, upcoming: inputOf(by).upcoming, leaveOut });
+    return deliverGame(by, r.id, r);
+  }),
+  bookingsOf: upcomingBookings,
+  // a game called off: the booking is cancelled (its court released) and it leaves everyone's calendar
+  callOff: (b) => { play.cancel(b.id); for (const id of [b.option.by, ...(b.option.partners || []).map((x) => x.id)].filter(Boolean)) store.update(id, (p) => { p.events = (p.events || []).filter((e) => !(e.kind === "match" && e.date === b.option.date && e.start === b.option.start)); }); },
+  // a yes that came late: the time must still fit everyone, nobody booked into another game then
+  recheck: (o) => { const ids = [o.by, ...(o.partners || []).map((x) => x.id)].filter(Boolean); const busy = ids.find((id) => upcomingBookings(id).some((b) => b.option.date === o.date && b.option.start === o.start)); return busy ? { ok: false, why: `${busy} is booked into another game then` } : { ok: true }; },
+  record: (id, r, meta) => prefsMod.record(id, r, meta),
+  nameOf: (id) => club.readClub().members.find((m) => m.id === id)?.name || store.get(id)?.name || null,
+});
+setInterval(() => { confirm.tick().catch((e) => console.error("confirm tick", e.message)); }, +(process.env.CONFIRM_TICK_MS || 5000)).unref();
+msn.hooks.text = (psid, text) => (club.clubPlayers() ? confirm.text(psid, text) : false);
+const askPartners = (psid, o, who) => confirm.ask(psid, club.readClub().you?.name || "a club member", o, who);
 async function confirmAnswer(psid, payload) {
-  const m = /^pc:([\w-]+):(yes|no)$/.exec(payload), P = m && pending[m[1]];
-  if (!P || !P.waiting.includes(psid)) return msn.direct(psid, "That game isn't waiting for you any more.");
-  const o = P.option, first = (n) => String(n).split(" ")[0], mine = P.option.partners.find((x) => x.id === psid)?.name || "Your partner";
-  if (m[2] === "no") {
-    delete pending[P.id]; savePending();
-    await a2aMod.releaseHolds(o, { why: "dropped" }).catch(() => {});
-    await msn.direct(psid, `OK, you're out of it. I've let go of the time and told ${first(P.byName)}'s agent.`);
-    return club.asPlayer(P.by, async () => {
-      await msn.direct(P.by, `${first(mine)} can't make ${autopilot.describe(o)} after all, so nothing is booked. Looking for someone else…`);
-      const r = await asks.request({ who: P.by, text: `I want to play ${o.format} on ${o.day} at ${o.start}`, upcoming: inputOf(P.by).upcoming, leaveOut: [psid] });
-      return deliverGame(P.by, r.id, r);
-    });
-  }
-  P.waiting = P.waiting.filter((x) => x !== psid); savePending();
-  if (P.waiting.length) return msn.direct(psid, "Thanks, you're in. I'll book it once everyone has said yes.");
-  delete pending[P.id]; savePending();
-  return club.asPlayer(P.by, async () => {
-    const [b] = await bookFor(P.by, [o], { confirmed: true });
-    if (b?.error) { await msn.direct(P.by, `${autopilot.describe(o)} wasn't booked: ${b.error}`); return msn.direct(psid, `It couldn't be booked after all: ${b.error}`); }
-    await msn.direct(P.by, `Booked: ${autopilot.describe(o)}, court ${o.court}. ${first(mine)} said yes. I'll remind you an hour before.`);
-  });
+  const m = /^pc:([\w-]+):(yes|no|other)$/.exec(payload);
+  return m ? confirm.tap(psid, m[1], m[2]) : msn.direct(psid, "That game isn't waiting for you any more.");
 }
 async function bookFor(psid, options, { confirmed = false } = {}) {
   const out = [], players = club.clubPlayers() && psid;
@@ -230,6 +230,8 @@ msn.hooks.payload = async (psid, payload) => {
   if (payload.startsWith("wx:")) return weatherAnswer(psid, payload);
   if (payload.startsWith("gm:")) return gameAnswer(psid, payload);
   if (payload.startsWith("pc:")) return confirmAnswer(psid, payload);
+  { const d = /^pd:([\w~-]+):(yes|no)$/.exec(payload); if (d) return confirm.dropTap(psid, d[1], d[2] === "yes"); }
+  { const l = /^pl:([\w-]+):(yes|no)$/.exec(payload); if (l) return confirm.lateTap(psid, l[1], l[2] === "yes"); }
   const m = /^ap:([\w-]+):(all|first|none)$/.exec(payload);
   if (!m) return;
   const r = await bookApproved(m[1], m[2], psid);
