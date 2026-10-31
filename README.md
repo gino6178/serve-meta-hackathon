@@ -481,6 +481,18 @@ logged games wrongly and could not phrase a wish (9 end-to-end checks failed), l
 the post standard, and obeyed 4 of 10 court reviews that told it what to say. With the checked sites only, the
 end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer alone.
 
+## More agent upgrades, measured
+
+- **Preferences as dated records, the newest wins** (`memory/prefs.js`, `prefs_of.js`). What a player said (notes,
+  Messenger memories, the rules memory_update.js checked), the weekly beliefs and the habit in their games become typed
+  records (time, partner, venue, format) with a date, a cited source and a confidence; code keeps the newest per kind
+  and key (the player's own words beat an inference of the same day) and shows the older ones as superseded. "Want a
+  game?", the Autopilot, the answer's facts and a member's taste read them; nothing stored is migrated. Simulated (400
+  players, no model, `test/pref_memory_sim.mjs`): when the player says the change in words, decisions that used the old
+  preference fell from 95% to 17% (no more Friday evenings), 99% to 24% (singles to doubles) and 93% to 0% (Fridays
+  fine again). Code extraction found 27 of 32 phrasings, by the same author; when the player never says it, nothing
+  changes (95%, 99%, 93% both ways). `submission/results/pref_memory.json`
+
 ## What is where
 
 | Folder | What it holds |
