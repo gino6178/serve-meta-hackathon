@@ -15,6 +15,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { chatTools, stats } from "../core/llm.js";
+import { offered, noteRun, loopWatch, pruneOn } from "./planner_tools.js";
 import { job, totals, current, calls as ledgerCalls } from "../core/ledger.js";
 import { span, traceId } from "../core/trace.js";
 import { readClub } from "../club/club.js";
@@ -542,13 +543,17 @@ Use only member ids and times that tools returned. Give a one-sentence "reason" 
   // breaks once per agreed game, not on every step)
   const settle = () => { if (!LEAN) return; for (const m of msgs) if (m.role === "tool" && ["find_partners", "find_places"].includes(m.tool_name) && !m.settled) { try { const r = JSON.parse(m.content); m.content = JSON.stringify({ summary: detailOf(m.tool_name, r) }); } catch { /* left as it is */ } m.settled = true; } };
   let stalls = 0, turnsReplayed = 0, stoppedBy = null, i = 0;
+  // the tools this step can use, and a note out of a loop (planner_tools.js)
+  const usedTools = new Set(), watch = loopWatch();
+  let courtFailed = false;
+  const toolsNow = () => offered(TOOLS, { pre: LEAN, outdoor: outdoorSport, courtFailed, notes: fromMemory.length > 0, agreed: agreed.length, used: usedTools });
   for (; i < stepBudget && finished == null; i++) {
     work(i === 0 ? "Muse Glimmer is planning the week" : "Muse Glimmer is deciding the next step");
     // a turn taken before a restart comes back from the journal: the model is not asked again
     let out = diverged ? null : J?.turns[i] || null;
     if (out) turnsReplayed++;
     else {
-      try { out = await chatTools(msgs, TOOLS, { maxTokens: 400, temperature: 0.2 }); } catch (e) { out = { calls: [], text: "", error: e.message }; }
+      try { out = await chatTools(msgs, toolsNow(), { maxTokens: 400, temperature: 0.2 }); } catch (e) { out = { calls: [], text: "", error: e.message }; }
       if (J) { J.rec("turn", { i, calls: out.calls, message: out.message || null, error: out.error || null }); crashPoint("autopilot-step"); }
     }
     if (!out.calls.length) { if (++stalls >= 2) { stoppedBy = "stall"; break; } msgs.push({ role: "user", content: "Call the next tool." }); continue; }
@@ -558,11 +563,16 @@ Use only member ids and times that tools returned. Give a one-sentence "reason" 
       // a missing reason does not stop a call (the trail just has none); anything else that does not fit does
       const res = await call(c.name, c.args, "model", c.errors?.filter((e) => !/^\$\.reason: missing$/.test(e)), c.id || null);
       if (c.name === "negotiate" && res.agreed) settle();
+      usedTools.add(c.name);
+      if (c.name === "negotiate" && !res.agreed && /court/i.test(`${res.reason || ""} ${res.error || ""}`)) courtFailed = true;
       msgs.push({ role: "tool", content: digest(c.name, res), tool_name: c.name, ...(c.id ? { tool_call_id: c.id } : {}) });
+      const nudgeOut = watch.after(c.name, c.args, res);
+      if (nudgeOut) { msgs.push({ role: "user", content: nudgeOut }); tell({ step: "Stepped out of a loop", tool: "verify", detail: nudgeOut.split(".")[0] }); }
       if (c.name === "request_approval" && !res.error && !finished) { /* the model will finish next */ }
     }
   }
   if (finished == null && !stoppedBy) stoppedBy = "steps";
+  if (pruneOn() && !turnsReplayed) noteRun(usedTools);
   // the model stalled or ran out of steps: rules finish the same plan, and say so
   if (finished == null) {
     ruleTook = true;
