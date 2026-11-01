@@ -22,6 +22,8 @@ import crypto from "node:crypto";
 import { readJSON, writeJSON } from "../core/jsonfile.js";
 import * as T from "./taste.js";
 import * as D from "./deals.js";
+import * as S from "./split.js";
+import * as V from "../venues/agent.js";
 import * as C from "./clubs.js";
 import * as P from "../feed/posts.js";
 import * as Tr from "./trust.js";
@@ -199,7 +201,11 @@ async function run(h, now = new Date()) {
   if (!opts.length && ruled) { h.status = "stuck"; line(h, "host", ruled === "busy" ? `Every time that fits clashes with a game you already have. Your games are under Your games on the home page.` : `Every option is outside your own limits (${{ place: "the courts are farther than your distance limit", price: "the courts cost more than your price limit", time: "no time in your windows", busy: "you already have a game at those times" }[ruled] || ruled}). ${ruled === "busy" ? "Your games are under Your games on the home page." : "Widen your limits, or ask a club nearer you."}`, { who: hostName }); return save(); }
   if (!opts.length) { h.status = "stuck"; line(h, "host", h.when && !h.pin ? "No court time fits the days and times you asked for, at least three hours from now." : h.pin ? `${when(h.pin)} doesn't work: it's too soon, or you already play then.` : "There's no time left that I haven't already tried this week.", { who: hostName }); return save(); }
   const game = (id, o) => ({ date: o.date, start: o.start, km: kmFor(id, o.place), each: o.each, busy: o.busy });
-  const hard = Object.fromEntries(everyone.map((id) => { const b = busyOf(id, h.id, fillAt); return [id, opts.map((o) => (b.some((x) => Math.abs(x - startMs(o)) < CLASH) ? "busy" : T.hardNo(taste[id], { ...game(id, o), each: o.best ?? o.each })))]; }));
+  // a player whose price limit is under the venue's lowest share can still play when others offered to cover the gap
+  // (members/split.js): their own share is then their limit. The talk with the venue settles it (the split is checked there)
+  const coverRoom = (o, me) => everyone.filter((x) => x !== me && taste[x].cover).reduce((s, x) => s + (taste[x].limitEach == null ? Infinity : Math.max(0, taste[x].limitEach - (o.best ?? o.each))), 0);
+  const shareOf = (id, o) => { const cap = taste[id].limitEach, each = o.best ?? o.each; return cap != null && each > cap && each - cap <= coverRoom(o, id) ? cap : each; };
+  const hard = Object.fromEntries(everyone.map((id) => { const b = busyOf(id, h.id, fillAt); return [id, opts.map((o) => (b.some((x) => Math.abs(x - startMs(o)) < CLASH) ? "busy" : T.hardNo(taste[id], { ...game(id, o), each: shareOf(id, o) })))]; }));
   const U = Object.fromEntries(everyone.map((id) => [id, opts.map((o, k) => (hard[id][k] ? -1 : T.worth(taste[id], game(id, o))))]));
   // with a show-up gate, among those who said yes the reliable come first (someone new counts as middling)
   const pickScore = (id, k) => U[id][k] + (h.gate?.minShow ? 0.2 * (Tr.badge(id).show.rate ?? 0.6) : 0);
@@ -261,27 +267,45 @@ async function run(h, now = new Date()) {
   // spots the agents couldn't fill go to the people asked directly, best-suited first
   const extra = direct.filter((id) => !agreed.players.includes(id)).sort((a, b) => ((h.picked || []).includes(b) - (h.picked || []).includes(a)) || U[b][agreed.k] - U[a][agreed.k]).slice(0, Math.max(0, h.need - agreed.players.length));
   if (extra.length) { agreed.players = [...agreed.players, ...extra]; line(h, "host", `Asking ${names(extra.map(first))} directly, without an agent's yes.`, { who: hostName }); }
-  let deal = { each: 0, price: 0 };
+  let deal = { each: 0, price: 0 }, shares = null;
   if (o.place.kind === "venue" && h.fill) deal = { each: P.find(h.fill)?.invite.each ?? 0, price: 0, list: 0, off: 0, sample: false };
   else if (o.place.kind === "venue") {
+    // the venue's own agent (venues/agent.js): every quote signed by the venue's key; the group's agent never offers
+    // past what the players' own limits can cover between them (members/split.js)
     const push = agreed.players.reduce((s, id) => s + T.weights(taste[id]).price, 0) / agreed.players.length;
-    deal = D.talk(o.place, { date: o.date, start: o.start, players: h.need, minutes: MINUTES, push: Math.min(1, push * 2.5), games, group: hostName });
+    const people = agreed.players.map((id) => ({ id, cap: taste[id].limitEach ?? null, cover: !!taste[id].cover }));
+    const budget = S.most(people, h.need);
+    deal = await V.negotiate(o.place, { date: o.date, start: o.start, players: h.need, minutes: MINUTES, push: Math.min(1, push * 2.5), games, group: hostName, budget });
     for (const l of deal.lines) line(h, l.from.endsWith(`${hostName}'s agent`) ? "host" : "venue", l.text, { who: l.from.replace(/'s agent$/, ""), venue: l.from.startsWith(o.place.name) });
+    if (deal.price) {
+      const sp = S.split(deal.price, people, h.need);
+      if (sp) {
+        shares = sp.shares;
+        if (sp.covered.length) line(h, "host", `${names(sp.covered.map((c) => first(c.by)))} offered to cover more, so everyone stays inside their own limit: ${agreed.players.map((id) => `${first(id)} ${D.CURRENCY}${sp.shares[id]}`).join(", ")}.`, { who: hostName });
+      } else deal = { ...deal, over: true };
+    }
   }
   if (h.status === "cancelled") return;
-  const over = deal.each && agreed.players.find((id) => taste[id].limitEach != null && deal.each > taste[id].limitEach);
-  if (over && (h.priceTries || 0) >= 2) { h.status = "stuck"; line(h, "host", `The courts that fit cost more than the limit ${first(over)} set, even after asking the venues (${D.CURRENCY}${deal.each} each here). Raise that limit, pick a public court, or post the game at a price that fits.`, { who: hostName }); return save(); }
+  const tight = () => agreed.players.filter((id) => taste[id].limitEach != null).sort((a, b) => taste[a].limitEach - taste[b].limitEach)[0] || agreed.players[0];
+  const over = deal.over || deal.failed ? tight() : deal.each && !shares && agreed.players.find((id) => taste[id].limitEach != null && deal.each > taste[id].limitEach);
+  if (deal.failed && (h.priceTries || 0) < 2) {
+    h.priceTries = (h.priceTries || 0) + 1; h.excluded.push({ place: o.place.id });
+    line(h, "host", `${o.place.name}'s agent couldn't give a quote I could check. Looking at other courts.`, { who: hostName });
+    save();
+    return run(h, now);
+  }
+  if (over && (h.priceTries || 0) >= 2) { h.status = "stuck"; line(h, "host", `The courts that fit cost more than the limit ${first(over)} set, even after asking the venues (${deal.lowest ? `${D.CURRENCY}${deal.lowest} for the group at the lowest` : `${D.CURRENCY}${deal.each} each`} here). Raise that limit, offer to cover more, pick a public court, or post the game at a price that fits.`, { who: hostName }); return save(); }
   if (over && (h.priceTries || 0) < 2) {
     h.priceTries = (h.priceTries || 0) + 1; h.excluded.push({ place: o.place.id });
-    line(h, "host", `${D.CURRENCY}${deal.each} each is over the limit ${first(over)} set, even after asking the venue. Looking at other courts.`, { who: hostName });
+    line(h, "host", deal.over ? `${o.place.name}'s lowest is more than the players' limits cover between them (${first(over)}'s is the tightest). Looking at other courts.` : `${D.CURRENCY}${deal.each} each is over the limit ${first(over)} set, even after asking the venue. Looking at other courts.`, { who: hostName });
     save();
     return run(h, now);
   }
   h.pick = { date: o.date, start: o.start, minutes: MINUTES, where: o.place.name, place: o.place.id, kind: o.place.kind, at: { lat: o.place.lat, lon: o.place.lon }, busy: +o.busy.toFixed(2),
-    each: deal.each || 0, price: deal.price || 0, list: deal.list || 0, off: deal.off || 0, sample: !!deal.sample, km: Object.fromEntries(agreed.players.map((id) => [id, knownKm(id, o.place)])) };
+    each: deal.each || 0, price: deal.price || 0, list: deal.list || 0, off: deal.off || 0, sample: !!deal.sample, ...(shares ? { shares } : {}), ...(deal.quote ? { quote: deal.quote } : {}), km: Object.fromEntries(agreed.players.map((id) => [id, knownKm(id, o.place)])) };
   // a person who started it is in it (the agents agree only inside their limits): never asked to answer their own game.
   // One their agent started is the person's yes only when the time suits them too; otherwise they are asked like everyone else
-  const del = taste[host].delegate, byDelegation = !!del?.on && !Tr.badge(host).agent.badSig && (del.maxEach == null || (deal.each || 0) <= del.maxEach) && (del.newPeople || agreed.players.every((x) => x === host || !Tr.badge(x).show.new));
+  const del = taste[host].delegate, byDelegation = !!del?.on && !Tr.badge(host).agent.badSig && (del.maxEach == null || (shares?.[host] ?? deal.each ?? 0) <= del.maxEach) && (del.newPeople || agreed.players.every((x) => x === host || !Tr.badge(x).show.new));
   const hostOk = !h.byAgent || ((!!h.hostYes || byDelegation) && T.timeFit(taste[host], T.cellOf(o.date, o.start)) >= 0.4 && U[host][agreed.k] >= 0.45);
   h.players = agreed.players; h.direct = extra; h.answers = hostOk ? { [host]: "yes" } : {}; h.status = "asking"; h.askedAt = now.getTime();
   if (!hostOk) { line(h, "host", h.hostYes ? `It isn't one of ${hostName}'s usual times, so ${hostName} is asked too.` : `${hostName} is asked for a yes too.`, { who: hostName }); P.notify(host, "huddle", h.hostYes ? `The agents agreed ${h.sport} ${when(o)} at ${o.place.name}, not one of your usual times. Yes?` : `The agents agreed ${h.sport} ${when(o)} at ${o.place.name} for the game you asked for. Yes?`, { huddle: h.id }); }
@@ -509,7 +533,7 @@ export function view(h, me) {
   const o = h.pick;
   return { id: h.id, sport: h.sport, need: h.need, club: h.clubName, host: first(h.host), mine: h.host === me, status: h.status, created: h.created, post: h.post || null,
     ...(h.host === me ? { invited: h.invited.filter((id) => !isNear(h, id)).length } : {}), talk: h.talk.map((l) => ({ at: l.at, from: l.from === me ? "me" : l.from === "host" ? (h.host === me ? "me" : "host") : l.from === "venue" ? "venue" : l.from === "agent" ? "agent" : "other", who: l.who, text: l.plain && h.host !== me ? l.plain : l.text, ...(l.agent ? { agent: true } : {}), ...(l.venue ? { venue: true } : {}), ...(l.agreed ? { agreed: true } : {}), ...(l.yes != null ? { yes: l.yes } : {}), ...(l.trust ? { trust: trustOf(l.from) } : {}), ...(l.gate ? { gate: l.gate } : {}) })),
-    ...(o ? { pick: { date: o.date, start: o.start, when: when(o), where: o.where, kind: o.kind, each: o.each, price: o.price, list: o.list, off: o.off, busy: o.busy, sample: o.sample, km: o.km[me] ?? null, at: o.at } } : {}),
+    ...(o ? { pick: { date: o.date, start: o.start, when: when(o), where: o.where, kind: o.kind, each: o.each, price: o.price, list: o.list, off: o.off, busy: o.busy, sample: o.sample, km: o.km[me] ?? null, at: o.at, ...(o.shares ? { mine: o.shares[me] ?? null, shares: Object.fromEntries(Object.entries(o.shares).map(([id, v]) => [nameIn(h.players, id, me), v])) } : {}), signed: !!o.quote } } : {}),
     players: h.players.map((id) => ({ id, name: nameIn(h.players, id, me), answer: h.answers[id] || null, host: id === h.host, direct: (h.direct || []).includes(id), new: Tr.badge(id).show.new, known: id === me || C.mine(me).some((c) => c.members.some((m) => m.id === id)), trust: trustOf(id) })),
     ...(h.status === "asking" && h.players.includes(me) && !h.answers[me] ? { agentMay: mayAgentSayYes(me, { huddle: h.id }) } : {}),
     // filling a posted game: who is in comes from the game itself (people join it after the agents talked)

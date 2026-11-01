@@ -43,6 +43,8 @@ import { helpers, held as heldNow } from "../club/play.js";
 import { placeById, toTown } from "../club/places.js";
 import * as peer from "./peer.js";
 import * as ext from "./ext.js";
+import * as V from "../venues/agent.js";
+import { venueById, idOfSlug, slugOf, knownVenues } from "../members/deals.js";
 
 const { toMin, hm, dateOf, readVenues, travelMin, DAYS } = helpers;
 const DATA = path.resolve(process.env.A2A_DATA || "data");
@@ -301,7 +303,44 @@ function routerFor(m, root = BASE()) {
   })().catch((e) => { routers.delete(k); throw e; })); // (a card that could not be made is tried again next time)
   return routers.get(k);
 }
+// A venue's agent (venues/agent.js): one skill, a court ask answered with a signed quote. Quotes are public prices, so it
+// answers anyone; it reads only the ask's facts, and no model is involved.
+class VenueExecutor {
+  constructor(id) { this.id = id; }
+  cancelTask = async () => {};
+  async execute(ctx, bus) {
+    bus.publish(AgentEvent.task(ctx.task ?? { id: ctx.taskId, contextId: ctx.contextId, status: { state: TaskState.TASK_STATE_SUBMITTED, timestamp: new Date().toISOString() }, artifacts: [], history: [ctx.userMessage], metadata: { agent: `venue:${this.id}` } }));
+    const a = ctx.userMessage.parts.find((x) => x.content?.$case === "data")?.content.value;
+    const ok = a && a.kind === V.ASK && /^\d{4}-\d{2}-\d{2}$/.test(a.date || "") && /^\d{2}:\d{2}$/.test(a.start || "") && (a.offer == null || (+a.offer >= 0 && +a.offer <= 100000)) && (!a.players || (+a.players >= 1 && +a.players <= 40));
+    const place = ok && venueById(this.id, a.sport || "badminton");
+    if (!ok || !place) { bus.publish(status(ctx, TaskState.TASK_STATE_REJECTED, !ok ? `This venue's agent reads a "${V.ASK}" data part: date YYYY-MM-DD, start HH:MM, players, offer (llms.txt).` : "This venue's agent doesn't rent courts for that sport.")); return; }
+    const q = V.answer(place, { date: a.date, start: a.start, minutes: Math.min(240, Math.max(30, +a.minutes || 90)), players: +a.players || 4, weekly: !!a.weekly, offer: a.offer == null ? null : Math.round(+a.offer), last: a.last || null, round: Math.min(2, Math.max(0, +a.round || 0)) });
+    bus.publish(AgentEvent.artifactUpdate({ taskId: ctx.taskId, contextId: ctx.contextId, artifact: { artifactId: "quote", name: "quote", description: "the venue's signed quote", parts: [part("data", q, "application/json")], metadata: {}, extensions: [] }, append: false, lastChunk: true, metadata: {} }));
+    bus.publish(status(ctx, TaskState.TASK_STATE_COMPLETED));
+  }
+}
+const venueRouters = new Map();
+function venueRouterFor(id, root = BASE()) {
+  const k = `${id}|${root}`;
+  if (!venueRouters.has(k)) venueRouters.set(k, (async () => {
+    const place = venueById(id), base = `${root}/a2a/venues/${slugOf(id)}`;
+    const handler = new DefaultRequestHandler(await signCard(V.cardFor(place, base, root), root), new AgentTaskStore(store, `venue:${id}`), new VenueExecutor(id), undefined, undefined, undefined, undefined, undefined, { validateInputModes: true });
+    const r = express.Router();
+    r.use(`/${AGENT_CARD_PATH}`, agentCardHandler({ agentCardProvider: handler }));
+    r.use(jsonRpcHandler({ requestHandler: handler, userBuilder: () => Promise.resolve(new UnauthenticatedUser()) }));
+    return r;
+  })().catch((e) => { venueRouters.delete(k); throw e; }));
+  return venueRouters.get(k);
+}
 const app = express();
+// the venues' agents seen so far, and what their quote extension means
+app.get("/a2a/venues", (req, res) => { const root = rootFor(req); res.json({ venues: knownVenues().map((v) => ({ id: v.id, name: v.name, card: `${root}/a2a/venues/${slugOf(v.id)}/${AGENT_CARD_PATH}`, ...(V.remoteOf(v.id) ? { ownAgent: V.remoteOf(v.id).url } : {}) })) }); });
+app.get(V.EXT_PATH, (req, res) => res.json(V.describeExt()));
+app.use("/a2a/venues/:slug", (req, res, next) => {
+  const id = idOfSlug(req.params.slug);
+  if (!id || !venueById(id)) return res.status(404).json({ error: "no such venue agent (a venue's agent appears once Serve has looked up courts near it: GET /a2a/venues)" });
+  venueRouterFor(id, rootFor(req)).then((r) => r(req, res, next)).catch(() => res.status(500).json({ error: "this venue agent's card could not be made" }));
+});
 // the key members' cards are signed with (public, like the cards)
 app.get("/a2a/keys.json", (req, res) => { try { res.json(jwks()); } catch (e) { res.status(500).json({ error: "no signing key" }); } });
 // what serve.likely is and what its bands mean (the extension's URI in each card)

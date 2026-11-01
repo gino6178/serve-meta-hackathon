@@ -241,6 +241,13 @@ Agents talk over the **A2A protocol v1.0** (Linux Foundation), through its offic
 
 ## 2. Ranking by everyone's chance of yes, and the one question worth most
 
+- **Who gets asked, from each player's habits.** When a player asks for a game, their agent doesn't message the whole
+  club. Each member's agent learns how its person plays: the hours of the week they say yes to, how far they go, what
+  they pay, and whether they like a quiet court (four weights fitted from their own answers, `members/taste.js`). The
+  asking agent picks candidates by that fit, and asks each candidate's agent over A2A how likely a yes is
+  (`serve.likely`). The candidate's agent works the answer out on its own side from its person's own record, and
+  answers only with a band (unlikely, maybe, likely, very likely). The best-suited are asked first. Two candidates of
+  every twelve are drawn from the rest, so it isn't always the same few people (`match/ask.js`, `match/likely.js`).
 - **Times ranked by the chance everyone says yes.** A game needs every player, so times are proposed in order of the
   product of each player's chance of a yes, and a time where any one player's chance is under 0.15 goes to the back (a
   least-misery floor). On 3,000 simulated requests of each kind, the first time proposed kept every player's rules in
@@ -465,6 +472,33 @@ agent channel.
 refused with `403`, `needs: person`: the agent can negotiate for its person, never past them.
 
 ![An open door for any personal agent (/llms.txt), tested with 10+ friends](docs/readme/slide_open_door.png)
+
+## 11. A venue's own agent, and a fair split
+
+A sports centre that rents courts has an A2A agent of its own, beside the players' agents.
+
+- **Its own card and key.** Each venue agent has a signed Agent Card at
+  `/a2a/venues/<id>/.well-known/agent-card.json`, listed at `GET /a2a/venues`. It has one skill, quote a court, and
+  its card carries the venue's own Ed25519 quote key.
+- **Talking price.** The group's agent sends a court ask (`serve.court-ask`: the date, the start, the players, and its
+  offer). The venue's agent answers with a quote (`serve.quote`): accepted, or a counter. Each quote is signed with the
+  venue's key, and the group's agent checks it before it counts. Each round, the group's agent sends the venue's last
+  quote back; the venue checks its own signature on it, so neither side can make up an earlier price.
+- **The venue's rule.** It never goes under a floor: 60% of the list price for an hour that is usually empty, the full
+  list price once it is 85% full, and a little more off for a group that plays the same hour every week.
+- **Each member decides what they pay.** Each player sets the most they will pay, and can tick "I'll pay more than an
+  equal share, up to my most, so a friend on a tighter budget can play". The group's agent never offers more than the
+  players' limits can cover between them. The price is then split: equal by default, a player whose limit is under the
+  equal share pays their limit, and the gap is shared only among those who offered to cover, never past anyone's own
+  limit (`members/split.js`).
+- **A real venue can bring its own agent.** It registers its agent's A2A address for its place (`POST
+  /api/venues/agents`, approved by the maintainer, so a venue can't claim another's courts). Serve then talks to that
+  agent over A2A, checking its signed card and each signed quote the same way.
+- **No money moves.** No venue has joined Serve yet, so list prices are samples and the app says so. Serve works out
+  the price and the shares; nothing is paid in the app.
+
+Tests: `agent/test/venue_agent_unit.mjs` (signed quotes, a forged earlier quote ignored, the budget never passed, the
+split never past anyone's limit).
 
 ## Real-world use
 

@@ -402,7 +402,7 @@ setInterval(() => { remind().catch(() => {}); lifeTick().catch(() => {}); nightl
 
 // ---- the community loop (docs/community_loop.md) ----
 // the maintainer's token (MAINTAINER_TOKEN), for deciding proposals and rolling flags back; without one, nobody can
-const MAINTAINER = ["/api/loop/decide", "/api/loop/rollback", "/api/feed/papers/run", "/api/feed/reports", "/api/feed/reports/media", "/api/feed/moderate", "/api/feed/audit", ...webapi.MAINTAINER];
+const MAINTAINER = ["/api/venues/agents", "/api/loop/decide", "/api/loop/rollback", "/api/feed/papers/run", "/api/feed/reports", "/api/feed/reports/media", "/api/feed/moderate", "/api/feed/audit", ...webapi.MAINTAINER];
 function maintainer(req) {
   const t = String(process.env.MAINTAINER_TOKEN || "").trim(), m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || "");
   if (!t || !m) return false;
@@ -495,6 +495,16 @@ const gateway = http.createServer(async (req, res) => {
   try {
     if (u.pathname.startsWith("/api/") && await membersApi.route(req, res, u, { json, o, forget: (id, opts) => feedPosts.forget(id, opts) })) return;
     if (u.pathname.startsWith("/api/") && await webapi.route(req, res, u, { json, bodyOf, o })) return;
+    // a venue's own agent, run by the venue (venues/agent.js): its A2A address registered for its place, with the
+    // maintainer's approval so a venue can't claim another's courts
+    if (u.pathname === "/api/venues/agents") {
+      const V = await import("./venues/agent.js");
+      if (req.method === "GET") return json(res, 200, { agents: V.registered() }, o);
+      const b = await bodyOf(req).catch(() => ({}));
+      if (req.method === "POST") { const r = V.register(b.place, b.url, b.name); return json(res, r.code || 200, r, o); }
+      if (req.method === "DELETE") return json(res, 200, V.unregister(b.place), o);
+      return json(res, 405, { error: "GET, POST {place, url, name} or DELETE {place}" }, o);
+    }
     if (u.pathname === "/api/status") {
       // anyone may ask whether the gateway is up; the model server's address, the Messenger page and the map quota are
       // for the gateway's own token only (a visitor saw them, agent testing round 27)

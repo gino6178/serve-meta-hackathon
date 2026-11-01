@@ -37,7 +37,7 @@ export const cellWord = (cell) => { const [d, p] = cell.split(" "); return p ===
 const rad = (d) => (d * Math.PI) / 180;
 export const km = (a, b) => { const h = Math.sin(rad(b.lat - a.lat) / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lon - a.lon) / 2) ** 2; return 12742 * Math.asin(Math.sqrt(h)); };
 
-const blank = () => ({ home: null, sports: [], open: false, windows: [], limitKm: null, limitEach: null, delegate: null, raw: { time: 0, place: 0, price: 0, quiet: 0 }, cells: {}, maxKm: 5, priceCap: 250, answers: [], learned: [], asked: 0 });
+const blank = () => ({ home: null, sports: [], open: false, windows: [], limitKm: null, limitEach: null, cover: false, delegate: null, raw: { time: 0, place: 0, price: 0, quiet: 0 }, cells: {}, maxKm: 5, priceCap: 250, answers: [], learned: [], asked: 0 });
 // said: the member's dated preference records, settled (memory/prefs.js; read here, never stored with the taste)
 export const get = (id) => ({ ...blank(), ...(data().members[id] || {}), said: prefs.resolve(prefs.stored(id)) });
 const put = (id, { said, ...t }) => { data().members[id] = t; save(); return { ...t, said }; };
@@ -60,10 +60,12 @@ export function setLimits(id, b = {}) {
   if (b.maxEach !== undefined && b.maxEach !== null && !(num(b.maxEach) >= 0)) return { error: "maxEach is a price of 0 or more, or null to clear it.", code: 400 };
   const limitKm = b.maxKm === undefined ? t.limitKm : b.maxKm === null ? null : Math.min(30, num(b.maxKm));
   const limitEach = b.maxEach === undefined ? t.limitEach : b.maxEach === null ? null : Math.min(5000, Math.round(num(b.maxEach)));
-  const n = { ...t, windows, limitKm, limitEach };
+  if (b.cover !== undefined && typeof b.cover !== "boolean") return { error: "cover is true or false: whether you'd pay more than an equal share, up to maxEach, so a game happens.", code: 400 };
+  // cover: happy to pay more than an equal share of a venue's price, up to limitEach, so the game happens (members/split.js)
+  const n = { ...t, windows, limitKm, limitEach, cover: b.cover === undefined ? !!t.cover : b.cover };
   if (limitKm) n.maxKm = Math.min(n.maxKm, limitKm);
   if (limitEach != null) n.priceCap = Math.min(n.priceCap, Math.max(60, limitEach));
-  const parts = [windows.length ? `only ${windows.map((x) => `${x.days.join("/")} ${x.from}–${x.to}`).join(", ")}` : "", limitKm ? `within ${limitKm} km` : "", limitEach != null ? `at most NT$${limitEach} each` : ""].filter(Boolean);
+  const parts = [windows.length ? `only ${windows.map((x) => `${x.days.join("/")} ${x.from}–${x.to}`).join(", ")}` : "", limitKm ? `within ${limitKm} km` : "", limitEach != null ? `at most NT$${limitEach} each` : "", n.cover ? "happy to cover more than an equal share, up to that" : ""].filter(Boolean);
   n.learned = [...n.learned, { at: Date.now(), text: parts.length ? `Set: ${parts.join(", ")}. Nothing outside that is ever agreed.` : "Limits cleared." }].slice(-30);
   return { taste: view(put(id, n)) };
 }
@@ -287,7 +289,7 @@ export function summary(t) {
 export function view(t) {
   const w = weights(t), pairs = t.answers.filter((a) => a.kind === "pair").length;
   const grid = Object.fromEntries(DAYS.flatMap((d) => PARTS.map((p) => [`${d} ${p}`, +timeFit(t, `${d} ${p}`).toFixed(2)])));
-  return { home: t.home, sports: t.sports, open: !!t.open, windows: t.windows || [], limitKm: t.limitKm ?? null, limitEach: t.limitEach ?? null, delegate: t.delegate || null, weights: Object.fromEntries(FACTORS.map((k) => [k, +w[k].toFixed(2)])), grid, maxKm: +t.maxKm.toFixed(1), priceCap: Math.round(t.priceCap),
+  return { home: t.home, sports: t.sports, open: !!t.open, windows: t.windows || [], limitKm: t.limitKm ?? null, limitEach: t.limitEach ?? null, cover: !!t.cover, delegate: t.delegate || null, weights: Object.fromEntries(FACTORS.map((k) => [k, +w[k].toFixed(2)])), grid, maxKm: +t.maxKm.toFixed(1), priceCap: Math.round(t.priceCap),
     answers: t.answers.length, pairs, sure: Math.min(1, t.answers.length / SURE_AT), summary: summary(t), learned: t.learned.slice(-8).reverse(), ...(t.said?.all?.length ? { said: prefs.view(t.said) } : {}) };
 }
 export const isSure = (t) => t.answers.length >= SURE_AT;

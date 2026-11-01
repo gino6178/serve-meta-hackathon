@@ -43,6 +43,11 @@ export function verify(o, sigs = []) {
   const missing = players.filter((p) => !signed.has(p));
   return { ok: !bad.length && !missing.length, signed: signed.size, of: players.length, missing, bad };
 }
+// any statement an agent signs with its own key (a venue's quote: venues/agent.js), and its check against a public key
+export function signText(id, text) { return { kid: publicOf(id).slice(0, 16), sig: b64u(crypto.sign(null, Buffer.from(text), keyOf(id))) }; }
+export function verifyText(x, text, sig) {
+  try { return crypto.verify(null, Buffer.from(text), crypto.createPublicKey({ key: { kty: "OKP", crv: "Ed25519", x }, format: "jwk" }), Buffer.from(String(sig), "base64url")); } catch { return false; }
+}
 export const required = () => process.env.CONSENT === "require";
 // a member on a peer gateway (id@club) confirms through its own gateway instead (play.js hooks.confirm, a mandate)
 export const remote = (id) => String(id).includes("@");

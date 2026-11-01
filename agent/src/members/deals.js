@@ -50,9 +50,18 @@ export async function placesNear(at, sport = "badminton", { venues = 3, courts =
   const v = one(found.filter((p) => p.kind === "sports_centre")).slice(0, venues), c = one(found.filter((p) => p.kind !== "sports_centre")).slice(0, courts);
   return [...v, ...c].map((p) => {
     const venue = p.kind === "sports_centre";
-    return { id: p.id, name: readable(p.name, p.kind, sport), lat: p.lat, lon: p.lon, kind: venue ? "venue" : "public", sport, ...(venue ? { list: round10((LIST[sport] || 300) * (0.85 + 0.3 * hash(p.id))), sample: true } : {}) };
+    if (venue) seen.set(p.id, { id: p.id, name: p.name, lat: p.lat, lon: p.lon });
+    return venue ? venueOf(p, sport) : { id: p.id, name: readable(p.name, p.kind, sport), lat: p.lat, lon: p.lon, kind: "public", sport };
   });
 }
+// a venue as its agent knows it (its sample list price for the sport), and the venues seen so far by id, so the venue
+// agents (venues/agent.js, at /a2a/venues/<slug>) can answer for them
+const seen = new Map();
+const venueOf = (p, sport) => ({ id: p.id, name: readable(p.name, "sports_centre", sport), lat: p.lat, lon: p.lon, kind: "venue", sport, list: round10((LIST[sport] || 300) * (0.85 + 0.3 * hash(p.id))), sample: true });
+export const venueById = (id, sport = "badminton") => (seen.has(id) && LIST[sport] ? venueOf(seen.get(id), sport) : null);
+export const knownVenues = () => [...seen.values()];
+export const slugOf = (id) => String(id).replace(/^osm:/, "").replace("/", "-");
+export const idOfSlug = (s) => (/^(node|way|relation)-\d+$/.test(String(s)) ? `osm:${String(s).replace("-", "/")}` : null);
 
 // how full a place usually is at a time, 0..1: the kind of place's typical week, this place's own lean, and the games
 // on Serve already there then (games: [{ at: {lat, lon}, day, start }])
@@ -102,11 +111,25 @@ export function guessEach(place, date, start, players, opts = {}) {
   return ((t.floor + t.list) / 2 * courts) / players;
 }
 
+// The venue's side of a talk, as its agent answers one offer (venues/agent.js signs it): the price for the courts the
+// group needs, accepted when the offer reaches the venue's floor, else a counter that comes down 40% of the way from
+// its last price (its opening price the first time), never under the floor. A full hour is the list price, final.
+// Nothing here remembers the talk: the group sends back the venue's last signed quote, which the agent checks.
+export const courtsFor = (place, players) => Math.max(1, Math.ceil(players / (PER_COURT[place.sport] || 4)));
+export function venueRule(place, { date, start, minutes = 90, players = 4, weekly = false, games = [], offer = null, last = null, round = 0 } = {}) {
+  const courts = courtsFor(place, players), t = terms(place, date, start, { minutes, weekly, games }), list = t.list * courts, floor = t.floor * courts;
+  const base = { courts, list, busy: t.busy };
+  if (t.busy >= 0.85) return { ...base, price: list, accept: offer != null && offer >= list, final: true, full: true };
+  if (offer != null && offer >= floor) return { ...base, price: offer, accept: true, final: true };
+  const prev = last ?? round10(list * (0.9 + 0.08 * t.busy)), price = offer == null ? prev : Math.max(floor, round10(prev - (prev - offer) * 0.4));
+  return { ...base, price, accept: false, final: price === floor || round >= 2, floorReached: price === floor };
+}
+
 // the talk: the group's agent and the venue's agent, in turns, until the venue's rule accepts or three rounds pass.
 // push 0..1 is how hard the group's agent pushes (how much the group cares about price).
 export function talk(place, { date, start, players = 4, minutes = 90, weekly = false, push = 0.5, games = [], group = "Your group" } = {}) {
   if (place.kind !== "venue") return { free: true, price: 0, each: 0, lines: [] };
-  const courts = Math.max(1, Math.ceil(players / (PER_COURT[place.sport] || 4)));
+  const courts = courtsFor(place, players);
   const t = terms(place, date, start, { minutes, weekly, games }), list = t.list * courts, floor = t.floor * courts;
   const d = dateOf(date), when = `${DAYS[d.getDay()]} ${start}`, end = (() => { const m = hourOf(start) * 60 + minutes; return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(Math.round(m % 60)).padStart(2, "0")}`; })();
   const pct = Math.round(t.busy * 100), lines = [], C = CURRENCY;

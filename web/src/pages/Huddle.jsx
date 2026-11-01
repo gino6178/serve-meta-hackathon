@@ -215,7 +215,8 @@ function HuddleView({ id, onBack, onChange = () => {} }) {
         <div className="hd-pick">
           <div className="hd-pick-main"><b>{pk.when}</b><span>{pk.where}</span></div>
           <ul className="hd-facts">
-            <li>{pk.kind === "venue" ? <>{pk.each ? `NT$${pk.each} each` : ""}{pk.off ? <em> · {pk.off}% under list</em> : null}</> : "Free public court"}</li>
+            <li>{pk.kind === "venue" ? <>{pk.mine != null ? `You pay NT$${pk.mine}` : pk.each ? `NT$${pk.each} each` : ""}{pk.off ? <em> · {pk.off}% under list</em> : null}{pk.signed ? <em> · quote signed by the venue's agent</em> : null}</> : "Free public court"}</li>
+            {pk.shares && Object.values(pk.shares).some((v) => v !== pk.mine) && <li className="hd-fine">Split: {Object.entries(pk.shares).map(([n, v]) => `${n} NT$${v}`).join(", ")}. No one pays more than their own limit.</li>}
             <li>Usually {pct(pk.busy)} full then</li>
             {pk.km != null && <li>Your trip {pk.km} km</li>}
           </ul>
@@ -321,7 +322,7 @@ const WIN = {
 const winKey = (ws) => (!ws?.length ? "any" : Object.keys(WIN).find((k) => JSON.stringify(WIN[k].v) === JSON.stringify(ws.map((w) => ({ days: w.days, from: w.from, to: w.to })))) || "keep");
 function Limits({ t, onSaved }) {
   const d = t.delegate;
-  const [win, setWin] = useState(winKey(t.windows)), [km, setKm] = useState(t.limitKm ?? ""), [each, setEach] = useState(t.limitEach ?? "");
+  const [win, setWin] = useState(winKey(t.windows)), [km, setKm] = useState(t.limitKm ?? ""), [each, setEach] = useState(t.limitEach ?? ""), [cover, setCover] = useState(!!t.cover);
   const [on, setOn] = useState(!!d?.on), [dEach, setDEach] = useState(d?.maxEach ?? ""), [newPeople, setNewPeople] = useState(!!d?.newPeople);
   const [busy, setBusy] = useState(false), [said, setSaid] = useState(""), [err, setErr] = useState("");
   const [cal, setCal] = useState(null), [reading, setReading] = useState(false);
@@ -341,7 +342,7 @@ function Limits({ t, onSaved }) {
   const save = async (e) => {
     e.preventDefault(); setBusy(true); setErr(""); setSaid("");
     try {
-      await H.setLimits({ ...(win === "keep" ? {} : { windows: win === "ics" ? cal.windows : WIN[win].v }), maxKm: km === "" ? null : +km, maxEach: each === "" ? null : +each });
+      await H.setLimits({ ...(win === "keep" ? {} : { windows: win === "ics" ? cal.windows : WIN[win].v }), maxKm: km === "" ? null : +km, maxEach: each === "" ? null : +each, cover });
       const r = await H.setDelegate(on ? { on: true, maxEach: dEach === "" ? null : +dEach, newPeople } : { on: false });
       setSaid("Saved. Nothing outside these is ever agreed for you."); onSaved(r.taste);
     } catch (x) { setErr(x.message); }
@@ -360,6 +361,7 @@ function Limits({ t, onSaved }) {
       <WeekHeat ws={chosen} />
       <label>Farthest<span className="hd-unit"><input type="number" min="1" max="30" step="0.5" inputMode="decimal" placeholder="no limit" value={km} onChange={(e) => setKm(e.target.value)} />km</span></label>
       <label>Most per person<span className="hd-unit">NT$<input type="number" min="0" max="5000" step="10" inputMode="numeric" placeholder="no limit" value={each} onChange={(e) => setEach(e.target.value)} /></span></label>
+      <label className="hd-check"><input type="checkbox" checked={cover} onChange={(e) => setCover(e.target.checked)} />I'll pay more than an equal share, up to my most, so a friend on a tighter budget can play</label>
       <h3 className="h4">Your agent saying yes for you</h3>
       <label className="hd-check"><input type="checkbox" checked={on} onChange={(e) => setOn(e.target.checked)} />Let my agent say yes for me, within my limits</label>
       {on && <>

@@ -243,7 +243,7 @@ async function channel(req, res, p, send) {
       { const bad = badInput("/huddle/limits", b); if (bad) return send(400, { error: bad }); } // (checked before comparing)
       const t = T.get(owner), _mins = (ws) => (ws || []).reduce((n, w) => n + w.days.length * ((+w.to.slice(0, 2) * 60 + +w.to.slice(3)) - (+w.from.slice(0, 2) * 60 + +w.from.slice(3))), 0);
       const looser = (b.maxKm != null && t.limitKm != null && +b.maxKm > t.limitKm) || (b.maxEach != null && t.limitEach != null && +b.maxEach > t.limitEach)
-        || (b.maxKm === null && t.limitKm != null) || (b.maxEach === null && t.limitEach != null)
+        || (b.maxKm === null && t.limitKm != null) || (b.maxEach === null && t.limitEach != null) || (b.cover === true && !t.cover)
         || (b.windows === null && t.windows?.length) || (Array.isArray(b.windows) && t.windows?.length && (!b.windows.length || !b.windows.every((w) => (w.days || []).every((d) => t.windows.some((o) => o.days.includes(d) && o.from <= w.from && w.to <= o.to)))));
       if (looser) return send(403, { error: "Over the agent channel limits can only get tighter; loosening them needs your person's session.", needs: "person" });
     }

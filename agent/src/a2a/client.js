@@ -102,6 +102,8 @@ const toSdk = (p) => { const kind = "data" in p ? "data" : "text"; return { cont
 const plain = (t) => (!t?.status ? t : { ...t, status: { ...t.status, state: TaskState[t.status.state] },
   artifacts: (t.artifacts || []).map((a) => ({ ...a, parts: a.parts.map(toJson) })), history: (t.history || []).map((m) => ({ ...m, role: Role[m.role], parts: m.parts.map(toJson) })) });
 
+// an agent's card as it was checked (a venue's quote key is in it: venues/agent.js)
+export const cardOf = (base) => cards.get(slash(String(base || ""))) || null;
 // the extensions an agent's card declares at a path (match/likely.js EXT_PATH): their URIs, as the card names them
 export const declared = (base, extPath) => (cards.get(slash(base))?.capabilities?.extensions || []).map((e) => e.uri).filter((u) => { try { return new URL(u).pathname === extPath; } catch { return false; } });
 // SendMessage: the task the agent made for it (or the message it answered with), in the protocol's JSON shape.
