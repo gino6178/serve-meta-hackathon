@@ -5,7 +5,10 @@ person says one yes.
 
 Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Your World · built October 27 to November 4, 2026
 
-- **Demo video (YouTube): link coming**
+- **Demo video (YouTube, 2:56):** https://youtu.be/t6F2PBezujo
+
+  [![Serve demo video](https://img.youtube.com/vi/t6F2PBezujo/maxresdefault.jpg)](https://youtu.be/t6F2PBezujo)
+
 - **Try it live:** https://play.theminimallab.com (demo sign-in, no Facebook account needed)
 - **Technical report:** [submission/technical_report.md](submission/technical_report.md) (PDF:
   [submission/pdf/serve_technical_report.pdf](submission/pdf/serve_technical_report.pdf)) · **Slides:**
@@ -127,7 +130,7 @@ court) and runs on Meta's open-weight models (Muse Glimmer on our own GPUs) and 
 
 ### Demo (25%)
 
-- **Demo video (YouTube): link coming.**
+- **Demo video (YouTube, 2:56):** https://youtu.be/t6F2PBezujo
 - **Live site:** https://play.theminimallab.com, with a demo sign-in. A person's own agent can use it too: start at
   `/llms.txt`.
 - **It holds up:** 177 AI testers over 28 rounds sent 17,432 logged requests; round 25 came back clean on every core
