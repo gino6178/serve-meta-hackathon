@@ -15,6 +15,8 @@ import { WhatServe, WHAT_MIN } from './WhatServe';
 import { TitleCard, TITLE_DURATION } from './TitleCard';
 import { MetaStack, META_MIN } from './MetaStack';
 import { A2ACallout } from './A2ACallout';
+import { VoiCallout } from './VoiCallout';
+import { Text1B, TEXT1B_MIN } from './Text1B';
 import { OpenDoor, OPEN_DOOR_MIN } from './OpenDoor';
 import { Reel, REEL_MIN } from './Reel';
 import { Tiers, TIERS_MIN } from './Tiers';
@@ -32,28 +34,46 @@ export const LIVE3: Seg[] = [
   { src: 'v3/ask', from: 11.3, to: 19.5, caption: 'One sentence to your agent: "Badminton Tuesday evening, need 1"', model: 'Code reads the day and the nearest court · no model', zoom: { x: 0, y: 260, s: 1.32 } },
   { src: 'v3/ask', from: 19.5, to: 46.5, rate: 13.5, label: '', caption: 'Checked before anyone sees it', model: 'Llama Guard 3 · Prompt Guard 2', zoom: { x: 0, y: 260, s: 1.32, now: true } },
   { src: 'v3/ask', from: 46.5, to: 49.5, caption: 'Posted. Share the link to any group chat.', zoom: { x: 0, y: 260, s: 1.32, now: true } },
-  { src: 'v3/link', from: 1.0, to: 11.5, rate: 1.5, label: '', caption: 'A friend with no account: the link opens, one sign-in, he is in', who: 'friend' },
+  { src: 'v3/link', from: 1.0, to: 11.5, rate: 2, label: '', caption: 'A friend with no account: the link opens, one sign-in, he is in', who: 'friend' },
   { src: 'v3/gameon', from: 2.6, to: 6.0, caption: '"Game on." The spot is taken: Leo', zoom: { x: 420, y: 280, s: 1.9 } },
   { kind: 'bumper', src: '', from: 0, to: 1.5, num: '2', title: 'Agents negotiate. You say yes once.', sub: "Every player's agent, over A2A v1.0", caption: 'A2A' },
   { src: 'plan', from: 4.5, to: 8.5, caption: 'One tap: let your agent plan the week', zoom: { x: 1560, y: 0, s: 1.22 } },
   { src: 'plan', from: 10.0, to: 104.0, rate: 16, label: '', caption: "Each member's agent answers: signed facts, never free text", model: 'Signed Agent Cards ✓ · our 1B, or Glimmer when unsure', zoom: { x: 1560, y: 864, s: 1.22 } },
-  { src: 'plan', from: 104.0, to: 112.8, rate: 1.8, label: '', caption: 'Every agent agreed. Held for you; nothing is booked without your yes.' },
-  { src: 'msgbook', from: 0.5, to: 9.0, rate: 0.95, caption: 'Your agent asks first, in Messenger: one tap, and it is booked', model: 'Muse Glimmer · your agent in Messenger' },
+  { src: 'plan', from: 104.0, to: 112.8, rate: 2.6, label: '', caption: 'Every agent agreed. Held for you; nothing is booked without your yes.' },
+  { src: 'msgbook', from: 0.5, to: 9.0, rate: 0.8, caption: 'Your agent asks first, in Messenger: one tap, and it is booked', model: 'Muse Glimmer · your agent in Messenger' },
 ];
 const segAt = (i: number) => LIVE3.slice(0, i).reduce((n, s) => n + Math.round(((s.to - s.from) * 30) / (s.rate ?? 1)), 0);
 const SEG = { link: segAt(3), bumper: segAt(5), plan2: segAt(7), msg: segAt(9) };
+const LIVE_DUR = liveDuration(LIVE3);
 
 const Live: React.FC = () => (
   <AbsoluteFill>
     <LiveFrame segs={LIVE3} />
     <Sequence from={SEG.plan2 + 6} durationInFrames={SEG.msg - SEG.plan2 - 6}><A2ACallout dur={SEG.msg - SEG.plan2 - 6} /></Sequence>
+    <Sequence from={SEG.msg} durationInFrames={LIVE_DUR - SEG.msg}><VoiCallout dur={LIVE_DUR - SEG.msg} cardAt={4 + 65} barsAt={4 + 218} /></Sequence>
   </AbsoluteFill>
 );
+// over the community loop: Serve evolves itself, and the anytime-valid test behind its rollbacks (README §7)
+const Evolves: React.FC<{ statAt: number }> = ({ statAt }) => {
+  const f = useCurrentFrame(), t = interpolate(f, [4, 18], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }), s = interpolate(f, [statAt, statAt + 14], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  return (
+    <div style={{ position: 'absolute', right: 70, top: 200, width: 600, padding: '26px 30px', borderRadius: 26, background: 'rgba(255,255,255,0.97)', boxShadow: '0 20px 60px rgba(10,26,16,0.18)', fontFamily: FONT.sans, opacity: t, transform: `translateY(${(30 * (1 - t)).toFixed(2)}px)` }}>
+      <div style={{ fontSize: 20, fontWeight: 750, letterSpacing: '0.12em', color: '#0a7f44' }}>A SELF-EVOLVING COMMUNITY</div>
+      <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.02em', color: '#0a0a0b', marginTop: 6, lineHeight: 1.15 }}>Members' ideas become changes. A change that hurts rolls back on its own.</div>
+      <div style={{ marginTop: 18, padding: '14px 18px', borderRadius: 16, background: '#e9f3ec', opacity: s, transform: `translateY(${(14 * (1 - s)).toFixed(2)}px)` }}>
+        <div style={{ fontSize: 20, color: '#5c5f66' }}>False rollbacks of harmless changes</div>
+        <div style={{ fontSize: 46, fontWeight: 800, color: '#0a7f44', letterSpacing: '-0.02em' }}>22% → 0.6%</div>
+        <div style={{ fontSize: 18, color: '#5c5f66' }}>an anytime-valid test watches the feedback</div>
+      </div>
+    </div>
+  );
+};
 const LOOP = 180; // the first film's community loop, 6 s of it
 const SafetyLoop: React.FC = () => (
   <AbsoluteFill>
     <Sequence durationInFrames={SAFETY_DURATION}><Safety lift={56} sub="Untrusted input, private data, the power to act: Meta's Agents Rule of Two." /></Sequence>
     <Sequence from={SAFETY_DURATION}><OffthreadVideo src={staticFile('clips/v3/loop.mp4')} startFrom={30} muted style={{ width: 1920, height: 1080 }} /></Sequence>
+    <Sequence from={SAFETY_DURATION}><Evolves statAt={326 - SAFETY_DURATION} /></Sequence>
   </AbsoluteFill>
 );
 const OUTRO_HOLD = 30;
@@ -68,7 +88,6 @@ const OutroHeld: React.FC = () => {
 };
 const SwarmV3: React.FC = () => <Swarm agents={177} logged={17432} counts={false} light close="28 rounds of testing, the way people and outside agents would use it. Every fault fixed." />;
 
-const LIVE_DUR = liveDuration(LIVE3);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ORDER: [string, React.FC<any>, number][] = [
   ['cover', TitleCard, TITLE_DURATION],
@@ -78,9 +97,10 @@ const ORDER: [string, React.FC<any>, number][] = [
   ['door', OpenDoor, fit('door', OPEN_DOOR_MIN)],
   ['reel', Reel, fit('reel', REEL_MIN)],
   ['tiers', Tiers, fit('tiers', TIERS_MIN)],
+  ['text1b', Text1B, fit('text1b', TEXT1B_MIN)],
   ['meta', MetaStack, fit('meta', META_MIN)],
   ['guard', Guard, fit('guard', GUARD_MIN)],
-  ['swarm', SwarmV3, fit('swarm', 440)],
+  ['swarm', SwarmV3, fit('swarm', 420)],
   ['safety', SafetyLoop, fit('safety', SAFETY_DURATION + LOOP)],
   ['outro', OutroHeld, OUTRO_DURATION + OUTRO_HOLD],
 ];
@@ -95,24 +115,24 @@ export const TOTAL3 = SHOTS3.outro.from + SHOTS3.outro.dur;
 const S = SHOTS3;
 const START: Record<string, number> = {
   island: S.island.from + LEAD + 10, intro: S.intro.from + LEAD, sentence: S.live.from + 14, sentence2: S.live.from + SEG.link + 6,
-  a2a: S.live.from + SEG.bumper + 12, messenger: S.live.from + SEG.msg + 8, door: S.door.from + LEAD, reel: S.reel.from + LEAD,
-  tiers: S.tiers.from + LEAD, meta: S.meta.from + LEAD, guard: S.guard.from + LEAD, swarm: S.swarm.from + LEAD + 20, safety: S.safety.from + LEAD, outro: S.outro.from + 40,
+  a2a: S.live.from + SEG.bumper + 12, messenger: S.live.from + SEG.msg + 4, door: S.door.from + LEAD, reel: S.reel.from + LEAD,
+  tiers: S.tiers.from + LEAD, text1b: S.text1b.from + LEAD, meta: S.meta.from + LEAD, guard: S.guard.from + LEAD, swarm: S.swarm.from + LEAD + 20, safety: S.safety.from + LEAD, outro: S.outro.from + 40,
 };
 
 type Cue = { from: number; src: string; volume: number; dur?: number; note: string };
 export const SFX3: Cue[] = [
-  ...[0, 1, 2, 3].map((i) => ({ from: S.island.from + 160 + i * 5, src: 'pop', volume: 0.5 - i * 0.04, note: `lock ${i + 1}` })),
-  ...[0, 1, 2].map((i) => ({ from: S.island.from + 188 + i * 7, src: 'switch-click-quick', volume: 0.35, note: `link ${i + 1} cut` })),
-  { from: S.island.from + 200, src: 'swoosh-quick', volume: 0.3, note: 'no place to talk' },
-  { from: S.island.from + 236, src: 'whoosh-fast', volume: 0.3, note: 'the group chat' },
+  ...[0, 1, 2, 3].map((i) => ({ from: S.island.from + 140 + i * 5, src: 'pop', volume: 0.5 - i * 0.04, note: `lock ${i + 1}` })),
+  ...[0, 1, 2].map((i) => ({ from: S.island.from + 165 + i * 7, src: 'switch-click-quick', volume: 0.35, note: `link ${i + 1} cut` })),
+  { from: S.island.from + 175, src: 'swoosh-quick', volume: 0.3, note: 'no place to talk' },
+  { from: S.island.from + 210, src: 'whoosh-fast', volume: 0.3, note: 'the group chat' },
   { from: S.intro.from, src: 'transition-soft', volume: 0.4, note: 'what Serve is' },
   { from: S.intro.from + 46, src: 'swoosh-quick', volume: 0.32, note: 'the Serve box' },
-  { from: S.intro.from + 160, src: 'pop', volume: 0.3, note: 'signed facts travel' },
-  { from: S.intro.from + 215, src: 'pop', volume: 0.32, note: 'the best court' },
-  { from: S.intro.from + 268, src: 'pop', volume: 0.36, note: 'held' },
-  { from: S.intro.from + 320, src: 'switch-click-quick', volume: 0.4, note: 'one yes' },
-  ...[0, 1, 2, 3].map((i) => ({ from: S.intro.from + 352 + i * 4, src: 'pop', volume: 0.24, note: `key ${i + 1}` })),
-  { from: S.intro.from + 372, src: 'swoosh-quick', volume: 0.34, note: 'every message and reply' },
+  { from: S.intro.from + 120, src: 'pop', volume: 0.3, note: 'signed facts travel' },
+  { from: S.intro.from + 160, src: 'pop', volume: 0.32, note: 'the best court' },
+  { from: S.intro.from + 208, src: 'pop', volume: 0.36, note: 'held' },
+  { from: S.intro.from + 262, src: 'switch-click-quick', volume: 0.4, note: 'one yes' },
+  ...[0, 1, 2, 3].map((i) => ({ from: S.intro.from + 292 + i * 4, src: 'pop', volume: 0.24, note: `key ${i + 1}` })),
+  { from: S.intro.from + 312, src: 'swoosh-quick', volume: 0.34, note: 'every message and reply' },
   { from: S.live.from, src: 'transition-snap', volume: 0.42, note: 'the frame grows' },
   { from: S.live.from + 18, src: 'keyboard', volume: 0.26, dur: 30, note: 'the sentence typed' },
   { from: S.live.from + SEG.link, src: 'switch-click-quick', volume: 0.5, note: "to the friend's phone" },
@@ -123,15 +143,19 @@ export const SFX3: Cue[] = [
   { from: S.live.from + SEG.msg, src: 'switch-click-quick', volume: 0.45, note: 'into Messenger' },
   ...[14, 68, 136].map((o, i) => ({ from: S.door.from + o, src: 'keyboard', volume: 0.24, dur: 30, note: `command ${i + 1} typed` })),
   { from: S.door.from + 214, src: 'switch-click-quick', volume: 0.55, note: '403 lands' },
-  { from: S.door.from + 280, src: 'swoosh-quick', volume: 0.35, note: 'the friends card' },
+  { from: S.door.from + 250, src: 'swoosh-quick', volume: 0.35, note: 'the friends card' },
   { from: S.reel.from, src: 'transition-soft', volume: 0.38, note: 'into the reel' },
-  { from: S.reel.from + 120, src: 'whoosh-fast', volume: 0.3, note: 'the clip' },
+  { from: S.reel.from + 100, src: 'whoosh-fast', volume: 0.3, note: 'the clip' },
   { from: S.cover.from + 12, src: 'whoosh-fast', volume: 0.3, note: 'the mark draws' },
-  ...[150, 240, 344, 413].map((o, i) => ({ from: S.tiers.from + o, src: 'swoosh-quick', volume: 0.3, note: `tier ${i + 1}` })),
+  ...[110, 182, 264, 323].map((o, i) => ({ from: S.tiers.from + o, src: 'swoosh-quick', volume: 0.3, note: `tier ${i + 1}` })),
+  { from: S.text1b.from, src: 'transition-soft', volume: 0.34, note: 'the text 1B' },
+  ...[116, 209].map((o, i) => ({ from: S.text1b.from + o - 10, src: 'swoosh-quick', volume: 0.3, note: `attack group ${i + 1}` })),
+  { from: S.live.from + SEG.msg + 69, src: 'swoosh-quick', volume: 0.3, note: 'the question worth most' },
+  { from: S.safety.from + 326, src: 'pop', volume: 0.36, note: 'false rollbacks' },
   { from: S.meta.from, src: 'transition-soft', volume: 0.34, note: 'built on Meta' },
   ...[0, 1, 2, 3].map((i) => ({ from: S.meta.from + 14 + i * 26, src: 'swoosh-quick', volume: 0.26, note: `column ${i + 1}` })),
-  { from: S.guard.from + 196, src: 'pop', volume: 0.45, note: 'refused' },
-  { from: S.guard.from + 270, src: 'sparkle', volume: 0.32, dur: 60, note: 'fixed' },
+  { from: S.guard.from + 170, src: 'pop', volume: 0.45, note: 'refused' },
+  { from: S.guard.from + 236, src: 'sparkle', volume: 0.32, dur: 60, note: 'fixed' },
   { from: S.swarm.from, src: 'transition-soft', volume: 0.35, note: 'into the swarm' },
   { from: S.safety.from + 9, src: 'whoosh-fast', volume: 0.3, note: 'the card falls' },
   { from: S.safety.from + 15 - 17, src: 'impact-deep-whoosh', volume: 0.6, dur: 90, note: 'big hit 1 (peak 17 frames in)' },

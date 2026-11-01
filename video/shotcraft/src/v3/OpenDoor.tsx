@@ -7,7 +7,7 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
-export const OPEN_DOOR_MIN = 450;
+export const OPEN_DOOR_MIN = 390;
 const L = LOOKS.serve;
 const DIM = '#6b7a72', TXT = '#14241b', OK = '#0a7f44', BAD = '#d1352b';
 type Line = { at: number; text: string; color: string; type?: number; big?: boolean; gap?: number };
@@ -51,7 +51,7 @@ const Stat: React.FC<{ big: string; label: string; at: number }> = ({ big, label
 
 export const OpenDoor: React.FC = () => {
   const f = useCurrentFrame();
-  const term = ramp(f, 0, 16, EASE.snappy), card = ramp(f, 280, 18, EASE.snappy);
+  const term = ramp(f, 0, 16, EASE.snappy), card = ramp(f, 250, 18, EASE.snappy);
   return (
     <AbsoluteFill>
       <Stage look={L} keyLight={{ x: 0.3, y: 0.1 }} fill={null} grain={0.03} vignette={0.08}>
@@ -65,10 +65,10 @@ export const OpenDoor: React.FC = () => {
         <div style={{ position: 'absolute', left: 1320, top: 120, width: 530, height: 760, borderRadius: 26, background: '#ffffff', padding: '36px 40px', boxSizing: 'border-box',
           fontFamily: FONT.sans, boxShadow: softShadow(24), opacity: card, transform: `translateX(${mix(60, 0, card).toFixed(2)}px)` }}>
           <div style={{ fontSize: 26, fontWeight: 700, color: L.ink2, letterSpacing: '0.06em' }}>TESTED WITH FRIENDS</div>
-          <Stat big="10+" label="friends tried it" at={292} />
-          <Stat big="2 of 3" label="invites became games" at={330} />
-          <Stat big="3 days" label="from invite to the games" at={368} />
-          <div style={{ fontSize: 26, fontStyle: 'italic', color: L.ink2, marginTop: 38, lineHeight: 1.35, opacity: ramp(f, 400, 14, EASE.out) }}>“You just talk to the agent.”<br /><span style={{ fontSize: 20, fontStyle: 'normal' }}>a player</span></div>
+          <Stat big="10+" label="friends tried it" at={262} />
+          <Stat big="2 of 3" label="invites became games" at={290} />
+          <Stat big="3 days" label="from invite to the games" at={318} />
+          <div style={{ fontSize: 26, fontStyle: 'italic', color: L.ink2, marginTop: 38, lineHeight: 1.35, opacity: ramp(f, 345, 14, EASE.out) }}>“You just talk to the agent.”<br /><span style={{ fontSize: 20, fontStyle: 'normal' }}>a player</span></div>
         </div>
       </Stage>
     </AbsoluteFill>

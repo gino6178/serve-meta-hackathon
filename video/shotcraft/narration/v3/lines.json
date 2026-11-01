@@ -5,7 +5,7 @@
  },
  {
   "key": "intro",
-  "text": "So I built Serve, where personal agents negotiate real-world games together. Your agent finds nearby players and the best court between you, settles the time with their agents, and asks you for one yes. Every agent carries a signed credential, and you can read every message and reply."
+  "text": "So I built Serve, where personal agents negotiate real-world games together. Your agent finds nearby players and the best court between you, settles the time with their agents, and asks you for one yes. Every agent carries a signed credential, every yes is signed into a hash chain, and you can read every message and reply."
  },
  {
   "key": "sentence",
@@ -21,7 +21,7 @@
  },
  {
   "key": "messenger",
-  "text": "Because agents talk in the background, your agent can ask first: Thursday, 7 pm, Leo's agent says he's free. Want a game? One tap in Messenger."
+  "text": "And when talks stall, your agent asks first. It picks the one question worth the most: Thursday, 7 pm, Leo's agent says he's free, want a game? That one question lifts games found from 41 to 52 percent."
  },
  {
   "key": "door",
@@ -34,6 +34,10 @@
  {
   "key": "tiers",
   "text": "When four agents negotiate, up to forty seconds a step is too slow. So code keeps every hard rule, and a 28-kilobyte classifier settles six in ten ordinary choices. Then my Llama 3.2 1B, distilled from Muse Glimmer, agrees with it 89.5% of the time, in 0.9 seconds on a CPU."
+ },
+ {
+  "key": "text1b",
+  "text": "A second 1B, distilled for short text, holds against attacks it never saw: hostile comments let through fell from 65 of 71 to 8, and poisoned reviews from 98 of 180 to 7."
  },
  {
   "key": "meta",
@@ -49,7 +53,7 @@
  },
  {
   "key": "safety",
-  "text": "Every agent follows Meta's Agents Rule of Two, and 93 of 93 attacks were stopped. Members' ideas become changes behind nine gates, and roll back on their own if feedback drops."
+  "text": "Every agent follows Meta's Agents Rule of Two, and 93 of 93 attacks were stopped. And Serve evolves itself: members' ideas become changes behind nine gates, and a change that hurts rolls back on its own. False rollbacks fell from 22 to 0.6 percent."
  },
  {
   "key": "outro",

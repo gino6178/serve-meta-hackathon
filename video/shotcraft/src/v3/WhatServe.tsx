@@ -8,13 +8,13 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
-export const WHAT_MIN = 480;
+export const WHAT_MIN = 470;
 const L = LOOKS.serve, GREEN = L.accent;
 const ROW = 480, YOU = 170, MINE = 430, BOX = { x: 720, y: 230, w: 600, h: 480 }, THEIRS = 1470, FRIEND = 1730;
 const FY = [340, 480, 620];
 const NAMES = ['Leo', 'Sam', 'Mia'];
 // the intro line: what Serve is 0-4.7 s, players / court / time / yes 4.7-11.6 s, credentials and the log after
-const S2 = 150, NEAR = 160, COURT = 215, YES = 320, KEY = 352, LOG = 372;
+const S2 = 120, NEAR = 125, COURT = 160, YES = 262, KEY = 292, LOG = 312;
 
 const pop = (f: number, at: number) => ({ k: springAt(f, at, { damping: 12, stiffness: 190 }), o: ramp(f, at, 8, EASE.out) });
 const Orb: React.FC<{ x: number; y: number; at: number; agent?: boolean; label: string; r?: number }> = ({ x, y, at, agent, label, r = 56 }) => {
@@ -56,7 +56,7 @@ const Packet: React.FC<{ x0: number; y0: number; x1: number; y1: number; at: num
 
 export const WhatServe: React.FC = () => {
   const f = useCurrentFrame();
-  const box = pop(f, 46), held = ramp(f, 268, 12, EASE.snappy), yes = springAt(f, YES, { damping: 10, stiffness: 230 });
+  const box = pop(f, 46), held = ramp(f, 208, 12, EASE.snappy), yes = springAt(f, YES, { damping: 10, stiffness: 230 });
   const log = ramp(f, LOG, 18, EASE.snappy), dimRest = 1 - 0.3 * log;
   const rows = ['A2A v1.0 · signed Agent Cards', 'Code: hard rules, overlap, 30-min hold', 'Llama Guard 3 · Prompt Guard 2 check it all'];
   const near = ramp(f, NEAR, 14, EASE.snappy), court = ramp(f, COURT, 14, EASE.snappy);
@@ -97,14 +97,14 @@ export const WhatServe: React.FC = () => {
         </div>
         <div style={{ position: 'absolute', left: YOU - 110, top: ROW - 150, padding: '10px 20px', borderRadius: 999, background: GREEN, color: '#ffffff', fontFamily: FONT.sans, fontSize: 26, fontWeight: 750,
           opacity: Math.min(1, yes * 2), transform: `scale(${(0.5 + 0.5 * yes).toFixed(4)})`, transformOrigin: '50% 100%', whiteSpace: 'nowrap' }}>One yes from you</div>
-        <div style={{ position: 'absolute', left: 60, top: 640, width: 640, padding: '22px 28px', borderRadius: 24, background: '#ffffff', border: `3px solid ${GREEN}`, boxSizing: 'border-box',
+        <div style={{ position: 'absolute', left: 60, top: 600, width: 640, padding: '22px 28px', borderRadius: 24, background: '#ffffff', border: `3px solid ${GREEN}`, boxSizing: 'border-box',
           boxShadow: softShadow(26), fontFamily: FONT.sans, opacity: log, transform: `translateY(${mix(40, 0, log).toFixed(2)}px)` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 26, fontWeight: 800, color: L.ink, whiteSpace: 'nowrap' }}>
             <svg width={34} height={34} viewBox="0 0 24 24" fill="none" stroke={GREEN} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
             Every message and reply: yours to read
           </div>
-          {['→ Leo’s agent   free Thu 19–21 · signed', '← Leo’s agent   yes, Thu 19:00 · signed', '→ Sam’s agent   max NT$150 each · signed', '← Sam’s agent   yes · signed'].map((t, i) => (
-            <div key={t} style={{ marginTop: 10, fontFamily: FONT.mono, fontSize: 22, color: i % 2 ? GREEN : L.ink, whiteSpace: 'pre', opacity: ramp(f, LOG + 10 + i * 8, 8, EASE.out) }}>{t}</div>
+          {['→ Leo’s agent   free Thu 19–21 · signed', '← Leo’s agent   yes, Thu 19:00 · signed', '→ Sam’s agent   max NT$150 each · signed', '← Sam’s agent   yes · signed', '✓ your yes   signed, hash-chained'].map((t, i) => (
+            <div key={t} style={{ marginTop: 10, fontFamily: FONT.mono, fontSize: 22, color: i % 2 || i === 4 ? GREEN : L.ink, fontWeight: i === 4 ? 700 : 400, whiteSpace: 'pre', opacity: ramp(f, LOG + 10 + i * 8, 8, EASE.out) }}>{t}</div>
           ))}
         </div>
       </Stage>

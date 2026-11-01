@@ -6,7 +6,7 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
-export const GUARD_MIN = 340;
+export const GUARD_MIN = 290;
 const L = LOOKS.serve, GREEN = L.accent, RED = '#d1352b';
 
 const Panel: React.FC<{ x: number; at: number; children: React.ReactNode }> = ({ x, at, children }) => {
@@ -19,7 +19,7 @@ const Panel: React.FC<{ x: number; at: number; children: React.ReactNode }> = ({
 
 export const Guard: React.FC = () => {
   const f = useCurrentFrame();
-  const pct = ramp(f, 44, 50, EASE.out), refuse = springAt(f, 196, { damping: 11, stiffness: 220 }), fixed = ramp(f, 270, 14, EASE.snappy);
+  const pct = ramp(f, 60, 50, EASE.out), refuse = springAt(f, 170, { damping: 11, stiffness: 220 }), fixed = ramp(f, 236, 14, EASE.snappy);
   return (
     <AbsoluteFill>
       <Stage look={L} keyLight={{ x: 0.5, y: 0.05 }} fill={null} grain={0.03} vignette={0.08}>
@@ -29,9 +29,9 @@ export const Guard: React.FC = () => {
           <div style={{ fontSize: 190, fontWeight: 800, letterSpacing: '-0.05em', color: GREEN, lineHeight: 1, marginTop: 40 }}>{Math.round(84 * pct)}%</div>
           <div style={{ fontSize: 36, fontWeight: 650, color: L.ink, marginTop: 12 }}>of its tokens were reasoning</div>
           <div style={{ height: 40, borderRadius: 10, background: '#e9f3ec', marginTop: 44, overflow: 'hidden' }}><div style={{ height: '100%', width: `${84 * pct}%`, background: GREEN }} /></div>
-          <div style={{ fontSize: 28, color: L.ink2, marginTop: 40, lineHeight: 1.35, opacity: ramp(f, 100, 14, EASE.out) }}>Thinking switched off? It still reasoned, in a hidden channel. Every call now gives it room to.</div>
+          <div style={{ fontSize: 28, color: L.ink2, marginTop: 40, lineHeight: 1.35, opacity: ramp(f, 96, 14, EASE.out) }}>Thinking switched off? It still reasoned, in a hidden channel. Every call now gives it room to.</div>
         </Panel>
-        <Panel x={990} at={120}>
+        <Panel x={990} at={140}>
           <div style={{ fontSize: 26, color: L.ink2 }}>Llama Guard 3, on the live site</div>
           <div style={{ marginTop: 34, border: '2px solid #dcdce0', borderRadius: 16, padding: '22px 26px' }}>
             <div style={{ fontSize: 22, color: L.ink2 }}>New club</div>
@@ -40,7 +40,7 @@ export const Guard: React.FC = () => {
           <div style={{ marginTop: 26, borderRadius: 16, padding: '20px 26px', background: '#fbeae8', color: RED, fontSize: 32, fontWeight: 700, opacity: Math.min(1, refuse * 2), transform: `scale(${(0.8 + 0.2 * refuse).toFixed(4)})`, transformOrigin: '0 50%' }}>
             ✕ Refused: read as violence (S9, then S1)
           </div>
-          <div style={{ fontSize: 26, color: L.ink2, marginTop: 26, lineHeight: 1.35, opacity: ramp(f, 236, 14, EASE.out) }}>Now S9 needs a weapon word, and S1 alone goes to the club's own standard.</div>
+          <div style={{ fontSize: 26, color: L.ink2, marginTop: 26, lineHeight: 1.35, opacity: ramp(f, 206, 14, EASE.out) }}>Now S9 needs a weapon word, and S1 alone goes to the club's own standard.</div>
           <div style={{ marginTop: 26, borderRadius: 16, padding: '20px 26px', background: '#e9f3ec', color: GREEN, fontSize: 32, fontWeight: 700, opacity: fixed, transform: `translateY(${mix(16, 0, fixed).toFixed(2)}px)` }}>
             ✓ Club created · feed red team still 13 of 13
           </div>

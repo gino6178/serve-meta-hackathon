@@ -6,7 +6,7 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage } from '../demos/_fixtures/Look';
 
-export const META_MIN = 240;
+export const META_MIN = 220;
 const L = LOOKS.serve, GREEN = L.accent;
 type Where = 'GPU' | 'CPU' | 'API' | '';
 const TAG: Record<Where, { t: string; c: string; b: string }> = {

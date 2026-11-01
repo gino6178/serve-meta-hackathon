@@ -6,11 +6,11 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
-export const ISLAND_MIN = 310;
+export const ISLAND_MIN = 285;
 const L = LOOKS.serve, GREEN = L.accent, RED = '#d1352b';
 const PEOPLE = [{ n: 'Ana', c: '#f2c6a0' }, { n: 'Leo', c: '#b9d4f0' }, { n: 'Sam', c: '#c9e4c5' }, { n: 'Mia', c: '#ead0ec' }];
 const PX = (i: number) => 360 + i * 400, PY = 640, AY = 360;
-const AGENT_AT = 40, LOCK_AT = 160, CUT_AT = 178, CARD_AT = 200, CHAT_AT = 236;
+const AGENT_AT = 36, LOCK_AT = 140, CUT_AT = 155, CARD_AT = 175, CHAT_AT = 210;
 const CHAT = ['Badminton this week?', 'Tue 8?', "can't, work", 'Wed?', 'Wed is fine', "I'm out Wed", 'Thu 7?', 'who books the court?', 'which court even', 'Leo?', 'Fri then??'];
 
 const Person: React.FC<{ i: number }> = ({ i }) => {

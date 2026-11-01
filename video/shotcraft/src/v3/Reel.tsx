@@ -5,7 +5,7 @@ import { AbsoluteFill, Freeze, OffthreadVideo, Sequence, staticFile, useCurrentF
 import { EASE, ramp } from '../demos/_fixtures/Polish';
 import { AutoClip } from '../serve/AutoClip';
 
-const PAGE = 120; // the first 4 s of highlight_orbit_page.mp4
+const PAGE = 100; // the first 3.3 s of highlight_orbit_page.mp4
 const CLIP = 132;
 export const REEL_MIN = PAGE + CLIP;
 const WORDS = { kicker: 'BONUS, AFTER THE GAME', title: 'A clip to share with your friends', sub: 'Time stops, the camera turns. Shared only after your yes.', models: 'Sapiens2 · SAM 2.1 · MapAnything, on my GPU', note: 'For sharing, never for coaching or scoring.' };
