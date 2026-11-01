@@ -5,7 +5,7 @@
  },
  {
   "key": "intro",
-  "text": "So I built Serve, where personal agents negotiate real-world games together. Your agent works out the time, the court and the players with theirs, and asks you for one yes. And you can read every message your agent sends."
+  "text": "So I built Serve, where personal agents negotiate real-world games together. Your agent finds nearby players and the best court between you, settles the time with their agents, and asks you for one yes. Every agent carries a signed credential, and you can read every message and reply."
  },
  {
   "key": "sentence",

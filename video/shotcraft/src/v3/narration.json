@@ -2,268 +2,268 @@
  {
   "key": "island",
   "at": 0,
-  "dur": 10.085,
+  "dur": 9.744,
   "subs": [
    {
     "text": "Soon, everyone will have a personal AI agent that knows their calendar and limits.",
     "start": 0.0,
-    "end": 4.842
+    "end": 4.705
    },
    {
     "text": "But agents have no place to talk to each other, so one game still means hours of group chat.",
-    "start": 5.162,
-    "end": 10.085
+    "start": 5.025,
+    "end": 9.744
    }
   ]
  },
  {
   "key": "intro",
   "at": 0,
-  "dur": 12.475,
+  "dur": 16.024,
   "subs": [
    {
     "text": "So I built Serve, where personal agents negotiate real-world games together.",
     "start": 0.0,
-    "end": 4.494
+    "end": 4.398
    },
    {
-    "text": "Your agent works out the time, the court and the players with theirs, and asks you for one yes.",
-    "start": 4.814,
-    "end": 9.762
+    "text": "Your agent finds nearby players and the best court between you, settles the time with their agents, and asks you for one yes.",
+    "start": 4.718,
+    "end": 11.26
    },
    {
-    "text": "And you can read every message your agent sends.",
-    "start": 10.082,
-    "end": 12.474
+    "text": "Every agent carries a signed credential, and you can read every message and reply.",
+    "start": 11.58,
+    "end": 16.024
    }
   ]
  },
  {
   "key": "sentence",
   "at": 0,
-  "dur": 9.503,
+  "dur": 8.91,
   "subs": [
    {
     "text": "I type one sentence.",
     "start": 0.0,
-    "end": 1.294
+    "end": 1.26
    },
    {
     "text": "Code reads the day and finds the nearest court in milliseconds, with no model at all.",
-    "start": 1.614,
-    "end": 6.427
+    "start": 1.58,
+    "end": 6.122
    },
    {
     "text": "Llama Guard checks the invite before anyone sees it.",
-    "start": 6.747,
-    "end": 9.503
+    "start": 6.442,
+    "end": 8.91
    }
   ]
  },
  {
   "key": "sentence2",
   "at": 0,
-  "dur": 4.031,
+  "dur": 3.911,
   "subs": [
    {
     "text": "A friend with no account taps the link, signs in once, and the game is on.",
     "start": 0.0,
-    "end": 4.031
+    "end": 3.911
    }
   ]
  },
  {
   "key": "a2a",
   "at": 0,
-  "dur": 15.787,
+  "dur": 15.003,
   "subs": [
    {
     "text": "Underneath, every player's agent negotiates over the A2A protocol.",
     "start": 0.0,
-    "end": 3.997
+    "end": 3.783
    },
    {
     "text": "Proposals carry signed facts only, so no model ever reads another agent's words.",
-    "start": 4.317,
-    "end": 9.409
+    "start": 4.103,
+    "end": 8.887
    },
    {
     "text": "Agents mark the times that work, code picks the overlap, and holds it thirty minutes until everyone says yes.",
-    "start": 9.729,
-    "end": 15.787
+    "start": 9.207,
+    "end": 15.003
    }
   ]
  },
  {
   "key": "messenger",
   "at": 0,
-  "dur": 9.398,
+  "dur": 8.861,
   "subs": [
    {
     "text": "Because agents talk in the background, your agent can ask first:",
     "start": 0.0,
-    "end": 3.39
+    "end": 3.256
    },
    {
     "text": "Thursday, 7 pm, Leo's agent says he's free.",
-    "start": 3.61,
-    "end": 6.726
+    "start": 3.476,
+    "end": 6.343
    },
    {
     "text": "Want a game?",
-    "start": 7.046,
-    "end": 7.803
+    "start": 6.663,
+    "end": 7.383
    },
    {
     "text": "One tap in Messenger.",
-    "start": 8.123,
-    "end": 9.398
+    "start": 7.704,
+    "end": 8.861
    }
   ]
  },
  {
   "key": "door",
   "at": 0,
-  "dur": 15.56,
+  "dur": 14.776,
   "subs": [
    {
     "text": "Any external agent can join through llms.txt with its own Ed25519 key, and code makes sure it can never loosen its human's limits.",
     "start": 0.0,
-    "end": 10.384
+    "end": 9.844
    },
    {
     "text": "More than ten friends tested it with me:",
-    "start": 10.704,
-    "end": 12.562
+    "start": 10.164,
+    "end": 11.968
    },
    {
     "text": "two of three invites became games within three days.",
-    "start": 12.782,
-    "end": 15.56
+    "start": 12.188,
+    "end": 14.776
    }
   ]
  },
  {
   "key": "reel",
   "at": 0,
-  "dur": 5.318,
+  "dur": 5.138,
   "subs": [
    {
     "text": "And as a bonus after the game, I upload a phone clip, and time freezes while the camera orbits.",
     "start": 0.0,
-    "end": 5.318
+    "end": 5.138
    }
   ]
  },
  {
   "key": "tiers",
   "at": 0,
-  "dur": 21.551,
+  "dur": 20.603,
   "subs": [
    {
     "text": "When four agents negotiate, up to forty seconds a step is too slow.",
     "start": 0.0,
-    "end": 4.134
+    "end": 3.858
    },
    {
     "text": "So code keeps every hard rule, and a 28-kilobyte classifier settles six in ten ordinary choices.",
-    "start": 4.454,
-    "end": 10.872
+    "start": 4.178,
+    "end": 10.381
    },
    {
     "text": "Then my Llama 3.2 1B, distilled from Muse Glimmer, agrees with it 89.5% of the time, in 0.9 seconds on a CPU.",
-    "start": 11.192,
-    "end": 21.551
+    "start": 10.701,
+    "end": 20.603
    }
   ]
  },
  {
   "key": "meta",
   "at": 0,
-  "dur": 8.111,
+  "dur": 7.771,
   "subs": [
    {
     "text": "Serve runs on fifteen Meta models, on my GPU, a CPU and the Meta Model API, plus LlamaFirewall and Messenger.",
     "start": 0.0,
-    "end": 8.111
+    "end": 7.771
    }
   ]
  },
  {
   "key": "guard",
   "at": 0,
-  "dur": 11.016,
+  "dur": 10.571,
   "subs": [
    {
     "text": "Running Meta's models taught me two things.",
     "start": 0.0,
-    "end": 2.215
+    "end": 2.032
    },
    {
     "text": "Glimmer reasons even with thinking off:",
-    "start": 2.535,
-    "end": 4.444
+    "start": 2.352,
+    "end": 4.251
    },
    {
     "text": "84% of its tokens.",
-    "start": 4.664,
-    "end": 6.338
+    "start": 4.471,
+    "end": 6.106
    },
    {
     "text": "And Llama Guard once refused a club called round 27 as a threat.",
-    "start": 6.658,
-    "end": 11.016
+    "start": 6.426,
+    "end": 10.571
    }
   ]
  },
  {
   "key": "swarm",
   "at": 0,
-  "dur": 14.765,
+  "dur": 14.02,
   "subs": [
    {
     "text": "Nine days is too short for a long trial, so 177 AI testers, fresh every round, used Serve the way people and outside agents would.",
     "start": 0.0,
-    "end": 9.488
+    "end": 9.077
    },
    {
     "text": "Twenty-eight rounds, 17,432 requests, every fault fixed.",
-    "start": 9.808,
-    "end": 14.765
+    "start": 9.397,
+    "end": 14.02
    }
   ]
  },
  {
   "key": "safety",
   "at": 0,
-  "dur": 11.426,
+  "dur": 11.108,
   "subs": [
    {
     "text": "Every agent follows Meta's Agents Rule of Two, and 93 of 93 attacks were stopped.",
     "start": 0.0,
-    "end": 5.488
+    "end": 5.329
    },
    {
     "text": "Members' ideas become changes behind nine gates, and roll back on their own if feedback drops.",
-    "start": 5.808,
-    "end": 11.426
+    "start": 5.649,
+    "end": 11.108
    }
   ]
  },
  {
   "key": "outro",
   "at": 0,
-  "dur": 2.356,
+  "dur": 2.292,
   "subs": [
    {
     "text": "That's Serve.",
     "start": 0.0,
-    "end": 0.711
+    "end": 0.682
    },
    {
     "text": "Play more, manage less.",
-    "start": 1.031,
-    "end": 2.356
+    "start": 1.002,
+    "end": 2.292
    }
   ]
  }

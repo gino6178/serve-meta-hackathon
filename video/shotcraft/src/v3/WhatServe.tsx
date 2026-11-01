@@ -8,12 +8,13 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
-export const WHAT_MIN = 400;
+export const WHAT_MIN = 480;
 const L = LOOKS.serve, GREEN = L.accent;
-const ROW = 480, YOU = 170, MINE = 430, BOX = { x: 670, y: 250, w: 610, h: 450 }, THEIRS = 1470, FRIEND = 1730;
+const ROW = 480, YOU = 170, MINE = 430, BOX = { x: 720, y: 230, w: 600, h: 480 }, THEIRS = 1470, FRIEND = 1730;
 const FY = [340, 480, 620];
 const NAMES = ['Leo', 'Sam', 'Mia'];
-const S2 = 160, YES = 280, LOG = 318;
+// the intro line: what Serve is 0-4.7 s, players / court / time / yes 4.7-11.6 s, credentials and the log after
+const S2 = 150, NEAR = 160, COURT = 215, YES = 320, KEY = 352, LOG = 372;
 
 const pop = (f: number, at: number) => ({ k: springAt(f, at, { damping: 12, stiffness: 190 }), o: ramp(f, at, 8, EASE.out) });
 const Orb: React.FC<{ x: number; y: number; at: number; agent?: boolean; label: string; r?: number }> = ({ x, y, at, agent, label, r = 56 }) => {
@@ -27,6 +28,16 @@ const Orb: React.FC<{ x: number; y: number; at: number; agent?: boolean; label: 
           : <svg width={r} height={r} viewBox="0 0 24 24" fill="none" stroke={L.ink} strokeWidth={1.6} strokeLinecap="round"><circle cx="12" cy="8.5" r="4" /><path d="M4.5 20.5c1.4-3.6 4.2-5.4 7.5-5.4s6.1 1.8 7.5 5.4" /></svg>}
       </div>
       <div style={{ fontFamily: FONT.sans, fontSize: 24, fontWeight: 700, color: agent ? GREEN : L.ink, marginTop: 8, whiteSpace: 'nowrap', marginLeft: -60, marginRight: -60 }}>{label}</div>
+    </div>
+  );
+};
+// each agent's credential: a key that lands on its orb
+const Key: React.FC<{ x: number; y: number; at: number }> = ({ x, y, at }) => {
+  const f = useCurrentFrame(), k = springAt(f, at, { damping: 10, stiffness: 240 });
+  return (
+    <div style={{ position: 'absolute', left: x - 22, top: y - 22, width: 44, height: 44, borderRadius: 22, background: GREEN, display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: softShadow(8), opacity: Math.min(1, k * 2), transform: `scale(${(0.3 + 0.7 * k).toFixed(4)})` }}>
+      <svg width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="15" r="4" /><path d="M11 12l9-9M16 7l3 3M14 9l2 2" /></svg>
     </div>
   );
 };
@@ -45,9 +56,10 @@ const Packet: React.FC<{ x0: number; y0: number; x1: number; y1: number; at: num
 
 export const WhatServe: React.FC = () => {
   const f = useCurrentFrame();
-  const box = pop(f, 46), held = ramp(f, S2 + 84, 12, EASE.snappy), yes = springAt(f, YES, { damping: 10, stiffness: 230 });
-  const log = ramp(f, LOG, 18, EASE.snappy), dimRest = 1 - 0.45 * log;
-  const rows = ['A2A v1.0 · signed Agent Cards', 'Code: hard rules, overlap, 30-min hold', 'Llama Guard 3 + Prompt Guard 2, every message'];
+  const box = pop(f, 46), held = ramp(f, 268, 12, EASE.snappy), yes = springAt(f, YES, { damping: 10, stiffness: 230 });
+  const log = ramp(f, LOG, 18, EASE.snappy), dimRest = 1 - 0.3 * log;
+  const rows = ['A2A v1.0 · signed Agent Cards', 'Code: hard rules, overlap, 30-min hold', 'Llama Guard 3 · Prompt Guard 2 check it all'];
+  const near = ramp(f, NEAR, 14, EASE.snappy), court = ramp(f, COURT, 14, EASE.snappy);
   const midY = BOX.y + BOX.h / 2;
   return (
     <AbsoluteFill>
@@ -68,25 +80,31 @@ export const WhatServe: React.FC = () => {
             {rows.map((t, i) => (
               <div key={t} style={{ marginTop: 14, padding: '12px 16px', borderRadius: 14, background: '#f5f5f6', fontSize: 23, fontWeight: 600, color: L.ink, opacity: ramp(f, 70 + i * 14, 10, EASE.out) }}>{t}</div>
             ))}
+            <div style={{ marginTop: 14, padding: '12px 16px', borderRadius: 14, background: '#fff7e6', color: '#9a5b00', fontSize: 23, fontWeight: 700, opacity: court, transform: `translateY(${mix(10, 0, court).toFixed(2)}px)` }}>Best court between you: NTU Gymnasium</div>
             <div style={{ marginTop: 14, padding: '12px 16px', borderRadius: 14, background: '#e9f3ec', color: GREEN, fontSize: 24, fontWeight: 750, opacity: held, transform: `translateY(${mix(10, 0, held).toFixed(2)}px)` }}>Held: Thu 19:00 · NTU Gymnasium</div>
           </div>
           <Orb x={YOU} y={ROW} at={14} label="You" r={62} />
           <Orb x={MINE} y={ROW} at={28} agent label="Your agent" />
           {FY.map((y, i) => <Orb key={`t${i}`} x={THEIRS} y={y} at={60 + i * 6} agent r={46} label={`${NAMES[i]}'s agent`} />)}
           {FY.map((y, i) => <Orb key={`p${i}`} x={FRIEND} y={y} at={74 + i * 6} r={46} label={NAMES[i]} />)}
+          <div style={{ position: 'absolute', left: THEIRS - 80, top: FY[0] - 118, width: 420, textAlign: 'center', fontFamily: FONT.sans, fontSize: 24, fontWeight: 750, color: GREEN, opacity: near, transform: `translateY(${mix(12, 0, near).toFixed(2)}px)` }}>
+            <span style={{ padding: '8px 18px', borderRadius: 999, background: '#e9f3ec' }}>Nearby players found</span>
+          </div>
+          <Key x={MINE + 40} y={ROW - 40} at={KEY} />
+          {FY.map((y, i) => <Key key={`key${i}`} x={THEIRS + 34} y={y - 34} at={KEY + 4 + i * 4} />)}
           <Packet x0={MINE + 40} y0={ROW} x1={BOX.x + 20} y1={midY} at={S2} text="free Thu 19–21" />
           {FY.map((y, i) => <Packet key={`k${i}`} x0={THEIRS - 40} y0={y} x1={BOX.x + BOX.w - 20} y1={midY} at={S2 + 18 + i * 10} text={['free Thu 19–21', 'max NT$150', 'free Thu 18–22'][i]} />)}
         </div>
         <div style={{ position: 'absolute', left: YOU - 110, top: ROW - 150, padding: '10px 20px', borderRadius: 999, background: GREEN, color: '#ffffff', fontFamily: FONT.sans, fontSize: 26, fontWeight: 750,
           opacity: Math.min(1, yes * 2), transform: `scale(${(0.5 + 0.5 * yes).toFixed(4)})`, transformOrigin: '50% 100%', whiteSpace: 'nowrap' }}>One yes from you</div>
-        <div style={{ position: 'absolute', left: 80, top: 668, width: 590, padding: '22px 28px', borderRadius: 24, background: '#ffffff', border: `3px solid ${GREEN}`, boxSizing: 'border-box',
+        <div style={{ position: 'absolute', left: 60, top: 640, width: 640, padding: '22px 28px', borderRadius: 24, background: '#ffffff', border: `3px solid ${GREEN}`, boxSizing: 'border-box',
           boxShadow: softShadow(26), fontFamily: FONT.sans, opacity: log, transform: `translateY(${mix(40, 0, log).toFixed(2)}px)` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 28, fontWeight: 800, color: L.ink }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 26, fontWeight: 800, color: L.ink, whiteSpace: 'nowrap' }}>
             <svg width={34} height={34} viewBox="0 0 24 24" fill="none" stroke={GREEN} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
-            What your agent said to theirs
+            Every message and reply: yours to read
           </div>
-          {['→ Leo’s agent   free Thu 19–21 · signed', '→ Sam’s agent   max NT$150 each · signed', '← Serve   held Thu 19:00, NTU Gymnasium'].map((t, i) => (
-            <div key={t} style={{ marginTop: 10, fontFamily: FONT.mono, fontSize: 22, color: i === 2 ? GREEN : L.ink, whiteSpace: 'pre', opacity: ramp(f, LOG + 10 + i * 8, 8, EASE.out) }}>{t}</div>
+          {['→ Leo’s agent   free Thu 19–21 · signed', '← Leo’s agent   yes, Thu 19:00 · signed', '→ Sam’s agent   max NT$150 each · signed', '← Sam’s agent   yes · signed'].map((t, i) => (
+            <div key={t} style={{ marginTop: 10, fontFamily: FONT.mono, fontSize: 22, color: i % 2 ? GREEN : L.ink, whiteSpace: 'pre', opacity: ramp(f, LOG + 10 + i * 8, 8, EASE.out) }}>{t}</div>
           ))}
         </div>
       </Stage>

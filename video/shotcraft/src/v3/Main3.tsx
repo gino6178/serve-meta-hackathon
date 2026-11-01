@@ -21,7 +21,7 @@ import { Tiers, TIERS_MIN } from './Tiers';
 import { Guard, GUARD_MIN } from './Guard';
 import LINES from './narration.json';
 
-const FPS = 30, LEAD = 8, TAIL = 18;
+const FPS = 30, LEAD = 5, TAIL = 12;
 const VO = Object.fromEntries(LINES.map((l) => [l.key, l])) as Record<string, (typeof LINES)[number]>;
 const voF = (k: string) => Math.ceil(VO[k].dur * FPS);
 const fit = (k: string, min: number) => Math.max(min, LEAD + voF(k) + TAIL);
@@ -30,14 +30,14 @@ const fit = (k: string, min: number) => Math.max(min, LEAD + voF(k) + TAIL);
 // first film's plan and Messenger recordings
 export const LIVE3: Seg[] = [
   { src: 'v3/ask', from: 11.3, to: 19.5, caption: 'One sentence to your agent: "Badminton Tuesday evening, need 1"', model: 'Code reads the day and the nearest court · no model', zoom: { x: 0, y: 260, s: 1.32 } },
-  { src: 'v3/ask', from: 19.5, to: 46.5, rate: 13.5, caption: 'Checked before anyone sees it', model: 'Llama Guard 3 · Prompt Guard 2', zoom: { x: 0, y: 260, s: 1.32, now: true } },
+  { src: 'v3/ask', from: 19.5, to: 46.5, rate: 13.5, label: '', caption: 'Checked before anyone sees it', model: 'Llama Guard 3 · Prompt Guard 2', zoom: { x: 0, y: 260, s: 1.32, now: true } },
   { src: 'v3/ask', from: 46.5, to: 49.5, caption: 'Posted. Share the link to any group chat.', zoom: { x: 0, y: 260, s: 1.32, now: true } },
-  { src: 'v3/link', from: 1.0, to: 11.5, rate: 1.5, caption: 'A friend with no account: the link opens, one sign-in, he is in', who: 'friend' },
+  { src: 'v3/link', from: 1.0, to: 11.5, rate: 1.5, label: '', caption: 'A friend with no account: the link opens, one sign-in, he is in', who: 'friend' },
   { src: 'v3/gameon', from: 2.6, to: 6.0, caption: '"Game on." The spot is taken: Leo', zoom: { x: 420, y: 280, s: 1.9 } },
   { kind: 'bumper', src: '', from: 0, to: 1.5, num: '2', title: 'Agents negotiate. You say yes once.', sub: "Every player's agent, over A2A v1.0", caption: 'A2A' },
   { src: 'plan', from: 4.5, to: 8.5, caption: 'One tap: let your agent plan the week', zoom: { x: 1560, y: 0, s: 1.22 } },
-  { src: 'plan', from: 10.0, to: 104.0, rate: 16, caption: "Each member's agent answers: signed facts, never free text", model: 'Signed Agent Cards ✓ · our 1B, or Glimmer when unsure', zoom: { x: 1560, y: 864, s: 1.22 } },
-  { src: 'plan', from: 104.0, to: 112.8, rate: 1.8, caption: 'Every agent agreed. Held for you; nothing is booked without your yes.' },
+  { src: 'plan', from: 10.0, to: 104.0, rate: 16, label: '', caption: "Each member's agent answers: signed facts, never free text", model: 'Signed Agent Cards ✓ · our 1B, or Glimmer when unsure', zoom: { x: 1560, y: 864, s: 1.22 } },
+  { src: 'plan', from: 104.0, to: 112.8, rate: 1.8, label: '', caption: 'Every agent agreed. Held for you; nothing is booked without your yes.' },
   { src: 'msgbook', from: 0.5, to: 9.0, rate: 0.95, caption: 'Your agent asks first, in Messenger: one tap, and it is booked', model: 'Muse Glimmer · your agent in Messenger' },
 ];
 const segAt = (i: number) => LIVE3.slice(0, i).reduce((n, s) => n + Math.round(((s.to - s.from) * 30) / (s.rate ?? 1)), 0);
@@ -80,7 +80,7 @@ const ORDER: [string, React.FC<any>, number][] = [
   ['tiers', Tiers, fit('tiers', TIERS_MIN)],
   ['meta', MetaStack, fit('meta', META_MIN)],
   ['guard', Guard, fit('guard', GUARD_MIN)],
-  ['swarm', SwarmV3, fit('swarm', 480)],
+  ['swarm', SwarmV3, fit('swarm', 440)],
   ['safety', SafetyLoop, fit('safety', SAFETY_DURATION + LOOP)],
   ['outro', OutroHeld, OUTRO_DURATION + OUTRO_HOLD],
 ];
@@ -108,9 +108,11 @@ export const SFX3: Cue[] = [
   { from: S.intro.from, src: 'transition-soft', volume: 0.4, note: 'what Serve is' },
   { from: S.intro.from + 46, src: 'swoosh-quick', volume: 0.32, note: 'the Serve box' },
   { from: S.intro.from + 160, src: 'pop', volume: 0.3, note: 'signed facts travel' },
-  { from: S.intro.from + 244, src: 'pop', volume: 0.36, note: 'held' },
-  { from: S.intro.from + 280, src: 'switch-click-quick', volume: 0.4, note: 'one yes' },
-  { from: S.intro.from + 318, src: 'swoosh-quick', volume: 0.34, note: 'what your agent said' },
+  { from: S.intro.from + 215, src: 'pop', volume: 0.32, note: 'the best court' },
+  { from: S.intro.from + 268, src: 'pop', volume: 0.36, note: 'held' },
+  { from: S.intro.from + 320, src: 'switch-click-quick', volume: 0.4, note: 'one yes' },
+  ...[0, 1, 2, 3].map((i) => ({ from: S.intro.from + 352 + i * 4, src: 'pop', volume: 0.24, note: `key ${i + 1}` })),
+  { from: S.intro.from + 372, src: 'swoosh-quick', volume: 0.34, note: 'every message and reply' },
   { from: S.live.from, src: 'transition-snap', volume: 0.42, note: 'the frame grows' },
   { from: S.live.from + 18, src: 'keyboard', volume: 0.26, dur: 30, note: 'the sentence typed' },
   { from: S.live.from + SEG.link, src: 'switch-click-quick', volume: 0.5, note: "to the friend's phone" },
@@ -123,7 +125,7 @@ export const SFX3: Cue[] = [
   { from: S.door.from + 214, src: 'switch-click-quick', volume: 0.55, note: '403 lands' },
   { from: S.door.from + 280, src: 'swoosh-quick', volume: 0.35, note: 'the friends card' },
   { from: S.reel.from, src: 'transition-soft', volume: 0.38, note: 'into the reel' },
-  { from: S.reel.from + 150, src: 'whoosh-fast', volume: 0.3, note: 'the clip' },
+  { from: S.reel.from + 120, src: 'whoosh-fast', volume: 0.3, note: 'the clip' },
   { from: S.cover.from + 12, src: 'whoosh-fast', volume: 0.3, note: 'the mark draws' },
   ...[150, 240, 344, 413].map((o, i) => ({ from: S.tiers.from + o, src: 'swoosh-quick', volume: 0.3, note: `tier ${i + 1}` })),
   { from: S.meta.from, src: 'transition-soft', volume: 0.34, note: 'built on Meta' },
@@ -166,7 +168,7 @@ export const ServeV3: React.FC<{ bgm?: boolean; voice?: boolean; subs?: boolean 
     {ORDER.map(([k, C, d]) => <Sequence key={k} from={S[k].from} durationInFrames={d}><C dur={d} /></Sequence>)}
     {bgm && (
       <Audio src={staticFile('audio/bgm-tech-house.mp3')} loop
-        volume={(f) => interpolate(f, [0, 30, TOTAL3 - 75, TOTAL3], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }) * (voice ? 0.22 - 0.14 * speaking(f) : 0.22)} />
+        volume={(f) => interpolate(f, [0, 30, TOTAL3 - 75, TOTAL3], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }) * (voice ? 0.13 - 0.08 * speaking(f) : 0.13)} />
     )}
     {voice && LINES.map((l, i) => (
       <Sequence key={`v${l.key}`} from={START[l.key]} durationInFrames={voF(l.key) + 6}><Audio src={staticFile(`narration/v3/n${i}.wav`)} /></Sequence>

@@ -7,7 +7,7 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
-export const OPEN_DOOR_MIN = 480;
+export const OPEN_DOOR_MIN = 450;
 const L = LOOKS.serve;
 const DIM = '#6b7a72', TXT = '#14241b', OK = '#0a7f44', BAD = '#d1352b';
 type Line = { at: number; text: string; color: string; type?: number; big?: boolean; gap?: number };
@@ -68,7 +68,7 @@ export const OpenDoor: React.FC = () => {
           <Stat big="10+" label="friends tried it" at={292} />
           <Stat big="2 of 3" label="invites became games" at={330} />
           <Stat big="3 days" label="from invite to the games" at={368} />
-          <div style={{ fontSize: 26, fontStyle: 'italic', color: L.ink2, marginTop: 38, lineHeight: 1.35, opacity: ramp(f, 400, 14, EASE.out) }}>“You just talk to the agent.”<br /><span style={{ fontSize: 20, fontStyle: 'normal' }}>a player, translated from Chinese</span></div>
+          <div style={{ fontSize: 26, fontStyle: 'italic', color: L.ink2, marginTop: 38, lineHeight: 1.35, opacity: ramp(f, 400, 14, EASE.out) }}>“You just talk to the agent.”<br /><span style={{ fontSize: 20, fontStyle: 'normal' }}>a player</span></div>
         </div>
       </Stage>
     </AbsoluteFill>
