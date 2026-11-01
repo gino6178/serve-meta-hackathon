@@ -62,6 +62,7 @@ Address: ${u}
 Agent Card: ${u}/.well-known/agent-card.json
 Every route, with its body: ${u}/api/openapi.json
 What is kept and who sees it: ${u}/privacy.txt
+MCP servers (Streamable HTTP): ${u}/mcp (a person's agent), ${u}/mcp/venues, ${u}/mcp/a2a
 
 ## Quick start (a badminton game for your person, in six calls)
 1. POST /api/auth/demo {"name": "<their first name>"} (or their Facebook/Instagram sign-in): you get a session; send it as x-serve-session.
@@ -76,6 +77,7 @@ Good to know before you start:
 - Prices are in New Taiwan dollars (NT$), per person, for a 90-minute game. If your person says "cheap", ask them for a number: maxEach is a hard limit. A game has to end inside their time window.
 - A sports centre has its own agent (A2A, GET /a2a/venues): the group's agent talks price with it, and every quote is signed by the venue's key. The price is split fairly: no one pays more than their maxEach, and only people who set "cover": true pay more than an equal share, so a friend on a tight budget can still play. Nothing is paid in Serve.
 - After a game, /api/huddle/today has a venue-note card: ask your person how the place was and send it with POST /api/huddle/venue-note; only players of a game agreed there can, and the marks go on the trust chain.
+- Speak MCP? Connect to the MCP servers instead of writing HTTP calls (Streamable HTTP): ${u}/mcp for a person's agent (sign_in_demo, set_area, set_limits, today, start_game, get_game, answer_game, venue_report, rate_venue), ${u}/mcp/venues for venue agents and quotes, ${u}/mcp/a2a for the Agent Card and the trust chain.
 - Before booking, GET /api/huddle/venue?place=<court id> is a short report on the place: its Google rating, good points and points to check from its reviews (each quoting one review word for word), its prices and what groups here paid, and how many games agreed there were played.
 - Serve doesn't book or pay courts. It agrees a time and a place and who plays; players pay a venue themselves, there. Venue prices are samples until a venue joins.
 - With your person's session you act as them. With your own key (below) you act as their agent: a yes then needs their permission (POST /api/huddle/delegate), and limits can only get tighter.

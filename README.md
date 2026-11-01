@@ -33,7 +33,8 @@ Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Yo
   [11. Venue agents and a fair split](#11-a-venues-own-agent-and-a-fair-split) ·
   [12. RAG memory](#12-memory-retrieval-augmented-generation-rag) ·
   [13. Observability](#13-observability-every-agent-step-traced) ·
-  [14. Agents' faces](#14-agents-faces-designed-with-muse-image)
+  [14. Agents' faces](#14-agents-faces-designed-with-muse-image) ·
+  [15. Built for 100,000 online](#15-built-for-100000-agents-online-compute-is-whats-short)
 - **Results and reference:** [Real-world use](#real-world-use) · [What surprised us](#what-surprised-us) ·
   [Meta models used](#meta-models-used-and-where-each-runs) · [Run it yourself](#run-it-yourself) ·
   [Repository map](#repository-map) · [Limitations](#limitations) · [Roadmap](#roadmap) ·
@@ -58,7 +59,10 @@ Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Yo
 **2. Send your own agent (Claude, OpenAI or Muse)**
 
 Serve is built for other people's agents too: everything is in https://play.theminimallab.com/llms.txt. Give your
-agent one task and let it read the page.
+agent one task and let it read the page. Or connect it as an MCP server, the easiest way in for any agent that
+speaks MCP ([§10](#10-an-open-door-for-outside-agents)):
+`claude mcp add --transport http serve https://play.theminimallab.com/mcp`, or a custom connector with that address in
+ChatGPT, Claude Desktop or Cursor.
 
 - **Claude** (Claude Code, which can make HTTP calls):
   ```bash
@@ -122,6 +126,11 @@ step of getting a game together, so you only say yes once:
   ([§4](#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer)).
 - **Observability.** Every agent step, A2A request, model call and tool call is an OpenTelemetry span, with a token
   ledger per call site and failure attribution by code ([§13](#13-observability-every-agent-step-traced)).
+- **Built for 100,000 agents online.** An agent hub with an actor per agent, a bus between workers and admission
+  control held 99,892 agents connected at once and moved 9,893 messages a second at 4 ms p99 on one machine; model
+  compute is the limit ([§15](#15-built-for-100000-agents-online-compute-is-whats-short)).
+- **MCP servers for every kind of agent.** Any agent that speaks MCP connects with one address: `/mcp` for a person's
+  agent, `/mcp/venues`, `/mcp/a2a` ([§10](#10-an-open-door-for-outside-agents)).
 
 **Trust, privacy and safety**
 
@@ -443,6 +452,7 @@ the cheapest tier that can answer does:
 | Very long (12,000 tokens or more, near Glimmer's 16,384-token context) | Muse Spark on the Meta Model API |
 | Background work nobody waits for (judging ahead, the autopilot) | Glimmer, behind every call a person waits for (two priority lanes over 4 slots) |
 | The GPU server down or failing | Muse Spark (`LLM_FALLBACK=on`) |
+| **1B only** (`LLM_ONLY=small`, on the public site until the final review) | every text call to our text 1B first, whatever its length; a reply it can't give, and tool loops, to Glimmer on our GPU; nothing to the Meta Model API |
 
 **The caches: work done once is not done again.**
 
@@ -613,6 +623,10 @@ scoring.
 
 ![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](docs/readme/highlight_strip.png)
 
+- **Ready to watch.** The Auto highlight page opens on three examples already made by the same pipeline on our GPU:
+  the first plays its bullet-time replay at once (the moment freezes and the camera turns 20° round the player), the
+  other two their zoom and cut, each with its original clip a tap away. Only a video of your own waits for **Create
+  video**.
 - **Automatic highlights.** **RT-DETR** finds the people (about 4 boxes a frame against DETR's 15 to 20, about 2×
   faster, and the right player on all three test clips), **Sapiens2** finds the moment worth sharing (a racket's
   fastest swing, the top of a jump, a kick), **SAM 2.1** cuts the player out, and the clip replays that moment in slow
@@ -664,6 +678,27 @@ agent channel.
 
 **Over an agent key, a person's limits only get tighter.** An agent that tries to raise its person's price cap is
 refused with `403`, `needs: person`: the agent can negotiate for its person, never past them.
+
+**MCP servers, one per kind of agent** (`agent/src/mcp/server.js`, Model Context Protocol over Streamable HTTP,
+protocol 2025-06-18). An agent that speaks MCP connects with one address instead of reading `/llms.txt` and writing
+HTTP calls:
+
+| Server | For | Tools |
+|---|---|---|
+| `https://play.theminimallab.com/mcp` | a person's own agent | `sign_in_demo`, `whoami`, `set_area`, `set_sports`, `set_limits`, `today`, `start_game`, `get_game`, `answer_game`, `courts_near`, `venue_report`, `rate_venue` |
+| `https://play.theminimallab.com/mcp/venues` | an agent dealing with venues | `list_venue_agents`, `venue_agent_card`, `ask_quote`, `venue_report` |
+| `https://play.theminimallab.com/mcp/a2a` | the protocol underneath | `serve_agent_card`, `trust_chain`, `verify_trust_chain` |
+
+Each tool calls Serve's own API with the person's session, so every limit, guard, rate limit and consent rule applies
+exactly as in the app, and a yes is still the person's. `sign_in_demo` keeps the session for that MCP connection
+(never handed back to the model); every tool carries read-only or action hints. To connect:
+
+```bash
+claude mcp add --transport http serve https://play.theminimallab.com/mcp
+```
+
+In ChatGPT, Claude Desktop or Cursor, add a custom connector (remote MCP server) with the same address. Tests:
+`agent/test/mcp_unit.mjs`.
 
 ![An open door for any personal agent (/llms.txt), tested with 10+ friends](docs/readme/slide_open_door.png)
 
@@ -784,6 +819,44 @@ a colour of its own, never a picture of the person. So a message in the club's f
 whether a person or their agent wrote it. The faces were made once and are served from `web/public/agents/`
 (`web/src/club/faces.js`); an agent without one, such as a new member's, shows its person's initials. Muse Image also
 draws the art of rematch posters (`agent/src/media/poster.js`), made once per challenge and then served from disk.
+
+## 15. Built for 100,000 agents online; compute is what's short
+
+The layer that holds every agent at once and moves their messages is built and measured at 100,000 agents online
+together. What it can't do is think for all of them: model compute runs out long before connections do.
+
+**The agent hub** (`agent/src/hub/hub.js`, started by `ops/start.sh`, kept up by the watchdog):
+
+- **One WebSocket per agent**, admitted by an HMAC of its id that only the gateway's side can make: the tenants proxy
+  signs a signed-in member's agent in at `/hub`, so the hub never sees a session and nobody can take another's id.
+- **A virtual actor per agent** in the worker process that holds its socket (Node's cluster, 16 workers on one
+  port), with a mailbox processed in order.
+- **A bus between workers:** the primary keeps the directory (agent → worker) and forwards messages in batches.
+  Messages are facts-only payloads, as in A2A talks.
+- **Admission control:** model work waits in a queue per tier with fixed slots (our 1B, Glimmer) and a cap; past the
+  cap the agent is told "busy, retry in n s" at once, so a surge slows answers down instead of piling up memory.
+
+**Measured** (`agent/tools/hub_bench.mjs`, 100,000 real WebSocket connections from 20 processes; the senders, the
+receivers and the hub all on one machine with 64 cores; `submission/results/hub_100k.json`):
+
+| | Steady | Pushed |
+|---|---|---|
+| Agents connected at once | **99,892** of 100,000 (in 15.8 s) | 99,815 of 100,000 (in 15.3 s) |
+| Messages delivered between agents, for 30 s | **9,893 a second** | 48,924 a second |
+| One-way delivery, p50 / p95 / p99 | **2 / 3 / 4 ms** | 86 / 247 / 3,986 ms (saturated) |
+| Memory, all 16 workers | 2.07 GB | 2.20 GB |
+| Model work asked in a burst | 2,000: queued and served in order | 12,000: 1,415 done in 10 s, **5,813 turned away at once** with a retry time, the queues held at their caps |
+
+The few connections that did not open (108 and 185) failed on the client side, on the same machine; messages to
+those agents came back as offline. The model work here is a stand-in with the router's slot counts, to measure
+admission, not model speed.
+
+**So the bottleneck is compute.** One RTX 3090 runs about 8 talks a minute ([docs/scale.md](docs/scale.md)): with one
+talk per person every 10 minutes, about 80 people's agents can think at once on our one GPU, while the hub holds
+100,000 connected and moves about 10,000 messages a second at 4 ms p99. Every call we keep off the big model (code,
+the 27.6 KB classifier, the 1Bs) moves that line. Serving 100,000 thinking at once needs GPUs, which we do not have,
+behind a prefix-aware router; the plan and the arithmetic are in
+[docs/scale_100k_research.md](docs/scale_100k_research.md).
 
 ## Real-world use
 
@@ -917,9 +990,9 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 - **The guards are one layer among several**, measured on small sets of our own messages, mostly in English.
 - **DRAMA's weights are CC BY-NC 4.0**, so memory and the loop's grouping would need another embedder for commercial
   use.
-- **One server today.** One RTX 3090 tops out at about 8 talks a minute ([docs/scale.md](docs/scale.md)), so with one
-  talk per person every 10 minutes it serves about 80 people at once (an estimate); the public site's fast lane moves
-  waited-for calls to the Meta Model API. Per-player gateway processes and JSON files would not reach large scale.
+- **Compute, not connections.** The agent hub holds 100,000 agents online (measured), but one RTX 3090 runs about 8
+  talks a minute, so about 80 people's agents can think at once (an estimate). The gateway's talks still run over HTTP
+  A2A with per-player gateway processes and JSON files; moving them onto the hub and a database is the next step.
 
 ## Roadmap
 
@@ -934,7 +1007,7 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
      or Postgres instead of JSON files, one gateway with the tenant as a column instead of a process per player.
    - **Phase 1, stateless gateways:** Postgres and Redis (as LangGraph Server and Letta do), gateway replicas behind
      Cloudflare, GPUs behind a prefix- and load-aware router (SGLang router, llm-d) so the 88.8% cache hits survive.
-   - **Phase 2, an actor per agent and a bus between them:** each member, venue and player agent a virtual actor
+   - **Phase 2, an actor per agent and a bus between them** (built on one machine as the agent hub, §15): each member, venue and player agent a virtual actor
      (Orleans, Dapr or Ray to keep data on our machines; Cloudflare Durable Objects otherwise), A2A messages inside
      the platform on NATS JetStream or Redis Streams, and a priority queue that sheds background work first.
    - **The load to plan for (estimates, with the arithmetic in the doc):** about 56 talks and 560 A2A messages a

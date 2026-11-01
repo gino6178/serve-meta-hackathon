@@ -19,7 +19,7 @@ if [ -f "$ROOT/start.env" ]; then . "$ROOT/start.env"; fi
 NODE_BIN="${NODE_BIN:-node}"
 listening() { ss -Hltn "sport = :$1" | grep -q .; } # something listens on TCP port $1
 if [ "${1:-}" = "stop" ]; then
-  fuser -k 11435/tcp 11436/tcp 8790/tcp 2>/dev/null
+  fuser -k 11435/tcp 11436/tcp 8790/tcp 8797/tcp 8798/tcp 2>/dev/null
   echo "stopped Glimmer, Llama Guard and the gateway"
   exit 0
 fi
@@ -39,6 +39,12 @@ if [ -x "$ROOT/ollama/guard.sh" ] && ! listening 11436; then
   cd "$ROOT/ollama" && setsid -f ./guard.sh >> "$ROOT/ollama/guard.log" 2>&1 < /dev/null
   echo "Llama Guard (Ollama, CPU) starting on :11436, log: $ROOT/ollama/guard.log"
 fi
+# the agent hub (agent/src/hub/hub.js): every connected agent at once, for 100,000 online (HUB_SECRET in start.env;
+# without it the hub stays off). The tenants proxy signs members' agents in at /hub.
+if [ -n "${HUB_SECRET:-}" ] && ! listening 8797; then
+  (cd "$ROOT/agent" && ulimit -n "$(ulimit -Hn)" && HUB_PORT=8797 setsid -f "$NODE_BIN" src/hub/hub.js >> "$ROOT/agent/hub.log" 2>&1 < /dev/null)
+  echo "agent hub starting on :8797 (stats on :8798); log: $ROOT/agent/hub.log"
+fi
 if listening 8790; then
   echo "gateway :8790 already running (to restart it: $0 stop && $0)"
   exit 0
@@ -47,7 +53,7 @@ fi
 (
   cd "$ROOT/agent" || exit 1
   export PORT=8790 LLM_URL=http://127.0.0.1:11435/v1 LLM_MODEL=muse-glimmer LLM_DEVICE="RTX 3090 (CUDA)"
-  export EMBED_URL=http://127.0.0.1:11434 ALLOW_ORIGINS=http://127.0.0.1:5191,http://localhost:5191 MEMBERS_APP_URL="${MEMBERS_APP_URL:-http://127.0.0.1:5191}" LLM_FALLBACK="${LLM_FALLBACK:-on}" VOICE_TTS_PYTHON="${VOICE_TTS_PYTHON:-$HOME/shuttlecoach/tts/env/bin/python}" VOICE_TTS_MODELS="${VOICE_TTS_MODELS:-$HOME/shuttlecoach/tts/models}"
+  export EMBED_URL=http://127.0.0.1:11434 ALLOW_ORIGINS=http://127.0.0.1:5191,http://localhost:5191,http://serve.internal MEMBERS_APP_URL="${MEMBERS_APP_URL:-http://127.0.0.1:5191}" LLM_FALLBACK="${LLM_FALLBACK:-on}" VOICE_TTS_PYTHON="${VOICE_TTS_PYTHON:-$HOME/shuttlecoach/tts/env/bin/python}" VOICE_TTS_MODELS="${VOICE_TTS_MODELS:-$HOME/shuttlecoach/tts/models}"
   export REEL_PYTHON="${REEL_PYTHON:-}" REEL_SCRIPT="${REEL_SCRIPT:-$ROOT/video/pose/reel.py}" REEL_GPU=0 REEL_HF_CACHE="${REEL_HF_CACHE:-}"
   # the ball tracker (BALL_TRACKING=1) runs in its own Python, which has TrackNetV5's requirements (pandas, parse, ...)
   export BALL_PYTHON="${BALL_PYTHON:-$ROOT/orbit/venv/bin/python}"

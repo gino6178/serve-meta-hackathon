@@ -63,3 +63,11 @@
   .hl-actions .btn { flex: 1 1 140px; }
   .hl-sticky { position: sticky; bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); z-index: var(--z-sticky); background: var(--surface); padding: var(--s3) 0; border-top: 1px solid var(--rule); }
 }
+
+/* the three examples, ready to watch */
+.hl-ex-h { display: grid; gap: 2px; }
+.hl-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-style: normal; font-size: 11px; font-weight: 700; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.hl-badge.zoom { background: color-mix(in srgb, var(--ink-3) 16%, transparent); color: var(--ink-2); }
+.hl-ex-view { margin-bottom: 8px; }
+.hl-ex-note { margin: 6px 0 0; color: var(--ink-2); line-height: 1.45; }
+.hl-sample .hl-badge { justify-self: start; margin-left: 0; }

@@ -409,6 +409,23 @@ what the agent knows but cannot add a rule.
 
 With memory on, the planner kept what the person said in 3 of 3 runs of that week; with it off, in 0 of 3.
 
+### 2.11 Built for 100,000 agents online, and MCP for every kind of agent
+
+**The agent hub** holds every connected agent at once: one WebSocket per agent, admitted by an HMAC of its id that the
+proxy makes for a signed-in member; a virtual actor per agent in the worker that holds its socket (16 workers on one
+port); a bus through the primary's directory; and admission control, a queue per model tier with fixed slots and a cap
+past which an agent is told to retry at once. Measured with 100,000 real WebSocket connections from 20 processes on
+one 64-core machine: 99,892 agents connected at once, 9,893 messages a second between agents for 30 s at 2 / 3 / 4 ms
+p50 / p95 / p99, 2.07 GB across the workers; pushed to 48,924 a second it saturated (p99 about 4 s); a burst of 12,000
+model-work requests had 5,813 turned away at once with a retry time while the queues held at their caps. So the
+connections are not the limit; compute is: one RTX 3090 runs about 8 talks a minute, about 80 people's agents thinking
+at once. The plan to 100,000 thinking at once is in `docs/scale_100k_research.md`.
+
+**MCP servers** (Streamable HTTP, protocol 2025-06-18) let any agent that speaks MCP connect with one address:
+`/mcp` for a person's agent (sign in, limits, start a game, follow it, say yes, check a place, rate it), `/mcp/venues`
+for venue agents and quotes, and `/mcp/a2a` for the Agent Card and the trust chain. Each tool calls Serve's own API
+with the person's session, so every limit, guard and consent rule applies as in the app.
+
 ## 3. Meta models and tools
 
 Serve runs its open-weights models on our own GPU server (two RTX 3090s and their CPU), so players' data stays there,

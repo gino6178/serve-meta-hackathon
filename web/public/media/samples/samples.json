@@ -1,5 +1,5 @@
 {
- "note": "Sample clips for the highlight reel: 720p H.264, no sound, trimmed from CC BY 3.0 videos (full attribution in CREDITS.md). The players are not named in the app. Each clip's reel (<name>.reel.json and its effect videos) was made once by the gateway's own pipeline on our GPU, so the sample opens at once.",
+ "note": "Sample clips for the highlight reel: 720p H.264, no sound, trimmed from CC BY 3.0 videos (full attribution in CREDITS.md). The players are not named in the app. Each clip's reel (<name>.reel.json and its effect videos) was made once by the gateway's own pipeline on our GPU, so the sample opens at once. Each clip's finished camera effect (<name>.effect.mp4) plays on the page as soon as it opens.",
  "clips": [
   {
    "file": "singles_point_01.mp4",
@@ -9,7 +9,10 @@
    "author": "Badminton klub Ljubljana",
    "source": "https://www.youtube.com/watch?v=IoDl6OirN1A",
    "license": "https://creativecommons.org/licenses/by/3.0/",
-   "reel": "singles_point_01.reel.json"
+   "reel": "singles_point_01.reel.json",
+   "effect": "singles_point_01.effect.mp4",
+   "mode": "orbit",
+   "effectLabel": "Bullet time: the moment freezes and the camera turns 20° round the player"
   },
   {
    "file": "doubles_rally_01.mp4",
@@ -19,7 +22,10 @@
    "author": "Roy Huang",
    "source": "https://www.youtube.com/watch?v=z_uUFuw7n2Q",
    "license": "https://creativecommons.org/licenses/by/3.0/",
-   "reel": "doubles_rally_01.reel.json"
+   "reel": "doubles_rally_01.reel.json",
+   "effect": "doubles_rally_01.effect.mp4",
+   "mode": "zoom",
+   "effectLabel": "Zoom and cut: slow motion into the moment, pushing in on the player"
   },
   {
    "file": "singles_rally_01.mp4",
@@ -29,7 +35,10 @@
    "author": "Roy Huang",
    "source": "https://www.youtube.com/watch?v=eMfNpjUpx8k",
    "license": "https://creativecommons.org/licenses/by/3.0/",
-   "reel": "singles_rally_01.reel.json"
+   "reel": "singles_rally_01.reel.json",
+   "effect": "singles_rally_01.effect.mp4",
+   "mode": "zoom",
+   "effectLabel": "Zoom and cut: slow motion into the moment, pushing in on the player"
   }
  ]
 }

@@ -63,7 +63,7 @@ async function img(file, width = 1800) {
   const FLOW = path.join(SHOTS, "flow_four.png");
   const P = { invite: await crop(FLOW, 0, 590, 885), agents: await crop(FLOW, 625, 590, 885), messenger: await crop(FLOW, 1880, 436, 885) };
   // the main slides are tagged and put first, in this order; every untagged slide follows as the appendix
-  const MAIN = ["cover", "pain", "solution", "club", "models", "surprises", "tiers", "distill", "a2a", "ranking", "habit", "venue", "memory", "router", "reels", "testing", "security", "community", "roadmap", "appendix"];
+  const MAIN = ["cover", "pain", "solution", "club", "models", "surprises", "tiers", "distill", "a2a", "ranking", "habit", "venue", "memory", "router", "hub", "reels", "testing", "security", "community", "roadmap", "appendix"];
   const KEYS = [];
   let nextKey = null;
   const addSlide = pres.addSlide.bind(pres);
@@ -313,6 +313,27 @@ async function img(file, width = 1800) {
   s.addText("Traces: OpenTelemetry GenAI spans (invoke_agent, SendMessage, chat, execute_tool), traceparent over A2A, no content recorded.", { isTextBox: true, x: M + 6.25, y: 5.45, w: 5.7, h: 0.7, fontSize: 12, color: HEX.muted, margin: 0, valign: "top" });
   foot(s, "core/llm.js tierOf (the router), autopilot_eval_a2a_tokens.json (302 calls), places_ahead.json (4 cities), core/trace.js, safety/attribution.js, attribution_check.json, web/src/club/faces.js.");
   note(s, "The router is the model tiering: each call goes to the cheapest model that can answer. Caches mean work done once is not redone. Traces explain every step without recording content. Muse Image designed each agent's face.");
+
+  // 11f. the agent hub: 100,000 agents online on one machine, measured; compute is the limit (hub/hub.js, hub_100k.json)
+  nextKey = "hub";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Built for 100,000 agents online; compute, not connections, is what's short");
+  stat(s, M, 1.4, 2.9, "99,892", "agents connected at once, of 100,000", HEX.green, { size: 34, h: 1.45 });
+  stat(s, M + 3.05, 1.4, 2.9, "9,893/s", "messages between agents, 30 s", HEX.green, { size: 34, h: 1.45 });
+  stat(s, M + 6.1, 1.4, 2.9, "4 ms", "p99 delivery (2 ms p50)", HEX.green, { size: 34, h: 1.45 });
+  stat(s, M + 9.15, 1.4, 2.95, "2.07 GB", "memory, all 16 workers", HEX.blue, { size: 34, h: 1.45 });
+  [["One WebSocket per agent", "admitted by an HMAC the proxy makes for a signed-in member"], ["An actor per agent", "a mailbox in order, in the worker that holds its socket"], ["A bus between workers", "the primary's directory forwards facts-only messages in batches"], ["Admission control", "a queue per model tier, fixed slots, a cap: past it, 'busy, retry'"]].forEach(([h, d], i) => {
+    box(s, M, 3.1 + i * 0.82, 5.9, 0.7, h, d, HEX.card);
+  });
+  card(s, M + 6.2, 3.1, 5.9, 3.2);
+  s.addText("Pushed until it gave", { isTextBox: true, x: M + 6.45, y: 3.2, w: 5.4, h: 0.4, fontSize: 15, bold: true, color: HEX.ink, margin: 0 });
+  s.addText([
+    { text: "48,924 messages a second: saturated, p99 about 4 s", options: { bullet: true, breakLine: true } },
+    { text: "12,000 model-work requests in a burst: 5,813 turned away at once with a retry time; queues held at their caps", options: { bullet: true, breakLine: true } },
+    { text: "One RTX 3090 runs about 8 talks a minute: about 80 people's agents thinking at once", options: { bullet: true, bold: true, color: HEX.red } },
+  ], { isTextBox: true, x: M + 6.45, y: 3.7, w: 5.4, h: 2.5, fontSize: 13, color: HEX.ink, margin: 0, valign: "top", paraSpaceAfter: 8 });
+  foot(s, "agent/src/hub/hub.js, agent/tools/hub_bench.mjs (100,000 real WebSocket connections from 20 processes; senders, receivers and hub on one 64-core machine), submission/results/hub_100k.json; docs/scale.md (8 talks a minute).");
+  note(s, "The substrate for 100,000 agents online is built and measured. The limit is model compute: the plan to 100,000 thinking at once (GPUs behind a prefix-aware router) is in docs/scale_100k_research.md.");
 
   // 12. testing, one page
   nextKey = "testing";

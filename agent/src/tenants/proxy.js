@@ -33,7 +33,7 @@ fs.mkdirSync(ROOT, { recursive: true });
 
 // the club's routes, on the shared gateway (getting a game together is between members, so it is there too)
 const shared = (p) => p.startsWith("/.well-known/") || p === "/llms.txt" || p === "/privacy.txt" || p === "/openapi.json" || p === "/api/status" || p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/")
-  || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/") || p.startsWith("/api/trust/") || p === "/api/openapi.json" || p === "/api/invite" || p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p.startsWith("/a2a/");
+  || p === "/mcp" || p.startsWith("/mcp/") || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/") || p.startsWith("/api/trust/") || p === "/api/openapi.json" || p === "/api/invite" || p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p.startsWith("/a2a/");
 
 // who a session belongs to, asked of the shared gateway (kept a minute)
 const seen = new Map();
@@ -153,7 +153,7 @@ const server = http.createServer(async (req, res) => {
   try {
     // the way in for agents (the Agent Card, the guide, the privacy page) is the shared gateway's, read-only
     if (req.method === "GET" && (p.startsWith("/.well-known/") || p === "/llms.txt" || p === "/privacy.txt" || p === "/openapi.json")) return pass(req, res, MAIN, { token: false });
-    if (!p.startsWith("/api/") && !p.startsWith("/a2a/")) return file(req, res, p);
+    if (!p.startsWith("/api/") && !p.startsWith("/a2a/") && p !== "/mcp" && !p.startsWith("/mcp/")) return file(req, res, p);
     if (!sameOrigin(req)) return json(res, 403, { error: "requests from another site are not allowed" });
     // a member who leaves the club: their own gateway and its folder go with them
     if (p === "/api/members/leave" && req.method === "POST") {
@@ -168,10 +168,28 @@ const server = http.createServer(async (req, res) => {
   } catch (e) { return json(res, 503, { error: String(e.message || e).slice(0, 200) }); }
 });
 
+// the agent hub (hub/hub.js, HUB_PORT on this machine): a signed-in member's agent connects at /hub?session=..., and
+// this proxy signs the member's agent id for the hub, so the hub never sees a session and nobody picks another's id
+const HUB_PORT = +(process.env.HUB_PORT || 8797), HUB_SECRET = process.env.HUB_SECRET || "";
+async function toHub(req, socket, head, u) {
+  const id = await memberOf(u.searchParams.get("session"));
+  if (!id || !HUB_SECRET) return socket.end(`HTTP/1.1 ${id ? 503 : 401} No\r\ncontent-length: 0\r\nconnection: close\r\n\r\n`);
+  const { sigOf } = await import("../hub/sig.js"), agent = `m:${id}`;
+  const up = net.connect(HUB_PORT, "127.0.0.1", () => {
+    const h = headersFor(req, { token: false }); delete h.origin; h.connection = "Upgrade"; h.host = `127.0.0.1:${HUB_PORT}`;
+    up.write(`GET /hub?agent=${encodeURIComponent(agent)}&sig=${sigOf(agent, HUB_SECRET)} HTTP/1.1\r\n${Object.entries(h).map(([k, v]) => `${k}: ${v}`).join("\r\n")}\r\n\r\n`);
+    if (head?.length) up.write(head);
+    up.pipe(socket); socket.pipe(up);
+  });
+  const end = () => { up.destroy(); socket.destroy(); };
+  up.on("error", end); socket.on("error", end);
+}
+
 // the live voice line: a WebSocket, its session in the address; the player's own gateway hears the token instead
 server.on("upgrade", async (req, socket, head) => {
   const u = new URL(req.url, "http://x");
-  const no = (code) => { socket.end(`HTTP/1.1 ${code} No\r\nconnection: close\r\n\r\n`); };
+  const no = (code) => { socket.end(`HTTP/1.1 ${code} No\r\ncontent-length: 0\r\nconnection: close\r\n\r\n`); };
+  if (u.pathname === "/hub") { if (shield.check(req, "/hub")) return no(429); return toHub(req, socket, head, u); }
   if (u.pathname !== "/api/voice/live" || !sameOrigin(req)) return no(403);
   if (shield.check(req, "/api/voice/live")) return no(429);
   const id = await memberOf(u.searchParams.get("session"));

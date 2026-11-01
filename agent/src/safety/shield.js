@@ -7,7 +7,7 @@
 //     all      every request                           240 a minute
 //     signin   POST /api/auth/demo (a new account)     10 an hour
 //     heavy    a request that starts model work        60 in 10 minutes, per client and per session
-//     a2a      POST /a2a/... (another agent)            120 a minute
+//     a2a      POST /a2a/... or /mcp (another agent)    120 a minute
 //   and at most 40 requests open at once per client. Over a limit: 429 with Retry-After, and nothing is passed on.
 //   How big: a JSON body over 1 MB is refused (413) before it is read; uploads keep their own limits at the gateway.
 //   Headers: nosniff, no framing, a strict referrer, HSTS, a permissions policy, and on the app's page a Content
@@ -38,7 +38,7 @@ const HEAVY = [/^\/api\/huddle\/(start|deal|venue|venue-note|reply|game)$/, /^\/
 export function classesOf(method, p) {
   const c = ["all"];
   if (method === "POST" && p === "/api/auth/demo") c.push("signin");
-  if (method === "POST" && p.startsWith("/a2a/")) c.push("a2a");
+  if (method === "POST" && (p.startsWith("/a2a/") || p === "/mcp" || p.startsWith("/mcp/"))) c.push("a2a");
   if ((method === "POST" || p === "/api/huddle/venue") && HEAVY.some((r) => r.test(p))) c.push("heavy");
   return c;
 }

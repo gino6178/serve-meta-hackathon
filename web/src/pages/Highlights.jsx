@@ -268,6 +268,7 @@ export default function Highlights() {
   const [writing, setWriting] = useState(false);
   const [msg, setMsg] = useState("");
   const [samples, setSamples] = useState([]), [pick, setPick] = useState(null); // the sample clips, and the one on show
+  const [raw, setRaw] = useState(false); // on a sample: its original clip instead of the finished effect
   const [fxReady, setFxReady] = useState(false), [fxOn, setFxOn] = useState(true); // the camera effect: can the server make one, and do you want it
   useEffect(() => { agentStatus().then((s) => setFxReady(!!s.reelEffects)).catch(() => {}); }, []);
   useEffect(() => { fetch("/media/samples/samples.json").then((r) => (r.ok ? r.json() : null)).then((j) => { setSamples(j?.clips || []); setPick((p) => p || j?.clips?.[0] || null); }).catch(() => {}); }, []);
@@ -369,9 +370,24 @@ export default function Highlights() {
       </header>
       <section className={`hl-grid ${fmt} ${ready || file ? "has-clip" : ""}`}>
         <div className="panel">
+          {!clip && samples.length > 0 && (
+            <div className="hl-samples">
+              <span className="hl-ex-h"><b>Ready to watch: three examples</b><em className="tiny muted">Made earlier on our GPU with the same pipeline. Tap one to play it; nothing to wait for.</em></span>
+              <ul>
+                {samples.map((s) => (
+                  <li key={s.file}><button className={`hl-sample ${pick?.file === s.file ? "on" : ""}`} aria-pressed={pick?.file === s.file} onClick={() => { setPick(s); setRaw(false); }}>
+                    <video src={`/media/samples/${s.file}#t=2`} muted playsInline preload="metadata" aria-hidden="true" />
+                    <span><b>{s.label}</b>{s.mode && <i className={`hl-badge ${s.mode}`}>{s.mode === "orbit" ? "Bullet time" : "Zoom and cut"}</i>}<em>{creditOf(s)}</em></span>
+                  </button></li>
+                ))}
+              </ul>
+              {pick && <button className="btn ghost sm" onClick={() => trySample(pick)}><Icon name="spark" size={16} />Make the full reel from this example</button>}
+            </div>
+          )}
           <div className={`own-card ${clip ? clip.state : ""}`}>
             <div className="own-h"><b>{ready ? (clip?.data?.sample ? `The sample's ${kind}` : `Your ${kind}, from your video`) : "Choose a video"}</b>
               {clip && state === "idle" && <button className="link" onClick={clear}>{ready ? "Use another video" : "Cancel"}</button>}</div>
+            {!clip && <p className="tiny muted">Your own video: choose it, and the reel is made when you press Create video.</p>}
             {!clip && (
               <div className="own-row">
                 <label className="tiny">Sport <select value={sport} onChange={(e) => setSport(e.target.value)}>{SPORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
@@ -390,20 +406,6 @@ export default function Highlights() {
             {ready && d.effects && <EffectNote fx={d.effects} />}
             {clip?.state === "failed" && <label className="btn ghost sm own-pick"><input type="file" accept="video/*" onChange={(e) => choose(e.target.files?.[0])} />Try another video</label>}
           </div>
-          {!clip && samples.length > 0 && (
-            <div className="hl-samples">
-              <span className="tiny muted">No video yet? Try a sample clip.</span>
-              <ul>
-                {samples.map((s) => (
-                  <li key={s.file}><button className={`hl-sample ${pick?.file === s.file ? "on" : ""}`} aria-pressed={pick?.file === s.file} onClick={() => setPick(s)}>
-                    <video src={`/media/samples/${s.file}#t=2`} muted playsInline preload="metadata" aria-hidden="true" />
-                    <span><b>{s.label}</b><em>{creditOf(s)}</em></span>
-                  </button></li>
-                ))}
-              </ul>
-              {pick && <button className="btn primary sm" onClick={() => trySample(pick)}><Icon name="spark" size={16} />{pick.reel ? "See the reel from this clip" : "Make a reel from this clip"}</button>}
-            </div>
-          )}
           <div className="seg" role="radiogroup" aria-label="Format">
             {Object.entries(FORMATS).map(([k, f]) => <button key={k} role="radio" aria-checked={fmt === k} disabled={state !== "idle"} onClick={() => { setFmt(k); setFile(null); }}>{f.label}</button>)}
           </div>
@@ -438,7 +440,11 @@ export default function Highlights() {
         </div>
         <div className="hl-view">
           {file && <video src={file.url} controls playsInline className="hl-canvas" />}
-          {!clip && !file && pick && <><video key={pick.file} src={`/media/samples/${pick.file}`} controls muted loop autoPlay playsInline className="hl-canvas hl-sample-play" aria-label={`Sample clip: ${pick.label}`} /><p className="tiny muted hl-credit">Sample clip: <a href={pick.source} target="_blank" rel="noopener noreferrer">{creditOf(pick)}</a> (<a href={pick.license} target="_blank" rel="noopener noreferrer">licence</a>)</p></>}
+          {!clip && !file && pick && <>
+            {pick.effect && <div className="seg sm hl-ex-view" role="radiogroup" aria-label="What to play"><button role="radio" aria-checked={!raw} onClick={() => setRaw(false)}>{pick.mode === "orbit" ? "Bullet time" : "The effect"}</button><button role="radio" aria-checked={raw} onClick={() => setRaw(true)}>Original clip</button></div>}
+            <video key={`${pick.file}${raw}`} src={`/media/samples/${pick.effect && !raw ? pick.effect : pick.file}`} controls muted loop autoPlay playsInline className="hl-canvas hl-sample-play" aria-label={`${pick.effect && !raw ? pick.effectLabel : "Sample clip"}: ${pick.label}`} />
+            {pick.effect && !raw && <p className="tiny hl-ex-note"><b>{pick.effectLabel}.</b> {pick.mode === "orbit" ? "MapAnything rebuilt the scene in 3D from this one phone-style video, SAM 2.1 cut the player out, and Sapiens2 found the moment." : "The court's depth around the player was too uncertain to turn the camera, so the pipeline chose a zoom instead."}</p>}
+            <p className="tiny muted hl-credit">Sample clip: <a href={pick.source} target="_blank" rel="noopener noreferrer">{creditOf(pick)}</a> (<a href={pick.license} target="_blank" rel="noopener noreferrer">licence</a>)</p></>}
           <canvas ref={canvas} width={F.W} height={F.H} className="hl-canvas" hidden={!!file || (!clip && !!pick)} aria-label="Highlight reel preview" />
           {d?.sample && <p className="tiny muted hl-credit">Sample clip: {d.sample.credit}</p>}
           <p className="tiny muted hl-how">On top, you, as you will post it. Under it, how Serve sees you: Meta's <b>DETR</b> finds you, <b>Sapiens2</b> reads your pose and <b>SAM 2.1</b> cuts you out; the light line is your racket hand.</p>

@@ -493,6 +493,8 @@ const gateway = http.createServer(async (req, res) => {
     safety.enter("app");
   }
   try {
+    // Serve as MCP servers for other agents (mcp/server.js): each tool calls this API with the person's session
+    if ((u.pathname === "/mcp" || u.pathname.startsWith("/mcp/")) && await (await import("./mcp/server.js")).route(req, res, u, { bodyOf, port: PORT })) return;
     if (u.pathname.startsWith("/api/") && await membersApi.route(req, res, u, { json, o, forget: (id, opts) => feedPosts.forget(id, opts) })) return;
     if (u.pathname.startsWith("/api/") && await webapi.route(req, res, u, { json, bodyOf, o })) return;
     // a venue's own agent, run by the venue (venues/agent.js): its A2A address registered for its place, with the

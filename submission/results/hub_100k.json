@@ -1,0 +1,104 @@
+{
+ "what": "agent/tools/hub_bench.mjs against agent/src/hub/hub.js (16 workers) on one machine (64 cores, 215 GB); the senders, the receivers and the hub share its CPU. Model work is a stand-in with the router's slot counts (8 x 1B at 0.9 s, 4 x Glimmer at 25 s, per worker), to show admission, not model speed.",
+ "at": "2026-11-01",
+ "runs": [
+  {
+   "label": "steady: 500 messages a second per process",
+   "env": {
+    "AGENTS": 100000,
+    "PROCS": 20,
+    "RATE": 500,
+    "SECONDS": 30,
+    "WORK": 100
+   },
+   "agents": 100000,
+   "procs": 20,
+   "connected": 99892,
+   "failed": 108,
+   "connectSec": 15.8,
+   "hubAgentsHeld": 99892,
+   "messages": {
+    "seconds": 30,
+    "sent": 296780,
+    "perSec": 9893,
+    "delivered": 296449,
+    "acked": 296449,
+    "offline": 331,
+    "latencyMs": {
+     "p50": 2,
+     "p95": 3,
+     "p99": 4,
+     "max": 30
+    }
+   },
+   "work": {
+    "asked": 2000,
+    "done": 1024,
+    "turnedAway": 0,
+    "waitedMsP50": 3594
+   },
+   "hub": {
+    "workers": 16,
+    "rssMB": 2072,
+    "queuesAfter": {
+     "1b": 348,
+     "glimmer": 436
+    },
+    "runningAfter": {
+     "1b": 128,
+     "glimmer": 64
+    },
+    "msgsPerSecSeen": 0
+   }
+  },
+  {
+   "label": "pushed: 2,500 a second per process, and a model-work burst past every queue",
+   "env": {
+    "AGENTS": 100000,
+    "PROCS": 20,
+    "RATE": 2500,
+    "SECONDS": 30,
+    "WORK": 600
+   },
+   "agents": 100000,
+   "procs": 20,
+   "connected": 99815,
+   "failed": 185,
+   "connectSec": 15.3,
+   "hubAgentsHeld": 99815,
+   "messages": {
+    "seconds": 30,
+    "sent": 1467725,
+    "perSec": 48924,
+    "delivered": 1464963,
+    "acked": 1464963,
+    "offline": 2762,
+    "latencyMs": {
+     "p50": 86,
+     "p95": 247,
+     "p99": 3986,
+     "max": 7240
+    }
+   },
+   "work": {
+    "asked": 12000,
+    "done": 1415,
+    "turnedAway": 5813,
+    "waitedMsP50": 4497
+   },
+   "hub": {
+    "workers": 16,
+    "rssMB": 2195,
+    "queuesAfter": {
+     "1b": 1912,
+     "glimmer": 3103
+    },
+    "runningAfter": {
+     "1b": 128,
+     "glimmer": 64
+    },
+    "msgsPerSecSeen": 0
+   }
+  }
+ ]
+}

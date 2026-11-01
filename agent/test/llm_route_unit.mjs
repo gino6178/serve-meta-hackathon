@@ -102,3 +102,19 @@ test("the fast lane's hourly ceiling: past it, calls go to Glimmer", async () =>
     assert.equal(tierOf(msgs(300), { site: "feed.standard" }), "api");
   } finally { delete process.env.LLM_FAST; delete process.env.LLM_FAST_HOURLY; }
 });
+
+test("1B only (LLM_ONLY=small): every text call to the 1B, long or not, no API at all; a tool loop on Glimmer", async () => {
+  process.env.LLM_ONLY = "small"; process.env.LLM_FAST = "api";
+  try {
+    assert.equal(tierOf(msgs(300), { site: "feed.standard" }), "small");
+    assert.equal(tierOf(msgs(9000), { site: "feed.standard" }), "small", "even a very long call");
+    assert.equal(tierOf(msgs(300), { site: "feed.standard", tools: true }), "local");
+    reset();
+    const r = await chatJSON(msgs(300), SCHEMA, { site: "feed.standard" });
+    assert.equal(r.value.caption, "from serve-1b-text");
+    reset(); bad = new Set(["serve-1b-text"]);
+    const g = await chatJSON(msgs(300), SCHEMA, { site: "feed.standard" });
+    assert.equal(g.value.caption, "from muse-glimmer", "a reply the 1B can't give goes to Glimmer, never the API");
+    assert.ok(!asked.some((a) => a.url === "/v1/chat/completions"));
+  } finally { delete process.env.LLM_ONLY; delete process.env.LLM_FAST; bad = new Set(); }
+});
