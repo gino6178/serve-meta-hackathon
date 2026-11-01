@@ -245,7 +245,7 @@ For a highlight, Serve can stop time and move the camera round the player, from 
 
 ![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](shots/highlight_strip.png)
 
-### 2.5 A tiered decision engine, and a booking step by step
+### 2.5 Cache and router: a tiered decision engine, and a booking step by step
 
 Following FrugalGPT [19], decisions pass through layers, each taking only what the one before could not settle:
 - **Layer 0, code (milliseconds):** free times, calendar clashes, trips and every hard rule. The game's card comes from
@@ -272,6 +272,15 @@ Following FrugalGPT [19], decisions pass through layers, each taking only what t
 - **Text, by length.** Free text (wording an invite, a summary, a reply) goes by how long the call is: see section 3.
 Before any of them, Match works ahead of time: it asks about the player's usual times before the player does, so the
 agents have often agreed a game before anyone waits at all.
+
+**The router.** Every model call goes through one router (`core/llm.js` `tierOf`): a choice among declared options
+through the layers above; short text at a checked site to our text 1B; anything else to Glimmer on our GPU, or, on
+the public site (`LLM_FAST=api`), to Muse Spark on the Meta Model API when a person waits for it (a caption in 2.4 s,
+Glimmer if the API fails); very long calls to Muse Spark; background work behind every call a person waits for.
+**The caches.** The planner's system prompt and tools stay the same between calls so Ollama reuses the prefix:
+88.8% of 480,122 prompt tokens over 302 planner calls came from cache. A court's verdict is kept an hour under a hash
+of what it was judged on, and a judging still running is joined; courts are judged ahead for the hour before and
+after, which cut the wait after moving the time from 49.0 s to 25.7 s over 4 cities.
 
 #### A booking, step by step, with its measured times
 
@@ -375,7 +384,16 @@ A sports centre has an A2A agent of its own (`venues/agent.js`), with a signed A
   them once after a game; only players of a game agreed at the place can answer, and the marks go on the trust chain
   under their pseudonym. Tests: `agent/test/venue_report_unit.mjs`, `agent/test/venue_notes_unit.mjs`.
 
-### 2.9 Memory: retrieval-augmented generation (RAG)
+### 2.9 Observability
+
+Every agent at work, every A2A request, model call and tool call is an OpenTelemetry span by the GenAI semantic
+conventions (`invoke_agent`, `SendMessage`, `chat <model>`, `execute_tool`), with the W3C traceparent carried over A2A
+so a member's agent continues the same trace; no message, argument or result is recorded. Spans go to a file, to a
+waterfall in the app and to any OTLP collector. A token ledger records each call's tokens, cached tokens, reasoning,
+seconds and model by call site. From the typed spans, code names the step a failed planner run ended on and the kind
+of failure; against hand labels it was right on 14 of 14 runs and 15 of 15 talks.
+
+### 2.10 Memory: retrieval-augmented generation (RAG)
 
 A plan has to follow what a person told their agent weeks ago ("leave Tomás out for a while"). Their own words and
 code-made facts are kept as short dated notes, embedded with Meta's DRAMA on the server's CPU; the notes closest to
@@ -421,7 +439,7 @@ of 93) pass as with Glimmer alone.
 | Reasoning | Muse Glimmer (30B) | RTX 3090 (GPU 1) | Every agent: the Autopilot's tool loop, each member's decision, the community specs, reading what a person wants. A JSON Schema on every call, and code checks every text |
 | Live voice | Muse Voice Transcribe | Meta Model API | 24 kHz PCM full duplex, with Kokoro speaking the reply on the server; the player can talk over the agent |
 | Long calls and fallback | Muse Spark 1.3 | Meta Model API | Calls of 12,000 tokens or more; a fallback when the GPU server can't take a call; an alternative model for the builder (which uses Glimmer by default) |
-| Images | Muse Image | Meta Model API | Faces for the club's agents and the art of rematch posters |
+| Images | Muse Image | Meta Model API | Each agent's face (a friendly robot with its person's sport, never the person, so an agent's message reads as an agent's), and the art of rematch posters |
 | Cross-check | SAM 3.1 | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
 | Vision judge | Muse Wonder | Meta Model API | Judges orbit frames for defects: agreed with the labels on 87% of 84 frames |
 

@@ -83,6 +83,14 @@ step of getting a game together, so you only say yes once:
 - **Intelligent compute cascade (1B model distillation).** To overcome latency, a fine-tuned Meta Llama 3.2 1B student
   model runs on the server's CPU (about 0.9 s), handling routine decisions; in talks with the simulated club it cut
   heavy calls to Muse Glimmer, which reasons through complex constraints, by 54–67%.
+- **Cache and router (model tiering).** One router sends each call to the cheapest model that can answer: code, a
+  27.6 KB classifier, our distilled 1Bs, Muse Glimmer, or Muse Spark on the Meta Model API; caches mean work done
+  once is not done again (88.8% of the planner's prompt tokens read from cache)
+  ([§3](#3-cache-and-router-a-tiered-decision-engine)).
+- **Observability.** Every agent step, A2A request, model call and tool call is an OpenTelemetry span, with a token
+  ledger per call site and failure attribution by code ([§13](#13-observability-every-agent-step-traced)).
+- **Agents with faces of their own.** Muse Image designed each agent's face: a robot with its person's sport, never
+  the person ([§14](#14-agents-faces-designed-with-muse-image)).
 - **Retrieval-augmented generation (RAG) for the agent's memory.** What a person told their agent weeks ago ("leave
   Tomás out for a while") is kept as short notes, embedded with Meta's DRAMA on the server's CPU; the notes closest to
   the planner's question go in front of Muse Glimmer as facts, each cited and checked
@@ -218,7 +226,7 @@ community decisions, project operations and beyond.
   every player's rules in **89.1%** of doubles requests instead of 73.9%; one well-chosen question raised games found
   from **40.7% to 51.9%** ([ranking](#2-ranking-by-everyones-chance-of-yes-and-the-one-question-worth-most)).
 - **A tiered decision engine**: code (7 ms for the game's card) → a **27.6 KB** classifier (0.06 ms) → our distilled
-  1B (0.9 s) → Muse Glimmer ([tiers](#3-a-tiered-decision-engine)).
+  1B (0.9 s) → Muse Glimmer ([tiers](#3-cache-and-router-a-tiered-decision-engine)).
 - **Security**: **93 of 93** attack cases stopped; a signed, hash-chained record of every yes.
 - **A community that evolves the platform**: an anytime-valid test cut false rollbacks of harmless changes from
   **22% to 0.6%** ([community loop](#7-a-community-that-evolves-the-platform-with-automatic-rollback)).
@@ -228,6 +236,10 @@ community decisions, project operations and beyond.
 - **A venue's own agent and a fair split**: every quote signed by the venue's key and checked; the group's agent
   never offers past what the players' limits cover, and no one pays past their own limit
   ([§11](#11-a-venues-own-agent-and-a-fair-split)).
+- **Cache and router**: 88.8% of the planner's prompt tokens read from cache; judging ahead cut the wait after moving
+  the time from 49.0 s to 25.7 s ([§3](#3-cache-and-router-a-tiered-decision-engine)).
+- **Observability**: OpenTelemetry GenAI spans across agents and A2A, no content recorded; failure attribution
+  matched hand labels on 14 of 14 runs ([§13](#13-observability-every-agent-step-traced)).
 - **RAG over the agent's memory**: DRAMA finds the right note first for 60% of planning questions (BM25 35%), MRR
   0.696 against 0.422; with memory the planner kept what the person said in 3 of 3 runs, without it in 0 of 3
   ([§12](#12-memory-retrieval-augmented-generation-rag)).
@@ -366,7 +378,7 @@ Agents talk over the **A2A protocol v1.0** (Linux Foundation), through its offic
 
 ![Rank by everyone's chance of a yes, then ask the one question worth most](docs/readme/slide_ranking_voi.png)
 
-## 3. A tiered decision engine
+## 3. Cache and router: a tiered decision engine
 
 When four agents negotiate, waiting about 40 s for a large model at every step stalls the talk. Following FrugalGPT,
 each decision passes through layers, each taking only what the one before could not settle:
@@ -383,6 +395,34 @@ each decision passes through layers, each taking only what the one before could 
 the day, the part of the day, the format, the length and the players come from the words, so no model is asked;
 Glimmer reads only what code cannot date ("this weekend"). See `inviteDraft` in
 [`agent/src/club/play.js`](agent/src/club/play.js) and commit `6bc7d19`.
+
+**The router: which model answers.** Every model call goes through one router (`agent/src/core/llm.js` `tierOf`), so
+the cheapest tier that can answer does:
+
+| Call | Goes to |
+|---|---|
+| A choice among declared options | the layers above: code, the 27.6 KB classifier, our decision 1B, then Glimmer |
+| Short text (up to about 700 tokens) at a site where our text 1B was checked | our text 1B (about 1 s), and Glimmer if its reply doesn't fit the schema |
+| Anything else, on our own server | Muse Glimmer on our GPU |
+| Anything else a person waits for, on the public site (`LLM_FAST=api`) | Muse Spark on the Meta Model API (a caption in 2.4 s), Glimmer if the API fails |
+| Very long (12,000 tokens or more, near Glimmer's 16,384-token context) | Muse Spark on the Meta Model API |
+| Background work nobody waits for (judging ahead, the autopilot) | Glimmer, behind every call a person waits for (two priority lanes over 4 slots) |
+| The GPU server down or failing | Muse Spark (`LLM_FALLBACK=on`) |
+
+**The caches: work done once is not done again.**
+
+- **The prompt prefix.** The planner's system prompt and its tool definitions stay word for word the same between
+  calls, and the week's details go after them, so Ollama reuses the cached prefix: across 302 planner calls, **88.8%
+  of the prompt tokens were read from cache** (426,133 of 480,122; `submission/results/autopilot_eval_a2a_tokens.json`).
+  Once a game is agreed, the searches that led to it shrink to one line each, all at once, so the prefix stays cached.
+- **Verdicts, by what they were judged on.** A court's verdict is kept for an hour under a hash of everything it was
+  judged on (the place, the sport, the time, the forecast, the reviews read); a judging still running is joined, not
+  started again. A venue's report is kept the same way.
+- **Judged ahead.** After a search, the same courts are judged for the hour after and the hour before, in the
+  background lane (Speculative Actions). Moving the time an hour then waited **25.7 s instead of 49.0 s** on average
+  over 4 cities, with 19 verdicts reused and 16 joined (`submission/results/places_ahead.json`).
+- **Map and names.** OpenStreetMap results are kept for a week, a place's English name forever, a Google Maps answer
+  for an hour (and never a review on disk, as Google's terms require).
 
 ![Most decisions never reach the big model: code, a 27.6 KB classifier, then our 1B](docs/readme/slide_decision_tiers.png)
 
@@ -663,6 +703,38 @@ End to end: in the planned week where the person had said to leave Tomás out, t
 with memory on and **0 of 3** with it off, each run with members' agents answering over A2A
 (`submission/results/autopilot_eval_memory_on_summary.json`, `..._memory_off_summary.json`; `memory_eval.json`,
 `memory_embedders.json`).
+
+## 13. Observability: every agent step traced
+
+When four agents and a venue negotiate, a slow or failed game has to be explained step by step, not guessed at.
+
+- **OpenTelemetry traces, by the GenAI conventions** (`agent/src/core/trace.js`): an `invoke_agent` span for each
+  agent at work, a `SendMessage` span for each A2A request (with `a2a.method.name`, the task id and state, and the
+  contextId as the conversation id), a `chat <model>` span for each model call (input, cached and reasoning tokens,
+  finish reason, the router's tier) and an `execute_tool` span for each tool call. The W3C `traceparent` goes with
+  every A2A request, so a member's agent continues the same trace on its side.
+- **No content in the traces.** Only names, ids, counts and timings; messages, tool arguments and results are never
+  recorded.
+- **Where they go.** `data/traces.jsonl`, a window in memory that the app draws as a waterfall (`GET /api/traces`,
+  the gateway's token only), and any OTLP collector (Jaeger, Tempo) with `OTEL_EXPORTER_OTLP_ENDPOINT`.
+- **A token ledger per call site** (`agent/src/core/ledger.js`, `GET /api/ledger`): each model call's tokens,
+  cached tokens, reasoning, seconds, empty replies and which model or fallback answered, by the code site that made
+  it. It is how we found that 84% of the tokens Glimmer wrote were reasoning, and how the cache share above is measured.
+- **Failure attribution by code** (`agent/src/safety/attribution.js`): when a planner run ends short, its typed
+  spans name the step it ended on and the kind of failure (tool error, model format, rule caught, timeout, agent
+  unreachable, no option left, rule missed). Against hand labels it named the kind and the step in **14 of 14 runs**,
+  and the kind in **15 of 15 talks** (`submission/results/attribution_check.json`).
+- **What a person sees.** Every step streams to the screen, every wait shows a moving bar within 250 ms, and each
+  person can read every message their agent sent and received.
+
+## 14. Agents' faces, designed with Muse Image
+
+An agent should look like an agent. Each agent in the demo club, and your own agent, has a face designed with Meta's
+**Muse Image** (`muse-image-1.0`): a friendly robot holding its person's sport (a tennis racket, a shuttlecock), on
+a colour of its own, never a picture of the person. So a message in the club's feed or in a chat shows at a glance
+whether a person or their agent wrote it. The faces were made once and are served from `web/public/agents/`
+(`web/src/club/faces.js`); an agent without one, such as a new member's, shows its person's initials. Muse Image also
+draws the art of rematch posters (`agent/src/media/poster.js`), made once per challenge and then served from disk.
 
 ## Real-world use
 

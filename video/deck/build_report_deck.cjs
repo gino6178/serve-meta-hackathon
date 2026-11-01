@@ -63,7 +63,7 @@ async function img(file, width = 1800) {
   const FLOW = path.join(SHOTS, "flow_four.png");
   const P = { invite: await crop(FLOW, 0, 590, 885), agents: await crop(FLOW, 625, 590, 885), messenger: await crop(FLOW, 1880, 436, 885) };
   // the main slides are tagged and put first, in this order; every untagged slide follows as the appendix
-  const MAIN = ["cover", "pain", "solution", "club", "models", "surprises", "tiers", "distill", "a2a", "ranking", "habit", "venue", "memory", "reels", "testing", "security", "community", "roadmap", "appendix"];
+  const MAIN = ["cover", "pain", "solution", "club", "models", "surprises", "tiers", "distill", "a2a", "ranking", "habit", "venue", "memory", "router", "reels", "testing", "security", "community", "roadmap", "appendix"];
   const KEYS = [];
   let nextKey = null;
   const addSlide = pres.addSlide.bind(pres);
@@ -295,6 +295,24 @@ async function img(file, width = 1800) {
   });
   foot(s, "memory/memory.js, body/context.js (RAG: DRAMA on the CPU, each Pace limit cites its notes and code checks them); members/trust.js, privacy.txt. submission/results/memory_eval.json, memory_embedders.json, privacy_probe.json.");
   note(s, "Retrieval-augmented generation: the person's own words and code-made facts are embedded with Meta's DRAMA, and the closest notes go to Glimmer as facts. Nothing another agent wrote becomes a note. De-identification is done by code before data leaves the person's agent.");
+
+  // 11e. the router (model tiering), the caches, the traces, and the agents' faces (core/llm.js, trace.js, faces.js)
+  nextKey = "router";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "A router picks the cheapest model; caches and traces keep it fast");
+  [["Choice among options", "code → 27.6 KB classifier → our 1B → Glimmer"], ["Short text, checked site", "our text 1B, about 1 s"], ["Public site, a person waits", "Muse Spark (API) 2.4 s, Glimmer if it fails"], ["Very long, or GPU down", "Muse Spark on the Meta Model API"], ["Background work", "Glimmer, behind every waited-for call"]].forEach(([h, d], i) => {
+    box(s, M, 1.4 + i * 0.86, 5.6, 0.74, h, d, i === 2 ? HEX.greenBg : HEX.card);
+  });
+  stat(s, M + 6.0, 1.4, 1.95, "88.8%", "prompt tokens from cache", HEX.green, { size: 28, h: 1.5 });
+  stat(s, M + 8.1, 1.4, 1.95, "49→26 s", "wait, judged ahead", HEX.green, { size: 26, h: 1.5 });
+  stat(s, M + 10.2, 1.4, 1.95, "14 of 14", "failures named from traces", HEX.blue, { size: 26, h: 1.5 });
+  card(s, M + 6.0, 3.1, 6.15, 3.15, "FFFFFF");
+  s.addText("Agents' faces, designed with Muse Image", { isTextBox: true, x: M + 6.25, y: 3.2, w: 5.7, h: 0.4, fontSize: 14, bold: true, color: HEX.ink, margin: 0 });
+  ["hana", "leo", "kenji", "priya", "ravi", "yuki"].forEach((n, i) => s.addImage({ path: path.resolve(__dirname, "../../web/public/agents", `${n}.png`), x: M + 6.3 + i * 0.97, y: 3.75, w: 0.85, h: 0.85 }));
+  s.addText("A robot with its person's sport, never the person: a message shows at a glance whether a person or their agent wrote it.", { isTextBox: true, x: M + 6.25, y: 4.75, w: 5.7, h: 0.6, fontSize: 12, color: HEX.muted, margin: 0, valign: "top" });
+  s.addText("Traces: OpenTelemetry GenAI spans (invoke_agent, SendMessage, chat, execute_tool), traceparent over A2A, no content recorded.", { isTextBox: true, x: M + 6.25, y: 5.45, w: 5.7, h: 0.7, fontSize: 12, color: HEX.muted, margin: 0, valign: "top" });
+  foot(s, "core/llm.js tierOf (the router), autopilot_eval_a2a_tokens.json (302 calls), places_ahead.json (4 cities), core/trace.js, safety/attribution.js, attribution_check.json, web/src/club/faces.js.");
+  note(s, "The router is the model tiering: each call goes to the cheapest model that can answer. Caches mean work done once is not redone. Traces explain every step without recording content. Muse Image designed each agent's face.");
 
   // 12. testing, one page
   nextKey = "testing";
