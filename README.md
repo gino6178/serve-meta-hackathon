@@ -182,7 +182,7 @@ member's agent's face and rematch posters ([reels](#8-social-highlight-reels-a-b
 
 | Item | Where |
 |---|---|
-| New work only | Everything in this repository was built during the hackathon (October 27 to November 4, 2026): the itemised list is in [Built during the hackathon](#built-during-the-hackathon-oct-27--nov-4-2026). Third-party models and libraries we use as they are, TrackNetV5 among them, are listed under [Used, not built](#used-not-built) |
+| New work only | Everything in this repository was built during the hackathon (October 27 to November 4, 2026): the itemised list is in [Built during the hackathon](#built-during-the-hackathon-oct-27--nov-4-2026). Licenses of the open models and libraries we use: [CREDITS.md](CREDITS.md) |
 | Models used | [Meta models used and where each runs](#meta-models-used-and-where-each-runs) |
 | Models we trained | All published, with model cards and sha256: [models/README.md](models/README.md) |
 | Setup and run | [Run it yourself](#run-it-yourself) |
@@ -614,9 +614,7 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 
 **Everything in this repository was built during the hackathon.** Building started on October 27, the hackathon's
 first day; the repository was restructured into its current layout on October 28 and 29, one commit per file, and
-its history holds 1,163 commits up to November 1. Nothing here predates the event. What we use from others as it is
-(models, libraries, our earlier shuttle tracker) is not in this repository and is listed under
-[Used, not built](#used-not-built).
+its history holds 1,163 commits up to November 1. Nothing here predates the event.
 
 Where a part follows a published method, the paper is named. A paper is listed only when the code, `docs/`, the
 technical report or our research notes cite it; where we could not tie a method to a paper, none is given.
@@ -740,32 +738,6 @@ technical report or our research notes cite it; where we could not tie a method 
 - **The web app** (`web/`): React + Three.js + Vite, phone to laptop, light and dark.
 - **Operations** (`ops/`): start scripts and a watchdog for the GPU server.
 - **The technical report, slides, figures and this page** (`submission/`, `video/deck/`, `docs/`).
-
-### Used, not built
-
-Used as they are, under their own licenses (details in [CREDITS.md](CREDITS.md)):
-
-| What | License |
-|---|---|
-| TrackNetV5, our own shuttle tracker, published before the hackathon (IEEE ICIP 2026); fetched at run time, off unless `BALL_TRACKING=1`, none of its code here | No LICENSE file in its repository |
-| Muse Glimmer (Meta), open weights | Apache 2.0 |
-| Llama 3.2 1B and 3B Instruct (Meta), the base of our distilled models | Llama 3.2 Community License |
-| Llama Guard 3 1B (Meta) | Llama 3.2 Community License |
-| Prompt Guard 2 86M (Meta) | Llama 4 Community License |
-| DRAMA base (Meta) | CC BY-NC 4.0 |
-| Omnilingual ASR CTC 1B (Meta) | Apache 2.0 |
-| Sapiens2 pose 0.4B (Meta) | Sapiens2 License |
-| SAM 2.1 Hiera-L (Meta) | Apache 2.0 |
-| DETR ResNet-50 (Meta) | Apache 2.0 |
-| MapAnything (Meta), the Apache 2.0 weights | Apache 2.0 |
-| RT-DETRv2 | Apache 2.0 |
-| Kokoro 82M (`kokoro-onnx`) | Apache 2.0 |
-| WASB (NTT), ball tracking for tennis and basketball | Code MIT; weights' license not stated |
-| LlamaFirewall (Meta) | MIT |
-| A2A JavaScript SDK | Apache 2.0 |
-| Ollama, llama.cpp, Hugging Face Transformers, PyTorch, React, Three.js, Vite, Express, OpenTelemetry JS | MIT / Apache 2.0 / BSD (see CREDITS.md) |
-| Meta Model API: Muse Spark 1.3, Muse Voice Transcribe, Muse Image, SAM 3.1, Muse Wonder | Called as a service |
-| OpenStreetMap data, Open-Meteo forecasts | ODbL, CC BY 4.0 |
 
 ## Our trained models
 
