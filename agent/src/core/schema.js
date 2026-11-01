@@ -120,6 +120,12 @@ export const VERDICT = {
     reasons: { type: "array", minItems: 1, maxItems: 4, items: { type: "object", additionalProperties: false, required: ["text", "cite"], properties: { text: str(200), cite: { type: "string", pattern: "^(map|weather|review [1-9])$" }, quote: str(160) } } },
   },
 };
+// what a venue's reviews say, for the venue's report (venues/report.js): each point cites one review, word for word
+const POINT = { type: "object", additionalProperties: false, required: ["text", "cite"], properties: { text: str(160), cite: { type: "string", pattern: "^review [1-9]$" }, quote: str(160) } };
+export const VENUE_NOTES = {
+  type: "object", additionalProperties: false, required: ["good", "bad"],
+  properties: { good: { type: "array", maxItems: 3, items: POINT }, bad: { type: "array", maxItems: 3, items: POINT } },
+};
 // place names in English, by number (places.js)
 export const NAMES = { type: "object", additionalProperties: str(80) };
 // (a tool call's arguments are checked against the tool's own parameters schema: see chatTools in llm.js)

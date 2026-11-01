@@ -50,6 +50,8 @@
 //   POST /api/huddle/game {post, yes, why}   join a game the agent recommended, or say why not
 //   GET  /api/huddle/places?sport=           courts near them: quiet hours, and for sports centres the venue agent's price
 //   POST /api/huddle/deal {place, date, start, players, sport}   ask a venue's agent for a price
+//   GET  /api/huddle/venue?place=&sport=    a short report on a place: what its reviews say, its prices, what groups
+//                                            here paid, and whether games agreed there went ahead (venues/report.js)
 // The trust chain, for anyone (no sign-in):
 //   GET  /api/trust/chain?after=&n=          entries (pseudonymous subjects) and the daily heads signed with /a2a/keys.json
 //   GET  /api/trust/verify                   the gateway's own replay of the chain, and today's head, signed
@@ -339,6 +341,15 @@ async function huddle(req, res, p, q, me, send, given = null) {
     const deal = D.talk(x, { date: b.date, start: b.start, players: Math.min(12, Math.max(2, +b.players || 4)), weekly: !!b.weekly, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" });
     const outside = T.hardNos({ ...t, busyAt: [], declined: [] }, { date: b.date, start: b.start, km: +T.km(t.home, x).toFixed(1), each: deal.each || 0 }).filter((r) => ["time", "place", "price"].includes(r) && (r !== "place" || t.limitKm != null) && (r !== "price" || t.limitEach != null) && (r !== "time" || t.windows?.length));
     return send(200, { deal, currency: D.CURRENCY, ...(outside.length ? { outside, note: `A quote only: it is outside your limits (${outside.map((r) => T.NO[r] || r).join(", ")}), so no game is agreed there.` } : {}) });
+  }
+  if (p === "/api/huddle/venue" && get) {
+    const t = T.get(me), sport = String(q.get("sport") || t.sports[0] || "badminton").toLowerCase(), id = String(q.get("place") || "");
+    if (!T.SPORTS.includes(sport)) return send(400, { error: `sport is one of: ${T.SPORTS.join(", ")}.` });
+    // a court near the member, a venue seen in a lookup, or the place one of the member's games was agreed at
+    const x = (t.home ? await D.placesNear(t.home, sport, { venues: 4, courts: 4, wait: false }) : []).find((y) => y.id === id) || D.venueById(id, sport) || H.pickedPlace(me, id);
+    if (!x || !isFinite(x.lat) || !isFinite(x.lon)) return send(404, { error: "That place isn't among the courts near you or your games (GET /api/huddle/places lists them)." });
+    const R = await import("../venues/report.js");
+    return send(200, { report: await R.report(x, { games: H.pastAt(x.id) }) });
   }
   return send(404, { error: "no such route" });
 }

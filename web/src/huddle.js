@@ -18,6 +18,7 @@ export const start = (b) => call("/api/huddle/start", b);
 export const reply = (id, yes, why = null) => call("/api/huddle/reply", { id, yes, why }).then((r) => { dispatchEvent(new CustomEvent("serve:answered", { detail: id })); return r; });
 export const cancel = (id, game = false) => call("/api/huddle/cancel", { id, ...(game ? { game: true } : {}) }).then((r) => { dispatchEvent(new CustomEvent("serve:answered", { detail: id })); return r; }); // (its "Yes?" toasts are stale now)
 export const game = (post, yes, why = null) => call("/api/huddle/game", { post, yes, why });
+export const venue = (place, sport) => call(`/api/huddle/venue?place=${encodeURIComponent(place)}${sport ? `&sport=${encodeURIComponent(sport)}` : ""}`);
 export const places = (sport) => call(`/api/huddle/places${sport ? `?sport=${encodeURIComponent(sport)}` : ""}`);
 export const setSports = (sports) => call("/api/huddle/sports", { sports });
 export const reset = () => call("/api/huddle/reset", {});

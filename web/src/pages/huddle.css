@@ -211,3 +211,14 @@
 .hh-c.off { background: repeating-linear-gradient(45deg, var(--surface), var(--surface) 3px, var(--line) 3px, var(--line) 5px); }
 .hd-offer { margin: 0; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--agent) 8%, var(--bg)); font-size: 14px; }
 .hd-cancel-row { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+
+/* the venue report on a game's pick */
+.hd-report { display: grid; gap: 8px; }
+.hd-report > .btn { justify-self: start; display: inline-flex; gap: 6px; align-items: center; }
+.hd-report-body { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line, color-mix(in srgb, var(--ink) 12%, transparent)); }
+.hd-report-head { font-size: 16px; }
+.hd-report-head.h-good { color: var(--good); }
+.hd-report-head.h-warn { color: var(--warn); }
+.hd-report-lines, .hd-report-points { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; line-height: 1.45; }
+.hd-report-points li { display: grid; gap: 2px; }
+.hd-report-points q { color: var(--ink-2); font-style: italic; }

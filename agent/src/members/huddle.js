@@ -533,7 +533,7 @@ export function view(h, me) {
   const o = h.pick;
   return { id: h.id, sport: h.sport, need: h.need, club: h.clubName, host: first(h.host), mine: h.host === me, status: h.status, created: h.created, post: h.post || null,
     ...(h.host === me ? { invited: h.invited.filter((id) => !isNear(h, id)).length } : {}), talk: h.talk.map((l) => ({ at: l.at, from: l.from === me ? "me" : l.from === "host" ? (h.host === me ? "me" : "host") : l.from === "venue" ? "venue" : l.from === "agent" ? "agent" : "other", who: l.who, text: l.plain && h.host !== me ? l.plain : l.text, ...(l.agent ? { agent: true } : {}), ...(l.venue ? { venue: true } : {}), ...(l.agreed ? { agreed: true } : {}), ...(l.yes != null ? { yes: l.yes } : {}), ...(l.trust ? { trust: trustOf(l.from) } : {}), ...(l.gate ? { gate: l.gate } : {}) })),
-    ...(o ? { pick: { date: o.date, start: o.start, when: when(o), where: o.where, kind: o.kind, each: o.each, price: o.price, list: o.list, off: o.off, busy: o.busy, sample: o.sample, km: o.km[me] ?? null, at: o.at, ...(o.shares ? { mine: o.shares[me] ?? null, shares: Object.fromEntries(Object.entries(o.shares).map(([id, v]) => [nameIn(h.players, id, me), v])) } : {}), signed: !!o.quote } } : {}),
+    ...(o ? { pick: { date: o.date, start: o.start, when: when(o), where: o.where, place: o.place, kind: o.kind, each: o.each, price: o.price, list: o.list, off: o.off, busy: o.busy, sample: o.sample, km: o.km[me] ?? null, at: o.at, ...(o.shares ? { mine: o.shares[me] ?? null, shares: Object.fromEntries(Object.entries(o.shares).map(([id, v]) => [nameIn(h.players, id, me), v])) } : {}), signed: !!o.quote } } : {}),
     players: h.players.map((id) => ({ id, name: nameIn(h.players, id, me), answer: h.answers[id] || null, host: id === h.host, direct: (h.direct || []).includes(id), new: Tr.badge(id).show.new, known: id === me || C.mine(me).some((c) => c.members.some((m) => m.id === id)), trust: trustOf(id) })),
     ...(h.status === "asking" && h.players.includes(me) && !h.answers[me] ? { agentMay: mayAgentSayYes(me, { huddle: h.id }) } : {}),
     // filling a posted game: who is in comes from the game itself (people join it after the agents talked)
@@ -544,6 +544,15 @@ export function view(h, me) {
     ask: h.status === "asking" && h.players.includes(me) && !h.answers[me], due: h.players.includes(me) ? dueBy(h, me) : dueBy(h) };
 }
 const LIVE = { asking: 0, talking: 1, on: 2, stuck: 3, stopped: 4, cancelled: 4 };
+// the games the agents agreed at one place, for its report (venues/report.js): the date, the price, how many players and
+// whether it went ahead, never who played or which club
+export const pastAt = (placeId, now = Date.now()) => data().huddles.filter((h) => h.pick?.place === placeId && ["asking", "on", "cancelled", "stopped"].includes(h.status)).map((h) => {
+  const past = startMs(h.pick) < now;
+  return { date: h.pick.date, price: h.pick.price || 0, each: h.pick.each || 0, list: h.pick.list || 0, off: h.pick.off || 0, players: h.players.length, signed: !!h.pick.quote, sample: !!h.pick.sample,
+    state: h.status === "on" ? (past ? "played" : "coming") : h.status === "asking" ? (past ? "lapsed" : "asking") : "called off" };
+}).sort((a, b) => b.date.localeCompare(a.date));
+// a place one of the member's games was agreed at, as the report reads it (its name, where it is, a venue or not)
+export const pickedPlace = (me, placeId) => { const h = data().huddles.find((x) => x.pick?.place === placeId && (x.host === me || x.invited.includes(me))); return h ? { id: placeId, name: h.pick.where, lat: h.pick.at?.lat, lon: h.pick.at?.lon, kind: h.pick.kind, list: h.pick.list ? Math.round(h.pick.list / 1.5) : undefined, sample: h.pick.sample } : null; };
 // the member's coming games the agents agreed (asking with their yes, or on), as {date, start}, for the agent chat
 export const agreedFor = (me) => data().huddles.filter((h) => h.pick && h.players.includes(me) && (h.status === "on" || (h.status === "asking" && h.answers[me] === "yes")) && !h.post && !(h.fill && (h.host === me || fillOf(h)?.going.includes(me)))).map((h) => ({ date: h.pick.date, start: h.pick.start, waiting: h.status === "asking" }));
 export const mineFor = (me) => data().huddles.filter((h) => h.host === me || h.players.includes(me)).sort((a, b) => (LIVE[a.status] - LIVE[b.status]) || b.created - a.created).slice(0, 20).map((h) => view(h, me));

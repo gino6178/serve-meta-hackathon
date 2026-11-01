@@ -182,6 +182,8 @@ community decisions, project operations and beyond.
 - **A venue's own agent and a fair split**: every quote signed by the venue's key and checked; the group's agent
   never offers past what the players' limits cover, and no one pays past their own limit
   ([§11](#11-a-venues-own-agent-and-a-fair-split)).
+- **A report on the place before booking**: its rating, review points each quoted word for word from one review, its
+  prices and what groups here paid ([§11](#11-a-venues-own-agent-and-a-fair-split)).
 
 ### Bonus: Best Build on Open Weight Models
 
@@ -533,6 +535,28 @@ A sports centre that rents courts has an A2A agent of its own, beside the player
 Tests: `agent/test/venue_agent_unit.mjs` (signed quotes, a forged earlier quote ignored, the budget never passed, the
 split never past anyone's limit).
 
+**Checking the place before anyone books it.** Once a game is agreed, players used to look the venue up by hand: its
+reviews, what it costs, whether it is any good. Serve's game page now has **Check this place**, a short report built
+by `agent/src/venues/report.js` (`GET /api/huddle/venue?place=`):
+
+- **What its reviews say.** Its Google Maps rating, then up to three good points and three to check. Prompt Guard 2
+  first leaves out any review written to instruct a model; Muse Glimmer then picks the points, each citing one review
+  with words copied from it, and code keeps a point only when that quote is in the review word for word, with no
+  number, link or pronoun the facts don't have. Each quoted review is shown with its author and a link to Google
+  Maps, and reviews are kept in memory for an hour only, as Google's terms require. On made-up reviews, one of them
+  telling the model to praise the venue and visit a link, Glimmer gave three good points and three to check, every
+  quote word for word, and did not follow the planted instruction. The server's current Google key returns the
+  rating but no review text, so the live report shows the rating and says so.
+- **What it costs, and what groups here paid.** The venue agent's list price for 90 minutes and how low it goes at a
+  quiet hour this week (samples until the venue joins), and the prices groups agreed there in Serve: the date, the
+  price and how many played, never who or which club.
+- **Whether games there went ahead:** how many games agreed at the place were played, and how many were called off.
+- **A headline from the facts, not a model:** "Well reviewed", "Mixed reviews", "Check before you book" or "No reviews
+  read yet".
+
+Tests: `agent/test/venue_report_unit.mjs` (a made-up quote, a link, an unseen number and a pronoun all dropped; the
+rules that stand in for the model; prices, what groups paid and the headline).
+
 ## Real-world use
 
 During the hackathon **more than 10 people from a badminton club** tried Serve, and of the **3 game invites** sent
@@ -638,7 +662,7 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 | `agent/src/agents/` | The player's agent and its helpers: the planner, "want a game?", the decider, the student, the tiny layer |
 | `agent/src/match/` | Ranking, value of information, likelihood bands, confirmations |
 | `agent/src/members/` | Members and their own agents: agent keys, the signed agent channel, `huddle.js`, habits (`taste.js`), venue prices (`deals.js`), the fair split (`split.js`), the trust chain, `/llms.txt` |
-| `agent/src/venues/` | A venue's own A2A agent: signed quotes, the group's side of the haggle, outside venues' agents |
+| `agent/src/venues/` | A venue's own A2A agent: signed quotes, the group's side of the haggle, outside venues' agents; the report on a place before booking |
 | `agent/src/club/` | The club, Play (`play.js`, with `inviteDraft`), booking, courts near you |
 | `agent/src/body/` | Pace: training load from a health-app export, turned into scheduling limits |
 | `agent/src/loop/` | The community loop: signals, proposals, review, flags, gates, the builder |

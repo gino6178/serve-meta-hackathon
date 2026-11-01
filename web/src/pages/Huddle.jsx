@@ -17,6 +17,31 @@ const saidWords = () => { const s = params().get("say"); try { if (s) sessionSto
 const TABS = [["game", "Get a game"], ["courts", "Courts & prices"], ["taste", "How you play"]];
 const setParam = (k, v) => { const p = params(); if (v == null) p.delete(k); else p.set(k, v); location.hash = `/huddle${p.toString() ? `?${p}` : ""}`; };
 
+// a short report on the place before anyone books it (agent venues/report.js): its rating, a few good points and points
+// to check from its reviews (each quoting one, with its author), the venue's prices and what groups here paid
+function VenueReport({ place, sport }) {
+  const [r, setR] = useState(null), [open, setOpen] = useState(false), [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  const get = async () => { setOpen(!open); if (r || busy) return; setBusy(true); try { setR((await H.venue(place, sport)).report); } catch (e) { setErr(e.message); } setBusy(false); };
+  const point = (x, i) => <li key={i}>{x.text}<q>{x.quote}</q><span className="hd-fine">{x.stars != null ? `${x.stars}★ · ` : ""}{x.authorUrl ? <a href={x.authorUrl} target="_blank" rel="noopener noreferrer">{x.author}</a> : x.author}{x.when ? `, ${x.when}` : ""}</span></li>;
+  return (
+    <div className="hd-report">
+      <button className="btn ghost sm" aria-expanded={open} onClick={get}><Icon name="verify" size={14} />{open ? "Hide the venue report" : "Check this place"}</button>
+      {open && busy && <p className="hd-fine" role="status">Reading its reviews and prices…</p>}
+      {open && err && <p className="join-err" role="alert">{err}</p>}
+      {open && r && (
+        <div className="hd-report-body">
+          <b className={`hd-report-head h-${r.headline === "Well reviewed" ? "good" : r.headline === "Check before you book" ? "warn" : "plain"}`}>{r.headline}</b>
+          <ul className="hd-report-lines">{r.lines.map((l, i) => <li key={i}>{l}</li>)}</ul>
+          {r.reviews.good.length > 0 && <><span className="fy-kick">Reviews say</span><ul className="hd-report-points">{r.reviews.good.map(point)}</ul></>}
+          {r.reviews.bad.length > 0 && <><span className="fy-kick">Worth checking</span><ul className="hd-report-points warn">{r.reviews.bad.map(point)}</ul></>}
+          {r.past.games.length > 0 && <><span className="fy-kick">Games agreed here in Serve</span><ul className="hd-report-lines">{r.past.games.map((g, i) => <li key={i}>{g.date}: {g.price ? `NT$${g.price} for ${g.players || "the"} players` : "free"}{g.signed ? " · signed quote" : ""} · {g.state}</li>)}</ul></>}
+          <p className="hd-fine">{r.reviews.note || `${r.reviews.read} Google review${r.reviews.read === 1 ? "" : "s"} read${r.reviews.leftOut ? `, ${r.reviews.leftOut} left out by Prompt Guard` : ""}; ${r.reviews.by === "model" ? "Muse Glimmer picked the points, each checked against the review it quotes" : r.reviews.by === "rules" ? "points found by word, the model was not available" : "no points to pick"}.`}{r.rating?.url && <> <a href={r.rating.url} target="_blank" rel="noopener noreferrer">On Google Maps</a></>}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Huddle() {
   saidWords(); // keep the home box's words for this visit
   const [tab, setTab] = useState(() => params().get("tab") || "game");
@@ -221,6 +246,7 @@ function HuddleView({ id, onBack, onChange = () => {} }) {
             {pk.km != null && <li>Your trip {pk.km} km</li>}
           </ul>
           {pk.sample && <p className="hd-fine">The venue hasn't joined Serve yet: its list price is a sample, and nothing is paid here.</p>}
+          {pk.place && <VenueReport place={pk.place} sport={h.sport} />}
           {h.status !== "cancelled" && <ul className="hd-players">{h.players.map((x, i) => <li key={i} className={x.answer === "yes" ? "yes" : ""}>{x.answer === "yes" ? <Icon name="check" size={14} /> : <i className="hd-wait" />}<span>{x.name}{x.host ? " (host)" : x.direct ? " (asked directly)" : ""}</span>{x.name !== "You" && <TrustBadge t={x.trust} compact />}</li>)}</ul>}
           {h.status !== "cancelled" && h.waitlist?.length > 0 && <p className="hd-fine">Waitlist: {h.waitlist.join(", ")}.</p>}
           {h.status === "asking" && !h.ask && h.waiting?.length > 0 && <p className="hd-fine">Waiting for {h.waiting.join(", ")}{h.due ? `: they have until ${new Date(h.due).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })}, then the next player gets the spot` : ""}.</p>}

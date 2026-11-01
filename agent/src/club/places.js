@@ -96,6 +96,13 @@ async function google(body) {
   memo.set(k, { at: Date.now(), v: j.places || [] });
   return j.places || [];
 }
+// one place on Google Maps by its name and where it is (the nearest match within 250 m), or null: for a venue's report
+export async function googleOf({ name, lat, lon }) {
+  if (!KEY || googleLeft() <= 0 || !name) return null;
+  const near = await google({ textQuery: name, languageCode: "en", maxResultCount: 5, locationBias: { circle: { center: { latitude: lat, longitude: lon }, radius: 300 } } });
+  const g = near.filter((x) => x.location).map((x) => ({ x, d: meters({ lat, lon }, { lat: x.location.latitude, lon: x.location.longitude }) })).filter((y) => y.d < 250).sort((a, b) => a.d - b.d)[0];
+  return g ? fromGoogle(g.x) : null;
+}
 const fromGoogle = (g) => ({ placeId: g.id, gname: g.displayName?.text, address: g.formattedAddress, rating: g.rating ?? null, ratings: g.userRatingCount ?? 0, url: g.googleMapsUri, hours: g.regularOpeningHours?.weekdayDescriptions || null,
   reviews: (g.reviews || []).slice(0, 5).map((r, i) => ({ n: i + 1, stars: r.rating, when: r.relativePublishTimeDescription, text: String(r.text?.text || r.originalText?.text || "").replace(/\s+/g, " ").slice(0, 600), author: r.authorAttribution?.displayName || "A Google user", authorUrl: r.authorAttribution?.uri || null })).filter((r) => r.text) });
 
