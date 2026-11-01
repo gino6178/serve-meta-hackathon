@@ -145,6 +145,13 @@ start, an Agent Card, OpenAPI, and a channel where every request carries the age
 
 ### 2.2 Active querying by the value of information
 
+**Who gets asked, from each player's habits.** A request doesn't message the whole club. Each member's agent fits four
+weights from its person's own choices (the time of week, the distance, the price, a quiet court; a logistic,
+Bradley-Terry step per answer, `members/taste.js`). The asking agent picks candidates by that fit and asks each one's
+agent over A2A how likely a yes is (`serve.likely`). That agent works the answer out on its own side from its person's
+record and answers only with a band; the best-suited are invited first, and two of every twelve candidates are drawn
+from the rest, so it isn't always the same few people (`match/ask.js`).
+
 When a game's talks have not landed, the agent neither gives up nor asks the player again. For each player and each
 candidate time it keeps a belief that the player is free then, a Beta(1 + yes, 1 + no) posterior over what it has
 seen of that player's agent at that weekday and hour (never their calendar), and multiplies it by the chance of a yes.
@@ -337,6 +344,26 @@ can do.
   many people nearby were open to being asked, first from a count and then from the talk. Now nearby people appear only
   once they can actually play, and everyone else sees only published badge words; later rounds re-checked it and found
   nothing.
+
+### 2.8 A venue's own agent, and a fair split
+
+A sports centre has an A2A agent of its own (`venues/agent.js`), with a signed Agent Card at
+`/a2a/venues/<id>/.well-known/agent-card.json` and one skill, quote a court.
+
+- **Signed quotes.** The group's agent sends a court ask (date, start, players, its offer); the venue's agent answers
+  with a quote, accepted or a counter, signed with the venue's own Ed25519 key, which its card carries. Each round the
+  group sends back the venue's last quote and the venue checks its own signature on it, so neither side can make up an
+  earlier price.
+- **The venue's rule.** Never under a floor: 60% of list for an hour that is usually empty, the list price once it is
+  85% full, a little off for a weekly booking.
+- **Each player decides what they pay** (`members/split.js`). Each sets the most they will pay and can opt in to cover
+  more than an equal share. The group's agent never offers past what the limits cover between them; the price is
+  split equal first, a tight limit is covered only by those who offered, and no one pays past their own limit.
+- **A real venue's own agent.** A venue registers its agent's A2A address for its place (maintainer-approved); Serve
+  then talks to it over A2A, checking its card and every quote. In a run against NTU Gymnasium's agent over HTTP, the
+  card checked out, every quote was signed, and the talk went from NT$320 to the venue's floor, NT$290.
+- **No money moves**: prices are samples until a venue joins, and nothing is paid in the app. Tests:
+  `agent/test/venue_agent_unit.mjs`.
 
 ## 3. Meta models and tools
 

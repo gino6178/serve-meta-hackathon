@@ -165,6 +165,12 @@ court) and runs on Meta's open-weight models (Muse Glimmer on our own GPUs) and 
 - **Security**: **93 of 93** attack cases stopped; a signed, hash-chained record of every yes.
 - **A community that evolves the platform**: an anytime-valid test cut false rollbacks of harmless changes from
   **22% to 0.6%** ([community loop](#7-a-community-that-evolves-the-platform-with-automatic-rollback)).
+- **Asking by habit**: each member's agent learns how its person plays and answers "how likely is a yes" with a band
+  worked out on its own side; the asking agent invites the best-suited first
+  ([§2](#2-ranking-by-everyones-chance-of-yes-and-the-one-question-worth-most)).
+- **A venue's own agent and a fair split**: every quote signed by the venue's key and checked; the group's agent
+  never offers past what the players' limits cover, and no one pays past their own limit
+  ([§11](#11-a-venues-own-agent-and-a-fair-split)).
 
 ### Bonus: Best Build on Open Weight Models
 
@@ -178,7 +184,8 @@ own, so players' video and activity data stay on our server. Every model we trai
 ### Bonus: Best Agentic Use-Case
 
 Every person's agent negotiates with the other players' agents over **A2A v1.0**, with signed Agent Cards, signed
-facts, all-or-nothing holds and one well-chosen question when talks stall. The planner is a real tool-using agent
+facts, all-or-nothing holds and one well-chosen question when talks stall. It picks whom to ask from each player's
+habits, and haggles the court with the venue's own A2A agent, which signs every quote. The planner is a real tool-using agent
 (`get_week`, `check_limits`, `find_partners`, `find_places`, `negotiate`, `request_approval`, `nudge`, `finish`):
 across 8 planned weeks, each run 3 times with members' agents answering over A2A, **24 of 24 runs passed**
 (pass^3 = 1) ([submission/agent_eval.md](submission/agent_eval.md)). Any outside agent can join through
@@ -215,6 +222,8 @@ real preferences left.** That keeps a model's mistake from turning into a wrong 
 - **Meta models on our own GPUs** (two RTX 3090s and their CPU): Muse Glimmer on GPU 1; the vision models on GPU 0;
   our distilled 1B, Llama Guard 3, Prompt Guard 2, DRAMA and Omnilingual ASR on the CPU. Players' data stays there.
 - **The Meta Model API** for live voice, a fallback, very long calls, images and checks.
+- **Three kinds of A2A agent**: each player's agent, each member's agent (`/a2a/members/<id>`), and each venue's agent
+  (`/a2a/venues/<id>`), all with signed Agent Cards. A venue can run its own agent elsewhere and register it.
 - **Which model answers a text call, by length:** a short call (up to about 700 tokens) at a site where our text 1B
   was checked goes to the 1B; anything longer, or anywhere else, to Muse Glimmer; a very long call (12,000 tokens or
   more, near Glimmer's 16,384-token context) to Muse Spark on the Meta Model API.
@@ -617,7 +626,8 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 | `agent/src/a2a/` | Agent to agent: the talk, A2A client and server, holds, peer gateways |
 | `agent/src/agents/` | The player's agent and its helpers: the planner, "want a game?", the decider, the student, the tiny layer |
 | `agent/src/match/` | Ranking, value of information, likelihood bands, confirmations |
-| `agent/src/members/` | Members and their own agents: agent keys, the signed agent channel, `huddle.js`, the trust chain, `/llms.txt` |
+| `agent/src/members/` | Members and their own agents: agent keys, the signed agent channel, `huddle.js`, habits (`taste.js`), venue prices (`deals.js`), the fair split (`split.js`), the trust chain, `/llms.txt` |
+| `agent/src/venues/` | A venue's own A2A agent: signed quotes, the group's side of the haggle, outside venues' agents |
 | `agent/src/club/` | The club, Play (`play.js`, with `inviteDraft`), booking, courts near you |
 | `agent/src/body/` | Pace: training load from a health-app export, turned into scheduling limits |
 | `agent/src/loop/` | The community loop: signals, proposals, review, flags, gates, the builder |
@@ -647,7 +657,7 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 
 ## Roadmap
 
-1. **Venues join:** real quiet-hour prices replace the sample prices.
+1. **Venues join:** a venue registers its own agent (`POST /api/venues/agents`) and its real prices replace the samples.
 2. **More real clubs:** beyond one club, most evidence is still agents and simulation.
 3. **The community loop on real members.**
 4. **Less waiting:** move more of Glimmer's 20 to 40 s path to the small models.
@@ -683,6 +693,15 @@ technical report or our research notes cite it; where we could not tie a method 
 - **Durable talks** (`agent/src/core/`): saved before every round, a message answered once, booking idempotent,
   following durable execution and Sagas (Garcia-Molina and Salem, 1987).
 - **Fair venues** (`club/`): the venue whose longest trip is shortest (minimax), with sum and Nash product as options.
+- **A venue's own agent** (`venues/agent.js`): an A2A agent per sports centre with a signed Agent Card and one skill,
+  quote a court; each quote is signed with the venue's Ed25519 key, the venue checks its own last quote each round,
+  and an outside venue can register its own agent with the maintainer's approval.
+- **Each player decides what they pay** (`members/split.js`): a limit per player and an opt-in to cover more; the
+  price is split equal first, a tight limit is covered only by those who offered, never past anyone's limit, and the
+  group's agent never offers past what the limits can cover.
+- **Asking by habit** (`members/taste.js`, `match/ask.js`). Following the Bradley-Terry model of paired comparisons
+  (Bradley and Terry, Biometrika, 1952), each member's agent fits four weights (time, distance, price, a quiet court)
+  from its person's own choices; the asking agent invites by that fit and by each agent's likelihood band.
 - **Ranking times by everyone's chance of yes** (`match/timerank.js`). Following *Consensus vs. Dissent* (Waterschoot,
   Tintarev and Barile, RecSys 2026, [arXiv 2607.10235](https://arxiv.org/abs/2607.10235)), the product of chances with
   a least-misery floor.
