@@ -20,14 +20,27 @@ Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Yo
 ## Overview
 
 People don't quit the sport; they quit organizing it. Coordinating group chats, matching schedules and booking courts
-drain the fun out of recreational sports. Serve is an autonomous multi-agent platform designed to solve this cold-start
-and coordination problem. It lets your personal AI agent negotiate directly with your friends' agents to plan your week,
-find the nearest court, and book games with just a single approval from you.
+drain the fun out of recreational sports. Serve is an autonomous multi-agent platform that takes over every tedious
+step of getting a game together, so you only say yes once:
+
+| The tedious step | What Serve's agents do |
+|---|---|
+| Who to ask | Your agent asks the people most likely to say yes, from each player's own habits: the times they play, how far they go, what they pay ([§2](#2-ranking-by-everyones-chance-of-yes-and-the-one-question-worth-most)) |
+| When | Every player's agent negotiates the time over A2A, and code holds the overlap for 30 minutes ([§1](#1-a2a-v10-facts-only-one-round-by-intersection-30-minute-holds)) |
+| Where | The best court between everyone, from OpenStreetMap, with how full it usually is |
+| How much | The venue's own agent talks price; each player decides the most they pay, and the price is split so no one goes past their limit ([§11](#11-a-venues-own-agent-and-a-fair-split)) |
+| Stalled talks | Your agent asks the one question worth the most (value of information), which raised games found from 40.7% to 51.9% |
+| Confirming | One yes from each person, signed into a hash chain; no-shows go to a waitlist, never a deposit |
 
 ### Key features and architecture
 
 - **Agent-to-Agent (A2A) negotiation.** Powered by Meta's open weights and APIs, your agent communicates securely via
   A2A v1.0 and Ed25519-signed Agent Cards to align everyone's schedules and preferences autonomously.
+- **Asking by habit, not by spam.** Each member's agent learns how its person plays and answers "how likely is a yes"
+  with a band, worked out on its own side from its person's record; the asking agent invites the best-suited first.
+- **Venue agents and a fair split.** Sports centres have their own A2A agents that sign every quote; the group's agent
+  never offers past what the players' own limits cover, and only players who offered to cover pay more than an equal
+  share.
 - **Intelligent compute cascade (1B model distillation).** To overcome latency, a fine-tuned Meta Llama 3.2 1B student
   model runs on the server's CPU (about 0.9 s), handling routine decisions; in talks with the simulated club it cut
   heavy calls to Muse Glimmer, which reasons through complex constraints, by 54–67%.
