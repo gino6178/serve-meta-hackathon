@@ -84,7 +84,7 @@ const windows = (list) => (list || []).map((w) => { const m = w.match(/^(\w{3})\
 const freeAt = (wins, date, start, minutes) => wins.some((w) => w.day === date.getDay() && w.from <= start && start + minutes <= w.to);
 
 // ---- reading the request --------------------------------------------------------------------------------------
-const PARTS = { morning: ["08:00", "12:00"], afternoon: ["13:00", "18:00"], evening: ["18:00", "22:00"], tonight: ["18:00", "22:00"] };
+const PARTS = { morning: ["08:00", "12:00"], lunch: ["12:00", "14:00"], afternoon: ["13:00", "18:00"], evening: ["18:00", "22:00"], tonight: ["18:00", "22:00"] };
 export const SPORTS = ["badminton", "tennis", "pickleball", "table tennis", "basketball", "volleyball"];
 const SPORT_RX = [["table tennis", /table tennis|ping ?pong|桌球|乒乓/i], ["tennis", /tennis|網球/i], ["pickleball", /pickleball|匹克球/i], ["basketball", /basketball|hoops|籃球/i], ["volleyball", /volleyball|排球/i], ["badminton", /badminton|羽球|羽毛球/i]];
 const sportIn = (text) => SPORT_RX.find(([, rx]) => rx.test(text))?.[0] || null;
@@ -100,7 +100,7 @@ function ruleIntent(text, members, now) {
   if (/tonight|today|今天|今晚/.test(t)) dates.push(ymd(now));
   if (/tomorrow|明天|明晚/.test(t)) { const d = new Date(now); d.setDate(d.getDate() + 1); dates.push(ymd(d)); }
   for (const wd of days) { const d = new Date(now); d.setDate(d.getDate() + ((wd - d.getDay() + 7) % 7 || (d.getHours() >= 21 ? 7 : 0))); dates.push(ymd(d)); }
-  const part = /morning|早上|上午/.test(t) ? "morning" : /afternoon|下午/.test(t) ? "afternoon" : /evening|night|tonight|晚上|今晚|明晚/.test(t) ? "evening" : null;
+  const part = /morning|早上|上午/.test(t) ? "morning" : /lunch|\bnoon\b|中午/.test(t) ? "lunch" : /afternoon|下午/.test(t) ? "afternoon" : /evening|night|tonight|after work|晚上|今晚|明晚|下班/.test(t) ? "evening" : null;
   const format = /single|單打/.test(t) ? "singles" : /double|雙打/.test(t) ? "doubles" : "any";
   const withIds = members.filter((m) => t.includes(m.name.split(" ")[0].toLowerCase()) || text.includes(m.name)).map((m) => m.id);
   const minutes = /2\s*(h|hours?|小時)|兩小時|120/.test(t) ? 120 : /1\s*(h|hour)|一小時|60\s*min/.test(t) ? 60 : 90;
@@ -128,7 +128,10 @@ const clockIn = (text) => {
   return h <= 23 ? `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}` : null;
 };
 export async function inviteDraft(text, { near = null, now = new Date() } = {}) {
-  const it = await readIntent(String(text).slice(0, 300), [], now), i = it.intent;
+  // code reads the request first: when it can name the day, the sport, the time of day and the players come from the
+  // words too, so no model is asked and the card is back in milliseconds; Glimmer reads only what code cannot
+  const rules = ruleIntent(String(text).slice(0, 300), [], now);
+  const it = rules.days.length ? { intent: rules, by: "rules" } : await readIntent(String(text).slice(0, 300), [], now), i = it.intent;
   // the day from the words by code first (the next Saturday, tomorrow, 週六), the model's reading only when code finds none
   const day = ruleIntent(text, [], now).days[0] || i.days[0] || (() => { const d = new Date(now); d.setDate(d.getDate() + 1); return ymd(d); })();
   // a clock time the player wrote ("9:00", "7pm", "8點") wins over the part of the day's usual start
