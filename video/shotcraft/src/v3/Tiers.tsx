@@ -7,14 +7,14 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
-export const TIERS_MIN = 800;
+export const TIERS_MIN = 640;
 const L = LOOKS.serve, GREEN = L.accent;
 type Tier = { k: string; name: string; what: string; big: string; foot: string; at: number; hi?: boolean; ink?: string };
 const TIERS: Tier[] = [
-  { k: 'LAYER 0', name: 'Code', what: 'every hard rule: free times, clashes, trips', big: '7 ms', foot: "the game's card (median)", at: 120 },
-  { k: 'TINY LAYER', name: '28 KB classifier', what: 'small networks on facts code holds', big: '0.06 ms', foot: 'settles 6 in 10 ordinary choices', at: 196 },
-  { k: 'OUR MODEL', name: 'Llama 3.2 1B', what: 'distilled from 4,868 Muse Glimmer choices', big: '0.9 s', foot: 'on a CPU, when at least 0.6 sure', at: 392, hi: true },
-  { k: 'ONLY WHAT IS LEFT', name: 'Muse Glimmer 30B', what: 'on the RTX 3090, stopped early when sure', big: '20–40 s', foot: 'streamed step by step', at: 470, ink: L.ink },
+  { k: 'LAYER 0', name: 'Code', what: 'every hard rule: free times, clashes, trips', big: '7 ms', foot: "the game's card (median)", at: 150 },
+  { k: 'TINY LAYER', name: '28 KB classifier', what: 'small networks on facts code holds', big: '0.06 ms', foot: 'settles 6 in 10 ordinary choices', at: 240 },
+  { k: 'OUR MODEL', name: 'Llama 3.2 1B', what: 'distilled from 4,868 Muse Glimmer choices', big: '0.9 s', foot: 'on a CPU, when at least 0.6 sure', at: 344, hi: true },
+  { k: 'ONLY WHAT IS LEFT', name: 'Muse Glimmer 30B', what: 'on the RTX 3090, stopped early when sure', big: '20–40 s', foot: 'streamed step by step', at: 413, ink: L.ink },
 ];
 
 const Card: React.FC<{ t: Tier; x: number }> = ({ t, x }) => {
@@ -69,9 +69,9 @@ export const Tiers: React.FC = () => {
           <div style={{ fontSize: 60, fontWeight: 800, letterSpacing: '-0.035em', color: L.ink, marginTop: 6 }}>Most decisions never reach the big model</div>
         </div>
         {TIERS.map((t, i) => <Card key={t.k} t={t} x={110 + i * 440} />)}
-        <div style={{ position: 'absolute', left: 110, top: 668, fontFamily: FONT.sans, fontSize: 28, fontWeight: 650, color: L.ink2, opacity: ramp(f, 548, 12, EASE.out) }}>Agreement with Glimmer's full answer, 500 held-out cases</div>
-        <Bar who="Our 1B" v={89.5} color={GREEN} at={560} y={724} />
-        <Bar who="Glimmer, with itself" v={88.8} color="#8a8a92" at={580} y={800} />
+        <div style={{ position: 'absolute', left: 110, top: 668, fontFamily: FONT.sans, fontSize: 28, fontWeight: 650, color: L.ink2, opacity: ramp(f, 461, 12, EASE.out) }}>Agreement with Glimmer's full answer, 500 held-out cases</div>
+        <Bar who="Our 1B" v={89.5} color={GREEN} at={473} y={724} />
+        <Bar who="Glimmer, with itself" v={88.8} color="#8a8a92" at={493} y={800} />
       </Stage>
     </AbsoluteFill>
   );

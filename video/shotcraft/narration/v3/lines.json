@@ -29,11 +29,15 @@
  },
  {
   "key": "reel",
-  "text": "And as a bonus after the game, I upload a phone clip. Sapiens2 finds the fastest swing, SAM 2.1 cuts me out, and MapAnything freezes time while the camera orbits."
+  "text": "And as a bonus after the game, I upload a phone clip, and time freezes while the camera orbits."
  },
  {
   "key": "tiers",
-  "text": "When four agents negotiate, up to forty seconds a step is too slow. So code keeps every hard rule, and a 28-kilobyte classifier settles six in ten ordinary choices in 0.06 milliseconds. Then my Llama 3.2 1B, distilled from 4,868 Muse Glimmer choices, agrees with Glimmer 89.5% of the time, in 0.9 seconds, on a CPU."
+  "text": "When four agents negotiate, up to forty seconds a step is too slow. So code keeps every hard rule, and a 28-kilobyte classifier settles six in ten ordinary choices. Then my Llama 3.2 1B, distilled from Muse Glimmer, agrees with it 89.5% of the time, in 0.9 seconds on a CPU."
+ },
+ {
+  "key": "meta",
+  "text": "Serve runs on fifteen Meta models, on my GPU, a CPU and the Meta Model API, plus LlamaFirewall and Messenger."
  },
  {
   "key": "guard",

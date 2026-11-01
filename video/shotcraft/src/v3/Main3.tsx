@@ -12,6 +12,8 @@ import { Safety, SAFETY_DURATION } from '../serve/Safety';
 import { Outro, OUTRO_DURATION } from '../serve/Outro';
 import { Island, ISLAND_MIN } from './Island';
 import { WhatServe, WHAT_MIN } from './WhatServe';
+import { TitleCard, TITLE_DURATION } from './TitleCard';
+import { MetaStack, META_MIN } from './MetaStack';
 import { A2ACallout } from './A2ACallout';
 import { OpenDoor, OPEN_DOOR_MIN } from './OpenDoor';
 import { Reel, REEL_MIN } from './Reel';
@@ -41,7 +43,6 @@ export const LIVE3: Seg[] = [
 const segAt = (i: number) => LIVE3.slice(0, i).reduce((n, s) => n + Math.round(((s.to - s.from) * 30) / (s.rate ?? 1)), 0);
 const SEG = { link: segAt(3), bumper: segAt(5), plan2: segAt(7), msg: segAt(9) };
 
-const Cover: React.FC = () => <OffthreadVideo src={staticFile('clips/v3/cover.mp4')} startFrom={42} muted style={{ width: 1920, height: 1080 }} />;
 const Live: React.FC = () => (
   <AbsoluteFill>
     <LiveFrame segs={LIVE3} />
@@ -55,7 +56,7 @@ const SafetyLoop: React.FC = () => (
     <Sequence from={SAFETY_DURATION}><OffthreadVideo src={staticFile('clips/v3/loop.mp4')} startFrom={30} muted style={{ width: 1920, height: 1080 }} /></Sequence>
   </AbsoluteFill>
 );
-const OUTRO_HOLD = 45;
+const OUTRO_HOLD = 30;
 const OutroHeld: React.FC = () => {
   const p = { line1: 'Built Oct 27 – Nov 4, 2026 · github.com/gino6178/serve-meta-hackathon', line2: 'Try it: play.theminimallab.com' };
   return (
@@ -70,13 +71,14 @@ const SwarmV3: React.FC = () => <Swarm agents={177} logged={17432} counts={false
 const LIVE_DUR = liveDuration(LIVE3);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ORDER: [string, React.FC<any>, number][] = [
-  ['cover', Cover, 60],
+  ['cover', TitleCard, TITLE_DURATION],
   ['island', Island, fit('island', ISLAND_MIN)],
   ['intro', WhatServe, fit('intro', WHAT_MIN)],
   ['live', Live, LIVE_DUR],
   ['door', OpenDoor, fit('door', OPEN_DOOR_MIN)],
   ['reel', Reel, fit('reel', REEL_MIN)],
   ['tiers', Tiers, fit('tiers', TIERS_MIN)],
+  ['meta', MetaStack, fit('meta', META_MIN)],
   ['guard', Guard, fit('guard', GUARD_MIN)],
   ['swarm', SwarmV3, fit('swarm', 480)],
   ['safety', SafetyLoop, fit('safety', SAFETY_DURATION + LOOP)],
@@ -94,7 +96,7 @@ const S = SHOTS3;
 const START: Record<string, number> = {
   island: S.island.from + LEAD + 10, intro: S.intro.from + LEAD, sentence: S.live.from + 14, sentence2: S.live.from + SEG.link + 6,
   a2a: S.live.from + SEG.bumper + 12, messenger: S.live.from + SEG.msg + 8, door: S.door.from + LEAD, reel: S.reel.from + LEAD,
-  tiers: S.tiers.from + LEAD, guard: S.guard.from + LEAD, swarm: S.swarm.from + LEAD + 20, safety: S.safety.from + LEAD, outro: S.outro.from + 40,
+  tiers: S.tiers.from + LEAD, meta: S.meta.from + LEAD, guard: S.guard.from + LEAD, swarm: S.swarm.from + LEAD + 20, safety: S.safety.from + LEAD, outro: S.outro.from + 40,
 };
 
 type Cue = { from: number; src: string; volume: number; dur?: number; note: string };
@@ -121,8 +123,11 @@ export const SFX3: Cue[] = [
   { from: S.door.from + 214, src: 'switch-click-quick', volume: 0.55, note: '403 lands' },
   { from: S.door.from + 280, src: 'swoosh-quick', volume: 0.35, note: 'the friends card' },
   { from: S.reel.from, src: 'transition-soft', volume: 0.38, note: 'into the reel' },
-  { from: S.reel.from + 201, src: 'whoosh-fast', volume: 0.3, note: 'the clip' },
-  ...[120, 196, 392, 470].map((o, i) => ({ from: S.tiers.from + o, src: 'swoosh-quick', volume: 0.3, note: `tier ${i + 1}` })),
+  { from: S.reel.from + 150, src: 'whoosh-fast', volume: 0.3, note: 'the clip' },
+  { from: S.cover.from + 12, src: 'whoosh-fast', volume: 0.3, note: 'the mark draws' },
+  ...[150, 240, 344, 413].map((o, i) => ({ from: S.tiers.from + o, src: 'swoosh-quick', volume: 0.3, note: `tier ${i + 1}` })),
+  { from: S.meta.from, src: 'transition-soft', volume: 0.34, note: 'built on Meta' },
+  ...[0, 1, 2, 3].map((i) => ({ from: S.meta.from + 14 + i * 26, src: 'swoosh-quick', volume: 0.26, note: `column ${i + 1}` })),
   { from: S.guard.from + 196, src: 'pop', volume: 0.45, note: 'refused' },
   { from: S.guard.from + 270, src: 'sparkle', volume: 0.32, dur: 60, note: 'fixed' },
   { from: S.swarm.from, src: 'transition-soft', volume: 0.35, note: 'into the swarm' },
