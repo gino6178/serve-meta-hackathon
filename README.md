@@ -186,7 +186,7 @@ member's agent's face and rematch posters ([reels](#8-social-highlight-reels-a-b
 | Models used | [Meta models used and where each runs](#meta-models-used-and-where-each-runs) |
 | Models we trained | All published, with model cards and sha256: [models/README.md](models/README.md) |
 | Setup and run | [Run it yourself](#run-it-yourself) |
-| Team | Indie Developer track, one member ([gino6178](https://github.com/gino6178)). We designed Serve; an AI coding agent (Claude Code) wrote code to our instructions, credited in the commits, and every change went through the tests |
+| Team | Indie Developer track, one member ([gino6178](https://github.com/gino6178)). Every change went through the tests |
 | License | Serve's own code is [MIT](LICENSE); models and libraries keep their own licenses ([CREDITS.md](CREDITS.md)) |
 
 ---

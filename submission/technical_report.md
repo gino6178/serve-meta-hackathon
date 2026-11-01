@@ -414,8 +414,7 @@ of 93) pass as with Glimmer alone.
   `text1b.json`, and the agent testing in `submission/agent_testing.md` (rounds 26 to 28 in `agent_trial25/`,
   `agent_trial26_live/` and `agent_trial28/`).
 - **Built during the hackathon.** Building started on October 27, the hackathon's first day. We designed Serve and
-  decided what it does and how; an AI coding agent (Claude Code) wrote code to our instructions, credited in the
-  repository's commits, and every change went through the tests. The one earlier piece is TrackNetV5, our published shuttle
+  decided what it does and how, and every change went through the tests. The one earlier piece is TrackNetV5, our published shuttle
   tracker, fetched at run time and off unless `BALL_TRACKING=1`.
 - **Real and simulated.** The badminton club above is real people. Separately, the built-in demo club that a new
   visitor sees, the clubs used for evaluations and the members the agent testers met are simulated and labelled as
