@@ -337,6 +337,11 @@ can do.
   checks are in 2.1. Prompt Guard 2 now reads every post and comment first, before Llama Guard 3 and code.
 - **A signed record of every yes.** Each consent is appended to a log in which every entry is signed and carries the
   hash of the one before, so a yes cannot be changed or removed afterwards without it showing.
+- **De-identification.** What leaves a person's own agent is de-identified first, by code. On the public trust chain a
+  person is an HMAC pseudonym and others see only words; the area they play from is rounded to about 1 km; another
+  agent gets a likelihood band, never the calendar, and every question is charged to a disclosure budget, so an agent
+  that keeps asking learns at most 24 of 112 weekly hours in 28 days; what groups paid at a venue and what players said
+  about it carry no name or club. A sign-in provider's id is kept only as a hash.
 - **No-shows, with no money.** A player's show-up record fades with a 60-day half-life and is shown as a range in
   words, never a score; a game short of its minimum players is called off 3 hours before; a freed spot is offered to
   the waitlist with 12 hours to confirm.
@@ -364,6 +369,27 @@ A sports centre has an A2A agent of its own (`venues/agent.js`), with a signed A
   card checked out, every quote was signed, and the talk went from NT$320 to the venue's floor, NT$290.
 - **No money moves**: prices are samples until a venue joins, and nothing is paid in the app. Tests:
   `agent/test/venue_agent_unit.mjs`.
+- **Checking the place before booking.** The game page has a short report on the place: its Google rating, review
+  points each quoted word for word from one review (Prompt Guard 2 first, then Muse Glimmer, then a code check), its
+  prices and what groups paid there, and what Serve players said after playing there. A player's own agent asks
+  them once after a game; only players of a game agreed at the place can answer, and the marks go on the trust chain
+  under their pseudonym. Tests: `agent/test/venue_report_unit.mjs`, `agent/test/venue_notes_unit.mjs`.
+
+### 2.9 Memory: retrieval-augmented generation (RAG)
+
+A plan has to follow what a person told their agent weeks ago ("leave Tomás out for a while"). Their own words and
+code-made facts are kept as short dated notes, embedded with Meta's DRAMA on the server's CPU; the notes closest to
+the planner's question go in front of Muse Glimmer as facts. Nothing another agent or a review wrote becomes a note.
+For Pace, each limit cites the notes it comes from and code checks the citations, so retrieval explains and orders
+what the agent knows but cannot add a rule.
+
+| Retrieval (20 planning questions among 60 notes) | Right note first | In the top 3 | MRR |
+|---|---|---|---|
+| DRAMA (Meta) | 60% | 75% | 0.696 |
+| Granite embedding 278M | 40% | 80% | 0.587 |
+| BM25 (words) | 35% | 45% | 0.422 |
+
+With memory on, the planner kept what the person said in 3 of 3 runs of that week; with it off, in 0 of 3.
 
 ## 3. Meta models and tools
 

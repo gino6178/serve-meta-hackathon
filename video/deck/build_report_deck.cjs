@@ -63,7 +63,7 @@ async function img(file, width = 1800) {
   const FLOW = path.join(SHOTS, "flow_four.png");
   const P = { invite: await crop(FLOW, 0, 590, 885), agents: await crop(FLOW, 625, 590, 885), messenger: await crop(FLOW, 1880, 436, 885) };
   // the main slides are tagged and put first, in this order; every untagged slide follows as the appendix
-  const MAIN = ["cover", "pain", "solution", "club", "models", "surprises", "tiers", "distill", "a2a", "ranking", "habit", "venue", "reels", "testing", "security", "community", "roadmap", "appendix"];
+  const MAIN = ["cover", "pain", "solution", "club", "models", "surprises", "tiers", "distill", "a2a", "ranking", "habit", "venue", "memory", "reels", "testing", "security", "community", "roadmap", "appendix"];
   const KEYS = [];
   let nextKey = null;
   const addSlide = pres.addSlide.bind(pres);
@@ -279,6 +279,22 @@ async function img(file, width = 1800) {
   box(s, M + 8.1, 5.7, 4.0, 0.75, "A real venue can plug in", "its own A2A agent, approved by the maintainer", HEX.card);
   foot(s, "venues/agent.js, members/split.js, agent/test/venue_agent_unit.mjs. Prices are samples until a venue joins; nothing is paid in Serve.");
   note(s, "Each round the group sends back the venue's last quote and the venue checks its own signature on it, so neither side can make up an earlier price. Only players who ticked 'cover more' pay above an equal share.");
+
+  // 11d. memory by RAG, and what leaves a person's agent de-identified (memory/memory.js, body/context.js, members/trust.js)
+  nextKey = "memory";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "The agent remembers by retrieval; what leaves it is de-identified");
+  multi(s, pres.charts.BAR, [{ name: "right note first", labels: ["DRAMA (Meta)", "Granite 278M", "MiniLM L12", "BM25"], values: [60, 40, 35, 35] }, { name: "in the top 3", labels: ["DRAMA (Meta)", "Granite 278M", "MiniLM L12", "BM25"], values: [75, 80, 50, 45] }],
+    { x: M, y: 1.35, w: 6.1, h: 3.6, colors: [HEX.green, "C9CCD1"], values: true, hideVal: true, max: 100, title: "RAG: 20 planning questions, 60 notes (%)" });
+  stat(s, M, 5.1, 2.95, "3 of 3", "runs kept what was said, memory on", HEX.green, { size: 30, h: 1.3 });
+  stat(s, M + 3.15, 5.1, 2.95, "0 of 3", "runs, memory off", HEX.red, { size: 30, h: 1.3 });
+  card(s, M + 6.5, 1.4, 5.6, 5.0);
+  s.addText("De-identified before anyone else sees it", { isTextBox: true, x: M + 6.75, y: 1.55, w: 5.1, h: 0.4, fontSize: 15, bold: true, color: HEX.ink, margin: 0 });
+  [["A pseudonym on the chain", "an HMAC under the server's secret; others see words, never counts"], ["An area, not an address", "rounded to about 1 km; others learn only the trip in km"], ["A band, not a calendar", "worked out on the person's side; at most 24 of 112 weekly hours in 28 days"], ["Prices and venue notes", "the date, the price, how many played: no name, no club"]].forEach(([h, d], i) => {
+    box(s, M + 6.75, 2.1 + i * 1.05, 5.1, 0.9, h, d, "FFFFFF");
+  });
+  foot(s, "memory/memory.js, body/context.js (RAG: DRAMA on the CPU, each Pace limit cites its notes and code checks them); members/trust.js, privacy.txt. submission/results/memory_eval.json, memory_embedders.json, privacy_probe.json.");
+  note(s, "Retrieval-augmented generation: the person's own words and code-made facts are embedded with Meta's DRAMA, and the closest notes go to Glimmer as facts. Nothing another agent wrote becomes a note. De-identification is done by code before data leaves the person's agent.");
 
   // 12. testing, one page
   nextKey = "testing";

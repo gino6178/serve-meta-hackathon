@@ -83,6 +83,13 @@ step of getting a game together, so you only say yes once:
 - **Intelligent compute cascade (1B model distillation).** To overcome latency, a fine-tuned Meta Llama 3.2 1B student
   model runs on the server's CPU (about 0.9 s), handling routine decisions; in talks with the simulated club it cut
   heavy calls to Muse Glimmer, which reasons through complex constraints, by 54–67%.
+- **Retrieval-augmented generation (RAG) for the agent's memory.** What a person told their agent weeks ago ("leave
+  Tomás out for a while") is kept as short notes, embedded with Meta's DRAMA on the server's CPU; the notes closest to
+  the planner's question go in front of Muse Glimmer as facts, each cited and checked
+  ([§12](#12-memory-retrieval-augmented-generation-rag)).
+- **De-identification by design.** A person's data is de-identified before anyone else's agent or the public record
+  sees it: an HMAC pseudonym on the trust chain, an area rounded to about 1 km, likelihood bands instead of a calendar,
+  and prices and venue notes with no name or club ([§6](#6-security-rule-of-two-two-guards-de-identification-a-signed-consent-chain)).
 - **Safety and guardrails.** Implements Meta's Agents Rule of Two and a disclosure budget, alongside Llama Guard 3 and
   Prompt Guard 2 to screen messages, reviews and community ideas against prompt injections and privacy leaks (stopping
   93 of 93 red-teamed attacks).
@@ -185,7 +192,7 @@ community decisions, project operations and beyond.
 - **Glimmer read in one token**: with no chat template, Glimmer's next token gives a probability for each option, so a
   one-pass decider gets its choice in 0.53 s with no reasoning.
 - **Llama Guard 3 and Prompt Guard 2** screen everything untrusted, under Meta's **Agents Rule of Two**
-  ([security](#6-security-rule-of-two-two-guards-a-signed-consent-chain)).
+  ([security](#6-security-rule-of-two-two-guards-de-identification-a-signed-consent-chain)).
 - **The Meta Model API where it helps**: Muse Voice Transcribe for live full-duplex voice, Muse Spark 1.3 for very
   long calls and as a fallback, Muse Image for agents' faces and posters, SAM 3.1 to cross-check SAM 2.1, and Muse
   Wonder to judge 3D replay frames ([Meta models used](#meta-models-used-and-where-each-runs)).
@@ -221,6 +228,11 @@ community decisions, project operations and beyond.
 - **A venue's own agent and a fair split**: every quote signed by the venue's key and checked; the group's agent
   never offers past what the players' limits cover, and no one pays past their own limit
   ([§11](#11-a-venues-own-agent-and-a-fair-split)).
+- **RAG over the agent's memory**: DRAMA finds the right note first for 60% of planning questions (BM25 35%), MRR
+  0.696 against 0.422; with memory the planner kept what the person said in 3 of 3 runs, without it in 0 of 3
+  ([§12](#12-memory-retrieval-augmented-generation-rag)).
+- **De-identification**: pseudonyms, rounded areas, bands and a disclosure budget, so an agent that keeps asking
+  learns at most 24 of 112 weekly hours in 28 days ([§6](#6-security-rule-of-two-two-guards-de-identification-a-signed-consent-chain)).
 - **A report on the place before booking**: its rating, review points each quoted word for word from one review, its
   prices and what groups here paid ([§11](#11-a-venues-own-agent-and-a-fair-split)).
 
@@ -437,13 +449,27 @@ A SecAlign++ DPO step cut injected passes further but blocked ordinary comments,
 
 ![A 1B distilled for short text resists attacks it never saw](docs/readme/slide_text1b.png)
 
-## 6. Security: Rule of Two, two guards, a signed consent chain
+## 6. Security: Rule of Two, two guards, de-identification, a signed consent chain
 
 - **The Agents Rule of Two** (Meta): no agent or pipeline stage holds untrusted input, private data and the power to
   act at once.
 - **Two guards, layer by layer.** Untrusted text (posts, comments, reviews, wishes) passes **Prompt Guard 2** first,
   then **Llama Guard 3**, then code checks (numbers, names, links), and only then a model that never acts on it.
 - **93 of 93 attack cases stopped**, named by OWASP LLM Top 10 risk (`submission/results/redteam_93.log`).
+- **De-identification.** What leaves a person's own agent is de-identified first, by code, not by a model:
+  - **On the public trust chain** a person is an HMAC pseudonym under the server's secret (`members/trust.js`
+    `subject`), and others see only words ("shows up likely 72-98%", "new"), never a count of games.
+  - **Where they play from** is rounded to about 1 km (two decimals of latitude and longitude), never an address;
+    other agents learn only the trip in km to a court both would use.
+  - **Their calendar never leaves.** A calendar file is read for busy times only, never titles; another agent asking
+    "how likely is a yes" gets a band (unlikely, maybe, likely, very likely), worked out on the person's side, and
+    every question is charged to a disclosure budget: an agent that keeps asking learns at most 24 of 112 weekly hours
+    in 28 days (`submission/results/privacy_probe.json`).
+  - **What groups paid and what players said about a place** carry no name or club: a venue's report shows the date,
+    the price and how many played, and players' marks go on the chain under their pseudonym.
+  - **A sign-in provider's id** is kept only as a hash, and no provider token is kept. Leaving deletes the account,
+    its posts and its agents; the chain gets a "left" entry and that pseudonym's records stop counting.
+  - What is kept and who sees it: https://play.theminimallab.com/privacy.txt.
 - **A signed record of every yes.** Each consent is appended to a log in which every entry is signed and carries the
   hash of the one before, so a yes cannot be changed or removed afterwards without it showing.
 - **No-shows, with no money.** A show-up record fades with a 60-day half-life and is shown as a range in words, never
@@ -610,6 +636,34 @@ Tests: `agent/test/venue_notes_unit.mjs` (once per game, the marks on the chain 
 out, an unchecked note kept back) and `agent/test/venue_report_unit.mjs` (a made-up quote, a link, an unseen number and a pronoun all dropped; the
 rules that stand in for the model; prices, what groups paid and the headline).
 
+## 12. Memory: retrieval-augmented generation (RAG)
+
+A plan has to follow what a person told their agent weeks ago ("leave Tomás out for a while"), which no calendar
+holds. Serve's agents use retrieval-augmented generation over their own memory:
+
+- **The notes.** The person's own words to their agent and code-made facts (games played, how talks went), as short
+  dated notes (`agent/src/memory/memory.js`). Nothing another agent or a review wrote becomes a note, so retrieval
+  can't be used to plant an instruction. `/forget` deletes them.
+- **Retrieval.** Each note is embedded with Meta's **DRAMA** (drama-base, 768 dimensions) on the server's CPU; the
+  planner's question is embedded the same way, and the closest notes go in front of Muse Glimmer as facts. Without
+  the embedder, BM25 over the same notes keeps recall working by words; `MEMORY_RANK=hybrid` fuses the two.
+- **Grounded, not obeyed.** For Pace (`agent/src/body/context.js`) each note's score fades with its age, and every
+  scheduling limit the planner keeps cites the notes it comes from, by id; code checks each citation. A limit is
+  still decided by code from the records, so retrieval can explain and order what the agent knows but cannot add a
+  rule.
+
+| Retrieval (20 planning questions, each answered by one note worded differently, among 60 notes) | Right note first | In the top 3 | MRR |
+|---|---|---|---|
+| **DRAMA** (Meta, CC BY-NC 4.0) | **60%** | 75% | **0.696** |
+| Granite embedding 278M (Apache 2.0) | 40% | 80% | 0.587 |
+| MiniLM L12 multilingual (Apache 2.0) | 35% | 50% | 0.467 |
+| BM25 (words) | 35% | 45% | 0.422 |
+
+End to end: in the planned week where the person had said to leave Tomás out, the planner kept it in **3 of 3** runs
+with memory on and **0 of 3** with it off, each run with members' agents answering over A2A
+(`submission/results/autopilot_eval_memory_on_summary.json`, `..._memory_off_summary.json`; `memory_eval.json`,
+`memory_embedders.json`).
+
 ## Real-world use
 
 During the hackathon **more than 10 people from a badminton club** tried Serve, and of the **3 game invites** sent
@@ -630,7 +684,7 @@ evaluations and the members the agent testers met are simulated and labelled as 
   of calls came back empty. Every call now asks for `think: "low"` with 900 tokens of room.
 - **A 1B student agrees with Glimmer as often as Glimmer agrees with itself** (89.5% against 88.8%).
 - **Glimmer can decide in one token** (0.53 s, no reasoning), but mostly by reading the order of the list.
-- **Llama Guard 3 refused a club name as a threat**, fixed as described in [security](#6-security-rule-of-two-two-guards-a-signed-consent-chain).
+- **Llama Guard 3 refused a club name as a threat**, fixed as described in [security](#6-security-rule-of-two-two-guards-de-identification-a-signed-consent-chain).
 
 ---
 
@@ -804,7 +858,8 @@ technical report or our research notes cite it; where we could not tie a method 
   Thompson-sampled send gate with a burden cost, under a weekly cap.
 - **Preference records** (`memory/prefs.js`). Following Mem0 ([arXiv 2504.19413](https://arxiv.org/abs/2504.19413))
   and PersonaMem ([arXiv 2504.14225](https://arxiv.org/abs/2504.14225)), typed, dated records where the newest wins.
-- **Memory by meaning** (`memory/`): DRAMA vectors over short notes, `/forget` deletes them.
+- **Memory by meaning, retrieval-augmented generation** (`memory/`, `body/context.js`): DRAMA vectors over short
+  notes, the closest put in front of the model as cited facts; `/forget` deletes them.
 - **Tool calls checked after the schema** (`core/toolcheck.js`). Following JSONSchemaBench
   ([arXiv 2501.10868](https://arxiv.org/abs/2501.10868)) and ReliabilityBench
   ([arXiv 2601.06112](https://arxiv.org/abs/2601.06112)), typed semantic checks, bounded repair and read-back.
