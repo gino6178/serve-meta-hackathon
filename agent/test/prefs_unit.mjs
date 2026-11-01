@@ -9,6 +9,7 @@
 //     a belief a newer note contradicts is dropped, and so is an overruled note from the model's facts
 //   - a member's taste: a stated "no" is a hard no, a newer "yes" answer overrules it
 import { test, after } from "node:test";
+import { readSealed } from "../src/core/jsonfile.js";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -108,7 +109,7 @@ test("a member's agent: a stated no is a hard no, a newer yes answer overrules i
   assert.equal(P.prefsBreak({ id: "kenji" }, { slot: { day: "Sat" }, start: 19 * 60 }), null);
   // the taste file never holds the records
   taste.reply("kenji", o, true);
-  assert.equal(JSON.parse(fs.readFileSync(`${tmp}/taste.json`, "utf8")).members.kenji.said, undefined);
+  assert.equal(readSealed(`${tmp}/taste.json`).members.kenji.said, undefined);
   assert.equal(taste.hardNo(taste.get("kenji"), o), null, "the newer yes overrules the older no");
   assert.equal(P.prefsBreak({ id: "kenji" }, { slot: { day: "Fri" }, start: 19 * 60 }), null);
   assert.ok(taste.view(taste.get("kenji")).said.some((r) => r.status === "superseded" && r.text === "no Friday evenings"));

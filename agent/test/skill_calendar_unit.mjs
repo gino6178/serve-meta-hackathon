@@ -2,6 +2,7 @@
 // and an existing calendar read into free times (members/calendar.js, POST /api/members/calendar/ics). No model.
 //   node --test test/skill_calendar_unit.mjs
 import { test } from "node:test";
+import { readSealed } from "../src/core/jsonfile.js";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -260,7 +261,7 @@ test("ics privacy: titles, descriptions, places and attendees never leave the pa
   assert.equal(saved.code, 200);
   assert.ok(T.get(member.id).windows.some((w) => w.from === "18:00" && w.days.includes("Mon")));
   assert.doesNotMatch(JSON.stringify(saved.body), words);
-  assert.doesNotMatch(fs.readFileSync(process.env.TASTE_FILE, "utf8"), words, "the stored limits hold only times");
+  assert.doesNotMatch(JSON.stringify(readSealed(process.env.TASTE_FILE)), words, "the stored limits hold only times"); // opened: base64 can spell a word by chance
   assert.equal((await call("/api/members/calendar/ics", { ics: 5 })).code, 400);
   // and a result: casual is never held; a competitive one waits for the other side
   const { member: bo } = M.demo("Bo Lin");

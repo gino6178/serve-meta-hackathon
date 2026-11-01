@@ -7,6 +7,7 @@
 //   - the Autopilot: faulty calls refused typed and repaired, a silent failure caught by its postcondition and reported
 //     as a failure (error.type postcondition_failed), never as success
 import { test, after } from "node:test";
+import { readSealed } from "../src/core/jsonfile.js";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -145,6 +146,6 @@ test("a silent failure: the approval reported sent but not saved is caught, repo
   const off = await autopilot.run({ goal: { perWeek: 1 }, now, player: "unit-silent-off" });
   autopilot.faults.silent = null; Object.assign(model.asked.faults.rates, rates); delete process.env.TOOL_CHECKS;
   assert.ok(off.approval, "the run believes it asked");
-  assert.equal(JSON.parse(fs.readFileSync(process.env.AUTOPILOT_FILE, "utf8")).pending[off.id], undefined, "but nothing is on disk");
+  assert.equal(readSealed(process.env.AUTOPILOT_FILE).pending[off.id], undefined, "but nothing is on disk");
   for (const g of [...r.agreed, ...off.agreed]) play.release(g.hold);
 });

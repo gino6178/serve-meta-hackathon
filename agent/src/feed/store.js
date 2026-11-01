@@ -8,6 +8,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { parse, storeOf } from "../core/jsonfile.js";
+import * as crypt from "../core/crypt.js";
 
 export const file = () => path.resolve(process.env.FEED_FILE || "data/feed.json");
 export const mediaDir = () => path.resolve(process.env.FEED_MEDIA_DIR || path.join(path.dirname(file()), "feed_media"));
@@ -18,7 +20,7 @@ function load() {
   const f = file();
   if (!fs.existsSync(f)) return blank();
   try {
-    const j = JSON.parse(fs.readFileSync(f, "utf8"));
+    const j = parse(fs.readFileSync(f, "utf8"), f);
     return { ...blank(), ...j, papers: { ...blank().papers, ...(j.papers || {}) } };
   } catch (e) {
     const aside = `${f}.unreadable-${Date.now()}`;
@@ -36,7 +38,7 @@ export function save() {
   const f = file();
   fs.mkdirSync(path.dirname(f), { recursive: true });
   const tmp = `${f}.${process.pid}.${crypto.randomBytes(3).toString("hex")}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(data()));
+  fs.writeFileSync(tmp, JSON.stringify(crypt.encryptOn() ? crypt.seal(data(), storeOf(f)) : data()));
   fs.renameSync(tmp, f);
 }
 // change the feed and keep it

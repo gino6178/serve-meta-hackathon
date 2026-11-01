@@ -10,6 +10,7 @@ import path from "node:path";
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vreport-"));
 delete process.env.GOOGLE_MAPS_API_KEY;
 process.env.PLACES_FILE = path.join(tmp, "places.json");
+process.env.DP = "off"; // exact counts here; dp_unit checks the noisy ones
 const R = await import("../src/venues/report.js");
 const hall = { id: "osm:way/7", name: "Riverside Hall", kind: "venue", sport: "badminton", list: 300, lat: 25.0, lon: 121.5, sample: true };
 const reviews = [

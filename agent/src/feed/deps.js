@@ -3,6 +3,7 @@
 // community loop's count-only signals, and the club's data.
 import * as members from "../members/members.js";
 import fs from "node:fs";
+import { parse } from "../core/jsonfile.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as guard from "../safety/guard.js";
@@ -58,7 +59,7 @@ const defaults = {
   // the players on this server and their calendars (whose booked game a recap is)
   players: () => store.players(),
   // the games on the book, as play.js keeps them (read only)
-  bookings: () => { try { return JSON.parse(fs.readFileSync(path.resolve(process.env.BOOKINGS_FILE || "data/bookings.json"), "utf8")).bookings || []; } catch { return []; } },
+  bookings: () => { try { const f = path.resolve(process.env.BOOKINGS_FILE || "data/bookings.json"); return parse(fs.readFileSync(f, "utf8"), f).bookings || []; } catch { return []; } },
   // Muse Glimmer looking at a photo a member wants to post (base64 JPEG): { verdict, describe, text } or { verdict: null }
   see,
   // the highlight pipeline on the GPU (reel.js: DETR, Sapiens2, SAM 2.1), loaded when first needed

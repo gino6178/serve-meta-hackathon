@@ -9,6 +9,8 @@
 //   Prices: the venue agent's list price for 90 minutes and the range its floor moves through over the coming week
 //   (members/deals.js terms: samples until the venue joins Serve), and the prices groups agreed there (huddle.js
 //   pastAt: the date, the price and how many played; never who, or which club).
+//   Differential privacy (core/dp.js): the counts of games agreed, played and called off get Laplace noise, and the
+//   prices groups paid and the list of past games are shown only once at least DP_MIN_GROUP games were agreed there.
 //   The headline and the summary lines are built by code from those facts, never written by a model.
 import crypto from "node:crypto";
 import * as D from "../members/deals.js";
@@ -18,6 +20,7 @@ import { chatJSON } from "../core/llm.js";
 import { VENUE_NOTES } from "../core/schema.js";
 import { okNums, allowedIn } from "../a2a/talk.js";
 import * as VN from "./notes.js";
+import * as dp from "../core/dp.js";
 
 const C = D.CURRENCY, HOUR = 3600e3;
 const norm = (t) => String(t).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
@@ -67,12 +70,12 @@ export function pricesOf(place, { now = new Date() } = {}) {
   return { list: D.terms(place, grid[0].date, grid[0].start).list, low: Math.min(...floors), high: Math.max(...floors), sample: !!place.sample };
 }
 
-export function pastOf(games) {
-  const paid = games.filter((g) => g.price > 0 && g.state !== "called off");
+export function pastOf(games, place = "") {
+  const paid = games.filter((g) => g.price > 0 && g.state !== "called off"), count = (n, what) => dp.noisyCount(n, `venue-past|${place}|${what}`);
   return {
-    games: games.slice(0, 6),
-    agreed: games.length, played: games.filter((g) => g.state === "played").length, calledOff: games.filter((g) => g.state === "called off").length,
-    ...(paid.length ? { low: Math.min(...paid.map((g) => g.price)), high: Math.max(...paid.map((g) => g.price)), median: median(paid.map((g) => g.price)), each: median(paid.map((g) => g.each)), off: median(paid.map((g) => g.off)) } : {}),
+    games: dp.enough(games.length) ? games.slice(0, 6) : [],
+    agreed: count(games.length, "agreed"), played: count(games.filter((g) => g.state === "played").length, "played"), calledOff: count(games.filter((g) => g.state === "called off").length, "off"),
+    ...(paid.length && dp.enough(paid.length) ? { low: Math.min(...paid.map((g) => g.price)), high: Math.max(...paid.map((g) => g.price)), median: median(paid.map((g) => g.price)), each: median(paid.map((g) => g.each)), off: median(paid.map((g) => g.off)) } : {}),
   };
 }
 
@@ -111,7 +114,7 @@ export async function report(place, { games = [], now = new Date() } = {}) {
   if (reviews.length) { const gd = await guard.injected(reviews.map((r) => r.text)); const ok = reviews.filter((r, i) => !gd[i]?.injected); leftOut = reviews.length - ok.length; reviews = ok; }
   const notes = await notesOf(place, reviews);
   const rating = g?.rating != null ? { stars: g.rating, count: g.ratings, url: g.url || null } : null;
-  const prices = pricesOf(place, { now }), past = pastOf(games), players = VN.of(place.id);
+  const prices = pricesOf(place, { now }), past = pastOf(games, place.id), players = VN.of(place.id);
   // a quoted review goes back with its author and stars; only the ones a point quotes
   const withReview = (x) => { const r = reviews.find((y) => y.n === x.review); return { ...x, stars: r?.stars ?? null, when: r?.when || null, author: r?.author || "A Google user", authorUrl: r?.authorUrl || null }; };
   const v = {

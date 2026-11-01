@@ -18,6 +18,7 @@
 // `player` is "app" (the app's own player, the default) or a chat linked on Messenger; any other id is not found.
 import * as privacy from "../safety/privacy.js";
 import * as memory from "../memory/memory.js";
+import * as conv from "../memory/conversation.js";
 import * as prefs from "../memory/prefs.js";
 import * as prefsOf from "../memory/prefs_of.js";
 import * as safety from "../safety/safety.js";
@@ -33,7 +34,7 @@ const AUDIO = /^(audio|video)\/(webm|ogg|wav|x-wav|wave|mp4|mpeg|aac|x-m4a)\b/i,
 const capped = (req, max) => new Promise((ok) => { const parts = []; let n = 0; req.on("data", (c) => { n += c.length; if (n <= max) parts.push(c); }); req.on("end", () => ok(n > max ? null : Buffer.concat(parts))); req.on("error", () => ok(null)); });
 const linked = (p) => (!p || p === "app" ? "app" : store.get(String(p)) ? String(p) : null);
 // with the preferences read from those notes (memory/prefs.js): current first, then superseded, ended and expired
-const notesOf = (who) => ({ player: who, notes: memory.list(who), on: memory.memoryOn(), finds: memory.how(), prefs: prefsOf.view(who) });
+const notesOf = (who) => ({ player: who, notes: memory.list(who), on: memory.memoryOn(), finds: memory.how(), prefs: prefsOf.view(who), conversation: conv.view(who) });
 const FALLBACK = "I can't answer that one here. Ask me about your games, your week or what hurts, and I'll plan around it.";
 
 // the app's question to its agent (answer.js, POST /api/agent/answer { text, you }), past the same guards as a
@@ -90,7 +91,7 @@ export async function route(req, res, u, { json, bodyOf, o }) {
   if (p === "/api/memory/forget" && post) {
     const b = await bodyOf(req), who = linked(b.player);
     if (!who) return send(404, { error: "no such player" });
-    memory.forget(who); prefs.forget(who);
+    memory.forget(who); prefs.forget(who); conv.forget(who);
     return send(200, notesOf(who));
   }
   if (p === "/api/safety") {

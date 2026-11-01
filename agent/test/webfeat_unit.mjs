@@ -10,6 +10,7 @@
 //   - the app's voice input (POST /api/asr): token, type, size and language checks, and a recording through ffmpeg
 //     to a stand-in speech worker, with its row in the ledger and no words in it
 import { test, after } from "node:test";
+import { readSealed } from "../src/core/jsonfile.js";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -255,7 +256,7 @@ test("a build that stops, or a gate that fails, says why and leaves the proposal
   assert.equal(builds.start("P-999").code, 404);
   // a build cut off by a restart says so, and its proposal can be built again
   proposal("P-106", { status: "building" });
-  const f = path.join(process.env.LOOP_DIR, "builds.json"), d = JSON.parse(fs.readFileSync(f, "utf8"));
+  const f = path.join(process.env.LOOP_DIR, "builds.json"), d = readSealed(f);
   d["P-106"] = { proposal: "P-106", status: "building", attempts: [], reasons: [] }; fs.writeFileSync(f, JSON.stringify(d));
   const fresh = await import(`../src/loop/builds.js?again=${Date.now()}`);
   assert.equal(fresh.get("P-106").status, "stopped"); assert.match(fresh.get("P-106").reasons.at(-1), /gateway stopped/);

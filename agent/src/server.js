@@ -2,6 +2,7 @@
 // agent in Facebook Messenger (webhook /webhook/messenger) with its reminders and check-ins, and the club members'
 // agents over A2A. Configure in .env (see .env.example).
 import fs from "node:fs";
+import { readSealed } from "./core/jsonfile.js";
 import http from "node:http";
 import crypto from "node:crypto";
 import path from "node:path";
@@ -402,7 +403,7 @@ setInterval(() => { remind().catch(() => {}); lifeTick().catch(() => {}); nightl
 
 // ---- the community loop (docs/community_loop.md) ----
 // the maintainer's token (MAINTAINER_TOKEN), for deciding proposals and rolling flags back; without one, nobody can
-const MAINTAINER = ["/api/venues/agents", "/api/loop/decide", "/api/loop/rollback", "/api/feed/papers/run", "/api/feed/reports", "/api/feed/reports/media", "/api/feed/moderate", "/api/feed/audit", ...webapi.MAINTAINER];
+const MAINTAINER = ["/api/data/lifecycle", "/api/venues/agents", "/api/loop/decide", "/api/loop/rollback", "/api/feed/papers/run", "/api/feed/reports", "/api/feed/reports/media", "/api/feed/moderate", "/api/feed/audit", ...webapi.MAINTAINER];
 function maintainer(req) {
   const t = String(process.env.MAINTAINER_TOKEN || "").trim(), m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || "");
   if (!t || !m) return false;
@@ -424,7 +425,7 @@ function loopDecide(id, decision, note) {
 function loopFlags() {
   let list = [];
   if (!loopParts.stubs.includes("flags")) { try { list = loopParts.flags.list() || []; } catch { /* none yet */ } }
-  else try { list = JSON.parse(fs.readFileSync(process.env.LOOP_FLAGS_FILE || `${loopSignals.DIR}/flags.json`, "utf8")); } catch { /* none yet */ }
+  else try { list = readSealed(process.env.LOOP_FLAGS_FILE || `${loopSignals.DIR}/flags.json`); } catch { /* none yet */ }
   const rows = Array.isArray(list) ? list : Object.entries(list).map(([key, v]) => ({ key, ...v }));
   // (the beta list as a count, never the HMACs)
   return Object.fromEntries(rows.filter((f) => f && f.key).map((f) => { let history = []; try { history = loopParts.flags.history(f.key) || []; } catch { /* none */ } return [f.key, { ...f, beta: Array.isArray(f.beta) ? f.beta.length : f.beta ?? 0, history }]; }));
@@ -438,6 +439,14 @@ async function loopTick(now = new Date()) {
   try { await llmPriority("background", () => loopCycle.cycle()); } finally { loopDone.busy = false; }
 }
 setInterval(() => { loopTick().catch(() => {}); }, 60000);
+// a minute after start and once a day: purge what is past its retention, and a sealed backup when BACKUP_DIR is set (core/lifecycle.js)
+const lifecycle = await import("./core/lifecycle.js");
+async function dataLifecycle() {
+  const purged = await lifecycle.purge({ people: ["app", ...store.players().map((p) => p.id)] });
+  return { purged, backup: process.env.BACKUP_DIR ? lifecycle.backup() : null };
+}
+if (+(process.env.LIFECYCLE_HOURS ?? 24) > 0) setTimeout(() => { dataLifecycle().then((r) => console.log("data lifecycle", JSON.stringify(r))).catch((e) => console.error("data lifecycle", e.message)); }, 60000).unref();
+if (+(process.env.LIFECYCLE_HOURS ?? 24) > 0) setInterval(() => { dataLifecycle().then((r) => console.log("data lifecycle", JSON.stringify(r))).catch((e) => console.error("data lifecycle", e.message)); }, +(process.env.LIFECYCLE_HOURS ?? 24) * 3600e3).unref();
 setInterval(() => { if (process.env.LOOP_WATCH !== "off") loopCycle.watch().catch(() => {}); }, 5 * 60000);
 
 // Messenger's webhook: Meta checks it once with a GET, then signs every POST with the app secret
@@ -636,6 +645,8 @@ const gateway = http.createServer(async (req, res) => {
     if (u.pathname === "/api/loop/proposals") return json(res, 200, { proposals: loopProposals.specs(), stubs: loopParts.stubs }, o);
     if (u.pathname === "/api/loop/flags") return json(res, 200, { flags: loopFlags(), stubs: loopParts.stubs }, o);
     if (u.pathname === "/api/loop/decide" && req.method === "POST") { const b = await bodyOf(req), r = loopDecide(String(b.proposal || ""), String(b.decision || ""), String(b.note || "").slice(0, 600)); return json(res, r.error ? r.code : 200, r, o); }
+    // the data's lifecycle (core/lifecycle.js): GET the stores, their class, retention and sealing; POST purge and back up
+    if (u.pathname === "/api/data/lifecycle") return json(res, 200, req.method === "POST" ? await dataLifecycle() : lifecycle.status(), o);
     if (u.pathname === "/api/loop/rollback" && req.method === "POST") {
       const b = await bodyOf(req), key = String(b.key || ""), reason = String(b.reason || "the maintainer rolled it back").slice(0, 300);
       try {

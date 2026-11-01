@@ -34,7 +34,8 @@ Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Yo
   [12. RAG memory](#12-memory-retrieval-augmented-generation-rag) ·
   [13. Observability](#13-observability-every-agent-step-traced) ·
   [14. Agents' faces](#14-agents-faces-designed-with-muse-image) ·
-  [15. Built for 100,000 online](#15-built-for-100000-agents-online-compute-is-whats-short)
+  [15. Built for 100,000 online](#15-built-for-100000-agents-online-compute-is-whats-short) ·
+  [16. Privacy by design](#16-privacy-by-design-encrypted-at-rest-differential-privacy-conversation-memory-a-data-lifecycle)
 - **Results and reference:** [Real-world use](#real-world-use) · [What surprised us](#what-surprised-us) ·
   [Meta models used](#meta-models-used-and-where-each-runs) · [Run it yourself](#run-it-yourself) ·
   [Repository map](#repository-map) · [Limitations](#limitations) · [Roadmap](#roadmap) ·
@@ -858,6 +859,56 @@ the 27.6 KB classifier, the 1Bs) moves that line. Serving 100,000 thinking at on
 behind a prefix-aware router; the plan and the arithmetic are in
 [docs/scale_100k_research.md](docs/scale_100k_research.md).
 
+## 16. Privacy by design: encrypted at rest, differential privacy, conversation memory, a data lifecycle
+
+What Serve keeps about people is encrypted on disk, what it publishes about many people can't single one out, an
+agent remembers a conversation without keeping all of it, and every store has a class and a retention period.
+
+- **Encrypted at rest** (`agent/src/core/crypt.js`, `jsonfile.js`). Every store about people (members, players,
+  memory notes, preferences, conversations, games, bookings, talks, the trust chain, the feed) is written as
+  AES-256-GCM, with a key per store derived from one master key by HKDF and the store's name as associated data (a
+  sealed file renamed to another store does not open). The master key (`data/keys/master.key`, mode 600) never leaves
+  the machine and is never in a backup. Caches and evaluation files with nothing personal stay plain. A file written
+  before encryption was on still reads, and the lifecycle seals it. On the live server: 8 of 8 personal stores and 14
+  stores in all sealed.
+- **Crypto-shredding.** A person's conversation memory is sealed with a random key of their own, kept in a keyring
+  sealed with the master key. `/forget` deletes the record and the key, so the record can't be opened in this copy or
+  in any backup made before.
+- **Differential privacy** (`agent/src/core/dp.js`).
+  - **Randomized response** on a venue mark (courts, light, air, price: good, ok or bad). Before a mark is kept
+    anywhere, in the notes file or on the trust chain, it stays as given with probability e^ε/(e^ε+2), 79% at the
+    default ε = 2; otherwise it becomes one of the other two values at random. Serve never holds what one player
+    really answered.
+  - **Debiasing.** A venue's counts are debiased back with (c − n·q)/(p − q). On 30,000 simulated marks, every
+    estimate came within 2% of the true count (`test/dp_unit.mjs`).
+  - **Laplace noise.** Released counts (players who rated a place; games agreed, played and called off there) get
+    Lap(1/ε) noise at ε = 1. The noise is seeded by a keyed hash of the release, so asking again gives the same answer
+    and repeated questions can't average it away.
+  - **A k threshold.** Counts, prices paid and the list of past games are shown only once at least k = 5 players or
+    games are behind them.
+- **Conversation memory, short and long** (`agent/src/memory/conversation.js`), with retrieval as in §12 for facts.
+  - **Short-term (working memory).** The conversation going on now: the last 8 turns word for word. Older turns fold
+    into a rolling summary of at most 60 words, written on our 1B with the conversation treated as data. The
+    conversation closes after 6 idle hours.
+  - **Long-term (episodic).** A closed conversation becomes an episode: its summary and the words it was about. An
+    episode is recalled when a new question shares those words, and its score decays with a 14-day half-life (each
+    recall makes it fresh again). It is dropped after 90 days, or once its score falls below 5%.
+  - **Semantic.** Facts and preferences stay in the memory notes and preferences of §12.
+  - **Context.** The summary, the two best episodes and as many recent turns as fit 900 tokens go in front of the
+    model, so the prompt never grows with the conversation. The person sees what is kept (`/api/memory/notes`).
+- **The data lifecycle** (`agent/src/core/lifecycle.js`).
+  - **A registry of every store.** Each store has a class: personal, activity (pseudonymous), public, operational or
+    cache. It also has a retention period: while a member (deleted by `/forget` and leaving), a number of days, or
+    kept (the trust chain, never rewritten).
+  - **Purge.** The gateway runs it a minute after start and once a day. It seals stores still in the clear, closes
+    idle conversations, drops faded episodes, and cuts log lines past their retention (model calls 30 days, traces
+    14).
+  - **Backups.** Each backup is one sealed file of every .json and .jsonl under `data/`, with the keys folder, the
+    agents' private keys and every `*.key` file left out. Backups go to the NAS and rotate to the newest 7, and
+    `restore` opens one only into a folder of its own.
+  - **Status.** `GET /api/data/lifecycle`, with the maintainer's token, shows each store's class, retention, size and
+    whether it is sealed, never a record. The first backup on the live server held 574 files (18.8 MB).
+
 ## Real-world use
 
 During the hackathon **more than 10 people from a badminton club** tried Serve, and of the **3 game invites** sent
@@ -993,6 +1044,9 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 - **Compute, not connections.** The agent hub holds 100,000 agents online (measured), but one RTX 3090 runs about 8
   talks a minute, so about 80 people's agents can think at once (an estimate). The gateway's talks still run over HTTP
   A2A with per-player gateway processes and JSON files; moving them onto the hub and a database is the next step.
+- **Privacy has edges.** The model-call and trace logs stay unencrypted (kept 30 and 14 days); one answer with all four
+  venue marks spends up to 4ε = 8; the members' own gateways on the public site seal their data at their next restart.
+  A disk image together with the master key opens everything, so the key must be kept apart from the backups.
 
 ## Roadmap
 

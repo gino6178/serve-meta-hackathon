@@ -6,9 +6,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { readSealed } from "../src/core/jsonfile.js";
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vnotes-"));
-Object.assign(process.env, { VENUE_NOTES_FILE: path.join(tmp, "notes.json"), TRUST_FILE: path.join(tmp, "trust.json"), PLACES_FILE: path.join(tmp, "places.json"), GUARD: "off" });
+Object.assign(process.env, { DP: "off", VENUE_NOTES_FILE: path.join(tmp, "notes.json"), TRUST_FILE: path.join(tmp, "trust.json"), PLACES_FILE: path.join(tmp, "places.json"), GUARD: "off" });
 delete process.env.GOOGLE_MAPS_API_KEY;
 const VN = await import("../src/venues/notes.js");
 const Tr = await import("../src/members/trust.js");
@@ -16,11 +17,11 @@ const R = await import("../src/venues/report.js");
 const game = (id) => ({ id, place: "osm:way/7", where: "Riverside Hall", kind: "venue", sport: "badminton", when: "Thu, 14:00" });
 
 test("one answer per player per game; the marks go on the trust chain, the note does not", async () => {
-  const before = JSON.parse(fs.existsSync(process.env.TRUST_FILE) ? fs.readFileSync(process.env.TRUST_FILE, "utf8") : "{}").chain?.length || 0;
+  const before = (fs.existsSync(process.env.TRUST_FILE) ? readSealed(process.env.TRUST_FILE) : {}).chain?.length || 0;
   const r = await VN.add("ana", game("h1"), { marks: { courts: "good", air: "bad", nonsense: "good", light: "great" }, note: "Bring a towel, the air is warm." });
   assert.ok(r.ok && r.chain);
   assert.equal((await VN.add("ana", game("h1"), { marks: { courts: "bad" } })).code, 409);
-  const chain = JSON.parse(fs.readFileSync(process.env.TRUST_FILE, "utf8")).chain;
+  const chain = readSealed(process.env.TRUST_FILE).chain;
   const e = chain.at(-1);
   assert.equal(chain.length, before + 1);
   assert.deepEqual([e.kind, e.d.place, e.d.marks], ["venue", "osm:way/7", { courts: "good", air: "bad" }]);

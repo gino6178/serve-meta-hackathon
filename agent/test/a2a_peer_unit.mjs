@@ -2,6 +2,7 @@
 // allow-list, pinning keys on first use, and what a peer's requests are kept under. No model, no network, no real data.
 //   node --test test/a2a_peer_unit.mjs
 import { test } from "node:test";
+import { readSealed } from "../src/core/jsonfile.js";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -112,7 +113,7 @@ test("a peer's key is pinned on first use, once, and a key set that would not pi
   const k1 = await P.keyOf(P.byName("gwb"), async () => { fetched++; return { keys: [B.jwk] }; });
   const k2 = await P.keyOf(P.byName("gwb"), async () => { fetched++; return { keys: [C.jwk] }; }); // the peer now serves another key
   assert.equal(k1.kid, B.kid); assert.equal(k2.kid, B.kid); assert.equal(fetched, 1);
-  assert.equal(JSON.parse(fs.readFileSync(`${tmp}/pins.json`, "utf8")).gwb.key.kid, B.kid);
+  assert.equal(readSealed(`${tmp}/pins.json`).gwb.key.kid, B.kid);
   // two keys, or a key id that is not the key's fingerprint: nothing is pinned
   await assert.rejects(P.keyOf(P.byName("gwc"), async () => ({ keys: [B.jwk, C.jwk] })));
   await assert.rejects(P.keyOf(P.byName("gwe"), async () => ({ keys: [{ ...C.jwk, kid: B.kid }] })));

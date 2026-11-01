@@ -11,6 +11,7 @@ import * as life from "../club/life.js";
 import * as store from "../core/store.js";
 import * as prefs from "../memory/prefs.js";
 import * as prefsOf from "../memory/prefs_of.js";
+import * as conv from "../memory/conversation.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DAY_MS = 864e5;
@@ -124,8 +125,13 @@ export async function answer({ text, playerId = null, app = null, history = [], 
   const player = playerId ? store.get(playerId) : null;
   const sheet = factsFor({ player, app, now });
   const extra = `${text} ${sheet.notes.join(" ")}`;
-  const past = (player ? player.history || [] : history).slice(-6).map((h) => ({ role: h.role, content: String(h.content) }));
-  const msgs = [{ role: "system", content: prompt(sheet) }, ...past, { role: "user", content: String(text) }];
+  // the conversation so far: short- and long-term memory (memory/conversation.js) under a token budget, or with it off
+  // the last six turns of the store's history
+  const convId = playerId || (app ? "app" : null), ctx = conv.on() && convId ? conv.context(convId, text, { now: now.getTime() }) : null;
+  const note = ctx?.messages[0]?.role === "system" ? ctx.messages[0].content : "";
+  const past = ctx ? ctx.messages.filter((m) => m.role !== "system") : (player ? player.history || [] : history).slice(-6).map((h) => ({ role: h.role, content: String(h.content) }));
+  const msgs = [{ role: "system", content: note ? `${prompt(sheet)}
+${note}` : prompt(sheet) }, ...past, { role: "user", content: String(text) }];
   let out = "", verdict = null, timing = null, tries = 0;
   try {
     for (; tries < 2; tries++) {
@@ -139,7 +145,8 @@ export async function answer({ text, playerId = null, app = null, history = [], 
   } catch (e) {
     out = fallback(sheet, text); verdict = { ...check(out, sheet), offline: String(e.message || e) };
   }
-  return { text: out, verified: verdict, facts: sheet.facts.length, tries: Math.min(tries + 1, 2), timing };
+  if (ctx) { await conv.add(convId, "user", text, now.getTime()); await conv.add(convId, "assistant", out, now.getTime()); }
+  return { text: out, verified: verdict, facts: sheet.facts.length, tries: Math.min(tries + 1, 2), timing, ...(ctx ? { memory: { used: ctx.used, episodes: ctx.episodes, summary: ctx.summary } } : {}) };
 }
 
 // after a message: what is worth remembering about the player (what hurts, goals, when they can play, preferences).

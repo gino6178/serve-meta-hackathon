@@ -426,6 +426,28 @@ at once. The plan to 100,000 thinking at once is in `docs/scale_100k_research.md
 for venue agents and quotes, and `/mcp/a2a` for the Agent Card and the trust chain. Each tool calls Serve's own API
 with the person's session, so every limit, guard and consent rule applies as in the app.
 
+### 2.12 Privacy by design: encryption at rest, differential privacy, conversation memory and the data lifecycle
+
+**Encryption at rest.** Every store about people is written sealed with AES-256-GCM. Each store has its own key,
+derived by HKDF from a master key that never leaves the server and is never in a backup, and its name is the associated
+data. A person's conversation memory is sealed with a key of their own, so forgetting them shreds the key and the
+record can't be opened again, in backups too. On the live server, all 8 personal stores (14 stores in all) are sealed.
+
+**Differential privacy.** A player's venue mark passes through randomized response before it is kept, here or on the
+trust chain. It stays as given 79% of the time at ε = 2, so Serve never holds a true answer. Counts are debiased back:
+within 2% of the truth on 30,000 simulated marks. Released counts get Laplace noise at ε = 1, seeded by a keyed hash so
+repeated questions can't average it away, and nothing is shown over fewer than 5 people or games.
+
+**Conversation memory in two tiers.** Short-term memory holds the last 8 turns word for word, plus a rolling summary
+written by the 1B. A conversation closes after 6 idle hours and becomes a long-term episode, recalled by shared words
+and decaying with a 14-day half-life, then dropped after 90 days. Facts stay in the RAG notes of §2.10. The context
+the model reads is capped at 900 tokens however long the conversation.
+
+**The data lifecycle.** A registry gives every store a class (personal, activity, public, operational or cache) and a
+retention period. A daily purge seals what is still in the clear, closes idle conversations, drops faded episodes and
+trims logs (model calls 30 days, traces 14). Each backup is one sealed file with every key left out, rotated to the
+newest 7.
+
 ## 3. Meta models and tools
 
 Serve runs its open-weights models on our own GPU server (two RTX 3090s and their CPU), so players' data stays there,
