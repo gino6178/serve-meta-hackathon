@@ -15,7 +15,7 @@ import { WhatServe, WHAT_MIN } from './WhatServe';
 import { TitleCard, TITLE_DURATION } from './TitleCard';
 import { MetaStack, META_MIN } from './MetaStack';
 import { A2ACallout } from './A2ACallout';
-import { VoiCallout } from './VoiCallout';
+import { VoiPage, VOI_DURATION } from './VoiCallout';
 import { Text1B, TEXT1B_MIN } from './Text1B';
 import { OpenDoor, OPEN_DOOR_MIN } from './OpenDoor';
 import { Reel, REEL_MIN } from './Reel';
@@ -40,7 +40,7 @@ export const LIVE3: Seg[] = [
   { src: 'plan', from: 4.5, to: 8.5, caption: 'One tap: let your agent plan the week', zoom: { x: 1560, y: 0, s: 1.22 } },
   { src: 'plan', from: 10.0, to: 104.0, rate: 16, label: '', caption: "Each member's agent answers: signed facts, never free text", model: 'Signed Agent Cards ✓ · our 1B, or Glimmer when unsure', zoom: { x: 1560, y: 864, s: 1.22 } },
   { src: 'plan', from: 104.0, to: 112.8, rate: 2.6, label: '', caption: 'Every agent agreed. Held for you; nothing is booked without your yes.' },
-  { src: 'msgbook', from: 0.5, to: 9.0, rate: 0.8, caption: 'Your agent asks first, in Messenger: one tap, and it is booked', model: 'Muse Glimmer · your agent in Messenger' },
+  { src: 'msgbook', from: 0.5, to: 9.0, rate: 1.13, label: '', caption: 'Your agent asks first, in Messenger: one tap, and it is booked', model: 'Muse Glimmer · your agent in Messenger' },
 ];
 const segAt = (i: number) => LIVE3.slice(0, i).reduce((n, s) => n + Math.round(((s.to - s.from) * 30) / (s.rate ?? 1)), 0);
 const SEG = { link: segAt(3), bumper: segAt(5), plan2: segAt(7), msg: segAt(9) };
@@ -50,21 +50,19 @@ const Live: React.FC = () => (
   <AbsoluteFill>
     <LiveFrame segs={LIVE3} />
     <Sequence from={SEG.plan2 + 6} durationInFrames={SEG.msg - SEG.plan2 - 6}><A2ACallout dur={SEG.msg - SEG.plan2 - 6} /></Sequence>
-    <Sequence from={SEG.msg} durationInFrames={LIVE_DUR - SEG.msg}><VoiCallout dur={LIVE_DUR - SEG.msg} cardAt={4 + 65} barsAt={4 + 218} /></Sequence>
   </AbsoluteFill>
 );
 // over the community loop: Serve evolves itself, and the anytime-valid test behind its rollbacks (README §7)
 const Evolves: React.FC<{ statAt: number }> = ({ statAt }) => {
   const f = useCurrentFrame(), t = interpolate(f, [4, 18], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }), s = interpolate(f, [statAt, statAt + 14], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   return (
-    <div style={{ position: 'absolute', right: 70, top: 200, width: 600, padding: '26px 30px', borderRadius: 26, background: 'rgba(255,255,255,0.97)', boxShadow: '0 20px 60px rgba(10,26,16,0.18)', fontFamily: FONT.sans, opacity: t, transform: `translateY(${(30 * (1 - t)).toFixed(2)}px)` }}>
-      <div style={{ fontSize: 20, fontWeight: 750, letterSpacing: '0.12em', color: '#0a7f44' }}>A SELF-EVOLVING COMMUNITY</div>
-      <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.02em', color: '#0a0a0b', marginTop: 6, lineHeight: 1.15 }}>Members' ideas become changes. A change that hurts rolls back on its own.</div>
-      <div style={{ marginTop: 18, padding: '14px 18px', borderRadius: 16, background: '#e9f3ec', opacity: s, transform: `translateY(${(14 * (1 - s)).toFixed(2)}px)` }}>
-        <div style={{ fontSize: 20, color: '#5c5f66' }}>False rollbacks of harmless changes</div>
-        <div style={{ fontSize: 46, fontWeight: 800, color: '#0a7f44', letterSpacing: '-0.02em' }}>22% → 0.6%</div>
-        <div style={{ fontSize: 18, color: '#5c5f66' }}>an anytime-valid test watches the feedback</div>
+    <div style={{ position: 'absolute', right: 80, top: 166, width: 620, padding: '16px 24px', borderRadius: 20, background: '#ffffff', boxShadow: '0 14px 40px rgba(10,26,16,0.14)', fontFamily: FONT.sans,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 18, opacity: t, transform: `translateY(${(20 * (1 - t)).toFixed(2)}px)` }}>
+      <div>
+        <div style={{ fontSize: 18, fontWeight: 750, letterSpacing: '0.12em', color: '#0a7f44' }}>A SELF-EVOLVING COMMUNITY</div>
+        <div style={{ fontSize: 20, color: '#5c5f66', marginTop: 4 }}>False rollbacks of harmless changes</div>
       </div>
+      <div style={{ fontSize: 46, fontWeight: 800, color: '#0a7f44', letterSpacing: '-0.02em', whiteSpace: 'nowrap', opacity: s, transform: `scale(${(0.85 + 0.15 * s).toFixed(4)})` }}>22% → 0.6%</div>
     </div>
   );
 };
@@ -94,6 +92,7 @@ const ORDER: [string, React.FC<any>, number][] = [
   ['island', Island, fit('island', ISLAND_MIN)],
   ['intro', WhatServe, fit('intro', WHAT_MIN)],
   ['live', Live, LIVE_DUR],
+  ['voi', VoiPage, VOI_DURATION],
   ['door', OpenDoor, fit('door', OPEN_DOOR_MIN)],
   ['reel', Reel, fit('reel', REEL_MIN)],
   ['tiers', Tiers, fit('tiers', TIERS_MIN)],
@@ -150,7 +149,7 @@ export const SFX3: Cue[] = [
   ...[110, 182, 264, 323].map((o, i) => ({ from: S.tiers.from + o, src: 'swoosh-quick', volume: 0.3, note: `tier ${i + 1}` })),
   { from: S.text1b.from, src: 'transition-soft', volume: 0.34, note: 'the text 1B' },
   ...[116, 209].map((o, i) => ({ from: S.text1b.from + o - 10, src: 'swoosh-quick', volume: 0.3, note: `attack group ${i + 1}` })),
-  { from: S.live.from + SEG.msg + 69, src: 'swoosh-quick', volume: 0.3, note: 'the question worth most' },
+  { from: S.voi.from, src: 'swoosh-quick', volume: 0.34, note: 'the question worth most' },
   { from: S.safety.from + 326, src: 'pop', volume: 0.36, note: 'false rollbacks' },
   { from: S.meta.from, src: 'transition-soft', volume: 0.34, note: 'built on Meta' },
   ...[0, 1, 2, 3].map((i) => ({ from: S.meta.from + 14 + i * 26, src: 'swoosh-quick', volume: 0.26, note: `column ${i + 1}` })),
