@@ -63,7 +63,7 @@ async function img(file, width = 1800) {
   const FLOW = path.join(SHOTS, "flow_four.png");
   const P = { invite: await crop(FLOW, 0, 590, 885), agents: await crop(FLOW, 625, 590, 885), messenger: await crop(FLOW, 1880, 436, 885) };
   // the main slides are tagged and put first, in this order; every untagged slide follows as the appendix
-  const MAIN = ["cover", "pain", "solution", "club", "models", "surprises", "tiers", "distill", "a2a", "ranking", "reels", "testing", "security", "community", "roadmap", "appendix"];
+  const MAIN = ["cover", "pain", "solution", "club", "models", "surprises", "tiers", "distill", "a2a", "ranking", "habit", "venue", "reels", "testing", "security", "community", "roadmap", "appendix"];
   const KEYS = [];
   let nextKey = null;
   const addSlide = pres.addSlide.bind(pres);
@@ -126,7 +126,7 @@ async function img(file, width = 1800) {
   title(s, "Play more.\nManage less.");
   s.addText("The platform where personal agents negotiate real-world games, so each person only says yes once.", { placeholder: "body" });
   s.addText("Track: Indie Developer  |  Build for Your World  |  Built Oct 27 – Nov 4, 2026", { isTextBox: true, x: M, y: 5.45, w: 8.6, h: 0.4, fontSize: 15, bold: true, color: "2FBF71", margin: 0 });
-  s.addText("Technical report · Meta Global AI Developer Hackathon 2026 · play.theminimallab.com · github.com/gino6178/serve-meta-hackathon", { isTextBox: true, x: M, y: H - 0.9, w: 11, h: 0.4, fontSize: 12, color: "9FB3A7", margin: 0 });
+  s.addText("Technical report · Meta Global AI Developer Hackathon 2026 · play.theminimallab.com · github.com/gino6178/serve-meta-hackathon · Video: youtu.be/OXlW1dznFo4", { isTextBox: true, x: M, y: H - 0.9, w: 12.1, h: 0.4, fontSize: 12, color: "9FB3A7", margin: 0 });
   [["10+", "people in a real badminton club"], ["0.9 s", "our own distilled Llama 3.2 1B, on CPU"], ["177", "AI testers in 28 rounds"]].forEach(([b, d], i) => {
     const y = 1.6 + i * 1.3;
     s.addText(b, { isTextBox: true, x: 9.7, y, w: 3.0, h: 0.7, fontSize: 44, bold: true, color: "2FBF71", margin: 0, fontFace: THEME.headFontFace });
@@ -240,6 +240,46 @@ async function img(file, width = 1800) {
   foot(s, "Least misery after group recommenders [26]; value of information over Beta posteriors [24, 25]. Every question is charged to a disclosure budget: at most 3 asks a week.");
   note(s, "With shared calendars the first time proposed decides whether each agent can say yes by code or must ask a model; model choices per doubles request fell from 0.261 to 0.109.");
 
+  // 11b. who gets asked, from each player's habits (members/taste.js, match/ask.js, match/likely.js)
+  nextKey = "habit";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "Who gets asked: each player's habits, and a band from their own agent");
+  [["A request", "\"Badminton Tuesday evening, need 1\""], ["Fit from habits", "time of week, distance, price, a quiet court: four weights, a Bradley-Terry step per answer"], ["Ask 12 agents over A2A", "10 by fit, 2 drawn from the rest, so it isn't always the same few"], ["A band, not a record", "each agent works it out on its own side: unlikely, maybe, likely, very likely"], ["Invite the best-suited", "by band, then who was asked least this week, then fit"]].forEach(([h, d], i) => {
+    const y = 1.4 + i * 1.0;
+    box(s, M, y, 6.2, 0.82, h, d, i === 4 ? HEX.greenBg : HEX.card);
+    if (i < 4) arrow(s, M + 3.1, y + 0.82, M + 3.1, y + 1.0);
+  });
+  card(s, M + 6.7, 1.4, 5.4, 4.8);
+  s.addText("What the asking agent sees", { isTextBox: true, x: M + 6.95, y: 1.55, w: 4.9, h: 0.4, fontSize: 15, bold: true, color: HEX.ink, margin: 0 });
+  [["Leo's agent", "very likely", HEX.green], ["Sam's agent", "likely", HEX.green], ["Mia's agent", "maybe", HEX.amber], ["Kenji's agent", "unlikely", HEX.soft], ["Hana's agent", "refused: counted as average", HEX.soft]].forEach(([n, b, c], i) => {
+    const y = 2.15 + i * 0.72;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: M + 6.95, y, w: 4.9, h: 0.58, fill: { color: "FFFFFF" }, line: { color: HEX.line }, rectRadius: 0.06 });
+    s.addText(n, { isTextBox: true, x: M + 7.15, y, w: 2.2, h: 0.58, fontSize: 14, bold: true, color: HEX.ink, margin: 0, valign: "middle" });
+    s.addText(b, { isTextBox: true, x: M + 9.2, y, w: 2.5, h: 0.58, fontSize: 13, bold: true, color: c, margin: 0, valign: "middle", align: "right" });
+  });
+  s.addText("Never a record or a calendar: only bands, and a band an agent's calibration ledger caught out counts as unknown.", { isTextBox: true, x: M + 6.95, y: 5.65, w: 4.9, h: 0.5, fontSize: 11, color: HEX.muted, margin: 0, valign: "top" });
+  foot(s, "members/taste.js (habits), match/ask.js (whom to ask), match/likely.js (serve.likely, an A2A extension). Bradley and Terry, Biometrika 1952; Zadrozny and Elkan, 2002 (calibrated bands).");
+  note(s, "A request does not message the whole club. The asking agent picks candidates by fit to each person's learned habits and asks their agents for a band; the candidate's agent keeps its person's record to itself.");
+
+  // 11c. a venue's own agent and a fair split (venues/agent.js, members/split.js)
+  nextKey = "venue";
+  s = pres.addSlide({ masterName: "CONTENT" });
+  title(s, "A venue's own agent haggles the court; each player decides what they pay");
+  card(s, M, 1.4, 5.9, 4.15);
+  s.addText("Over A2A against NTU Gymnasium's agent (local copy)", { isTextBox: true, x: M + 0.25, y: 1.5, w: 5.4, h: 0.35, fontSize: 12, color: HEX.muted, margin: 0 });
+  [[0, "4 players, Thu 14:00–15:30, usually 17% full. NT$230?"], [1, "List is NT$420. At a quiet time I can do NT$320."], [0, "Meet us at NT$270?"], [1, "NT$300."], [0, "NT$280?"], [1, "NT$290, and that's as low as I go."], [0, "NT$290 it is."]].forEach(([v, t], i) => {
+    const y = 1.92 + i * 0.5, w = v ? 4.9 : 4.3, x = v ? M + 5.9 - 0.25 - w : M + 0.25;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h: 0.42, fill: { color: v ? "FFF4E0" : HEX.greenBg }, line: { color: v ? "FFF4E0" : HEX.greenBg }, rectRadius: 0.08 });
+    s.addText(v ? [{ text: t + "  " }, { text: "✓ signed", options: { bold: true, color: HEX.amber, fontSize: 10.5 } }] : t, { isTextBox: true, x: x + 0.12, y, w: w - 0.24, h: 0.42, fontSize: 12, color: HEX.ink, margin: 0, valign: "middle" });
+  });
+  multi(s, pres.charts.BAR, [{ name: "pays", labels: ["Ana (covers more)", "Leo", "Sam", "Mia (covers more)"], values: [84, 50, 72, 84] }, { name: "their own most", labels: ["Ana (covers more)", "Leo", "Sam", "Mia (covers more)"], values: [100, 50, 90, 90] }],
+    { x: M + 6.2, y: 1.35, w: 5.9, h: 4.2, colors: [HEX.green, "C9CCD1"], values: true, hideVal: true, max: 110, title: "NT$290 split: no one past their own limit (NT$)" });
+  box(s, M, 5.7, 3.85, 0.75, "Every quote signed", "the venue's Ed25519 key, in its signed Agent Card", HEX.card);
+  box(s, M + 4.05, 5.7, 3.85, 0.75, "Never past the budget", "what the players' limits cover between them", HEX.card);
+  box(s, M + 8.1, 5.7, 4.0, 0.75, "A real venue can plug in", "its own A2A agent, approved by the maintainer", HEX.card);
+  foot(s, "venues/agent.js, members/split.js, agent/test/venue_agent_unit.mjs. Prices are samples until a venue joins; nothing is paid in Serve.");
+  note(s, "Each round the group sends back the venue's last quote and the venue checks its own signature on it, so neither side can make up an earlier price. Only players who ticked 'cover more' pay above an equal share.");
+
   // 12. testing, one page
   nextKey = "testing";
   s = pres.addSlide({ masterName: "CONTENT" });
@@ -272,7 +312,7 @@ async function img(file, width = 1800) {
     card(s, x, 4.8, 3.85, 1.55);
     s.addText([{ text: h, options: { bold: true, fontSize: 13, color: HEX.green, breakLine: true } }, { text: d, options: { fontSize: 11.5 } }], { isTextBox: true, x: x + 0.2, y: 4.9, w: 3.45, h: 1.38, margin: 0, valign: "top", color: HEX.ink, paraSpaceAfter: 4 });
   });
-  foot(s, "Live: play.theminimallab.com · Code: github.com/gino6178/serve-meta-hackathon · Every number from submission/results/ · Everything built in the hackathon except the TrackNetV5 library.");
+  foot(s, "Live: play.theminimallab.com · Code: github.com/gino6178/serve-meta-hackathon · Video: youtu.be/OXlW1dznFo4 · Every number from submission/results/ · Everything built in the hackathon except the TrackNetV5 library.");
   note(s, "Serve turns hours of back-and-forth into one yes from each person. The roadmap is what production needs next; the appendix holds every benchmark and ablation.");
 
   // the appendix divider
