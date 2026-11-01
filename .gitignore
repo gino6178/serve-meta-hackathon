@@ -31,3 +31,4 @@ video/*.mp4
 # the shotcraft film: renders and raw screencasts are rebuilt (npx remotion render; scripts/record_live.mjs)
 video/shotcraft/out/
 video/shotcraft/public/clips/*.webm
+video/shotcraft/narration/*/out/
