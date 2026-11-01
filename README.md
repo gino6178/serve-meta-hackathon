@@ -15,6 +15,45 @@ Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Yo
   [submission/pdf/serve_technical_report_slides.pdf](submission/pdf/serve_technical_report_slides.pdf)
 - **For agents:** https://play.theminimallab.com/llms.txt
 
+### For judges: two ways in
+
+**1. Click through it (about 3 minutes, in a phone or desktop browser)**
+
+1. Open https://play.theminimallab.com/#/join, type a first name and press **Try a demo account** (no Facebook needed).
+2. On the home page, tell your agent what you want, for example *"Badminton for 4, a weekday evening, near Daan,
+   Taipei, at most NT$150 each"*. It sets your area and limits, and the cards show games near you.
+3. Open **Games** and start a game: watch the agents' talk stream in (each member's agent answering over A2A, the
+   venue's agent haggling the court, every quote signed), then the agreed time, place and **what you pay**.
+4. On the agreed game, press **Check this place** for the venue report: rating, review points quoted word for word,
+   prices and what groups paid there.
+5. Open the demo club (**Try the demo club too** on the home page): simulated members, so a whole week of agents runs
+   in a few minutes. After a game, your agent asks how the place was.
+6. Anyone can check the record: https://play.theminimallab.com/api/trust/verify replays the signed hash chain.
+
+**2. Send your own agent (Claude, OpenAI or Muse)**
+
+Serve is built for other people's agents too: everything is in https://play.theminimallab.com/llms.txt. Give your
+agent one task and let it read the page.
+
+- **Claude** (Claude Code, which can make HTTP calls):
+  ```bash
+  claude "Read https://play.theminimallab.com/llms.txt and use Serve to get me a badminton game for 4 on a weekday evening near Daan District, Taipei, at most NT\$150 each. My name is Kai. Tell me what I need to say yes to."
+  ```
+- **OpenAI** (Codex CLI, with network access on):
+  ```bash
+  codex "Read https://play.theminimallab.com/llms.txt and use Serve to get me a badminton game for 4 on a weekday evening near Daan District, Taipei, at most NT\$150 each. My name is Kai. Tell me what I need to say yes to."
+  ```
+- **Muse** (Muse Spark on the Meta Model API, through our 60-line agent with two tools, `serve_get` and
+  `serve_post`; [agent/tools/muse_agent.mjs](agent/tools/muse_agent.mjs)):
+  ```bash
+  META_API_KEY=<your key> node agent/tools/muse_agent.mjs "Get me a badminton game for 4 on a weekday evening near Daan District, Taipei, at most NT\$150 each. My name is Kai."
+  ```
+  On a test gateway Muse Spark read `/llms.txt`, signed in, set the area, sport and limits, found nobody nearby open
+  to games yet, then posted an open game and started a club, and told the person what to share: 16 calls.
+
+Each agent gets a demo account of its own (the demo club's members are simulated). An agent that registers its own
+Ed25519 key can only tighten its person's limits, and a yes still needs the person's permission.
+
 ---
 
 ## Overview
@@ -240,6 +279,11 @@ real preferences left.** That keeps a model's mistake from turning into a wrong 
 - **Which model answers a text call, by length:** a short call (up to about 700 tokens) at a site where our text 1B
   was checked goes to the 1B; anything longer, or anywhere else, to Muse Glimmer; a very long call (12,000 tokens or
   more, near Glimmer's 16,384-token context) to Muse Spark on the Meta Model API.
+- **The public site's fast lane** (`LLM_FAST=api`): a person waits on every call there, and Glimmer on one GPU takes
+  20 to 40 s a call. So on the public site the short checked sites still go to our 1B (about 1 s), every other call a
+  person waits for goes to Muse Spark on the Meta Model API (a caption in 2.4 s on a test gateway), and Glimmer takes
+  any call the API fails, plus all the background work nobody waits for. A watchdog (`ops/watch.sh`) restarts anything
+  that stops, every 30 s.
 
 ![Meta's models: on our own GPUs for privacy, the API where it helps](docs/readme/slide_meta_models.png)
 
@@ -552,10 +596,18 @@ by `agent/src/venues/report.js` (`GET /api/huddle/venue?place=`):
   quiet hour this week (samples until the venue joins), and the prices groups agreed there in Serve: the date, the
   price and how many played, never who or which club.
 - **Whether games there went ahead:** how many games agreed at the place were played, and how many were called off.
+- **What Serve players said after playing there.** A few hours after a game the agents agreed, each player's own
+  agent asks them once how the place was: the courts, the lights, the air and the price (good, ok or bad), and a short
+  note if they like (`agent/src/venues/notes.js`, `POST /api/huddle/venue-note`). Only a player of a game agreed at
+  that place can answer, so no one rates a place they never went to; the marks go on the trust chain, under the
+  player's pseudonymous subject, so a venue's record can't be quietly changed; a note is checked by Llama Guard 3 and
+  Prompt Guard 2 and never carries a link. The report shows the counts and the latest notes, and this needs no
+  Google key.
 - **A headline from the facts, not a model:** "Well reviewed", "Mixed reviews", "Check before you book" or "No reviews
   read yet".
 
-Tests: `agent/test/venue_report_unit.mjs` (a made-up quote, a link, an unseen number and a pronoun all dropped; the
+Tests: `agent/test/venue_notes_unit.mjs` (once per game, the marks on the chain and the note off it, a link left
+out, an unchecked note kept back) and `agent/test/venue_report_unit.mjs` (a made-up quote, a link, an unseen number and a pronoun all dropped; the
 rules that stand in for the model; prices, what groups paid and the headline).
 
 ## Real-world use

@@ -17,6 +17,7 @@ import * as guard from "../safety/guard.js";
 import { chatJSON } from "../core/llm.js";
 import { VENUE_NOTES } from "../core/schema.js";
 import { okNums, allowedIn } from "../a2a/talk.js";
+import * as VN from "./notes.js";
 
 const C = D.CURRENCY, HOUR = 3600e3;
 const norm = (t) => String(t).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
@@ -76,16 +77,23 @@ export function pastOf(games) {
 }
 
 // the headline and the lines a player reads first, built from the facts above
-export function summaryOf({ rating, notes, prices, past }) {
+const WORD = { courts: "the courts", light: "the lights", air: "the air", price: "the price" };
+export function summaryOf({ rating, notes, prices, past, players = { n: 0, marks: {} } }) {
   const lines = [];
   if (rating) lines.push(`Rated ${rating.stars} on Google from ${rating.count} reviews.`);
+  if (players.n) {
+    const said = Object.entries(players.marks).map(([k, c]) => { const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0]; return top[1] ? `${WORD[k]} ${top[0]} (${top[1]})` : null; }).filter(Boolean);
+    lines.push(`${players.n} Serve player${players.n > 1 ? "s" : ""} rated it after a game${said.length ? `: ${said.join(", ")}` : ""}.`);
+  }
   if (notes.good[0]) lines.push(`Good: ${notes.good[0].text}`);
   if (notes.bad[0]) lines.push(`Check: ${notes.bad[0].text}`);
   if (past.low != null) lines.push(past.low === past.high ? `Groups here paid ${C}${past.low} for 90 minutes (${past.agreed} game${past.agreed > 1 ? "s" : ""} agreed in Serve).` : `Groups here paid ${C}${past.low}–${past.high} for 90 minutes, usually ${C}${past.median} (${past.agreed} games agreed in Serve).`);
   if (prices.free) lines.push("A public court: free to play.");
   else lines.push(`List price ${C}${prices.list} for 90 minutes; the venue's agent goes as low as ${C}${prices.low} at a quiet hour this week${prices.sample ? " (sample prices until the venue joins Serve)" : ""}.`);
   if (past.agreed) lines.push(past.calledOff ? `${past.played} of ${past.agreed} games agreed here were played; ${past.calledOff} called off.` : past.played ? `${past.played} of ${past.agreed} games agreed here were played.` : `${past.agreed} game${past.agreed > 1 ? "s" : ""} agreed here, none played yet.`);
-  const bad = notes.bad.length, headline = !rating && !bad ? "No reviews read yet" : (rating && rating.stars < 3.5) || bad >= 2 ? "Check before you book" : rating && rating.stars >= 4.2 && !bad ? "Well reviewed" : "Mixed reviews";
+  const liked = Object.values(players.marks).some((c) => c.good > c.bad + c.ok);
+  const sour = Object.values(players.marks).reduce((s, c) => s + (c.bad > c.good + c.ok ? 1 : 0), 0);
+  const bad = notes.bad.length + sour, headline = !rating && !bad && !players.n ? "No reviews read yet" : (rating && rating.stars < 3.5) || bad >= 2 ? "Check before you book" : !bad && (rating ? rating.stars >= 4.2 : liked) ? "Well reviewed" : "Mixed reviews";
   return { headline, lines };
 }
 
@@ -95,7 +103,7 @@ export async function report(place, { games = [], now = new Date() } = {}) {
   let g = null, err = null;
   try { g = await places.googleOf(place); } catch (e) { err = String(e.message || e).slice(0, 120); }
   let reviews = g?.reviews || [], leftOut = 0;
-  const k = crypto.createHash("sha256").update(JSON.stringify([place.id, g?.rating ?? null, reviews.map((r) => r.text), games])).digest("hex");
+  const k = crypto.createHash("sha256").update(JSON.stringify([place.id, g?.rating ?? null, reviews.map((r) => r.text), games, VN.of(place.id)])).digest("hex");
   const hit = kept.get(k);
   if (hit && Date.now() - hit.at < HOUR) return hit.v;
   for (const [x, e] of kept) if (Date.now() - e.at >= HOUR) kept.delete(x);
@@ -103,12 +111,12 @@ export async function report(place, { games = [], now = new Date() } = {}) {
   if (reviews.length) { const gd = await guard.injected(reviews.map((r) => r.text)); const ok = reviews.filter((r, i) => !gd[i]?.injected); leftOut = reviews.length - ok.length; reviews = ok; }
   const notes = await notesOf(place, reviews);
   const rating = g?.rating != null ? { stars: g.rating, count: g.ratings, url: g.url || null } : null;
-  const prices = pricesOf(place, { now }), past = pastOf(games);
+  const prices = pricesOf(place, { now }), past = pastOf(games), players = VN.of(place.id);
   // a quoted review goes back with its author and stars; only the ones a point quotes
   const withReview = (x) => { const r = reviews.find((y) => y.n === x.review); return { ...x, stars: r?.stars ?? null, when: r?.when || null, author: r?.author || "A Google user", authorUrl: r?.authorUrl || null }; };
   const v = {
     place: { id: place.id, name: place.name, kind: place.kind },
-    currency: C, rating, ...summaryOf({ rating, notes, prices, past }),
+    currency: C, rating, ...summaryOf({ rating, notes, prices, past, players }), players,
     reviews: { read: reviews.length, leftOut, by: notes.by, good: notes.good.map(withReview), bad: notes.bad.map(withReview), ...(err ? { note: `Google Maps did not answer: ${err}` } : !g ? { note: places.ready().google ? "Not found on Google Maps near this spot." : "No Google Maps key on this server: no reviews read." } : !(g.reviews || []).length ? { note: "Google Maps gave the rating, but no review text with this server's key." } : {}) },
     prices, past,
   };

@@ -75,6 +75,7 @@ Good to know before you start:
 - Parts of the day ("when": {"parts"}): early is before 9:00, morning 9:00 to 12:00, afternoon 12:00 to 17:00, evening from 17:00. Their area is kept to about 1 km, so distances are rounded.
 - Prices are in New Taiwan dollars (NT$), per person, for a 90-minute game. If your person says "cheap", ask them for a number: maxEach is a hard limit. A game has to end inside their time window.
 - A sports centre has its own agent (A2A, GET /a2a/venues): the group's agent talks price with it, and every quote is signed by the venue's key. The price is split fairly: no one pays more than their maxEach, and only people who set "cover": true pay more than an equal share, so a friend on a tight budget can still play. Nothing is paid in Serve.
+- After a game, /api/huddle/today has a venue-note card: ask your person how the place was and send it with POST /api/huddle/venue-note; only players of a game agreed there can, and the marks go on the trust chain.
 - Before booking, GET /api/huddle/venue?place=<court id> is a short report on the place: its Google rating, good points and points to check from its reviews (each quoting one review word for word), its prices and what groups here paid, and how many games agreed there were played.
 - Serve doesn't book or pay courts. It agrees a time and a place and who plays; players pay a venue themselves, there. Venue prices are samples until a venue joins.
 - With your person's session you act as them. With your own key (below) you act as their agent: a yes then needs their permission (POST /api/huddle/delegate), and limits can only get tighter.
@@ -159,6 +160,7 @@ const HUDDLE = {
   "/huddle/cancel": ["post", op("The host calls it off: an agreed game is off and its post goes. For a fill of a posted game this only stops the agents (the game stands); add game: true to call the game off too", { body: { id: S, game: B } })],
   "/huddle/game": ["post", op("Join a recommended game, or say why not", { body: { post: S, yes: B, why: S } })],
   "/huddle/places": ["get", op("Courts near them, quiet hours, venue offers", { query: { sport: "sport" } })],
+  "/huddle/venue-note": ["post", op("After a game the agents agreed: how the place was, once (marks: courts, light, air, price, each good, ok or bad; note: a short note, from the person's own session only; skip: true to not be asked again). game is the id on the venue-note card in /api/huddle/today", { body: { game: S, marks: O, note: S, skip: B } })],
   "/huddle/venue": ["get", op("A short report on a place before booking: its Google rating, good points and points to check from its reviews (each quoting one review), the venue's prices and what groups here paid, and whether games agreed there went ahead", { query: { place: "court id from /api/huddle/places", sport: "sport" } })],
   "/huddle/deal": ["post", op("Ask a venue's agent for a price (place: a court id from /api/huddle/places for that sport; a quote; outside lists any of the member's limits it breaks)", { body: { place: S, sport: S, date: S, start: S, players: N, weekly: B } })],
   "/huddle/trust": ["get", op("Their two records and their chain entries")],

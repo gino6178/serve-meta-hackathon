@@ -29,6 +29,7 @@ import * as P from "../feed/posts.js";
 import * as Tr from "./trust.js";
 import * as N from "./needs.js";
 import * as Consent from "../a2a/consent.js";
+import * as VN from "../venues/notes.js";
 
 const FILE = () => path.resolve(process.env.HUDDLE_FILE || "data/huddles.json");
 let db = null, from = null;
@@ -551,6 +552,11 @@ export const pastAt = (placeId, now = Date.now()) => data().huddles.filter((h) =
   return { date: h.pick.date, price: h.pick.price || 0, each: h.pick.each || 0, list: h.pick.list || 0, off: h.pick.off || 0, players: h.players.length, signed: !!h.pick.quote, sample: !!h.pick.sample,
     state: h.status === "on" ? (past ? "played" : "coming") : h.status === "asking" ? (past ? "lapsed" : "asking") : "called off" };
 }).sort((a, b) => b.date.localeCompare(a.date));
+// the games the member played at a place in the last week, a few hours after they ended, that their agent hasn't asked
+// about yet: the agent asks once how the place was (venues/notes.js)
+export const playedFor = (me, now = Date.now()) => data().huddles.filter((h) => h.status === "on" && h.pick?.place && h.players.includes(me) && h.answers[me] === "yes"
+  && now > startMs(h.pick) + (MINUTES + 60) * 60e3 && now < startMs(h.pick) + 7 * 864e5 && !VN.answered(me, h.id)).map((h) => ({ id: h.id, place: h.pick.place, where: h.pick.where, kind: h.pick.kind, sport: h.sport, when: when(h.pick) }));
+export const findPlayed = (me, id, now = Date.now()) => playedFor(me, now).find((g) => g.id === id) || null;
 // a place one of the member's games was agreed at, as the report reads it (its name, where it is, a venue or not)
 export const pickedPlace = (me, placeId) => { const h = data().huddles.find((x) => x.pick?.place === placeId && (x.host === me || x.invited.includes(me))); return h ? { id: placeId, name: h.pick.where, lat: h.pick.at?.lat, lon: h.pick.at?.lon, kind: h.pick.kind, list: h.pick.list ? Math.round(h.pick.list / 1.5) : undefined, sample: h.pick.sample } : null; };
 // the member's coming games the agents agreed (asking with their yes, or on), as {date, start}, for the agent chat
@@ -612,6 +618,11 @@ export async function today(me, { now = new Date() } = {}) {
   const waitingFor = data().huddles.filter((h) => h.pick && h.players.includes(me) && ((h.status === "asking" && h.answers[me] === "yes" && !(h.fill && (h.host === me || fillOf(h)?.going.includes(me)))) || (h.status === "on" && !h.post))).map((h) => ({ post: `huddle:${h.id}`, huddle: h.id, sport: h.sport, day: h.pick.date, start: h.pick.start, where: h.pick.where, going: h.players.filter((x) => h.answers[x] === "yes").length, spots: h.need, mine: h.host === me, waiting: false, agreed: true, on: h.status === "on", confirmed: h.status === "on", waitingFor: h.status === "on" ? 0 : h.players.filter((x) => h.answers[x] !== "yes").length, host: first(h.host) }));
   const games = [...waitingFor, ...P.gamesOf(me, now.getTime())];
   if (games.length) cards.push({ kind: "mine", games: games.map((g) => ({ ...g, when: when({ date: dateFor(g.day, now), start: g.start }), club: g.room ? C.find(g.room)?.name || null : null })) });
+  // after a game: the member's agent asks, once, how the place was (and says so in a notice the first time)
+  for (const g of playedFor(me, now.getTime())) {
+    cards.push({ kind: "venue-note", game: g, marks: VN.MARKS });
+    if (!(data().toldVenue ||= {})[`${me}:${g.id}`]) { data().toldVenue[`${me}:${g.id}`] = now.getTime(); save(); P.notify(me, "huddle", `How was ${g.where}? Your agent keeps a record for the next group: courts, lights, air and price.`, { huddle: g.id }); }
+  }
   for (const c of Tr.pending(me, now.getTime())) { const d = new Date(c.at); cards.push({ kind: "attend", attend: { key: c.key, when: when({ date: T.ymd(d), start: d.toTimeString().slice(0, 5) }), players: c.players.map((id) => ({ id, name: first(id) })) } }); }
   const places = t.home ? await D.placesNear(t.home, t.sports[0] || "badminton", { wait: false }) : [];
   const q = T.question(me, { places: places.map((p) => ({ ...p, km: +T.km(t.home, p).toFixed(1) })), now });

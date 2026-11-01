@@ -11,6 +11,8 @@
 # reel and memory models; unset, Hugging Face's own default). The reel is video/pose/reel.py (REEL_SCRIPT to run another;
 # the old pose/ folder is no longer used), and it reads PERSON_DETECTOR, PERSON_DETECTOR_MODEL, BALL_TRACKING and
 # RALLY_CLIP from start.env too (docs/person_detector.md).
+# LLM_FAST=api in start.env is the public site's fast lane (agent/src/core/llm.js): short text on our 1B, every other
+# call a person waits for on Muse Spark (Meta Model API, META_API_KEY), Glimmer when the API fails and for background work.
 set -o nounset # an unset variable stops the script rather than reading as empty
 ROOT="$(cd -- "$(dirname -- "$0")" && pwd)"
 if [ -f "$ROOT/start.env" ]; then . "$ROOT/start.env"; fi

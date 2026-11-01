@@ -48,6 +48,7 @@ export default function ForYou() {
             <ul className="fy-mine">{c.games.map((g) => <li key={g.post}><b>{cap(g.sport)} {g.when}</b><span>{g.where}{g.club ? ` · ${g.club}` : ""} · {g.agreed ? (g.on ? `game on, ${g.going} of you` : `proposed; ${g.going} of ${g.spots} said yes, waiting for the rest`) : g.confirmBy ? `a spot is offered to you: say yes by ${new Date(g.confirmBy).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })}` : g.waiting ? "you're on the waitlist" : g.mine ? `${g.going} of ${g.spots} joined` : `with ${g.host}, ${g.going} of ${g.spots} in`}</span>
               {g.agreed ? <a className="link" href={`#/huddle?id=${g.huddle}`}>See it</a> : g.confirmBy ? <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, true); return { line: "You're in: the spot is yours." }; })}>Yes, I'm in</button> : null}{!g.agreed && !g.mine && <button className="link" disabled={busy} onClick={() => act(`m${g.post}`, async () => { await feedJoin(g.post, false); return { line: g.waiting ? "Off the waitlist." : "You've left that game." }; })}>{g.waiting ? "Leave the waitlist" : "Can't make it"}</button>}{said[`m${g.post}`] && <p className="tq-said" role="status">{said[`m${g.post}`]}</p>}</li>)}</ul>
           </div>);
+        if (c.kind === "venue-note") return <VenueNote key={`v${c.game.id}`} g={c.game} onDone={load} />;
         if (c.kind === "attend") return <Attend key={c.attend.key} a={c.attend} onDone={load} />;
         if (c.kind === "question") return (
           <div key={i} className="fy-card"><span className="fy-kick">Help your agent answer for you</span><TasteQuestion q={c.question} onAnswered={() => setTimeout(load, 900)} /></div>);
@@ -84,6 +85,25 @@ export default function ForYou() {
 }
 
 // after a game: one tap per player, came or didn't (their show-up record), and whether they played at the level they said
+// after a game the agents agreed: the member's agent asks, once, how the place was, for the next group (venues/notes.js)
+const MARK = [["courts", "Courts"], ["light", "Lights"], ["air", "Air"], ["price", "Price for what you got"]];
+function VenueNote({ g, onDone }) {
+  const [marks, setMarks] = useState({}), [note, setNote] = useState(""), [busy, setBusy] = useState(false), [err, setErr] = useState(""), [said, setSaid] = useState("");
+  const send = async (skip = false) => { setBusy(true); setErr(""); try { const r = await H.venueNote(g.id, skip ? {} : marks, skip ? "" : note, skip); setSaid(r.line); setTimeout(onDone, 1600); } catch (e) { setErr(e.message); } setBusy(false); };
+  return (
+    <div className="fy-card needs"><span className="fy-kick">Your agent asks · {cap(g.sport)} {g.when}</span>
+      <p>How was <b>{g.where}</b>? It goes in the place's record, so the next group can check it before they book.</p>
+      <ul className="fy-attend">{MARK.map(([k, l]) => (
+        <li key={k}><span>{l}</span>
+          <div className="seg sm" role="radiogroup" aria-label={l}>{[["good", "Good"], ["ok", "OK"], ["bad", "Bad"]].map(([v, t]) => <button key={v} role="radio" aria-checked={marks[k] === v} onClick={() => setMarks({ ...marks, [k]: marks[k] === v ? undefined : v })}>{t}</button>)}</div></li>
+      ))}</ul>
+      <input maxLength={140} placeholder="A short note for the next group (optional)" value={note} onChange={(e) => setNote(e.target.value)} aria-label="A short note" />
+      {err && <p className="join-err" role="alert">{err}</p>}
+      {said ? <p className="tq-said" role="status">{said}</p> : <div className="cta-row"><button className="btn primary sm" disabled={busy || (!Object.values(marks).some(Boolean) && !note.trim())} onClick={() => send(false)}>Send</button><button className="btn ghost sm" disabled={busy} onClick={() => send(true)}>Skip</button></div>}
+    </div>
+  );
+}
+
 function Attend({ a, onDone }) {
   const [came, setCame] = useState(Object.fromEntries(a.players.map((p) => [p.id, "came"]))), [busy, setBusy] = useState(false), [err, setErr] = useState("");
   return (

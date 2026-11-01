@@ -122,27 +122,27 @@ const START: Record<string, number> = {
 
 type Cue = { from: number; src: string; volume: number; dur?: number; note: string };
 export const SFX3: Cue[] = [
-  ...[0, 1, 2, 3].map((i) => ({ from: S.island.from + 140 + i * 5, src: 'pop', volume: 0.5 - i * 0.04, note: `lock ${i + 1}` })),
+  ...[0, 1, 2, 3].map((i) => ({ from: S.island.from + 140 + i * 5, src: 'ui-message-pop', volume: 0.5 - i * 0.04, note: `lock ${i + 1}` })),
   ...[0, 1, 2].map((i) => ({ from: S.island.from + 165 + i * 7, src: 'switch-click-quick', volume: 0.35, note: `link ${i + 1} cut` })),
   { from: S.island.from + 175, src: 'swoosh-quick', volume: 0.3, note: 'no place to talk' },
   { from: S.island.from + 210, src: 'whoosh-fast', volume: 0.3, note: 'the group chat' },
   { from: S.intro.from, src: 'transition-soft', volume: 0.4, note: 'what Serve is' },
   { from: S.intro.from + 46, src: 'swoosh-quick', volume: 0.32, note: 'the Serve box' },
-  { from: S.intro.from + 203, src: 'pop', volume: 0.3, note: 'signed facts travel' },
-  { from: S.intro.from + 282, src: 'pop', volume: 0.32, note: 'the best court' },
-  { from: S.intro.from + 228, src: 'pop', volume: 0.36, note: 'held' },
+  { from: S.intro.from + 203, src: 'ui-message-pop', volume: 0.3, note: 'signed facts travel' },
+  { from: S.intro.from + 282, src: 'ui-message-pop', volume: 0.32, note: 'the best court' },
+  { from: S.intro.from + 228, src: 'ui-message-pop', volume: 0.36, note: 'held' },
   { from: S.intro.from + 305, src: 'switch-click-quick', volume: 0.4, note: 'one yes' },
-  ...[0, 1, 2, 3].map((i) => ({ from: S.intro.from + 327 + i * 4, src: 'pop', volume: 0.24, note: `key ${i + 1}` })),
+  ...[0, 1, 2, 3].map((i) => ({ from: S.intro.from + 327 + i * 4, src: 'ui-message-pop', volume: 0.24, note: `key ${i + 1}` })),
   { from: S.intro.from + 345, src: 'swoosh-quick', volume: 0.34, note: 'every message and reply' },
   { from: S.live.from, src: 'transition-snap', volume: 0.42, note: 'the frame grows' },
-  { from: S.live.from + 18, src: 'keyboard', volume: 0.26, dur: 30, note: 'the sentence typed' },
+  { from: S.live.from + 18, src: 'typewriter-digital', volume: 0.26, dur: 30, note: 'the sentence typed' },
   { from: S.live.from + SEG.link, src: 'switch-click-quick', volume: 0.5, note: "to the friend's phone" },
   { from: S.live.from + segAt(4), src: 'switch-click-quick', volume: 0.45, note: 'Game on' },
   { from: S.live.from + SEG.bumper + 4, src: 'swoosh-quick', volume: 0.38, note: 'A2A card' },
   { from: S.live.from + SEG.plan2 + 6, src: 'swoosh-quick', volume: 0.3, note: 'the proposal card' },
-  { from: S.live.from + SEG.plan2 + 146, src: 'pop', volume: 0.38, note: 'held 30 min' },
+  { from: S.live.from + SEG.plan2 + 146, src: 'ui-message-pop', volume: 0.38, note: 'held 30 min' },
   { from: S.live.from + SEG.msg, src: 'switch-click-quick', volume: 0.45, note: 'into Messenger' },
-  ...[14, 68, 136].map((o, i) => ({ from: S.door.from + o, src: 'keyboard', volume: 0.24, dur: 30, note: `command ${i + 1} typed` })),
+  ...[14, 68, 136].map((o, i) => ({ from: S.door.from + o, src: 'typewriter-digital', volume: 0.24, dur: 30, note: `command ${i + 1} typed` })),
   { from: S.door.from + 214, src: 'switch-click-quick', volume: 0.55, note: '403 lands' },
   { from: S.door.from + 250, src: 'swoosh-quick', volume: 0.35, note: 'the friends card' },
   { from: S.reel.from, src: 'transition-soft', volume: 0.38, note: 'into the reel' },
@@ -152,22 +152,22 @@ export const SFX3: Cue[] = [
   { from: S.text1b.from, src: 'transition-soft', volume: 0.34, note: 'the text 1B' },
   ...[116, 209].map((o, i) => ({ from: S.text1b.from + o - 10, src: 'swoosh-quick', volume: 0.3, note: `attack group ${i + 1}` })),
   { from: S.voi.from, src: 'swoosh-quick', volume: 0.34, note: 'the question worth most' },
-  { from: S.intro.from + 113, src: 'pop', volume: 0.3, note: 'who to ask' },
-  { from: S.intro.from + 250, src: 'pop', volume: 0.3, note: 'the venue agent' },
+  { from: S.intro.from + 113, src: 'ui-message-pop', volume: 0.3, note: 'who to ask' },
+  { from: S.intro.from + 250, src: 'ui-message-pop', volume: 0.3, note: 'the venue agent' },
   { from: S.venue.from, src: 'transition-soft', volume: 0.34, note: 'the venue page' },
   { from: S.venue.from + 60, src: 'swoosh-quick', volume: 0.3, note: 'who pays what' },
-  { from: S.safety.from + 326, src: 'pop', volume: 0.36, note: 'false rollbacks' },
+  { from: S.safety.from + 326, src: 'ui-message-pop', volume: 0.36, note: 'false rollbacks' },
   { from: S.meta.from, src: 'transition-soft', volume: 0.34, note: 'built on Meta' },
   ...[0, 1, 2, 3].map((i) => ({ from: S.meta.from + 14 + i * 26, src: 'swoosh-quick', volume: 0.26, note: `column ${i + 1}` })),
-  { from: S.guard.from + 170, src: 'pop', volume: 0.45, note: 'refused' },
-  { from: S.guard.from + 236, src: 'sparkle', volume: 0.32, dur: 60, note: 'fixed' },
+  { from: S.guard.from + 170, src: 'ui-message-pop', volume: 0.45, note: 'refused' },
+  { from: S.guard.from + 236, src: 'shimmer-sparkle-sweep', volume: 0.32, dur: 60, note: 'fixed' },
   { from: S.swarm.from, src: 'transition-soft', volume: 0.35, note: 'into the swarm' },
   { from: S.safety.from + 9, src: 'whoosh-fast', volume: 0.3, note: 'the card falls' },
   { from: S.safety.from + 15 - 17, src: 'impact-deep-whoosh', volume: 0.6, dur: 90, note: 'big hit 1 (peak 17 frames in)' },
   { from: S.safety.from + SAFETY_DURATION, src: 'swoosh-quick', volume: 0.32, note: 'the community loop' },
-  { from: S.outro.from + 6, src: 'whoosh-big', volume: 0.4, note: 'the ring collapses' },
+  { from: S.outro.from + 6, src: 'air-whoosh-powerful', volume: 0.4, note: 'the ring collapses' },
   { from: S.outro.from + 37 - 17, src: 'impact-deep-whoosh', volume: 0.55, dur: 90, note: 'big hit 2' },
-  { from: S.outro.from + 46, src: 'sparkle', volume: 0.35, dur: 70, note: 'after the landing' },
+  { from: S.outro.from + 46, src: 'shimmer-sparkle-sweep', volume: 0.35, dur: 70, note: 'after the landing' },
 ];
 
 // the narration and its subtitles (merged at a colon, held until the next sentence)
@@ -196,7 +196,7 @@ export const ServeV3: React.FC<{ bgm?: boolean; voice?: boolean; subs?: boolean 
   <AbsoluteFill style={{ background: '#ffffff' }}>
     {ORDER.map(([k, C, d]) => <Sequence key={k} from={S[k].from} durationInFrames={d}><C dur={d} /></Sequence>)}
     {bgm && (
-      <Audio src={staticFile('audio/bgm-tech-house.mp3')} loop
+      <Audio src={staticFile('audio/house-vibez.mp3')} loop
         volume={(f) => interpolate(f, [0, 30, TOTAL3 - 75, TOTAL3], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }) * (voice ? 0.13 - 0.08 * speaking(f) : 0.13)} />
     )}
     {voice && LINES.map((l, i) => (

@@ -49,25 +49,25 @@ const at = (pick: (s: (typeof LIVE)[number]) => boolean, nth = 0) => liveAt(LIVE
 type Cue = { from: number; src: string; volume: number; dur?: number; note: string };
 export const SFX: Cue[] = [
   // cold open: one pop per message landing (cue + 22 in ColdOpen), stepping down; the line arrives with a swoosh
-  ...[30, 44, 58, 72, 86, 100].map((o, i) => ({ from: SHOTS.cold.from + o, src: 'pop', volume: 0.6 - i * 0.04, note: `message ${i + 1} lands` })),
+  ...[30, 44, 58, 72, 86, 100].map((o, i) => ({ from: SHOTS.cold.from + o, src: 'ui-message-pop', volume: 0.6 - i * 0.04, note: `message ${i + 1} lands` })),
   { from: SHOTS.cold.from + 114, src: 'swoosh-quick', volume: 0.35, note: 'the line rises' },
   // the wordmark: a soft entry, and the shimmer when every stroke closes (14 + 52)
   { from: SHOTS.cold.from + 158, src: 'swoosh-quick', volume: 0.25, note: 'the number rises' },
   { from: SHOTS.wordmark.from, src: 'transition-soft', volume: 0.4, note: 'into the wordmark' },
-  { from: SHOTS.wordmark.from + 50, src: 'sparkle', volume: 0.45, dur: 60, note: 'serve is written' },
+  { from: SHOTS.wordmark.from + 50, src: 'shimmer-sparkle-sweep', volume: 0.45, dur: 60, note: 'serve is written' },
   // the phone rises, the chips pop (37, 67)
-  { from: SHOTS.phone.from, src: 'whoosh-big', volume: 0.35, note: 'the phone rises' },
-  { from: SHOTS.phone.from + 37, src: 'pop', volume: 0.35, note: 'left chip' },
-  { from: SHOTS.phone.from + 67, src: 'pop', volume: 0.32, note: 'right chip' },
+  { from: SHOTS.phone.from, src: 'air-whoosh-powerful', volume: 0.35, note: 'the phone rises' },
+  { from: SHOTS.phone.from + 37, src: 'ui-message-pop', volume: 0.35, note: 'left chip' },
+  { from: SHOTS.phone.from + 67, src: 'ui-message-pop', volume: 0.32, note: 'right chip' },
   // the live frame: the band snaps in, a swoosh on each act's card, typing under the first slice, clicks on the flips
   { from: SHOTS.live.from, src: 'transition-snap', volume: 0.45, note: 'the frame grows' },
   ...[0, 1, 2].map((n) => ({ from: SHOTS.live.from + at((s) => s.kind === 'bumper', n) + 4, src: 'swoosh-quick', volume: 0.4, note: `act ${n + 1} card` })),
-  { from: SHOTS.live.from + at((s) => s.src === 'ask') + 6, src: 'keyboard', volume: 0.28, dur: 150, note: 'typing the request' },
+  { from: SHOTS.live.from + at((s) => s.src === 'ask') + 6, src: 'typewriter-digital', volume: 0.28, dur: 150, note: 'typing the request' },
   { from: SHOTS.live.from + at((s) => s.src === 'link'), src: 'switch-click-quick', volume: 0.5, note: "flip to Leo's phone" },
   { from: SHOTS.live.from + at((s) => s.kind === 'split'), src: 'switch-click-quick', volume: 0.45, note: 'both phones side by side' },
   { from: SHOTS.live.from + at((s) => s.src === 'gameon'), src: 'switch-click-quick', volume: 0.5, note: 'Game on, close up' },
   { from: SHOTS.live.from + at((s) => s.src === 'msgbook'), src: 'switch-click-quick', volume: 0.45, note: 'into Messenger' },
-  { from: SHOTS.live.from + at((s) => !!s.mark) + 26, src: 'pop', volume: 0.4, note: "Hana's counter-offer marked" },
+  { from: SHOTS.live.from + at((s) => !!s.mark) + 26, src: 'ui-message-pop', volume: 0.4, note: "Hana's counter-offer marked" },
   // the auto-cut clip rises; the models: soft entry, the fan opens (68), the centre card is drawn out (102)
   { from: SHOTS.autoclip.from, src: 'transition-soft', volume: 0.38, note: 'out of the live frame' },
   { from: SHOTS.models.from, src: 'swoosh-quick', volume: 0.3, note: 'into the models' },
@@ -83,9 +83,9 @@ export const SFX: Cue[] = [
   // live numbers: a swoosh as each card turns (22 + 4, staggered 12)
   ...[26, 38, 50].map((o, i) => ({ from: SHOTS.numbers.from + o, src: 'swoosh-quick', volume: 0.3, note: `card ${i + 1} flips` })),
   // the close: riser into the collapse, impact on the brake (t 0.28 of 132), shimmer after — the second big hit
-  { from: SHOTS.outro.from + 6, src: 'whoosh-big', volume: 0.4, note: 'the ring collapses' },
+  { from: SHOTS.outro.from + 6, src: 'air-whoosh-powerful', volume: 0.4, note: 'the ring collapses' },
   { from: SHOTS.outro.from + 37 - 17, src: 'impact-deep-whoosh', volume: 0.55, dur: 90, note: 'the mark lands (peak 17 frames in)' },
-  { from: SHOTS.outro.from + 46, src: 'sparkle', volume: 0.35, dur: 70, note: 'after the landing' },
+  { from: SHOTS.outro.from + 46, src: 'shimmer-sparkle-sweep', volume: 0.35, dur: 70, note: 'after the landing' },
 ];
 
 export const ServePromo: React.FC<{ bgm?: boolean; voice?: boolean; subs?: boolean }> = ({ bgm = true, voice = true, subs = true }) => (
@@ -101,7 +101,7 @@ export const ServePromo: React.FC<{ bgm?: boolean; voice?: boolean; subs?: boole
       </Sequence>
     ))}
     {bgm && (
-      <Audio src={staticFile('audio/bgm-tech-house.mp3')}
+      <Audio src={staticFile('audio/house-vibez.mp3')}
         volume={(f) => interpolate(f, [0, 30, TOTAL - 75, TOTAL], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }) * (voice ? 0.24 - 0.15 * speaking(f) : 0.24)} />
     )}
     <Narration voice={voice} subs={subs} live={[SHOTS.live.from, SHOTS.live.from + SHOTS.live.dur]} />

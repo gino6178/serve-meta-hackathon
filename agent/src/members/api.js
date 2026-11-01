@@ -50,6 +50,8 @@
 //   POST /api/huddle/game {post, yes, why}   join a game the agent recommended, or say why not
 //   GET  /api/huddle/places?sport=           courts near them: quiet hours, and for sports centres the venue agent's price
 //   POST /api/huddle/deal {place, date, start, players, sport}   ask a venue's agent for a price
+//   POST /api/huddle/venue-note {game, marks, note, skip}   after a game the agents agreed: how the place was (courts,
+//                                            light, air, price: good, ok or bad; a short note), once (venues/notes.js)
 //   GET  /api/huddle/venue?place=&sport=    a short report on a place: what its reviews say, its prices, what groups
 //                                            here paid, and whether games agreed there went ahead (venues/report.js)
 // The trust chain, for anyone (no sign-in):
@@ -341,6 +343,12 @@ async function huddle(req, res, p, q, me, send, given = null) {
     const deal = D.talk(x, { date: b.date, start: b.start, players: Math.min(12, Math.max(2, +b.players || 4)), weekly: !!b.weekly, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" });
     const outside = T.hardNos({ ...t, busyAt: [], declined: [] }, { date: b.date, start: b.start, km: +T.km(t.home, x).toFixed(1), each: deal.each || 0 }).filter((r) => ["time", "place", "price"].includes(r) && (r !== "place" || t.limitKm != null) && (r !== "price" || t.limitEach != null) && (r !== "time" || t.windows?.length));
     return send(200, { deal, currency: D.CURRENCY, ...(outside.length ? { outside, note: `A quote only: it is outside your limits (${outside.map((r) => T.NO[r] || r).join(", ")}), so no game is agreed there.` } : {}) });
+  }
+  if (p === "/api/huddle/venue-note" && post) {
+    const g = H.findPlayed(me, String(b.game || ""));
+    if (!g) return send(404, { error: "No game of yours to rate: only a player of a game agreed at the place can, a few hours after it, within a week (GET /api/huddle/today shows it)." });
+    const VN = await import("../venues/notes.js");
+    return out(await VN.add(me, g, { marks: b.marks, note: req.byAgent ? "" : b.note, skip: b.skip === true }));
   }
   if (p === "/api/huddle/venue" && get) {
     const t = T.get(me), sport = String(q.get("sport") || t.sports[0] || "badminton").toLowerCase(), id = String(q.get("place") || "");

@@ -151,6 +151,8 @@ export function asked(id, n, now = Date.now()) {
   if (sum > PROBE_ASKS && now - t.marked > DAY) { t.marked = now; add("asked", id, { n: PROBE_ASKS + 1 }, now); } // the mark, not the count
 }
 // a request with the agent's key that failed the check (replayed, changed, expired)
+// a player's marks for a place after a game there (venues/notes.js): the place and the marks only, never their note
+export function venueNote(id, place, marks, now = Date.now()) { add("venue", id, { place: String(place), marks }, now); }
 export function badSignature(id, why, now = Date.now()) { add("sig", id, { why: String(why || "bad") }, now); }
 
 // ---- the person's record ----
