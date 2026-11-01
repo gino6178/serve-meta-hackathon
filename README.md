@@ -98,16 +98,18 @@ deposits.
 
 ## How this entry meets the judging criteria
 
-**Where the criteria come from.** The official event page
-(https://cerebralvalley.ai/e/meta-ai-developer-hackathon) says the Indie track is *"judged on creativity, technical
-ambition, and whether it works"* and sets the themes "Build for Your World" and "Push the Frontier". It does not print
-weights. The weighted rubric below (Impact 30%, Use of Meta AI Tooling 25%, Demo 25%, Technical Depth and Execution
-20%) and the Meta bonus awards are as reported in hackathon coverage and participant notes (for example
-https://github.com/meta-ai-hackathon/meta-hack, `info/grading criteria.md`); we could not open the Official Rules
-document itself. Each subsection points to the evidence further down.
+**Where the criteria come from.** The hackathon's participant guide
+(https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) sets a pass/fail first stage, then scores each entry
+from 0 to 10 on Impact (30%), Use of Meta AI Tooling (25%), Demo (25%) and Technical Depth and Execution (20%); the top
+5 per track are ranked again on the same rubric from their videos. Each subsection points to the evidence further down.
 
 **The pass/fail gate.** Serve fits *Build for Your World* (a problem we know firsthand: getting our own club onto a
 court) and runs on Meta's open-weight models (Muse Glimmer on our own GPUs) and the Meta Model API.
+
+**What Serve is not.** Serve is not a sports analyzer or coach: it gives no training advice, scores no technique and
+gives no health advice. It organises games: who to ask, when, where, at what price, and one yes from each player. Pace
+only turns a heavy week into a scheduling limit, and the highlight reel is an optional bonus after a game, a clip to
+share with the club.
 
 ### Impact (30%)
 
