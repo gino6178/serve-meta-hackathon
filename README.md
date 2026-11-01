@@ -158,7 +158,7 @@ court) and runs on Meta's open-weight models (Muse Glimmer on our own GPUs) and 
 Muse Glimmer runs on our own RTX 3090s (Ollama, 4 requests in parallel) and does every agent's reasoning. Around it
 run our **two distilled Llama 3.2 1B models** (LoRA, int4 Q4_K_M, 0.8 GB for the decision model, on the CPU), Llama
 Guard 3 1B, Prompt Guard 2 86M, DRAMA, Omnilingual ASR, Sapiens2, SAM 2.1, DETR and MapAnything, all on hardware we
-own, so players' video and health data stay on our server. Every model we trained is published with a model card:
+own, so players' video and activity data stay on our server. Every model we trained is published with a model card:
 [models/README.md](models/README.md). See [Meta models used](#meta-models-used-and-where-each-runs) and
 [distillation](#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer).
 

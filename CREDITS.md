@@ -8,7 +8,7 @@ before the hackathon", and none of its code is in this repository.
 
 | What | Used for | License |
 |---|---|---|
-| Muse Glimmer (Meta), open weights | Every agent: the Autopilot, agent to agent, matchmaking's requests, the body log, courts near you, captions, the community loop's sentences and specs | Apache 2.0 |
+| Muse Glimmer (Meta), open weights | Every agent: the Autopilot, agent to agent, matchmaking's requests, Pace (exercise load), courts near you, captions, the community loop's sentences and specs | Apache 2.0 |
 | Ollama | Serves Muse Glimmer on our GPU server | MIT |
 | Sapiens2 pose 0.4B (Meta), `facebook/sapiens2-pose-0.4b` | Both players' pose on the highlight frames, on our GPU server | Sapiens2 License |
 | SAM 2.1 Hiera-L (Meta), `facebook/sam2.1-hiera-large` | Both players' outlines on the highlight frames, on our GPU server | Apache 2.0 |
@@ -41,7 +41,7 @@ before the hackathon", and none of its code is in this repository.
 ## Assets and data
 
 - **Anatomy model (an earlier build only).** BodyParts3D, © The Database Center for Life Science, CC BY 4.0, adapted for a
-  3D muscle view the body page had during the hackathon. The page now shows what the agent knows in words, and the model
+  3D muscle view the Pace page had during the hackathon. The page now shows what the agent knows in words, and the model
   files are no longer used.
 - **Portraits used in an earlier build of the app during the hackathon.** AI-generated images of fictional people, made with Gemini
   (Google). They do not show real people.
