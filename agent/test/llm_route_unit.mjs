@@ -92,3 +92,13 @@ test("the public site's fast lane (LLM_FAST=api): the 1B keeps its short sites, 
     assert.equal(g.value.caption, "from muse-glimmer", "Glimmer takes the call when the API fails");
   } finally { delete process.env.LLM_FAST; apiDown = false; }
 });
+
+test("the fast lane's hourly ceiling: past it, calls go to Glimmer", async () => {
+  process.env.LLM_FAST = "api";
+  try {
+    process.env.LLM_FAST_HOURLY = "0";
+    assert.equal(tierOf(msgs(300), { site: "feed.standard" }), "local", "no credit left this hour");
+    process.env.LLM_FAST_HOURLY = "100000";
+    assert.equal(tierOf(msgs(300), { site: "feed.standard" }), "api");
+  } finally { delete process.env.LLM_FAST; delete process.env.LLM_FAST_HOURLY; }
+});

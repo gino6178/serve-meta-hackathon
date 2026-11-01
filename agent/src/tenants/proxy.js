@@ -13,6 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { spawn } from "node:child_process";
+import * as shield from "../safety/shield.js";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1"));
 const AGENT = path.resolve(HERE, "../..");
@@ -112,14 +113,14 @@ function headersFor(req, { token }) {
 function pass(req, res, target, { token, after = null }) {
   const up = http.request({ host: target.hostname, port: target.port, method: req.method, path: req.url, headers: headersFor(req, { token }) }, (r) => {
     if (after) r.on("end", () => after(r.statusCode));
-    const h = { ...r.headers };
+    const h = { ...r.headers, ...shield.HEADERS };
     delete h["access-control-allow-origin"]; delete h.vary;
     res.writeHead(r.statusCode, h); r.pipe(res);
   });
   up.on("error", () => { if (!res.headersSent) { res.writeHead(502, { "content-type": "application/json" }); res.end('{"error":"the gateway did not answer"}'); } });
   req.pipe(up);
 }
-const json = (res, code, body) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(body)); };
+const json = (res, code, body, extra = {}) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store", ...shield.HEADERS, ...extra }); res.end(JSON.stringify(body)); };
 
 // the web app: the built files, and index.html for anything else (the app routes by the hash)
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".json": "application/json", ".mp4": "video/mp4", ".webm": "video/webm", ".woff2": "font/woff2", ".ico": "image/x-icon", ".txt": "text/plain", ".wasm": "application/wasm" };
@@ -127,7 +128,9 @@ function file(req, res, p) {
   let f = path.join(WEB, decodeURIComponent(p));
   if (!f.startsWith(WEB) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) f = path.join(WEB, "index.html");
   const type = TYPES[path.extname(f).toLowerCase()] || "application/octet-stream", size = fs.statSync(f).size;
-  const head = { "content-type": type, "accept-ranges": "bytes", "cache-control": f.endsWith("index.html") ? "no-cache" : "public, max-age=3600" };
+  const page = f.endsWith("index.html");
+  const head = { "content-type": type, "accept-ranges": "bytes", "cache-control": page ? "no-cache" : "public, max-age=3600", ...shield.HEADERS,
+    ...(page ? { "content-security-policy": shield.cspFor(fs.readFileSync(f, "utf8"), req.headers.host) } : {}) };
   // a byte range (Safari asks for one before it plays any video, and will not play without it)
   const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
   if (m && (m[1] || m[2])) {
@@ -143,6 +146,10 @@ function file(req, res, p) {
 
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, "http://x"), p = u.pathname;
+  // the shield first: how often and how big, per client (safety/shield.js)
+  const stop = shield.check(req, p);
+  if (stop) { req.resume(); return json(res, stop[0], stop[1], stop[2]); }
+  shield.opened(req, res);
   try {
     // the way in for agents (the Agent Card, the guide, the privacy page) is the shared gateway's, read-only
     if (req.method === "GET" && (p.startsWith("/.well-known/") || p === "/llms.txt" || p === "/privacy.txt" || p === "/openapi.json")) return pass(req, res, MAIN, { token: false });
@@ -166,6 +173,7 @@ server.on("upgrade", async (req, socket, head) => {
   const u = new URL(req.url, "http://x");
   const no = (code) => { socket.end(`HTTP/1.1 ${code} No\r\nconnection: close\r\n\r\n`); };
   if (u.pathname !== "/api/voice/live" || !sameOrigin(req)) return no(403);
+  if (shield.check(req, "/api/voice/live")) return no(429);
   const id = await memberOf(u.searchParams.get("session"));
   if (!id) return no(401);
   let t;
@@ -182,4 +190,6 @@ server.on("upgrade", async (req, socket, head) => {
   up.on("error", end); socket.on("error", end);
 });
 
+// a client that sends its headers or its body too slowly is cut off (slowloris); streamed answers are not limited
+server.headersTimeout = 15000; server.requestTimeout = 600000; server.keepAliveTimeout = 10000;
 server.listen(PORT, "127.0.0.1", () => console.log(`tenants: http://127.0.0.1:${PORT} -> the club on ${MAIN.origin}, each player's own gateway from :${BASE}; web from ${WEB}`));

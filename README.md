@@ -15,6 +15,31 @@ Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Yo
   [submission/pdf/serve_technical_report_slides.pdf](submission/pdf/serve_technical_report_slides.pdf)
 - **For agents:** https://play.theminimallab.com/llms.txt
 
+## Contents
+
+- **Start here:** [For judges: two ways in](#for-judges-two-ways-in) · [Overview](#overview) ·
+  [The gap](#the-gap) · [How this entry meets the judging criteria](#how-this-entry-meets-the-judging-criteria)
+- **How it works:** [Architecture](#architecture) ·
+  [1. A2A negotiation](#1-a2a-v10-facts-only-one-round-by-intersection-30-minute-holds) ·
+  [2. Who gets asked](#2-ranking-by-everyones-chance-of-yes-and-the-one-question-worth-most) ·
+  [3. Cache and router](#3-cache-and-router-a-tiered-decision-engine) ·
+  [4. Our distilled 1B](#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer) ·
+  [5. The text 1B](#5-a-second-1b-for-short-text-hardened-against-attacks-it-never-saw) ·
+  [6. Security and de-identification](#6-security-rule-of-two-two-guards-de-identification-a-signed-consent-chain) ·
+  [7. A self-evolving community](#7-a-community-that-evolves-the-platform-with-automatic-rollback) ·
+  [8. Highlight reels](#8-social-highlight-reels-a-bonus-after-the-game) ·
+  [9. Testing](#9-testing-177-ai-testers-in-28-rounds) ·
+  [10. Outside agents](#10-an-open-door-for-outside-agents) ·
+  [11. Venue agents and a fair split](#11-a-venues-own-agent-and-a-fair-split) ·
+  [12. RAG memory](#12-memory-retrieval-augmented-generation-rag) ·
+  [13. Observability](#13-observability-every-agent-step-traced) ·
+  [14. Agents' faces](#14-agents-faces-designed-with-muse-image)
+- **Results and reference:** [Real-world use](#real-world-use) · [What surprised us](#what-surprised-us) ·
+  [Meta models used](#meta-models-used-and-where-each-runs) · [Run it yourself](#run-it-yourself) ·
+  [Repository map](#repository-map) · [Limitations](#limitations) · [Roadmap](#roadmap) ·
+  [Built during the hackathon](#built-during-the-hackathon-oct-27--nov-4-2026) · [Our trained models](#our-trained-models) ·
+  [Where the numbers come from](#where-the-numbers-come-from) · [Credits and license](#credits-and-license)
+
 ### For judges: two ways in
 
 **1. Click through it (about 3 minutes, in a phone or desktop browser)**
@@ -73,37 +98,47 @@ step of getting a game together, so you only say yes once:
 
 ### Key features and architecture
 
+**Agents that negotiate for people**
+
 - **Agent-to-Agent (A2A) negotiation.** Powered by Meta's open weights and APIs, your agent communicates securely via
   A2A v1.0 and Ed25519-signed Agent Cards to align everyone's schedules and preferences autonomously.
 - **Asking by habit, not by spam.** Each member's agent learns how its person plays and answers "how likely is a yes"
   with a band, worked out on its own side from its person's record; the asking agent invites the best-suited first.
 - **Venue agents and a fair split.** Sports centres have their own A2A agents that sign every quote; the group's agent
   never offers past what the players' own limits cover, and only players who offered to cover pay more than an equal
-  share.
-- **Intelligent compute cascade (1B model distillation).** To overcome latency, a fine-tuned Meta Llama 3.2 1B student
-  model runs on the server's CPU (about 0.9 s), handling routine decisions; in talks with the simulated club it cut
-  heavy calls to Muse Glimmer, which reasons through complex constraints, by 54–67%.
+  share. Before booking, a report on the place; after the game, each player's agent asks how it was.
+- **Memory by retrieval-augmented generation (RAG).** What a person told their agent weeks ago ("leave Tomás out for
+  a while") is kept as short notes, embedded with Meta's DRAMA; the closest notes go in front of Muse Glimmer as
+  cited facts ([§12](#12-memory-retrieval-augmented-generation-rag)).
+
+**Fast and cheap enough to use**
+
 - **Cache and router (model tiering).** One router sends each call to the cheapest model that can answer: code, a
   27.6 KB classifier, our distilled 1Bs, Muse Glimmer, or Muse Spark on the Meta Model API; caches mean work done
   once is not done again (88.8% of the planner's prompt tokens read from cache)
   ([§3](#3-cache-and-router-a-tiered-decision-engine)).
+- **Our own distilled models.** A Llama 3.2 1B student of Muse Glimmer runs on the server's CPU (about 0.9 s) for
+  routine decisions; in talks with the simulated club it cut heavy calls to Glimmer by 54–67%
+  ([§4](#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer)).
 - **Observability.** Every agent step, A2A request, model call and tool call is an OpenTelemetry span, with a token
   ledger per call site and failure attribution by code ([§13](#13-observability-every-agent-step-traced)).
+
+**Trust, privacy and safety**
+
+- **Safety and guardrails.** Meta's Agents Rule of Two and a disclosure budget, with Llama Guard 3 and Prompt Guard 2
+  screening messages, reviews and community ideas against prompt injection and privacy leaks (93 of 93 red-teamed
+  attacks stopped) ([§6](#6-security-rule-of-two-two-guards-de-identification-a-signed-consent-chain)).
+- **De-identification by design.** An HMAC pseudonym on the trust chain, an area rounded to about 1 km, likelihood
+  bands instead of a calendar, and prices and venue notes with no name or club.
+- **A signed record of every yes**, in a hash chain anyone can verify; no money ever moves.
+
+**Media and voice**
+
 - **Agents with faces of their own.** Muse Image designed each agent's face: a robot with its person's sport, never
   the person ([§14](#14-agents-faces-designed-with-muse-image)).
-- **Retrieval-augmented generation (RAG) for the agent's memory.** What a person told their agent weeks ago ("leave
-  Tomás out for a while") is kept as short notes, embedded with Meta's DRAMA on the server's CPU; the notes closest to
-  the planner's question go in front of Muse Glimmer as facts, each cited and checked
-  ([§12](#12-memory-retrieval-augmented-generation-rag)).
-- **De-identification by design.** A person's data is de-identified before anyone else's agent or the public record
-  sees it: an HMAC pseudonym on the trust chain, an area rounded to about 1 km, likelihood bands instead of a calendar,
-  and prices and venue notes with no name or club ([§6](#6-security-rule-of-two-two-guards-de-identification-a-signed-consent-chain)).
-- **Safety and guardrails.** Implements Meta's Agents Rule of Two and a disclosure budget, alongside Llama Guard 3 and
-  Prompt Guard 2 to screen messages, reviews and community ideas against prompt injections and privacy leaks (stopping
-  93 of 93 red-teamed attacks).
-- **Multimodal highlights and voice.** Hands-free voice control via Muse Voice Transcribe (with real-time barge-in
-  support), and an auto-cut highlight pipeline driven by RT-DETR (Meta's DETR as fallback), Sapiens2, SAM 2.1 and
-  MapAnything that turns phone videos into cinematic social reels.
+- **Multimodal highlights and voice.** Hands-free voice through Muse Voice Transcribe (with barge-in), and highlight
+  reels from a phone video with RT-DETR, Sapiens2, SAM 2.1 and MapAnything
+  ([§8](#8-social-highlight-reels-a-bonus-after-the-game)).
 
 ---
 
@@ -510,6 +545,20 @@ A SecAlign++ DPO step cut injected passes further but blocked ordinary comments,
   - **A sign-in provider's id** is kept only as a hash, and no provider token is kept. Leaving deletes the account,
     its posts and its agents; the chain gets a "left" entry and that pseudonym's records stop counting.
   - What is kept and who sees it: https://play.theminimallab.com/privacy.txt.
+- **A shield at the public address** (`agent/src/safety/shield.js`, in the tenants proxy, before any gateway):
+  - **Rate limits per client**, by token bucket: 240 requests a minute; 10 new demo accounts an hour; 60 requests
+    that start model work in 10 minutes, counted per address and per session, so one session can't spread over many
+    addresses; 120 A2A messages a minute from other agents. Behind the Cloudflare tunnel the client is
+    `cf-connecting-ip`, trusted only from the tunnel itself, and an IPv6 address counts by its /64. Over a limit:
+    `429` with `Retry-After`, and nothing reaches a gateway.
+  - **At most 40 requests open at once** per client, a JSON body over 1 MB refused before it is read, and clients that
+    send their headers too slowly cut off after 15 s (slowloris).
+  - **A ceiling on spending:** the public fast lane to the Meta Model API stops at 900 calls an hour across everyone
+    (`LLM_FAST_HOURLY`), then Glimmer answers, so a flood can slow the site but not run up the bill.
+  - **Headers on every answer:** a Content Security Policy on the app's page (only this address, the OpenStreetMap
+    tiles and the page's one inline script, by hash; no framing), HSTS, `nosniff`, a strict referrer and a
+    permissions policy. Cloudflare in front absorbs floods by volume.
+  - Tests: `agent/test/shield_unit.mjs`.
 - **A signed record of every yes.** Each consent is appended to a log in which every entry is signed and carries the
   hash of the one before, so a yes cannot be changed or removed afterwards without it showing.
 - **No-shows, with no money.** A show-up record fades with a 60-day half-life and is shown as a range in words, never
@@ -868,6 +917,9 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 - **The guards are one layer among several**, measured on small sets of our own messages, mostly in English.
 - **DRAMA's weights are CC BY-NC 4.0**, so memory and the loop's grouping would need another embedder for commercial
   use.
+- **One server today.** One RTX 3090 tops out at about 8 talks a minute ([docs/scale.md](docs/scale.md)), so with one
+  talk per person every 10 minutes it serves about 80 people at once (an estimate); the public site's fast lane moves
+  waited-for calls to the Meta Model API. Per-player gateway processes and JSON files would not reach large scale.
 
 ## Roadmap
 
@@ -876,6 +928,18 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 3. **The community loop on real members.**
 4. **Less waiting:** move more of Glimmer's 20 to 40 s path to the small models.
 5. **Longer reels:** 3D replays beyond today's ±6 to 12°.
+6. **100,000 people at once** ([docs/scale_100k_research.md](docs/scale_100k_research.md), with the GitHub projects
+   each step follows):
+   - **Phase 0, one box done right:** vLLM or SGLang instead of Ollama's fixed slots (continuous batching), SQLite
+     or Postgres instead of JSON files, one gateway with the tenant as a column instead of a process per player.
+   - **Phase 1, stateless gateways:** Postgres and Redis (as LangGraph Server and Letta do), gateway replicas behind
+     Cloudflare, GPUs behind a prefix- and load-aware router (SGLang router, llm-d) so the 88.8% cache hits survive.
+   - **Phase 2, an actor per agent and a bus between them:** each member, venue and player agent a virtual actor
+     (Orleans, Dapr or Ray to keep data on our machines; Cloudflare Durable Objects otherwise), A2A messages inside
+     the platform on NATS JetStream or Redis Streams, and a priority queue that sheds background work first.
+   - **The load to plan for (estimates, with the arithmetic in the doc):** about 56 talks and 560 A2A messages a
+     second, easy for a message bus; the GPUs are the cost, so the cheapest call stays the one never made: code, the
+     tiny classifier and the 1Bs first.
 
 ![9 days of real-world traction, and the road to production](docs/readme/slide_traction_roadmap.png)
 

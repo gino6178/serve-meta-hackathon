@@ -78,7 +78,11 @@ const SMALL_SITES = () => new Set((process.env.LLM_SMALL_SITES || "ask.word,plac
 // GPU takes 20 to 40 s a call. So the short checked sites still go to our 1B, and every other call a person waits for
 // goes straight to Muse Spark on the Meta Model API; Glimmer takes the call if the API fails, and keeps the background
 // work (judging ahead, the autopilot), which nobody waits for.
-const FAST = () => process.env.LLM_FAST === "api" && !!(LONG || FALLBACK) && API === "ollama";
+// The fast lane spends Meta Model API credit, so it has a ceiling (LLM_FAST_HOURLY, 900 calls an hour, across everyone):
+// past it, calls go to Glimmer until the hour turns, so a flood of requests can slow the site but not run up the bill.
+const fastUsed = { hour: -1, n: 0 };
+export const fastLeft = (now = Date.now()) => { const h = Math.floor(now / 3600e3); if (fastUsed.hour !== h) Object.assign(fastUsed, { hour: h, n: 0 }); return +(process.env.LLM_FAST_HOURLY || 900) - fastUsed.n; };
+const FAST = () => process.env.LLM_FAST === "api" && !!(LONG || FALLBACK) && API === "ollama" && fastLeft() > 0;
 export const fastOn = FAST;
 const TEMPLATE_TOKENS = /<\|[a-z_]+\|>/gi, untrusted = (t) => String(t).replace(TEMPLATE_TOKENS, " ");
 const INPUT_ROLE = {
@@ -235,6 +239,7 @@ export function chat(messages, opts = {}) {
     if (tier === "api") {
       const to = LONG || FALLBACK, long = tokensOf(messages) >= LONG_MIN();
       try {
+        if (!long) fastUsed.n++;
         const { m, secs, n } = await onFallback(site, messages, { maxTokens: opts.maxTokens ?? 420, temperature: opts.temperature ?? 0.4, format: opts.format || null, budget: budgetOf(site, opts.budget ?? null), timeoutMs: opts.timeoutMs, why: long ? "long" : "fast", to });
         return { text: (m.content || "").replace(THINK, "").trim(), logprobs: null, timing: { ...timing(secs, n ? n / secs : null), device: `Meta Model API (${to.model})` }, tier };
       } catch (e) { if (long) throw e; active()?.setAttributes({ "serve.tier": "local", "serve.api_failed": true }); } // the fast lane failed: Glimmer takes it
@@ -421,6 +426,7 @@ export function chatTools(messages, tools, opts = {}) {
     try { if (tier === "api" && !fast) throw Object.assign(new Error("long"), { long: true }); out = null;
       // the fast lane: Muse Spark first; if it fails, Glimmer below
       if (fast) try {
+        fastUsed.n++;
         const { m, secs } = await onFallback(site, messages, { maxTokens: opts.maxTokens ?? 500, temperature: opts.temperature ?? 0.2, tools, budget: budgetOf(site, opts.budget ?? null), why: "fast", to: LONG || FALLBACK });
         const calls = (m.tool_calls || []).map((c) => { const tool = tools.find((x) => x.function?.name === c.function?.name); const args = safeJSON(c.function?.arguments); const errors = tool ? validate(tool.function.parameters || {}, args) : [`no tool called ${c.function?.name}`]; return { id: c.id, name: c.function?.name, args, ...(errors.length ? { errors } : {}) }; });
         out = { text: (m.content || "").replace(THINK, "").trim(), calls, message: { role: "assistant", content: m.content || "", tool_calls: m.tool_calls }, seconds: +secs.toFixed(2), tier: "api" };
