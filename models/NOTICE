@@ -1,0 +1,4 @@
+Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.
+
+The models in this folder and in the release models-2026-11-01 whose names begin with "Llama-3.2" are derived from
+Llama 3.2 1B Instruct and Llama 3.2 3B Instruct (Meta). Built with Llama.

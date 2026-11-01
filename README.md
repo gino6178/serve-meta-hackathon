@@ -132,8 +132,9 @@ court) and runs on Meta's open-weight models (Muse Glimmer on our own GPUs) and 
 Muse Glimmer runs on our own RTX 3090s (Ollama, 4 requests in parallel) and does every agent's reasoning. Around it
 run our **two distilled Llama 3.2 1B models** (LoRA, int4 Q4_K_M, 0.8 GB for the decision model, on the CPU), Llama
 Guard 3 1B, Prompt Guard 2 86M, DRAMA, Omnilingual ASR, Sapiens2, SAM 2.1, DETR and MapAnything, all on hardware we
-own, so players' video and health data stay on our server. See
-[Meta models used](#meta-models-used-and-where-each-runs) and [distillation](#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer).
+own, so players' video and health data stay on our server. Every model we trained is published with a model card:
+[models/README.md](models/README.md). See [Meta models used](#meta-models-used-and-where-each-runs) and
+[distillation](#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer).
 
 ### Bonus: Best Agentic Use-Case
 
@@ -155,8 +156,9 @@ member's agent's face and rematch posters ([reels](#8-social-highlight-reels-a-b
 
 | Item | Where |
 |---|---|
-| New work only | Everything here was built during the hackathon (October 27 to November 4, 2026). The one earlier piece is TrackNetV5, our published shuttle tracker, fetched at run time and off unless `BALL_TRACKING=1`; none of its code is here ([CREDITS.md](CREDITS.md)) |
+| New work only | Everything in this repository was built during the hackathon (October 27 to November 4, 2026): the itemised list is in [Built during the hackathon](#built-during-the-hackathon-oct-27--nov-4-2026). Third-party models and libraries we use as they are, TrackNetV5 among them, are listed under [Used, not built](#used-not-built) |
 | Models used | [Meta models used and where each runs](#meta-models-used-and-where-each-runs) |
+| Models we trained | All published, with model cards and sha256: [models/README.md](models/README.md) |
 | Setup and run | [Run it yourself](#run-it-yourself) |
 | Team | Indie Developer track, one member ([gino6178](https://github.com/gino6178)). We designed Serve; an AI coding agent (Claude Code) wrote code to our instructions, credited in the commits, and every change went through the tests |
 | License | Serve's own code is [MIT](LICENSE); models and libraries keep their own licenses ([CREDITS.md](CREDITS.md)) |
@@ -581,6 +583,171 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 ![9 days of real-world traction, and the road to production](docs/readme/slide_traction_roadmap.png)
 
 ---
+
+## Built during the hackathon (Oct 27 – Nov 4, 2026)
+
+**Everything in this repository was built during the hackathon.** Building started on October 27, the hackathon's
+first day; the repository was restructured into its current layout on October 28 and 29, one commit per file, and
+its history holds 1,163 commits up to November 1. Nothing here predates the event. What we use from others as it is
+(models, libraries, our earlier shuttle tracker) is not in this repository and is listed under
+[Used, not built](#used-not-built).
+
+Where a part follows a published method, the paper is named. A paper is listed only when the code, `docs/`, the
+technical report or our research notes cite it; where we could not tie a method to a paper, none is given.
+
+**Agents and negotiation**
+- **The player's agent and its helpers** (`agent/src/agents/`): Match asks first, Talk negotiates, Pace turns exercise
+  load into scheduling limits. Following ReAct (Yao et al., ICLR 2023), the planner is a tool loop in which the model
+  picks the next tool and code runs it with checked arguments (`autopilot.js`, `planner_tools.js`).
+- **A2A negotiation** (`agent/src/a2a/`). Following the Agent2Agent (A2A) Protocol v1.0 (Linux Foundation) and its
+  official JavaScript SDK, every member has an A2A agent with a signed Agent Card. Following the Contract Net Protocol
+  (Smith, IEEE Transactions on Computers, 1980) and distributed constraint satisfaction (Yokoo et al., IEEE TKDE, 1998),
+  a talk is one call for proposals settled by intersecting each agent's set of workable times. Facts only, never prose,
+  cross between agents.
+- **30-minute holds** (`a2a/talk.js`). Following leases (Gray and Cheriton, SOSP 1989) and resource ordering (Havender,
+  IBM Systems Journal, 1968), an agreed time is held all-or-nothing, in a fixed order, so two talks cannot book one
+  person twice.
+- **Signed cards and a signed consent chain.** Following JSON Web Signature (RFC 7515) over the JSON Canonicalization
+  Scheme (RFC 8785), cards and every yes are signed with Ed25519; each yes carries the hash of the one before.
+- **Durable talks** (`agent/src/core/`): saved before every round, a message answered once, booking idempotent,
+  following durable execution and Sagas (Garcia-Molina and Salem, 1987).
+- **Fair venues** (`club/`): the venue whose longest trip is shortest (minimax), with sum and Nash product as options.
+- **Ranking times by everyone's chance of yes** (`match/timerank.js`). Following *Consensus vs. Dissent* (Waterschoot,
+  Tintarev and Barile, RecSys 2026, [arXiv 2607.10235](https://arxiv.org/abs/2607.10235)), the product of chances with
+  a least-misery floor.
+- **The question worth most** (`match/voi.js`): a value-of-information question over Beta posteriors. Following Pep
+  (Bose et al., 2026, [arXiv 2602.15012](https://arxiv.org/abs/2602.15012)) and VPL (Poddar et al., NeurIPS 2024,
+  [arXiv 2408.10075](https://arxiv.org/abs/2408.10075)), an answer lends part of its count to hours that go together
+  across people.
+- **Likelihood bands** (`match/model.json`). Following Zadrozny and Elkan (2002), logistic regression with isotonic
+  calibration, each member's agent answering only with a band.
+- **When to ask** (`match/gate.js`). Following Thompson (Biometrika, 1933), ProPerSim (Kim et al., 2025,
+  [arXiv 2509.21730](https://arxiv.org/abs/2509.21730)) and [arXiv 2410.04596](https://arxiv.org/abs/2410.04596), a
+  Thompson-sampled send gate with a burden cost, under a weekly cap.
+- **Preference records** (`memory/prefs.js`). Following Mem0 ([arXiv 2504.19413](https://arxiv.org/abs/2504.19413))
+  and PersonaMem ([arXiv 2504.14225](https://arxiv.org/abs/2504.14225)), typed, dated records where the newest wins.
+- **Memory by meaning** (`memory/`): DRAMA vectors over short notes, `/forget` deletes them.
+- **Tool calls checked after the schema** (`core/toolcheck.js`). Following JSONSchemaBench
+  ([arXiv 2501.10868](https://arxiv.org/abs/2501.10868)) and ReliabilityBench
+  ([arXiv 2601.06112](https://arxiv.org/abs/2601.06112)), typed semantic checks, bounded repair and read-back.
+- **Courts near you, judged ahead** (`club/places.js`). Following Speculative Actions
+  ([arXiv 2510.04371](https://arxiv.org/abs/2510.04371)), the next hour's courts are judged in the background.
+- **A second round with stretched limits** (`a2a/stretch.js`). Following CalBench
+  ([arXiv 2605.09823](https://arxiv.org/abs/2605.09823)), graded costs instead of yes or no.
+- **The invite card from one sentence** (`club/play.js`, `inviteDraft`): code reads a named day; Glimmer only reads
+  what code cannot date.
+- **The open door for outside agents** (`members/discovery.js`): the guide in the site's HTML, `/llms.txt` with a
+  six-call quick start, the Agent Card, OpenAPI, Ed25519 agent keys, and the rule that an agent key can only tighten its
+  person's limits (`403`, `needs: person`).
+- **Club and games**: huddles, waitlists, no-shows without money (a 60-day half-life, calling off 3 hours before, 12
+  hours to confirm), skill ratings with uncertainty, club feed, invite links, Messenger channel, live voice.
+
+**The decision engine and our models**
+- **The tiered decision engine** (`agents/`, `core/llm.js`). Following FrugalGPT (Chen, Zaharia and Zou, 2023,
+  [arXiv 2305.05176](https://arxiv.org/abs/2305.05176)), a cascade cheapest first: code, the tiny classifier, our 1B,
+  the one-token decider, Glimmer. Thresholds following conformal risk control (Angelopoulos et al.,
+  [arXiv 2208.02814](https://arxiv.org/abs/2208.02814)).
+- **Early exit from Glimmer's reasoning** (`agents/early.js`). Following DEER (Yang et al., 2025,
+  [arXiv 2504.15895](https://arxiv.org/abs/2504.15895)), the options are read at each break and the first sure read
+  stops the answer.
+- **The one-token decider** (`agents/decider.js`): Glimmer's next token read as a probability per option.
+- **The 27.6 KB time classifier and the feed prefilter** (`agents/tiny.js`, `feed/tiny_text.js`; trained by
+  `distill/tiny_times.py` and `distill/tiny_mod.py`): small MLPs on facts code holds, each with a doubt model; the
+  prefilter follows feature hashing (Weinberger et al., ICML 2009) with int8 logistic regression.
+- **The distilled decision 1B** (`distill/`). Following knowledge distillation (Hinton, Vinyals and Dean, 2015,
+  [arXiv 1503.02531](https://arxiv.org/abs/1503.02531)) we trained Llama 3.2 1B on 4,868 of Glimmer's choices as hard
+  labels (soft labels at T = 2 were tried and not kept); following LoRA (Hu et al., ICLR 2022) we trained adapters of
+  rank 16; following TypeSafe's Jev decision models (2026) the options are scored in one pass. Calibrated following
+  temperature scaling (Guo et al., ICML 2017); int4 compared with its bf16 by McNemar's test (McNemar, Psychometrika,
+  1947); quantized with llama.cpp. Round 4 graded the hardest cases against the majority of Glimmer's other answers
+  (no paper cited for that).
+- **The text 1B** (`distill/text_*`). LoRA SFT on 1,039 of Glimmer's short answers plus attacked copies. Following StruQ
+  (Chen et al., [arXiv 2402.06363](https://arxiv.org/abs/2402.06363)), outside text arrives in a message of its own.
+  Following SecAlign (Chen et al., [arXiv 2410.05451](https://arxiv.org/abs/2410.05451)) and Meta SecAlign (Chen et
+  al., 2025, [arXiv 2507.02735](https://arxiv.org/abs/2507.02735)), a preference-training step (DPO, Rafailov et al.,
+  NeurIPS 2023) was tried and not kept.
+- **Routing by length** (`core/llm.js`): short calls to the text 1B at checked sites, long ones to Glimmer, very long
+  ones to Muse Spark on the Meta Model API.
+- **A learned intent router** (`match/router.js`, `match/router_head.json`): a softmax head on DRAMA vectors behind
+  the regular expressions.
+
+**Safety**
+- **Least power per agent.** Following Meta's *Agents Rule of Two* (October 2025), design patterns for securing agents
+  against prompt injection (Beurer-Kellner et al., [arXiv 2506.08837](https://arxiv.org/abs/2506.08837)), firewalls for
+  agent networks (Abdelnabi et al., [arXiv 2502.01822](https://arxiv.org/abs/2502.01822)) and CaMeL
+  ([arXiv 2503.18813](https://arxiv.org/abs/2503.18813)), no agent holds untrusted input, private data and the power to
+  act at once.
+- **Guards as one layer** (`agent/src/safety/`). Following Llama Guard (Inan et al., 2023) and the Llama Guard 3 and
+  Prompt Guard 2 model cards: Prompt Guard 2 first, then Llama Guard 3, then code, with our own rules for how each
+  fails and when a category counts.
+- **CodeShield rules** from LlamaFirewall ([arXiv 2505.03574](https://arxiv.org/abs/2505.03574)) on community specs and
+  generated code; the never-list (`docs/never.md`).
+- **The red team** (`agent/test/redteam.mjs`): 93 attack cases named by the OWASP Top 10 for LLM Applications (2025);
+  the crash matrix; the privacy disclosure budget.
+
+**The community loop** (`agent/src/loop/`)
+- Signals with no words; one sentence shared only with a yes, following Clio
+  ([arXiv 2412.13678](https://arxiv.org/abs/2412.13678)) for minimum cluster sizes.
+- Quadratic votes, following Lalley and Weyl (AEA Papers and Proceedings, 2018).
+- Specs and classes, nine gates, canaries, and rollback by an anytime-valid e-process, following Ramdas, Grünwald, Vovk
+  and Shafer (Statistical Science, 2023).
+- A builder agent with read-only tests, following the lesson of the Darwin Gödel Machine
+  ([arXiv 2505.22954](https://arxiv.org/abs/2505.22954)), which hacked its own evaluation, and AlphaEvolve
+  ([arXiv 2506.13131](https://arxiv.org/abs/2506.13131)): keep a change only when evaluators pass it.
+
+**Highlight reels** (`video/pose/`)
+- The reel pipeline: person detection, the moment worth sharing from pose, the cut-out, slow motion, a checked caption.
+- 3D replays with MapAnything ([arXiv 2509.13414](https://arxiv.org/abs/2509.13414)) and SAM 2 (Ravi et al., 2024),
+  with our learned invented-pixel threshold and the presence check; Muse Wonder as a second opinion.
+- RT-DETR (Zhao et al., CVPR 2024) as the default person detector, measured against DETR.
+
+**Testing**
+- **The tester swarm**: 177 AI testers over 28 rounds (`submission/agent_testing.md`, every report and request log).
+- **Difficult simulated people and pass^k** (`agent/test/sim_users/`). Following τ-bench (Yao et al.,
+  [arXiv 2406.12045](https://arxiv.org/abs/2406.12045)) for pass^k and the Sim2Real gap of simulated users
+  ([arXiv 2603.11245](https://arxiv.org/abs/2603.11245)).
+- **The order of options, measured.** Following Magentic Marketplace
+  ([arXiv 2510.25779](https://arxiv.org/abs/2510.25779)), which found agents favour the first proposal.
+- Offline unit suites, the Messenger end-to-end test, the planner evaluation (pass^3), the crash matrix.
+
+**The rest**
+- **The web app** (`web/`): React + Three.js + Vite, phone to laptop, light and dark.
+- **Operations** (`ops/`): start scripts and a watchdog for the GPU server.
+- **The technical report, slides, figures and this page** (`submission/`, `video/deck/`, `docs/`).
+
+### Used, not built
+
+Used as they are, under their own licenses (details in [CREDITS.md](CREDITS.md)):
+
+| What | License |
+|---|---|
+| TrackNetV5, our own shuttle tracker, published before the hackathon (IEEE ICIP 2026); fetched at run time, off unless `BALL_TRACKING=1`, none of its code here | No LICENSE file in its repository |
+| Muse Glimmer (Meta), open weights | Apache 2.0 |
+| Llama 3.2 1B and 3B Instruct (Meta), the base of our distilled models | Llama 3.2 Community License |
+| Llama Guard 3 1B (Meta) | Llama 3.2 Community License |
+| Prompt Guard 2 86M (Meta) | Llama 4 Community License |
+| DRAMA base (Meta) | CC BY-NC 4.0 |
+| Omnilingual ASR CTC 1B (Meta) | Apache 2.0 |
+| Sapiens2 pose 0.4B (Meta) | Sapiens2 License |
+| SAM 2.1 Hiera-L (Meta) | Apache 2.0 |
+| DETR ResNet-50 (Meta) | Apache 2.0 |
+| MapAnything (Meta), the Apache 2.0 weights | Apache 2.0 |
+| RT-DETRv2 | Apache 2.0 |
+| Kokoro 82M (`kokoro-onnx`) | Apache 2.0 |
+| WASB (NTT), ball tracking for tennis and basketball | Code MIT; weights' license not stated |
+| LlamaFirewall (Meta) | MIT |
+| A2A JavaScript SDK | Apache 2.0 |
+| Ollama, llama.cpp, Hugging Face Transformers, PyTorch, React, Three.js, Vite, Express, OpenTelemetry JS | MIT / Apache 2.0 / BSD (see CREDITS.md) |
+| Meta Model API: Muse Spark 1.3, Muse Voice Transcribe, Muse Image, SAM 3.1, Muse Wonder | Called as a service |
+| OpenStreetMap data, Open-Meteo forecasts | ODbL, CC BY 4.0 |
+
+## Our trained models
+
+Every model we trained is published, with a model card, its measured results and sha256, in
+[models/README.md](models/README.md). The large files (GGUF weights and LoRA adapters) are assets on the GitHub
+Release [models-2026-11-01](https://github.com/gino6178/serve-meta-hackathon/releases/tag/models-2026-11-01); the
+small heads live in the code. The Llama-derived models are **Built with Llama** and carry the Llama 3.2 Community
+License.
 
 ## Where the numbers come from
 
