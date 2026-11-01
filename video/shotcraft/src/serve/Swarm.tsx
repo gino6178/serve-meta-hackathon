@@ -10,7 +10,8 @@ import { LOOKS, Stage } from '../demos/_fixtures/Look';
 
 export const SWARM_DURATION = 480;
 
-const L = LOOKS.graphite;
+const DARK = LOOKS.graphite;
+type Look = typeof DARK;
 const GREEN = '#3fbf7f';
 const AMBER = '#e4c58a';
 const RED = '#ff6b6b';
@@ -30,10 +31,10 @@ const PLAY0 = 40; // the replay starts
 const PLAY = 330; // and runs this many frames
 const END = PLAY0 + PLAY + 10; // the closing line comes in
 
-const color = (s: number) => (s >= 500 ? RED : s >= 400 ? AMBER : GREEN);
+const color = (s: number, amber = AMBER) => (s >= 500 ? RED : s >= 400 ? amber : GREEN);
 const fmt = (n: number) => Math.round(n).toLocaleString('en-US');
 
-const Tile: React.FC<{ s: Session; i: number; frame: number; dim: number }> = ({ s, i, frame, dim }) => {
+const Tile: React.FC<{ s: Session; i: number; frame: number; dim: number; L: Look; amber: string }> = ({ s, i, frame, dim, L, amber }) => {
   const col = i % COLS, row = Math.floor(i / COLS);
   // tiles come in as a wave from the middle of the grid
   const dist = Math.hypot(col - (COLS - 1) / 2, row - 5);
@@ -56,7 +57,7 @@ const Tile: React.FC<{ s: Session; i: number; frame: number; dim: number }> = ({
       </div>
       {last.map((x, k) => (
         <div key={shown - last.length + k} style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 8.5, lineHeight: '11px', whiteSpace: 'nowrap', overflow: 'hidden', opacity: 0.45 + 0.55 * ((k + 1) / last.length) }}>
-          <i style={{ width: 5, height: 5, borderRadius: 3, background: color(x[3]), flex: 'none' }} />
+          <i style={{ width: 5, height: 5, borderRadius: 3, background: color(x[3], amber), flex: 'none' }} />
           <span style={{ color: L.ink3 }}>{x[1] === 'POST' ? 'POST' : 'GET '}</span>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{x[2]}</span>
         </div>
@@ -66,8 +67,9 @@ const Tile: React.FC<{ s: Session; i: number; frame: number; dim: number }> = ({
 };
 
 // v3 passes the totals after round 28 and its own closing line; the defaults are the first film's
-export const Swarm: React.FC<{ agents?: number; logged?: number; close?: string; counts?: boolean }> = ({ agents: AGENTS_ = AGENTS, logged: LOGGED_ = LOGGED, counts = true, close = '25 rounds of testing. Every bug fixed, until a round came back clean.' }) => {
+export const Swarm: React.FC<{ agents?: number; logged?: number; close?: string; counts?: boolean; light?: boolean }> = ({ agents: AGENTS_ = AGENTS, logged: LOGGED_ = LOGGED, counts = true, light = false, close = '25 rounds of testing. Every bug fixed, until a round came back clean.' }) => {
   const frame = useCurrentFrame();
+  const L = light ? LOOKS.serve : DARK, amber = light ? '#c98a1b' : AMBER;
   const [data, setData] = useState<{ sessions: Session[]; total: number } | null>(null);
   const [handle] = useState(() => delayRender('swarm sessions'));
   useEffect(() => { fetch(staticFile('swarm/sessions.json')).then((r) => r.json()).then((j) => { setData(j); continueRender(handle); }); }, [handle]);
@@ -81,7 +83,7 @@ export const Swarm: React.FC<{ agents?: number; logged?: number; close?: string;
   const endIn = ramp(frame, END + 8, 24, EASE.out);
   return (
     <AbsoluteFill>
-      <Stage look={L} vignette={0.5} grain={0.04}>
+      <Stage look={L} vignette={light ? 0.08 : 0.5} grain={light ? 0.03 : 0.04}>
         {/* the header: what the tiles are, and the counts as they run */}
         <div style={{ position: 'absolute', left: X0, right: X0, top: 62, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', opacity: headIn * (1 - dim), fontFamily: FONT.sans }}>
           <div>
@@ -94,10 +96,10 @@ export const Swarm: React.FC<{ agents?: number; logged?: number; close?: string;
             ))}
           </div>
         </div>
-        {S.map((s, i) => <Tile key={i} s={s} i={i} frame={frame} dim={dim} />)}
+        {S.map((s, i) => <Tile key={i} s={s} i={i} frame={frame} dim={dim} L={L} amber={amber} />)}
         <div style={{ position: 'absolute', left: X0, top: Y0 + 11 * (TH + GAP) + 6, display: 'flex', gap: 22, fontFamily: FONT.sans, fontSize: 14, color: L.ink2, opacity: headIn * (1 - dim) }}>
           <span><i style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 5, background: GREEN, marginRight: 7 }} />answered</span>
-          <span><i style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 5, background: AMBER, marginRight: 7 }} />refused on purpose: a limit, a clash, a permission</span>
+          <span><i style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 5, background: amber, marginRight: 7 }} />refused on purpose: a limit, a clash, a permission</span>
           <span style={{ color: L.ink3 }}>{S.length} of the sessions shown, each in its own order and its own pace, side by side</span>
         </div>
         {/* the closing line: the real totals */}

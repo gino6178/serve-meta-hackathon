@@ -7,12 +7,11 @@ import React from 'react';
 import { AbsoluteFill, Audio, Freeze, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import { FONT } from '../demos/_fixtures/Polish';
 import { LiveFrame, liveDuration, type Seg } from '../serve/LiveFrame';
-import { PhoneHero, PHONE_HERO_DURATION } from '../serve/PhoneHero';
 import { Swarm } from '../serve/Swarm';
 import { Safety, SAFETY_DURATION } from '../serve/Safety';
 import { Outro, OUTRO_DURATION } from '../serve/Outro';
 import { Island, ISLAND_MIN } from './Island';
-import { Wipe, WIPE_DURATION } from './Wipe';
+import { WhatServe, WHAT_MIN } from './WhatServe';
 import { A2ACallout } from './A2ACallout';
 import { OpenDoor, OPEN_DOOR_MIN } from './OpenDoor';
 import { Reel, REEL_MIN } from './Reel';
@@ -43,13 +42,6 @@ const segAt = (i: number) => LIVE3.slice(0, i).reduce((n, s) => n + Math.round((
 const SEG = { link: segAt(3), bumper: segAt(5), plan2: segAt(7), msg: segAt(9) };
 
 const Cover: React.FC = () => <OffthreadVideo src={staticFile('clips/v3/cover.mp4')} startFrom={42} muted style={{ width: 1920, height: 1080 }} />;
-const Intro: React.FC<{ dur: number }> = ({ dur }) => (
-  <AbsoluteFill>
-    <Sequence durationInFrames={WIPE_DURATION}><Wipe /></Sequence>
-    <Sequence from={WIPE_DURATION} durationInFrames={PHONE_HERO_DURATION}><PhoneHero creditBottom={210} /></Sequence>
-    <Sequence from={WIPE_DURATION + PHONE_HERO_DURATION}><Freeze frame={PHONE_HERO_DURATION - 1}><PhoneHero creditBottom={210} /></Freeze></Sequence>
-  </AbsoluteFill>
-);
 const Live: React.FC = () => (
   <AbsoluteFill>
     <LiveFrame segs={LIVE3} />
@@ -73,14 +65,14 @@ const OutroHeld: React.FC = () => {
     </AbsoluteFill>
   );
 };
-const SwarmV3: React.FC = () => <Swarm agents={177} logged={17432} counts={false} close="28 rounds of testing, the way people and outside agents would use it. Every fault fixed." />;
+const SwarmV3: React.FC = () => <Swarm agents={177} logged={17432} counts={false} light close="28 rounds of testing, the way people and outside agents would use it. Every fault fixed." />;
 
 const LIVE_DUR = liveDuration(LIVE3);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ORDER: [string, React.FC<any>, number][] = [
   ['cover', Cover, 60],
   ['island', Island, fit('island', ISLAND_MIN)],
-  ['intro', Intro, fit('intro', WIPE_DURATION + PHONE_HERO_DURATION)],
+  ['intro', WhatServe, fit('intro', WHAT_MIN)],
   ['live', Live, LIVE_DUR],
   ['door', OpenDoor, fit('door', OPEN_DOOR_MIN)],
   ['reel', Reel, fit('reel', REEL_MIN)],
@@ -107,13 +99,16 @@ const START: Record<string, number> = {
 
 type Cue = { from: number; src: string; volume: number; dur?: number; note: string };
 export const SFX3: Cue[] = [
-  ...[0, 1, 2, 3].map((i) => ({ from: S.island.from + 150 + i * 9, src: 'pop', volume: 0.5 - i * 0.04, note: `lock ${i + 1}` })),
-  ...[0, 1, 2].map((i) => ({ from: S.island.from + 208 + i * 8, src: 'switch-click-quick', volume: 0.35, note: `link ${i + 1} cut` })),
-  { from: S.island.from + 236, src: 'swoosh-quick', volume: 0.35, note: 'no place to talk' },
-  { from: S.intro.from + 14, src: 'transition-soft', volume: 0.4, note: 'the green line sweeps' },
-  { from: S.intro.from + WIPE_DURATION, src: 'whoosh-big', volume: 0.32, note: 'the phone rises' },
-  { from: S.intro.from + WIPE_DURATION + 37, src: 'pop', volume: 0.32, note: 'left chip' },
-  { from: S.intro.from + WIPE_DURATION + 67, src: 'pop', volume: 0.3, note: 'right chip' },
+  ...[0, 1, 2, 3].map((i) => ({ from: S.island.from + 160 + i * 5, src: 'pop', volume: 0.5 - i * 0.04, note: `lock ${i + 1}` })),
+  ...[0, 1, 2].map((i) => ({ from: S.island.from + 188 + i * 7, src: 'switch-click-quick', volume: 0.35, note: `link ${i + 1} cut` })),
+  { from: S.island.from + 200, src: 'swoosh-quick', volume: 0.3, note: 'no place to talk' },
+  { from: S.island.from + 236, src: 'whoosh-fast', volume: 0.3, note: 'the group chat' },
+  { from: S.intro.from, src: 'transition-soft', volume: 0.4, note: 'what Serve is' },
+  { from: S.intro.from + 46, src: 'swoosh-quick', volume: 0.32, note: 'the Serve box' },
+  { from: S.intro.from + 160, src: 'pop', volume: 0.3, note: 'signed facts travel' },
+  { from: S.intro.from + 244, src: 'pop', volume: 0.36, note: 'held' },
+  { from: S.intro.from + 280, src: 'switch-click-quick', volume: 0.4, note: 'one yes' },
+  { from: S.intro.from + 318, src: 'swoosh-quick', volume: 0.34, note: 'what your agent said' },
   { from: S.live.from, src: 'transition-snap', volume: 0.42, note: 'the frame grows' },
   { from: S.live.from + 18, src: 'keyboard', volume: 0.26, dur: 30, note: 'the sentence typed' },
   { from: S.live.from + SEG.link, src: 'switch-click-quick', volume: 0.5, note: "to the friend's phone" },

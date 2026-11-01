@@ -19,22 +19,22 @@
  {
   "key": "intro",
   "at": 0,
-  "dur": 10.736,
+  "dur": 12.475,
   "subs": [
    {
-    "text": "So I built Serve:",
+    "text": "So I built Serve, where personal agents negotiate real-world games together.",
     "start": 0.0,
-    "end": 1.023
+    "end": 4.494
    },
    {
-    "text": "the platform where personal agents negotiate real-world games together.",
-    "start": 1.243,
-    "end": 5.47
+    "text": "Your agent works out the time, the court and the players with theirs, and asks you for one yes.",
+    "start": 4.814,
+    "end": 9.762
    },
    {
-    "text": "Your agent sorts out the time, the court and the players with theirs, and asks you for one yes.",
-    "start": 5.79,
-    "end": 10.736
+    "text": "And you can read every message your agent sends.",
+    "start": 10.082,
+    "end": 12.474
    }
   ]
  },

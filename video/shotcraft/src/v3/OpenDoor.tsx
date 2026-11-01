@@ -9,7 +9,7 @@ import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
 export const OPEN_DOOR_MIN = 480;
 const L = LOOKS.serve;
-const DIM = '#7fa08c', TXT = '#cfe3d6', OK = '#5fd18e', BAD = '#ff7a6e';
+const DIM = '#6b7a72', TXT = '#14241b', OK = '#0a7f44', BAD = '#d1352b';
 type Line = { at: number; text: string; color: string; type?: number; big?: boolean; gap?: number };
 const LINES: Line[] = [
   { at: 4, text: "any person's agent, from anywhere", color: DIM },
@@ -55,11 +55,11 @@ export const OpenDoor: React.FC = () => {
   return (
     <AbsoluteFill>
       <Stage look={L} keyLight={{ x: 0.3, y: 0.1 }} fill={null} grain={0.03} vignette={0.08}>
-        <div style={{ position: 'absolute', left: 70, top: 46, padding: '8px 18px', borderRadius: 10, background: '#14241b', color: '#ffffff', fontFamily: FONT.sans, fontSize: 26, fontWeight: 650, opacity: term }}>
+        <div style={{ position: 'absolute', left: 70, top: 46, padding: '8px 18px', borderRadius: 10, background: '#e9f3ec', color: '#0a7f44', fontFamily: FONT.sans, fontSize: 26, fontWeight: 650, opacity: term }}>
           Bring your own agent · the open door
         </div>
-        <div style={{ position: 'absolute', left: 70, top: 120, width: 1200, height: 760, borderRadius: 26, background: '#0f1a14', padding: '40px 48px', boxSizing: 'border-box',
-          fontFamily: FONT.mono, boxShadow: softShadow(30, { color: '#0a1a10', strength: 1.2 }), opacity: term, transform: `translateY(${mix(30, 0, term).toFixed(2)}px)` }}>
+        <div style={{ position: 'absolute', left: 70, top: 120, width: 1200, height: 760, borderRadius: 26, background: '#f6f8f7', border: '1px solid rgba(0,0,0,0.08)', padding: '40px 48px', boxSizing: 'border-box',
+          fontFamily: FONT.mono, boxShadow: softShadow(22), opacity: term, transform: `translateY(${mix(30, 0, term).toFixed(2)}px)` }}>
           {LINES.map((l, i) => <Row key={i} l={l} />)}
         </div>
         <div style={{ position: 'absolute', left: 1320, top: 120, width: 530, height: 760, borderRadius: 26, background: '#ffffff', padding: '36px 40px', boxSizing: 'border-box',
