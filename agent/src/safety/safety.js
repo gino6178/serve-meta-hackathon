@@ -11,39 +11,53 @@
 //   action   "passed" | "refused" | "helpline" | "replaced" | "left out" (reviews) | "held" (an idea waits)
 // Kept in memory only, the latest 600: nothing about a check is written to disk but the trace's span (trace.js), which
 // has no player and no text either.
-import { AsyncLocalStorage } from "node:async_hooks";
+import {AsyncLocalStorage} from 'node:async_hooks';
 
 const scope = new AsyncLocalStorage();
 const recent = [];
 // run fn as `player`'s (a Messenger chat's id, or "app"): every check inside it is theirs, and collected
 export function as(player, fn) {
-  const st = { player, rows: [] };
+  const st = {player, rows: []};
   return scope.run(st, fn);
 }
 // the same, with the checks made inside fn returned next to its result
 export async function collect(player, fn) {
-  const st = { player, rows: [] };
+  const st = {player, rows: []};
   const result = await scope.run(st, fn);
-  return { result, checks: st.rows.map(shown) };
+  return {result, checks: st.rows.map(shown)};
 }
 export const player = () => scope.getStore()?.player ?? null;
 // the rest of this request is `player`'s (server.js: every /api/ request comes from the app's own player)
-export const enter = (p) => scope.enterWith({ player: p, rows: [] });
+export const enter = p => scope.enterWith({player: p, rows: []});
 export function note(x) {
-  const st = scope.getStore(), row = { at: Date.now(), player: st?.player ?? null, ...x };
-  recent.push(row); if (recent.length > 600) recent.shift();
+  const st = scope.getStore(),
+    row = {at: Date.now(), player: st?.player ?? null, ...x};
+  recent.push(row);
+  if (recent.length > 600) recent.shift();
   st?.rows.push(row);
   return row;
 }
-const shown = ({ player: _p, ...r }) => r;
+const shown = ({player: _p, ...r}) => r;
 // a player's checks, newest first; since: only those after it (a chat linked again after /forget starts with none)
-export function list({ player: p = null, n = 30, since = 0 } = {}) {
-  return recent.filter((r) => (p == null || r.player === p) && r.at >= since).slice(-Math.max(1, Math.min(200, n))).reverse().map(shown);
+export function list({player: p = null, n = 30, since = 0} = {}) {
+  return recent
+    .filter(r => (p == null || r.player === p) && r.at >= since)
+    .slice(-Math.max(1, Math.min(200, n)))
+    .reverse()
+    .map(shown);
 }
 // what the guards did since the gateway started, by kind of check
 export function tally() {
   const t = {};
-  for (const r of recent) { const k = (t[r.on] ||= { checked: 0, flagged: 0, notChecked: 0 }); if (r.verdict === "not checked") k.notChecked++; else k.checked++; if (r.verdict === "flagged") k.flagged++; }
+  for (const r of recent) {
+    const k = (t[r.on] ||= {checked: 0, flagged: 0, notChecked: 0});
+    if (r.verdict === 'not checked') k.notChecked++;
+    else k.checked++;
+    if (r.verdict === 'flagged') k.flagged++;
+  }
   return t;
 }
-export function forget(p) { for (let i = recent.length - 1; i >= 0; i--) if (recent[i].player === p) recent.splice(i, 1); }
+export function forget(p) {
+  for (let i = recent.length - 1; i >= 0; i--)
+    if (recent[i].player === p) recent.splice(i, 1);
+}

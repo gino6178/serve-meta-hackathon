@@ -19,10 +19,10 @@ const seen = {};
 export function crashPoint(name) {
   const want = process.env.CRASH_AT;
   if (!want || !want.startsWith(name)) return;
-  const [at, n = "1"] = want.split("@");
+  const [at, n = '1'] = want.split('@');
   if (at !== name) return;
   seen[name] = (seen[name] || 0) + 1;
   if (seen[name] !== +n) return;
   console.error(`crash at ${want}`);
-  process.kill(process.pid, "SIGKILL");
+  process.kill(process.pid, 'SIGKILL');
 }

@@ -4,92 +4,217 @@
 // club. Those facts are numbered for the model; every number in its answer must be one of theirs (or one you wrote).
 // A draft that fails the check is written again once, and then the agent says the facts it has instead.
 // It is your agent, not a coach: it plans games, it does not analyse technique or prescribe training.
-import { chat } from "../core/llm.js";
-import { readClub } from "../club/club.js";
-import { organize } from "../body/body.js";
-import * as life from "../club/life.js";
-import * as store from "../core/store.js";
-import * as prefs from "../memory/prefs.js";
-import * as prefsOf from "../memory/prefs_of.js";
-import * as conv from "../memory/conversation.js";
+import {chat} from '../core/llm.js';
+import {readClub} from '../club/club.js';
+import {organize} from '../body/body.js';
+import * as life from '../club/life.js';
+import * as store from '../core/store.js';
+import * as prefs from '../memory/prefs.js';
+import * as prefsOf from '../memory/prefs_of.js';
+import * as conv from '../memory/conversation.js';
+import {DAYS} from '../core/time.js';
 
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DAY_MS = 864e5;
-export const WAITING = "agreed by the agents, still waiting for yeses";
-const dateOf = (s) => { const [y, m, d] = String(s).split("-").map(Number); return new Date(y, m - 1, d); };
-const monday = (d) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+export const WAITING = 'agreed by the agents, still waiting for yeses';
+const dateOf = s => {
+  const [y, m, d] = String(s).split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+const monday = d => {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+  return x;
+};
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
-const list = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : xs[0] || "");
+const list = xs =>
+  xs.length > 1
+    ? `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`
+    : xs[0] || '';
 
 // what the agent knows: a Messenger player's record (store.js), or what the app sends with the club's record of you
-function knownOf({ player = null, app = null }) {
+function knownOf({player = null, app = null}) {
   const club = readClub();
-  const goal = +(player?.prefs?.goal?.perWeek || app?.goal?.perWeek || club.you?.goal?.perWeek || 2);
+  const goal = +(
+    player?.prefs?.goal?.perWeek ||
+    app?.goal?.perWeek ||
+    club.you?.goal?.perWeek ||
+    2
+  );
   if (player) {
-    const games = (player.events || []).filter((e) => e.kind === "match");
-    return { club, goal, played: player.games || [], logs: player.logs || [], booked: games, calendar: (player.events || []).filter((e) => e.kind !== "match"), body: player.body || {}, notes: (player.memories || []).map((m) => m.text), player };
+    const games = (player.events || []).filter(e => e.kind === 'match');
+    return {
+      club,
+      goal,
+      played: player.games || [],
+      logs: player.logs || [],
+      booked: games,
+      calendar: (player.events || []).filter(e => e.kind !== 'match'),
+      body: player.body || {},
+      notes: (player.memories || []).map(m => m.text),
+      player,
+    };
   }
-  const booked = (app?.upcoming || []).filter((u) => u?.date).map((u) => ({ date: String(u.date), start: String(u.start || ""), with: (u.with || []).map(String), title: u.title === WAITING ? WAITING : "" })); // (no other text from the caller reaches the model)
-  return { club, goal, played: [...(club.you?.history || []), ...(app?.history || [])], logs: [], booked, calendar: [], body: app?.body || {}, notes: [], player: null };
+  const booked = (app?.upcoming || [])
+    .filter(u => u?.date)
+    .map(u => ({
+      date: String(u.date),
+      start: String(u.start || ''),
+      with: (u.with || []).map(String),
+      title: u.title === WAITING ? WAITING : '',
+    })); // (no other text from the caller reaches the model)
+  return {
+    club,
+    goal,
+    played: [...(club.you?.history || []), ...(app?.history || [])],
+    logs: [],
+    booked,
+    calendar: [],
+    body: app?.body || {},
+    notes: [],
+    player: null,
+  };
 }
 
 // the facts, each one sentence; the numbers in them are the only numbers the answer may use
-export function factsFor({ player = null, app = null, now = new Date() } = {}) {
-  const k = knownOf({ player, app }), { club } = k, F = [];
-  const name = (id) => club.members.find((m) => m.id === id)?.name.split(" ")[0] || id;
-  const when = (e) => `${DAYS[dateOf(e.date).getDay()]} ${e.date}${e.start ? ` at ${e.start}` : ""}`;
-  const add = (key, text) => F.push({ id: `F${F.length + 1}`, key, text });
-  add("today", `Today is ${DAYS[now.getDay()]} ${life.ymd(now)}.`);
-  const soon = k.booked.filter((e) => new Date(`${e.date}T${e.start || "23:59"}`) >= now && dateOf(e.date) < new Date(now.getTime() + 7 * DAY_MS))
-    .sort((a, b) => `${a.date} ${a.start}`.localeCompare(`${b.date} ${b.start}`));
+export function factsFor({player = null, app = null, now = new Date()} = {}) {
+  const k = knownOf({player, app}),
+    {club} = k,
+    F = [];
+  const name = id =>
+    club.members.find(m => m.id === id)?.name.split(' ')[0] || id;
+  const when = e =>
+    `${DAYS[dateOf(e.date).getDay()]} ${e.date}${e.start ? ` at ${e.start}` : ''}`;
+  const add = (key, text) => F.push({id: `F${F.length + 1}`, key, text});
+  add('today', `Today is ${DAYS[now.getDay()]} ${life.ymd(now)}.`);
+  const soon = k.booked
+    .filter(
+      e =>
+        new Date(`${e.date}T${e.start || '23:59'}`) >= now &&
+        dateOf(e.date) < new Date(now.getTime() + 7 * DAY_MS),
+    )
+    .sort((a, b) =>
+      `${a.date} ${a.start}`.localeCompare(`${b.date} ${b.start}`),
+    );
   if (soon.length) {
     const n = soon[0];
-    add("next", `Your next game: ${when(n)}${n.title ? `, ${n.title}` : n.with?.length ? `, with ${list(n.with.map(name))}` : ""}.`);
-    const settled = soon.filter((e) => !/waiting for yeses/.test(e.title || ""));
-    add("booked", `Games booked in the next 7 days: ${settled.length}${settled.length < soon.length ? `; ${soon.length - settled.length} more agreed by the agents, still waiting for yeses` : ""}.`);
-  } else add("next", "No game is booked in the next 7 days.");
-  const cal = k.calendar.filter((e) => new Date(`${e.date}T${e.start || "23:59"}`) >= now && dateOf(e.date) < new Date(now.getTime() + 7 * DAY_MS));
-  if (cal.length) add("calendar", `Also in your calendar this week: ${cal.slice(0, 5).map((e) => `${e.title} ${when(e)}`).join("; ")}.`);
-  add("goal", `Your goal: ${plural(k.goal, "game")} a week.`);
+    add(
+      'next',
+      `Your next game: ${when(n)}${n.title ? `, ${n.title}` : n.with?.length ? `, with ${list(n.with.map(name))}` : ''}.`,
+    );
+    const settled = soon.filter(e => !/waiting for yeses/.test(e.title || ''));
+    add(
+      'booked',
+      `Games booked in the next 7 days: ${settled.length}${settled.length < soon.length ? `; ${soon.length - settled.length} more agreed by the agents, still waiting for yeses` : ''}.`,
+    );
+  } else add('next', 'No game is booked in the next 7 days.');
+  const cal = k.calendar.filter(
+    e =>
+      new Date(`${e.date}T${e.start || '23:59'}`) >= now &&
+      dateOf(e.date) < new Date(now.getTime() + 7 * DAY_MS),
+  );
+  if (cal.length)
+    add(
+      'calendar',
+      `Also in your calendar this week: ${cal
+        .slice(0, 5)
+        .map(e => `${e.title} ${when(e)}`)
+        .join('; ')}.`,
+    );
+  add('goal', `Your goal: ${plural(k.goal, 'game')} a week.`);
   // played: the record of games, by week (this week is week 0)
-  const weekOf = (d) => Math.round((monday(now) - monday(dateOf(d))) / (7 * DAY_MS));
+  const weekOf = d =>
+    Math.round((monday(now) - monday(dateOf(d))) / (7 * DAY_MS));
   const per = Array(9).fill(0);
-  for (const g of k.played) { const w = weekOf(g.date); if (w >= 0 && w <= 8) per[w]++; }
-  add("week", `Games played so far this week: ${per[0]}.`);
+  for (const g of k.played) {
+    const w = weekOf(g.date);
+    if (w >= 0 && w <= 8) per[w]++;
+  }
+  add('week', `Games played so far this week: ${per[0]}.`);
   let streak = 0;
   for (let w = 1; w <= 8 && per[w] > 0; w++) streak++;
   if (per[0] > 0) streak++;
-  add("streak", `Weeks in a row with at least one game: ${streak}.`);
-  const recent = k.played.filter((g) => weekOf(g.date) >= 0 && weekOf(g.date) <= 8);
+  add('streak', `Weeks in a row with at least one game: ${streak}.`);
+  const recent = k.played.filter(
+    g => weekOf(g.date) >= 0 && weekOf(g.date) <= 8,
+  );
   if (recent.length) {
     const by = {};
-    for (const g of recent) for (const id of g.with || []) by[id] = (by[id] || 0) + 1;
-    const top = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 3);
-    add("played", `Games in the last 8 weeks: ${recent.length}${top.length ? `; played most with ${list(top.map(([id, n]) => `${name(id)} (${n})`))}` : ""}.`);
+    for (const g of recent)
+      for (const id of g.with || []) by[id] = (by[id] || 0) + 1;
+    const top = Object.entries(by)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+    add(
+      'played',
+      `Games in the last 8 weeks: ${recent.length}${top.length ? `; played most with ${list(top.map(([id, n]) => `${name(id)} (${n})`))}` : ''}.`,
+    );
   }
-  const w7 = k.logs.filter((l) => l.date >= life.ymd(new Date(now.getTime() - 6 * DAY_MS)));
-  if (w7.length) add("logged", `Sessions you logged in the last 7 days: ${w7.length}, ${w7.reduce((a, l) => a + (l.minutes || 0), 0)} minutes in all.`);
-  const org = organize({ log: k.body.log || [], workouts: k.body.workouts || [], days: k.body.days || [], games: k.played, now });
-  const sore = org.parts.filter((p) => p.active);
-  if (sore.length) add("body", `In your body log: ${sore.slice(0, 3).map((p) => `${p.name} ${p.latest.kind} ${p.latest.level}/5`).join(", ")}${org.plan.limit ? `; until it settles, the games I line up are ${org.plan.format === "doubles" ? "doubles first" : org.plan.limit}` : ""}.`);
-  else add("body", "Nothing in your body log is sore right now.");
-  add("club", `Your club: ${club.name}, ${club.members.length} other members; club night is ${club.night?.day} at ${club.night?.start}.`);
+  const w7 = k.logs.filter(
+    l => l.date >= life.ymd(new Date(now.getTime() - 6 * DAY_MS)),
+  );
+  if (w7.length)
+    add(
+      'logged',
+      `Sessions you logged in the last 7 days: ${w7.length}, ${w7.reduce((a, l) => a + (l.minutes || 0), 0)} minutes in all.`,
+    );
+  const org = organize({
+    log: k.body.log || [],
+    workouts: k.body.workouts || [],
+    days: k.body.days || [],
+    games: k.played,
+    now,
+  });
+  const sore = org.parts.filter(p => p.active);
+  if (sore.length)
+    add(
+      'body',
+      `In your body log: ${sore
+        .slice(0, 3)
+        .map(p => `${p.name} ${p.latest.kind} ${p.latest.level}/5`)
+        .join(
+          ', ',
+        )}${org.plan.limit ? `; until it settles, the games I line up are ${org.plan.format === 'doubles' ? 'doubles first' : org.plan.limit}` : ''}.`,
+    );
+  else add('body', 'Nothing in your body log is sore right now.');
+  add(
+    'club',
+    `Your club: ${club.name}, ${club.members.length} other members; club night is ${club.night?.day} at ${club.night?.start}.`,
+  );
   // what the player wants now (memory/prefs.js: dated records, the newest wins), and what they said before and have
   // since changed is left out of the notes the model reads
-  const Ps = prefsOf.of(player ? player.id : "app", { now: now.getTime() }), want = Ps.current.filter((r) => r.confidence >= prefs.HARD);
-  if (want.length) add("prefs", `What you want now (the newest thing you said wins): ${want.slice(0, 5).map((r) => `${prefs.say(r, prefsOf.names())} (since ${life.ymd(new Date(r.since))})`).join("; ")}.`);
+  const Ps = prefsOf.of(player ? player.id : 'app', {now: now.getTime()}),
+    want = Ps.current.filter(r => r.confidence >= prefs.HARD);
+  if (want.length)
+    add(
+      'prefs',
+      `What you want now (the newest thing you said wins): ${want
+        .slice(0, 5)
+        .map(
+          r =>
+            `${prefs.say(r, prefsOf.names())} (since ${life.ymd(new Date(r.since))})`,
+        )
+        .join('; ')}.`,
+    );
   const stale = prefsOf.staleTexts(Ps);
-  if (club.challenge) add("challenge", `The club challenge, "${club.challenge.title}": the members have played ${club.members.reduce((a, m) => a + (m.games || 0), 0)} of ${club.challenge.target} games.`);
-  return { facts: F, notes: k.notes.filter((t) => !stale.has(String(t).slice(0, 160))), numbers: new Set(F.flatMap((f) => nums(f.text))) };
+  if (club.challenge)
+    add(
+      'challenge',
+      `The club challenge, "${club.challenge.title}": the members have played ${club.members.reduce((a, m) => a + (m.games || 0), 0)} of ${club.challenge.target} games.`,
+    );
+  return {
+    facts: F,
+    notes: k.notes.filter(t => !stale.has(String(t).slice(0, 160))),
+    numbers: new Set(F.flatMap(f => nums(f.text))),
+  };
 }
 
-const nums = (t) => (String(t).match(/\d+/g) || []).map(Number);
+const nums = t => (String(t).match(/\d+/g) || []).map(Number);
 // every number in the answer: in a fact, in what the player wrote or told the agent before, or a small count (0-10)
-export function check(text, sheet, extra = "") {
+export function check(text, sheet, extra = '') {
   const ok = new Set([...sheet.numbers, ...nums(extra)]);
-  const found = nums(String(text).replace(/\[F\d+\]/g, ""));
-  const bad = [...new Set(found.filter((n) => n > 10 && !ok.has(n)))];
-  return { ok: bad.length === 0, numbers: found.length, bad };
+  const found = nums(String(text).replace(/\[F\d+\]/g, ''));
+  const bad = [...new Set(found.filter(n => n > 10 && !ok.has(n)))];
+  return {ok: bad.length === 0, numbers: found.length, bad};
 }
 
 const CAN = `/game a game at your usual times · /autopilot the whole week lined up · /courts courts near a place · /body your body log · /report your body report · /week your calendar · /idea an idea for the club · /forget delete everything`;
@@ -98,9 +223,14 @@ function prompt(sheet) {
 Answer the player's message in one to three short sentences, under 70 words, warm and direct, in the language they write in.
 For anything about their games, calendar, body or club, use only these facts. Every number, date and time you write must appear in a fact or in what the player wrote.
 FACTS:
-${sheet.facts.map((f) => `[${f.id}] ${f.text}`).join("\n")}
+${sheet.facts.map(f => `[${f.id}] ${f.text}`).join('\n')}
 WHAT THEY TOLD YOU BEFORE:
-${sheet.notes.slice(-10).map((t) => `- ${t}`).join("\n") || "- (nothing yet)"}
+${
+  sheet.notes
+    .slice(-10)
+    .map(t => `- ${t}`)
+    .join('\n') || '- (nothing yet)'
+}
 WHAT YOU CAN DO FOR THEM (offer the right one when the facts don't answer it): ${CAN}
 If they ask how they played, what they did wrong or how to get better, say you don't analyse play or give training tips, and offer what you can do instead (a game, a highlight of their best moment).
 Never diagnose; for pain that lasts, suggest seeing a physio. Never give medical, diet or betting advice. Plain text, no markdown, no fact ids.`;
@@ -108,60 +238,152 @@ Never diagnose; for pain that lasts, suggest seeing a physio. Never give medical
 
 // a coaching tip: a drill, a technique cue or a training plan. Serve is not a coach, so an answer with one is redrafted,
 // then replaced by the facts (as an answer with a number not in the facts is)
-const COACHING = /\b(drills?|footwork|technique|grip|wrist snap|follow[- ]through|warm[- ]?ups?|stretch(es|ing)?|reps|sets of|practi[cs]e (your|the|a|some|more)|work on (your|the)|focus on (your|the)|try (to )?(hit|keep|aim|move|stay|serve|return|bend)|you (should|could) (hit|aim|move|stay|serve|return|keep)|tap-and-lift|before (club )?practice)\b/i;
-export const coaching = (t) => COACHING.test(String(t));
+const COACHING =
+  /\b(drills?|footwork|technique|grip|wrist snap|follow[- ]through|warm[- ]?ups?|stretch(es|ing)?|reps|sets of|practi[cs]e (your|the|a|some|more)|work on (your|the)|focus on (your|the)|try (to )?(hit|keep|aim|move|stay|serve|return|bend)|you (should|could) (hit|aim|move|stay|serve|return|keep)|tap-and-lift|before (club )?practice)\b/i;
+export const coaching = t => COACHING.test(String(t));
 
 // the facts that fit the question best, when the model's answer cannot be used
-const PICK = [[/prefer|preference|doubles|singles|rather/i, ["prefs"]], [/next|when|booked|tomorrow|tonight|game/i, ["next", "booked"]], [/how many|this week|goal|streak|in a row/i, ["week", "goal", "streak"]], [/who|with|partner|most/i, ["played"]],
-  [/hurt|sore|knee|ankle|back|body|pain/i, ["body"]], [/club|challenge|members|night/i, ["club", "challenge"]], [/calendar|schedule|exam|training/i, ["calendar", "next"]]];
+const PICK = [
+  [/prefer|preference|doubles|singles|rather/i, ['prefs']],
+  [/next|when|booked|tomorrow|tonight|game/i, ['next', 'booked']],
+  [/how many|this week|goal|streak|in a row/i, ['week', 'goal', 'streak']],
+  [/who|with|partner|most/i, ['played']],
+  [/hurt|sore|knee|ankle|back|body|pain/i, ['body']],
+  [/club|challenge|members|night/i, ['club', 'challenge']],
+  [/calendar|schedule|exam|training/i, ['calendar', 'next']],
+];
 function fallback(sheet, text) {
-  const keys = PICK.find(([rx]) => rx.test(text))?.[1] || ["next", "week"];
-  const facts = keys.map((k) => sheet.facts.find((f) => f.key === k)).filter(Boolean);
-  return `Here is what I know: ${facts.map((f) => f.text).join(" ")}`;
+  const keys = PICK.find(([rx]) => rx.test(text))?.[1] || ['next', 'week'];
+  const facts = keys
+    .map(k => sheet.facts.find(f => f.key === k))
+    .filter(Boolean);
+  return `Here is what I know: ${facts.map(f => f.text).join(' ')}`;
 }
 
 // one answer; history is the conversation so far ({ role, content }), for a Messenger player taken from the store
-export async function answer({ text, playerId = null, app = null, history = [], now = new Date() } = {}) {
+export async function answer({
+  text,
+  playerId = null,
+  app = null,
+  history = [],
+  now = new Date(),
+} = {}) {
   const player = playerId ? store.get(playerId) : null;
-  const sheet = factsFor({ player, app, now });
-  const extra = `${text} ${sheet.notes.join(" ")}`;
+  const sheet = factsFor({player, app, now});
+  const extra = `${text} ${sheet.notes.join(' ')}`;
   // the conversation so far: short- and long-term memory (memory/conversation.js) under a token budget, or with it off
   // the last six turns of the store's history
-  const convId = playerId || (app ? "app" : null), ctx = conv.on() && convId ? conv.context(convId, text, { now: now.getTime() }) : null;
-  const note = ctx?.messages[0]?.role === "system" ? ctx.messages[0].content : "";
-  const past = ctx ? ctx.messages.filter((m) => m.role !== "system") : (player ? player.history || [] : history).slice(-6).map((h) => ({ role: h.role, content: String(h.content) }));
-  const msgs = [{ role: "system", content: note ? `${prompt(sheet)}
-${note}` : prompt(sheet) }, ...past, { role: "user", content: String(text) }];
-  let out = "", verdict = null, timing = null, tries = 0;
+  const convId = playerId || (app ? 'app' : null),
+    ctx =
+      conv.on() && convId
+        ? conv.context(convId, text, {now: now.getTime()})
+        : null;
+  const note =
+    ctx?.messages[0]?.role === 'system' ? ctx.messages[0].content : '';
+  const past = ctx
+    ? ctx.messages.filter(m => m.role !== 'system')
+    : (player ? player.history || [] : history)
+        .slice(-6)
+        .map(h => ({role: h.role, content: String(h.content)}));
+  const msgs = [
+    {
+      role: 'system',
+      content: note
+        ? `${prompt(sheet)}
+${note}`
+        : prompt(sheet),
+    },
+    ...past,
+    {role: 'user', content: String(text)},
+  ];
+  let out = '',
+    verdict = null,
+    timing = null,
+    tries = 0;
   try {
     for (; tries < 2; tries++) {
-      const r = await chat(msgs, { temperature: tries ? 0.1 : 0.3, maxTokens: 220, site: "answer" });
-      out = String(r.text || "").replace(/\s*\[F\d+(?:,\s*F?\d+)*\]/g, "").trim(); timing = r.timing; verdict = check(out, sheet, extra);
-      if (out && coaching(out)) verdict = { ...verdict, ok: false, coaching: true };
+      const r = await chat(msgs, {
+        temperature: tries ? 0.1 : 0.3,
+        maxTokens: 220,
+        site: 'answer',
+      });
+      out = String(r.text || '')
+        .replace(/\s*\[F\d+(?:,\s*F?\d+)*\]/g, '')
+        .trim();
+      timing = r.timing;
+      verdict = check(out, sheet, extra);
+      if (out && coaching(out))
+        verdict = {...verdict, ok: false, coaching: true};
       if (out && verdict.ok) break;
-      msgs.push({ role: "assistant", content: r.text || "" }, { role: "user", content: verdict?.coaching ? "That gives a training tip. You are not a coach: answer again without any drill, technique or training advice, and offer what you can do instead." : `${out ? `These numbers are not in the facts: ${verdict.bad.join(", ")}.` : "That was empty."} Answer again, using only numbers, dates and times from the facts.` });
+      msgs.push(
+        {role: 'assistant', content: r.text || ''},
+        {
+          role: 'user',
+          content: verdict?.coaching
+            ? 'That gives a training tip. You are not a coach: answer again without any drill, technique or training advice, and offer what you can do instead.'
+            : `${out ? `These numbers are not in the facts: ${verdict.bad.join(', ')}.` : 'That was empty.'} Answer again, using only numbers, dates and times from the facts.`,
+        },
+      );
     }
-    if (!out || !verdict.ok) { const draft = out, bad = verdict?.bad || []; out = fallback(sheet, text); verdict = { ...check(out, sheet), rejected: bad, draft }; }
+    if (!out || !verdict.ok) {
+      const draft = out,
+        bad = verdict?.bad || [];
+      out = fallback(sheet, text);
+      verdict = {...check(out, sheet), rejected: bad, draft};
+    }
   } catch (e) {
-    out = fallback(sheet, text); verdict = { ...check(out, sheet), offline: String(e.message || e) };
+    out = fallback(sheet, text);
+    verdict = {...check(out, sheet), offline: String(e.message || e)};
   }
-  if (ctx) { await conv.add(convId, "user", text, now.getTime()); await conv.add(convId, "assistant", out, now.getTime()); }
-  return { text: out, verified: verdict, facts: sheet.facts.length, tries: Math.min(tries + 1, 2), timing, ...(ctx ? { memory: { used: ctx.used, episodes: ctx.episodes, summary: ctx.summary } } : {}) };
+  if (ctx) {
+    await conv.add(convId, 'user', text, now.getTime());
+    await conv.add(convId, 'assistant', out, now.getTime());
+  }
+  return {
+    text: out,
+    verified: verdict,
+    facts: sheet.facts.length,
+    tries: Math.min(tries + 1, 2),
+    timing,
+    ...(ctx
+      ? {memory: {used: ctx.used, episodes: ctx.episodes, summary: ctx.summary}}
+      : {}),
+  };
 }
 
 // after a message: what is worth remembering about the player (what hurts, goals, when they can play, preferences).
 // Something that hurts is kept at once, without waiting for the model.
-const PART = /\b(knee|ankle|shoulder|back|wrist|elbow|hip|calf|hamstring|neck|foot)\b/i, HURT = /\b(sore|pain|hurts?|injur\w*|strain\w*|sprain\w*|tight|stiff)\b/i;
+const PART =
+    /\b(knee|ankle|shoulder|back|wrist|elbow|hip|calf|hamstring|neck|foot)\b/i,
+  HURT = /\b(sore|pain|hurts?|injur\w*|strain\w*|sprain\w*|tight|stiff)\b/i;
 export async function learn(playerId, text) {
-  const quick = String(text).split(/(?<=[.!?])\s+/).filter((x) => PART.test(x) && HURT.test(x)).map((x) => `Player said: ${x.trim().replace(/[.]$/, "")}`);
+  const quick = String(text)
+    .split(/(?<=[.!?])\s+/)
+    .filter(x => PART.test(x) && HURT.test(x))
+    .map(x => `Player said: ${x.trim().replace(/[.]$/, '')}`);
   const saved = quick.length ? store.remember(playerId, quick) : [];
   if (!/\b(i|i'm|im|my|me|we)\b/i.test(text)) return saved;
   try {
-    const r = await chat([
-      { role: "system", content: "List what a player's sports agent should remember from their message: an injury or pain, a goal, when they can or can't play, who or what they like to play. Return a JSON array of short English sentences, or [] if there is nothing. JSON only." },
-      { role: "user", content: String(text) },
-    ], { maxTokens: 120, temperature: 0, site: "answer.learn" });
-    const arr = JSON.parse((String(r.text).match(/\[[\s\S]*\]/) || ["[]"])[0]);
-    return [...saved, ...store.remember(playerId, arr.filter((x) => typeof x === "string" && x.length < 160).slice(0, 3))];
-  } catch { return saved; }
+    const r = await chat(
+      [
+        {
+          role: 'system',
+          content:
+            "List what a player's sports agent should remember from their message: an injury or pain, a goal, when they can or can't play, who or what they like to play. Return a JSON array of short English sentences, or [] if there is nothing. JSON only.",
+        },
+        {role: 'user', content: String(text)},
+      ],
+      {maxTokens: 120, temperature: 0, site: 'answer.learn'},
+    );
+    const arr = JSON.parse((String(r.text).match(/\[[\s\S]*\]/) || ['[]'])[0]);
+    return [
+      ...saved,
+      ...store.remember(
+        playerId,
+        arr.filter(x => typeof x === 'string' && x.length < 160).slice(0, 3),
+      ),
+    ];
+  } catch {
+    return saved;
+  }
 }

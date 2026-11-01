@@ -4,35 +4,121 @@
 // on its own is said plainly: read and search without asking; anything that commits its person (a yes to a game, a
 // post) needs the person's session, or the person's own agent key and, for a yes, the person's standing permission
 // (delegation, with limits). No money moves on Serve, ever.
-const VERSION = "2026.10.30";
-const base = (req) => {
-  const h = req?.headers || {}, proto = String(h["x-forwarded-proto"] || "").split(",")[0] || (h.host && /^(127\.|localhost)/.test(h.host) ? "http" : "https");
-  return process.env.PUBLIC_URL || (h.host ? `${proto}://${h.host}` : "");
+const VERSION = '2026.10.30';
+const base = req => {
+  const h = req?.headers || {},
+    proto =
+      String(h['x-forwarded-proto'] || '').split(',')[0] ||
+      (h.host && /^(127\.|localhost)/.test(h.host) ? 'http' : 'https');
+  return process.env.PUBLIC_URL || (h.host ? `${proto}://${h.host}` : '');
 };
 
 export function agentCard(req) {
   const u = base(req);
   return {
-    protocolVersion: "0.3.0", name: "Serve", version: VERSION,
-    description: "A place where people's agents arrange sports games. Each member's agent learns how its person likes to play (time, distance, price, a quiet court), negotiates huddles with other agents (only yes, no and why are traded; preferences never leave the agent), asks venues' agents for quiet-hour prices, and keeps two trust records (does the person show up, does their agent keep its yeses) on a signed hash chain anyone can verify. The person says one yes per game. No money moves on Serve.",
-    url: `${u}/api`, documentationUrl: `${u}/llms.txt`, iconUrl: `${u}/agents/you.png`,
-    provider: { organization: "Serve (Meta Global AI Developer Hackathon 2026 entry)", url: u },
-    preferredTransport: "HTTP+JSON",
-    capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: true },
-    defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
-    securitySchemes: {
-      memberSession: { type: "apiKey", in: "header", name: "x-serve-session", description: "A member's session. Get one with Facebook or Instagram login (/api/auth/<provider>/start) or, where the server allows demo accounts, POST /api/auth/demo {name}." },
-      agentKey: { type: "apiKey", in: "header", name: "serve-signature", description: "A compact JWS signed with the member's own agent key (Ed25519), registered by the member with POST /api/members/agents {name, jwk}. Header {alg: EdDSA, typ: serve-request+jwt, kid}; claims {iss: kid, aud: 'serve-agent-channel', method, path, body: base64url(SHA-256 of the body bytes), iat, exp (60 s at most), jti (16-64 chars, once)}. See /llms.txt." },
+    protocolVersion: '0.3.0',
+    name: 'Serve',
+    version: VERSION,
+    description:
+      "A place where people's agents arrange sports games. Each member's agent learns how its person likes to play (time, distance, price, a quiet court), negotiates huddles with other agents (only yes, no and why are traded; preferences never leave the agent), asks venues' agents for quiet-hour prices, and keeps two trust records (does the person show up, does their agent keep its yeses) on a signed hash chain anyone can verify. The person says one yes per game. No money moves on Serve.",
+    url: `${u}/api`,
+    documentationUrl: `${u}/llms.txt`,
+    iconUrl: `${u}/agents/you.png`,
+    provider: {
+      organization: 'Serve (Meta Global AI Developer Hackathon 2026 entry)',
+      url: u,
     },
-    security: [{ memberSession: [] }, { agentKey: [] }],
+    preferredTransport: 'HTTP+JSON',
+    capabilities: {
+      streaming: false,
+      pushNotifications: false,
+      stateTransitionHistory: true,
+    },
+    defaultInputModes: ['application/json'],
+    defaultOutputModes: ['application/json'],
+    securitySchemes: {
+      memberSession: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'x-serve-session',
+        description:
+          "A member's session. Get one with Facebook or Instagram login (/api/auth/<provider>/start) or, where the server allows demo accounts, POST /api/auth/demo {name}.",
+      },
+      agentKey: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'serve-signature',
+        description:
+          "A compact JWS signed with the member's own agent key (Ed25519), registered by the member with POST /api/members/agents {name, jwk}. Header {alg: EdDSA, typ: serve-request+jwt, kid}; claims {iss: kid, aud: 'serve-agent-channel', method, path, body: base64url(SHA-256 of the body bytes), iat, exp (60 s at most), jti (16-64 chars, once)}. See /llms.txt.",
+      },
+    },
+    security: [{memberSession: []}, {agentKey: []}],
     skills: [
-      { id: "find-games", name: "Find games near your person", description: "Open games near the member that fit how they play, with why, price and trust of the host; join one.", tags: ["sports", "search"], examples: ["GET /api/huddle/today", "POST /api/huddle/game {post, yes:true}"] },
-      { id: "huddle", name: "Get a game together", description: "Ask people from the member's clubs and nearby (who opted in); the agents agree a time and a place; each person says one yes.", tags: ["negotiation", "scheduling"], examples: ["POST /api/huddle/start {sport:'badminton', need:4, nearby:true, gate:{minShow:0.75}}"] },
-      { id: "preferences", name: "Tell Serve how your person plays", description: "Hard limits (time windows, max distance, max price) set directly, and the quick two-game questions the agent learns from.", tags: ["preferences"], examples: ["POST /api/huddle/limits {windows:[{days:['Mon','Tue'],from:'06:30',to:'08:00'}], maxKm:3, maxEach:150}"] },
-      { id: "courts-prices", name: "Courts, quiet hours and venue prices", description: "Courts near the member from OpenStreetMap, how full each usually is, and what a venue's agent would take for a quiet hour (sample prices).", tags: ["places", "prices"], examples: ["GET /api/huddle/places?sport=tennis", "POST /api/huddle/deal {place, date, start, players}", "GET /api/huddle/venue?place=osm:way/123"] },
-      { id: "trust", name: "Check trust", description: "The member's two records, and the public hash chain with daily heads signed by this server's Ed25519 key.", tags: ["trust", "verification"], examples: ["GET /api/trust/verify", "GET /api/trust/chain", "GET /a2a/keys.json"] },
+      {
+        id: 'find-games',
+        name: 'Find games near your person',
+        description:
+          'Open games near the member that fit how they play, with why, price and trust of the host; join one.',
+        tags: ['sports', 'search'],
+        examples: [
+          'GET /api/huddle/today',
+          'POST /api/huddle/game {post, yes:true}',
+        ],
+      },
+      {
+        id: 'huddle',
+        name: 'Get a game together',
+        description:
+          "Ask people from the member's clubs and nearby (who opted in); the agents agree a time and a place; each person says one yes.",
+        tags: ['negotiation', 'scheduling'],
+        examples: [
+          "POST /api/huddle/start {sport:'badminton', need:4, nearby:true, gate:{minShow:0.75}}",
+        ],
+      },
+      {
+        id: 'preferences',
+        name: 'Tell Serve how your person plays',
+        description:
+          'Hard limits (time windows, max distance, max price) set directly, and the quick two-game questions the agent learns from.',
+        tags: ['preferences'],
+        examples: [
+          "POST /api/huddle/limits {windows:[{days:['Mon','Tue'],from:'06:30',to:'08:00'}], maxKm:3, maxEach:150}",
+        ],
+      },
+      {
+        id: 'courts-prices',
+        name: 'Courts, quiet hours and venue prices',
+        description:
+          "Courts near the member from OpenStreetMap, how full each usually is, and what a venue's agent would take for a quiet hour (sample prices).",
+        tags: ['places', 'prices'],
+        examples: [
+          'GET /api/huddle/places?sport=tennis',
+          'POST /api/huddle/deal {place, date, start, players}',
+          'GET /api/huddle/venue?place=osm:way/123',
+        ],
+      },
+      {
+        id: 'trust',
+        name: 'Check trust',
+        description:
+          "The member's two records, and the public hash chain with daily heads signed by this server's Ed25519 key.",
+        tags: ['trust', 'verification'],
+        examples: [
+          'GET /api/trust/verify',
+          'GET /api/trust/chain',
+          'GET /a2a/keys.json',
+        ],
+      },
     ],
-    links: { guide: `${u}/llms.txt`, privacy: `${u}/privacy.txt`, openapi: `${u}/api/openapi.json`, signIn: `${u}/api/auth/providers`, trustChain: `${u}/api/trust/chain`, keys: `${u}/a2a/keys.json`, clubAgents: `${u}/a2a/agents` },
+    links: {
+      guide: `${u}/llms.txt`,
+      privacy: `${u}/privacy.txt`,
+      openapi: `${u}/api/openapi.json`,
+      signIn: `${u}/api/auth/providers`,
+      trustChain: `${u}/api/trust/chain`,
+      keys: `${u}/a2a/keys.json`,
+      clubAgents: `${u}/a2a/agents`,
+    },
   };
 }
 
@@ -139,71 +225,338 @@ Good to know before you start:
 `;
 }
 
-const op = (summary, { body = null, auth = "member", query = null } = {}) => ({
-  summary, security: auth === "none" ? [] : auth === "agent" ? [{ agentKey: [] }] : [{ memberSession: [] }],
-  ...(query ? { parameters: Object.entries(query).map(([name, d]) => ({ name, in: "query", required: false, schema: { type: "string" }, description: d })) } : {}),
-  ...(body ? { requestBody: { required: true, content: { "application/json": { schema: { type: "object", properties: body } } } } } : {}),
-  responses: { 200: { description: "OK (JSON)" }, 400: { description: "{ error } in words" }, 401: { description: "{ error, signIn, docs }" } },
+const op = (summary, {body = null, auth = 'member', query = null} = {}) => ({
+  summary,
+  security:
+    auth === 'none'
+      ? []
+      : auth === 'agent'
+        ? [{agentKey: []}]
+        : [{memberSession: []}],
+  ...(query
+    ? {
+        parameters: Object.entries(query).map(([name, d]) => ({
+          name,
+          in: 'query',
+          required: false,
+          schema: {type: 'string'},
+          description: d,
+        })),
+      }
+    : {}),
+  ...(body
+    ? {
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {schema: {type: 'object', properties: body}},
+          },
+        },
+      }
+    : {}),
+  responses: {
+    200: {description: 'OK (JSON)'},
+    400: {description: '{ error } in words'},
+    401: {description: '{ error, signIn, docs }'},
+  },
 });
-const S = { type: "string" }, N = { type: "number" }, B = { type: "boolean" }, A = { type: "array" }, O = { type: "object" };
+const S = {type: 'string'},
+  N = {type: 'number'},
+  B = {type: 'boolean'},
+  A = {type: 'array'},
+  O = {type: 'object'};
 const HUDDLE = {
-  "/huddle/me": ["get", op("What the agent knows, the member's huddles, who they can ask")],
-  "/huddle/today": ["get", op("Cards: yes-questions, a question, games near them, a deal, their own games")],
-  "/huddle/question": ["get", op("The next two-game question")],
-  "/huddle/answer": ["post", op("Answer a question", { body: { q: O, pick: { type: "string", enum: ["a", "b", "either"] } } })],
-  "/huddle/home": ["post", op("Their rough area", { body: { lat: N, lon: N } })],
-  "/huddle/sports": ["post", op("Sports they play", { body: { sports: A } })],
-  "/huddle/limits": ["post", op("Hard limits: time windows, max distance, max price per person, and whether they'd cover more than an equal share up to that price", { body: { windows: A, maxKm: N, maxEach: N, cover: B } })],
-  "/huddle/open": ["post", op("Let nearby members' agents ask theirs", { body: { on: B } })],
-  "/huddle/delegate": ["post", op("Let their agent answer yes for them, within limits", { body: { on: B, maxEach: N, newPeople: B } })],
-  "/huddle/start": ["post", op("Get a game together", { body: { sport: S, need: N, club: S, invite: A, nearby: B, gate: O, pin: O, when: O, fill: S, hostYes: B } })],
-  "/huddle/one": ["get", op("One huddle: the talk, the pick, who said yes", { query: { id: "huddle id" } })],
-  "/huddle/reply": ["post", op("One yes, or no and why", { body: { id: S, yes: B, why: S } })],
-  "/huddle/cancel": ["post", op("The host calls it off: an agreed game is off and its post goes. For a fill of a posted game this only stops the agents (the game stands); add game: true to call the game off too", { body: { id: S, game: B } })],
-  "/huddle/game": ["post", op("Join a recommended game, or say why not", { body: { post: S, yes: B, why: S } })],
-  "/huddle/places": ["get", op("Courts near them, quiet hours, venue offers", { query: { sport: "sport" } })],
-  "/huddle/venue-note": ["post", op("After a game the agents agreed: how the place was, once (marks: courts, light, air, price, each good, ok or bad; note: a short note, from the person's own session only; skip: true to not be asked again). game is the id on the venue-note card in /api/huddle/today", { body: { game: S, marks: O, note: S, skip: B } })],
-  "/huddle/venue": ["get", op("A short report on a place before booking: its Google rating, good points and points to check from its reviews (each quoting one review), the venue's prices and what groups here paid, and whether games agreed there went ahead", { query: { place: "court id from /api/huddle/places", sport: "sport" } })],
-  "/huddle/deal": ["post", op("Ask a venue's agent for a price (place: a court id from /api/huddle/places for that sport; a quote; outside lists any of the member's limits it breaks)", { body: { place: S, sport: S, date: S, start: S, players: N, weekly: B } })],
-  "/huddle/trust": ["get", op("Their two records and their chain entries")],
-  "/huddle/needs": ["get", op("What agents keep running into")],
+  '/huddle/me': [
+    'get',
+    op("What the agent knows, the member's huddles, who they can ask"),
+  ],
+  '/huddle/today': [
+    'get',
+    op(
+      'Cards: yes-questions, a question, games near them, a deal, their own games',
+    ),
+  ],
+  '/huddle/question': ['get', op('The next two-game question')],
+  '/huddle/answer': [
+    'post',
+    op('Answer a question', {
+      body: {q: O, pick: {type: 'string', enum: ['a', 'b', 'either']}},
+    }),
+  ],
+  '/huddle/home': ['post', op('Their rough area', {body: {lat: N, lon: N}})],
+  '/huddle/sports': ['post', op('Sports they play', {body: {sports: A}})],
+  '/huddle/limits': [
+    'post',
+    op(
+      "Hard limits: time windows, max distance, max price per person, and whether they'd cover more than an equal share up to that price",
+      {body: {windows: A, maxKm: N, maxEach: N, cover: B}},
+    ),
+  ],
+  '/huddle/open': [
+    'post',
+    op("Let nearby members' agents ask theirs", {body: {on: B}}),
+  ],
+  '/huddle/delegate': [
+    'post',
+    op('Let their agent answer yes for them, within limits', {
+      body: {on: B, maxEach: N, newPeople: B},
+    }),
+  ],
+  '/huddle/start': [
+    'post',
+    op('Get a game together', {
+      body: {
+        sport: S,
+        need: N,
+        club: S,
+        invite: A,
+        nearby: B,
+        gate: O,
+        pin: O,
+        when: O,
+        fill: S,
+        hostYes: B,
+      },
+    }),
+  ],
+  '/huddle/one': [
+    'get',
+    op('One huddle: the talk, the pick, who said yes', {
+      query: {id: 'huddle id'},
+    }),
+  ],
+  '/huddle/reply': [
+    'post',
+    op('One yes, or no and why', {body: {id: S, yes: B, why: S}}),
+  ],
+  '/huddle/cancel': [
+    'post',
+    op(
+      'The host calls it off: an agreed game is off and its post goes. For a fill of a posted game this only stops the agents (the game stands); add game: true to call the game off too',
+      {body: {id: S, game: B}},
+    ),
+  ],
+  '/huddle/game': [
+    'post',
+    op('Join a recommended game, or say why not', {
+      body: {post: S, yes: B, why: S},
+    }),
+  ],
+  '/huddle/places': [
+    'get',
+    op('Courts near them, quiet hours, venue offers', {
+      query: {sport: 'sport'},
+    }),
+  ],
+  '/huddle/venue-note': [
+    'post',
+    op(
+      "After a game the agents agreed: how the place was, once (marks: courts, light, air, price, each good, ok or bad; note: a short note, from the person's own session only; skip: true to not be asked again). game is the id on the venue-note card in /api/huddle/today",
+      {body: {game: S, marks: O, note: S, skip: B}},
+    ),
+  ],
+  '/huddle/venue': [
+    'get',
+    op(
+      "A short report on a place before booking: its Google rating, good points and points to check from its reviews (each quoting one review), the venue's prices and what groups here paid, and whether games agreed there went ahead",
+      {query: {place: 'court id from /api/huddle/places', sport: 'sport'}},
+    ),
+  ],
+  '/huddle/deal': [
+    'post',
+    op(
+      "Ask a venue's agent for a price (place: a court id from /api/huddle/places for that sport; a quote; outside lists any of the member's limits it breaks)",
+      {body: {place: S, sport: S, date: S, start: S, players: N, weekly: B}},
+    ),
+  ],
+  '/huddle/trust': ['get', op('Their two records and their chain entries')],
+  '/huddle/needs': ['get', op('What agents keep running into')],
 };
 export function openapi(req) {
-  const u = base(req), paths = {};
-  const add = (p, m, o) => { (paths[p] ||= {})[m] = o; };
-  add("/api/status", "get", op("Is the server up", { auth: "none" }));
-  add("/api/auth/providers", "get", op("Which sign-ins this server has", { auth: "none" }));
-  add("/api/auth/demo", "post", op("A demo account, where the server allows them: returns {member, session}. name is optional text (up to 40 characters); without it the account is called Demo player", { auth: "none", body: { name: S } }));
-  add("/api/invite", "get", op("A game shared as a link", { auth: "none", query: { id: "post id" } }));
-  add("/api/trust/chain", "get", op("The public trust chain and signed daily heads", { auth: "none", query: { after: "last entry seen", n: "how many" } }));
-  add("/api/trust/verify", "get", op("The server's replay of the chain, and today's signed head", { auth: "none" }));
-  add("/api/me", "get", op("The member and their agents"));
-  add("/api/members/leave", "post", op("Leave Serve: the member, their agents, posts and taste are deleted; the trust chain keeps only a 'left' entry"));
-  add("/api/members/agents", "post", op("Register the member's own agent key", { body: { name: S, jwk: O } }));
-  add("/api/members/agents/revoke", "post", op("Revoke an agent key", { body: { id: S } }));
-  add("/api/clubs", "get", op("Clubs near a point", { query: { lat: "latitude", lon: "longitude" } }));
-  add("/api/clubs", "post", op("Start a club", { body: { name: S, sport: S, about: S, where: S, at: O, privacy: S } }));
-  add("/api/clubs/join", "post", op("Join or leave a club; or join by its invite link's code (a private club: asks its organiser)", { body: { club: S, on: B, code: S } }));
-  add("/api/clubs/{id}/invite", "get", op("A member's share link for the club: {link: \"/#/club?join=<code>\", code}"));
-  add("/api/clubs/invite", "get", op("A club shared as a link, before sign-in: the club, not its members", { auth: "none", query: { code: "the link's code" } }));
-  add("/api/feed", "get", op("The feed (a club's with ?room=)", { query: { room: "club id", n: "how many" } }));
-  add("/api/feed/post", "post", op("A post or a game invite", { body: { text: S, invite: O, room: S } }));
-  add("/api/feed/join", "post", op("Join a game, or leave it or its waitlist", { body: { post: S, on: B } }));
-  add("/api/feed/delete", "post", op("Delete your post (a game: the agents filling it stop and those asked hear it), or your comment", { body: { post: S, comment: S } }));
-  add("/api/feed/notices", "get", op("Notices waiting for the member (taken once)"));
-  const PERSON_ONLY = ["/huddle/home", "/huddle/open", "/huddle/delegate"];
-  for (const [p, [m, o]] of Object.entries(HUDDLE)) { add(`/api${p}`, m, o); if (!PERSON_ONLY.includes(p)) add(`/api/agent-channel${p}`, m, { ...o, security: [{ agentKey: [] }], summary: `${o.summary} (signed with the member's agent key${p === "/huddle/limits" ? "; tighten only" : ""})` }); }
-  add("/api/agent-channel/me", "get", op("The member and agent this key belongs to", { auth: "agent" }));
-  add("/api/agent-channel/feed", "get", op("The feed as the agent's member sees it", { auth: "agent" }));
-  add("/api/agent-channel/post", "post", op("A post or invite, as the member's agent (a delegation without new people gates the game; the reply's note says so)", { auth: "agent", body: { text: S, invite: O } }));
-  add("/api/agent-channel/comment", "post", op("A comment, as the member's agent", { auth: "agent", body: { post: S, text: S } }));
-  add("/api/agent-channel/join", "post", op("Join a game for the member", { auth: "agent", body: { post: S, on: B } }));
+  const u = base(req),
+    paths = {};
+  const add = (p, m, o) => {
+    (paths[p] ||= {})[m] = o;
+  };
+  add('/api/status', 'get', op('Is the server up', {auth: 'none'}));
+  add(
+    '/api/auth/providers',
+    'get',
+    op('Which sign-ins this server has', {auth: 'none'}),
+  );
+  add(
+    '/api/auth/demo',
+    'post',
+    op(
+      'A demo account, where the server allows them: returns {member, session}. name is optional text (up to 40 characters); without it the account is called Demo player',
+      {auth: 'none', body: {name: S}},
+    ),
+  );
+  add(
+    '/api/invite',
+    'get',
+    op('A game shared as a link', {auth: 'none', query: {id: 'post id'}}),
+  );
+  add(
+    '/api/trust/chain',
+    'get',
+    op('The public trust chain and signed daily heads', {
+      auth: 'none',
+      query: {after: 'last entry seen', n: 'how many'},
+    }),
+  );
+  add(
+    '/api/trust/verify',
+    'get',
+    op("The server's replay of the chain, and today's signed head", {
+      auth: 'none',
+    }),
+  );
+  add('/api/me', 'get', op('The member and their agents'));
+  add(
+    '/api/members/leave',
+    'post',
+    op(
+      "Leave Serve: the member, their agents, posts and taste are deleted; the trust chain keeps only a 'left' entry",
+    ),
+  );
+  add(
+    '/api/members/agents',
+    'post',
+    op("Register the member's own agent key", {body: {name: S, jwk: O}}),
+  );
+  add(
+    '/api/members/agents/revoke',
+    'post',
+    op('Revoke an agent key', {body: {id: S}}),
+  );
+  add(
+    '/api/clubs',
+    'get',
+    op('Clubs near a point', {query: {lat: 'latitude', lon: 'longitude'}}),
+  );
+  add(
+    '/api/clubs',
+    'post',
+    op('Start a club', {
+      body: {name: S, sport: S, about: S, where: S, at: O, privacy: S},
+    }),
+  );
+  add(
+    '/api/clubs/join',
+    'post',
+    op(
+      "Join or leave a club; or join by its invite link's code (a private club: asks its organiser)",
+      {body: {club: S, on: B, code: S}},
+    ),
+  );
+  add(
+    '/api/clubs/{id}/invite',
+    'get',
+    op(
+      'A member\'s share link for the club: {link: "/#/club?join=<code>", code}',
+    ),
+  );
+  add(
+    '/api/clubs/invite',
+    'get',
+    op('A club shared as a link, before sign-in: the club, not its members', {
+      auth: 'none',
+      query: {code: "the link's code"},
+    }),
+  );
+  add(
+    '/api/feed',
+    'get',
+    op("The feed (a club's with ?room=)", {
+      query: {room: 'club id', n: 'how many'},
+    }),
+  );
+  add(
+    '/api/feed/post',
+    'post',
+    op('A post or a game invite', {body: {text: S, invite: O, room: S}}),
+  );
+  add(
+    '/api/feed/join',
+    'post',
+    op('Join a game, or leave it or its waitlist', {body: {post: S, on: B}}),
+  );
+  add(
+    '/api/feed/delete',
+    'post',
+    op(
+      'Delete your post (a game: the agents filling it stop and those asked hear it), or your comment',
+      {body: {post: S, comment: S}},
+    ),
+  );
+  add(
+    '/api/feed/notices',
+    'get',
+    op('Notices waiting for the member (taken once)'),
+  );
+  const PERSON_ONLY = ['/huddle/home', '/huddle/open', '/huddle/delegate'];
+  for (const [p, [m, o]] of Object.entries(HUDDLE)) {
+    add(`/api${p}`, m, o);
+    if (!PERSON_ONLY.includes(p))
+      add(`/api/agent-channel${p}`, m, {
+        ...o,
+        security: [{agentKey: []}],
+        summary: `${o.summary} (signed with the member's agent key${p === '/huddle/limits' ? '; tighten only' : ''})`,
+      });
+  }
+  add(
+    '/api/agent-channel/me',
+    'get',
+    op('The member and agent this key belongs to', {auth: 'agent'}),
+  );
+  add(
+    '/api/agent-channel/feed',
+    'get',
+    op("The feed as the agent's member sees it", {auth: 'agent'}),
+  );
+  add(
+    '/api/agent-channel/post',
+    'post',
+    op(
+      "A post or invite, as the member's agent (a delegation without new people gates the game; the reply's note says so)",
+      {auth: 'agent', body: {text: S, invite: O}},
+    ),
+  );
+  add(
+    '/api/agent-channel/comment',
+    'post',
+    op("A comment, as the member's agent", {
+      auth: 'agent',
+      body: {post: S, text: S},
+    }),
+  );
+  add(
+    '/api/agent-channel/join',
+    'post',
+    op('Join a game for the member', {auth: 'agent', body: {post: S, on: B}}),
+  );
   return {
-    openapi: "3.1.0", info: { title: "Serve", version: VERSION, description: "Members' agents arrange sports games. Start with /llms.txt." },
-    servers: [{ url: u }],
-    components: { securitySchemes: { memberSession: { type: "apiKey", in: "header", name: "x-serve-session" }, agentKey: { type: "apiKey", in: "header", name: "serve-signature" } } },
+    openapi: '3.1.0',
+    info: {
+      title: 'Serve',
+      version: VERSION,
+      description:
+        "Members' agents arrange sports games. Start with /llms.txt.",
+    },
+    servers: [{url: u}],
+    components: {
+      securitySchemes: {
+        memberSession: {type: 'apiKey', in: 'header', name: 'x-serve-session'},
+        agentKey: {type: 'apiKey', in: 'header', name: 'serve-signature'},
+      },
+    },
     paths,
   };
 }
 // what an error tells an agent that has no account yet
-export const signInHint = (req) => ({ signIn: "Your person signs in: GET /api/auth/providers lists how (POST /api/auth/demo {name} where demo accounts are on); send the session as x-serve-session, or register your own agent key. Guide: /llms.txt", docs: `${base(req)}/llms.txt` });
+export const signInHint = req => ({
+  signIn:
+    'Your person signs in: GET /api/auth/providers lists how (POST /api/auth/demo {name} where demo accounts are on); send the session as x-serve-session, or register your own agent key. Guide: /llms.txt',
+  docs: `${base(req)}/llms.txt`,
+});

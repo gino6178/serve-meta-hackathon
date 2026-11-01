@@ -11,12 +11,13 @@
 //   - Only for a member whose hard limits are all in code (rulesComplete, as for routing): a limit only in the member's
 //     words is Glimmer's to keep.
 // Every call goes in the token ledger (site a2a.student), so what it saves is counted. docs/decision_model.md.
-import { record } from "../core/ledger.js";
-import { helpers } from "../club/play.js";
+import {record} from '../core/ledger.js';
+import {helpers} from '../club/play.js';
 
-const { hm } = helpers;
-export const studentOn = () => process.env.A2A_STUDENT !== "off";
-const URL_ = () => (process.env.A2A_STUDENT_URL || "http://127.0.0.1:11447").replace(/\/$/, "");
+const {hm} = helpers;
+export const studentOn = () => process.env.A2A_STUDENT !== 'off';
+const URL_ = () =>
+  (process.env.A2A_STUDENT_URL || 'http://127.0.0.1:11447').replace(/\/$/, '');
 // 0.6, for the 1B student the worker serves by default: the point on the curve that saves the most Glimmer calls while
 // its agreement with Glimmer stays within about 5 points of Glimmer's own, and the member's stated preference holds
 // (0.5 for the 3B student). docs/decision_model.md has the curve.
@@ -27,55 +28,145 @@ const SURE = () => +(process.env.A2A_STUDENT_SURE || 0.6);
 const TEMP = () => +(process.env.A2A_STUDENT_TEMP || 1);
 export function tempered(options, T = TEMP()) {
   if (!(T > 0) || T === 1 || !options?.length) return options;
-  const z = options.map((o) => Math.log(Math.max(o.p, 1e-9)) / T), m = Math.max(...z), e = z.map((v) => Math.exp(v - m)), s = e.reduce((a, b) => a + b, 0);
-  return options.map((o, i) => ({ ...o, p: e[i] / s }));
+  const z = options.map(o => Math.log(Math.max(o.p, 1e-9)) / T),
+    m = Math.max(...z),
+    e = z.map(v => Math.exp(v - m)),
+    s = e.reduce((a, b) => a + b, 0);
+  return options.map((o, i) => ({...o, p: e[i] / s}));
 }
 // how long a decision may take on the worker in all, and how long it may wait there for the one before it (the worker
 // answers one at a time; one that would wait longer is turned away at once, and Glimmer answers it)
-const WAIT = () => +(process.env.A2A_STUDENT_TIMEOUT_MS || 20000), QUEUE = () => +(process.env.A2A_STUDENT_MAX_WAIT_MS || 8000);
-const tripOf = (x, m) => x.trip ?? x.c?.travel?.find((t) => t.id === m.id)?.min ?? null;
+const WAIT = () => +(process.env.A2A_STUDENT_TIMEOUT_MS || 20000),
+  QUEUE = () => +(process.env.A2A_STUDENT_MAX_WAIT_MS || 8000);
+const tripOf = (x, m) =>
+  x.trip ?? x.c?.travel?.find(t => t.id === m.id)?.min ?? null;
 // a worker that could not be reached is not asked again for a minute (each try would only add its connect time)
 let downUntil = 0;
-export const studentStats = { asked: 0, answered: 0, unsure: 0, mismatch: 0, errors: 0 };
+export const studentStats = {
+  asked: 0,
+  answered: 0,
+  unsure: 0,
+  mismatch: 0,
+  errors: 0,
+};
 
 // m: the member; cur: the proposed time; ok: the listed times that keep the member's calendar and rules (by code);
 // all: every listed time; profile: what the member's agent reads about its member. Returns a decision in fullAnswer's
 // shape (without its sentence), or null for Muse Glimmer (with its unsure pick in `out.pick`, when `out` is given).
-export async function studentAnswer(m, cur, ok, all, { minutes = 90, format, sport, profile, out = null }) {
-  if (!m.rulesComplete || !cur?.id || all.some((x) => !x.id) || Date.now() < downUntil) return null;
-  const alts = ok.filter((x) => x !== cur);
+export async function studentAnswer(
+  m,
+  cur,
+  ok,
+  all,
+  {minutes = 90, format, sport, profile, out = null},
+) {
+  if (
+    !m.rulesComplete ||
+    !cur?.id ||
+    all.some(x => !x.id) ||
+    Date.now() < downUntil
+  )
+    return null;
+  const alts = ok.filter(x => x !== cur);
   if (alts.length < 2) return null;
-  const them = m.name.split(" ")[0];
+  const them = m.name.split(' ')[0];
   // (the worker answers one decision at a time on a shared CPU, so several at once queue there; it skips a request
   // whose deadline has passed, so a decision this side stopped waiting for costs it nothing)
-  const offers = [cur, ...all.filter((x) => x !== cur)].map((x) => ({ id: x.id, text: x.text, trip: tripOf(x, m), date: x.slot.date, start: hm(x.start) }));
-  const body = { profile, name: them, sport, format, minutes, cur: cur.id, offers, works: alts.map((x) => x.id), deadline: Date.now() + WAIT(), max_wait_ms: QUEUE() };
+  const offers = [cur, ...all.filter(x => x !== cur)].map(x => ({
+    id: x.id,
+    text: x.text,
+    trip: tripOf(x, m),
+    date: x.slot.date,
+    start: hm(x.start),
+  }));
+  const body = {
+    profile,
+    name: them,
+    sport,
+    format,
+    minutes,
+    cur: cur.id,
+    offers,
+    works: alts.map(x => x.id),
+    deadline: Date.now() + WAIT(),
+    max_wait_ms: QUEUE(),
+  };
   studentStats.asked++;
   const t0 = Date.now();
   let r;
   try {
-    const res = await fetch(`${URL_()}/decide`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(WAIT()) });
+    const res = await fetch(`${URL_()}/decide`, {
+      method: 'POST',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(WAIT()),
+    });
     r = await res.json();
     if (!res.ok || !r.pick) throw new Error(r.error || `worker ${res.status}`);
-    if (TEMP() !== 1 && Array.isArray(r.options)) { r.options = tempered(r.options); r.pick = r.options.reduce((a, b) => (b.p > a.p ? b : a)); }
+    if (TEMP() !== 1 && Array.isArray(r.options)) {
+      r.options = tempered(r.options);
+      r.pick = r.options.reduce((a, b) => (b.p > a.p ? b : a));
+    }
   } catch (e) {
     studentStats.errors++;
-    if (/ECONNREFUSED|fetch failed/.test(String(e.cause?.code || e.message))) downUntil = Date.now() + 60000;
-    record({ site: "a2a.student", model: "student", prompt: 0, cached: 0, output: 0, reasoning: 0, seconds: +((Date.now() - t0) / 1000).toFixed(3), error: String(e.message || e).slice(0, 120) });
+    if (/ECONNREFUSED|fetch failed/.test(String(e.cause?.code || e.message)))
+      downUntil = Date.now() + 60000;
+    record({
+      site: 'a2a.student',
+      model: 'student',
+      prompt: 0,
+      cached: 0,
+      output: 0,
+      reasoning: 0,
+      seconds: +((Date.now() - t0) / 1000).toFixed(3),
+      error: String(e.message || e).slice(0, 120),
+    });
     return null;
   }
   // its own reading of which listed times work, against code's
-  const said = new Set(Object.entries(r.works_p || {}).filter(([, p]) => p >= 0.5).map(([t]) => t)), truth = new Set(body.works);
-  const read = said.size === truth.size && [...truth].every((t) => said.has(t));
+  const said = new Set(
+      Object.entries(r.works_p || {})
+        .filter(([, p]) => p >= 0.5)
+        .map(([t]) => t),
+    ),
+    truth = new Set(body.works);
+  const read = said.size === truth.size && [...truth].every(t => said.has(t));
   const sure = r.pick.p >= SURE();
-  record({ site: "a2a.student", model: r.model || "student", prompt: r.tokens || 0, cached: r.reused || 0, output: 0, reasoning: 0, seconds: +((Date.now() - t0) / 1000).toFixed(3), workerMs: r.ms, workerQueuedMs: r.queued_ms, confidence: r.pick.p, used: sure && read });
-  if (!read) { studentStats.mismatch++; return null; }
+  record({
+    site: 'a2a.student',
+    model: r.model || 'student',
+    prompt: r.tokens || 0,
+    cached: r.reused || 0,
+    output: 0,
+    reasoning: 0,
+    seconds: +((Date.now() - t0) / 1000).toFixed(3),
+    workerMs: r.ms,
+    workerQueuedMs: r.queued_ms,
+    confidence: r.pick.p,
+    used: sure && read,
+  });
+  if (!read) {
+    studentStats.mismatch++;
+    return null;
+  }
   // (an unsure pick is handed back in `out`: the decider may agree with it, talk.js decided)
-  if (!sure) { studentStats.unsure++; if (out) out.pick = { id: r.pick.kind === "decline" ? "Z" : r.pick.id, p: r.pick.p }; return null; }
+  if (!sure) {
+    studentStats.unsure++;
+    if (out)
+      out.pick = {id: r.pick.kind === 'decline' ? 'Z' : r.pick.id, p: r.pick.p};
+    return null;
+  }
   studentStats.answered++;
-  const tier = { tier: "student", confidence: +r.pick.p.toFixed(3) };
-  if (r.pick.kind === "decline") return { intent: "decline", date: "", start: "", works: [], ...tier };
-  const x = alts.find((y) => y.id === r.pick.id);
+  const tier = {tier: 'student', confidence: +r.pick.p.toFixed(3)};
+  if (r.pick.kind === 'decline')
+    return {intent: 'decline', date: '', start: '', works: [], ...tier};
+  const x = alts.find(y => y.id === r.pick.id);
   if (!x) return null;
-  return { intent: "counter", date: x.slot.date, start: hm(x.start), works: alts.map((y) => y.id), ...tier };
+  return {
+    intent: 'counter',
+    date: x.slot.date,
+    start: hm(x.start),
+    works: alts.map(y => y.id),
+    ...tier,
+  };
 }

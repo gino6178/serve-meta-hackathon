@@ -4,17 +4,31 @@
 //   nice -n 19 node src/match/retrain_cli.js [--simulated] [--dry-run] [--rollback] [--min-rows N]
 // --simulated learns from the simulated members' records only (the proof while no real member has agreed).
 // Prints one JSON report; the registry is data/match_models/registry.json.
-import { readClub } from "../club/club.js";
-import { helpers } from "../club/play.js";
-import { store } from "./records.js";
-import * as retrain from "./retrain.js";
+import {readClub} from '../club/club.js';
+import {helpers} from '../club/play.js';
+import {store} from './records.js';
+import * as retrain from './retrain.js';
 
-const args = process.argv.slice(2), has = (f) => args.includes(f), num = (f) => { const k = args.indexOf(f); return k >= 0 ? +args[k + 1] : undefined; };
+const args = process.argv.slice(2),
+  has = f => args.includes(f),
+  num = f => {
+    const k = args.indexOf(f);
+    return k >= 0 ? +args[k + 1] : undefined;
+  };
 retrain.loadActive();
 let out;
-if (has("--rollback")) out = retrain.rollback();
+if (has('--rollback')) out = retrain.rollback();
 else {
   const club = readClub();
-  out = retrain.run({ store: store(), members: club.members, club, venues: helpers.readVenues(), travelMin: helpers.travelMin, simulated: has("--simulated"), dryRun: has("--dry-run"), minRows: num("--min-rows") });
+  out = retrain.run({
+    store: store(),
+    members: club.members,
+    club,
+    venues: helpers.readVenues(),
+    travelMin: helpers.travelMin,
+    simulated: has('--simulated'),
+    dryRun: has('--dry-run'),
+    minRows: num('--min-rows'),
+  });
 }
 console.log(JSON.stringify(out));

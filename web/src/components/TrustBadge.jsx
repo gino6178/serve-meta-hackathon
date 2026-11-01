@@ -3,13 +3,23 @@
 // agents or its key failed a signature check. range says how sure the show-up figure is, in words ("likely 78-96%"):
 // recent games count most, and a short record gives a wide range. Others' records come as words only (level, agentLevel);
 // only the member's own carries counts (show, range).
-export default function TrustBadge({ t, compact = false }) {
+export default function TrustBadge({t, compact = false}) {
   if (!t) return null;
-  const show = t.level || "", agent = t.agentLevel || "";
+  const show = t.level || '',
+    agent = t.agentLevel || '';
   return (
-    <span className={`trust${compact ? " sm" : ""}`}>
-      <span className={`tr-pill ${show}`} title={`Shows up: from the other players' one-tap check after each game, recent games counting most${t.range ? ` (${t.range})` : ""}`}>{t.show.replace(/^shows up /, "Shows up ").replace(/^new$/, "New")}{!compact && t.range && !t.newShow ? ` · ${t.range}` : ""}</span>
-      <span className={`tr-pill ${agent}`} title="How often the person agreed when their agent said yes for them">{t.agent.replace(/^agent/, "Agent")}</span>
+    <span className={`trust${compact ? ' sm' : ''}`}>
+      <span
+        className={`tr-pill ${show}`}
+        title={`Shows up: from the other players' one-tap check after each game, recent games counting most${t.range ? ` (${t.range})` : ''}`}>
+        {t.show.replace(/^shows up /, 'Shows up ').replace(/^new$/, 'New')}
+        {!compact && t.range && !t.newShow ? ` · ${t.range}` : ''}
+      </span>
+      <span
+        className={`tr-pill ${agent}`}
+        title="How often the person agreed when their agent said yes for them">
+        {t.agent.replace(/^agent/, 'Agent')}
+      </span>
     </span>
   );
 }

@@ -12,28 +12,42 @@
 //     doubles instead of 73.9%; the choices asked of a model per doubles request fell from 0.261 to 0.109.
 //   - With private calendars, whether a time is found at all: no difference (test/rank_sim.mjs), because twelve listed
 //     times a round and three rounds already cover nearly every hour a player offers.
-import { posterior } from "./voi.js";
+import {posterior} from './voi.js';
+import {hm, DAYS} from '../core/time.js';
 
 export const FLOOR = 0.15;
-export const rankOn = () => (process.env.A2A_RANK || "prob") === "prob";
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const hm = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-const keyOf = (date, start) => `${DAYS[new Date(`${date}T12:00:00`).getDay()]} ${hm(start).slice(0, 2)}:00`;
+export const rankOn = () => (process.env.A2A_RANK || 'prob') === 'prob';
+const keyOf = (date, start) =>
+  `${DAYS[new Date(`${date}T12:00:00`).getDay()]} ${hm(start).slice(0, 2)}:00`;
 
 // the old score: past yeses up, past noes down (mems: the members' faded counts, talk.js memoryOf)
-export const countScore = (x, mems) => mems.reduce((s, mm) => { const k = keyOf(x.slot.date, x.start); return s + (mm ? 2 * ((mm.yes[k] || 0) + (mm.asked[k] || 0)) - 3 * (mm.no[k] || 0) : 0); }, 0);
+export const countScore = (x, mems) =>
+  mems.reduce((s, mm) => {
+    const k = keyOf(x.slot.date, x.start);
+    return (
+      s +
+      (mm
+        ? 2 * ((mm.yes[k] || 0) + (mm.asked[k] || 0)) - 3 * (mm.no[k] || 0)
+        : 0)
+    );
+  }, 0);
 
 // the chance a time works for everyone, and its least-likely member's chance
 export function chanceAll(x, mems, prior) {
-  let all = 1, least = 1;
-  for (const mm of mems) { const p = posterior(mm, { date: x.slot.date, start: hm(x.start) }, prior).p; all *= p; least = Math.min(least, p); }
-  return { all, least };
+  let all = 1,
+    least = 1;
+  for (const mm of mems) {
+    const p = posterior(mm, {date: x.slot.date, start: hm(x.start)}, prior).p;
+    all *= p;
+    least = Math.min(least, p);
+  }
+  return {all, least};
 }
 
 // a score for each time (higher first), in the old order's units so the other terms (the player's own day, the usual
 // hours with private calendars) weigh as before: 10 x ln(chance all), less 100 under the floor
 export function timeScore(x, mems, prior, rank = rankOn()) {
   if (!rank) return countScore(x, mems);
-  const { all, least } = chanceAll(x, mems, prior);
+  const {all, least} = chanceAll(x, mems, prior);
   return 10 * Math.log(Math.max(all, 1e-6)) - (least < FLOOR ? 100 : 0);
 }

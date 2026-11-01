@@ -62,302 +62,1038 @@
 //   POST /api/agent-channel/post {text, invite}      a post, or an invite, as "<member>'s agent"
 //   POST /api/agent-channel/comment {post, text}     a comment, as "<member>'s agent"
 //   POST /api/agent-channel/join {post, on}          join an invite for its member
-import * as M from "./members.js";
+import * as M from './members.js';
 // a JSON body that is not an object (null, a number, a list) reads as no fields, never a crash
-const obj = (x) => (x && typeof x === "object" && !Array.isArray(x) ? x : {});
-import * as P from "../feed/posts.js";
-import * as C from "./clubs.js";
-import * as H from "./huddle.js";
-import * as T from "./taste.js";
-import * as D from "./deals.js";
-import * as Tr from "./trust.js";
-import * as N from "./needs.js";
-import { signInHint } from "./discovery.js";
-import * as K from "./calendar.js";
-import * as Sk from "../club/skill.js";
+const obj = x => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
+import * as P from '../feed/posts.js';
+import * as C from './clubs.js';
+import * as H from './huddle.js';
+import * as T from './taste.js';
+import * as D from './deals.js';
+import * as Tr from './trust.js';
+import * as N from './needs.js';
+import {signInHint} from './discovery.js';
+import * as K from './calendar.js';
+import * as Sk from '../club/skill.js';
 
-const readRaw = (req, max = 64e3) => new Promise((ok) => { const parts = []; let n = 0, over = false; req.on("data", (c) => { n += c.length; if (n > max) over = true; else parts.push(c); }); req.on("end", () => ok(over ? null : Buffer.concat(parts))); req.on("error", () => ok(null)); });
-const redirect = (res, url) => { res.writeHead(302, { location: url, "cache-control": "no-store" }); res.end(); return true; };
-export const member = (req) => M.fromSession(req.headers["x-serve-session"]);
+const readRaw = (req, max = 64e3) =>
+  new Promise(ok => {
+    const parts = [];
+    let n = 0,
+      over = false;
+    req.on('data', c => {
+      n += c.length;
+      if (n > max) over = true;
+      else parts.push(c);
+    });
+    req.on('end', () => ok(over ? null : Buffer.concat(parts)));
+    req.on('error', () => ok(null));
+  });
+const redirect = (res, url) => {
+  res.writeHead(302, {location: url, 'cache-control': 'no-store'});
+  res.end();
+  return true;
+};
+export const member = req => M.fromSession(req.headers['x-serve-session']);
 P.joinRoomWith((room, id) => C.joinById(String(room), id, M.get(id)?.name));
 // the routes a signed-in member may use without the gateway's token
-export const memberRoute = (p) => p === "/api/me" || p.startsWith("/api/members/") || p === "/api/feed" || p.startsWith("/api/feed/") || p === "/api/clubs" || p.startsWith("/api/clubs/") || p.startsWith("/api/huddle/");
-export const publicRoute = (p) => p.startsWith("/api/auth/") || p.startsWith("/api/agent-channel/") || p === "/api/invite" || p === "/api/clubs/invite" || p.startsWith("/api/trust/") || p === "/api/openapi.json";
+export const memberRoute = p =>
+  p === '/api/me' ||
+  p.startsWith('/api/members/') ||
+  p === '/api/feed' ||
+  p.startsWith('/api/feed/') ||
+  p === '/api/clubs' ||
+  p.startsWith('/api/clubs/') ||
+  p.startsWith('/api/huddle/');
+export const publicRoute = p =>
+  p.startsWith('/api/auth/') ||
+  p.startsWith('/api/agent-channel/') ||
+  p === '/api/invite' ||
+  p === '/api/clubs/invite' ||
+  p.startsWith('/api/trust/') ||
+  p === '/api/openapi.json';
 
-export async function route(req, res, u, { json, o, forget }) {
-  const p = u.pathname, send = (code, body) => { json(res, code, body, o); return true; };
-  if (p === "/api/auth/providers") return send(200, M.providers());
+export async function route(req, res, u, {json, o, forget}) {
+  const p = u.pathname,
+    send = (code, body) => {
+      json(res, code, body, o);
+      return true;
+    };
+  if (p === '/api/auth/providers') return send(200, M.providers());
   // an invite link (#/i/<id>) opened by someone who has no account yet
-  if (p === "/api/invite" && req.method === "GET") {
-    const v = P.publicInvite(String(u.searchParams.get("id") || ""), (room) => C.canSee(room, null));
+  if (p === '/api/invite' && req.method === 'GET') {
+    const v = P.publicInvite(String(u.searchParams.get('id') || ''), room =>
+      C.canSee(room, null),
+    );
     // signed in: whether they are already in it (so a reload doesn't ask them to join again)
-    const who = member(req), post = v && who ? P.find(v.id) : null;
-    return v ? send(200, { invite: { ...v, ...(post ? { joined: post.invite.going.includes(who.id), mine: (post.by.player || post.by.agentOf) === who.id } : {}) } }) : send(404, { error: "That game is not open any more." });
+    const who = member(req),
+      post = v && who ? P.find(v.id) : null;
+    return v
+      ? send(200, {
+          invite: {
+            ...v,
+            ...(post
+              ? {
+                  joined: post.invite.going.includes(who.id),
+                  mine: (post.by.player || post.by.agentOf) === who.id,
+                }
+              : {}),
+          },
+        })
+      : send(404, {error: 'That game is not open any more.'});
   }
   const a = /^\/api\/auth\/(facebook|instagram)\/(start|callback)$/.exec(p);
   // (a browser goes back to the app with the reason; an agent or script gets it as JSON)
-  if (a && a[2] === "start") { const r = M.start(a[1]); if (r.error && !String(req.headers.accept || "").includes("text/html")) return send(404, { error: r.error, providers: "/api/auth/providers" }); return r.error ? redirect(res, `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}`) : redirect(res, r.url); }
-  if (a && a[2] === "callback") {
+  if (a && a[2] === 'start') {
+    const r = M.start(a[1]);
+    if (r.error && !String(req.headers.accept || '').includes('text/html'))
+      return send(404, {error: r.error, providers: '/api/auth/providers'});
+    return r.error
+      ? redirect(
+          res,
+          `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}`,
+        )
+      : redirect(res, r.url);
+  }
+  if (a && a[2] === 'callback') {
     const r = await M.callback(a[1], Object.fromEntries(u.searchParams));
-    return redirect(res, r.error ? `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}` : `${M.appUrl()}/#/social?session=${M.sessionFor(r.member.id)}`);
+    return redirect(
+      res,
+      r.error
+        ? `${M.appUrl()}/#/join?error=${encodeURIComponent(r.error)}`
+        : `${M.appUrl()}/#/social?session=${M.sessionFor(r.member.id)}`,
+    );
   }
-  if (p === "/api/auth/demo" && req.method === "POST") {
-    const raw = await readRaw(req); let b = {}; try { b = obj(JSON.parse(raw?.toString() || "{}")); } catch { /* empty */ }
-    if (b.name !== undefined && (typeof b.name !== "string" || b.name.trim().length > 40)) return send(400, { error: "name is text, up to 40 characters." });
+  if (p === '/api/auth/demo' && req.method === 'POST') {
+    const raw = await readRaw(req);
+    let b = {};
+    try {
+      b = obj(JSON.parse(raw?.toString() || '{}'));
+    } catch {
+      /* empty */
+    }
+    if (
+      b.name !== undefined &&
+      (typeof b.name !== 'string' || b.name.trim().length > 40)
+    )
+      return send(400, {error: 'name is text, up to 40 characters.'});
     const r = M.demo(b.name);
-    return r.error ? send(403, r) : send(200, { member: r.member, session: M.sessionFor(r.member.id) });
+    return r.error
+      ? send(403, r)
+      : send(200, {member: r.member, session: M.sessionFor(r.member.id)});
   }
-  if (p.startsWith("/api/agent-channel/")) return channel(req, res, p, send);
+  if (p.startsWith('/api/agent-channel/')) return channel(req, res, p, send);
   // the trust chain, for anyone to check (trust.js): its entries (pseudonymous), the signed daily heads, and a replay
-  if (p === "/api/trust/chain" && req.method === "GET" && [["after", -1], ["n", 1]].some(([k, min]) => u.searchParams.get(k) != null && !(Number.isInteger(+u.searchParams.get(k)) && +u.searchParams.get(k) >= min))) return send(400, { error: "after and n are whole numbers." });
-  if (p === "/api/trust/chain" && req.method === "GET") return send(200, { ...Tr.publicChain({ after: +(u.searchParams.get("after") ?? -1), n: +(u.searchParams.get("n") || 500) }), today: await Tr.head() });
-  if (p === "/api/trust/verify" && req.method === "GET") return send(200, { ...Tr.verify(), head: await Tr.head() });
+  if (
+    p === '/api/trust/chain' &&
+    req.method === 'GET' &&
+    [
+      ['after', -1],
+      ['n', 1],
+    ].some(
+      ([k, min]) =>
+        u.searchParams.get(k) != null &&
+        !(
+          Number.isInteger(+u.searchParams.get(k)) &&
+          +u.searchParams.get(k) >= min
+        ),
+    )
+  )
+    return send(400, {error: 'after and n are whole numbers.'});
+  if (p === '/api/trust/chain' && req.method === 'GET')
+    return send(200, {
+      ...Tr.publicChain({
+        after: +(u.searchParams.get('after') ?? -1),
+        n: +(u.searchParams.get('n') || 500),
+      }),
+      today: await Tr.head(),
+    });
+  if (p === '/api/trust/verify' && req.method === 'GET')
+    return send(200, {...Tr.verify(), head: await Tr.head()});
 
   const me = member(req);
-  if (p === "/api/me") return me ? send(200, { member: M.view(me), agents: M.agentsOf(me.id) }) : send(401, { error: "Sign in first.", ...signInHint(req) });
-  if (p === "/api/clubs" || p.startsWith("/api/clubs/")) {
-    const u2 = new URL(req.url, "http://x");
+  if (p === '/api/me')
+    return me
+      ? send(200, {member: M.view(me), agents: M.agentsOf(me.id)})
+      : send(401, {error: 'Sign in first.', ...signInHint(req)});
+  if (p === '/api/clubs' || p.startsWith('/api/clubs/')) {
+    const u2 = new URL(req.url, 'http://x');
     // a club's invite link, before signing in: the club, not its members
-    if (p === "/api/clubs/invite" && req.method === "GET") { const r = C.preview(u2.searchParams.get("code")); return send(r.error ? r.code : 200, r); }
-    if (!me) return send(401, { error: "Sign in first.", ...signInHint(req) });
+    if (p === '/api/clubs/invite' && req.method === 'GET') {
+      const r = C.preview(u2.searchParams.get('code'));
+      return send(r.error ? r.code : 200, r);
+    }
+    if (!me) return send(401, {error: 'Sign in first.', ...signInHint(req)});
     const inv = /^\/api\/clubs\/([\w-]{1,40})\/invite$/.exec(p);
-    if (inv && req.method === "GET") { const r = C.invite(me, inv[1]); return send(r.error ? r.code : 200, r); }
-    { const la = u2.searchParams.get("lat"), lo = u2.searchParams.get("lon"), num = (x, m) => x != null && x.trim() !== "" && isFinite(+x) && Math.abs(+x) <= m;
-      if (p === "/api/clubs" && req.method === "GET" && (la != null || lo != null) && !(num(la, 90) && num(lo, 180))) return send(400, { error: "lat (-90..90) and lon (-180..180) go together, or leave both out." }); }
-    if (p === "/api/clubs" && req.method === "GET") return send(200, C.list(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon") }));
-    if (p === "/api/clubs/suggest" && req.method === "GET") return send(200, C.suggest(me.id, { lat: u2.searchParams.get("lat"), lon: u2.searchParams.get("lon"), sport: u2.searchParams.get("sport") }));
-    let cb = {}; try { cb = obj(JSON.parse((await readRaw(req))?.toString() || "{}")); } catch { /* empty */ }
-    const out = (r) => send(r.error ? r.code || 400 : 200, r);
-    if (p === "/api/clubs" && req.method === "POST") return out(await C.start(me, cb, (t, who) => P.moderate(t, who)));
-    if (p === "/api/clubs/join" && req.method === "POST" && cb.on !== undefined && typeof cb.on !== "boolean") return send(400, { error: "on is true (join) or false (leave)." });
+    if (inv && req.method === 'GET') {
+      const r = C.invite(me, inv[1]);
+      return send(r.error ? r.code : 200, r);
+    }
+    {
+      const la = u2.searchParams.get('lat'),
+        lo = u2.searchParams.get('lon'),
+        num = (x, m) =>
+          x != null && x.trim() !== '' && isFinite(+x) && Math.abs(+x) <= m;
+      if (
+        p === '/api/clubs' &&
+        req.method === 'GET' &&
+        (la != null || lo != null) &&
+        !(num(la, 90) && num(lo, 180))
+      )
+        return send(400, {
+          error:
+            'lat (-90..90) and lon (-180..180) go together, or leave both out.',
+        });
+    }
+    if (p === '/api/clubs' && req.method === 'GET')
+      return send(
+        200,
+        C.list(me.id, {
+          lat: u2.searchParams.get('lat'),
+          lon: u2.searchParams.get('lon'),
+        }),
+      );
+    if (p === '/api/clubs/suggest' && req.method === 'GET')
+      return send(
+        200,
+        C.suggest(me.id, {
+          lat: u2.searchParams.get('lat'),
+          lon: u2.searchParams.get('lon'),
+          sport: u2.searchParams.get('sport'),
+        }),
+      );
+    let cb = {};
+    try {
+      cb = obj(JSON.parse((await readRaw(req))?.toString() || '{}'));
+    } catch {
+      /* empty */
+    }
+    const out = r => send(r.error ? r.code || 400 : 200, r);
+    if (p === '/api/clubs' && req.method === 'POST')
+      return out(await C.start(me, cb, (t, who) => P.moderate(t, who)));
+    if (
+      p === '/api/clubs/join' &&
+      req.method === 'POST' &&
+      cb.on !== undefined &&
+      typeof cb.on !== 'boolean'
+    )
+      return send(400, {error: 'on is true (join) or false (leave).'});
     // by a club's invite link: {code}; a private club's owner hears someone asked
-    if (p === "/api/clubs/join" && req.method === "POST" && cb.code != null && cb.on !== false) {
-      const c = C.byCode(String(cb.code)), was = !!c && (c.requests || []).some((x) => x.id === me.id), r = C.joinByCode(me, String(cb.code));
-      if (r.asked && c && !was) P.notify(c.owner, "club", `${me.name.split(" ")[0]} asked to join ${c.name} through its link. Say yes or no on the club's page.`);
+    if (
+      p === '/api/clubs/join' &&
+      req.method === 'POST' &&
+      cb.code != null &&
+      cb.on !== false
+    ) {
+      const c = C.byCode(String(cb.code)),
+        was = !!c && (c.requests || []).some(x => x.id === me.id),
+        r = C.joinByCode(me, String(cb.code));
+      if (r.asked && c && !was)
+        P.notify(
+          c.owner,
+          'club',
+          `${me.name.split(' ')[0]} asked to join ${c.name} through its link. Say yes or no on the club's page.`,
+        );
       return out(r);
     }
-    if (p === "/api/clubs/join" && req.method === "POST") {
-      const r = C.join(me, String(cb.club || ""), cb.on !== false);
-      if (r.handed) { P.notify(r.handed.to, "club", `${me.name.split(" ")[0]} left ${r.handed.club}, so it's yours to run now.`); delete r.handed; }
+    if (p === '/api/clubs/join' && req.method === 'POST') {
+      const r = C.join(me, String(cb.club || ''), cb.on !== false);
+      if (r.handed) {
+        P.notify(
+          r.handed.to,
+          'club',
+          `${me.name.split(' ')[0]} left ${r.handed.club}, so it's yours to run now.`,
+        );
+        delete r.handed;
+      }
       return out(r);
     }
     // (whoever asked is told the answer, as the ask promised)
-    if (p === "/api/clubs/answer" && req.method === "POST") {
-      const r = C.answer(me, String(cb.club || ""), String(cb.member || ""), cb.yes === true);
-      if (!r.error) P.notify(String(cb.member), "club", cb.yes === true ? `${me.name.split(" ")[0]} said yes: you're in ${r.club.name}.` : `${me.name.split(" ")[0]} said no to joining ${r.club.name} for now.`, { club: r.club.id });
+    if (p === '/api/clubs/answer' && req.method === 'POST') {
+      const r = C.answer(
+        me,
+        String(cb.club || ''),
+        String(cb.member || ''),
+        cb.yes === true,
+      );
+      if (!r.error)
+        P.notify(
+          String(cb.member),
+          'club',
+          cb.yes === true
+            ? `${me.name.split(' ')[0]} said yes: you're in ${r.club.name}.`
+            : `${me.name.split(' ')[0]} said no to joining ${r.club.name} for now.`,
+          {club: r.club.id},
+        );
       return out(r);
     }
-    if (p === "/api/clubs/roster" && req.method === "POST") return out(await C.setRoster(me, String(cb.club || ""), cb.names, (t, who) => P.moderate(t, who)));
-    if (p === "/api/clubs/session" && req.method === "POST") return out(C.planSession(me, String(cb.club || ""), cb));
-    if (p === "/api/clubs/enter" && req.method === "POST") return out(C.enter(me, String(cb.club || ""), cb));
-    if (p === "/api/clubs/draw" && req.method === "POST") {
-      const r = C.makeDraw(me, String(cb.club || ""), cb);
+    if (p === '/api/clubs/roster' && req.method === 'POST')
+      return out(
+        await C.setRoster(me, String(cb.club || ''), cb.names, (t, who) =>
+          P.moderate(t, who),
+        ),
+      );
+    if (p === '/api/clubs/session' && req.method === 'POST')
+      return out(C.planSession(me, String(cb.club || ''), cb));
+    if (p === '/api/clubs/enter' && req.method === 'POST')
+      return out(C.enter(me, String(cb.club || ''), cb));
+    if (p === '/api/clubs/draw' && req.method === 'POST') {
+      const r = C.makeDraw(me, String(cb.club || ''), cb);
       // the draw, said in the club's feed by the organiser
-      if (r.draw) await P.post(me.id, { text: `The draw is out: ${r.draw.teams.length} teams, ${r.draw.matches.length} match${r.draw.matches.length === 1 ? "" : "es"} on ${r.draw.courts} court${r.draw.courts > 1 ? "s" : ""}, ${r.draw.start} to ${r.draw.end}. Your matches are on the club's page.`, room: String(cb.club) }).catch(() => null);
+      if (r.draw)
+        await P.post(me.id, {
+          text: `The draw is out: ${r.draw.teams.length} teams, ${r.draw.matches.length} match${r.draw.matches.length === 1 ? '' : 'es'} on ${r.draw.courts} court${r.draw.courts > 1 ? 's' : ''}, ${r.draw.start} to ${r.draw.end}. Your matches are on the club's page.`,
+          room: String(cb.club),
+        }).catch(() => null);
       return out(r);
     }
-    return send(404, { error: "no such route" });
+    return send(404, {error: 'no such route'});
   }
-  if (p.startsWith("/api/huddle/")) {
-    if (!me) return send(401, { error: "Sign in first.", ...signInHint(req) });
-    return huddle(req, res, p, new URL(req.url, "http://x").searchParams, me.id, send);
+  if (p.startsWith('/api/huddle/')) {
+    if (!me) return send(401, {error: 'Sign in first.', ...signInHint(req)});
+    return huddle(
+      req,
+      res,
+      p,
+      new URL(req.url, 'http://x').searchParams,
+      me.id,
+      send,
+    );
   }
-  if (!p.startsWith("/api/members/")) return false;
-  if (!me) return send(401, { error: "Sign in first.", ...signInHint(req) });
-  const ics = p === "/api/members/calendar/ics", raw = req.method === "POST" ? await readRaw(req, ics ? K.MAX_BYTES * 1.2 : 64e3) : null; let b = {}; try { b = obj(JSON.parse(raw?.toString() || "{}")); } catch { /* empty */ }
-  if (ics && req.method === "POST") {
-    if (raw == null) return send(413, { error: "The calendar is too big (1 MB at most)." });
-    if (typeof b.ics !== "string") return send(400, { error: "ics is the calendar file's text." });
-    if (b.weeks !== undefined && !(Number.isInteger(+b.weeks) && +b.weeks >= 1 && +b.weeks <= 12)) return send(400, { error: "weeks is a whole number from 1 to 12." });
-    const r = K.freeFrom(b.ics, { tz: b.tz ? String(b.tz) : Intl.DateTimeFormat().resolvedOptions().timeZone, weeks: b.weeks ?? 4 });
+  if (!p.startsWith('/api/members/')) return false;
+  if (!me) return send(401, {error: 'Sign in first.', ...signInHint(req)});
+  const ics = p === '/api/members/calendar/ics',
+    raw =
+      req.method === 'POST'
+        ? await readRaw(req, ics ? K.MAX_BYTES * 1.2 : 64e3)
+        : null;
+  let b = {};
+  try {
+    b = obj(JSON.parse(raw?.toString() || '{}'));
+  } catch {
+    /* empty */
+  }
+  if (ics && req.method === 'POST') {
+    if (raw == null)
+      return send(413, {error: 'The calendar is too big (1 MB at most).'});
+    if (typeof b.ics !== 'string')
+      return send(400, {error: "ics is the calendar file's text."});
+    if (
+      b.weeks !== undefined &&
+      !(Number.isInteger(+b.weeks) && +b.weeks >= 1 && +b.weeks <= 12)
+    )
+      return send(400, {error: 'weeks is a whole number from 1 to 12.'});
+    const r = K.freeFrom(b.ics, {
+      tz: b.tz
+        ? String(b.tz)
+        : Intl.DateTimeFormat().resolvedOptions().timeZone,
+      weeks: b.weeks ?? 4,
+    });
     if (r.error) return send(400, r);
-    if (b.save !== true && b.save !== "true") return send(200, r);
+    if (b.save !== true && b.save !== 'true') return send(200, r);
     // a broken or empty file reads as "free all week": it never replaces the member's limits
-    if (!r.events || !r.busyBlocks) return send(400, { ...r, error: "No events could be read from that calendar (is the file complete?), so nothing was saved." });
-    if (!r.windows.length) return send(400, { ...r, error: "No free time of two hours or more inside 07:00 to 22:00 in that calendar, so nothing was saved." });
-    const s = T.setLimits(me.id, { windows: r.windows });
-    return s.error ? send(s.code || 400, s) : send(200, { ...r, taste: s.taste });
+    if (!r.events || !r.busyBlocks)
+      return send(400, {
+        ...r,
+        error:
+          'No events could be read from that calendar (is the file complete?), so nothing was saved.',
+      });
+    if (!r.windows.length)
+      return send(400, {
+        ...r,
+        error:
+          'No free time of two hours or more inside 07:00 to 22:00 in that calendar, so nothing was saved.',
+      });
+    const s = T.setLimits(me.id, {windows: r.windows});
+    return s.error ? send(s.code || 400, s) : send(200, {...r, taste: s.taste});
   }
-  if (p === "/api/members/skill" && req.method === "GET") return send(200, { skill: Sk.store().view(me.id) });
-  if (p === "/api/members/result/pending" && req.method === "GET") { const nm = (id) => (id === me.id ? "You" : M.nameOf(id) || "A member"); return send(200, { pending: Sk.store().pendingFor(me.id).map((g) => ({ ...g, by: nm(g.by), teams: g.teams.map((t) => t.map((id) => ({ id, name: nm(id) }))) })) }); }
-  if (["/api/members/result", "/api/members/result/confirm", "/api/members/result/decline"].includes(p) && req.method === "POST") {
-    if (p === "/api/members/result/confirm") { const r = Sk.store().confirm(me.id, String(b.id || "")); return send(r.error ? r.code || 400 : 200, r); }
-    if (p === "/api/members/result/decline") { const r = Sk.store().decline(me.id, String(b.id || "")); return send(r.error ? r.code || 400 : 200, r); }
+  if (p === '/api/members/skill' && req.method === 'GET')
+    return send(200, {skill: Sk.store().view(me.id)});
+  if (p === '/api/members/result/pending' && req.method === 'GET') {
+    const nm = id => (id === me.id ? 'You' : M.nameOf(id) || 'A member');
+    return send(200, {
+      pending: Sk.store()
+        .pendingFor(me.id)
+        .map(g => ({
+          ...g,
+          by: nm(g.by),
+          teams: g.teams.map(t => t.map(id => ({id, name: nm(id)}))),
+        })),
+    });
+  }
+  if (
+    [
+      '/api/members/result',
+      '/api/members/result/confirm',
+      '/api/members/result/decline',
+    ].includes(p) &&
+    req.method === 'POST'
+  ) {
+    if (p === '/api/members/result/confirm') {
+      const r = Sk.store().confirm(me.id, String(b.id || ''));
+      return send(r.error ? r.code || 400 : 200, r);
+    }
+    if (p === '/api/members/result/decline') {
+      const r = Sk.store().decline(me.id, String(b.id || ''));
+      return send(r.error ? r.code || 400 : 200, r);
+    }
     const teams = b.teams;
-    if (!Array.isArray(teams) || teams.length !== 2 || teams.some((t) => !Array.isArray(t) || !t.length || t.length > 4 || t.some((id) => typeof id !== "string"))) return send(400, { error: "teams is two lists of member ids (1 to 4 each)." });
-    if (![0, 1].includes(b.winner)) return send(400, { error: "winner is 0 or 1 (the team that won)." });
-    if (b.sport !== undefined && !T.SPORTS.includes(String(b.sport).toLowerCase())) return send(400, { error: `sport is one of: ${T.SPORTS.join(", ")}.` });
-    if (b.mode !== undefined && !["competitive", "casual"].includes(b.mode)) return send(400, { error: "mode is competitive or casual." });
-    if (teams.flat().some((id) => id !== me.id && !M.nameOf(id))) return send(400, { error: "Every player is a member." });
+    if (
+      !Array.isArray(teams) ||
+      teams.length !== 2 ||
+      teams.some(
+        t =>
+          !Array.isArray(t) ||
+          !t.length ||
+          t.length > 4 ||
+          t.some(id => typeof id !== 'string'),
+      )
+    )
+      return send(400, {
+        error: 'teams is two lists of member ids (1 to 4 each).',
+      });
+    if (![0, 1].includes(b.winner))
+      return send(400, {error: 'winner is 0 or 1 (the team that won).'});
+    if (
+      b.sport !== undefined &&
+      !T.SPORTS.includes(String(b.sport).toLowerCase())
+    )
+      return send(400, {error: `sport is one of: ${T.SPORTS.join(', ')}.`});
+    if (b.mode !== undefined && !['competitive', 'casual'].includes(b.mode))
+      return send(400, {error: 'mode is competitive or casual.'});
+    if (teams.flat().some(id => id !== me.id && !M.nameOf(id)))
+      return send(400, {error: 'Every player is a member.'});
     const club = b.club ? C.find(String(b.club)) : null;
-    if (b.club && !C.isMember(club?.id, me.id)) return send(404, { error: "No such club among yours." });
-    const r = Sk.store().report(me.id, { sport: String(b.sport || club?.sport || "badminton").toLowerCase(), teams, winner: b.winner, mode: b.mode || "casual", kind: club?.kind || "club" });
+    if (b.club && !C.isMember(club?.id, me.id))
+      return send(404, {error: 'No such club among yours.'});
+    const r = Sk.store().report(me.id, {
+      sport: String(b.sport || club?.sport || 'badminton').toLowerCase(),
+      teams,
+      winner: b.winner,
+      mode: b.mode || 'casual',
+      kind: club?.kind || 'club',
+    });
     return send(r.error ? r.code || 400 : 200, r);
   }
-  if (p === "/api/members/agents" && req.method === "POST") { const r = M.addAgent(me.id, b); return send(r.error ? 400 : 200, r); }
-  if (p === "/api/members/agents/revoke" && req.method === "POST") { const r = M.revokeAgent(me.id, String(b.id || "")); return send(r.error ? 400 : 200, r); }
-  if (p === "/api/members/leave" && req.method === "POST") { const names = { [me.id]: M.nameOf(me.id) }, ids = M.leave(me.id); for (const id of ids) { forget?.(id, { name: names[id] || null }); for (const h of C.forget(id) || []) P.notify(h.to, "club", `${String(names[id] || "The organiser").split(" ")[0]} left Serve, so ${h.club} is yours to run now.`); H.forget(id, names[id] || null); Sk.store().forget(id); } return send(200, { deleted: ids }); }
-  if (p === "/api/members/refusals") return send(200, { refusals: M.refusals() });
-  return send(404, { error: "no such route" });
+  if (p === '/api/members/agents' && req.method === 'POST') {
+    const r = M.addAgent(me.id, b);
+    return send(r.error ? 400 : 200, r);
+  }
+  if (p === '/api/members/agents/revoke' && req.method === 'POST') {
+    const r = M.revokeAgent(me.id, String(b.id || ''));
+    return send(r.error ? 400 : 200, r);
+  }
+  if (p === '/api/members/leave' && req.method === 'POST') {
+    const names = {[me.id]: M.nameOf(me.id)},
+      ids = M.leave(me.id);
+    for (const id of ids) {
+      forget?.(id, {name: names[id] || null});
+      for (const h of C.forget(id) || [])
+        P.notify(
+          h.to,
+          'club',
+          `${String(names[id] || 'The organiser').split(' ')[0]} left Serve, so ${h.club} is yours to run now.`,
+        );
+      H.forget(id, names[id] || null);
+      Sk.store().forget(id);
+    }
+    return send(200, {deleted: ids});
+  }
+  if (p === '/api/members/refusals') return send(200, {refusals: M.refusals()});
+  return send(404, {error: 'no such route'});
 }
 
 async function channel(req, res, p, send) {
-  const raw = req.method === "POST" ? await readRaw(req) : Buffer.alloc(0);
-  if (raw == null) return send(413, { error: "too big" });
+  const raw = req.method === 'POST' ? await readRaw(req) : Buffer.alloc(0);
+  if (raw == null) return send(413, {error: 'too big'});
   const c = M.checkAgent(req, raw, p);
-  if (!c.ok) return send(401, { error: `refused: ${c.message}`, why: c.why, docs: "/llms.txt" });
-  const ag = c.agent, owner = ag.owner;
-  if (p === "/api/agent-channel/feed/post") p = "/api/agent-channel/post"; // the feed's own path, under the channel
-  let b = {}; try { b = obj(JSON.parse(raw.toString() || "{}")); } catch { return send(400, { error: "the body is not JSON" }); }
-  const out = (r) => send(r.error ? r.code || 400 : 200, r);
-  if (p === "/api/agent-channel/me" && req.method === "GET") return send(200, { member: M.view(M.get(owner)), agent: M.view(ag), audience: M.AUDIENCE });
-  if (p === "/api/agent-channel/feed" && req.method === "GET") return send(200, P.feed(owner, { n: 20, keep: true }));
-  if (p === "/api/agent-channel/post" && req.method === "POST" && b.invite) {
-    const t = T.get(owner), v = b.invite, date = /^\d{4}-/.test(String(v.day)) ? v.day : null;
-    const why = date && /^\d{2}:\d{2}$/.test(String(v.start)) ? T.hardNos(t, { date, start: v.start, km: t.home && v.at ? +T.km(t.home, v.at).toFixed(1) : null, each: +v.each || 0 }) : [];
-    if (why.length) return send(403, { error: `That game is outside what your person set (${why.map((x) => T.NO[x] || x).join(", ")}); your person can post it themself.`, needs: "person" });
+  if (!c.ok)
+    return send(401, {
+      error: `refused: ${c.message}`,
+      why: c.why,
+      docs: '/llms.txt',
+    });
+  const ag = c.agent,
+    owner = ag.owner;
+  if (p === '/api/agent-channel/feed/post') p = '/api/agent-channel/post'; // the feed's own path, under the channel
+  let b = {};
+  try {
+    b = obj(JSON.parse(raw.toString() || '{}'));
+  } catch {
+    return send(400, {error: 'the body is not JSON'});
+  }
+  const out = r => send(r.error ? r.code || 400 : 200, r);
+  if (p === '/api/agent-channel/me' && req.method === 'GET')
+    return send(200, {
+      member: M.view(M.get(owner)),
+      agent: M.view(ag),
+      audience: M.AUDIENCE,
+    });
+  if (p === '/api/agent-channel/feed' && req.method === 'GET')
+    return send(200, P.feed(owner, {n: 20, keep: true}));
+  if (p === '/api/agent-channel/post' && req.method === 'POST' && b.invite) {
+    const t = T.get(owner),
+      v = b.invite,
+      date = /^\d{4}-/.test(String(v.day)) ? v.day : null;
+    const why =
+      date && /^\d{2}:\d{2}$/.test(String(v.start))
+        ? T.hardNos(t, {
+            date,
+            start: v.start,
+            km: t.home && v.at ? +T.km(t.home, v.at).toFixed(1) : null,
+            each: +v.each || 0,
+          })
+        : [];
+    if (why.length)
+      return send(403, {
+        error: `That game is outside what your person set (${why.map(x => T.NO[x] || x).join(', ')}); your person can post it themself.`,
+        needs: 'person',
+      });
     // posting a game commits the person as its host: within the price they let the agent say yes to
     const dl = t.delegate;
-    if (dl?.on && dl.maxEach != null && (+v.each || 0) > dl.maxEach) return send(403, { error: `NT$${+v.each} each is over the NT$${dl.maxEach} your person lets you say yes to; your person can post it themself.`, needs: "person" });
+    if (dl?.on && dl.maxEach != null && (+v.each || 0) > dl.maxEach)
+      return send(403, {
+        error: `NT$${+v.each} each is over the NT$${dl.maxEach} your person lets you say yes to; your person can post it themself.`,
+        needs: 'person',
+      });
     // a game the agent posts keeps the person's rule about new people, as one it starts (below)
     const d = t.delegate;
     if (d?.on && !d.newPeople) {
       const asked = +v.gate?.minShow || 0;
-      b = { ...b, invite: { ...v, gate: { minShow: Math.max(0.6, asked), newOk: false, agentMin: v.gate?.agentMin } } };
-      const r = await P.post(ag.id, { text: b.text, invite: b.invite, agent: { id: ag.id, owner } });
-      return out(r.error ? r : { ...r, note: `Your person's delegation wants people with a record, so new people wait${asked < 0.6 ? " and the game is gated at 60%" : ""}.` });
+      b = {
+        ...b,
+        invite: {
+          ...v,
+          gate: {
+            minShow: Math.max(0.6, asked),
+            newOk: false,
+            agentMin: v.gate?.agentMin,
+          },
+        },
+      };
+      const r = await P.post(ag.id, {
+        text: b.text,
+        invite: b.invite,
+        agent: {id: ag.id, owner},
+      });
+      return out(
+        r.error
+          ? r
+          : {
+              ...r,
+              note: `Your person's delegation wants people with a record, so new people wait${asked < 0.6 ? ' and the game is gated at 60%' : ''}.`,
+            },
+      );
     }
   }
-  if (p === "/api/agent-channel/post" && req.method === "POST") return out(await P.post(ag.id, { text: b.text, invite: b.invite || null, agent: { id: ag.id, owner } }));
-  if (p === "/api/agent-channel/comment" && req.method === "POST") return out(await P.comment(ag.id, String(b.post || ""), b.text, { agent: { id: ag.id, owner } }));
-  if (p === "/api/agent-channel/join" && req.method === "POST") {
+  if (p === '/api/agent-channel/post' && req.method === 'POST')
+    return out(
+      await P.post(ag.id, {
+        text: b.text,
+        invite: b.invite || null,
+        agent: {id: ag.id, owner},
+      }),
+    );
+  if (p === '/api/agent-channel/comment' && req.method === 'POST')
+    return out(
+      await P.comment(ag.id, String(b.post || ''), b.text, {
+        agent: {id: ag.id, owner},
+      }),
+    );
+  if (p === '/api/agent-channel/join' && req.method === 'POST') {
     // joining commits the person: the same permission as a yes (taste.js delegate), with its limits
-    if (b.on !== undefined && typeof b.on !== "boolean") return send(400, { error: "on is true (join) or false (leave)." });
-    if (b.on !== false) { const ok = H.mayAgentSayYes(owner, { post: String(b.post || "") }); if (ok.error) return send(ok.code || 403, ok); }
-    return out(P.join(owner, String(b.post || ""), b.on !== false, { agent: true }));
+    if (b.on !== undefined && typeof b.on !== 'boolean')
+      return send(400, {error: 'on is true (join) or false (leave).'});
+    if (b.on !== false) {
+      const ok = H.mayAgentSayYes(owner, {post: String(b.post || '')});
+      if (ok.error) return send(ok.code || 403, ok);
+    }
+    return out(
+      P.join(owner, String(b.post || ''), b.on !== false, {agent: true}),
+    );
   }
   // the huddle routes, signed with the member's own agent key; committing them (a yes, joining a game) needs the
   // member's standing permission (taste.js delegate), with its limits
-  if (p.startsWith("/api/agent-channel/huddle/")) {
-    const sub = p.replace("/api/agent-channel", "");
-    if (["/huddle/reply", "/huddle/game"].includes(sub) && b.yes === true) { const ok = H.mayAgentSayYes(owner, sub === "/huddle/reply" ? { huddle: String(b.id || "") } : { post: String(b.post || "") }); if (ok.error) return send(ok.code || 403, ok); }
-    if (["/huddle/delegate", "/huddle/open", "/huddle/home"].includes(sub)) return send(403, { error: "Only your person changes this, with their own session: it is their permission, not yours." });
+  if (p.startsWith('/api/agent-channel/huddle/')) {
+    const sub = p.replace('/api/agent-channel', '');
+    if (['/huddle/reply', '/huddle/game'].includes(sub) && b.yes === true) {
+      const ok = H.mayAgentSayYes(
+        owner,
+        sub === '/huddle/reply'
+          ? {huddle: String(b.id || '')}
+          : {post: String(b.post || '')},
+      );
+      if (ok.error) return send(ok.code || 403, ok);
+    }
+    if (['/huddle/delegate', '/huddle/open', '/huddle/home'].includes(sub))
+      return send(403, {
+        error:
+          'Only your person changes this, with their own session: it is their permission, not yours.',
+      });
     // over the channel limits only get tighter: loosening them is the person's call
-    if (sub === "/huddle/limits" && req.method === "POST") {
-      { const bad = badInput("/huddle/limits", b); if (bad) return send(400, { error: bad }); } // (checked before comparing)
-      const t = T.get(owner), _mins = (ws) => (ws || []).reduce((n, w) => n + w.days.length * ((+w.to.slice(0, 2) * 60 + +w.to.slice(3)) - (+w.from.slice(0, 2) * 60 + +w.from.slice(3))), 0);
-      const looser = (b.maxKm != null && t.limitKm != null && +b.maxKm > t.limitKm) || (b.maxEach != null && t.limitEach != null && +b.maxEach > t.limitEach)
-        || (b.maxKm === null && t.limitKm != null) || (b.maxEach === null && t.limitEach != null) || (b.cover === true && !t.cover)
-        || (b.windows === null && t.windows?.length) || (Array.isArray(b.windows) && t.windows?.length && (!b.windows.length || !b.windows.every((w) => (w.days || []).every((d) => t.windows.some((o) => o.days.includes(d) && o.from <= w.from && w.to <= o.to)))));
-      if (looser) return send(403, { error: "Over the agent channel limits can only get tighter; loosening them needs your person's session.", needs: "person" });
+    if (sub === '/huddle/limits' && req.method === 'POST') {
+      {
+        const bad = badInput('/huddle/limits', b);
+        if (bad) return send(400, {error: bad});
+      } // (checked before comparing)
+      const t = T.get(owner),
+        _mins = ws =>
+          (ws || []).reduce(
+            (n, w) =>
+              n +
+              w.days.length *
+                (+w.to.slice(0, 2) * 60 +
+                  +w.to.slice(3) -
+                  (+w.from.slice(0, 2) * 60 + +w.from.slice(3))),
+            0,
+          );
+      const looser =
+        (b.maxKm != null && t.limitKm != null && +b.maxKm > t.limitKm) ||
+        (b.maxEach != null &&
+          t.limitEach != null &&
+          +b.maxEach > t.limitEach) ||
+        (b.maxKm === null && t.limitKm != null) ||
+        (b.maxEach === null && t.limitEach != null) ||
+        (b.cover === true && !t.cover) ||
+        (b.windows === null && t.windows?.length) ||
+        (Array.isArray(b.windows) &&
+          t.windows?.length &&
+          (!b.windows.length ||
+            !b.windows.every(w =>
+              (w.days || []).every(d =>
+                t.windows.some(
+                  o => o.days.includes(d) && o.from <= w.from && w.to <= o.to,
+                ),
+              ),
+            )));
+      if (looser)
+        return send(403, {
+          error:
+            "Over the agent channel limits can only get tighter; loosening them needs your person's session.",
+          needs: 'person',
+        });
     }
     // a game the agent starts keeps the person's rule about new people
-    if (sub === "/huddle/start" && req.method === "POST") { const d = T.get(owner).delegate; if (d?.on && !d.newPeople) { const asked = +b.gate?.minShow || 0; b = { ...b, gate: { minShow: Math.max(0.6, asked), newOk: false, agentMin: b.gate?.agentMin }, gateWhy: `Your person's delegation wants people with a record, so new people wait${asked < 0.6 ? " and the game is gated at 60%" : ""}.` }; } }
-    const fake = { method: req.method, url: sub, headers: req.headers, on: () => {} };
-    return huddle(Object.assign(fake, { [Symbol.asyncIterator]: undefined, byAgent: true }), res, `/api${sub}`, new URL(req.url, "http://x").searchParams, owner, send, b);
+    if (sub === '/huddle/start' && req.method === 'POST') {
+      const d = T.get(owner).delegate;
+      if (d?.on && !d.newPeople) {
+        const asked = +b.gate?.minShow || 0;
+        b = {
+          ...b,
+          gate: {
+            minShow: Math.max(0.6, asked),
+            newOk: false,
+            agentMin: b.gate?.agentMin,
+          },
+          gateWhy: `Your person's delegation wants people with a record, so new people wait${asked < 0.6 ? ' and the game is gated at 60%' : ''}.`,
+        };
+      }
+    }
+    const fake = {
+      method: req.method,
+      url: sub,
+      headers: req.headers,
+      on: () => {},
+    };
+    return huddle(
+      Object.assign(fake, {[Symbol.asyncIterator]: undefined, byAgent: true}),
+      res,
+      `/api${sub}`,
+      new URL(req.url, 'http://x').searchParams,
+      owner,
+      send,
+      b,
+    );
   }
-  return send(404, { error: "no such route", docs: "/llms.txt" });
+  return send(404, {error: 'no such route', docs: '/llms.txt'});
 }
 
 // values a route can't take, said before anything changes (a 200 that quietly ignores them misleads the caller)
-const REASONS = ["busy", "time", "place", "price", "quiet", "none"];
-const isNum = (x) => (typeof x === "number" && isFinite(x)) || (typeof x === "string" && x.trim() !== "" && isFinite(+x));
+const REASONS = ['busy', 'time', 'place', 'price', 'quiet', 'none'];
+const isNum = x =>
+  (typeof x === 'number' && isFinite(x)) ||
+  (typeof x === 'string' && x.trim() !== '' && isFinite(+x));
 function badInput(r, b) {
-  if (r === "/huddle/sports" && (!Array.isArray(b.sports) || !b.sports.length || b.sports.some((x) => !T.SPORTS.includes(String(x).toLowerCase())))) return `sports is a list of: ${T.SPORTS.join(", ")}.`;
-  if (r === "/huddle/open" && typeof b.on !== "boolean") return "on is true or false.";
-  if (r === "/huddle/limits" && b.windows !== undefined && b.windows !== null && (!Array.isArray(b.windows) || !b.windows.every((w) => w && typeof w === "object" && Array.isArray(w.days)))) return "windows is a list of {days, from, to}, or null to clear them.";
-  if (r === "/huddle/delegate") {
-    if (typeof b.on !== "boolean") return "on is true or false.";
-    if (b.on && b.maxEach != null && !(isNum(b.maxEach) && +b.maxEach >= 0 && +b.maxEach <= 5000)) return "maxEach is a price from 0 to 5000, or null for any price.";
-    if (b.newPeople !== undefined && typeof b.newPeople !== "boolean") return "newPeople is true or false.";
+  if (
+    r === '/huddle/sports' &&
+    (!Array.isArray(b.sports) ||
+      !b.sports.length ||
+      b.sports.some(x => !T.SPORTS.includes(String(x).toLowerCase())))
+  )
+    return `sports is a list of: ${T.SPORTS.join(', ')}.`;
+  if (r === '/huddle/open' && typeof b.on !== 'boolean')
+    return 'on is true or false.';
+  if (
+    r === '/huddle/limits' &&
+    b.windows !== undefined &&
+    b.windows !== null &&
+    (!Array.isArray(b.windows) ||
+      !b.windows.every(
+        w => w && typeof w === 'object' && Array.isArray(w.days),
+      ))
+  )
+    return 'windows is a list of {days, from, to}, or null to clear them.';
+  if (r === '/huddle/delegate') {
+    if (typeof b.on !== 'boolean') return 'on is true or false.';
+    if (
+      b.on &&
+      b.maxEach != null &&
+      !(isNum(b.maxEach) && +b.maxEach >= 0 && +b.maxEach <= 5000)
+    )
+      return 'maxEach is a price from 0 to 5000, or null for any price.';
+    if (b.newPeople !== undefined && typeof b.newPeople !== 'boolean')
+      return 'newPeople is true or false.';
   }
-  if ((r === "/huddle/reply" || r === "/huddle/game") && typeof b.yes !== "boolean") return "yes is true or false.";
-  if ((r === "/huddle/reply" || r === "/huddle/game") && b.yes === false && b.why != null && !REASONS.includes(String(b.why))) return `why is one of: ${REASONS.join(", ")}.`;
-  if (r === "/huddle/start") {
-    if (b.need !== undefined && !(isNum(b.need) && Number.isInteger(+b.need))) return "need is a whole number of players (you included).";
-    for (const k of ["nearby", "hostYes"]) if (b[k] !== undefined && typeof b[k] !== "boolean") return `${k} is true or false.`;
-    if (b.invite !== undefined && !Array.isArray(b.invite)) return "invite is a list of member ids.";
-    if (b.gate?.minShow !== undefined && !(isNum(b.gate.minShow) && +b.gate.minShow >= 0 && +b.gate.minShow <= 1)) return "gate.minShow is from 0 to 1 (0.75 is 75%).";
-    if (b.sport !== undefined && !T.SPORTS.includes(String(b.sport).toLowerCase())) return `sport is one of: ${T.SPORTS.join(", ")}.`;
+  if (
+    (r === '/huddle/reply' || r === '/huddle/game') &&
+    typeof b.yes !== 'boolean'
+  )
+    return 'yes is true or false.';
+  if (
+    (r === '/huddle/reply' || r === '/huddle/game') &&
+    b.yes === false &&
+    b.why != null &&
+    !REASONS.includes(String(b.why))
+  )
+    return `why is one of: ${REASONS.join(', ')}.`;
+  if (r === '/huddle/start') {
+    if (b.need !== undefined && !(isNum(b.need) && Number.isInteger(+b.need)))
+      return 'need is a whole number of players (you included).';
+    for (const k of ['nearby', 'hostYes'])
+      if (b[k] !== undefined && typeof b[k] !== 'boolean')
+        return `${k} is true or false.`;
+    if (b.invite !== undefined && !Array.isArray(b.invite))
+      return 'invite is a list of member ids.';
+    if (
+      b.gate?.minShow !== undefined &&
+      !(isNum(b.gate.minShow) && +b.gate.minShow >= 0 && +b.gate.minShow <= 1)
+    )
+      return 'gate.minShow is from 0 to 1 (0.75 is 75%).';
+    if (
+      b.sport !== undefined &&
+      !T.SPORTS.includes(String(b.sport).toLowerCase())
+    )
+      return `sport is one of: ${T.SPORTS.join(', ')}.`;
   }
   return null;
 }
 async function huddle(req, res, p, q, me, send, given = null) {
   let b = given || {};
-  if (req.method === "POST" && !given) { const raw = await readRaw(req); if (raw == null) return send(413, { error: "too big" }); try { b = obj(JSON.parse(raw.toString() || "{}")); } catch { return send(400, { error: "the body is not JSON" }); } }
-  const out = (r) => send(r?.error ? r.code || 400 : 200, r);
-  const get = req.method === "GET", post = req.method === "POST";
-  if (post) { const why = badInput(p.replace(/^\/api/, ""), b); if (why) return send(400, { error: why, docs: "/llms.txt" }); }
-  if (p === "/api/huddle/me" && get) return send(200, { taste: T.view(T.get(me)), huddles: H.mineFor(me), ...H.people(me) });
-  if (p === "/api/huddle/today" && get) return send(200, await H.today(me));
-  if (p === "/api/huddle/nudge" && get) return send(200, H.nudge(me));
-  if (p === "/api/huddle/home" && post) {
-    if (b.place && b.lat == null) { const pl = await import("../club/places.js"); try { const at = await pl.where(String(b.place).slice(0, 120)); const r = T.setHome(me, at); return out(r.error ? r : { ...r, found: at.name }); } catch (e) { return send(404, { error: `No place called "${String(b.place).slice(0, 60)}" found. Try a district and a city, e.g. "Xinyi District, Taipei".` }); } }
+  if (req.method === 'POST' && !given) {
+    const raw = await readRaw(req);
+    if (raw == null) return send(413, {error: 'too big'});
+    try {
+      b = obj(JSON.parse(raw.toString() || '{}'));
+    } catch {
+      return send(400, {error: 'the body is not JSON'});
+    }
+  }
+  const out = r => send(r?.error ? r.code || 400 : 200, r);
+  const get = req.method === 'GET',
+    post = req.method === 'POST';
+  if (post) {
+    const why = badInput(p.replace(/^\/api/, ''), b);
+    if (why) return send(400, {error: why, docs: '/llms.txt'});
+  }
+  if (p === '/api/huddle/me' && get)
+    return send(200, {
+      taste: T.view(T.get(me)),
+      huddles: H.mineFor(me),
+      ...H.people(me),
+    });
+  if (p === '/api/huddle/today' && get) return send(200, await H.today(me));
+  if (p === '/api/huddle/nudge' && get) return send(200, H.nudge(me));
+  if (p === '/api/huddle/home' && post) {
+    if (b.place && b.lat == null) {
+      const pl = await import('../club/places.js');
+      try {
+        const at = await pl.where(String(b.place).slice(0, 120));
+        const r = T.setHome(me, at);
+        return out(r.error ? r : {...r, found: at.name});
+      } catch (e) {
+        return send(404, {
+          error: `No place called "${String(b.place).slice(0, 60)}" found. Try a district and a city, e.g. "Xinyi District, Taipei".`,
+        });
+      }
+    }
     return out(T.setHome(me, b));
   }
-  if (p === "/api/huddle/sports" && post) return out(T.setSports(me, b.sports));
-  if (p === "/api/huddle/open" && post) return out(T.setOpen(me, b.on === true));
-  if (p === "/api/huddle/limits" && post) return out(T.setLimits(me, b));
-  if (p === "/api/huddle/delegate" && post) return out(T.setDelegate(me, b));
-  if (p === "/api/huddle/attend" && post) return out(Tr.vote(me, String(b.key || ""), b.came || {}, b.level || {}));
-  if (p === "/api/huddle/trust" && get) return send(200, { trust: H.trustOf(me, true), explain: Tr.explain(me), chain: { ...Tr.mine(me), ...Tr.verify() } });
-  if (p === "/api/huddle/needs" && get) return send(200, { needs: N.view() });
-  if (p === "/api/huddle/reset" && post) return send(200, { taste: T.view(T.reset(me)) });
+  if (p === '/api/huddle/sports' && post) return out(T.setSports(me, b.sports));
+  if (p === '/api/huddle/open' && post)
+    return out(T.setOpen(me, b.on === true));
+  if (p === '/api/huddle/limits' && post) return out(T.setLimits(me, b));
+  if (p === '/api/huddle/delegate' && post) return out(T.setDelegate(me, b));
+  if (p === '/api/huddle/attend' && post)
+    return out(Tr.vote(me, String(b.key || ''), b.came || {}, b.level || {}));
+  if (p === '/api/huddle/trust' && get)
+    return send(200, {
+      trust: H.trustOf(me, true),
+      explain: Tr.explain(me),
+      chain: {...Tr.mine(me), ...Tr.verify()},
+    });
+  if (p === '/api/huddle/needs' && get) return send(200, {needs: N.view()});
+  if (p === '/api/huddle/reset' && post)
+    return send(200, {taste: T.view(T.reset(me))});
   // the question is rebuilt from the member's state, so the answer carries the two games it showed
-  if (p === "/api/huddle/question" && get) { const t = T.get(me); const places = t.home ? (await D.placesNear(t.home, t.sports[0] || "badminton", { wait: false })).map((x) => ({ ...x, km: +T.km(t.home, x).toFixed(1) })) : []; return send(200, { question: T.question(me, { places, force: true }) }); }
-  if (p === "/api/huddle/answer" && post) { if (!["a", "b", "either"].includes(b.pick)) return send(400, { error: "pick is a, b or either" }); return out(T.choose(me, b.q ?? b.id, b.pick)); }
-  if (p === "/api/huddle/start" && post) { const r = H.start(me, b, { byAgent: !!req.byAgent }); if (!r.error && !req.byAgent && (b.when || b.wantEach != null)) T.askedFor(me, b.when, b.wantEach); return out(r); }
-  if (p === "/api/huddle/one" && get) { await H.sweep(); const h = H.find(String(q.get("id") || "")); return h && (h.host === me || h.invited.includes(me)) ? send(200, { huddle: H.view(h, me) }) : send(404, { error: "No such game." }); }
-  if (p === "/api/huddle/reply" && post) return out(await H.reply(me, String(b.id || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
-  if (p === "/api/huddle/cancel" && post) { if (b.game !== undefined && typeof b.game !== "boolean") return send(400, { error: "game is true or false." }); return out(H.cancel(me, String(b.id || ""), { game: b.game === true })); }
-  if (p === "/api/huddle/game" && post) return out(H.answerGame(me, String(b.post || ""), b.yes === true, b.why ? String(b.why) : null, { byAgent: !!req.byAgent }));
-  if (p === "/api/huddle/places" && get) {
-    const t = T.get(me), sport = String(q.get("sport") || t.sports[0] || "badminton").toLowerCase();
-    if (!T.SPORTS.includes(sport)) return send(400, { error: `sport is one of: ${T.SPORTS.join(", ")}.` });
-    if (!t.home) return send(200, { places: [], home: false });
-    const places = await D.placesNear(t.home, sport, { venues: 4, courts: 4, wait: false });
+  if (p === '/api/huddle/question' && get) {
+    const t = T.get(me);
+    const places = t.home
+      ? (
+          await D.placesNear(t.home, t.sports[0] || 'badminton', {wait: false})
+        ).map(x => ({...x, km: +T.km(t.home, x).toFixed(1)}))
+      : [];
+    return send(200, {question: T.question(me, {places, force: true})});
+  }
+  if (p === '/api/huddle/answer' && post) {
+    if (!['a', 'b', 'either'].includes(b.pick))
+      return send(400, {error: 'pick is a, b or either'});
+    return out(T.choose(me, b.q ?? b.id, b.pick));
+  }
+  if (p === '/api/huddle/start' && post) {
+    const r = H.start(me, b, {byAgent: !!req.byAgent});
+    if (!r.error && !req.byAgent && (b.when || b.wantEach != null))
+      T.askedFor(me, b.when, b.wantEach);
+    return out(r);
+  }
+  if (p === '/api/huddle/one' && get) {
+    await H.sweep();
+    const h = H.find(String(q.get('id') || ''));
+    return h && (h.host === me || h.invited.includes(me))
+      ? send(200, {huddle: H.view(h, me)})
+      : send(404, {error: 'No such game.'});
+  }
+  if (p === '/api/huddle/reply' && post)
+    return out(
+      await H.reply(
+        me,
+        String(b.id || ''),
+        b.yes === true,
+        b.why ? String(b.why) : null,
+        {byAgent: !!req.byAgent},
+      ),
+    );
+  if (p === '/api/huddle/cancel' && post) {
+    if (b.game !== undefined && typeof b.game !== 'boolean')
+      return send(400, {error: 'game is true or false.'});
+    return out(H.cancel(me, String(b.id || ''), {game: b.game === true}));
+  }
+  if (p === '/api/huddle/game' && post)
+    return out(
+      H.answerGame(
+        me,
+        String(b.post || ''),
+        b.yes === true,
+        b.why ? String(b.why) : null,
+        {byAgent: !!req.byAgent},
+      ),
+    );
+  if (p === '/api/huddle/places' && get) {
+    const t = T.get(me),
+      sport = String(
+        q.get('sport') || t.sports[0] || 'badminton',
+      ).toLowerCase();
+    if (!T.SPORTS.includes(sport))
+      return send(400, {error: `sport is one of: ${T.SPORTS.join(', ')}.`});
+    if (!t.home) return send(200, {places: [], home: false});
+    const places = await D.placesNear(t.home, sport, {
+      venues: 4,
+      courts: 4,
+      wait: false,
+    });
     const looking = D.loading(t.home, sport);
     // only the courts inside the member's distance limit
-    const inKm = (x) => t.limitKm == null || T.km(t.home, x) <= t.limitKm;
+    const inKm = x => t.limitKm == null || T.km(t.home, x) <= t.limitKm;
     const down = !looking && !places.length && D.lookupFailed(t.home, sport);
-    return send(200, { home: true, sport, currency: D.CURRENCY, looking, ...(looking ? { retryAfter: 20 } : {}), ...(down ? { note: "The map of courts isn't answering right now. Name the place yourself (pin: {place}) or try again in ten minutes." } : {}), places: places.filter(inKm).map((x) => {
-      const k = +T.km(t.home, x).toFixed(1), qt0 = D.quietest(x, { n: 50 });
-      // the quietest hours shown are ones the member can play at, when they set time windows
-      const okTime = (g) => !t.windows?.length || !T.hardNo({ ...t, limitKm: null, limitEach: null, busyAt: [], declined: [] }, { ...g, km: null, each: 0 });
-      const qt = { grid: qt0.grid, quiet: qt0.quiet.filter(okTime).slice(0, 3) };
-      const good = qt.grid.filter((g) => !T.hardNo(t, { ...g, km: k, each: x.kind === "venue" ? D.bestEach(x, g.date, g.start, 4) : 0 })).map((g) => ({ ...g, s: T.worth(t, { ...g, km: k, each: 0 }) + (1 - g.busy) })).sort((a1, b1) => b1.s - a1.s)[0];
-      return { id: x.id, name: x.name, kind: x.kind, indoor: x.kind === "venue", km: k, lat: x.lat, lon: x.lon, quiet: qt.quiet, grid: qt.grid, ...(x.kind === "venue" ? { list: x.list, sample: true, offer: good && (() => { const o = D.talk(x, { date: good.date, start: good.start, players: 4, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" }); return t.limitEach != null && o.each > t.limitEach ? { ...o, overLimit: true } : o; })(), at: good } : {}) };
-    }) });
+    return send(200, {
+      home: true,
+      sport,
+      currency: D.CURRENCY,
+      looking,
+      ...(looking ? {retryAfter: 20} : {}),
+      ...(down
+        ? {
+            note: "The map of courts isn't answering right now. Name the place yourself (pin: {place}) or try again in ten minutes.",
+          }
+        : {}),
+      places: places.filter(inKm).map(x => {
+        const k = +T.km(t.home, x).toFixed(1),
+          qt0 = D.quietest(x, {n: 50});
+        // the quietest hours shown are ones the member can play at, when they set time windows
+        const okTime = g =>
+          !t.windows?.length ||
+          !T.hardNo(
+            {...t, limitKm: null, limitEach: null, busyAt: [], declined: []},
+            {...g, km: null, each: 0},
+          );
+        const qt = {
+          grid: qt0.grid,
+          quiet: qt0.quiet.filter(okTime).slice(0, 3),
+        };
+        const good = qt.grid
+          .filter(
+            g =>
+              !T.hardNo(t, {
+                ...g,
+                km: k,
+                each:
+                  x.kind === 'venue' ? D.bestEach(x, g.date, g.start, 4) : 0,
+              }),
+          )
+          .map(g => ({
+            ...g,
+            s: T.worth(t, {...g, km: k, each: 0}) + (1 - g.busy),
+          }))
+          .sort((a1, b1) => b1.s - a1.s)[0];
+        return {
+          id: x.id,
+          name: x.name,
+          kind: x.kind,
+          indoor: x.kind === 'venue',
+          km: k,
+          lat: x.lat,
+          lon: x.lon,
+          quiet: qt.quiet,
+          grid: qt.grid,
+          ...(x.kind === 'venue'
+            ? {
+                list: x.list,
+                sample: true,
+                offer:
+                  good &&
+                  (() => {
+                    const o = D.talk(x, {
+                      date: good.date,
+                      start: good.start,
+                      players: 4,
+                      push: Math.min(1, T.weights(t).price * 2.5),
+                      group: 'Your',
+                    });
+                    return t.limitEach != null && o.each > t.limitEach
+                      ? {...o, overLimit: true}
+                      : o;
+                  })(),
+                at: good,
+              }
+            : {}),
+        };
+      }),
+    });
   }
-  if (p === "/api/huddle/deal" && post) {
-    const t = T.get(me), sport = String(b.sport || t.sports[0] || "badminton").toLowerCase();
-    if (b.players !== undefined && !(Number.isInteger(+b.players) && +b.players >= 2 && +b.players <= 12)) return send(400, { error: "players is a whole number from 2 to 12." });
-    if (!T.SPORTS.includes(sport)) return send(400, { error: `sport is one of: ${T.SPORTS.join(", ")}.` });
-    if (!t.home) return send(400, { error: "Share your rough area first." });
-    const x = (await D.placesNear(t.home, sport, { venues: 4, courts: 4 })).find((y) => y.id === b.place);
-    if (x && x.kind !== "venue") return send(400, { error: "That's a public court: it's free, so there's no price to ask. Its quiet hours are in GET /api/huddle/places." });
-    if (!x) return send(404, { error: "That venue isn't among the courts near you (GET /api/huddle/places lists them)." });
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(b.start)) return send(400, { error: "Say the date and the time (HH:MM)." });
-    { const [y, mo, d] = b.date.split("-").map(Number), [hh, mm] = b.start.split(":").map(Number), t = new Date(y, mo - 1, d, hh, mm).getTime(); if (!(t > Date.now() && t < Date.now() + 30 * 864e5)) return send(400, { error: "Pick a time in the next 30 days." }); if (hh < 6 || hh * 60 + mm + 90 > 22 * 60) return send(400, { error: "Venues here open 06:00 to 22:00; pick a 90-minute game inside that." }); }
+  if (p === '/api/huddle/deal' && post) {
+    const t = T.get(me),
+      sport = String(b.sport || t.sports[0] || 'badminton').toLowerCase();
+    if (
+      b.players !== undefined &&
+      !(Number.isInteger(+b.players) && +b.players >= 2 && +b.players <= 12)
+    )
+      return send(400, {error: 'players is a whole number from 2 to 12.'});
+    if (!T.SPORTS.includes(sport))
+      return send(400, {error: `sport is one of: ${T.SPORTS.join(', ')}.`});
+    if (!t.home) return send(400, {error: 'Share your rough area first.'});
+    const x = (await D.placesNear(t.home, sport, {venues: 4, courts: 4})).find(
+      y => y.id === b.place,
+    );
+    if (x && x.kind !== 'venue')
+      return send(400, {
+        error:
+          "That's a public court: it's free, so there's no price to ask. Its quiet hours are in GET /api/huddle/places.",
+      });
+    if (!x)
+      return send(404, {
+        error:
+          "That venue isn't among the courts near you (GET /api/huddle/places lists them).",
+      });
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(b.date) ||
+      !/^([01]\d|2[0-3]):[0-5]\d$/.test(b.start)
+    )
+      return send(400, {error: 'Say the date and the time (HH:MM).'});
+    {
+      const [y, mo, d] = b.date.split('-').map(Number),
+        [hh, mm] = b.start.split(':').map(Number),
+        t = new Date(y, mo - 1, d, hh, mm).getTime();
+      if (!(t > Date.now() && t < Date.now() + 30 * 864e5))
+        return send(400, {error: 'Pick a time in the next 30 days.'});
+      if (hh < 6 || hh * 60 + mm + 90 > 22 * 60)
+        return send(400, {
+          error:
+            'Venues here open 06:00 to 22:00; pick a 90-minute game inside that.',
+        });
+    }
     // a quote commits nobody, so it is given; what it breaks of the member's own limits is said with it
-    const deal = D.talk(x, { date: b.date, start: b.start, players: Math.min(12, Math.max(2, +b.players || 4)), weekly: !!b.weekly, push: Math.min(1, T.weights(t).price * 2.5), group: "Your" });
-    const outside = T.hardNos({ ...t, busyAt: [], declined: [] }, { date: b.date, start: b.start, km: +T.km(t.home, x).toFixed(1), each: deal.each || 0 }).filter((r) => ["time", "place", "price"].includes(r) && (r !== "place" || t.limitKm != null) && (r !== "price" || t.limitEach != null) && (r !== "time" || t.windows?.length));
-    return send(200, { deal, currency: D.CURRENCY, ...(outside.length ? { outside, note: `A quote only: it is outside your limits (${outside.map((r) => T.NO[r] || r).join(", ")}), so no game is agreed there.` } : {}) });
+    const deal = D.talk(x, {
+      date: b.date,
+      start: b.start,
+      players: Math.min(12, Math.max(2, +b.players || 4)),
+      weekly: !!b.weekly,
+      push: Math.min(1, T.weights(t).price * 2.5),
+      group: 'Your',
+    });
+    const outside = T.hardNos(
+      {...t, busyAt: [], declined: []},
+      {
+        date: b.date,
+        start: b.start,
+        km: +T.km(t.home, x).toFixed(1),
+        each: deal.each || 0,
+      },
+    ).filter(
+      r =>
+        ['time', 'place', 'price'].includes(r) &&
+        (r !== 'place' || t.limitKm != null) &&
+        (r !== 'price' || t.limitEach != null) &&
+        (r !== 'time' || t.windows?.length),
+    );
+    return send(200, {
+      deal,
+      currency: D.CURRENCY,
+      ...(outside.length
+        ? {
+            outside,
+            note: `A quote only: it is outside your limits (${outside.map(r => T.NO[r] || r).join(', ')}), so no game is agreed there.`,
+          }
+        : {}),
+    });
   }
-  if (p === "/api/huddle/venue-note" && post) {
-    const g = H.findPlayed(me, String(b.game || ""));
-    if (!g) return send(404, { error: "No game of yours to rate: only a player of a game agreed at the place can, a few hours after it, within a week (GET /api/huddle/today shows it)." });
-    const VN = await import("../venues/notes.js");
-    return out(await VN.add(me, g, { marks: b.marks, note: req.byAgent ? "" : b.note, skip: b.skip === true }));
+  if (p === '/api/huddle/venue-note' && post) {
+    const g = H.findPlayed(me, String(b.game || ''));
+    if (!g)
+      return send(404, {
+        error:
+          'No game of yours to rate: only a player of a game agreed at the place can, a few hours after it, within a week (GET /api/huddle/today shows it).',
+      });
+    const VN = await import('../venues/notes.js');
+    return out(
+      await VN.add(me, g, {
+        marks: b.marks,
+        note: req.byAgent ? '' : b.note,
+        skip: b.skip === true,
+      }),
+    );
   }
-  if (p === "/api/huddle/venue" && get) {
-    const t = T.get(me), sport = String(q.get("sport") || t.sports[0] || "badminton").toLowerCase(), id = String(q.get("place") || "");
-    if (!T.SPORTS.includes(sport)) return send(400, { error: `sport is one of: ${T.SPORTS.join(", ")}.` });
+  if (p === '/api/huddle/venue' && get) {
+    const t = T.get(me),
+      sport = String(
+        q.get('sport') || t.sports[0] || 'badminton',
+      ).toLowerCase(),
+      id = String(q.get('place') || '');
+    if (!T.SPORTS.includes(sport))
+      return send(400, {error: `sport is one of: ${T.SPORTS.join(', ')}.`});
     // a court near the member, a venue seen in a lookup, or the place one of the member's games was agreed at
-    const x = (t.home ? await D.placesNear(t.home, sport, { venues: 4, courts: 4, wait: false }) : []).find((y) => y.id === id) || D.venueById(id, sport) || H.pickedPlace(me, id);
-    if (!x || !isFinite(x.lat) || !isFinite(x.lon)) return send(404, { error: "That place isn't among the courts near you or your games (GET /api/huddle/places lists them)." });
-    const R = await import("../venues/report.js");
-    return send(200, { report: await R.report(x, { games: H.pastAt(x.id) }) });
+    const x =
+      (t.home
+        ? await D.placesNear(t.home, sport, {venues: 4, courts: 4, wait: false})
+        : []
+      ).find(y => y.id === id) ||
+      D.venueById(id, sport) ||
+      H.pickedPlace(me, id);
+    if (!x || !isFinite(x.lat) || !isFinite(x.lon))
+      return send(404, {
+        error:
+          "That place isn't among the courts near you or your games (GET /api/huddle/places lists them).",
+      });
+    const R = await import('../venues/report.js');
+    return send(200, {report: await R.report(x, {games: H.pastAt(x.id)})});
   }
-  return send(404, { error: "no such route" });
+  return send(404, {error: 'no such route'});
 }

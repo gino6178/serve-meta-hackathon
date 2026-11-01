@@ -6,7 +6,9 @@
 //   SIM_CLOCK_START  the simulated time at start (ms since the epoch)
 //   message { simClock: ms, id }  moves the clock to ms (if later), answered with { simClockAck: id, now }
 const Real = Date;
-let offset = process.env.SIM_CLOCK_START ? +process.env.SIM_CLOCK_START - Real.now() : 0;
+let offset = process.env.SIM_CLOCK_START
+  ? +process.env.SIM_CLOCK_START - Real.now()
+  : 0;
 function SimDate(...a) {
   if (!new.target) return new Real(Real.now() + offset).toString();
   return a.length ? new Real(...a) : new Real(Real.now() + offset);
@@ -15,11 +17,11 @@ SimDate.prototype = Real.prototype;
 SimDate.now = () => Real.now() + offset;
 SimDate.parse = Real.parse;
 SimDate.UTC = Real.UTC;
-Object.defineProperty(SimDate, "name", { value: "Date" });
+Object.defineProperty(SimDate, 'name', {value: 'Date'});
 globalThis.Date = SimDate;
-process.on("message", (m) => {
-  if (m && typeof m.simClock === "number") {
+process.on('message', m => {
+  if (m && typeof m.simClock === 'number') {
     offset = Math.max(offset, m.simClock - Real.now());
-    process.send?.({ simClockAck: m.id ?? null, now: Real.now() + offset });
+    process.send?.({simClockAck: m.id ?? null, now: Real.now() + offset});
   }
 });
