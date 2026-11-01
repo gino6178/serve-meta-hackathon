@@ -89,3 +89,31 @@ Source files: src/serve/*.tsx; timeline and sound table: src/Main.tsx; live slic
 - **Claims**: "8 people, me included"; the US and NZ surveys named apart; the planner caption says the demo club's
   members are simulated.
 - **Two renders**: out/serve-promo.mp4 (music) and out/serve-promo-nobgm.mp4 (effects only), from one timeline.
+
+## v3.1 film (ServeV3, src/v3/Main3.tsx), autonomous mode
+
+- **Brief**: the storyboard video/storyboard_zh_v3.md. The gap: everyone is getting a personal agent, but agents have no
+  safe, standard place to negotiate; Serve is that place, tested on the hardest everyday case, a ball game. Same
+  audience, rules (≤ 3 min) and tokens as above; styleframe skipped for the same reason (the app's own design system).
+- **Narration first**: the English lines (narration/v3/lines.json) are voiced with Kokoro on the GPU server at 1.07×
+  (narration/v3/tts_v3.py); every shot is as long as its line plus a breath, so the timeline follows the voice.
+- **Real app**: ask, link and gameon re-recorded on the local copy of the live site (scripts/record_live.mjs with
+  CLIPS/APP/API/SENTENCE/WARM), calling the server's own Muse Glimmer, Llama Guard 3 and Prompt Guard 2. The invite
+  card is drafted by code alone (agent/src/club/play.js inviteDraft, code-first since this film); the guard check is
+  shown sped up and labelled. Plan and Messenger reuse the first film's recordings.
+
+| Shot | Source | Card / grammar |
+|---|---|---|
+| Cover (2 s) | the first film's cover clip | as recorded |
+| The gap | src/v3/Island.tsx on the storyboard's chibi scene | one camera arc (push in, out, across), locks spring in, links cut |
+| Intro | src/v3/Wipe.tsx, then PhoneHero | a green line sweep, then radial-ripple-phone-chips |
+| Live, A2A, Messenger | LiveFrame (brand-frame-snap) + src/v3/A2ACallout.tsx | slices with speed pills; the proposal card built line by line |
+| Open door | src/v3/OpenDoor.tsx | document-typewriter grammar: commands type, answers land, the 403 shakes once |
+| Bonus reel | the app's highlight page + AutoClip | push-in on footage |
+| Tiers | src/v3/Tiers.tsx | the problem (4 × 40 s rings), cards rise as named, bars grow (89.5% vs 88.8%) |
+| What Meta's models taught us | src/v3/Guard.tsx | count-up, refusal spring, fix |
+| AI testers | Swarm (177, 17,432) | as before |
+| Safety, community loop | Safety (score-slam, big hit 1) + the first film's loop clip | as before |
+| Close | Outro (logo-shrink-wordmark-lockup, big hit 2) | held 45 frames |
+
+Renders: out/v3/serve-v3.mp4 (music) and out/v3/serve-v3-nobgm.mp4 (effects and voice, no music), one timeline.

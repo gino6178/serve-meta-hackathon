@@ -49,7 +49,8 @@ const Crest: React.FC<{ code: React.ReactNode; filled: boolean }> = ({ code, fil
   </div>
 );
 
-export const Safety: React.FC = () => {
+// v3 passes its own line under the title; the default is the first film's
+export const Safety: React.FC<{ sub?: React.ReactNode; lift?: number }> = ({ sub, lift = 0 }) => {
   const frame = useCurrentFrame();
 
   // —— 卡片：0–9 悬停蓄力（2.75→2.6、上提），9–15 加速砸落到 0.965，15 起弹簧回 1 ——
@@ -200,14 +201,14 @@ export const Safety: React.FC = () => {
           })}
 
           {/* 标题 + 副句 */}
-          <div style={{ position: 'absolute', left: 0, right: 0, top: CY + CH / 2 + 92, textAlign: 'center', font: `800 76px ${FONT.sans}`, letterSpacing: '-0.04em', color: L.ink, lineHeight: 1 }}>
+          <div style={{ position: 'absolute', left: 0, right: 0, top: CY + CH / 2 + 92 - lift, textAlign: 'center', font: `800 76px ${FONT.sans}`, letterSpacing: '-0.04em', color: L.ink, lineHeight: 1 }}>
             <TextReveal text="No agent holds all" by="word" variant="rise" start={36} each={16} gap={4} />
             <span style={{ color: GOLD }}>
               <TextReveal text=" three at once." by="word" variant="rise" start={48} each={16} gap={4} />
             </span>
           </div>
-          <div style={{ position: 'absolute', left: 0, right: 0, top: CY + CH / 2 + 200, textAlign: 'center', font: `500 32px ${FONT.sans}`, color: L.ink2, letterSpacing: '-0.01em', opacity: ramp(frame, 52, 14, EASE.out), transform: `translateY(${mix(12, 0, ramp(frame, 52, 16, EASE.out)).toFixed(2)}px)` }}>
-            Untrusted input, private data, the power to act: Meta's Agents Rule of Two. Unsafe messages: 37 of 42 refused.<br />A prober pins down 32.4% of your week, not 97.6%: a disclosure budget.
+          <div style={{ position: 'absolute', left: 0, right: 0, top: CY + CH / 2 + 200 - lift, textAlign: 'center', font: `500 32px ${FONT.sans}`, color: L.ink2, letterSpacing: '-0.01em', opacity: ramp(frame, 52, 14, EASE.out), transform: `translateY(${mix(12, 0, ramp(frame, 52, 16, EASE.out)).toFixed(2)}px)` }}>
+            {sub ?? <>Untrusted input, private data, the power to act: Meta's Agents Rule of Two. Unsafe messages: 37 of 42 refused.<br />A prober pins down 32.4% of your week, not 97.6%: a disclosure budget.</>}
           </div>
         </div>
       </div>

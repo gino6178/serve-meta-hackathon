@@ -182,10 +182,10 @@ export const LiveFrame: React.FC<{ segs: Seg[] }> = ({ segs }) => {
   const innerB = Math.max(0, BAND_B * grow + bounce);
 
   // the window springs down into the frame: y 660 → 0, tilted 18° → 0, scale 0.88 → 1
-  const dropAt = (fr: number) => springAt(fr, 10, { damping: 15, stiffness: 115 });
+  const dropAt = (fr: number) => springAt(fr, 3, { damping: 15, stiffness: 115 });
   const yAt = (fr: number) => mix(660, 0, dropAt(fr));
   const d = dropAt(f);
-  const vy = f >= 10 ? yAt(f + 0.5) - yAt(f - 0.5) : 0;
+  const vy = f >= 3 ? yAt(f + 0.5) - yAt(f - 0.5) : 0;
   const punch = since >= 0 && since < 30 ? Math.exp(-since * 0.35) * Math.sin(Math.min(Math.PI, since * 0.9) + 0.0001) * 0.012 : 0;
   const labelIn = ramp(f, 6, 14, EASE.snappy);
 
@@ -236,7 +236,7 @@ export const LiveFrame: React.FC<{ segs: Seg[] }> = ({ segs }) => {
         opacity: labelIn, transform: `translateY(${((1 - labelIn) * 16).toFixed(2)}px)`,
       }}>
         <span style={{ width: 14, height: 14, borderRadius: 7, background: '#fff', boxShadow: '0 0 0 5px rgba(255,255,255,0.25)' }} />
-        {who === 'friend' ? "LIVE · LEO'S PHONE, NO ACCOUNT" : 'LIVE · BUILT OCT 28 – NOV 4'}
+        {who === 'friend' ? "LIVE · LEO'S PHONE, NO ACCOUNT" : 'LIVE · BUILT OCT 27 – NOV 4'}
       </div>
       <div style={{
         position: 'absolute', right: 66, top: 0, height: inner, display: 'flex', alignItems: 'center', gap: 10,

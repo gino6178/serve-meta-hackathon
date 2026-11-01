@@ -52,7 +52,7 @@ const ChipIcon: React.FC<{ kind: 'agents' | 'check' }> = ({ kind }) => (
   </div>
 );
 
-export const PhoneHero: React.FC = () => {
+export const PhoneHero: React.FC<{ creditBottom?: number }> = ({ creditBottom = 110 }) => {
   const f = useCurrentFrame();
   const t = f / (DUR - 1);
 
@@ -142,7 +142,7 @@ export const PhoneHero: React.FC = () => {
       </div>
 
       {/* the model and where it runs, low on the left once both chips have landed */}
-      <div style={{ position: 'absolute', left: 120, bottom: 110, display: 'flex', alignItems: 'center', gap: 16, opacity: ramp(f, 92, 12, EASE.out), transform: `translateY(${((1 - ramp(f, 92, 16, EASE.snappy)) * 18).toFixed(2)}px)` }}>
+      <div style={{ position: 'absolute', left: 120, bottom: creditBottom, display: 'flex', alignItems: 'center', gap: 16, opacity: ramp(f, 92, 12, EASE.out), transform: `translateY(${((1 - ramp(f, 92, 16, EASE.snappy)) * 18).toFixed(2)}px)` }}>
         <ShotcraftMark size={56} tone="light" />
         <div>
           <div style={{ ...type(34, 750), color: L.ink }}>Built on Muse Glimmer</div>

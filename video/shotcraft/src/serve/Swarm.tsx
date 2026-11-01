@@ -65,7 +65,8 @@ const Tile: React.FC<{ s: Session; i: number; frame: number; dim: number }> = ({
   );
 };
 
-export const Swarm: React.FC = () => {
+// v3 passes the totals after round 28 and its own closing line; the defaults are the first film's
+export const Swarm: React.FC<{ agents?: number; logged?: number; close?: string; counts?: boolean }> = ({ agents: AGENTS_ = AGENTS, logged: LOGGED_ = LOGGED, counts = true, close = '25 rounds of testing. Every bug fixed, until a round came back clean.' }) => {
   const frame = useCurrentFrame();
   const [data, setData] = useState<{ sessions: Session[]; total: number } | null>(null);
   const [handle] = useState(() => delayRender('swarm sessions'));
@@ -76,7 +77,7 @@ export const Swarm: React.FC = () => {
   const refused = S.reduce((sum, s) => { const k = Math.max(0, Math.min(s.n, Math.floor(((frame - PLAY0) / PLAY) * s.n))); let r = 0; for (let j = 0; j < k; j++) if (s.steps[j][3] >= 400 && s.steps[j][3] < 500) r++; return sum + r; }, 0);
   const dim = ramp(frame, END, 26, EASE.smooth);
   const headIn = ramp(frame, 6, 22, EASE.out);
-  const agentsShown = Math.round(AGENTS * ramp(frame, 20, 90, EASE.out));
+  const agentsShown = Math.round(AGENTS_ * ramp(frame, 20, 90, EASE.out));
   const endIn = ramp(frame, END + 8, 24, EASE.out);
   return (
     <AbsoluteFill>
@@ -88,7 +89,7 @@ export const Swarm: React.FC = () => {
             <div style={{ fontSize: 40, fontWeight: 700, color: L.ink, letterSpacing: '-0.02em', marginTop: 6 }}>Every tile is one AI agent using Serve</div>
           </div>
           <div style={{ display: 'flex', gap: 44, textAlign: 'right' }}>
-            {[[fmt(agentsShown), 'AI test agents'], [fmt(played), 'requests replayed'], [fmt(refused), 'refused on purpose']].map(([v, k]) => (
+            {[[fmt(agentsShown), 'AI test agents'], ...(counts ? [[fmt(played), 'requests replayed'], [fmt(refused), 'refused on purpose']] : [])].map(([v, k]) => (
               <div key={k}><div style={{ fontSize: 40, fontWeight: 700, color: L.ink, fontVariantNumeric: 'tabular-nums' }}>{v}</div><div style={{ fontSize: 14, color: L.ink2, marginTop: 2 }}>{k}</div></div>
             ))}
           </div>
@@ -101,9 +102,9 @@ export const Swarm: React.FC = () => {
         </div>
         {/* the closing line: the real totals */}
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: FONT.sans, opacity: endIn, transform: `translateY(${mix(18, 0, endIn)}px)` }}>
-          <div style={{ fontSize: 112, fontWeight: 800, color: L.ink, letterSpacing: '-0.045em', lineHeight: 1 }}>{AGENTS} AI agents.</div>
-          <div style={{ fontSize: 112, fontWeight: 800, color: GREEN, letterSpacing: '-0.045em', lineHeight: 1.05 }}>{fmt(LOGGED)} real requests.</div>
-          <div style={{ fontSize: 30, color: L.ink2, marginTop: 34 }}>25 rounds of testing. Every bug fixed, until a round came back clean.</div>
+          <div style={{ fontSize: 112, fontWeight: 800, color: L.ink, letterSpacing: '-0.045em', lineHeight: 1 }}>{AGENTS_} AI agents.</div>
+          <div style={{ fontSize: 112, fontWeight: 800, color: GREEN, letterSpacing: '-0.045em', lineHeight: 1.05 }}>{fmt(LOGGED_)} real requests.</div>
+          <div style={{ fontSize: 30, color: L.ink2, marginTop: 34 }}>{close}</div>
         </div>
       </Stage>
     </AbsoluteFill>

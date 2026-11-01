@@ -68,7 +68,8 @@ const scaleAt = (t: number) => {
 // 收束途中的自转：减速转 150°（缺口在缩小中"拧紧"），愈合后肉眼不可见
 const spinAt = (t: number) => -150 * seg(t, 0.0, 0.3, E.outCubic);
 
-export const Outro: React.FC = () => {
+// v3 passes its own lines under the motto; the defaults are the first film's
+export const Outro: React.FC<{ line1?: string; line2?: string }> = ({ line1 = `Built Oct 28 – Nov 4, 2026 · ${BRAND.repo}`, line2 = 'Try it: play.theminimallab.com' }) => {
   const t = useT();
   const s = scaleAt(t);
   const spin = spinAt(t);
@@ -211,10 +212,10 @@ export const Outro: React.FC = () => {
           {PITCH.en.motto.toUpperCase()}
         </div>
         <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(50% + 60px)', textAlign: 'center', color: '#5c5f66', font: `600 10px/1 ${FONT.sans}`, letterSpacing: 0.2, opacity: seg(t, 0.82, 0.94, E.outQuad) }}>
-          Built Oct 28 – Nov 4, 2026 · {BRAND.repo}
+          {line1}
         </div>
         <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(50% + 76px)', textAlign: 'center', color: '#0a7f44', font: `700 11px/1 ${FONT.sans}`, letterSpacing: 0.2, opacity: seg(t, 0.86, 0.98, E.outQuad) }}>
-          Try it: play.theminimallab.com
+          {line2}
         </div>
       </div>
     </DesignStage>

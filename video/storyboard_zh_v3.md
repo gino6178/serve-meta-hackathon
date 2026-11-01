@@ -35,11 +35,11 @@
 
 ## 段落 1：怎麼運作（0:27–1:25）｜Demo + Tooling
 
-**1-1（0:27–0:39）🆕 一句話變成球局**
-- 畫面：打字 → 7 ms 後卡片出現（角落計時器）→ 群組外的人用連結打開、加入 → 討論串裡 agent 貼出「Mia is in. 1 spot left.」
-- 角落標籤：`code · 7 ms (local copy)`
-- 中文：我只打一句話。程式在幾毫秒內從句子裡讀出日期，配上最近的球場。有空的人按加入就好，不用等所有人投票。
-- 英文：I type one sentence. Code reads the day and finds the nearest court in milliseconds. Whoever is free taps Join. Nobody waits for a poll.
+**1-1（0:27–0:39）🆕 一句話變成球局（本機副本實錄，伺服器自己的模型）**
+- 畫面：打一句 "Badminton Tuesday evening, need 1" → 約 2 秒後邀請卡出現（NTU Gymnasium、11/3 18:00）→ Post it → Llama Guard 3 / Prompt Guard 2 檢查（加速播放並標出）→ 朋友用連結打開、登入一次就加入 → Mia 的聊天卡變成「Game on. The spot is taken: Leo.」
+- 角落標籤：`code reads the day and the nearest court · no model`
+- 中文：我只打一句話。程式在幾毫秒內讀出日期、找到最近的球場，完全不用模型。Llama Guard 在任何人看到之前先檢查邀請。沒有帳號的朋友點連結、登入一次，球局就成了。
+- 英文：I type one sentence. Code reads the day and finds the nearest court in milliseconds, with no model at all. Llama Guard checks the invite before anyone sees it. A friend with no account taps the link, signs in once, and the game is on.
 
 **1-2（0:39–0:57）♻️＋🆕 A2A 跨 agent 協商**
 - 畫面：沿用 v2 的分割畫面（三個 agent 同時談）；放大疊加一則用 Ed25519 簽章的 proposal，JSON 只有 `{date, start, venue, court, trip}`，打勾的時間交集亮起，最後顯示 `held 30 min`。v2 畫面底下太小的說明字拿掉或放大

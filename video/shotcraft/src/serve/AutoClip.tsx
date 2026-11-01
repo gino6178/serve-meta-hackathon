@@ -9,7 +9,11 @@ import { EASE, FONT, ramp, softShadow } from '../demos/_fixtures/Polish';
 export const AUTO_CLIP_DURATION = 150;
 const L = LOOKS.serve;
 
-export const AutoClip: React.FC = () => {
+type Words = { kicker: string; title: string; sub: string; models: string; note: string };
+const V2: Words = { kicker: 'BEYOND TEXT', title: 'Your video, auto-cut into a clip to share', sub: 'Time stops, the camera turns. Posted to your club only after your yes.', models: 'DETR · Sapiens2 · SAM 2.1 · MapAnything', note: 'Not a coach, not a sports analyzer.' };
+// v3 passes its own words (the reel as a bonus after the game); the defaults are the first film's
+export const AutoClip: React.FC<{ words?: Partial<Words> }> = ({ words }) => {
+  const w = { ...V2, ...words };
   const f = useCurrentFrame();
   const inT = ramp(f, 0, 18, EASE.snappy), txt = ramp(f, 10, 20, EASE.out);
   return (
@@ -19,11 +23,11 @@ export const AutoClip: React.FC = () => {
       </div>
       <div style={{ position: 'absolute', left: 110, top: 812, fontFamily: FONT.sans, fontSize: 20, color: L.ink3, opacity: inT }}>CC BY 3.0 · Badminton klub Ljubljana · shown at 0.8×</div>
       <div style={{ position: 'absolute', left: 1240, top: 240, width: 560, fontFamily: FONT.sans, opacity: txt, transform: `translateY(${((1 - txt) * 20).toFixed(2)}px)` }}>
-        <div style={{ fontSize: 26, fontWeight: 750, letterSpacing: '0.14em', color: L.accent }}>BEYOND TEXT</div>
-        <div style={{ fontSize: 64, fontWeight: 800, letterSpacing: '-0.035em', color: L.ink, lineHeight: 1.05, marginTop: 14 }}>Your video, auto-cut into a clip to share</div>
-        <div style={{ fontSize: 30, fontWeight: 500, color: L.ink2, marginTop: 24, lineHeight: 1.3 }}>Time stops, the camera turns. Posted to your club only after your yes.</div>
-        <div style={{ fontSize: 24, fontWeight: 650, color: L.ink3, marginTop: 30 }}>DETR · Sapiens2 · SAM 2.1 · MapAnything</div>
-        <div style={{ fontSize: 24, fontWeight: 650, color: L.ink3, marginTop: 8 }}>Not a coach, not a sports analyzer.</div>
+        <div style={{ fontSize: 26, fontWeight: 750, letterSpacing: '0.14em', color: L.accent }}>{w.kicker}</div>
+        <div style={{ fontSize: 64, fontWeight: 800, letterSpacing: '-0.035em', color: L.ink, lineHeight: 1.05, marginTop: 14 }}>{w.title}</div>
+        <div style={{ fontSize: 30, fontWeight: 500, color: L.ink2, marginTop: 24, lineHeight: 1.3 }}>{w.sub}</div>
+        <div style={{ fontSize: 24, fontWeight: 650, color: L.ink3, marginTop: 30 }}>{w.models}</div>
+        <div style={{ fontSize: 24, fontWeight: 650, color: L.ink3, marginTop: 8 }}>{w.note}</div>
       </div>
     </Stage>
   );

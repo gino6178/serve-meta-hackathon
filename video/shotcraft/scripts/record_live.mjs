@@ -3,6 +3,7 @@
 // Test accounts only, made here on localhost. Each scene goes to public/clips/<name>.webm at 1560x864 (the window the
 // brand frame holds), with its moments in public/clips/marks.json (seconds from the start of that scene).
 //   node scripts/record_live.mjs [scene ...]    scenes: ask link gameon club (default: all, in that order)
+//   CLIPS=public/clips/v3 APP=http://localhost:8898 API=http://localhost:8898 SENTENCE="..." node scripts/record_live.mjs ask link gameon    the local copy
 //   APP=http://127.0.0.1:5191 NOSIGN=1 node scripts/record_live.mjs plan    the demo club's own player (a token build): Plan my week
 import puppeteer from "puppeteer-core";
 import fs from "node:fs";
@@ -10,7 +11,7 @@ import path from "node:path";
 
 const B = process.env.APP || "http://127.0.0.1:5190", API = process.env.API || "http://127.0.0.1:8899";
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1"));
-const OUT = path.join(HERE, "..", "public", "clips"), MARKS = path.join(OUT, "marks.json");
+const OUT = process.env.CLIPS ? path.resolve(process.env.CLIPS) : path.join(HERE, "..", "public", "clips"), MARKS = path.join(OUT, "marks.json");
 fs.mkdirSync(OUT, { recursive: true });
 const want = process.argv.slice(2), run = (n) => (!want.length && n !== "plan") || want.includes(n) || (want.includes("relink") && ["link", "gameon"].includes(n));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -88,6 +89,8 @@ async function rec(p, name, fn) {
 }
 // the newest invite this member posted, through the member's own session
 const lastInvite = (p) => p.page.evaluate(async (api) => {
+  // the invite this chat just posted, when the chat keeps it (the demo account can be the same member across runs)
+  try { const m = JSON.parse(localStorage.getItem("serve.chat.v1") || "[]").filter((x) => x.kind === "posted" && x.post).pop(); if (m) return m.post; } catch {}
   const s = localStorage.getItem("serve.session");
   const j = await (await fetch(`${api}/api/feed?n=10`, { headers: { "x-serve-session": s } })).json();
   return j.posts.find((x) => x.kind === "invite" && x.mine)?.id || null;
@@ -100,10 +103,22 @@ await host.page.setGeolocation({ latitude: 25.0199, longitude: 121.5362 }); // a
 if (!process.env.NOSIGN) await host.signIn("Mia");
 let inviteId = null;
 
+const shot = (n) => host.page.screenshot({ path: path.join(OUT, `fail_${n}.png`) });
+process.on("unhandledRejection", async (e) => { console.error(e.message); await shot("x").catch(() => {}); process.exit(1); });
+// warm the member's own gateway off camera (a new member's gateway starts on its first request), then clear the chat
+if (run("ask") && process.env.WARM) try {
+  await host.go("messages", 1500);
+  await host.type('input[placeholder="e.g. Saturday morning doubles, need 3"]', process.env.SENTENCE || "Saturday morning singles, need 1", 10);
+  await host.click('button[aria-label="Send"]', null, 200);
+  await host.at("button", "Cancel");
+  await host.click("button", "Cancel", 200);
+  await host.click("button", "Clear", 200);
+  await wait(800);
+} catch (e) { await shot("warm"); throw e; }
 if (run("ask")) await rec(host, "ask", async (mark) => {
   await host.go("messages", 1800);
   mark("start");
-  await host.type('input[placeholder="e.g. Saturday morning doubles, need 3"]', "Saturday morning singles, need 1", 70);
+  await host.type('input[placeholder="e.g. Saturday morning doubles, need 3"]', process.env.SENTENCE || "Saturday morning singles, need 1", 70);
   mark("typed");
   await host.click('button[aria-label="Send"]');
   await host.at("button", "Post it");
@@ -127,6 +142,11 @@ if (want.includes("relink")) {
   await host.go("messages", 1500);
 }
 console.log("invite", inviteId);
+// a new post is held until its checks finish: the link opens only once the game is public
+for (let k = 0; inviteId && k < 90; k++) {
+  if ((await fetch(`${API}/api/invite?id=${inviteId}`, { headers: { origin: B } })).ok) break;
+  await wait(2000);
+}
 
 if (run("link") && inviteId) {
   const friend = await tab(await browser.createBrowserContext());
@@ -137,7 +157,11 @@ if (run("link") && inviteId) {
     await wait(3200);
     await friend.type('input[placeholder="Your first name"]', "Leo", 90);
     await friend.click("button", "Try a demo account", 800);
-    await friend.at(".il-in");
+    // signed in, the app may open the feed: back to the invite, and join it if it did not join by itself
+    await wait(1500);
+    if (!(await friend.page.evaluate(() => location.hash.includes("invite")))) { await friend.page.goto(`${B}/#/invite?id=${inviteId}`, { waitUntil: "networkidle2" }); await wait(1200); }
+    if (await friend.page.evaluate(() => [...document.querySelectorAll("button")].some((x) => x.innerText.includes("Join this game")))) await friend.click("button", "Join this game", 700);
+    await friend.at(".il-in").catch(async (e) => { await friend.page.screenshot({ path: path.join(OUT, "fail_link.png") }); console.log("hash", await friend.page.evaluate(() => location.hash)); throw e; });
     mark("in");
     await wait(3200);
   });
@@ -145,10 +169,15 @@ if (run("link") && inviteId) {
 
 if (run("gameon")) await rec(host, "gameon", async (mark) => {
   await host.go("messages", 600);
-  await host.at(".gameon");
+  // the chat's card asks again every half minute; reload it until the game shows as on (logs what it showed)
+  for (let k = 0; k < 8 && !(await host.page.$(".gameon, .mc-gameon")); k++) {
+    console.log("  card:", await host.page.evaluate(() => document.querySelector(".mc-joined")?.innerText || "(none)"));
+    await wait(8000); if (!(await host.page.$(".gameon, .mc-gameon"))) await host.go("messages", 1500);
+  }
+  await host.at(".gameon, .mc-gameon");
   mark("toast");
   await wait(4500);
-  await host.click('.gameon button[aria-label="Dismiss"]', null, 600);
+  if (await host.page.$('.gameon button[aria-label="Dismiss"]')) await host.click('.gameon button[aria-label="Dismiss"]', null, 600);
   await wait(600);
 });
 
