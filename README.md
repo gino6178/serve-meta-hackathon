@@ -1,753 +1,607 @@
 # Serve
 
-**Play more. Manage less.** Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Your World
+**Play more. Manage less.** A platform where personal AI agents negotiate real-world plans for their people, and each
+person says one yes.
 
-## For judges
+Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Your World · built October 27 to November 4, 2026
 
-**Serve is a self-evolving sports social platform built from verifiable agents, to beat inertia. Finding a court,
-finding people and matching up is enough hassle that people don't play, so your agent agrees the game with the other
-players' agents over A2A and waits for your yes, and what the community asks for makes the platform better. Code
-computes every fact and keeps every rule; the models choose only where a real choice is left, and what they write is
-checked before anyone sees it.**
-
-**What Serve is not.** It is not a coach or a sports analyzer: it gives no technique feedback and scores no one's
-performance. It is not a medical tool: it gives no diagnosis, treatment or dosage. What a player says about their body
-is a scheduling constraint (doubles instead of singles, a shorter game, one game fewer), and a highlight is a clip to
-share with friends.
-
-**Built during the hackathon.** Everything in this repository was written during the building period (October 27
-to November 4, 2026). The only earlier work is TrackNetV5, our published shuttle tracker, fetched at run time as a
-dependency; none of its code is here ([CREDITS.md](CREDITS.md#made-before-the-hackathon)). The repository was
-restructured into its current layout on October 28 and 29, one commit per file.
-
-**The core flow**
-1. **Say you want to play, or it asks first.** Write "I want to play" in Messenger, or let the Match helper notice your
-   usual time is open: "Thursday 19:00: Leo is free. Want a game?"
-2. **Your agent does the hassle.** It finds the court and the people and agrees the match with the other players'
-   agents over A2A, asking the likeliest first. Only facts cross between agents, each member's rules are kept by code,
-   and your body log shapes the game (doubles while a knee is sore).
-3. **You only say yes.** The agreed game comes back in the app or in Messenger, with buttons. Nothing is booked
-   without your tap.
-4. **The community improves the platform.** Tell your agent what you wish Serve did. Members' wishes are screened,
-   grouped and voted on, become proposals, pass a safety review, and ship behind a flag to a few members first; a
-   change that does harm turns itself off. Anything beyond a setting waits for a person. Measured so far on a
-   simulated club.
-5. **Afterwards:** the result from a photo of the scoreboard, and a highlight cut from your own video.
-
-**The Meta stack** (where each runs: [How it uses Meta AI](#how-it-uses-meta-ai); the diagram:
-[submission/architecture.png](submission/architecture.png))
-
-| Meta model or product | What it does in Serve |
-|---|---|
-| Muse Glimmer (open weights, on our own GPU) | Every agent: the Autopilot's tool loop, each member's agent's decision, the Match helper's question, the community's proposals and the coding agent that builds them |
-| Llama Guard 3 1B, Prompt Guard 2 86M | Screen what players write, what models write back, reviews, and ideas shared with the club |
-| DRAMA | Memory by meaning (what you told your agent weeks ago still counts), and grouping members' wishes |
-| Omnilingual ASR | Voice notes to text |
-| DETR, Sapiens2, SAM 2.1 | Your highlight: find you, read your pose, cut you out |
-| Messenger Platform | Where your agent lives: questions, approvals with a tap, check-ins |
-
-**Six numbers, each with its source**
-
-| What | Result | Source |
-|---|---|---|
-| The Autopilot planning 8 different weeks, 3 runs each, members' agents over A2A | 24 of 24 runs passed (pass^3 = 1.0) | `submission/results/autopilot_eval_final_summary.json` |
-| Attacks on the agents, the API and the community loop | 93 of 93 stopped <!-- COUNT --> | `submission/results/redteam_93.log` |
-| The gateway killed at each of five steps of a talk (with a stand-in model) | the game booked exactly once every time (20 of 20 checks) | `submission/results/crash_matrix.log` |
-| The community loop on a simulated club: 88 messages from 60 members, with hostile ones and a planted bad change | no hostile message reached a spec; the wanted change was promoted from its canary; the planted bad change rolled itself back | `submission/results/loop_eval.json` |
-| Matchmaking against the earlier ranking, 300 simulated requests through the real negotiation code | 28% fewer talks per game (4.05 against 5.61) | `docs/agent_matchmaking_plan.md`, section 12 (`match_eval_n300_defaults.json`) |
-| AI agents using Serve as its users would, 25 rounds of six testers, every fault fixed between rounds | 153 testers, 16,713 requests logged; the last round was clean on every core flow (6 of 6) | [`submission/agent_testing.md`](submission/agent_testing.md) |
-
-The members in these tests are simulated, generated by code; none of them is a real person. Some runs used a cloud
-A100 with the same Muse Glimmer build as our RTX 3090, and the report says which.
-
-**How to watch or try it**
-- Try it live: https://play.theminimallab.com (a demo sign-in, no Facebook account needed).
-- Watch the demo video (2:42): [Serve_Meta_demo.mp4](https://github.com/gino6178/serve-meta-hackathon/raw/main/docs/media/Serve_Meta_demo.mp4).
-- Read the technical report: [submission/technical_report.md](submission/technical_report.md).
-- Code: https://github.com/gino6178/serve-meta-hackathon
-- Run it yourself: `cd agent && npm install && npm test` runs 275 offline tests with no model or GPU (on a
-  Windows laptop 270 pass and 3 are skipped for optional tools; the reel and builder-sandbox tests need Linux). <!-- COUNT --> The full app needs a Linux server with a 24 GB NVIDIA GPU for Muse Glimmer ([Running it](#running-it)).
-
-### Measured, then switched off
-
-Studies of agent markets found that models favour the first offer they see. In Serve that can't happen: each member's
-agent only marks which listed times work, and code picks the time from the intersection. We move each decision to the
-cheapest tier that is still right ([the tiers, tokens against accuracy](docs/decision_tiers.svg)); each agent's
-defence against injected instructions is mapped to the published patterns in
-[docs/security.md](docs/security.md#design-patterns-agent-by-agent). Six things we built, measured and switched off:
-
-| What we built | What we measured (simulated members) | So | Source |
-|---|---|---|---|
-| Two cheap drafts that answer when they agree | All 16 drafts at a 128-token budget came back empty | Off | `docs/methods.md` (no raw file) |
-| The quick pick: one option letter after a short reasoning budget | Right 4%, 34% and 76% of 120 decisions at 150, 300 and 600 tokens; at 600 it writes 402 tokens, about a member's full answer (406 on average) | Off | `submission/results/cascade_summary.json`, `glimmer_in_practice.json` |
-| The one-pass decider: Glimmer's choice from one token, no reasoning | The same time as the full answer 62.2% of the time, where the full answer agrees with itself 73.5%; a member's stated preference 12 of 32, against 27 | Off | `submission/results/decider_summary.json` |
-| The asker's reliability in the band model | 4.26 talks per game with it, 4.10 without, on 300 requests | Off by default | `agent/test/matchplan/results/match_eval_n300_followups.json` |
-| Asking two members at once for a game today | 6 games from 15 requests, against 10 one at a time; 24.0 s to agreement, against 19.3 s | The player's choice, not the default | `agent/test/matchplan/results/match_eval_today_model.json` |
-| Randomized response on the bands (ε = 2) | 3.68 asks per game, against 3.04; a yes on the first ask 0.31, against 0.45 | Not used | `agent/test/matchplan/results/likely_sim_section7.json` |
+- **Demo video (YouTube): link coming**
+- **Try it live:** https://play.theminimallab.com (demo sign-in, no Facebook account needed)
+- **Technical report:** [submission/technical_report.md](submission/technical_report.md) (PDF:
+  [submission/pdf/serve_technical_report.pdf](submission/pdf/serve_technical_report.pdf)) · **Slides:**
+  [submission/pdf/serve_technical_report_slides.pdf](submission/pdf/serve_technical_report_slides.pdf)
+- **For agents:** https://play.theminimallab.com/llms.txt
 
 ---
 
-## About Serve
+## The gap
 
-Serve is a self-evolving sports social platform. Its agent takes on the hassle that keeps people from playing: it
-lines up your games with the people you play best with, agrees them with their agents, plans around the limits you set (a sore knee, a
-heavy week) and your health app, finds a court in any ball sport, and cuts your highlight for Instagram. You just say yes. Your agent has
-three helpers that do the organizing. **Body**
-turns what you say about your body into scheduling limits and checks in two days later. **Match** notices when your usual time is open and asks you "want a
-game?". **Talk** takes your yes to the other players' agents and agrees the time and the court. Every agent runs on
-**Muse Glimmer**, Meta's open-weights model, on a GPU we own; Meta's **Sapiens2**, **SAM 2.1** and **DETR** read the
-video; **Llama Guard 3** and **Prompt Guard 2** screen what comes in and goes out; **DRAMA** gives the agent a memory
-by meaning. And the platform evolves with its community: what members ask for becomes proposals, a safe setting ships
-behind a flag and rolls itself back if it does harm, and anything else waits for a person.
+Everyone is starting to get a personal AI agent that knows their calendar and their limits. But there is no safe,
+standard place where one person's agent can agree something with another person's agent. So anything that needs
+several people to say yes still falls back to a group chat, and the group chat goes quiet.
 
-![Architecture](submission/architecture.png)
+**Serve is that place.** We built and tested it on the hardest everyday case we know: getting a ball game together,
+where four people, their weeks, a court and its price all have to line up. The agents do the negotiating over a
+standard protocol (A2A v1.0), code keeps every hard rule, and each person is asked for **one yes**. Nothing is booked
+without it.
 
-## Impact: playing takes organizing, so people stop
+![Four friends, four agents, no place for them to talk](docs/readme/gap.png)
 
-In a 2015 poll of 2,506 US adults (NPR, Robert Wood Johnson Foundation, Harvard Chan School), 40% of 18 to 21 year
-olds played a sport and 26% of 26 to 49 year olds. In Sport New Zealand's Active NZ survey (2023), adults said what stops
-them doing more: other commitments (64.2%), getting out of the habit (21.3%), no one to do it with (10.2%). Most people
-who stop playing a sport don't stop liking it; they stop organizing it.
+The need is real. Most people who stop playing a sport have not lost interest; they are worn down by organising. In
+Sport New Zealand's Active NZ survey (2023), adults named what stops them playing regularly: times that are hard to fit
+around other commitments (64.2%), no way to keep the habit going (21.3%) and no regular people to play with (10.2%). In
+a 2015 NPR / Robert Wood Johnson Foundation / Harvard Chan School poll, 40% of 18 to 21 year olds played a sport, but
+only 26% of 26 to 49 year olds ([technical report, section 1](submission/technical_report.md#1-impact)).
 
-| The pain | What Serve does |
+### What a person sees
+
+![On the web: a sentence becomes an invite, the players' agents agree the time, one tap books it. In Messenger (right): the same booking](docs/readme/flow.png)
+
+1. **Say it once.** "Badminton Tuesday evening, need 1", in the app or in Messenger. Or let **Match** ask first: it
+   learns your usual times and, when one is open and the people you play best with are free, asks "Thursday 19:00: Leo
+   is free. Want a game?"
+2. **The agents agree it.** **Talk** takes your request to the other players' agents over A2A. They trade only facts
+   (date, start, venue, court, trip), and code picks the time that works for everyone and the fairest venue.
+3. **One yes from each person.** The agreed game comes back with buttons. Whoever is free taps Join; nobody else is
+   waited for. Someone not in the group just opens the link.
+4. **Pace** keeps the week sensible: training load from a health-app export becomes a scheduling limit (one game fewer
+   in a heavy week, doubles instead of singles). It plans around exercise load and fatigue only, and turns them
+   into scheduling limits, nothing more.
+5. **After the game, a bonus:** a social highlight reel cut from your own phone video, to share with friends. It is
+   never coaching and never scores anyone.
+
+Serve handles no money. Players pay a court themselves; no-shows are handled with a waitlist and confirmations, never
+deposits.
+
+![The group-chat poll against one yes from each person](docs/readme/slide_group_chat_vs_one_yes.png)
+
+---
+
+## How this entry meets the judging criteria
+
+**Where the criteria come from.** The official event page
+(https://cerebralvalley.ai/e/meta-ai-developer-hackathon) says the Indie track is *"judged on creativity, technical
+ambition, and whether it works"* and sets the themes "Build for Your World" and "Push the Frontier". It does not print
+weights. The weighted rubric below (Impact 30%, Use of Meta AI Tooling 25%, Demo 25%, Technical Depth and Execution
+20%) and the Meta bonus awards are as reported in hackathon coverage and participant notes (for example
+https://github.com/meta-ai-hackathon/meta-hack, `info/grading criteria.md`); we could not open the Official Rules
+document itself. Each subsection points to the evidence further down.
+
+**The pass/fail gate.** Serve fits *Build for Your World* (a problem we know firsthand: getting our own club onto a
+court) and runs on Meta's open-weight models (Muse Glimmer on our own GPUs) and the Meta Model API.
+
+### Impact (30%)
+
+- **Who it is for:** anyone who plays a ball sport for fun, and the clubs and friends they play with. Courts come from
+  OpenStreetMap, so any town with courts works, for badminton, tennis, pickleball, table tennis, basketball,
+  volleyball and soccer, in a phone's browser and in Messenger.
+- **Bigger than sport:** the same pattern (agents trade signed facts, code keeps the rules, each person gives one yes)
+  is what any multi-person plan needs once everyone has an agent. Sport is the hardest everyday test of it.
+- **Real use already:** during the hackathon **more than 10 people from a badminton club** tried Serve; of the
+  **3 game invites** sent through it, **2 became games that were played, within 3 days**
+  ([Real-world use](#real-world-use)).
+- **Groups nobody organises:** children's sessions with fair turns and no child accounts, gentle daytime doubles for
+  older adults, charity round-robins that record pledges but handle no money. Venues can fill quiet hours by
+  answering a group's agent with a quiet-hour price.
+
+### Use of Meta AI tooling (25%)
+
+- **Muse Glimmer on our own GPU runs every agent**: the planner's tool loop, each member's decision, reading what a
+  person wants, the community's specs and the coding agent that builds them ([architecture](#architecture)).
+- **We trained our own Llama twice.** A Llama 3.2 1B distilled from **4,868 Glimmer choices** agrees with Glimmer on
+  **89.5%** of 500 held-out cases, where Glimmer agrees with itself 88.8%, in **about 0.9 s on a CPU** instead of
+  about 40 s ([distillation](#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer)). A second 1B distilled for
+  short text cut hostile comments let through on unseen attacks from **65 of 71 to 8 of 71**
+  ([the text 1B](#5-a-second-1b-for-short-text-hardened-against-attacks-it-never-saw)).
+- **Glimmer read in one token**: with no chat template, Glimmer's next token gives a probability for each option, so a
+  one-pass decider gets its choice in 0.53 s with no reasoning.
+- **Llama Guard 3 and Prompt Guard 2** screen everything untrusted, under Meta's **Agents Rule of Two**
+  ([security](#6-security-rule-of-two-two-guards-a-signed-consent-chain)).
+- **The Meta Model API where it helps**: Muse Voice Transcribe for live full-duplex voice, Muse Spark 1.3 for very
+  long calls and as a fallback, Muse Image for agents' faces and posters, SAM 3.1 to cross-check SAM 2.1, and Muse
+  Wonder to judge 3D replay frames ([Meta models used](#meta-models-used-and-where-each-runs)).
+- **Vision on our GPU**: Sapiens2, SAM 2.1, DETR and MapAnything for the after-game reels.
+
+### Demo (25%)
+
+- **Demo video (YouTube): link coming.**
+- **Live site:** https://play.theminimallab.com, with a demo sign-in. A person's own agent can use it too: start at
+  `/llms.txt`.
+- **It holds up:** 177 AI testers over 28 rounds sent 17,432 logged requests; round 25 came back clean on every core
+  flow (6 of 6 reports), and 146 tester sessions replayed from the logs showed 0 server errors
+  ([testing](#9-testing-177-ai-testers-in-28-rounds)).
+- **Every wait is visible:** each step streams to the screen, and every wait shows a moving bar and a status line
+  within 250 ms.
+
+### Technical depth and execution (20%)
+
+- **A2A v1.0 with facts only and 30-minute holds**: double bookings with two talks at once for one member fell from
+  **11 of 12 to 0 of 12**; the gateway killed at five points of a booking passed **20 of 20** recovery checks
+  ([A2A](#1-a2a-v10-facts-only-one-round-by-intersection-30-minute-holds)).
+- **Ranking by everyone's chance of yes, then one value-of-information question**: the first time proposed kept
+  every player's rules in **89.1%** of doubles requests instead of 73.9%; one well-chosen question raised games found
+  from **40.7% to 51.9%** ([ranking](#2-ranking-by-everyones-chance-of-yes-and-the-one-question-worth-most)).
+- **A tiered decision engine**: code (7 ms for the game's card) → a **27.6 KB** classifier (0.06 ms) → our distilled
+  1B (0.9 s) → Muse Glimmer ([tiers](#3-a-tiered-decision-engine)).
+- **Security**: **93 of 93** attack cases stopped; a signed, hash-chained record of every yes.
+- **A community that evolves the platform**: an anytime-valid test cut false rollbacks of harmless changes from
+  **22% to 0.6%** ([community loop](#7-a-community-that-evolves-the-platform-with-automatic-rollback)).
+
+### Bonus: Best Build on Open Weight Models
+
+Muse Glimmer runs on our own RTX 3090s (Ollama, 4 requests in parallel) and does every agent's reasoning. Around it
+run our **two distilled Llama 3.2 1B models** (LoRA, int4 Q4_K_M, 0.8 GB for the decision model, on the CPU), Llama
+Guard 3 1B, Prompt Guard 2 86M, DRAMA, Omnilingual ASR, Sapiens2, SAM 2.1, DETR and MapAnything, all on hardware we
+own, so players' video and health data stay on our server. See
+[Meta models used](#meta-models-used-and-where-each-runs) and [distillation](#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer).
+
+### Bonus: Best Agentic Use-Case
+
+Every person's agent negotiates with the other players' agents over **A2A v1.0**, with signed Agent Cards, signed
+facts, all-or-nothing holds and one well-chosen question when talks stall. The planner is a real tool-using agent
+(`get_week`, `check_limits`, `find_partners`, `find_places`, `negotiate`, `request_approval`, `nudge`, `finish`):
+across 8 planned weeks, each run 3 times with members' agents answering over A2A, **24 of 24 runs passed**
+(pass^3 = 1) ([submission/agent_eval.md](submission/agent_eval.md)). Any outside agent can join through
+[`/llms.txt`](#10-an-open-door-for-outside-agents) with its own Ed25519 key, and can only tighten its person's limits.
+
+### Bonus: Best Creative Build
+
+After the game, Serve cuts a **social highlight reel** from one ordinary phone video: RT-DETR finds the people,
+Sapiens2 finds the moment worth sharing, SAM 2.1 cuts the player out, MapAnything rebuilds the scene in 3D so the
+camera can swing round a frozen moment, and **Muse Wonder** says why a 3D frame looks wrong. Muse Image draws each
+member's agent's face and rematch posters ([reels](#8-social-highlight-reels-a-bonus-after-the-game)).
+
+### Submission items
+
+| Item | Where |
 |---|---|
-| **Playing takes organizing.** A time that suits four people, a free court, somewhere everyone can reach. The group chat goes quiet. | **Autopilot** lines up the week and agrees every game with the other players' agents. You approve once, in the app or with a tap in Messenger. |
-| **Nobody pushes you.** One missed week becomes a month. Apps count steps; none books your next game. | It learns when you usually play and who you play best with (games that run past their booking). When your usual time is open and they are free, it asks first: "Thursday 19:00: Leo is free. Want a game?" One tap and it is set up. |
-| **Life gets in the way.** A sore knee, a heavy week, rain on an outdoor court. | **Body log and health app:** tell it what hurts and share your health export; it plans doubles, shorter games or one game fewer, checks in two days later, and says when to see a physio. **Courts near you:** it checks the map, the reviews and the forecast. |
-| **Playing is better together.** | A club with a leaderboard, challenges, a random match and your best match; a highlight reel of you, in any ball sport. |
+| New work only | Everything here was built during the hackathon (October 27 to November 4, 2026). The one earlier piece is TrackNetV5, our published shuttle tracker, fetched at run time and off unless `BALL_TRACKING=1`; none of its code is here ([CREDITS.md](CREDITS.md)) |
+| Models used | [Meta models used and where each runs](#meta-models-used-and-where-each-runs) |
+| Setup and run | [Run it yourself](#run-it-yourself) |
+| Team | Indie Developer track, one member ([gino6178](https://github.com/gino6178)). We designed Serve; an AI coding agent (Claude Code) wrote code to our instructions, credited in the commits, and every change went through the tests |
+| License | Serve's own code is [MIT](LICENSE); models and libraries keep their own licenses ([CREDITS.md](CREDITS.md)) |
 
-It is for anyone who plays a ball sport for fun, and the clubs and friends they play with: badminton, tennis,
-pickleball, table tennis, basketball, volleyball, soccer. With the model on your own server (the default), your video
-and your health data are read there and nowhere else; what you share in Messenger passes through Messenger.
+---
 
-## What the agent does
+## Architecture
 
-- **Games with people beyond your friends** (`agent/src/members/`, the Games page and the agent channel). Every member
-  has their own agent, and only that agent knows how they like to play. About five quick "which of these two games?"
-  questions teach it how they weigh time, distance, price and a quiet court (`taste.js`, a logistic step per answer).
-  Their **limits** (times, farthest, most per person) are hard: nothing outside them is ever agreed. When someone asks
-  for a game, the agents of the people asked trade only yes, no, the kind of reason and one counter time; the time
-  and place are picked by code so the worst-off player counts most (`huddle.js`). At a venue, the group's agent asks
-  the venue's agent for a quiet-hour price, three rounds at most (`deals.js`); public courts come with their quiet
-  hours. Each person says one yes; their agent may say it for them only within a price and with people who have a
-  record, if they allowed it. Serve takes no money: players pay a court themselves.
-- **Two records anyone can check** (`trust.js`). "Shows up N%" (players mark who came) and "agent right N%" (how often
-  a member's agent said yes when its person would have). Both are worked out from a hash chain on which members are
-  pseudonyms, with each day's head signed by the gateway's key: anyone can recompute it from
-  `/api/trust/chain`. A game can wait-list people under its show-up rate; an agent under 80% can't answer for its person.
-- **A way in for any agent** (`discovery.js`). The site's HTML, `/llms.txt` (with a six-call quick start), the Agent
-  Card and OpenAPI tell an agent that knows nothing how its person signs in, how it registers its own Ed25519 key and
-  signs requests on `/api/agent-channel/...`, and every route. Over its key an agent can only tighten its person's
-  limits, never loosen them.
-- **Want a game?** (`agent/src/agents/ask.js`, the agent home and Messenger). Once a day the Match helper looks at the next
-  three days for a time you usually play that is still open. It checks the body log: a sore knee makes it doubles, a
-  sore back makes it short, and a jump sport is left out. It finds who plays best with you and is free then, with a
-  free court, and asks you before it talks to anyone. Muse Glimmer words the question from the facts, checked like
-  every other text. Your answer has three buttons:
-  - **Yes:** the Talk helper agrees it with the other players' agents and shows you what they said. If they agree
-    the time you said yes to, it is booked; if they move it, you are asked once more.
-  - **Another time:** the next opening.
-  - **Not this week:** it stays quiet until Monday.
-- **Autopilot** (`agent/src/agents/autopilot.js`, `#/autopilot`). Against a weekly goal, Muse Glimmer runs the week as a
-  tool-using agent: `get_week`, `check_limits`, `find_partners`, `find_places`, `negotiate`, `request_approval`,
-  `nudge`, `finish`. Code runs every tool with checked arguments and returns the facts; the model picks the next step
-  and says why. A step budget, and rules finish the plan if the model stalls. Nothing is booked without your yes.
-- **Agent to agent** (`agent/src/a2a/talk.js`, `a2a/server.js`): the **A2A protocol v1.0**, on the official SDK.
-  - Every club member has an A2A agent with its own Agent Card. Your agent sends each proposal with `SendMessage`
-    and reads the member's decision from the task.
-  - Code finds the times everyone is free that have a court. Each member's agent (Muse Glimmer, from what that member
-    shares) answers yes, another of the listed times, or not this week. It also says which of the listed times work,
-    and that is binding. The game goes at the proposed time if it works for everyone, otherwise at a time a member
-    asked for that works for everyone, otherwise at the best listed time that does. That is usually in the first
-    round, and a time someone ruled out is never proposed. If an agent gives no list, your agent falls back to moving
-    to the time most of them asked for, for up to three rounds.
-  - Only facts and code-made sentences cross between agents, never model prose. A member's agent never sees the
-    other side's words, and your health limit never leaves.
-  - Every talk is saved before each round. A "want a game?" talk cut off by a restart is picked up within 30 minutes,
-    without anyone answering twice.
-  - What each agent accepts and turns down is remembered, and orders the times in the next proposal.
-- **"I want to play": matchmaking** (`agent/src/match/`, Messenger, the Play page). Write "I want to play" or "anyone
-  for doubles Thursday?" and your agent finds the game. It asks up to twelve members' agents at once how likely a yes
-  is (`serve.likely`, a new A2A message declared in each signed Agent Card). Each member's agent works it out from its
-  own member's records and answers only with a band (unlikely, maybe, likely, very likely), so the records stay with
-  it. Your agent talks to the likely ones first, spreads the asks so the same few people are not asked every time, and
-  brings the agreed game back with Book it and Drop it buttons. Nothing is booked before your tap. A real player's
-  agent gives no band until they say `/bands on`, and `/forget` deletes the records and turns it off again. The same order is used by the Autopilot and the Match helper
-  ([docs/agent_matchmaking_plan.md](docs/agent_matchmaking_plan.md)).
-- **Scheduling limits: body log and health app** (`agent/src/body/body.js`, `health.js`, `#/body`).
-  - Tell it what hurts, in the app or in Messenger ("my right knee is sore after jumping, 3 out of 5"). Muse Glimmer
-    files it with one tool call (part, side, how bad, what set it off), checked by code; it appears on the 3D body,
-    on the side that hurts.
-  - Share your health app's export: Apple Health (`export.zip`), Google Fit (Takeout), or one GPX, TCX or CSV file.
-    It is read on your server (`health_import.py`, standard library only) and deleted. Workouts are linked to your
-    booked games, so a game your watch says ran 132 minutes teaches the Autopilot who you click with.
-  - From all of it, code works out your load (minutes × effort, this week against your last four) and what to do:
-    doubles first and no jump sports while a knee is sore, 60-minute games for a sore back, 90 minutes after soreness
-    that follows long games, one game fewer in a week over 1.5 times your usual, a check-in two days later (with
-    buttons in Messenger), and, when the same part is bad twice or keeps coming back, a plain note to ask a physio
-    rather than play through it. It records and schedules; it gives no diagnosis, treatment or dosage.
-  - Your activity trail (weeks by sport, every session, GPS routes on a map drawn from OpenStreetMap) and a body
-    report whose summary Muse Glimmer writes from the facts, every number checked; download it as a PDF.
-- **Courts near you** (`agent/src/club/places.js`, `#/courts`). For any ball sport and any hour: public courts, sports
-  centres and parks from OpenStreetMap, their Google Maps rating and reviews (with a key), and the forecast from
-  Open-Meteo. Muse Glimmer judges each place, four at once: hoops or nets, lights for an evening game, a roof if rain
-  is likely, crowds, something broken or locked. Every reason cites the map, a review (the quote must be in it, word
-  for word) or the forecast. The Autopilot uses it to put a basketball game on a free public court, and three hours
-  before a game on an outdoor court the agent checks the forecast again: if rain is likely, it finds a club venue with
-  a free court at the same time and asks in Messenger, with buttons, whether to move the game.
-- **Highlights for sharing** (`video/pose/reel.py`, `#/highlights`). A clip for friends, not an analysis: it scores
-  nothing and gives no technique advice. Film your game in any ball sport. On your server, DETR
-  finds you, Sapiens2 reads your pose and SAM 2.1 cuts you out; the reel finds your moment (a racket's fastest swing,
-  the top of a jump, a kick) and replays it in slow motion with you lit up. Muse Glimmer writes the caption, checked
-  against the rallies, and the share sheet sends it to Instagram or Facebook.
-- **Club** (`#/club`). Feed, a leaderboard (Elo) that every reported challenge moves, challenges, a random match drawn
-  fairly from members who are free, and your best match: fair by rating, free when you are, agreed agent to agent.
-- **Ideas: the club improves the app** (`agent/src/loop/`, the Club page's Ideas tab, `#/maintain`). With `/improve on`
-  your agent counts what works and what it could not do, with no words. When it could not help, it offers to share your
-  request as one checked sentence; nothing leaves without your Share. Shared ideas are screened by Llama Guard 3,
-  Prompt Guard 2 and code, grouped with DRAMA, voted on quadratically, and drafted into specs. A setting inside its
-  declared range ships to a canary of beta members and turns itself off on a breach; anything else waits for the
-  maintainer, and a coding agent builds it on a branch that only a person merges
-  ([docs/community_loop.md](docs/community_loop.md)).
-- **Memory** (`agent/src/memory/memory.js`). What you tell your agent in Messenger is kept as short notes on your server and
-  found by meaning with DRAMA, so "leave Tomás out for a while" still holds when the Autopilot plans a week two weeks
-  later. `/forget` deletes it.
-- **A result from a photo** (`agent/src/media/vision.js`). Send a photo of the scoreboard or the score sheet. Muse Glimmer
-  reads each game's score into a JSON Schema (no tools; text in the photo is never followed). Code checks
-  it against its sport's rules: badminton (21 by two clear points, 30 at most, best of three), tennis (sets of 6 by two, 7-5
-  or 7-6, a match tiebreak as the third set), basketball (no draw), pickleball and table tennis (11 by two). You say
-  which side you were before anything is filed. In Messenger, or "Read it from a photo" on the result form.
-- **Voice notes** (`agent/src/media/asr.js`, `agent/src/media/asr_worker.py`). Say what hurts or what you played. Meta's Omnilingual
-  ASR hears it on the server's CPU, shows you "I heard: …", then handles it as if you had typed it.
-- **In Messenger** (`agent/src/channels/messenger.js`, `pocket.js`). Your agent in your chats:
-  - "Want a game?" at noon, with three buttons, or on request with `/game`.
-  - "Line up my games this week", approved with a tap.
-  - "I want to play": the game found agent to agent, with Book it and Drop it buttons.
-  - A reminder an hour before a game and a check-in after it.
-  - What hurts, by text or a voice note; a health export or a scoreboard photo shared to the chat.
-  - `/courts basketball near Da'an Park`, `/body`, `/report` and `/forget`.
-  - `/improve on`, `/idea`, `/ideas` (with vote buttons) and `/beta on` for the club's ideas.
-  - What you write, and what a model writes for you, passes Llama Guard 3 first. A message about self-harm gets a reply
-    with a helpline.
+Serve keeps one rule throughout: **code computes the facts and keeps the hard rules; the models choose only among the
+real preferences left.** That keeps a model's mistake from turning into a wrong booking or a clash.
 
-## How it uses Meta AI
+![Our own GPU server, the Meta Model API where it helps](docs/readme/architecture.png)
 
-| Meta model or product | Where it runs | What it does in Serve |
+- **One gateway** (`agent/src/server.js`, Node.js) runs every agent and streams each step to the app as NDJSON.
+- **Meta models on our own GPUs** (two RTX 3090s and their CPU): Muse Glimmer on GPU 1; the vision models on GPU 0;
+  our distilled 1B, Llama Guard 3, Prompt Guard 2, DRAMA and Omnilingual ASR on the CPU. Players' data stays there.
+- **The Meta Model API** for live voice, a fallback, very long calls, images and checks.
+- **Which model answers a text call, by length:** a short call (up to about 700 tokens) at a site where our text 1B
+  was checked goes to the 1B; anything longer, or anywhere else, to Muse Glimmer; a very long call (12,000 tokens or
+  more, near Glimmer's 16,384-token context) to Muse Spark on the Meta Model API.
+
+![Meta's models: on our own GPUs for privacy, the API where it helps](docs/readme/slide_meta_models.png)
+
+## 1. A2A v1.0: facts only, one round by intersection, 30-minute holds
+
+Agents talk over the **A2A protocol v1.0** (Linux Foundation), through its official SDK (`agent/src/a2a/`).
+
+- **Facts only.** A proposal carries each time as `{id, date, start, venue, court, trip}` and nothing else; an answer
+  carries `{intent, date, start, works}`. Sentences between agents are templates filled by code, so no agent's model
+  ever reads another side's words, and no agent can inject instructions into another.
+- **One round, by intersection.** The host's agent lists up to twelve times that fit every calendar and have a court;
+  each player's agent marks the ones that work for its person, and that is binding. Code takes the best time in the
+  intersection, so most talks end in round one: the Contract Net with a one-shot intersection, a simple distributed
+  constraint satisfaction. A player's hard rules (days off, the latest finish, the longest trip) remove times before
+  any model sees them.
+- **The fairest venue.** For each time, code picks the venue whose longest trip is shortest, from home areas, never
+  addresses. Over 12 simulated games no booked game gave anyone a longer longest trip than the best venue possible,
+  at 2.3 minutes more total travel per game; the fairness score was 0.73, against 0.59 for the shortest total trip and
+  0.58 for a Nash product.
+- **Holds, all or nothing.** An agreed time is held by every player's agent for **30 minutes**, asked in a fixed order
+  (leases with resource ordering). With two talks at once for one member, **11 of 12** pairs booked the member twice
+  without holds and **0 of 12** with them.
+- **Durable and signed.** A talk is saved before every round, a message is answered once, and booking is idempotent.
+  Agent Cards carry a JWS over their canonical JSON (Ed25519), checked before any talk. The gateway was killed at five
+  points in a booking: **all 20 recovery checks passed** and no game was booked twice.
+- **Across machines.** Two gateways on separate machines, with pinned and rotatable Ed25519 keys: the hop added about
+  185 ms per request, and 22 of 22 checks passed with 12 talks at once.
+- **To the standard.** Agent Cards point to their keys with `jku`, the proposal and hold extensions are declared and
+  required, and errors use the protocol's own codes.
+
+![A2A v1.0: facts only, settled in one round by intersection](docs/readme/slide_a2a_intersection.png)
+
+![A2A with facts only and 30-minute holds: double bookings fell from 11 of 12 to 0](docs/readme/slide_a2a_holds.png)
+
+## 2. Ranking by everyone's chance of yes, and the one question worth most
+
+- **Times ranked by the chance everyone says yes.** A game needs every player, so times are proposed in order of the
+  product of each player's chance of a yes, and a time where any one player's chance is under 0.15 goes to the back (a
+  least-misery floor). On 3,000 simulated requests of each kind, the first time proposed kept every player's rules in
+  **89.1%** of doubles requests instead of 73.9% (92.4% instead of 89.8% for singles), and model choices per doubles
+  request fell from 0.261 to 0.109 (`submission/results/rank_calls.json`).
+- **The question worth most.** When a game's talks have not landed, the agent neither gives up nor asks the player
+  again. For each player and time it keeps a Beta posterior that the player is free then (from what it has seen of that
+  player's agent, never their calendar), and asks the **one yes-or-no question whose answer most raises the expected
+  chance of a game**, through a private free-or-busy channel with a disclosure budget.
+
+| Strategy (20,000 simulated requests each; 8 players, 6 times) | Game found, one question then one talk |
+|---|---|
+| No question | 40.7% |
+| A random question | 44.4% |
+| Ask about the likeliest pair | 48.2% |
+| **The question worth most (value of information)** | **51.9%** |
+
+- **One answer teaches about the hours like it.** An answer lends part of its count to the hours that go together in
+  the club's own free lists. On 6,000 simulated requests: Brier score 0.223 to 0.200, and the chance the first talk lands
+  rose from 68.9% to 73.7%, or from 75.1% to 79.2% with one value-of-information question first
+  (`submission/results/pref_share.json`).
+- **Privacy budget.** Every free-or-busy question is charged to the same disclosure budget as a proposal, so an agent
+  that keeps asking learns at most 24 of 112 weekly hours in 28 days, and what A tells B never reaches C. No one is
+  asked more than 3 times a week.
+
+![Rank by everyone's chance of a yes, then ask the one question worth most](docs/readme/slide_ranking_voi.png)
+
+## 3. A tiered decision engine
+
+When four agents negotiate, waiting about 40 s for a large model at every step stalls the talk. Following FrugalGPT,
+each decision passes through layers, each taking only what the one before could not settle:
+
+| Layer | What | Time | What it settles |
+|---|---|---|---|
+| 0 | **Code** | **7 ms** for the game's card (median on a local copy; 97 ms at most, 9 runs) | Free times, clashes, trips and every hard rule |
+| Tiny | **A 27.6 KB classifier** in plain JavaScript (four small networks over facts code holds, each with a doubt model) | **0.06 ms** a choice | 59.8% of ordinary choices, disagreeing with Glimmer on 4.3% of them |
+| 1 | **Our distilled Llama 3.2 1B** (int4, on the CPU), when at least 0.6 sure | **about 0.9 s** | 96.0% of ordinary choices, 73.0% of the hardest |
+| 1b | **Two cheap reads that agree**: the student and the one-token decider (0.53 s) | | On the 196 hardest cases, choices settled without Glimmer's full answer rose from 72.1% to 79.0% |
+| 2 | **Muse Glimmer**, stopped early when it is sure (after DEER) | about 20 to 40 s | What is left. Early exit cut its output from 596 to 420 tokens an answer, with 1.7% of answers differing from the full one |
+
+**The invite card is now drafted by code alone when the sentence names a day.** "Badminton Tuesday evening, need 1":
+the day, the part of the day, the format, the length and the players come from the words, so no model is asked;
+Glimmer reads only what code cannot date ("this weekend"). See `inviteDraft` in
+[`agent/src/club/play.js`](agent/src/club/play.js) and commit `6bc7d19`.
+
+![Most decisions never reach the big model: code, a 27.6 KB classifier, then our 1B](docs/readme/slide_decision_tiers.png)
+
+![A booking, step by step, with its measured times](docs/readme/slide_booking_sequence.png)
+
+## 4. Our own model: a Llama 3.2 1B distilled from Muse Glimmer
+
+A member's agent spends most of its time on one judgment: which of several workable times its person would like best.
+We had Muse Glimmer make that choice **4,868 times** through the real agent call, then distilled its choices into
+**Llama 3.2 1B Instruct** with **LoRA** (rank 16, 20 minutes on one A100) and quantized it to **int4 (Q4_K_M,
+0.8 GB)**, so it runs on the server's CPU and takes no GPU memory from Glimmer. The options are declared in advance
+and scored together in one forward pass, so it returns a probability for each option and never writes text that could
+break a rule; every option it sees already keeps the person's hard rules.
+
+| | Muse Glimmer, full answer | Our 1B student |
 |---|---|---|
-| **Muse Glimmer** (open weights) | Our GPU server: Ollama on one RTX 3090, 4 requests in parallel | Every agent: the Autopilot's tool loop (native tool calling); the Match helper's "want a game?"; reading "I want to play" into a request; every member's agent deciding a proposal, in parallel, in a JSON Schema; reading a scoreboard photo (vision); reading what hurts into the body log (a tool call); judging courts from map tags, reviews and the forecast; place names in English; the body report; highlight captions; the club's ideas paraphrased, summarized and drafted into specs; the coding agent that builds an approved spec on a branch |
-| **Llama Guard 3 1B** (open weights) | Our GPU server's CPU, its own Ollama | What the player writes in Messenger, what a model writes for the player, and every idea shared with the club |
-| **Prompt Guard 2 86M** (open weights) | Our GPU server's CPU, Hugging Face Transformers | Google reviews before the court judge reads them; every idea shared with the club |
-| **DRAMA** (`drama-base`) | Our GPU server's CPU, Hugging Face Transformers | Memory by meaning for the Autopilot; grouping the club's shared ideas |
-| **Omnilingual ASR** (open weights, CTC 1B) | Our GPU server's CPU | Voice notes in Messenger to text (1,600+ languages per its model card; we tested English) |
-| **Sapiens2** (pose, 0.4B) | Our GPU server, Hugging Face Transformers | Every player's pose on every frame of a highlight; finds the moment (fastest swing, top of the jump, the kick) |
-| **SAM 2.1** (Hiera-L) | Our GPU server, Hugging Face Transformers | Each player's outline, for the reel's spotlight and its drawn view |
-| **RT-DETRv2** (ResNet-50) | Our GPU server, Hugging Face Transformers | Finds the people in your own video, so the reel follows you (Meta's DETR is one setting away, `PERSON_DETECTOR=detr`: [docs/person_detector.md](docs/person_detector.md)) |
-| **MapAnything** (Apache 2.0 weights) | Our GPU server; in the app as an optional camera effect | Metric depth and the camera for orbit replays of your moment ([docs/orbit_highlights.md](docs/orbit_highlights.md)) |
-| **Muse Spark 1.3** (Meta Model API) | The fallback, when switched on (`LLM_FALLBACK=on`) | When the GPU server can't answer, the same call goes once to Muse Spark; checked live (`submission/results/fallback_live.json`); also the builder's model for new code (one C3 spec built on its first attempt) |
-| **SAM 3.1** (Meta Model API) | One call | Checked on the smash's frame against SAM 2.1: the same player, box IoU 0.97 (`submission/results/sam31_smash.json`) |
-| **Muse Image** (Meta Model API) | Made once | A face for each member's agent (`web/public/agents/`); the art of a rematch poster, made once per challenge, names drawn by the app |
-| **Muse Voice Transcribe** (Meta Model API) | Realtime, relayed by the gateway | Full-duplex talk with your agent: it hears where your turn ends, replies a sentence at a time (Kokoro), and stops when you cut in (`submission/results/voice_live.json`) |
-| **Muse Wonder** (Meta Model API) | An evaluation | Judged 84 labelled orbit frames for a doubled net or a smear; stricter than the labels, so the pixel rule stays (`submission/results/orbit/`) |
-| **Messenger Platform** | Signed webhook, Send API, quick replies | Your agent in your chats: plans, approvals with a tap, check-ins, files shared to the chat |
-| **Instagram, Facebook** | The phone's share sheet (no API) | Your reel and its caption, shared by you |
+| Agreement with Glimmer, 500 held-out cases (always taking the first listed time: 82.7%) | 88.8% (with itself) | **89.5%** (88.5% after int4) |
+| Time per choice | about 40 s, on the RTX 3090 | **about 0.9 s, on the CPU** |
+| Answers at 0.6 sure (served threshold) | all | 96.0% of 500; 73.0% of the 196 hardest |
+| Calibration (expected calibration error, 500 held-out cases) | | **0.052**; at 0.8 sure it answers 89% and differs from Glimmer on 7% |
+| Picks changed when only the order of the listed times is reversed | | **20.2%** (the one-token decider: **90.8%**) |
 
-Beyond a chat box:
+- With 500 cases each agreement rate is good to about 3 points either way, so the student matches Glimmer as closely as
+  Glimmer matches itself, about 44 times faster than its full answer.
+- In talks with the simulated club it cut Glimmer's member answers by 67% (ordinary talks) and 54% (private calendars
+  on), with no rule broken.
+- **A fourth training round** (served from October 31), with one more Glimmer answer for 700 random cases: 88.9%
+  against 88.5% on test and 69.5% against 67.0% on the hardest, neither difference significant, so it took over at
+  the same threshold.
+- **Why distil when the one-token decider takes 0.53 s?** The decider is still Glimmer, so it needs the GPU that
+  every agent's reasoning and the video models share, and it mostly reads the order of the list rather than the
+  preference. The student runs on the CPU and leaves the GPU free.
 
-1. **An agent, not a chatbot.** Muse Glimmer picks the next tool, code runs it and hands back the facts, until the week
-   is planned. Refused calls (a day outside the week, a member who isn't free) come back as facts, and it re-plans.
-2. **Many agents at once.** For a doubles game your agent negotiates with three agents, who answer together on four
-   parallel slots of one GPU.
-3. **Verifiable: checked before you see it.** Every time, court and trip is computed by code. Numbers in a model's text must be in
-   the facts it was given (small counts excepted), a quoted review must be in that review, and there is no he or she.
-   A body report that fails is redrafted and then replaced by rules; other texts that fail go straight to a
-   template, and a court's reason that fails is dropped.
-4. **Agents talk in facts.** Between agents go validated fields and sentences made by code, so an instruction hidden
-   in another agent's message has nowhere to go. Each agent stays within Meta's *Agents Rule of Two*
-   ([docs/security.md](docs/security.md)).
-5. **Open weights on hardware we own.** With the default local model, video, body log, voice and health data never
-   go to a cloud model.
+Detail: [docs/decision_model.md](docs/decision_model.md), [docs/decider.md](docs/decider.md),
+`submission/results/order_sensitivity.json`, `submission/results/student_calibration.json`.
 
-## Technical depth
+![Distilled from 4,868 Glimmer choices: a 0.8 GB 1B on CPU agrees 89.5% of the time](docs/readme/slide_distillation.png)
 
-All of it in one document: [submission/technical_report.md](submission/technical_report.md). How each piece is built
-and what it rests on: [docs/methods.md](docs/methods.md). Security, with the attacks we run:
-[docs/security.md](docs/security.md). A club of a thousand, simulated: [docs/scale.md](docs/scale.md). The community
-loop: [docs/community_loop.md](docs/community_loop.md). The one-pass decider, on only where it is sure:
-[docs/decider.md](docs/decider.md). Orbit replays with Meta's MapAnything (an optional camera effect in the app, measured):
-[docs/orbit_highlights.md](docs/orbit_highlights.md). A federation of clubs over A2A: each club found by its card,
-keys pinned on first use and followed through signed rotations, forgeries refused (`agent/src/a2a/peer.js`,
-`test/federation_unit.mjs`; technical report 3.14). Private calendars all the way through the planner: each member's agent answers
-yes or no for one time, 24 asks a day (3.15). A learned intent router behind the regular expressions: game requests
-found 6 of 10 by the expressions, 10 of 10 with it (3.16). An Apache 2.0 embedder for commercial use (Granite, 5.15).
+<p>
+<img src="docs/readme/slide_calibration.png" width="49%" alt="Its confidence can be trusted: ECE 0.052">
+<img src="docs/readme/slide_order_sensitivity.png" width="49%" alt="The one-token decider mostly reads the order, not the preference">
+</p>
 
-Test results on the current code (2026-10-28). Runs on a cloud A100 use the same Muse Glimmer build (the same model
-digest) as our RTX 3090:
+## 5. A second 1B for short text, hardened against attacks it never saw
 
-| Suite | Result | Where it ran |
+We first sent every short text call to the decision 1B, and it did not hold up: it was distilled to choose among
+options, not to read and write freely. So we distilled a second Llama 3.2 1B for short text. Glimmer answered **1,039
+inputs** through the real call sites (858 for training, 166 held out by input source), and the 1B learned them with
+LoRA, plus **371 copies carrying injected or disguised text** that keep Glimmer's answer to the clean text, plus a KL
+term toward Glimmer's verdicts. Outside text now arrives in a message of its own.
+
+On **446 attacks whose templates never appeared in training**:
+
+| | Old 1B | New text 1B | Muse Glimmer |
+|---|---|---|---|
+| Hostile comments let through | 65 of 71 | **8 of 71** | 0 of 71 |
+| Poisoned reviews that turned a bad court "good" | 98 of 180 | **7 of 180** | 5 of 180 |
+
+It takes short text at six checked sites only (wording a game ask, a court's name in English, a memory's beliefs, a
+paper's summary, a question about the feed, what a member's answer teaches); new sites go to Glimmer by default. With
+that list, the end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer alone.
+A SecAlign++ DPO step cut injected passes further but blocked ordinary comments, so it is not used
+(`submission/results/text1b.json`).
+
+![A 1B distilled for short text resists attacks it never saw](docs/readme/slide_text1b.png)
+
+## 6. Security: Rule of Two, two guards, a signed consent chain
+
+- **The Agents Rule of Two** (Meta): no agent or pipeline stage holds untrusted input, private data and the power to
+  act at once.
+- **Two guards, layer by layer.** Untrusted text (posts, comments, reviews, wishes) passes **Prompt Guard 2** first,
+  then **Llama Guard 3**, then code checks (numbers, names, links), and only then a model that never acts on it.
+- **93 of 93 attack cases stopped**, named by OWASP LLM Top 10 risk (`submission/results/redteam_93.log`).
+- **A signed record of every yes.** Each consent is appended to a log in which every entry is signed and carries the
+  hash of the one before, so a yes cannot be changed or removed afterwards without it showing.
+- **No-shows, with no money.** A show-up record fades with a 60-day half-life and is shown as a range in words, never
+  a score; a game short of its minimum players is called off 3 hours before; a freed spot goes to the waitlist with 12
+  hours to confirm.
+- **A failure the testers found, and the fix.** A tester working as a host could work out how many people nearby were
+  open to being asked. Now nearby people appear only once they can actually play; later rounds re-checked it and found
+  nothing.
+- **A guard that misfired.** On the live site, Llama Guard 3 refused a club named "Serve test round 27" as violence.
+  S9 now counts only with a weapon word in the text, and S1 alone with no word of harm goes to the club's standard; the
+  feed red team still stops 13 of 13.
+
+More: [docs/security.md](docs/security.md).
+
+![Rule of Two, two guards and a hardened 1B: 93 of 93 attacks stopped](docs/readme/slide_security.png)
+
+## 7. A community that evolves the platform, with automatic rollback
+
+What members ask for becomes changes to the platform, through a pipeline in which code makes every decision and the
+models only write short sentences that code checks:
+
+**unmet request → one sentence, shared only with a yes → screened → idea and quadratic vote → spec and class → nine
+gates → canary of members → kept, or rolled back by itself** (bigger changes go to a person).
+
+- **Ideas and votes.** DRAMA clusters the sentences; an idea shows once 5 different members have said it. Votes are
+  quadratic (9 credits a month, n votes cost n²).
+- **A class from what the change does**, never from the draft: C0 a declared setting inside its range, C1 wording, C2
+  a tool parameter, C3 anything else. A never-list (booking without a yes, data off the server, editing the tests or
+  the guard) is checked with LlamaFirewall's CodeShield rules.
+- **Nine gates**: policy, a code scan, unit tests, the crash matrix, the red team, Messenger end to end, the planner
+  test, the spec's oracle and a privacy canary.
+- **Ship, watch, roll back.** A C0 change ships to under 20% of members for 7 days. A booking without a yes, a double
+  booking or the privacy marker leaving turns it off at once. It also rolls back when thumbs down rise by 10 points or
+  more under an **anytime-valid test** (an e-process, E of 20 or more), so the monitor can look every 5 minutes without
+  false alarms piling up. In 20,000 simulated 7-day canaries of 5 members, a harmless change was rolled back **0.6%**
+  of the time, against **22%** for a z-test checked at every look; the price is caution, as a bad change was caught in
+  61% of canaries.
+- **A person for anything bigger.** C1 to C3 wait for a maintainer; then the builder agent (Glimmer in a tool loop)
+  writes it on a branch with the tests read-only and no network, and a person merges it.
+- **On a simulated club** (88 messages from 60 members, hostile ones and a planted bad change among them), no hostile
+  message reached a spec, the wanted change was promoted from its canary, and the planted bad change rolled itself back
+  (`submission/results/loop_eval.json`). It has not yet run on real members.
+
+More: [docs/community_loop.md](docs/community_loop.md).
+
+![Members evolve the platform; an anytime-valid test cuts false rollbacks from 22% to 0.6%](docs/readme/slide_community_loop.png)
+
+## 8. Social highlight reels: a bonus after the game
+
+A clip for friends, cut from the player's own phone video with no editing. It is for sharing, never coaching or
+scoring.
+
+![An automatic highlight as the pipeline cut it: the rally, the jump smash zoomed in slow motion, back to the rally (clip: Badminton klub Ljubljana, CC BY 3.0)](docs/readme/highlight_strip.png)
+
+- **Automatic highlights.** **RT-DETR** finds the people (about 4 boxes a frame against DETR's 15 to 20, about 2×
+  faster, and the right player on all three test clips), **Sapiens2** finds the moment worth sharing (a racket's
+  fastest swing, the top of a jump, a kick), **SAM 2.1** cuts the player out, and the clip replays that moment in slow
+  motion with a caption Glimmer writes and code checks.
+- **3D replays from one video.** **MapAnything** reads metric depth and the camera from the moment's frame; the scene
+  is re-rendered from a camera swung around the player. Arcs of about ±6 to 12° look like a real camera move; one
+  learned threshold on the share of invented pixels (6.26% of the frame) picks the widest arc that still looks right,
+  or falls back to a zoom: on 84 labelled frames, precision 1.00 and recall 0.79, against 0.45 and 0.64 for our first
+  rule.
+- **A second opinion that says why.** **Muse Wonder** agreed with the labels on 87% of the same 84 frames, and names
+  what it rejects ("doubled ghost net outline above the net"), which a pixel count cannot.
+- **Never an empty shot.** A frame-by-frame check that the player and the racket hand are there caught every frame
+  where they were missing. A moment takes 19.9 s on the RTX 3090 once the models are loaded.
+
+More: [docs/orbit_highlights.md](docs/orbit_highlights.md), [docs/person_detector.md](docs/person_detector.md).
+
+![Social reels from one phone video give friends a reason to book the next game](docs/readme/slide_reels.png)
+
+## 9. Testing: 177 AI testers in 28 rounds
+
+A long trial with real players is not possible in a nine-day build, so Serve was also checked by agents. **The
+testers were AI models, not people**; they found real faults, but this is not a usability study.
+
+- **177 AI testers, 28 rounds, 17,432 logged requests.** Each round, six fresh models were given only a persona and
+  the address: two new agents arriving cold, two member agents hosting and answering games, two web users at phone
+  and laptop size. After every round we fixed what they found, ran the tests, deployed, and started again.
+- **Round 25 came back clean on every core flow** (6 of 6 reports, 0 core-flow bugs). Rounds 26 to 28 were harder:
+  the live site with test accounts in a private club, then a local copy calling the server's own Muse Glimmer, Llama
+  Guard 3 and Prompt Guard 2. They found new faults (a club name refused as a threat, a host leaving Serve without
+  telling their players, an agent reading its person's notices away), all fixed; 12 of 12 checks over HTTP pass after
+  the fixes.
+- **146 tester sessions replayed from the logs, 0 server errors.**
+- **An agent that knows nothing.** Given only the address and a request, the best of three agents was doing useful
+  work by its third request and found its person a Sunday 09:00 tennis game, free, 2.6 km away.
+- **The planner agent:** 8 weeks, each run 3 times, members' agents over A2A: 24 of 24 runs passed (pass^3 = 1).
+
+Every report and every round's request log: [submission/agent_testing.md](submission/agent_testing.md).
+
+![177 AI testers in 28 rounds sent 17,432 requests; core-flow bugs reached zero by round 25](docs/readme/slide_testing.png)
+
+![146 tester sessions from the logs: every request, in order](docs/readme/slide_tester_sessions.png)
+
+## 10. An open door for outside agents
+
+Any person's agent, built anywhere, can come in. The site's own HTML carries a short guide for agents,
+[`/llms.txt`](https://play.theminimallab.com/llms.txt) opens with a six-call quick start, and there is an Agent Card
+and OpenAPI. An agent registers its own **Ed25519** public key, approved by its person, and signs every request on the
+agent channel.
+
+**Over an agent key, a person's limits only get tighter.** An agent that tries to raise its person's price cap is
+refused with `403`, `needs: person`: the agent can negotiate for its person, never past them.
+
+![An open door for any personal agent (/llms.txt), tested with 10+ friends](docs/readme/slide_open_door.png)
+
+## Real-world use
+
+During the hackathon **more than 10 people from a badminton club** tried Serve, and of the **3 game invites** sent
+through it, **2 became games that were played, within 3 days**. Two players, in their own words (translated from
+Chinese):
+
+- *"It's actually really handy. You just talk to the agent."* (Player A)
+- *"I think the way it suggests games first can make people more motivated to play."* (Player B)
+
+The badminton club is real people. Separately, the built-in demo club a new visitor sees, the clubs used for
+evaluations and the members the agent testers met are simulated and labelled as such.
+
+## What surprised us
+
+![Four things that surprised us running Meta's models in a product](docs/readme/slide_surprises.png)
+
+- **Muse Glimmer reasons even when told not to.** Over 2,755 calls, 84% of the tokens it wrote were reasoning and 9%
+  of calls came back empty. Every call now asks for `think: "low"` with 900 tokens of room.
+- **A 1B student agrees with Glimmer as often as Glimmer agrees with itself** (89.5% against 88.8%).
+- **Glimmer can decide in one token** (0.53 s, no reasoning), but mostly by reading the order of the list.
+- **Llama Guard 3 refused a club name as a threat**, fixed as described in [security](#6-security-rule-of-two-two-guards-a-signed-consent-chain).
+
+---
+
+## Meta models used and where each runs
+
+| Model | Where it runs | Its job in Serve |
 |---|---|---|
-| `npm test` (25 offline suites) | 275 tests: 270 pass, 3 skipped, 2 Linux-only <!-- COUNT --> | no model, no GPU (`submission/results/unit.log`) |
-| Messenger end to end (`test/e2e.mjs`) | 58 of 58 checks in the nine-gate run (2026-10-29), 52 of 52 before <!-- COUNT -->; on the final code 46 passed, 0 failed, before the run was stopped (`e2e_final_partial.log`) | Muse Glimmer on a cloud A100 (`submission/results/e2e.log`) |
-| Attacks (`test/redteam.mjs`) | 93 of 93 stopped <!-- COUNT --> | a cloud A100 (`submission/results/redteam_93.log`; 93 of 93 again in the nine-gate run) |
-| The community loop's attacks, within those 65 <!-- COUNT --> | 29 of 29 stopped, 5 of 5 controls passed | the server's CPU, with the real guards (section 5 of `redteam.log`) |
-| Crash matrix (`test/crash_matrix.mjs`) | 20 of 20 checks | a stand-in model (`submission/results/crash_matrix.log`) |
-| "I want to play" in Messenger (`test/match_messenger.mjs`) | 13 of 13 checks | Muse Glimmer on a cloud A100 ([docs/agent_matchmaking_plan.md](docs/agent_matchmaking_plan.md); `submission/results/match_messenger.log` is the earlier run of the first 9) |
+| **Muse Glimmer** (open weights) | Our RTX 3090 (GPU 1), Ollama, 4 requests in parallel | Every agent: the planner's tool loop, each member's decision, reading what a person wants, the community specs, the builder agent. A JSON Schema on every call; code checks every text |
+| **Llama 3.2 1B Instruct, distilled by us** (decision) | Server CPU, int4 Q4_K_M, 0.8 GB | Picks among times as Glimmer would, in about 0.9 s |
+| **Llama 3.2 1B Instruct, distilled by us** (short text) | Glimmer's Ollama | Short text at six checked sites |
+| **Llama Guard 3 1B** | Server CPU | Both ways in Messenger, posts and comments, community wishes |
+| **Prompt Guard 2 86M** | Server CPU | Untrusted text before a model reads it: reviews, wishes, every post and comment |
+| **DRAMA** (drama-base) | Server CPU | Memory by meaning; grouping community wishes |
+| **Omnilingual ASR** (CTC 1B) | Server CPU | Voice notes in Messenger |
+| **Sapiens2** (0.4B) | RTX 3090 (GPU 0) | The moment worth sharing; whether the player is in view |
+| **SAM 2.1** (Hiera-L) | RTX 3090 (GPU 0) | Tracks and cuts out the player for reels |
+| **DETR** (ResNet-50) | RTX 3090 (GPU 0) | Fallback person detector (RT-DETR, not Meta's, is the default) |
+| **MapAnything** (Apache 2.0 weights) | RTX 3090 (GPU 0) | Metric depth and the camera for 3D replays |
+| **Muse Spark 1.3** | Meta Model API | Calls of 12,000 tokens or more; a fallback when the GPU server can't take a call |
+| **Muse Voice Transcribe** | Meta Model API | Live full-duplex voice with your agent; Kokoro speaks the reply on the server |
+| **Muse Image** | Meta Model API | Faces for the club's agents and the art of rematch posters |
+| **SAM 3.1** | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
+| **Muse Wonder** | Meta Model API | Judges 3D replay frames: agreed with the labels on 87% of 84 frames |
 
-- **One gateway** (`agent/src/server.js`, Node.js, port 8790) runs every agent on the GPU server and streams each step
-  to the app as NDJSON, so you watch the agent work.
-  - Muse Glimmer runs on GPU 1 (Ollama, 4 requests in parallel); the vision models on GPU 0; speech on the CPU.
-  - Every API call except the status check needs the gateway's token. Without a token, the API answers only its own
-    machine (unless `AGENT_OPEN=1`).
-- **Agent to agent over A2A v1.0**, on the official SDK (`agent/src/a2a/server.js`, `a2a/client.js`).
-  - Every member's agent has a signed Agent Card (a JWS over the card, Ed25519, the key at `/a2a/keys.json`), checked
-    before your agent talks to it, and answers `SendMessage` in a task that ends with a decision artifact. One
-    negotiation is one A2A context.
-  - With the acceptable-set protocol, the agents agree in the first round when a time works for everyone, and end at
-    once when none does.
-  - Once a time is agreed, every member's agent holds it while the player decides (a 30-minute lease, all or
-    nothing), so two talks at once never agree the same member twice: the second takes the next time. In 12 pairs
-    of talks at once for one member, holds off agreed the member twice in 11 (the booking's second check refused
-    11 games); holds on, in none, and 23 of 24 games were booked; over A2A, 12 of 12 against none, with all 24 booked
-    ([docs/scale.md](docs/scale.md)).
-  - A talk is checkpointed before every round, and a member's agent answers a message once, for the same proposal.
-    In a "want a game?" talk, the gateway was killed with SIGKILL at each of five durable steps. Each time it resumed,
-    booked the game exactly once, and no message was decided twice (`test/crash_matrix.mjs`, against a stand-in model).
-    On the real model, `test/a2a_resume.mjs` kills the gateway once mid-talk and checks that the talk finishes, with
-    no message decided again beyond the one the crash cut off.
-- **Facts between agents, and least power.** What crosses between agents is validated fields and code-made sentences.
-  No agent combines untrusted input, private data and the power to act (Meta's *Agents Rule of Two*). **93 of 93** <!-- COUNT -->
-  attacks stopped (`test/redteam.mjs`, on a cloud A100):
-  - 35 against the agents and the API: injected instructions, replayed messages, a lied-about trip, holds meant to
-    block a member's week, a changed or unsigned Agent Card, hostile agents answering yours, an agent that never
-    answers, your token sent to another server, cross-site requests, files from elsewhere, and ten poisoned reviews in
-    front of the court judge (Muse Glimmer itself: none turned its verdict to "good");
-  - 29 against the community loop: injected ideas, sock-puppet votes, cluster poisoning, a guard that is down, a forged
-    class, and diffs that edit the tests, add a host, a dependency or tracking, weaken `/forget`, or book without a yes;
-  - and the loop's five controls, which check that the review still lets plain changes through.
-- **What every model call costs.** A token ledger logs each call by call site and job: prompt, cached, output,
-  reasoning, seconds and trace id (`ledger.js`). Each call has room for reasoning beyond its answer: 900 tokens by
-  default, and per call site with `LLM_BUDGETS`. Replies come in JSON Schemas, checked again in code, and a reply that
-  never fits is no answer, never a yes.
-- **Traces.** OpenTelemetry spans named by the GenAI conventions. The trace context travels inside each A2A message,
-  so one negotiation, across every agent in it, is one trace. Each Autopilot run shows its trace as a waterfall.
-- **The model reads about the same however big the club.**
-  - Members are found by code (1 to 3 ms, up to 1,001 members), and the model reads the few best. An Autopilot week
-    reads 18,063 prompt tokens with the demo club and 19,543 with 290 simulated members more.
-  - Putting the whole club in the prompt costs about 58 tokens a member, and stops fitting the model's context past
-    about 270 members ([docs/scale.md](docs/scale.md)).
-- **Private calendars** (`A2A_PRIVATE=1`). The members' weeks stay with their agents. Your agent proposes from your
-  own week, each member's agent checks its own calendar and rules in code, and the search runs up to three rounds.
-  On the same 50 talks, with a week free every day, both modes agreed 42 of 42 possible, and your agent saw none of
-  the members' free hours, at 96 model calls against 50 ([docs/scale.md](docs/scale.md)). Held to the exact answer
-  (every hour that works, in the player's own order), private calendars agreed the player's best time in 32 of 34
-  talks of a usual week and 35 of 42 of a week free every day; the shared view, in 34 of 34 and 39 of 42.
-- **Routing by facts** (`A2A_ROUTE`, on by default). When a member's limits are all rules in code, the facts decide
-  and the model is not asked. Over the Autopilot's eight weeks on the RTX 3090, routing on cut the members' model
-  answers from 5.4 a week to 1.2 and 1.4, and all model calls from 13.8 and 12.9 a week to 8.8 and 9.8, with 8 of 8
-  weeks reaching the goal in every run ([docs/scale.md](docs/scale.md)).
-- **Memory by meaning.** DRAMA on the CPU found the right note first for 12 of 20 planning questions (Recall@1 0.60,
-  against 0.35 for BM25; `submission/results/memory_eval.json`), and a week in which the player had asked to leave
-  Tomás out left him out in 3 of 3 runs with memory on and 0 of 3 with it off
-  (`submission/results/autopilot_eval_memory_on_summary.json`, `autopilot_eval_memory_off_summary.json`).
-- **Matchmaking, on simulated members** ([docs/agent_matchmaking_plan.md](docs/agent_matchmaking_plan.md)). Through
-  the real negotiation code on 300 requests, the shipped defaults got 132 games from 534 talks where the earlier
-  ranking got 116 from 651: 4.05 against 5.61 talks per game, 28% fewer (section 12, `match_eval_n300_defaults.json`). The
-  shipped model is calibrated (Brier 0.152, ECE 0.024, every band inside its range); the asker's reliability added
-  little and is off by default. Fair exposure, a club setting, costs 8% more asks and cuts the members never asked
-  from 18% to 7.5%. Where it did not win: with Muse Glimmer
-  deciding every talk on 23 requests, bands got 17 games against 19, too few to separate the two; and asking two
-  members at once for a game today made 6 games against 10, so it stays the player's choice. Real players can opt in
-  (`/bands on`); none has yet.
-- **Guard models** ([docs/security.md](docs/security.md); `node test/guard_eval.mjs` on 2026-10-28, its raw output
-  kept on the server, not in `submission/results/`). On the server's CPU, Llama Guard 3 1B refused 37 of 42 unsafe test
-  messages and 1 of 74 benign ones, gave the helpline to 7 of 7 self-harm messages, and, with a rule that
-  needs a dose or a diagnosis before S6 blocks, replaced none of 21 ordinary answers about an injury. Checking a
-  player's message took 0.36 to 0.39 s at the median. Prompt Guard 2 left out 4 of the 10 poisoned reviews and none of
-  20 ordinary ones.
-- **The community loop, on a simulated club** (members and requests generated by code; the pipeline, gates and
-  rollback are real). Of 88 messages from 60 members, the hostile ones (an injection, a data export, a booking without
-  a yes) never reached a spec. "Ask later in the day" shipped as a setting to 5 canary members and was promoted; a
-  planted bad setting was caught by the monitor as a soft breach and rolled itself back
-  (`submission/results/loop_eval.json`). On six specs, the coding agent passed 18 of 18 builds by their first oracles
-  on cloud A100s. A stricter oracle for the one two-file change failed all its branches; rebuilt against it, that
-  spec passed 3 of 3 within three attempts and 0 of 3 on the first. The agent never tried to write a test or a file
-  outside its spec ([docs/community_loop_builder.md](docs/community_loop_builder.md)).
-- **On only where it is sure.** A one-pass decider that reads Glimmer's choice from one token, with no reasoning,
-  answers in 0.53 s instead of 40.4 s on the RTX 3090, but agreed with the full answer 62.2% of the time where the full
-  answer agrees with itself 73.5%, so it keeps a pick only at the 5% risk level and passes the rest on
-  ([docs/decider.md](docs/decider.md)). Orbit replays look right only for
-  short arcs, so the zoom stays the default.
-- **Who goes first on one GPU.** One RTX 3090 tops out at about 8 talks a minute ([docs/scale.md](docs/scale.md)), so
-  the gateway queues model calls itself. Calls a player is waiting on go before background work, such as an Autopilot
-  run and its talks. With 8 talks running in the background, a player's own talk took 42.9 s at p95 instead of 111.3 s.
-- **Members' rules.** 60 simulated members' agents were each asked for a time that breaks one of their member's
-  rules ([docs/scale.md](docs/scale.md)).
-  - With the rule only in its words, Muse Glimmer broke it in 1 of 60 talks: a 21-minute trip for a member who
-    travels 20 at most.
-  - Serve keeps hard rules in code, so that can't happen (0 of 60). It is also cheaper: the talks where no time keeps
-    the rule end without a model call, so the 60 took 31 model calls instead of 61.
-  - Run again over A2A, with the members' agents answering JSON-RPC, neither arm broke a rule (0 of 60 each), at 61
-    and 32 model calls.
-  - The agents' lists of which times work were 98.7% precise and complete with the model alone (exact with code, by
-    construction).
-- **Multimodal on our own server.** In the Messenger end-to-end test, Muse Glimmer reads a scoreboard photo (21-17,
-  19-21, 21-15) into a JSON Schema and code checks it against the rules of the game, and Omnilingual ASR hears a voice
-  note on the CPU and files what hurts (`submission/results/e2e.log`).
-- **Measured on our server.**
-  - The Autopilot (`agent/test/autopilot_eval.mjs`): eight weeks, each run three times, on the final code, with the members' agents answering over A2A (JSON-RPC with the token, `EVAL_A2A=1`) and holds on. All 24 runs passed the every-week checks and each week's own oracle, so every week passed every time (pass^3 = 1.0). A run took 108 s on average, with 13.8 Muse Glimmer calls and 9.3 tool calls. The model finished 23 runs itself; in 1, rules finished the plan after the model stopped calling tools ([submission/agent_eval.md](submission/agent_eval.md)). Over A2A before holds it also passed 24 of 24 (all 24 finished by the model), and in process 24 of 24 (22 by the model). On the final code, with signed Agent Cards, each week once: 8 of 8. An earlier run passed 7 of 8.
-  - Messenger end to end (`agent/test/e2e.mjs`): 52 checks <!-- COUNT -->, all passing, with Muse Glimmer on a cloud A100. A fake
-    Graph API runs against the real gateway. The checks cover linking and the calendar; "want a game?" (asked on its
-    own, another time, a yes agreed over A2A and booked, not this week); the Autopilot with a tap that books; reminders
-    and check-ins; what hurts (typed and as a voice note), a health export, a scoreboard photo and `/report`; a violent
-    threat that gets only a refusal, and a self-harm message that gets the helpline; the loop's `/improve on`, `/idea`
-    and Share, with its data keyed by an HMAC; feedback and `/forget`, which deletes the loop's data too; and the
-    gateway's token and cross-site checks.
+Also from Meta: the **Agents Rule of Two**, **LlamaFirewall's CodeShield rules** (community specs and generated code)
+and the **Messenger Platform** (signed webhook, Send API, quick replies).
 
-## After the hackathon review: thirteen improvements from related work
+## Run it yourself
 
-A survey of similar products, papers and open-source projects (Playtomic, Plei, Reclub, CalBench, Magentic Marketplace,
-FrugalGPT, the A2A spec and others) gave thirteen ranked improvements. All are in the code, each with tests:
-
-- **Booking quality, not just bookings** ([docs/booking_quality.md](docs/booking_quality.md)): each booked game against
-  every time and venue for the same players. Over 12 simulated games the longest trip was never worse than the best
-  possible (0 minutes), total trips 2.3 minutes more on average. Three venue rules side by side (`A2A_VENUE_RULE`:
-  minimax, the default and the most even; least total; Nash).
-- **Calendar privacy:** free/busy probes now charge the same rolling disclosure budget as talks, so walking dates gains
-  nothing (an attacker learns at most 24 of 112 weekly hours in 28 days); a test checks that what A tells B never
-  reaches C.
-- **A firewall for outside agents:** every post and comment passes Prompt Guard first, on its text and a normalised
-  copy (lookalike letters, hidden characters); an adaptive red team rewrites refused injections to probe it.
-- **Turning up, without money:** show-up fades with a 60-day half-life and is shown as a range in words; a game below its
-  minimum players is called off 3 h before; a waitlist place must be confirmed within 12 h, or it passes on.
-- **A signed record of each yes:** every yes (huddle, feed join, answered ask) is signed by the member's agent key into
-  a hash-chained log that anyone with the keys can verify.
-- **Canary statistics** ([docs/community_loop.md](docs/community_loop.md)): the smallest harm each canary size catches.
-  The anytime-valid test rolls a harmless change back 0.5% of the time; a z-test checked at every look does so 20 to
-  30% of the time. CI runs the offline tests on every push.
-- **The 1B student, calibrated** ([docs/decision_model.md](docs/decision_model.md)): ECE 0.052, a conformal threshold
-  near 0.8, and a risk-coverage curve.
-- **A2A v1.0:** signed cards carry `jku`; the proposal and the hold are versioned extensions marked required, refused
-  with -32008 when a client does not name them.
-- **"Match asks first", measured:** at most 3 asks a week (`ASK_WEEK_CAP`), and an optional micro-randomised trial
-  (`ASK_TRIAL_P`, off by default) with its analysis script.
-- **Skill with uncertainty:** per-sport ratings (mu, sigma) that only competitive games change, confirmed by the other
-  side; children's, gentle and charity games never count. Value-of-information questions start from the club's own
-  prior instead of a flat one.
-- **Your calendar in:** import an `.ics` file; only busy times are read, turned into weekly free windows.
-- **Video:** the person detector is RT-DETRv2 by default (`PERSON_DETECTOR=detr` for DETR), and with ball
-  tracking a highlight can start and end with the rally (`RALLY_CLIP=1`).
-
-## Four agent upgrades from the literature, measured
-
-Four ideas from 2024–2026 papers, each built and measured against what ran before, on seeds or halves not used to
-choose their settings. All four are on.
-
-- **Shared preferences.** One answer now counts as evidence about the hours like it (`match/voi.js` PREF_SHARE:
-  borrowed Beta counts, weighted by how hours go together in the club's free lists, after Pep and VPL), the prior counts
-  for 0.5 answers instead of 2, and a window's last hour no longer counts as free when a 90-minute game can't start
-  then (`test/pref_sim.mjs`, `submission/results/pref_share.json`): Brier score 0.223 to 0.200 and log loss 0.638 to
-  0.585; the chance the first talk lands, 68.9% to 73.7%, and with one value-of-information question first, 75.1% to
-  79.2%.
-- **Times ranked by the chance everyone accepts, with a least-misery floor.** `match/timerank.js` (A2A_RANK=counts for
-  the old order). With shared calendars the time proposed first decides whether the members' agents say yes by code or
-  each has a choice for a model to make (`test/rank_calls_sim.mjs`, `submission/results/rank_calls.json`): the first
-  time kept everyone's rules in 92.4% of singles requests instead of 89.8%, and 89.1% of doubles instead of 73.9%; model
-  choices per doubles request fell from 0.261 to 0.109. (With private calendars it finds no more games:
-  `test/rank_sim.mjs`.)
-- **Two cheap reads that agree.** When the 1B student is unsure and the one-token decider not sure enough, but both pick
-  the same time (each at least 0.5), that time is the counter (`a2a/talk.js` A2A_AGREE; `distill/agree_cascade.py`,
-  `submission/results/agree_cascade.json`): on the decider's 196 cases, split in halves 500 times, the choices answered
-  without Glimmer's full answer went from 72.1% to 79.0%, matching Glimmer's own answer 68.9% of the time instead of
-  69.6% (Glimmer matches itself 73.5%).
-- **A lower student threshold, tried and not kept.** At 0.5 instead of 0.6 (`A2A_STUDENT_SURE`), with the int4 file as
-  served ([docs/decision_model.md](docs/decision_model.md)), the 1B answers 96.9% of the 196 hardest choices instead of
-  73.0%, but its agreement with Glimmer there falls from 68.4% to 61.2% (Glimmer again: 73.5%); on the 500 ordinary
-  ones 99.0% instead of 96.0%, agreement 89.6% instead of 89.9%. The threshold stays at 0.6.
-- **Early exit from Glimmer's reasoning.** `agents/early.js` (A2A_EARLY=off to turn it off), after DEER: the full answer
-  is streamed, the options are read at each break in its reasoning once it is 1,000 characters long, and the first read
-  0.98 sure stops it. Run for real on the RTX 3090, one answer at a time on 30 cases (`submission/results/early_exit_ab.json`):
-  Glimmer wrote 30% fewer tokens (596 to 420 an answer) and the answer came no later (22.3 s to 21.3 s), though each read
-  takes the reasoning again (prompt tokens 1,074 to 4,885). Read after the fact on 119 cases
-  (`submission/results/early_exit.json`), 1.7% of answers differ from the full one.
-
-## Which model answers: by length
-
-`core/llm.js` routes each call by how long it is (LLM_ROUTE). A short call at a site where our distilled 1B was checked
-(LLM_SMALL_SITES: wording a game ask, a court's name in English, a memory's beliefs, a paper's summary, a question
-about the feed, a lesson from a game's notes) goes to the 1B distilled for short text (`serve-1b-text` on Glimmer's
-Ollama, `distill/Modelfile.serve-1b-text`; before it, the decision model run as a chat model, `serve-1b`); anything longer, or
-anywhere else, to Muse Glimmer; a very long call (12,000 tokens or more) to Muse Spark on the Meta Model API. A 1B
-reply that is empty or does not fit its schema is asked again of Glimmer. The 1B's main work stays the agents'
-choices between times (the student). Every short site was tried on the 1B first: it filed training on the wrong day,
-logged games wrongly and could not phrase a wish (9 end-to-end checks failed), let 2 of 6 hostile comments through
-the post standard, and obeyed 4 of 10 court reviews that told it what to say. With the checked sites only, the
-end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer alone.
-
-## More agent upgrades, measured
-
-- **Harder simulated users, and pass^k.** LLM-simulated users are kinder than people and make agents look better
-  (Sim2Real, arXiv 2603.11245), and tau-bench (arXiv 2406.12045) counts a task only if the agent gets it right every
-  time it is repeated (pass^k). Five of the trial club's twenty people now have a kind of difficulty: one says yes, then
-  backs out by message after the booking; one never answers or answers late; one gives up after a few questions; one
-  stops playing on a day mid-week and tells their agent; one answers in vague words instead of tapping
-  (`test/sim_users/hard.mjs`). Each answer comes from seeded dice. `test/sim_users/passk_run.mjs` runs each request k
-  times on a fresh real gateway (partners confirm on Messenger, holds lapse after 60 s). It reports pass^k, success by
-  kind of person, games that fall apart after a yes, and false "booked" messages (`submission/results/sim_users_hard.json`,
-  simulated, seeds 23 and 17). On Muse Glimmer, over the same 8 requests × 4 runs, pass^1 fell from 0.69 with the
-  cooperative club to 0.38 with the difficult one (difference −0.31, 95% CI −0.53 to −0.09). pass^4 fell from 0.50 to
-  0.25 (CI of the difference −0.62 to 0). Cooperative people saw 0 of 32 false "booked" messages; the difficult club
-  saw 3 of 32. On 12 cooperative requests pass^1 is 0.56 and pass^4 0.33. With the fake model (code only), 20 requests × 8
-  runs: pass^1 0.53 to 0.35, pass^8 0.20 to 0.05. By kind (fake model): flipper 7 of 41 runs passed, ghost 9 of 40, vague 2 of 13,
-  drifter 7 of 31; runs where no difficult person took part passed 34 of 60. The person who gives up after a few
-  questions never got that far (a partner is asked once), so this run measures nothing about them. Six things failed:
-  a back-out sent as a message was noted in chat but the booking stood and the partner still held "Booked" (3 of 3
-  real, 12 of 12 fake); a partner who never answered left the asker waiting with no timeout; a vague reply to "Are you
-  in?" got a chat answer ("I'll check in closer to the day") while the question stayed open; the agent told "no
-  Saturdays" said it would keep them off, yet all 12 questions later put to that person were for Saturday games;
-  after "Can't make it" the new search left out only that partner, so people who had said no were asked again, and it
-  could go round without end; people asked "Are you in?" were not told when someone else's no dropped the game.
-  All six are now fixed in `match/confirm.js` (`test/confirm_unit.mjs`). A back-out in words is checked with one quick
-  reply ("Drop out of Thursday 19:00?"), then the game is called off, everyone is told and the host's agent looks
-  again. The ask lapses with the hold, after one nudge, and a late yes is put to the asker again. Vague words get the
-  question once more with three buttons, and a second vague answer counts as no answer. A stated change of days
-  becomes a preference record the member's agent keeps. A new search leaves out everyone who said no or let the ask
-  lapse, and stops after three searches. Everyone who was asked hears when the game is off. Rerun on the same seeds
-  and scenarios, difficult club: false "booked" went from 3 of 32 to 0 (Glimmer) and 12 of 160 to 0 (fake). Askers left
-  waiting went from 5 to 0 and 19 to 0. Searches that looped went from 4 to 0 and 16 to 0. People asked again after a
-  no went from 5 to 0 and 19 to 0. Questions to the drifter about their dropped day went from 12 of 12 to none asked,
-  and 39 of 47 to 0 of 8. pass^1 went from 0.38 to 0.47 on Glimmer (8 × 4; paired difference +0.09, 95% CI −0.06 to
-  +0.31) and from 0.35 to 0.39 with the fake model (20 × 8; +0.04, CI −0.03 to +0.14). pass^k rose more: pass^4 from
-  0.25 to 0.38 on Glimmer (CI 0 to +0.38) and pass^8 from 0.05 to 0.15 with the fake model (CI 0 to +0.25). The
-  cooperative club did not gain: pass^1 0.69 to 0.66 on Glimmer and 0.53 to 0.49 fake, pass^4 0.50 to 0.38 on
-  Glimmer (CI −0.37 to 0). These "after" runs are on main, which also has other agent changes merged since the
-  "before" runs, so not every difference is these fixes (`submission/results/sim_users_hard.json`, "afterFixes").
-  Still open: the asker's own vague answer to "Book it?"
-  gets a chat reply (only "Are you in?" is covered), and the ghost passed none of its 4 Glimmer runs.
-
-- **When not to send.** `match/gate.js` (ASK_GATE=off for the fixed 12:00 ask) decides the hour of the daily "Match
-  asks first" ask, and whether to send it at all: a Beta posterior per player on "answered within 2 hours" for each hour
-  (weekday or weekend), started from the club's rate, Thompson-sampled once a day, times a draw of the player's chance
-  of a yes, less a burden cost for recent unanswered asks and "not this week" (after Oralytics, EOPA, ProPerSim and
-  arXiv 2410.04596); under the weekly cap, and after the trial's arm, so the trial's randomisation is unchanged. In
-  simulation only (`test/ask_gate_sim.mjs`, `submission/results/ask_gate.json`; hidden reply windows, interest and
-  annoyance; 20 held-out seeds of 300 players, 12 weeks), against the 12:00 ask: asks 23.9 to 21.4 a player, answered
-  within 2 h 7.5 to 10.1, games from asks 3.97 to 4.39 (+0.42, 95% 0.33 to 0.50), opt-outs 37.7% to 26.2% of players
-  (-11.5 points, 9.9 to 13.2). Against the one best fixed hour (20:00): the same games (+0.00, -0.10 to 0.10), 9.2 points
-  fewer opt-outs. Choosing only the hour and always sending found more games (4.81) but more opt-outs (32.7%).
-- **Preferences as dated records, the newest wins** (`memory/prefs.js`, `prefs_of.js`). What a player said (notes,
-  Messenger memories, the rules memory_update.js checked), the weekly beliefs and the habit in their games become typed
-  records (time, partner, venue, format) with a date, a cited source and a confidence; code keeps the newest per kind
-  and key (the player's own words beat an inference of the same day) and shows the older ones as superseded. "Want a
-  game?", the Autopilot, the answer's facts and a member's taste read them; nothing stored is migrated. Simulated (400
-  players, no model, `test/pref_memory_sim.mjs`): when the player says the change in words, decisions that used the old
-  preference fell from 95% to 17% (no more Friday evenings), 99% to 24% (singles to doubles) and 93% to 0% (Fridays
-  fine again). Code extraction found 27 of 32 phrasings, by the same author; when the player never says it, nothing
-  changes (95%, 99%, 93% both ways). `submission/results/pref_memory.json`
-- **Tool calls checked after the schema, repaired from typed errors, and read back.** `core/toolcheck.js` (TOOL_CHECKS=off
-  for the loop as it was), after JSONSchemaBench, ReliabilityBench and ToolMaze. A call that fits its schema but names a
-  day outside the week, a start outside the player's free windows, an id nobody returned or the wrong number of members
-  is refused in a fixed vocabulary (unknown_id, date_out_of_range, breaks_limit, ...), never echoing the model's values,
-  and may be repaired twice; members' replies (`a2a/talk.js`) and calendar entries (`club/life.js`) get the same check in
-  chatJSON. negotiate, request_approval and nudge are read back after they report success. Simulated with injected faults
-  (`test/tool_faults.mjs`, `submission/results/tool_reliability.json`, 120 weeks per arm, about 9% schema and 8% semantic
-  faults, 15% silent failures): semantic faults caught 46 of 48 before and 55 of 55 after; 36 refusals echoed the model's
-  value before, none after; silent failures passed as success 53 of 53 before and 0 of 56 after (48 runs claimed games
-  or an approval that were not there, against 0); weeks reaching the goal with the state intact 72 to 120 of 120.
-  Repair@1/@2 0.857/0.956 to 0.880/0.970, a gain that comes from catching more, since the stand-in model repairs the
-  same way whatever the error says. On the GPU with Muse Glimmer, on the 6 weeks both arms finished
-  (`submission/results/tool_reliability_real.json`, one run each): no difference, 3 of 6 reached the goal either way.
-- **The order the times are read in, measured.** After Magentic Marketplace (the first proposal takes most choices), on
-  the decider's 196 cases with only the order of the listed times changed (`test/decider_eval.mjs` gl, glown, rawrev,
-  rawown, stud, studrev; `submission/results/order_sensitivity.json`): the one-token decider picks the first listed
-  time that works in 99.5% of cases and changes its pick in 178 of 196 when the list is reversed, so what it reads is
-  mostly the order; Muse Glimmer's own answer changed in 24 of 60 cases in each member's own order (keeping the stated
-  preference about as often, 11 of 13 against 19 of 22); the 1B student changed in 35 of 173 reversed, and in 23 more
-  its reading of which times work no longer matched code (those go to Glimmer). `a2a/talk.js` ownOrder (A2A_SHUFFLE=1)
-  gives each member's models an order of its own, matched back by id; it stays off, since no order kept preferences
-  better, and the host's order is its best guess for the group. The decider's letters are not used as soft labels.
-- **A second round when no time works for everyone.** `a2a/stretch.js` (A2A_STRETCH=off for the talk as it was), after
-  CalBench (graded costs beat yes or no): with shared calendars, when the sets do not meet, each member's agent marks
-  the listed times its member could make by stretching one of its own limits, as far as it allowed (rules.stretch:
-  minutes past endBy, before notBefore, over maxTrip; never the calendar, other games or days off), by code; your agent
-  takes the time whose largest stretch, counting what each member stretched in the last 60 days, is smallest.
-  Simulated club, code only (`test/stretch_sim.mjs`, `submission/results/stretch.json`, half the members allowing a
-  stretch, an assumption): requests with no common time 4.4% of singles and 15.9% of doubles; games found 95.6% to
-  95.9% (singles) and 84.1% to 85.4% (doubles); with everyone allowing it 96.5% and 85.8%. Small, because most of those
-  requests fail on a day off or the calendar, which do not stretch. The burden ledger is unit-tested only: no game in
-  the simulated season needed a stretch.
-- **Courts near you, judged ahead.** `club/places.js` (PLACES_SPECULATE=off to turn it off), after Speculative Actions:
-  a place's verdict is kept for an hour by the facts it was judged on (in memory only, as Google's terms ask for
-  reviews), a judging still running is joined, English names are kept with the map, and after a search the same places
-  are judged for the hour after and the hour before as background work. For real on the RTX 3090 (4 cities, OpenStreetMap
-  and Open-Meteo, no Google key; `test/places_ahead_eval.mjs`, `submission/results/places_ahead.json`): when the person
-  moved the time an hour after 20 s, the search took 25.7 s instead of 49.0 s on average; Muse Glimmer judged 80 times
-  instead of 40, the price of guessing (the hour before was never asked for). Four searches each, on a shared GPU, so
-  the times are rough.
-- **A tiny layer in front of the 1B and Glimmer** (`agents/tiny.js`, on, A2A_TINY=off to turn it off; `feed/moderation.js` prefilter,
-  FEED_TINY=1, off). Classifiers of 28 KB and 87 KB in plain JS, each with a doubt model that predicts when it
-  would disagree with Glimmer. Times: four small MLPs over facts code holds per option (weekday, hour, trip, distance
-  from the asked time, list position, the member's habits and rules), trained on the student's 4,868 Glimmer choices;
-  0.06 ms a choice on one CPU thread. Over all held-out cases it agrees with Glimmer 88.5% on the test set (student 89.5%,
-  Glimmer with itself 88.8%) and 69.4% on the decider's cases (student 63.3%, Glimmer 73.5%). At the served threshold it
-  answers 59.8% of the test choices with 4.3% disagreement among them, and 14.3% of the decider's with 3.6%: it saves
-  299 of 500 and 28 of 196 student calls but only 5 and 1 Glimmer calls, since the student already answers what it is
-  sure of. Conformal risk control's point (5% over all cases) answers more (82.4%, 35.2%) at 5.9% and 11.6% among them;
-  no threshold could be certified at 5% among answered cases. Feed: hashed n-grams, int8 logistic regression, rules for
-  lookalike letters and hidden characters first; 0.03 ms a comment. On held-out synthetic comments (unseen attack
-  templates and disguises; simulated, labeled by Prompt Guard 2, Llama Guard 3 and Glimmer's feed.standard) it passed 0
-  of 762 hostile or injected ones but only 30 of 271 ordinary ones (none in English), so it saves little.
-  `docs/tiny_models.md`, `submission/results/tiny.json`
-- **A 1B distilled for short text** (`distill/text_*`, `submission/results/text1b.json`). Glimmer answered 1,039
-  synthetic inputs through the real call sites. That gave 858 training and 166 held-out answers, held out by input source.
-  Llama 3.2 1B Instruct got a LoRA SFT on them, plus 371 copies with injected or obfuscated text that keep Glimmer's
-  answer to the clean text, plus a KL term toward Glimmer's verdict logprobs at `feed.standard` and `places.judge`.
-  On the 1B route, outside text now goes in an `input` message of its own (`llm.js`). Held-out agreement with Glimmer
-  went up from the old `serve-1b` to the new model: `answer.learn` 0/30 to 30/30, `feed.standard` 13/23 to 23/23,
-  `places.judge` 9/20 to 15/20, `life.read` 0/59 to 34/59. On a new set of 446 attacks whose templates never appeared
-  in training, it passed 8 of 71 hostile comments (Glimmer 0, old 1B 65). Poisoned reviews turned 7 of 180 bad courts
-  "good" (Glimmer 5, old 1B 98). With every short site on it, the end-to-end test passed. Both red teams failed only
-  the flood check, because it called "Free shuttles number 3" spam; without `feed.standard` they pass 13/13 and 93/93.
-  SecAlign++ DPO after the SFT cut injected passes (5 to 2 of 71) but blocked 8 of 32 ordinary comments and lowered
-  agreement everywhere, so it is not used. An importance matrix and Q5_K_M did not help consistently. Recommended:
-  add `answer.learn` to the five sites. The others are not ready yet: `places.judge` (verdict 15/20), `memory.update`,
-  `life.read` and `loop.paraphrase` held-out agreement is too low, `answer` and `body.summary` got too few labels, and
-  `feed.standard` fails.
-
-## What is where
-
-| Folder | What it holds |
-|:---|:---|
-| `web/` | React + Three.js + Vite app; laptop, tablet and phone layouts; light and dark |
-| `agent/` | Node gateway, one folder per concern under `agent/src/` (below), with its tests and evals in `agent/test/` |
-| `agent/src/server.js` | The entry point: HTTP API, the Messenger webhook, the members' A2A agents and the timers |
-| `agent/src/core/` | The model client (`llm.js`), the token ledger, traces, schemas, the player store, JSON files on disk, auth, crash points, shared-file downloads |
-| `agent/src/safety/` | Llama Guard and Prompt Guard, LlamaFirewall's goal check, privacy, disclosure, number attribution |
-| `agent/src/agents/` | The player's agent and its helpers: the answer, the Autopilot and its journal, "want a game?", the decider and the student model |
-| `agent/src/a2a/` | Agent to agent: the talk, the A2A client and server, peer gateways |
-| `agent/src/match/` | Matchmaking: the likelihood bands, ranking, records and retraining |
-| `agent/src/loop/` | The community loop: signals, proposals, review, flags, gates and the builder |
-| `agent/src/feed/` | The club feed made by agents and people |
-| `agent/src/club/`, `body/`, `memory/`, `media/`, `channels/` | The club, Play, booking and courts near you; the body log and health import; memory by meaning; highlights, photos and voice; Messenger and the app's routes |
-| `distill/` | The decision model's distillation (the served Llama 3.2 1B student, and a 3B option) and its CPU worker |
-| `ops/start.sh`, `serve.sh`, `guard.sh`, `watch.sh`, `up.sh` | Start Muse Glimmer (Ollama, GPU 1, port 11435), Llama Guard 3 (Ollama, CPU, port 11436) and the gateway (port 8790) on the GPU server, with a watchdog |
-| `video/` | The demo video pipeline (recording, narration, assembly), the sample health export (`sample_health.py`), and `video/pose/` (Sapiens2, SAM 2.1, DETR; orbit replays with MapAnything) |
-| `agent/src/members/` | Members and their own agents: sign-in, agent keys and the signed agent channel; games the agents work out together (`huddle.js`), how a member likes to play (`taste.js`), courts, quiet hours and venue prices (`deals.js`), the trust chain (`trust.js`), and the way in for agents (`discovery.js`: `/llms.txt`, the Agent Card, OpenAPI) |
-| `submission/agent_testing.md`, `submission/agent_trial*/` | The 25 rounds of AI-agent testing: every tester's report and each round's request log |
-| `submission/` | The technical report, project description, architecture, cover, screenshots, evaluation reports and the raw results (`submission/results/`) |
-
-## Running it
-
-On the GPU server (Linux, NVIDIA GPU with 24 GB, Node.js 20+, Python 3), `ops/start.sh` expects this layout:
-`agent/` from the repository, `pose/` (the contents of `video/pose/`), and `ollama/serve.sh` and `ollama/guard.sh` (from
-`server/`). It starts Ollama on :11435, with a 16,384-token context and 4 requests in parallel, Llama Guard 3 on a
-CPU-only Ollama on :11436, and the gateway on :8790.
+**Offline tests, no model or GPU** (Node.js 20+):
 
 ~~~sh
-mkdir -p serve/ollama serve/pose && cd serve        # any folder on the server
-cp -r <repo>/agent . && cp -r <repo>/video/pose/* pose/ && cp <repo>/server/{serve,guard}.sh ollama/ && cp <repo>/server/{start,watch,up}.sh .
-(cd agent && npm install)
-./ollama/serve.sh &                                    # or let up.sh start it
-OLLAMA_HOST=127.0.0.1:11435 ollama pull muse-glimmer   # Meta's open-weights model, about 17 GB at Q4
-./up.sh                                                # watchdog: keeps Ollama on :11435 and the gateway on :8790 running
+cd agent && npm install && npm test
 ~~~
 
-For the web app, on your own computer:
+The last saved run is in `submission/results/unit.log`; a few tests need Linux tools (`flock`) and skip elsewhere.
+`npm run test:crash` runs the crash matrix against a stand-in model.
+
+**The web app**, on your own computer:
 
 ~~~sh
 cd web && npm install
-npm run dev            # serves the app at http://127.0.0.1:5191
+npm run dev            # http://127.0.0.1:5191
 ~~~
 
-`web/.env.local` sets `VITE_AGENT_URL` to the gateway and `VITE_AGENT_TOKEN` to its token. `agent/.env` sets:
-- `AGENT_TOKEN`, the gateway's token, which every API call and every request to a member's agent needs;
-- optionally, `GOOGLE_MAPS_API_KEY` (Places API, for reviews);
-- the Messenger Page: `MESSENGER_PAGE_TOKEN`, `MESSENGER_APP_SECRET`, `MESSENGER_VERIFY_TOKEN`;
-- to run on the Meta Model API instead: `LLM_URL=https://api.meta.ai/v1`, `LLM_MODEL` and `MODEL_API_KEY`.
+`web/.env.local` sets `VITE_AGENT_URL` (the gateway) and `VITE_AGENT_TOKEN` (its token).
 
-Every other setting is in `agent/.env.example`.
+**The server side** needs Linux, an NVIDIA GPU with 24 GB, Node.js 20+ and Python 3. `ops/start.sh` goes in the
+deployment's root beside `agent/`, `ollama/` (with `ops/serve.sh` and `ops/guard.sh`) and `video/`, and starts Muse
+Glimmer on its own Ollama (GPU 1, port 11435), Llama Guard 3 1B on a CPU Ollama (port 11436) and the gateway (port
+8790); `ops/up.sh` keeps them running.
 
-Voice notes need Omnilingual ASR in its own Python environment on the server (`pip install omnilingual-asr`). Point
-`ASR_PYTHON` at it.
+~~~sh
+mkdir -p serve/ollama && cd serve
+cp -r <repo>/agent <repo>/video . && cp <repo>/ops/{serve,guard}.sh ollama/ && cp <repo>/ops/{start,up,watch}.sh .
+(cd agent && npm install)
+./start.sh                                             # Glimmer's Ollama, Llama Guard's Ollama and the gateway
+OLLAMA_HOST=127.0.0.1:11435 ollama pull muse-glimmer   # Meta's open-weights model
+OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
+./up.sh                                                # watchdog: keeps them running
+~~~
 
-The guards and memory run on the server's CPU:
-- Llama Guard 3 1B on its own Ollama, CPU only, on :11436 (`ops/guard.sh`, which `start.sh` runs;
-  `OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b`).
-- Prompt Guard 2 86M (`meta-llama/Llama-Prompt-Guard-2-86M`, gated on Hugging Face) and DRAMA (`facebook/drama-base`)
-  through Hugging Face Transformers in a Python environment, from the local Hugging Face cache.
-- When a guard is down, chat goes on without it and counts the skipped checks; the community loop holds shared ideas
-  until the guards it requires (`LOOP_GUARDS`) answer.
+- `agent/.env` sets `AGENT_TOKEN` (every API call needs it), optionally `GOOGLE_MAPS_API_KEY`, the Messenger Page
+  settings, and, to use the Meta Model API instead of the local model, `LLM_URL`, `LLM_MODEL` and `MODEL_API_KEY`.
+  Every setting is listed in `agent/.env.example`. Never commit `.env`.
+- Prompt Guard 2 (`meta-llama/Llama-Prompt-Guard-2-86M`, gated on Hugging Face) and DRAMA (`facebook/drama-base`)
+  run through Hugging Face Transformers on the CPU. Reels need a Python with torch and transformers (`REEL_PYTHON` in
+  `start.env`). Voice notes need Omnilingual ASR (`ASR_PYTHON`).
+- The distilled decision model is served by `distill/serve.sh` (llama-cpp-python, CPU); the text 1B by
+  `distill/Modelfile.serve-1b-text` on Glimmer's Ollama.
+- The evaluations that need Muse Glimmer run from `agent/`: `node test/e2e.mjs`, `node test/redteam.mjs`,
+  `node test/autopilot_eval.mjs`, `node test/loop_eval.mjs`, and the others listed in
+  [submission/results/README.md](submission/results/README.md).
 
-The tests and evaluations run from `agent/`. Two need no model or GPU:
-- `npm test` runs 25 suites, 275 tests <!-- COUNT -->: `test/unit.mjs` (the schemas, the rule checks, the scoring
-  rules, the token, file fetching, the stores, routing, holds, signed cards and the guards' parsing), the decision tiers'
-  `decider_unit.mjs` and `student_unit.mjs`, the community loop's `loop_unit.mjs`, `loop_ship_unit.mjs`,
-  `loop_anytime_unit.mjs`, `loop_signals_unit.mjs` and `loop_builder.mjs`, matchmaking's `match_unit.mjs`, and
-  `feed_unit.mjs`, `webfeat_unit.mjs`, `durable_unit.mjs`, `a2a_peer_unit.mjs`, `align_unit.mjs`, `privacy_unit.mjs`,
-  `memory_update_unit.mjs` and `sim_users_unit.mjs`. The builder's lock test needs `flock`, so it runs on Linux only.
-- `npm run test:crash` runs the crash matrix against a stand-in model.
+## Repository map
 
-The rest need Muse Glimmer on the server. `test/e2e.mjs` also needs Omnilingual ASR for its voice note, Llama Guard
-for its safety checks, and Python 3 for the health export:
-- `node test/e2e.mjs`
-- `node test/a2a_resume.mjs`
-- `node test/redteam.mjs` and `node test/loop_redteam.mjs`
-- `node test/autopilot_eval.mjs`
-- `node test/scale_eval.mjs`
-- `node test/persona_eval.mjs`
-- `node test/private_eval.mjs`, `node test/memory_eval.mjs`, `node test/guard_eval.mjs`
-- `node test/loop_eval.mjs` (the community loop on a simulated club) and `node test/loop_builder_bench/run.mjs`
-- `node test/match_eval.mjs` and `node test/match_messenger.mjs` (matchmaking); `node test/matchplan/likely_sim.mjs`
-  needs only the CPU
+| Path | What it holds |
+|---|---|
+| `web/` | React + Three.js + Vite app; phone, tablet and laptop layouts; light and dark |
+| `agent/src/server.js` | The gateway: HTTP API, Messenger webhook, members' A2A agents, timers |
+| `agent/src/a2a/` | Agent to agent: the talk, A2A client and server, holds, peer gateways |
+| `agent/src/agents/` | The player's agent and its helpers: the planner, "want a game?", the decider, the student, the tiny layer |
+| `agent/src/match/` | Ranking, value of information, likelihood bands, confirmations |
+| `agent/src/members/` | Members and their own agents: agent keys, the signed agent channel, `huddle.js`, the trust chain, `/llms.txt` |
+| `agent/src/club/` | The club, Play (`play.js`, with `inviteDraft`), booking, courts near you |
+| `agent/src/body/` | Pace: training load from a health-app export, turned into scheduling limits |
+| `agent/src/loop/` | The community loop: signals, proposals, review, flags, gates, the builder |
+| `agent/src/safety/` | Llama Guard, Prompt Guard, LlamaFirewall's goal check, privacy, disclosure |
+| `agent/src/core/` | The model client and router (`llm.js`), token ledger, traces, schemas, stores |
+| `agent/src/feed/`, `memory/`, `media/`, `channels/`, `voice/` | Club feed, memory by meaning, reels/photos/voice notes, Messenger, live voice |
+| `agent/test/` | Unit tests, end to end, red team, crash matrix, evaluations |
+| `distill/` | Both distilled 1B models: teacher runs, training, export, CPU worker; the tiny layer |
+| `ops/` | Start scripts for the GPU server |
+| `video/pose/` | Reels: RT-DETR/DETR, Sapiens2, SAM 2.1, MapAnything replays |
+| `docs/` | Design and measurement notes per part; `docs/readme/` holds this page's images |
+| `submission/` | Technical report, slides, architecture, screenshots, agent testing, raw results (`submission/results/`) |
 
-## Not in this repository
+## Limitations
 
-These are not ours to publish: the Whisper model files (`web/public/models/`). Download them from the sources under Credits.
+- **Most validation is simulated.** Beyond one real club and two games, the evidence comes from AI agents, simulated
+  members and local copies. Timings such as the 7 ms card were measured on a local copy, not the live site.
+- **The slow path still exists.** When the small models are unsure, Glimmer takes about 20 to 40 s. The person sees
+  the steps stream in and a moving status line, but it is still a wait.
+- **Venues are samples.** No venue has joined yet, so quiet-hour prices are sample prices.
+- **The community loop has not run on real members.** An idea shows only once 5 different members ask for it, so with
+  one small real club it has run on a simulated club so far.
+- **3D replays are short.** Only arcs of about ±6 to 12° look right; otherwise Serve falls back to a zoom.
+- **The guards are one layer among several**, measured on small sets of our own messages, mostly in English.
+- **DRAMA's weights are CC BY-NC 4.0**, so memory and the loop's grouping would need another embedder for commercial
+  use.
 
-## Where the prototype stands
+## Roadmap
 
-- The club, its members, venues, prices and free times are demo data. Courts and parks are real places from
-  OpenStreetMap; the demo town is placed on Taipei so they are real.
-- The sample health export is made up and labelled as a sample.
-- The body log records what you say and plans games around it. It is not a medical assessment.
-- pass^3 = 1.0 counts a run whether the model or the rules finished the plan; in 1 of the 3 three-game runs the
-  rules finished it. Counting only runs the model finished, 7 of 8 weeks passed every time.
-- Of the 93 attacks <!-- COUNT -->, two put an attack in front of Muse Glimmer and three pass through the guard models as well; the
-  others test a layer in code.
-- Matchmaking is measured on simulated members only. Its bands come from demo and simulated members' records, and the
-  model is trained on simulated logs; real players can opt in, but none has yet.
-- The community loop's numbers come from a simulated club: members and requests generated by code (seed 7). The
-  pipeline, gates and rollback are real. The Ideas tab and the maintainer page show sample data unless `?loop=live`.
-- The guards are one layer among several, measured on small sets of our own messages, mostly in English.
-- The one-pass decider is on, keeping only the picks it is sure of (`A2A_DECIDER=off` turns it off). Orbit replays are an optional
-  camera effect, chosen only for short arcs; most moments get a zoom instead.
-- DRAMA's weights are CC BY-NC 4.0, so memory and the loop's grouping would need another embedder for commercial use.
-- Private calendars (`A2A_PRIVATE=1`) are private in the talk only: the Match helper and the Autopilot still read the
-  club's shared calendars.
-- A member's agent holds an agreed time for 30 minutes. For a plan left longer, the booking checks again: nobody is
-  booked into two games, but the player may have to pick again ([docs/security.md](docs/security.md)).
+1. **Venues join:** real quiet-hour prices replace the sample prices.
+2. **More real clubs:** beyond one club, most evidence is still agents and simulation.
+3. **The community loop on real members.**
+4. **Less waiting:** move more of Glimmer's 20 to 40 s path to the small models.
+5. **Longer reels:** 3D replays beyond today's ±6 to 12°.
 
-## Credits and licenses
+![9 days of real-world traction, and the road to production](docs/readme/slide_traction_roadmap.png)
 
-Serve's own code is under the [MIT License](LICENSE). The models, libraries and assets it uses keep their own
-licenses, listed in [CREDITS.md](CREDITS.md) and below.
+---
 
-- Pose, outlines and detection: [Sapiens2](https://huggingface.co/facebook/sapiens2-pose-0.4b) (Meta, Sapiens2
-  License), [SAM 2.1](https://huggingface.co/facebook/sam2.1-hiera-large) (Meta, Apache 2.0),
-  [DETR](https://huggingface.co/facebook/detr-resnet-50) (Meta, Apache 2.0), or optionally
-  [RT-DETRv2](https://huggingface.co/PekingU/rtdetr_v2_r50vd) (Apache 2.0), through Hugging Face Transformers
-  (Apache 2.0).
-- Orbit replays: [MapAnything](https://huggingface.co/facebook/map-anything-apache) (Meta, the Apache 2.0 weights),
-  with SAM 2.1 as a video tracker. Its footage is credited in `CREDITS.md`.
-- Guards: [Llama Guard 3 1B](https://huggingface.co/meta-llama/Llama-Guard-3-1B) (Meta, Llama 3.2 Community License,
-  through Ollama as `llama-guard3:1b`) and [Prompt Guard 2 86M](https://huggingface.co/meta-llama/Llama-Prompt-Guard-2-86M)
-  (Meta, Llama 4 Community License).
-- Memory and the loop's grouping: [DRAMA](https://huggingface.co/facebook/drama-base) (Meta, CC BY-NC 4.0).
-- Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL), through the Overpass API
-  and Nominatim. Forecasts: [Open-Meteo](https://open-meteo.com) (CC BY 4.0). Reviews: Google Maps (Places API),
-  shown with their authors and not stored.
-- Agent to agent: the [A2A JavaScript SDK](https://github.com/a2aproject/a2a-js) (`@a2a-js/sdk`, Apache 2.0).
-  Traces: [OpenTelemetry JS](https://github.com/open-telemetry/opentelemetry-js) (Apache 2.0). HTTP: Express (MIT).
-- Speech: [Omnilingual ASR](https://github.com/facebookresearch/omnilingual-asr) (Meta, Apache 2.0).
-- The 3D body: BodyParts3D 4.0 (© The Database Center for Life Science, under CC BY 4.0), adapted through
-  [Human Atlas](https://github.com/ashemag/human-atlas), which is MIT-licensed.
-- Voice in the web app: Whisper tiny (Xenova ONNX), in the browser.
-- The full list, with licenses: `CREDITS.md`.
+## Where the numbers come from
+
+Every number on this page comes from [submission/technical_report.md](submission/technical_report.md),
+[submission/agent_testing.md](submission/agent_testing.md), the raw files in `submission/results/`, the notes in
+`docs/` or the technical slides. Main sources: the student in `docs/decision_model.md`; the decider in
+`docs/decider.md`; A2A and holds in `contention_eval.json`; the value of information in `voi_sim.json` and
+`pref_share.json`; the time order in `rank_calls.json`; the loop in `loop_eval.json`; 3D replays in
+`submission/results/orbit/`; the tiny layer in `tiny.json`; the text 1B in `text1b.json`; the order test in
+`order_sensitivity.json`; the planner in `submission/agent_eval.md`.
+
+## Credits and license
+
+Serve's own code is under the [MIT License](LICENSE). The models, libraries and data it uses keep their own licenses,
+listed in [CREDITS.md](CREDITS.md): among them Muse Glimmer (Apache 2.0), Llama 3.2 and Llama Guard 3 (Llama 3.2
+Community License), Prompt Guard 2 (Llama 4 Community License), SAM 2.1, DETR, MapAnything (Apache 2.0 weights),
+Omnilingual ASR (Apache 2.0), Sapiens2 (Sapiens2 License), DRAMA (CC BY-NC 4.0), the A2A JavaScript SDK (Apache 2.0),
+map data © OpenStreetMap contributors (ODbL) and forecasts from Open-Meteo (CC BY 4.0). The highlight clip shown above
+is from Badminton klub Ljubljana (CC BY 3.0).
+
+Key references (full list in the [technical report](submission/technical_report.md#references)): the A2A Protocol
+v1.0; Smith, The Contract Net Protocol (1980); Gray and Cheriton, Leases (1989); FrugalGPT (2023); DEER (2025);
+Ramdas et al., Safe Anytime-Valid Inference (2023); Lalley and Weyl, Quadratic Voting (2018); LlamaFirewall (2025);
+Meta, Agents Rule of Two (2025); MapAnything (2025); SAM 2 (2024); RT-DETR (2024).
