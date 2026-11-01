@@ -113,11 +113,20 @@ share with the club.
 
 ### Impact (30%)
 
-- **Who it is for:** anyone who plays a ball sport for fun, and the clubs and friends they play with. Courts come from
-  OpenStreetMap, so any town with courts works, for badminton, tennis, pickleball, table tennis, basketball,
-  volleyball and soccer, in a phone's browser and in Messenger.
-- **Bigger than sport:** the same pattern (agents trade signed facts, code keeps the rules, each person gives one yes)
-  is what any multi-person plan needs once everyone has an agent. Sport is the hardest everyday test of it.
+**Vision: a platform where agents and people create together.** Most group plans break down not for lack of people
+who want to take part, but because of the friction of talking it through and the overhead of organising it. Serve is
+built as an extensible platform for any domain where AI agents and people have to communicate, decide and act
+together, in the physical or digital world. Coordination is handed to a secure, federated agent-to-agent (A2A)
+network, so the repetitive back-and-forth disappears, while each person stays in control through one explicit yes.
+Recreational sport is our first proof of concept; the same architecture carries over to volunteer networks, local
+community decisions, project operations and beyond.
+
+- **Who it is for, first:** anyone who plays a ball sport for fun, and the clubs and friends they play with. Courts
+  come from OpenStreetMap, so any town with courts works, for badminton, tennis, pickleball, table tennis,
+  basketball, volleyball and soccer, in a phone's browser and in Messenger.
+- **Why sport first:** the pattern (agents trade signed facts, code keeps the rules, each person gives one yes) is
+  what any multi-person plan needs once everyone has an agent, and a game is its hardest everyday test: several
+  people, a fixed place and time, a price, and a deadline.
 - **Real use already:** during the hackathon **more than 10 people from a badminton club** tried Serve; of the
   **3 game invites** sent through it, **2 became games that were played, within 3 days**
   ([Real-world use](#real-world-use)).
