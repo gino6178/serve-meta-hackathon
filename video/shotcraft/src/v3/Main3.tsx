@@ -16,6 +16,7 @@ import { TitleCard, TITLE_DURATION } from './TitleCard';
 import { MetaStack, META_MIN } from './MetaStack';
 import { A2ACallout } from './A2ACallout';
 import { VoiPage, VOI_DURATION } from './VoiCallout';
+import { VenueDeal, VENUE_MIN } from './VenueDeal';
 import { Text1B, TEXT1B_MIN } from './Text1B';
 import { OpenDoor, OPEN_DOOR_MIN } from './OpenDoor';
 import { Reel, REEL_MIN } from './Reel';
@@ -31,14 +32,14 @@ const fit = (k: string, min: number) => Math.max(min, LEAD + voF(k) + TAIL);
 // the live block: the local copy (ask, link, gameon: scripts/record_live.mjs against the server's own models) and the
 // first film's plan and Messenger recordings
 export const LIVE3: Seg[] = [
-  { src: 'v3/ask', from: 11.3, to: 19.5, caption: 'One sentence to your agent: "Badminton Tuesday evening, need 1"', model: 'Code reads the day and the nearest court · no model', zoom: { x: 0, y: 260, s: 1.32 } },
+  { src: 'v3/ask', from: 12.0, to: 19.5, caption: 'One sentence to your agent: "Badminton Tuesday evening, need 1"', model: 'Code reads the day and the nearest court · no model', zoom: { x: 0, y: 260, s: 1.32 } },
   { src: 'v3/ask', from: 19.5, to: 46.5, rate: 13.5, label: '', caption: 'Checked before anyone sees it', model: 'Llama Guard 3 · Prompt Guard 2', zoom: { x: 0, y: 260, s: 1.32, now: true } },
   { src: 'v3/ask', from: 46.5, to: 49.5, caption: 'Posted. Share the link to any group chat.', zoom: { x: 0, y: 260, s: 1.32, now: true } },
-  { src: 'v3/link', from: 1.0, to: 11.5, rate: 2, label: '', caption: 'A friend with no account: the link opens, one sign-in, he is in', who: 'friend' },
+  { src: 'v3/link', from: 1.0, to: 11.5, rate: 2.5, label: '', caption: 'A friend with no account: the link opens, one sign-in, he is in', who: 'friend' },
   { src: 'v3/gameon', from: 2.6, to: 6.0, caption: '"Game on." The spot is taken: Leo', zoom: { x: 420, y: 280, s: 1.9 } },
   { kind: 'bumper', src: '', from: 0, to: 1.5, num: '2', title: 'Agents negotiate. You say yes once.', sub: "Every player's agent, over A2A v1.0", caption: 'A2A' },
   { src: 'plan', from: 4.5, to: 8.5, caption: 'One tap: let your agent plan the week', zoom: { x: 1560, y: 0, s: 1.22 } },
-  { src: 'plan', from: 10.0, to: 104.0, rate: 16, label: '', caption: "Each member's agent answers: signed facts, never free text", model: 'Signed Agent Cards ✓ · our 1B, or Glimmer when unsure', zoom: { x: 1560, y: 864, s: 1.22 } },
+  { src: 'plan', from: 10.0, to: 104.0, rate: 22, label: '', caption: "Each member's agent answers: signed facts, never free text", model: 'Signed Agent Cards ✓ · our 1B, or Glimmer when unsure', zoom: { x: 1560, y: 864, s: 1.22 } },
   { src: 'plan', from: 104.0, to: 112.8, rate: 2.6, label: '', caption: 'Every agent agreed. Held for you; nothing is booked without your yes.' },
   { src: 'msgbook', from: 0.5, to: 9.0, rate: 1.13, label: '', caption: 'Your agent asks first, in Messenger: one tap, and it is booked', model: 'Muse Glimmer · your agent in Messenger' },
 ];
@@ -74,7 +75,7 @@ const SafetyLoop: React.FC = () => (
     <Sequence from={SAFETY_DURATION}><Evolves statAt={326 - SAFETY_DURATION} /></Sequence>
   </AbsoluteFill>
 );
-const OUTRO_HOLD = 30;
+const OUTRO_HOLD = 15;
 const OutroHeld: React.FC = () => {
   const p = { line1: 'Built Oct 27 – Nov 4, 2026 · github.com/gino6178/serve-meta-hackathon', line2: 'Try it: play.theminimallab.com' };
   return (
@@ -93,13 +94,14 @@ const ORDER: [string, React.FC<any>, number][] = [
   ['intro', WhatServe, fit('intro', WHAT_MIN)],
   ['live', Live, LIVE_DUR],
   ['voi', VoiPage, VOI_DURATION],
+  ['venue', VenueDeal, fit('venue', VENUE_MIN)],
   ['door', OpenDoor, fit('door', OPEN_DOOR_MIN)],
   ['reel', Reel, fit('reel', REEL_MIN)],
   ['tiers', Tiers, fit('tiers', TIERS_MIN)],
   ['text1b', Text1B, fit('text1b', TEXT1B_MIN)],
   ['meta', MetaStack, fit('meta', META_MIN)],
   ['guard', Guard, fit('guard', GUARD_MIN)],
-  ['swarm', SwarmV3, fit('swarm', 420)],
+  ['swarm', SwarmV3, fit('swarm', 395)],
   ['safety', SafetyLoop, fit('safety', SAFETY_DURATION + LOOP)],
   ['outro', OutroHeld, OUTRO_DURATION + OUTRO_HOLD],
 ];
@@ -114,7 +116,7 @@ export const TOTAL3 = SHOTS3.outro.from + SHOTS3.outro.dur;
 const S = SHOTS3;
 const START: Record<string, number> = {
   island: S.island.from + LEAD + 10, intro: S.intro.from + LEAD, sentence: S.live.from + 14, sentence2: S.live.from + SEG.link + 6,
-  a2a: S.live.from + SEG.bumper + 12, messenger: S.live.from + SEG.msg + 4, door: S.door.from + LEAD, reel: S.reel.from + LEAD,
+  a2a: S.live.from + SEG.bumper + 12, messenger: S.live.from + SEG.msg + 4, venue: S.venue.from + LEAD, door: S.door.from + LEAD, reel: S.reel.from + LEAD,
   tiers: S.tiers.from + LEAD, text1b: S.text1b.from + LEAD, meta: S.meta.from + LEAD, guard: S.guard.from + LEAD, swarm: S.swarm.from + LEAD + 20, safety: S.safety.from + LEAD, outro: S.outro.from + 40,
 };
 
@@ -126,12 +128,12 @@ export const SFX3: Cue[] = [
   { from: S.island.from + 210, src: 'whoosh-fast', volume: 0.3, note: 'the group chat' },
   { from: S.intro.from, src: 'transition-soft', volume: 0.4, note: 'what Serve is' },
   { from: S.intro.from + 46, src: 'swoosh-quick', volume: 0.32, note: 'the Serve box' },
-  { from: S.intro.from + 120, src: 'pop', volume: 0.3, note: 'signed facts travel' },
-  { from: S.intro.from + 160, src: 'pop', volume: 0.32, note: 'the best court' },
-  { from: S.intro.from + 208, src: 'pop', volume: 0.36, note: 'held' },
-  { from: S.intro.from + 262, src: 'switch-click-quick', volume: 0.4, note: 'one yes' },
-  ...[0, 1, 2, 3].map((i) => ({ from: S.intro.from + 292 + i * 4, src: 'pop', volume: 0.24, note: `key ${i + 1}` })),
-  { from: S.intro.from + 312, src: 'swoosh-quick', volume: 0.34, note: 'every message and reply' },
+  { from: S.intro.from + 203, src: 'pop', volume: 0.3, note: 'signed facts travel' },
+  { from: S.intro.from + 282, src: 'pop', volume: 0.32, note: 'the best court' },
+  { from: S.intro.from + 228, src: 'pop', volume: 0.36, note: 'held' },
+  { from: S.intro.from + 305, src: 'switch-click-quick', volume: 0.4, note: 'one yes' },
+  ...[0, 1, 2, 3].map((i) => ({ from: S.intro.from + 327 + i * 4, src: 'pop', volume: 0.24, note: `key ${i + 1}` })),
+  { from: S.intro.from + 345, src: 'swoosh-quick', volume: 0.34, note: 'every message and reply' },
   { from: S.live.from, src: 'transition-snap', volume: 0.42, note: 'the frame grows' },
   { from: S.live.from + 18, src: 'keyboard', volume: 0.26, dur: 30, note: 'the sentence typed' },
   { from: S.live.from + SEG.link, src: 'switch-click-quick', volume: 0.5, note: "to the friend's phone" },
@@ -144,12 +146,16 @@ export const SFX3: Cue[] = [
   { from: S.door.from + 214, src: 'switch-click-quick', volume: 0.55, note: '403 lands' },
   { from: S.door.from + 250, src: 'swoosh-quick', volume: 0.35, note: 'the friends card' },
   { from: S.reel.from, src: 'transition-soft', volume: 0.38, note: 'into the reel' },
-  { from: S.reel.from + 100, src: 'whoosh-fast', volume: 0.3, note: 'the clip' },
+  { from: S.reel.from + 80, src: 'whoosh-fast', volume: 0.3, note: 'the clip' },
   { from: S.cover.from + 12, src: 'whoosh-fast', volume: 0.3, note: 'the mark draws' },
   ...[110, 182, 264, 323].map((o, i) => ({ from: S.tiers.from + o, src: 'swoosh-quick', volume: 0.3, note: `tier ${i + 1}` })),
   { from: S.text1b.from, src: 'transition-soft', volume: 0.34, note: 'the text 1B' },
   ...[116, 209].map((o, i) => ({ from: S.text1b.from + o - 10, src: 'swoosh-quick', volume: 0.3, note: `attack group ${i + 1}` })),
   { from: S.voi.from, src: 'swoosh-quick', volume: 0.34, note: 'the question worth most' },
+  { from: S.intro.from + 113, src: 'pop', volume: 0.3, note: 'who to ask' },
+  { from: S.intro.from + 250, src: 'pop', volume: 0.3, note: 'the venue agent' },
+  { from: S.venue.from, src: 'transition-soft', volume: 0.34, note: 'the venue page' },
+  { from: S.venue.from + 60, src: 'swoosh-quick', volume: 0.3, note: 'who pays what' },
   { from: S.safety.from + 326, src: 'pop', volume: 0.36, note: 'false rollbacks' },
   { from: S.meta.from, src: 'transition-soft', volume: 0.34, note: 'built on Meta' },
   ...[0, 1, 2, 3].map((i) => ({ from: S.meta.from + 14 + i * 26, src: 'swoosh-quick', volume: 0.26, note: `column ${i + 1}` })),

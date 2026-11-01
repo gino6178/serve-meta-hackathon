@@ -6,7 +6,7 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
-export const ISLAND_MIN = 285;
+export const ISLAND_MIN = 270;
 const L = LOOKS.serve, GREEN = L.accent, RED = '#d1352b';
 const PEOPLE = [{ n: 'Ana', c: '#f2c6a0' }, { n: 'Leo', c: '#b9d4f0' }, { n: 'Sam', c: '#c9e4c5' }, { n: 'Mia', c: '#ead0ec' }];
 const PX = (i: number) => 360 + i * 400, PY = 640, AY = 360;

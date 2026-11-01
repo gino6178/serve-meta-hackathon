@@ -5,7 +5,7 @@
  },
  {
   "key": "intro",
-  "text": "So I built Serve, where personal agents negotiate real-world games together. Your agent finds nearby players and the best court between you, settles the time with their agents, and asks you for one yes. Every agent carries a signed credential, every yes is signed into a hash chain, and you can read every message and reply."
+  "text": "So I built Serve, which takes over every tedious step of getting a game together. Your agent asks the friends most likely to say yes, from their habits, settles the time with their agents, and haggles the court with the venue's own agent. Every agent carries a signed credential, every yes is signed into a hash chain, and you can read every message and reply."
  },
  {
   "key": "sentence",
@@ -22,6 +22,10 @@
  {
   "key": "messenger",
   "text": "And when talks stall, your agent asks first. It picks the one question worth the most: Thursday, 7 pm, Leo's agent says he's free, want a game? That one question lifts games found from 41 to 52 percent."
+ },
+ {
+  "key": "venue",
+  "text": "The venue's agent signs every quote. Each player sets the most they'll pay, and friends can chip in, so no one pays past their own limit."
  },
  {
   "key": "door",

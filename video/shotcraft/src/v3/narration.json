@@ -19,22 +19,22 @@
  {
   "key": "intro",
   "at": 0,
-  "dur": 15.092,
+  "dur": 16.258,
   "subs": [
    {
-    "text": "So I built Serve, where personal agents negotiate real-world games together.",
+    "text": "So I built Serve, which takes over every tedious step of getting a game together.",
     "start": 0.0,
-    "end": 3.525
+    "end": 3.319
    },
    {
-    "text": "Your agent finds nearby players and the best court between you, settles the time with their agents, and asks you for one yes.",
-    "start": 3.816,
-    "end": 9.288
+    "text": "Your agent asks the friends most likely to say yes, from their habits, settles the time with their agents, and haggles the court with the venue's own agent.",
+    "start": 3.61,
+    "end": 10.455
    },
    {
     "text": "Every agent carries a signed credential, every yes is signed into a hash chain, and you can read every message and reply.",
-    "start": 9.579,
-    "end": 15.092
+    "start": 10.745,
+    "end": 16.258
    }
   ]
  },
@@ -118,6 +118,23 @@
     "text": "That one question lifts games found from 41 to 52 percent.",
     "start": 7.277,
     "end": 10.315
+   }
+  ]
+ },
+ {
+  "key": "venue",
+  "at": 0,
+  "dur": 5.969,
+  "subs": [
+   {
+    "text": "The venue's agent signs every quote.",
+    "start": 0.0,
+    "end": 1.505
+   },
+   {
+    "text": "Each player sets the most they'll pay, and friends can chip in, so no one pays past their own limit.",
+    "start": 1.795,
+    "end": 5.969
    }
   ]
  },

@@ -6,7 +6,7 @@ import { EASE, FONT, mix, ramp } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage } from '../demos/_fixtures/Look';
 import { ShotcraftMark } from '../demos/_fixtures/Brand';
 
-export const TITLE_DURATION = 96;
+export const TITLE_DURATION = 78;
 const L = LOOKS.serve, GREEN = L.accent;
 const CHIPS = ['Meta Global AI Developer Hackathon 2026', 'Indie Developer', 'Build for Your World', 'Oct 27 – Nov 4'];
 

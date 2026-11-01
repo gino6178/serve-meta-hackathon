@@ -8,13 +8,15 @@ import { AbsoluteFill, useCurrentFrame } from 'remotion';
 import { EASE, FONT, mix, ramp, softShadow } from '../demos/_fixtures/Polish';
 import { LOOKS, Stage, springAt } from '../demos/_fixtures/Look';
 
-export const WHAT_MIN = 470;
+export const WHAT_MIN = 505;
 const L = LOOKS.serve, GREEN = L.accent;
 const ROW = 480, YOU = 170, MINE = 430, BOX = { x: 720, y: 230, w: 600, h: 480 }, THEIRS = 1470, FRIEND = 1730;
 const FY = [340, 480, 620];
 const NAMES = ['Leo', 'Sam', 'Mia'];
 // the intro line: what Serve is 0-4.7 s, players / court / time / yes 4.7-11.6 s, credentials and the log after
-const S2 = 120, NEAR = 125, COURT = 160, YES = 262, KEY = 292, LOG = 312;
+const WHO = 113, NEAR = 130, S2 = 203, HELD = 228, HAGGLE = 254, COURT = 282, YES = 305, KEY = 327, LOG = 345;
+const STEPS: [string, number][] = [['Who to ask', WHO], ['When', S2], ['Where', HAGGLE - 8], ['How much', HAGGLE + 14], ['One yes', YES]];
+const BANDS = ['very likely', 'likely', 'maybe'], VX = BOX.x + BOX.w / 2, VY = 800;
 
 const pop = (f: number, at: number) => ({ k: springAt(f, at, { damping: 12, stiffness: 190 }), o: ramp(f, at, 8, EASE.out) });
 const Orb: React.FC<{ x: number; y: number; at: number; agent?: boolean; label: string; r?: number }> = ({ x, y, at, agent, label, r = 56 }) => {
@@ -41,6 +43,18 @@ const Key: React.FC<{ x: number; y: number; at: number }> = ({ x, y, at }) => {
     </div>
   );
 };
+// the venue's own agent: a building in amber, under Serve
+const Venue: React.FC<{ at: number }> = ({ at }) => {
+  const f = useCurrentFrame(), { k, o } = pop(f, at);
+  return (
+    <div style={{ position: 'absolute', left: VX - 46, top: VY - 46, width: 92, textAlign: 'center', opacity: o, transform: `scale(${(0.4 + 0.6 * k).toFixed(4)})` }}>
+      <div style={{ width: 92, height: 92, borderRadius: 46, background: '#fff7e6', border: '4px solid #c98a1b', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: softShadow(10) }}>
+        <svg width={46} height={46} viewBox="0 0 24 24" fill="none" stroke="#9a5b00" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6" /></svg>
+      </div>
+      <div style={{ fontFamily: FONT.sans, fontSize: 22, fontWeight: 700, color: '#9a5b00', marginTop: 6, whiteSpace: 'nowrap', marginLeft: -80, marginRight: -80 }}>The venue's agent</div>
+    </div>
+  );
+};
 const Wire: React.FC<{ x0: number; y0: number; x1: number; y1: number; at: number }> = ({ x0, y0, x1, y1, at }) => {
   const f = useCurrentFrame(), t = ramp(f, at, 16, EASE.out);
   return <svg style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }} width={1} height={1}><line x1={x0} y1={y0} x2={mix(x0, x1, t)} y2={mix(y0, y1, t)} stroke="rgba(10,127,68,0.35)" strokeWidth={4} strokeLinecap="round" /></svg>;
@@ -56,7 +70,7 @@ const Packet: React.FC<{ x0: number; y0: number; x1: number; y1: number; at: num
 
 export const WhatServe: React.FC = () => {
   const f = useCurrentFrame();
-  const box = pop(f, 46), held = ramp(f, 208, 12, EASE.snappy), yes = springAt(f, YES, { damping: 10, stiffness: 230 });
+  const box = pop(f, 46), held = ramp(f, HELD, 12, EASE.snappy), yes = springAt(f, YES, { damping: 10, stiffness: 230 });
   const log = ramp(f, LOG, 18, EASE.snappy), dimRest = 1 - 0.3 * log;
   const rows = ['A2A v1.0 · signed Agent Cards', 'Code: hard rules, overlap, 30-min hold', 'Llama Guard 3 · Prompt Guard 2 check it all'];
   const near = ramp(f, NEAR, 14, EASE.snappy), court = ramp(f, COURT, 14, EASE.snappy);
@@ -66,7 +80,13 @@ export const WhatServe: React.FC = () => {
       <Stage look={L} keyLight={{ x: 0.5, y: 0.05 }} fill={null} grain={0.03} vignette={0.08}>
         <div style={{ position: 'absolute', left: 110, top: 64, fontFamily: FONT.sans, opacity: ramp(f, 0, 12, EASE.out) }}>
           <div style={{ fontSize: 26, fontWeight: 750, letterSpacing: '0.14em', color: GREEN }}>WHAT SERVE IS</div>
-          <div style={{ fontSize: 56, fontWeight: 800, letterSpacing: '-0.035em', color: L.ink, marginTop: 6 }}>Where personal agents negotiate real-world games</div>
+          <div style={{ fontSize: 56, fontWeight: 800, letterSpacing: '-0.035em', color: L.ink, marginTop: 6 }}>Every tedious step of a game, handled by agents</div>
+        </div>
+        <div style={{ position: 'absolute', left: 110, top: 186, display: 'flex', gap: 10, fontFamily: FONT.sans }}>
+          {STEPS.map(([t, at], i) => {
+            const on = ramp(f, at, 10, EASE.snappy);
+            return <span key={t} style={{ padding: '7px 16px', borderRadius: 999, fontSize: 21, fontWeight: 750, color: on > 0.5 ? '#ffffff' : L.ink3, background: on > 0.5 ? GREEN : '#f0f1f2', opacity: ramp(f, 4 + i * 3, 8, EASE.out), transform: `scale(${(1 + 0.08 * Math.sin(Math.PI * Math.min(1, on))).toFixed(4)})` }}>{i + 1} · {t}</span>;
+          })}
         </div>
         <div style={{ position: 'absolute', inset: 0, opacity: dimRest }}>
           <Wire x0={YOU + 56} y0={ROW} x1={MINE - 56} y1={ROW} at={24} />
@@ -80,16 +100,21 @@ export const WhatServe: React.FC = () => {
             {rows.map((t, i) => (
               <div key={t} style={{ marginTop: 14, padding: '12px 16px', borderRadius: 14, background: '#f5f5f6', fontSize: 23, fontWeight: 600, color: L.ink, opacity: ramp(f, 70 + i * 14, 10, EASE.out) }}>{t}</div>
             ))}
-            <div style={{ marginTop: 14, padding: '12px 16px', borderRadius: 14, background: '#fff7e6', color: '#9a5b00', fontSize: 23, fontWeight: 700, opacity: court, transform: `translateY(${mix(10, 0, court).toFixed(2)}px)` }}>Best court between you: NTU Gymnasium</div>
-            <div style={{ marginTop: 14, padding: '12px 16px', borderRadius: 14, background: '#e9f3ec', color: GREEN, fontSize: 24, fontWeight: 750, opacity: held, transform: `translateY(${mix(10, 0, held).toFixed(2)}px)` }}>Held: Thu 19:00 · NTU Gymnasium</div>
+            <div style={{ marginTop: 14, padding: '12px 16px', borderRadius: 14, background: '#fff7e6', color: '#9a5b00', fontSize: 23, fontWeight: 700, opacity: court, transform: `translateY(${mix(10, 0, court).toFixed(2)}px)` }}>NTU Gymnasium · NT$290, split by limits</div>
+            <div style={{ marginTop: 14, padding: '12px 16px', borderRadius: 14, background: '#e9f3ec', color: GREEN, fontSize: 24, fontWeight: 750, opacity: held, transform: `translateY(${mix(10, 0, held).toFixed(2)}px)` }}>Held 30 min: Thu 19:00</div>
           </div>
           <Orb x={YOU} y={ROW} at={14} label="You" r={62} />
           <Orb x={MINE} y={ROW} at={28} agent label="Your agent" />
           {FY.map((y, i) => <Orb key={`t${i}`} x={THEIRS} y={y} at={60 + i * 6} agent r={46} label={`${NAMES[i]}'s agent`} />)}
           {FY.map((y, i) => <Orb key={`p${i}`} x={FRIEND} y={y} at={74 + i * 6} r={46} label={NAMES[i]} />)}
           <div style={{ position: 'absolute', left: THEIRS - 80, top: FY[0] - 118, width: 420, textAlign: 'center', fontFamily: FONT.sans, fontSize: 24, fontWeight: 750, color: GREEN, opacity: near, transform: `translateY(${mix(12, 0, near).toFixed(2)}px)` }}>
-            <span style={{ padding: '8px 18px', borderRadius: 999, background: '#e9f3ec' }}>Nearby players found</span>
+            <span style={{ padding: '8px 18px', borderRadius: 999, background: '#e9f3ec' }}>Most likely to say yes, by habit</span>
           </div>
+          {FY.map((y, i) => <div key={`b${i}`} style={{ position: 'absolute', left: THEIRS + 54, top: y - 30, padding: '3px 10px', borderRadius: 999, background: '#ffffff', border: '1px solid rgba(10,127,68,0.35)', fontFamily: FONT.sans, fontSize: 17, fontWeight: 700, color: GREEN, opacity: ramp(f, NEAR + 8 + i * 6, 8, EASE.out) }}>{BANDS[i]}</div>)}
+          <Wire x0={VX} y0={BOX.y + BOX.h} x1={VX} y1={VY - 46} at={HAGGLE - 14} />
+          <Venue at={HAGGLE - 10} />
+          <Packet x0={VX} y0={VY - 40} x1={VX} y1={BOX.y + BOX.h - 10} at={HAGGLE + 4} text="NT$290 · signed" />
+          <Key x={VX + 34} y={VY - 34} at={KEY + 16} />
           <Key x={MINE + 40} y={ROW - 40} at={KEY} />
           {FY.map((y, i) => <Key key={`key${i}`} x={THEIRS + 34} y={y - 34} at={KEY + 4 + i * 4} />)}
           <Packet x0={MINE + 40} y0={ROW} x1={BOX.x + 20} y1={midY} at={S2} text="free Thu 19–21" />
