@@ -14,6 +14,29 @@ Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Yo
 
 ---
 
+## Overview
+
+People don't quit the sport; they quit organizing it. Coordinating group chats, matching schedules and booking courts
+drain the fun out of recreational sports. Serve is an autonomous multi-agent platform designed to solve this cold-start
+and coordination problem. It lets your personal AI agent negotiate directly with your friends' agents to plan your week,
+find the nearest court, and book games with just a single approval from you.
+
+### Key features and architecture
+
+- **Agent-to-Agent (A2A) negotiation.** Powered by Meta's open weights and APIs, your agent communicates securely via
+  A2A v1.0 and Ed25519-signed Agent Cards to align everyone's schedules and preferences autonomously.
+- **Intelligent compute cascade (1B model distillation).** To overcome latency, a fine-tuned Meta Llama 3.2 1B student
+  model runs on the server's CPU (about 0.9 s), handling routine decisions; in talks with the simulated club it cut
+  heavy calls to Muse Glimmer, which reasons through complex constraints, by 54–67%.
+- **Safety and guardrails.** Implements Meta's Agents Rule of Two and a disclosure budget, alongside Llama Guard 3 and
+  Prompt Guard 2 to screen messages, reviews and community ideas against prompt injections and privacy leaks (stopping
+  93 of 93 red-teamed attacks).
+- **Multimodal highlights and voice.** Hands-free voice control via Muse Voice Transcribe (with real-time barge-in
+  support), and an auto-cut highlight pipeline driven by RT-DETR (Meta's DETR as fallback), Sapiens2, SAM 2.1 and
+  MapAnything that turns phone videos into cinematic social reels.
+
+---
+
 ## The gap
 
 Everyone is starting to get a personal AI agent that knows their calendar and their limits. But there is no safe,
