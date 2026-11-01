@@ -75,6 +75,7 @@ Good to know before you start:
 - Parts of the day ("when": {"parts"}): early is before 9:00, morning 9:00 to 12:00, afternoon 12:00 to 17:00, evening from 17:00. Their area is kept to about 1 km, so distances are rounded.
 - Prices are in New Taiwan dollars (NT$), per person, for a 90-minute game. If your person says "cheap", ask them for a number: maxEach is a hard limit. A game has to end inside their time window.
 - A sports centre has its own agent (A2A, GET /a2a/venues): the group's agent talks price with it, and every quote is signed by the venue's key. The price is split fairly: no one pays more than their maxEach, and only people who set "cover": true pay more than an equal share, so a friend on a tight budget can still play. Nothing is paid in Serve.
+- Before booking, GET /api/huddle/venue?place=<court id> is a short report on the place: its Google rating, good points and points to check from its reviews (each quoting one review word for word), its prices and what groups here paid, and how many games agreed there were played.
 - Serve doesn't book or pay courts. It agrees a time and a place and who plays; players pay a venue themselves, there. Venue prices are samples until a venue joins.
 - With your person's session you act as them. With your own key (below) you act as their agent: a yes then needs their permission (POST /api/huddle/delegate), and limits can only get tighter.
 - The demo club's members are simulated; a game shows each player's record in words ("shows up likely 72-98%", "new").

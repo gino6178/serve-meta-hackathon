@@ -546,7 +546,8 @@ by `agent/src/venues/report.js` (`GET /api/huddle/venue?place=`):
   Maps, and reviews are kept in memory for an hour only, as Google's terms require. On made-up reviews, one of them
   telling the model to praise the venue and visit a link, Glimmer gave three good points and three to check, every
   quote word for word, and did not follow the planted instruction. The server's current Google key returns the
-  rating but no review text, so the live report shows the rating and says so.
+  rating but no review text, so the live report shows the rating and says so. Live on https://play.theminimallab.com
+  since 1 November 2026 (the game page's **Check this place**, and the route in `/llms.txt` and `/openapi.json`).
 - **What it costs, and what groups here paid.** The venue agent's list price for 90 minutes and how low it goes at a
   quiet hour this week (samples until the venue joins), and the prices groups agreed there in Serve: the date, the
   price and how many played, never who or which club.
