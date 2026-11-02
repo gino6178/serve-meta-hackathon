@@ -252,6 +252,18 @@ function fallback(sheet, text) {
   return `Here is what I know: ${facts.map(f => f.text).join(' ')}`;
 }
 
+// the window as strict turns: it starts with the player, the agent answers each, and it ends with the agent (the new
+// message follows), since some chat templates refuse two turns of one role in a row
+export function alternate(turns) {
+  const out = [];
+  for (const t of turns) {
+    if (!out.length && t.role !== 'user') continue;
+    if (out.at(-1)?.role === t.role) out.at(-1).content += '\n' + t.content;
+    else out.push({role: t.role, content: t.content});
+  }
+  if (out.at(-1)?.role === 'user') out.pop();
+  return out;
+}
 // one answer; history is the conversation so far ({ role, content }), for a Messenger player taken from the store.
 // who keys the conversation memory: the Messenger player, else the caller's own id (member:<id> for a signed-in
 // member, 'app' for the gateway's owner), so two people never share one conversation
@@ -287,7 +299,7 @@ ${ctx.note}`,
               {role: 'assistant', content: 'Noted.'},
             ]
           : []),
-        ...ctx.messages,
+        ...alternate(ctx.messages),
       ]
     : (player ? player.history || [] : history)
         .slice(-6)

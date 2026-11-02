@@ -1058,14 +1058,40 @@ export const clearLeases = () => {
   save();
 };
 
-// One booking at a time on this gateway: every check below (the same game again, a partner's clash, the court's hold)
-// and the row that makes the court taken happen with no other booking in between, even across the await on a peer
-// gateway's confirmation. Two talks booking the same court or partner at once: the second sees the first's row.
-let booking = Promise.resolve();
-export function book(args) {
-  const run = booking.then(() => bookNow(args));
-  booking = run.catch(() => {});
-  return run;
+// Bookings going through right now: each claims its talk, its venue at its time and its partners before anything is
+// awaited, and lets go when it ends. A second booking that would take the same court, venue time or partner (or the
+// same talk again) while the first waits on a peer gateway's confirmation is told to ask again, instead of both being
+// booked; bookings that don't touch each other never wait on one another.
+const claims = new Set();
+const overlaps = (a, b) =>
+  a.date === b.date &&
+  a.from < b.to &&
+  b.from < a.to &&
+  (a.venue === b.venue || a.partners.some(p => b.partners.includes(p)));
+export async function book(args = {}) {
+  const o = args.option || {},
+    from = toMin(o.start || '00:00'),
+    mine = {
+      talk: o.talk || null,
+      date: o.date,
+      from,
+      to: from + (o.minutes || 90),
+      venue: o.venue?.id || o.venue?.name || null,
+      partners: (o.partners || []).map(p => p.id),
+    };
+  for (const c of claims)
+    if ((mine.talk && c.talk === mine.talk) || overlaps(mine, c))
+      return {
+        error:
+          'Another booking for that time is going through right now. Ask again in a moment.',
+        busy: true,
+      };
+  claims.add(mine);
+  try {
+    return await bookNow(args);
+  } finally {
+    claims.delete(mine);
+  }
 }
 async function bookNow({option, invites = {}, you = {}} = {}) {
   // (option may move to another free court below)

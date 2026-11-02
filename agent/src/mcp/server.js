@@ -253,11 +253,18 @@ export const SERVERS = {
 // MCP sessions: the person's Serve session for each, 24 hours, in memory only
 const sessions = new Map(),
   DAY = 864e5;
-// (bounded too: a session never signed in is dropped after an hour, and past 10,000 the oldest goes)
+// (bounded too: a session never signed in is dropped after an hour, and past 10,000 the oldest unsigned one goes)
 const sweep = () => {
   const now = Date.now();
   for (const [k, v] of sessions)
     if (now - v.at > (v.session ? DAY : DAY / 24)) sessions.delete(k);
+  // past the cap, sessions never signed in go first (oldest first), so a flood of initialize calls can't push out
+  // agents that are signed in
+  if (sessions.size >= 10000)
+    for (const [k, v] of sessions) {
+      if (sessions.size < 10000) break;
+      if (!v.session) sessions.delete(k);
+    }
   while (sessions.size >= 10000) sessions.delete(sessions.keys().next().value);
 };
 

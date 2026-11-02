@@ -1459,11 +1459,19 @@ export const dueBy = (h, id = null) =>
       : Math.min(...h.players.map(x => dueOf(h, x)))
     : null;
 // everyone said yes: the game goes on the feed with them in it (the feed's own "Game on" follows)
+// once: a second yes arriving while the post is being checked (a double tap, the person and their agent) finds the
+// game already booking. Kept in memory, not in the saved status, so a restart mid-post leaves it 'asking' to book again
+const booking = new Set();
 async function book(h) {
-  // once: a second yes arriving while the post is being checked (a double tap, the person and their agent) finds
-  // the game already booking
-  if (['booking', 'on'].includes(h.status)) return;
-  h.status = 'booking';
+  if (h.status === 'on' || booking.has(h.id)) return;
+  booking.add(h.id);
+  try {
+    await bookOnce(h);
+  } finally {
+    booking.delete(h.id);
+  }
+}
+async function bookOnce(h) {
   const o = h.pick;
   if (h.fill && P.find(h.fill)) {
     h.status = 'on';

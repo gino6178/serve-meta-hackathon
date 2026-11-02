@@ -25,6 +25,16 @@ const fileOf = id => {
 // the agent's key, made the first time it is needed (create: false, only read: a check never makes keys)
 function keyOf(id, {create = true} = {}) {
   const f = fileOf(id);
+  // a key kept under the old name (the id with its odd characters made _) moves to the new name the first time it
+  // is needed, so what that agent signed before still checks out
+  const old = path.join(
+    DIR(),
+    `${String(id)
+      .replace(/[^\w.-]/g, '_')
+      .slice(0, 64)}.pem`,
+  );
+  if (!fs.existsSync(f) && old !== f && fs.existsSync(old))
+    fs.renameSync(old, f);
   if (!fs.existsSync(f)) {
     if (!create) return null;
     fs.mkdirSync(DIR(), {recursive: true});

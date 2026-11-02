@@ -83,7 +83,11 @@ export function pyWorker({
           answer(pend, j);
         }
       });
+      // once per process: one that errors and then exits ends only once
+      let ended = false;
       const stopped = e => {
+        if (ended) return;
+        ended = true;
         clearTimeout(timer);
         if (proc === p) {
           proc = null;

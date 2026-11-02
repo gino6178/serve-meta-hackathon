@@ -82,7 +82,9 @@ export async function embed(texts, {query = false} = {}) {
       texts: texts.length,
     });
     return j.vectors;
-  } catch {
+  } catch (e) {
+    // a worker that stopped answering is started again on the next call, not waited on forever
+    if (/in time/.test(e.message)) embedder.stop();
     return null;
   }
 }

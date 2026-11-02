@@ -522,6 +522,8 @@ async function injectedNow(texts, {site, timeoutMs}) {
     });
     return out;
   } catch (e) {
+    // a worker that stopped answering is started again after the pause, not sent more requests
+    if (/in time/.test(e.message)) pg.stop();
     stats.skipped++;
     pgPausedUntil = Math.max(pgPausedUntil, Date.now() + pauseMs());
     return texts.map(() => ({

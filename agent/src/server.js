@@ -116,7 +116,8 @@ const stream = async (res, origin, run) => {
   }
   res.end();
 };
-// a body is read up to a cap (BODY_MAX, 8 MB), past which reading stops: a huge POST can't fill the memory
+// a body is read up to a cap (BODY_MAX, 8 MB), past which reading stops: a huge POST can't fill the memory. Past the
+// cap the connection is closed and the route never runs (never with an empty body in place of the real one)
 const BODY_MAX = +(process.env.BODY_MAX || 8e6);
 const capped = (req, max, done) => {
   let b = '',
@@ -124,14 +125,14 @@ const capped = (req, max, done) => {
   req.on('data', c => {
     n += c.length;
     if (n > max) {
-      req.destroy();
-      return done(null);
+      if (!req.destroyed) req.destroy();
+      return;
     }
     b += c;
   });
   req.on('end', () => done(b));
 };
-const rawOf = req => new Promise(ok => capped(req, 1e6, b => ok(b ?? '')));
+const rawOf = req => new Promise(ok => capped(req, 1e6, ok));
 // a raw body up to a size, or null when it is bigger
 const rawBytes = (req, max) =>
   new Promise(ok => {
