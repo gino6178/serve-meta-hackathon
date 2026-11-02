@@ -123,6 +123,24 @@ const LONG =
         key: process.env.META_API_KEY,
       }
     : null;
+// The evolving side (LLM_WONDER_SITES, the community loop's builder by default): Muse Wonder on the Meta Model API,
+// chosen for its debugging, with META_API_KEY; LLM_WONDER=off keeps it on Glimmer. It holds with LLM_ONLY=small too,
+// the one site that does: the builder reads only the repository and an approved spec, never anything a member wrote,
+// it runs only for a spec a maintainer approved, and its tokens are capped per build (loop/builder.js CAPS). If Wonder
+// fails, the call goes to Glimmer on our GPU as before.
+const WONDER =
+  process.env.LLM_WONDER !== 'off' && process.env.META_API_KEY
+    ? {
+        url: (process.env.LLM_WONDER_URL || 'https://api.meta.ai/v1').replace(/\/$/, ''),
+        model: process.env.LLM_WONDER_MODEL || 'muse-wonder-1.0',
+        key: process.env.META_API_KEY,
+      }
+    : null;
+const WONDER_SITES = () =>
+  new Set((process.env.LLM_WONDER_SITES ?? 'builder.step').split(',').filter(Boolean));
+export const wonderFor = site => !!WONDER && WONDER_SITES().has(site);
+// the model that writes at a site, by name, for what is said about it (the builder's commit message)
+export const writerOf = site => (wonderFor(site) ? 'Muse Wonder' : 'Muse Glimmer');
 // the sites checked with the 1B: wording a game ask, a court's name in English, a memory's beliefs, a paper's
 // summary and a member's question about the feed (both behind the feed's own checks); and serve-1b-text-v2's four
 const SMALL_SITES = () =>
@@ -1290,11 +1308,40 @@ export function chatTools(messages, tools, opts = {}) {
       const tier = tierOf(messages, {site, tools: true});
       const fast = tier === 'api' && tokensOf(messages) < LONG_MIN();
       try {
-        if (tier === 'api' && !fast)
-          throw Object.assign(new Error('long'), {long: true});
         out = null;
+        // the evolving side: Muse Wonder first; if it fails, the rest of this function as before (WONDER above)
+        if (wonderFor(site))
+          try {
+            const {m, secs} = await onFallback(site, messages, {
+              maxTokens: opts.maxTokens ?? 500,
+              temperature: opts.temperature ?? 0.2,
+              tools,
+              budget: budgetOf(site, opts.budget ?? null),
+              why: 'wonder',
+              to: WONDER,
+            });
+            out = {
+              text: (m.content || '').replace(THINK, '').trim(),
+              calls: (m.tool_calls || []).map(c => {
+                const tool = tools.find(x => x.function?.name === c.function?.name);
+                const args = safeJSON(c.function?.arguments);
+                const errors = tool
+                  ? validate(tool.function.parameters || {}, args)
+                  : [`no tool called ${c.function?.name}`];
+                return {id: c.id, name: c.function?.name, args, ...(errors.length ? {errors} : {})};
+              }),
+              message: {role: 'assistant', content: m.content || '', tool_calls: m.tool_calls},
+              seconds: +secs.toFixed(2),
+              tier: 'api',
+              model: WONDER.model,
+            };
+          } catch {
+            active()?.setAttributes({'serve.wonder_failed': true});
+          }
+        if (!out && tier === 'api' && !fast)
+          throw Object.assign(new Error('long'), {long: true});
         // the fast lane: Muse Spark first; if it fails, Glimmer below
-        if (fast)
+        if (fast && !out)
           try {
             fastUsed.n++;
             const {m, secs} = await onFallback(site, messages, {

@@ -123,8 +123,8 @@ and Llama Guard read what comes in, code keeps every hard rule, every yes is sig
 holds untrusted input, private data and the power to act at once (the Agents Rule of Two). The platform also keeps
 changing itself: members' requests become changes that pass nine gates, run on a canary and roll back on their own
 when they hurt ([community loop](docs/how_it_works.md#7-a-community-that-evolves-the-platform-with-automatic-rollback)).
-The evolving side is moving to **Muse Wonder**, chosen for its debugging; today the
-community loop's builder runs on Muse Glimmer.
+The evolving side runs on **Muse Wonder**, chosen for its debugging: the community loop's builder writes its
+changes with Muse Wonder on the Meta Model API, and falls back to Muse Glimmer if the API fails.
 
 Sport is the first domain, because it is the hardest everyday case we know. The same intermediary fits any plan that
 needs several people's yes: a dinner, a study group, a carpool, a volunteer shift.
@@ -393,7 +393,7 @@ evaluations and the members the agent testers met are simulated and labelled as 
 
 | Model | Where it runs | Its job in Serve |
 |---|---|---|
-| **Muse Glimmer** (open weights) | Our RTX 3090 (GPU 1), Ollama, 4 requests in parallel | Every agent: the planner's tool loop, each member's decision, reading what a person wants, the community specs, the builder agent. A JSON Schema on every call; code checks every text |
+| **Muse Glimmer** (open weights) | Our RTX 3090 (GPU 1), Ollama, 4 requests in parallel | Every agent: the planner's tool loop, each member's decision, reading what a person wants, the community specs, the builder's fallback. A JSON Schema on every call; code checks every text |
 | **Llama 3.2 1B Instruct, distilled by us** (decision) | Server CPU, int4 Q4_K_M, 0.8 GB | Picks among times as Glimmer would, in about 0.9 s |
 | **Llama 3.2 1B Instruct, distilled by us** (short text) | Glimmer's Ollama | Short text at six checked sites |
 | **Llama 3.2 1B Instruct, pruned to 12 layers and distilled by us** | Glimmer's Ollama, 1.2 GB on the GPU | A comment's verdict, a court's verdict, a member agent's answer, a request to play, in 0.1 to 0.5 s |
@@ -409,7 +409,7 @@ evaluations and the members the agent testers met are simulated and labelled as 
 | **Muse Voice Transcribe** | Meta Model API | Live full-duplex voice with your agent; Kokoro speaks the reply on the server |
 | **Muse Image** | Meta Model API | Faces for the club's agents and the art of rematch posters |
 | **SAM 3.1** | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
-| **Muse Wonder** | Meta Model API | Judges 3D replay frames: agreed with the labels on 87% of 84 frames. Next: the platform's evolving side (the community loop's builder, and finding why a change failed), for its debugging |
+| **Muse Wonder** | Meta Model API | Judges 3D replay frames: agreed with the labels on 87% of 84 frames. The platform's evolving side: the community loop's builder, for its debugging (Glimmer if the API fails) |
 
 Also from Meta: the **Agents Rule of Two**, **LlamaFirewall's CodeShield rules** (community specs and generated code)
 and the **Messenger Platform** (signed webhook, Send API, quick replies).
@@ -510,8 +510,8 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 
 ## Roadmap
 
-1. **Muse Wonder runs the evolving side:** the community loop's builder, and the debugging of a change that failed its
-   gates or rolled back, move from Muse Glimmer to Muse Wonder.
+1. **Muse Wonder debugs what failed:** the builder already runs on Muse Wonder; next, the diagnosis of a change that
+   failed its gates or rolled back moves to it too.
 2. **Beyond sport:** the same intermediary for any plan that needs several people's yes, starting with the parts that
    are not about sport already (identity, consent, the signed yes chain, the guards, the price split).
 3. **Venues join:** a venue registers its own agent (`POST /api/venues/agents`) and its real prices replace the samples.

@@ -28,7 +28,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawn, spawnSync} from 'node:child_process';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {chatTools as glimmerTools, withPriority} from '../core/llm.js';
+import {chatTools as glimmerTools, withPriority, writerOf} from '../core/llm.js';
 import {job, totals} from '../core/ledger.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -1912,7 +1912,7 @@ export async function build(spec, opts = {}) {
           if (a.ok) {
             // the branch: the spec's files only, committed by code
             await git(w.wt, ['add', '--', ...a.changed]);
-            const msg = `${spec.id}: ${spec.change.class} change to ${a.changed.join(', ')}\n\n${a.summary || ''}\n\nBuilt by Serve's builder (Muse Glimmer), attempt ${k} of ${caps.attempts}. Not merged: a maintainer reviews it.`;
+            const msg = `${spec.id}: ${spec.change.class} change to ${a.changed.join(', ')}\n\n${a.summary || ''}\n\nBuilt by Serve's builder (${writerOf('builder.step')}), attempt ${k} of ${caps.attempts}. Not merged: a maintainer reviews it.`;
             await git(w.wt, [
               '-c',
               'user.name=Serve builder',
