@@ -227,22 +227,26 @@ test('1B only (LLM_ONLY=small): every text call to the 1B, long or not, no API a
   process.env.LLM_ONLY = 'small';
   process.env.LLM_FAST = 'api';
   try {
-    assert.equal(tierOf(msgs(300), {site: 'feed.standard'}), 'small');
+    assert.equal(tierOf(msgs(300), {site: 'life.read'}), 'small');
     assert.equal(
-      tierOf(msgs(9000), {site: 'feed.standard'}),
+      tierOf(msgs(9000), {site: 'life.read'}),
       'small',
       'even a very long call',
     );
-    assert.equal(
-      tierOf(msgs(300), {site: 'feed.standard', tools: true}),
-      'local',
-    );
+    assert.equal(tierOf(msgs(300), {site: 'life.read', tools: true}), 'local');
     reset();
-    const r = await chatJSON(msgs(300), SCHEMA, {site: 'feed.standard'});
+    const r = await chatJSON(msgs(300), SCHEMA, {site: 'life.read'});
     assert.equal(r.value.caption, 'from serve-1b-text');
     reset();
+    const v2 = await chatJSON(msgs(300), SCHEMA, {site: 'feed.standard'});
+    assert.equal(
+      v2.value.caption,
+      'from serve-1b-text-v2',
+      'the four second-round sites go to the pruned 1B',
+    );
+    reset();
     bad = new Set(['serve-1b-text']);
-    const g = await chatJSON(msgs(300), SCHEMA, {site: 'feed.standard'});
+    const g = await chatJSON(msgs(300), SCHEMA, {site: 'life.read'});
     assert.equal(
       g.value.caption,
       'from muse-glimmer',

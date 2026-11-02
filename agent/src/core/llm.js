@@ -79,6 +79,18 @@ const ROUTE = () => process.env.LLM_ROUTE !== 'off' && API === 'ollama';
 // serve-1b-text: the 1B distilled for short text from Glimmer's answers at these sites (distill/text_train.py,
 // submission/results/text1b.json); serve-1b, the decision model run as a chat model, is the earlier one
 const SMALL = process.env.LLM_SMALL_MODEL || 'serve-1b-text';
+// serve-1b-text-v2: the second round (distill/text_inputs_v2.mjs), a 12-layer 1B (four layers pruned by block influence,
+// distill/text_prune.py, then distilled) for the four sites it was checked on: a member's verdict on a comment, a court's
+// verdict, a member agent's answer in a talk, a request to play. It passes 1 of 142 held-out hostile comments (2 of 142
+// attacked) and 0 of 180 poisoned courts. The other sites keep serve-1b-text, which the cut was not healed for.
+const SMALL_V2 = process.env.LLM_SMALL_V2_MODEL || 'serve-1b-text-v2',
+  SMALL_V2_SITES = new Set(
+    (
+      process.env.LLM_SMALL_V2_SITES ||
+      'feed.standard,places.judge,a2a.answer,play.readIntent'
+    ).split(','),
+  ),
+  smallModel = site => (SMALL_V2_SITES.has(site) ? SMALL_V2 : SMALL);
 const SMALL_MAX = () => +(process.env.LLM_SMALL_MAX || 700),
   LONG_MIN = () => +(process.env.LLM_LONG_MIN || 12000);
 const LONG =
@@ -95,12 +107,12 @@ const LONG =
       }
     : null;
 // the sites checked with the 1B: wording a game ask, a court's name in English, a memory's beliefs, a paper's
-// summary and a member's question about the feed (both behind the feed's own checks)
+// summary and a member's question about the feed (both behind the feed's own checks); and serve-1b-text-v2's four
 const SMALL_SITES = () =>
   new Set(
     (
       process.env.LLM_SMALL_SITES ||
-      'ask.word,places.english,memory.beliefs,feed.paper,feed.answer,answer.learn'
+      'ask.word,places.english,memory.beliefs,feed.paper,feed.answer,answer.learn,feed.standard,places.judge,a2a.answer,play.readIntent'
     )
       .split(',')
       .filter(Boolean),
@@ -160,7 +172,47 @@ const INPUT_ROLE = {
       {role: 'input', content: untrusted(lines.slice(k).join('\n'))},
     ];
   },
+  // the 1B is poor at date arithmetic: code gives it the next 14 days, named as a request names them, and the sports'
+  // Chinese names
+  'play.readIntent': ([sys, user]) => [
+    {
+      role: 'system',
+      content: `${sys.content}\n${daysAhead(sys.content)}\n${SPORTS_ZH}`,
+    },
+    user,
+  ],
 };
+const SPORTS_ZH =
+  'Sports in Chinese: 羽球, 羽毛球 = badminton; 網球 = tennis; 匹克球 = pickleball; 桌球, 乒乓球 = table tennis; 籃球 = basketball; 排球 = volleyball.';
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  DOW_ZH = ['日', '一', '二', '三', '四', '五', '六'];
+// "today 今天 = Mon 週一 2026-11-16; tomorrow 明天 = …; this Wed 這週三 = …; next Mon 下週一 = …", weeks from Monday
+export function daysAhead(text) {
+  const m = /Now: \w+ (\d{4})-(\d\d)-(\d\d)/.exec(text);
+  if (!m) return '';
+  const t0 = Date.UTC(+m[1], +m[2] - 1, +m[3]),
+    w0 = (new Date(t0).getUTCDay() + 6) % 7,
+    out = [],
+    weekend = [[], [], []];
+  for (let k = 0; k < 14; k++) {
+    const d = new Date(t0 + k * 86400000),
+      w = d.getUTCDay(),
+      week = Math.floor((w0 + k) / 7),
+      day = `${DOW[w]} 週${DOW_ZH[w]} ${d.toISOString().slice(0, 10)}`,
+      name =
+        k === 0
+          ? 'today 今天'
+          : k === 1
+            ? 'tomorrow 明天'
+            : `${['this', 'next', 'week after'][week]} ${DOW[w]} ${['這週', '下週', '下下週'][week]}${DOW_ZH[w]}`;
+    out.push(`${name} = ${day}`);
+    if (w === 0 || w === 6) weekend[week].push(d.toISOString().slice(0, 10));
+  }
+  const ends = ['this weekend 這週末', 'next weekend 下週末']
+    .map((n, i) => weekend[i].length && `${n} = ${weekend[i].join(', ')}`)
+    .filter(Boolean);
+  return `Dates, from code: ${out.join('; ')}. ${ends.join('; ')}.`;
+}
 export const smallPrompt = (site, messages) =>
   INPUT_ROLE[site] && messages.length === 2 && messages[0].role === 'system'
     ? INPUT_ROLE[site](messages)
@@ -542,7 +594,7 @@ export function chat(messages, opts = {}) {
           const r = await rawChat(smallPrompt(site, messages), {
             ...opts,
             site,
-            model: SMALL,
+            model: smallModel(site),
             think: false,
             budget: 0,
             extra: {...(opts.extra || {}), tier},
