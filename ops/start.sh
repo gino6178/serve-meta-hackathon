@@ -30,8 +30,10 @@ if listening 11435; then
 else
   (cd "$ROOT/ollama" && setsid -f ./serve.sh >> ollama.log 2>&1 < /dev/null)
   echo "Muse Glimmer (Ollama) is starting on :11435 on GPU 1; log: $ROOT/ollama/ollama.log"
-  # ask for the model at once, so the first player does not wait: loading reads about 17 GB and takes minutes
-  setsid -f bash -c 'sleep 5; curl -s -m 600 127.0.0.1:11435/api/generate -d "{\"model\":\"muse-glimmer\",\"keep_alive\":\"24h\",\"prompt\":\"\"}" > /dev/null' < /dev/null > /dev/null 2>&1
+  # ask for the models at once, so the first player does not wait: Glimmer first (loading reads about 17 GB and takes
+  # minutes), then our 1Bs. In that order they all fit on GPU 1 (serve-1b-text runs on the CPU); Glimmer loaded after
+  # them pushed them all out
+  setsid -f bash -c 'sleep 5; for m in muse-glimmer serve-1b-text-v2 serve-1b-chat serve-1b-text; do curl -s -m 600 127.0.0.1:11435/api/generate -d "{\"model\":\"$m\",\"keep_alive\":\"24h\",\"prompt\":\"\"}" > /dev/null; done' < /dev/null > /dev/null 2>&1
 fi
 # Llama Guard 3 1B on the CPU (its own Ollama, port 11436): the safety check on what the player writes and what a model
 # writes for them (agent/src/safety/guard.js)

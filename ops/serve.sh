@@ -3,5 +3,8 @@
 # (a 16,384-token context, 4 requests in parallel, CUDA only). start.sh runs it from ollama/serve.sh. GPU, OLLAMA_BIN and
 # OLLAMA_MODELS can point elsewhere: on our server the models sit on a NAS folder (the root disk is nearly full) and
 # the binary is an Ollama already installed there, so its copy sets both.
+# Up to 4 models stay loaded (Ollama's default is 3 per GPU): Glimmer, serve-1b-text-v2 and serve-1b-chat on the GPU,
+# and serve-1b-text on the CPU (its Modelfile sets num_gpu 0). A fourth model pushing Glimmer out costs about 3 minutes
+# while it loads again.
 cd "$(dirname "$0")"
-CUDA_VISIBLE_DEVICES="${GPU:-1}" GGML_VK_VISIBLE_DEVICES=-1 OLLAMA_VULKAN=0 OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=4 OLLAMA_KEEP_ALIVE=24h OLLAMA_HOST=127.0.0.1:11435 OLLAMA_MODELS="${OLLAMA_MODELS:-$HOME/.ollama/models}" exec "${OLLAMA_BIN:-ollama}" serve
+CUDA_VISIBLE_DEVICES="${GPU:-1}" GGML_VK_VISIBLE_DEVICES=-1 OLLAMA_VULKAN=0 OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=4 OLLAMA_MAX_LOADED_MODELS=4 OLLAMA_KEEP_ALIVE=24h OLLAMA_HOST=127.0.0.1:11435 OLLAMA_MODELS="${OLLAMA_MODELS:-$HOME/.ollama/models}" exec "${OLLAMA_BIN:-ollama}" serve

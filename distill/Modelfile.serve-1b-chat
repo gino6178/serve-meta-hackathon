@@ -1,0 +1,15 @@
+# Our Llama 3.2 1B distilled from Muse Glimmer's replies in a member's chat with their agent (distill/chat_inputs.mjs,
+# chat_teacher.mjs, chat_split.py, then distill/text_train.py), on Glimmer's Ollama for the chat (site "answer",
+# LLM_SMALL_CHAT_MODEL=serve-1b-chat). The template is the one it was trained on (the same as Modelfile.serve-1b-text);
+# a 4,096-token context, as serve-1b-text-v2, so it fits on GPU 1 beside Glimmer (with 16,384 it took 3.3 GB and pushed
+# Glimmer out):
+#   OLLAMA_HOST=127.0.0.1:11435 ollama create serve-1b-chat -f distill/Modelfile.serve-1b-chat
+FROM /home/gino/serve/models/serve-1b-chat-Q4_K_M.gguf
+TEMPLATE """{{- range .Messages }}<|start_header_id|>{{ .Role }}<|end_header_id|>
+
+{{ .Content }}<|eot_id|>{{- end }}<|start_header_id|>assistant<|end_header_id|>
+
+"""
+PARAMETER stop "<|eot_id|>"
+PARAMETER stop "<|end_of_text|>"
+PARAMETER num_ctx 4096
