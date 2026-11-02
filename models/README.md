@@ -31,6 +31,7 @@ secrets or tokens.
 | `Llama-3.2-3B-Serve-Decision-v3-LoRA.zip` | Decision model, 3B option: LoRA adapter (safetensors sha256 3ffef4b36011ed4c634834389b91cbab1a2ca4138c1bac89e411241ed453d7da) | 97.3 MB (97,323,786 bytes) | `d666aa85151a1a6ea74b1cdf13ca1f3677773077bdee3759bf2d0167108553e5` |
 | `Llama-3.2-1B-Serve-Text-Q4_K_M.gguf` | Text model, 1B (served) | 807.7 MB (807,694,016 bytes) | `9fca5184740ee6e475411a60d3d1da9fb62ea4deeb1d2a75e0f7a7fe2083d978` |
 | `Llama-3.2-1B-Serve-Text-LoRA.zip` | Text model, 1B: SFT LoRA adapter (safetensors sha256 019d3c1d746f67313245dce841cfaa0bb8ffc74c6302a9ad29173ffecdc09bb0) | 90.2 MB (90,223,639 bytes) | `4e9fad83a90cff678645962b42a6d29786c46b0bb503fdc5b570c18a8e2007e0` |
+| `Llama-3.2-1B-Serve-Text-v2-Pruned-Q4_K_M.gguf` | Text model, second round: 1B pruned to 12 layers (served) | 661.6 MB (661,595,744 bytes) | `ea8649e14bb531016fe3c8f5f5dfdb906c5178859a9d961fb79d218a34492c43` |
 | `Llama-3.2-1B-Serve-Text-DPO-LoRA.zip` | Text model: DPO LoRA adapter, tried and not used (safetensors sha256 47bce9677031183e6997cf351b99cb68ed05f5358299c8093c7b09b191c5da50) | 180.4 MB (180,401,505 bytes) | `2b3cab313d97fbd42ecb26cfc950db5bdaffeff85af46b0b11e21bc05685882b` |
 | `LICENSE-Llama-3.2.txt` | Llama 3.2 Community License | 7,669 bytes | `8cc15535a8a34b41888f644b339a1a9eb428af793a4f5e24df58a3e5b1487d74` |
 | `USE_POLICY-Llama-3.2.md` | Llama 3.2 Acceptable Use Policy | 6,021 bytes | `40e2777d7faa6beaf98400654170f414d8ab29b921b5163ad4ea0a1d39894201` |
@@ -115,7 +116,40 @@ ollama create serve-1b-text -f distill/Modelfile.serve-1b-text
 # the gateway's short route: LLM_SMALL_MODEL=serve-1b-text
 ~~~
 
-## 4. The text model's preference-training adapter (tried, not used)
+## 4. The text model, second round: Llama 3.2 1B pruned to 12 layers (served)
+
+| | |
+|---|---|
+| File | `Llama-3.2-1B-Serve-Text-v2-Pruned-Q4_K_M.gguf` (served as `serve-1b-text-v2`) |
+| Base model | `meta-llama/Llama-3.2-1B-Instruct` with 4 of its 16 decoder layers removed (layers 11 to 14, the lowest block influence on Serve's prompts; `distill/text_prune.py`), 993M parameters |
+| Task | Four call sites: a comment's verdict (`feed.standard`), a court's verdict with quoted reasons (`places.judge`), a member agent's answer in a talk (`a2a.answer`), a request to play in English or Chinese (`play.readIntent`) |
+| Trained on | Muse Glimmer's answers through the real call sites: 3,890 new synthetic inputs (Chinese hostile and fine comments, courts with fake five-star reviews, the talks' own cases, bilingual requests) and the first round's, 3,992 examples over 11 sites with 851 held out by template; plus attacked copies that keep Glimmer's clean answer (6,202 in all) and a KL term toward Glimmer's label distribution (`submission/results/text1b_v2.json`, "set") |
+| Recipe | LoRA SFT on the pruned model, rank 128, alpha 256, 4 epochs, learning rate 2e-4, batch 8 (`distill/text_train.py`); outside text in a message of its own; for `play.readIntent` the prompt carries a 14-day calendar and the sports' Chinese names from code. Q4_K_M without an importance matrix (`distill/text_export.sh`) |
+| Size and format | GGUF Q4_K_M, 0.66 GB; 1.2 GB on the GPU with a 4,096-token context |
+
+**Measured results** (all from `submission/results/text1b_v2.json`; 588 held-out attacks, templates never seen in training)
+
+| What | One LoRA on all 11 sites (16 layers) | This model | Muse Glimmer |
+|---|---|---|---|
+| Hostile comments let through, of 142 / the same attacked, of 142 | 8 / 4 | **1 / 2** | 0 / 0 |
+| Poisoned courts judged "good", of 180 | 1 | **0** | 1 |
+| Ordinary comments blocked, of 32 | 0 | 0 | 0 |
+| Passing comments alone, Learn then Test (δ = 0.1) | α = 5%, 34% of comments | **α = 2%**, 28% (2 of 126 missed, upper bound 4.9%) | |
+| Held-out agreement: comment blocked or not / court verdict / court reasons pass the checks / request to play, every field | 93.7% / 79.5% / 99.2% / 65.3% | 92.8% / 73.5% / 88.6% / 67.2% | |
+| A member agent's answer: intent / passes the checks / counter time | 100% / 100% / 63.6% | 100% / 100% / 61.8% | |
+| Time per call, on the RTX 3090 | | 0.1 to 0.5 s | about 18 s for a court |
+
+**How to load it** (Ollama):
+
+~~~sh
+# edit the FROM line of distill/Modelfile.serve-1b-text-v2 to point at the downloaded GGUF, then
+ollama create serve-1b-text-v2 -f distill/Modelfile.serve-1b-text-v2
+# the gateway sends the four sites to it (LLM_SMALL_V2_MODEL, LLM_SMALL_V2_SITES in agent/src/core/llm.js)
+~~~
+
+Its LoRA adapter is not published: it was trained on a cloud VM and is not on our server; only the GGUF was kept.
+
+## 5. The text model's preference-training adapter (tried, not used)
 
 | | |
 |---|---|
@@ -125,7 +159,7 @@ ollama create serve-1b-text -f distill/Modelfile.serve-1b-text
 | Measured | Cut injected passes further but blocked 8 of 32 ordinary comments and lowered agreement, so it is not used (`submission/results/text1b.json`) |
 | Size and format | PEFT safetensors, 180 MB |
 
-## 5. Small heads in the code (not Llama-derived)
+## 6. Small heads in the code (not Llama-derived)
 
 | Model | File (sha256) | What and how it was trained | Measured (source) | How it loads |
 |---|---|---|---|---|
@@ -141,5 +175,6 @@ ollama create serve-1b-text -f distill/Modelfile.serve-1b-text
 - No secrets: GGUF metadata, adapter configs and the small heads were read in full for tokens, keys and paths. The
   adapters' `base_model_name_or_path` pointed at a local folder and now names the Hugging Face base model; nothing else
   was changed. The auto-generated PEFT model card and the training arguments file (local paths) were left out.
-- Not published: the round-4 LoRA adapter (not on our server; only its GGUF is), Q5_K_M and importance-matrix variants of the text
-  model (quantization experiments of the same weights), and every training set.
+- Not published: the round-4 LoRA adapter and the second-round text model's adapter (not on our server; only their GGUFs
+  are), Q5_K_M and importance-matrix variants of the text model (quantization experiments of the same weights), the
+  second round's other students (compared in `submission/results/text1b_v2.json`, not served), and every training set.
