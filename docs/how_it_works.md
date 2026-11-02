@@ -114,7 +114,7 @@ the cheapest tier that can answer does:
 | Call | Goes to |
 |---|---|
 | A choice among declared options | the layers above: code, the 27.6 KB classifier, our decision 1B, then Glimmer |
-| Short text (up to about 700 tokens) at a site where our text 1B was checked | our text 1B (about 1 s), and Glimmer if its reply doesn't fit the schema |
+| Short text (up to about 700 tokens) at a site where our text 1B was checked | our text 1B (about 1 s), and Glimmer if its reply doesn't fit the schema; a comment's verdict, a court's verdict, a member agent's answer and a request to play go to the pruned 1B (0.1 to 0.5 s) |
 | Anything else, on our own server | Muse Glimmer on our GPU |
 | Anything else a person waits for, on the public site (`LLM_FAST=api`) | Muse Spark on the Meta Model API (a caption in 2.4 s), Glimmer if the API fails |
 | Very long (12,000 tokens or more, near Glimmer's 16,384-token context) | Muse Spark on the Meta Model API |
@@ -199,6 +199,62 @@ paper's summary, a question about the feed, what a member's answer teaches); new
 that list, the end-to-end test, the feed red team (13 of 13) and the red team (93 of 93) pass as with Glimmer alone.
 A SecAlign++ DPO step cut injected passes further but blocked ordinary comments, so it is not used
 (`submission/results/text1b.json`).
+
+### The second round: four more sites, on a 12-layer 1B
+
+Four Glimmer sites that people wait on were still on Glimmer: a member's verdict on a comment (`feed.standard`), a
+court's verdict (`places.judge`, 47% of the live GPU time, about 18 s a call), a member agent's answer in a talk
+(`a2a.answer`) and a request to play (`play.readIntent`). Glimmer answered **3,890 new inputs** through those sites' own
+code, on three A100s: Chinese hostile comments (veiled threats, homophones) and Chinese trash talk that is fine, courts
+with 1, 3 or 5 fake five-star reviews, the talks' own cases from simulated clubs other than the held-out one, and
+requests in English, Chinese or both. With the first round's data that made **3,992 training examples** over 11 sites
+and 851 held-out ones, split by template (`distill/text_inputs_v2.mjs`).
+
+**Code gives the 1B the dates.** The 1B read "下禮拜二" (next Tuesday) or "this weekend" wrong a third of the time,
+since the prompt gave only today's date. Its prompt now carries the next 14 days as a request names them ("next Tue
+下週二 = Tue 2026-11-24") and the sports' Chinese names, computed by code (`daysAhead` in `agent/src/core/llm.js`):
+date agreement with Glimmer went from **63% to 95%**, the sport to 100%.
+
+Twelve students were compared on the held-out set, the held-out attacks (588, templates never seen in training) and a
+certificate for letting the 1B pass comments alone; the main ones:
+
+| | Comment blocked or not (agrees with Glimmer) | Court verdict | Court reasons pass the checks | Request to play, every field | Hostile comments let through | Attacked | Poisoned courts "good" | Passes comments alone, certified |
+|---|---|---|---|---|---|---|---|---|
+| One LoRA on all 11 sites | 93.7% | **79.5%** | **99.2%** | 65.3% | 8 of 142 | 4 of 142 | 1 of 180 | 34% at α = 5% |
+| **Pruned to 12 layers, then distilled (served)** | 92.8% | 73.5% | 88.6% | **67.2%** | **1 of 142** | **2 of 142** | **0 of 180** | 28% at **α = 2%** |
+| One LoRA per site | 95.5% | 78.0% | 99.2% | 58.1% | 8 of 142 | 5 of 142 | 13 of 180 | 38% at α = 10% |
+| The four per-site LoRAs merged (TIES) | 91.9% | 73.5% | 87.1% | 1.1% | 22 of 142 | 36 of 142 | 1 of 180 | 24% at α = 10% |
+| Muse Glimmer | | | | | 0 of 142 | 0 of 142 | 1 of 180 | |
+
+A member agent's answer keeps its intent (accept, counter, decline) as Glimmer's and passes the gateway's checks
+100% of the time in every row but the merges; the time it counters with matches Glimmer's 62% to 69% of the time.
+
+- **The pruned student.** Each layer's block influence on Serve's own prompts (1 − cos of the hidden state entering and
+  leaving it; ShortGPT) put layers 11 to 14 lowest; those four were removed, as Llama 3.2 1B was itself made from 8B,
+  and the rest distilled with a rank-128 LoRA. The GGUF is 662 MB instead of 808 MB, and it resists attacks best. Its
+  court reasons pass the checks less often, so more courts fall back to Glimmer (`distill/text_prune.py`).
+- **The certificate.** The 1B passes a comment by itself only when its probability of "ok" is at least λ; anything
+  else goes to Glimmer. λ is chosen on half the held-out comments by Learn then Test (fixed-sequence binomial tests,
+  δ = 0.1), so with 90% confidence its own misses stay under α; the other half then measured them (pruned: 2 of 126,
+  Clopper-Pearson upper bound 4.9%) (`distill/text_cert.py`).
+- **Merging LoRAs does not work here.** Summed, TIES or DARE-merged, the per-site adapters lost the request to play
+  almost entirely and let 2 to 3 times more hostile comments through (7 to 19 times more attacked ones). One adapter trained on all sites at once beat
+  them, and it held better against poisoned reviews than the court's own adapter (1 against 13 of 180)
+  (`distill/text_merge.py`).
+- **GRPO with code rewards had nothing left to learn.** After distillation the answer is valid and passes every check
+  100% of the time, so the reward from code is saturated; only the time to counter with is left, which code cannot
+  judge. 120 steps moved its agreement from 63.6% to 64.5%, within noise (`distill/text_grpo.py`).
+- **Glimmer's soft labels were read in the wrong place.** Ollama's renderer for Glimmer, seen on the wire to its
+  llama-server, writes `<|start|>assistant to=user<|message|>` before an answer; a call with a JSON Schema forces "{"
+  where the model would write that header, so the label's distribution came out one-hot (or not at all for half the
+  comments). Read with the renderer's own turns it is a real distribution (a court: "maybe" 0.56, "no" 0.44). With
+  reasoning off, Glimmer answers sexual harassment with a refusal ("not", "reject") instead of a label; those examples
+  keep the hard label only (`text_soft.py --raw`). Trained on these, the student's court verdicts leaned to "maybe",
+  so the served model keeps the first labels.
+
+**What is served.** The pruned 1B, `serve-1b-text-v2`, takes these four sites on the small tier, on Glimmer's Ollama:
+1.2 GB, all on the GPU, **0.1 to 0.5 s a call** instead of about 18 s for a court. Every other short site keeps the
+first text 1B, which the cut was not healed for. Every variant's numbers: `submission/results/text1b_v2.json`.
 
 ![A 1B distilled for short text resists attacks it never saw](readme/slide_text1b.png)
 

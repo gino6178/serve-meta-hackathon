@@ -189,7 +189,7 @@ fallback. Each part in one line (full detail in [docs/how_it_works.md](docs/how_
 | [2. Who gets asked](docs/how_it_works.md#2-ranking-by-everyones-chance-of-yes-and-the-one-question-worth-most) | Each member's agent answers with a band of how likely a yes is; times ranked by everyone's chance; one value-of-information question when talks stall | First time keeps every rule 73.9% → **89.1%**; games found 40.7% → **51.9%** |
 | [3. Cache and router](docs/how_it_works.md#3-cache-and-router-a-tiered-decision-engine) | Code → a 27.6 KB classifier → our 1B → Muse Glimmer → Muse Spark, cheapest first | Game card **7 ms**; **88.8%** of planner prompt tokens from cache |
 | [4. Decision 1B](docs/how_it_works.md#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer) | Llama 3.2 1B distilled from 4,868 Glimmer choices, int4 on the CPU | **89.5%** agreement (Glimmer with itself 88.8%), **0.9 s** instead of 40 s |
-| [5. Text 1B](docs/how_it_works.md#5-a-second-1b-for-short-text-hardened-against-attacks-it-never-saw) | A second 1B for short text, trained with attacked copies | Hostile comments let through 65 → **8 of 71** on unseen attacks |
+| [5. Text 1B](docs/how_it_works.md#5-a-second-1b-for-short-text-hardened-against-attacks-it-never-saw) | A second 1B for short text, trained with attacked copies; a 1B pruned to 12 layers for four more sites | Hostile comments let through 65 → **8 of 71** on unseen attacks; the pruned 1B **1 of 142**, a court in **0.5 s** instead of 18 s |
 | [6. Security](docs/how_it_works.md#6-security-rule-of-two-two-guards-de-identification-a-signed-consent-chain) | Rule of Two, Prompt Guard 2 then Llama Guard 3, de-identification, a shield at the public address, a signed chain of every yes | **93 of 93** attacks stopped |
 | [7. Community loop](docs/how_it_works.md#7-a-community-that-evolves-the-platform-with-automatic-rollback) | Members' requests become changes: nine gates, a canary, rollback by an anytime-valid test | False rollbacks 22% → **0.6%** |
 | [8. Highlight reels](docs/how_it_works.md#8-social-highlight-reels-a-bonus-after-the-game) | RT-DETR, Sapiens2, SAM 2.1 and MapAnything cut a reel from one phone video; Muse Wonder checks 3D frames | 3D frame check precision **1.00**, recall 0.79 |
@@ -251,11 +251,13 @@ community decisions, project operations and beyond.
 
 - **Muse Glimmer on our own GPU runs every agent**: the planner's tool loop, each member's decision, reading what a
   person wants, the community's specs and the coding agent that builds them ([architecture](docs/how_it_works.md#architecture)).
-- **We trained our own Llama twice.** A Llama 3.2 1B distilled from **4,868 Glimmer choices** agrees with Glimmer on
+- **We trained our own Llama three times.** A Llama 3.2 1B distilled from **4,868 Glimmer choices** agrees with Glimmer on
   **89.5%** of 500 held-out cases, where Glimmer agrees with itself 88.8%, in **about 0.9 s on a CPU** instead of
   about 40 s ([distillation](docs/how_it_works.md#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer)). A second 1B distilled for
   short text cut hostile comments let through on unseen attacks from **65 of 71 to 8 of 71**
-  ([the text 1B](docs/how_it_works.md#5-a-second-1b-for-short-text-hardened-against-attacks-it-never-saw)).
+  ([the text 1B](docs/how_it_works.md#5-a-second-1b-for-short-text-hardened-against-attacks-it-never-saw)). A third,
+  pruned to 12 layers as Llama 3.2 1B was itself cut from 8B, takes four more Glimmer sites: it lets **1 of 142**
+  unseen hostile comments through, with a Learn-then-Test certificate (α = 2%) for passing comments alone.
 - **Glimmer read in one token**: with no chat template, Glimmer's next token gives a probability for each option, so a
   one-pass decider gets its choice in 0.53 s with no reasoning.
 - **Llama Guard 3 and Prompt Guard 2** screen everything untrusted, under Meta's **Agents Rule of Two**
@@ -286,6 +288,10 @@ community decisions, project operations and beyond.
   from **40.7% to 51.9%** ([ranking](docs/how_it_works.md#2-ranking-by-everyones-chance-of-yes-and-the-one-question-worth-most)).
 - **A tiered decision engine**: code (7 ms for the game's card) → a **27.6 KB** classifier (0.06 ms) → our distilled
   1B (0.9 s) → Muse Glimmer ([tiers](docs/how_it_works.md#3-cache-and-router-a-tiered-decision-engine)).
+- **Distillation, measured both ways**: twelve students for four Glimmer sites compared on held-out templates and
+  attacks. A depth-pruned 12-layer 1B resisted attacks best; merged per-site LoRAs (TIES, DARE) and GRPO with code
+  rewards did not help, and Glimmer's soft labels turned out to be read where it never answers from, through
+  Ollama's renderer ([§5](docs/how_it_works.md#the-second-round-four-more-sites-on-a-12-layer-1b)).
 - **Security**: **93 of 93** attack cases stopped; a signed, hash-chained record of every yes.
 - **A community that evolves the platform**: an anytime-valid test cut false rollbacks of harmless changes from
   **22% to 0.6%** ([community loop](docs/how_it_works.md#7-a-community-that-evolves-the-platform-with-automatic-rollback)).
@@ -377,6 +383,7 @@ evaluations and the members the agent testers met are simulated and labelled as 
 | **Muse Glimmer** (open weights) | Our RTX 3090 (GPU 1), Ollama, 4 requests in parallel | Every agent: the planner's tool loop, each member's decision, reading what a person wants, the community specs, the builder agent. A JSON Schema on every call; code checks every text |
 | **Llama 3.2 1B Instruct, distilled by us** (decision) | Server CPU, int4 Q4_K_M, 0.8 GB | Picks among times as Glimmer would, in about 0.9 s |
 | **Llama 3.2 1B Instruct, distilled by us** (short text) | Glimmer's Ollama | Short text at six checked sites |
+| **Llama 3.2 1B Instruct, pruned to 12 layers and distilled by us** | Glimmer's Ollama, 1.2 GB on the GPU | A comment's verdict, a court's verdict, a member agent's answer, a request to play, in 0.1 to 0.5 s |
 | **Llama Guard 3 1B** | Server CPU | Both ways in Messenger, posts and comments, community wishes |
 | **Prompt Guard 2 86M** | Server CPU | Untrusted text before a model reads it: reviews, wishes, every post and comment |
 | **DRAMA** (drama-base) | Server CPU | Memory by meaning; grouping community wishes |
@@ -438,7 +445,7 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
   run through Hugging Face Transformers on the CPU. Reels need a Python with torch and transformers (`REEL_PYTHON` in
   `start.env`). Voice notes need Omnilingual ASR (`ASR_PYTHON`).
 - The distilled decision model is served by `distill/serve.sh` (llama-cpp-python, CPU); the text 1B by
-  `distill/Modelfile.serve-1b-text` on Glimmer's Ollama.
+  `distill/Modelfile.serve-1b-text` and the pruned one by `distill/Modelfile.serve-1b-text-v2`, on Glimmer's Ollama.
 - The evaluations that need Muse Glimmer run from `agent/`: `node test/e2e.mjs`, `node test/redteam.mjs`,
   `node test/autopilot_eval.mjs`, `node test/loop_eval.mjs`, and the others listed in
   [submission/results/README.md](submission/results/README.md).
@@ -525,7 +532,7 @@ Every number on this page comes from [submission/technical_report.md](submission
 `docs/` or the technical slides. Main sources: the student in `docs/decision_model.md`; the decider in
 `docs/decider.md`; A2A and holds in `contention_eval.json`; the value of information in `voi_sim.json` and
 `pref_share.json`; the time order in `rank_calls.json`; the loop in `loop_eval.json`; 3D replays in
-`submission/results/orbit/`; the tiny layer in `tiny.json`; the text 1B in `text1b.json`; the order test in
+`submission/results/orbit/`; the tiny layer in `tiny.json`; the text 1B in `text1b.json` and `text1b_v2.json`; the order test in
 `order_sensitivity.json`; the planner in `submission/agent_eval.md`.
 
 ## Credits and license
