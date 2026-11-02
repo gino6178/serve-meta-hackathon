@@ -382,10 +382,11 @@ const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x'),
     p = u.pathname;
   // the shield first: how often and how big, per client (safety/shield.js)
-  const stop = shield.check(req, p);
-  if (stop) {
+  // (named apart from stop(), which a member's leaving below calls: the same name here made it a TypeError)
+  const refused = shield.check(req, p);
+  if (refused) {
     req.resume();
-    return json(res, stop[0], stop[1], stop[2]);
+    return json(res, refused[0], refused[1], refused[2]);
   }
   shield.opened(req, res);
   try {
@@ -417,7 +418,17 @@ const server = http.createServer(async (req, res) => {
         after: code => {
           if (code === 200 && id) {
             stop(id);
-            fs.rmSync(folderOf(id), {recursive: true, force: true});
+            // (the gateway may still hold its files for a moment after the kill: retried, and never thrown here,
+            // where it would take the whole proxy down)
+            fs.rm(
+              folderOf(id),
+              {recursive: true, force: true, maxRetries: 10, retryDelay: 300},
+              e =>
+                e &&
+                console.error(
+                  `${new Date().toISOString()} could not remove a member's folder: ${e.code}`,
+                ),
+            );
             seen.clear();
           }
         },

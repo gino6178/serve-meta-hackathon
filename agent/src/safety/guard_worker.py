@@ -21,6 +21,10 @@ except Exception as e:  # not downloaded, or the terms not accepted on Hugging F
         print(json.dumps({"error": f"Prompt Guard is not available ({type(e).__name__})"}), flush=True)
     sys.exit(0)
 torch.set_num_threads(int(os.environ.get("GUARD_THREADS", "4")))
+# guard.js writes UTF-8; read and write it as such whatever the locale (on Windows stdin is the ANSI code page, which
+# turned every Chinese text into an error, and held every post in its batch)
+sys.stdin.reconfigure(encoding="utf-8")
+sys.stdout.reconfigure(encoding="utf-8")
 
 for line in sys.stdin:
     try:
