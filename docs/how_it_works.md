@@ -256,6 +256,12 @@ A member agent's answer keeps its intent (accept, counter, decline) as Glimmer's
 1.2 GB, all on the GPU, **0.1 to 0.5 s a call** instead of about 18 s for a court. Every other short site keeps the
 first text 1B, which the cut was not healed for. Every variant's numbers: `submission/results/text1b_v2.json`.
 
+**What the testers found afterwards.** AI testers on a local copy found that the pruned 1B refused short texts with a
+name in them that Glimmer passes: club names such as "Mei Test Club" or "Leo Smash Squad", 5 of 10 (the first text 1B
+1 of 10, Glimmer 0 of 10). None of the held-out sets had such texts. So a comment the 1B would refuse is now asked again
+of Glimmer, whose verdict stands: all 10 names pass (about 6 s each), the 6 hostile test texts are still refused, and
+an ordinary comment still takes 0.1 s (`deps.standard` in `agent/src/feed/deps.js`).
+
 ![A 1B distilled for short text resists attacks it never saw](readme/slide_text1b.png)
 
 ## 6. Security: Rule of Two, two guards, de-identification, a signed consent chain

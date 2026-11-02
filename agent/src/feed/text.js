@@ -225,6 +225,7 @@ export const STANDARD = {
   harassment: 'it reads as harassing or insulting someone',
   sexual: 'it makes a sexual remark or request to someone',
   hate: 'it demeans a group of people',
-  privacy: 'it hunts for or reveals where someone lives or can be found',
+  privacy:
+    "it shares someone else's private details (where they live or can be found, their health or private life)",
   spam: 'it reads as spam',
 };
