@@ -17,13 +17,15 @@ def prompt_text(messages):
     return s + "<|start_header_id|>assistant<|end_header_id|>\n\n"
 
 VERDICT = '"verdict": "'
+KEY = {"feed.standard": VERDICT, "places.judge": VERDICT, "a2a.answer": '"intent": "'}
 
 def encode(tok, ex, max_len):
     """(ids, labels, soft): soft is (position of the verdict's first token, [label token ids], [Glimmer's probabilities])
     for an example with soft labels (distill/text_soft.py), else None."""
     p = [tok.bos_token_id] + tok.encode(prompt_text(ex.get("small_messages") or ex["messages"]), add_special_tokens=False)
     tgt, soft = ex["target"], None
-    k = tgt.find(VERDICT) + len(VERDICT) if ex.get("soft") and VERDICT in tgt else -1
+    key = KEY.get(ex.get("site"), VERDICT)
+    k = tgt.find(key) + len(key) if ex.get("soft") and key in tgt else -1
     if k > 0:  # the target in two pieces, so the verdict's value begins a token of its own
         head = tok.encode(tgt[:k], add_special_tokens=False)
         t = head + tok.encode(tgt[k:], add_special_tokens=False)

@@ -8,7 +8,8 @@ import argparse, collections, json, re, sys, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 MAX = {"life.read": 220, "life.events": 200, "answer.learn": 120, "memory.update": 160, "loop.paraphrase": 120, "feed.standard": 100,
-       "places.judge": 320, "body.summary": 160, "answer": 220}
+       "places.judge": 320, "body.summary": 160, "answer": 220,
+       "a2a.answer": 120, "play.readIntent": 260}
 MEMBERS = ["Hana", "Ravi", "Tomás", "Yuki", "Aisha", "Leo", "Noor", "Sam", "Ines", "Kenji", "Priya"]
 nums = lambda t: re.findall(r"\d+(?:\.\d+)?", str(t))
 norm = lambda t: re.sub(r"[^\w]+", " ", str(t).lower()).strip()
@@ -28,6 +29,11 @@ def parse(site, t):
         except Exception: v = None
         return v if isinstance(v, list) else None
     if site in ("answer", "body.summary"): return (t or "").strip() or None
+    if site == "play.readIntent":
+        m = re.search(r"\{[\s\S]*\}", t or "")
+        try: v = json.loads(m.group(0)) if m else None
+        except Exception: v = None
+        return v if isinstance(v, dict) else None
     try: return json.loads(t)
     except Exception: return None
 
@@ -57,6 +63,12 @@ def checks(site, v, ex):
         t = v.get("text", "")
         return 0 < len(t) <= 100 and not re.search(r"\d|https?:", t) and not any(m in t for m in MEMBERS)
     if site == "answer.learn": return all(isinstance(x, str) for x in v)
+    if site == "a2a.answer":
+        times = dict((i, (d, s)) for i, d, s in re.findall(r"(t\d+): (\d{4}-\d\d-\d\d) (\d\d:\d\d)", ex["messages"][0]["content"]))
+        if v.get("intent") not in ("accept", "counter", "decline"): return False
+        if v.get("intent") == "counter" and (v.get("date"), v.get("start")) not in times.values(): return False
+        return all(w in times for w in (v.get("works") or []))
+    if site == "play.readIntent": return isinstance(v.get("sport"), str) and isinstance(v.get("days", []), list)
     return True
 
 def fields(site, v):
@@ -74,6 +86,12 @@ def fields(site, v):
     if site == "places.judge": return {"verdict": v.get("verdict")}
     if site == "loop.paraphrase": return {"request": v.get("request"), "area": v.get("area"), "aspect": v.get("aspect")}
     if site == "answer.learn": return {"any": len(v) > 0}
+    if site == "a2a.answer":
+        c = v.get("intent") == "counter"
+        return {"intent": v.get("intent"), "time": (v.get("date"), v.get("start")) if c else None, "works": sorted(v.get("works") or [])}
+    if site == "play.readIntent":
+        return {"sport": v.get("sport"), "days": sorted(v.get("days") or []), "from": v.get("from"), "to": v.get("to"), "minutes": v.get("minutes"),
+                "format": v.get("format"), "with": sorted(v.get("with") or []), "challenge": bool(v.get("challenge"))}
     return {}
 
 def main():

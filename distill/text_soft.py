@@ -9,7 +9,9 @@ A label's probability is the sum over the top tokens that begin it (a token that
 import argparse, json, math, re, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
-LABELS = {"feed.standard": ["ok", "threat", "harassment", "sexual", "hate", "privacy", "spam"], "places.judge": ["good", "maybe", "no"]}
+LABELS = {"feed.standard": ["ok", "threat", "harassment", "sexual", "hate", "privacy", "spam"], "places.judge": ["good", "maybe", "no"],
+          "a2a.answer": ["accept", "counter", "decline"]}
+KEY = {"feed.standard": "verdict", "places.judge": "verdict", "a2a.answer": "intent"}
 
 def ask(url, ex):
     body = {"model": "muse-glimmer", "messages": ex["messages"], "stream": False, "think": "low", "keep_alive": "24h", "format": ex["format"],
@@ -17,12 +19,39 @@ def ask(url, ex):
     r = urllib.request.urlopen(urllib.request.Request(f"{url}/api/chat", json.dumps(body).encode(), {"content-type": "application/json"}), timeout=300)
     return json.loads(r.read())
 
+def raw_prompt(messages):
+    """The turns as Ollama's glimmer renderer writes them for its llama-server (read off the wire), reasoning off, up to
+    the assistant's header: its "to=user" is what a call with a schema skips (the grammar forces "{" at once, where the
+    model would write the header), which leaves the label's distribution at a place the model never answers from."""
+    s = ""
+    for m in messages:
+        if m["role"] == "system": s += f'<|start|>system<|message|>{m["content"]}\n\nReasoning strength: none.\n\n# Valid recipients: "self", "user".<|eot|>'
+        elif m["role"] == "assistant": s += f'<|start|>assistant to=user<|message|>{m["content"]}<|eot|>'
+        else: s += f'<|start|>user<|message|>{m["content"]}<|eot|>'
+    return s + "<|start|>assistant to=user<|message|>"
+
+def ask_raw(url, ex):
+    """Glimmer's distribution at the label, after its own accepted reply up to the label (the target's prefix), unconstrained."""
+    key = f'"{KEY[ex["site"]]}": "'; k = ex["target"].find(key)
+    if k < 0: return None
+    body = {"model": "muse-glimmer", "prompt": raw_prompt(ex["messages"]) + ex["target"][:k + len(key)], "raw": True, "stream": False, "keep_alive": "24h",
+            "logprobs": True, "top_logprobs": 20, "options": {"temperature": 0, "num_predict": 1}}
+    r = urllib.request.urlopen(urllib.request.Request(f"{url}/api/generate", json.dumps(body).encode(), {"content-type": "application/json"}), timeout=300)
+    lps = json.loads(r.read()).get("logprobs") or []
+    if not lps: return None
+    mass = {l: 0.0 for l in LABELS[ex["site"]]}
+    for alt in lps[0]["top_logprobs"]:
+        s = alt["token"].lstrip(' "'); hits = [l for l in LABELS[ex["site"]] if s and l.startswith(s)]
+        for l in hits: mass[l] += math.exp(alt["logprob"]) / len(hits)
+    z = sum(mass.values())
+    return {l: round(v / z, 5) for l, v in mass.items()} if z > 0 else None
+
 def soft_of(site, j):
     content, lps = j["message"]["content"], j.get("logprobs") or []
     toks = [x["token"] for x in lps]
     text = "".join(toks)
     i = text.rfind(content) if content and text.rfind(content) >= 0 else len(text) - len(content)  # the reply is at the end, after the reasoning
-    m = re.search(r'"verdict"\s*:\s*"', content)
+    m = re.search(rf'"{KEY[site]}"\s*:\s*"', content)
     if not m or i < 0: return None
     at, pos = i + m.end(), 0
     for k, t in enumerate(toks):
@@ -40,13 +69,17 @@ def soft_of(site, j):
 def main():
     a = argparse.ArgumentParser()
     a.add_argument("--data", required=True); a.add_argument("--url", default="http://127.0.0.1:11460"); a.add_argument("--out", required=True); a.add_argument("--conc", type=int, default=4)
+    a.add_argument("--raw", action="store_true", help="read the label's distribution with the renderer's own turns (ask_raw), not through a chat call with a schema")
     args = a.parse_args()
     rows = [json.loads(l) for l in open(args.data)]
     def one(ex):
         if ex["site"] not in LABELS: return ex
         try:
+            if args.raw:
+                s = ask_raw(args.url, ex); want = json.loads(ex["target"]).get(KEY[ex["site"]])
+                return {**ex, "soft": s, "soft_agrees": max(s, key=s.get) == want} if s else ex
             j = ask(args.url, ex); v = json.loads(j["message"]["content"]); s = soft_of(ex["site"], j)
-            if s: return {**ex, "soft": s, "soft_agrees": v.get("verdict") == json.loads(ex["target"]).get("verdict")}
+            if s: return {**ex, "soft": s, "soft_agrees": v.get(KEY[ex["site"]]) == json.loads(ex["target"]).get(KEY[ex["site"]])}
         except Exception as e:
             pass
         return ex

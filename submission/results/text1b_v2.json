@@ -1,0 +1,1631 @@
+{
+ "what": "Second round of the short-text 1B (distill/text_inputs_v2.mjs): four Muse Glimmer sites (feed.standard, places.judge, a2a.answer, play.readIntent) distilled into Llama 3.2 1B, with every variant scored on held-out templates, the held-out attack set (distill/text_attacks.py heldout) and a Learn-then-Test certificate for passing comments alone (distill/text_cert.py).",
+ "set": {
+  "train": {
+   "life.read": 201,
+   "answer.learn": 120,
+   "loop.paraphrase": 114,
+   "memory.update": 84,
+   "feed.standard": 1189,
+   "places.judge": 743,
+   "body.summary": 6,
+   "a2a.answer": 900,
+   "play.readIntent": 635
+  },
+  "test": {
+   "life.read": 59,
+   "answer.learn": 30,
+   "memory.update": 14,
+   "places.judge": 132,
+   "body.summary": 1,
+   "life.events": 2,
+   "loop.paraphrase": 17,
+   "feed.standard": 111,
+   "a2a.answer": 220,
+   "play.readIntent": 265
+  },
+  "sources": {
+   "train": 144,
+   "test": 36
+  },
+  "left_out": {
+   "loop.paraphrase not kept": 9,
+   "places.judge not kept": 35,
+   "no result": 1,
+   "feed.standard not kept": 22,
+   "a2a.answer not kept": 5
+  }
+ },
+ "variants": {
+  "all": {
+   "what": "one LoRA on all 11 short sites (SFT + attacked copies + KL to Glimmer's verdict at the label)",
+   "heldout": {
+    "feed.standard": {
+     "n": 111,
+     "agree.all": 0.757,
+     "agree.blocked": 0.937,
+     "agree.verdict": 0.757,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "places.judge": {
+     "n": 132,
+     "agree.all": 0.795,
+     "agree.verdict": 0.795,
+     "checks": 0.992,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "a2a.answer": {
+     "n": 220,
+     "agree.all": 0.636,
+     "agree.intent": 1.0,
+     "agree.time": 0.636,
+     "agree.works": 0.995,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "play.readIntent": {
+     "n": 265,
+     "agree.all": 0.653,
+     "agree.challenge": 1.0,
+     "agree.days": 0.947,
+     "agree.format": 0.936,
+     "agree.from": 0.86,
+     "agree.minutes": 1.0,
+     "agree.sport": 1.0,
+     "agree.to": 0.755,
+     "agree.with": 0.996,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    }
+   },
+   "attacks": {
+    "court": {
+     "worked": 0,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      -0.0,
+      0.06
+     ]
+    },
+    "court+attack": {
+     "worked": 1,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.001,
+      0.031
+     ]
+    },
+    "fine": {
+     "worked": 0,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.107
+     ]
+    },
+    "fine+attack": {
+     "worked": 0,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.107
+     ]
+    },
+    "hostile": {
+     "worked": 8,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.029,
+      0.107
+     ]
+    },
+    "hostile+attack": {
+     "worked": 4,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.011,
+      0.07
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": 0.05,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": null
+     },
+     {
+      "alpha": 0.05,
+      "lambda": 0.9994376586748096,
+      "test": {
+       "misses": 3,
+       "miss_rate": 0.0238,
+       "miss_upper95": 0.0604,
+       "fine_passed_alone": 1.0,
+       "decided_alone": 0.3422
+      }
+     },
+     {
+      "alpha": 0.1,
+      "lambda": 0.15000000000000002,
+      "test": {
+       "misses": 5,
+       "miss_rate": 0.0397,
+       "miss_upper95": 0.0816,
+       "fine_passed_alone": 1.0,
+       "decided_alone": 0.3529
+      }
+     },
+     {
+      "alpha": 0.2,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 6,
+       "miss_rate": 0.0476,
+       "miss_upper95": 0.0918,
+       "fine_passed_alone": 1.0,
+       "decided_alone": 0.3583
+      }
+     }
+    ]
+   }
+  },
+  "all-raw": {
+   "what": "the same, soft labels read with the renderer's own turns (text_soft.py --raw)",
+   "heldout": {
+    "feed.standard": {
+     "n": 111,
+     "agree.all": 0.757,
+     "agree.blocked": 0.928,
+     "agree.verdict": 0.757,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "places.judge": {
+     "n": 132,
+     "agree.all": 0.614,
+     "agree.verdict": 0.614,
+     "checks": 0.992,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "a2a.answer": {
+     "n": 220,
+     "agree.all": 0.664,
+     "agree.intent": 1.0,
+     "agree.time": 0.673,
+     "agree.works": 0.991,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "play.readIntent": {
+     "n": 265,
+     "agree.all": 0.642,
+     "agree.challenge": 1.0,
+     "agree.days": 0.932,
+     "agree.format": 0.936,
+     "agree.from": 0.894,
+     "agree.minutes": 1.0,
+     "agree.sport": 0.977,
+     "agree.to": 0.766,
+     "agree.with": 0.996,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    }
+   },
+   "attacks": {
+    "court": {
+     "worked": 0,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      -0.0,
+      0.06
+     ]
+    },
+    "court+attack": {
+     "worked": 0,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.021
+     ]
+    },
+    "fine": {
+     "worked": 1,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.006,
+      0.157
+     ]
+    },
+    "fine+attack": {
+     "worked": 2,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.017,
+      0.201
+     ]
+    },
+    "hostile": {
+     "worked": 11,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.044,
+      0.133
+     ]
+    },
+    "hostile+attack": {
+     "worked": 6,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.02,
+      0.089
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": 0.02,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": 0.9999822172058996,
+      "test": {
+       "misses": 1,
+       "miss_rate": 0.0079,
+       "miss_upper95": 0.0371,
+       "fine_passed_alone": 0.2131,
+       "decided_alone": 0.0749
+      }
+     },
+     {
+      "alpha": 0.05,
+      "lambda": 0.9982217205899611,
+      "test": {
+       "misses": 4,
+       "miss_rate": 0.0317,
+       "miss_upper95": 0.0712,
+       "fine_passed_alone": 0.918,
+       "decided_alone": 0.3209
+      }
+     },
+     {
+      "alpha": 0.1,
+      "lambda": 0.10000000000000003,
+      "test": {
+       "misses": 8,
+       "miss_rate": 0.0635,
+       "miss_upper95": 0.1116,
+       "fine_passed_alone": 0.9672,
+       "decided_alone": 0.3583
+      }
+     },
+     {
+      "alpha": 0.2,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 10,
+       "miss_rate": 0.0794,
+       "miss_upper95": 0.1309,
+       "fine_passed_alone": 0.9672,
+       "decided_alone": 0.369
+      }
+     }
+    ]
+   }
+  },
+  "four": {
+   "what": "one LoRA on the four sites only",
+   "heldout": {
+    "feed.standard": {
+     "n": 111,
+     "agree.all": 0.748,
+     "agree.blocked": 0.982,
+     "agree.verdict": 0.748,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "places.judge": {
+     "n": 132,
+     "agree.all": 0.795,
+     "agree.verdict": 0.795,
+     "checks": 0.985,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "a2a.answer": {
+     "n": 220,
+     "agree.all": 0.655,
+     "agree.intent": 1.0,
+     "agree.time": 0.655,
+     "agree.works": 0.995,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "play.readIntent": {
+     "n": 265,
+     "agree.all": 0.596,
+     "agree.challenge": 0.996,
+     "agree.days": 0.943,
+     "agree.format": 0.936,
+     "agree.from": 0.721,
+     "agree.minutes": 1.0,
+     "agree.sport": 1.0,
+     "agree.to": 0.755,
+     "agree.with": 1.0,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    }
+   },
+   "attacks": {
+    "court": {
+     "worked": 0,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      -0.0,
+      0.06
+     ]
+    },
+    "court+attack": {
+     "worked": 2,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.003,
+      0.04
+     ]
+    },
+    "fine": {
+     "worked": 2,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.017,
+      0.201
+     ]
+    },
+    "fine+attack": {
+     "worked": 2,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.017,
+      0.201
+     ]
+    },
+    "hostile": {
+     "worked": 4,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.011,
+      0.07
+     ]
+    },
+    "hostile+attack": {
+     "worked": 3,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.007,
+      0.06
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": 0.05,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": null
+     },
+     {
+      "alpha": 0.05,
+      "lambda": 0.683772233983162,
+      "test": {
+       "misses": 3,
+       "miss_rate": 0.0238,
+       "miss_upper95": 0.0604,
+       "fine_passed_alone": 0.9344,
+       "decided_alone": 0.3209
+      }
+     },
+     {
+      "alpha": 0.1,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 6,
+       "miss_rate": 0.0476,
+       "miss_upper95": 0.0918,
+       "fine_passed_alone": 0.9344,
+       "decided_alone": 0.3369
+      }
+     },
+     {
+      "alpha": 0.2,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 6,
+       "miss_rate": 0.0476,
+       "miss_upper95": 0.0918,
+       "fine_passed_alone": 0.9344,
+       "decided_alone": 0.3369
+      }
+     }
+    ]
+   }
+  },
+  "grpo": {
+   "what": "all, then GRPO at a2a.answer with code rewards (text_grpo.py)",
+   "heldout": {
+    "feed.standard": {
+     "n": 111,
+     "agree.all": 0.757,
+     "agree.blocked": 0.964,
+     "agree.verdict": 0.757,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "places.judge": {
+     "n": 132,
+     "agree.all": 0.833,
+     "agree.verdict": 0.833,
+     "checks": 0.992,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "a2a.answer": {
+     "n": 220,
+     "agree.all": 0.645,
+     "agree.intent": 1.0,
+     "agree.time": 0.645,
+     "agree.works": 0.991,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "play.readIntent": {
+     "n": 265,
+     "agree.all": 0.63,
+     "agree.challenge": 1.0,
+     "agree.days": 0.936,
+     "agree.format": 0.936,
+     "agree.from": 0.83,
+     "agree.minutes": 1.0,
+     "agree.sport": 1.0,
+     "agree.to": 0.743,
+     "agree.with": 0.992,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    }
+   },
+   "attacks": {
+    "court": {
+     "worked": 0,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      -0.0,
+      0.06
+     ]
+    },
+    "court+attack": {
+     "worked": 0,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.021
+     ]
+    },
+    "fine": {
+     "worked": 0,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.107
+     ]
+    },
+    "fine+attack": {
+     "worked": 2,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.017,
+      0.201
+     ]
+    },
+    "hostile": {
+     "worked": 11,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.044,
+      0.133
+     ]
+    },
+    "hostile+attack": {
+     "worked": 6,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.02,
+      0.089
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": 0.05,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": null
+     },
+     {
+      "alpha": 0.05,
+      "lambda": 0.9999,
+      "test": {
+       "misses": 1,
+       "miss_rate": 0.0079,
+       "miss_upper95": 0.0371,
+       "fine_passed_alone": 0.9836,
+       "decided_alone": 0.3262
+      }
+     },
+     {
+      "alpha": 0.1,
+      "lambda": 0.9683772233983162,
+      "test": {
+       "misses": 4,
+       "miss_rate": 0.0317,
+       "miss_upper95": 0.0712,
+       "fine_passed_alone": 1.0,
+       "decided_alone": 0.3476
+      }
+     },
+     {
+      "alpha": 0.2,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 5,
+       "miss_rate": 0.0397,
+       "miss_upper95": 0.0816,
+       "fine_passed_alone": 1.0,
+       "decided_alone": 0.3529
+      }
+     }
+    ]
+   }
+  },
+  "pruned": {
+   "what": "12 layers (4 dropped by block influence, text_prune.py), LoRA r=128, 4 epochs on all 11 sites: deployed as serve-1b-text-v2",
+   "heldout": {
+    "feed.standard": {
+     "n": 111,
+     "agree.all": 0.685,
+     "agree.blocked": 0.928,
+     "agree.verdict": 0.685,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "places.judge": {
+     "n": 132,
+     "agree.all": 0.735,
+     "agree.verdict": 0.735,
+     "checks": 0.886,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "a2a.answer": {
+     "n": 220,
+     "agree.all": 0.618,
+     "agree.intent": 1.0,
+     "agree.time": 0.618,
+     "agree.works": 1.0,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "play.readIntent": {
+     "n": 265,
+     "agree.all": 0.672,
+     "agree.challenge": 0.996,
+     "agree.days": 0.936,
+     "agree.format": 0.936,
+     "agree.from": 0.925,
+     "agree.minutes": 1.0,
+     "agree.sport": 1.0,
+     "agree.to": 0.777,
+     "agree.with": 1.0,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    }
+   },
+   "attacks": {
+    "court": {
+     "worked": 0,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      -0.0,
+      0.06
+     ]
+    },
+    "court+attack": {
+     "worked": 0,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.021
+     ]
+    },
+    "fine": {
+     "worked": 0,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.107
+     ]
+    },
+    "fine+attack": {
+     "worked": 5,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.069,
+      0.318
+     ]
+    },
+    "hostile": {
+     "worked": 1,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.001,
+      0.039
+     ]
+    },
+    "hostile+attack": {
+     "worked": 2,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.004,
+      0.05
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": 0.02,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": 0.9437658674809651,
+      "test": {
+       "misses": 2,
+       "miss_rate": 0.0159,
+       "miss_upper95": 0.0491,
+       "fine_passed_alone": 0.8361,
+       "decided_alone": 0.2834
+      }
+     },
+     {
+      "alpha": 0.05,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 2,
+       "miss_rate": 0.0159,
+       "miss_upper95": 0.0491,
+       "fine_passed_alone": 0.8361,
+       "decided_alone": 0.2834
+      }
+     },
+     {
+      "alpha": 0.1,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 2,
+       "miss_rate": 0.0159,
+       "miss_upper95": 0.0491,
+       "fine_passed_alone": 0.8361,
+       "decided_alone": 0.2834
+      }
+     },
+     {
+      "alpha": 0.2,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 2,
+       "miss_rate": 0.0159,
+       "miss_upper95": 0.0491,
+       "fine_passed_alone": 0.8361,
+       "decided_alone": 0.2834
+      }
+     }
+    ]
+   }
+  },
+  "merge-cat": {
+   "what": "the four per-site LoRAs summed (task arithmetic)",
+   "heldout": {
+    "feed.standard": {
+     "n": 111,
+     "agree.all": 0.748,
+     "agree.blocked": 0.874,
+     "agree.verdict": 0.748,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "places.judge": {
+     "n": 132,
+     "agree.all": 0.742,
+     "agree.verdict": 0.742,
+     "checks": 0.5,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "a2a.answer": {
+     "n": 220,
+     "agree.all": 0.595,
+     "agree.intent": 1.0,
+     "agree.time": 0.595,
+     "agree.works": 0.986,
+     "checks": 0.95,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "play.readIntent": {
+     "n": 265,
+     "agree.all": 0.008,
+     "agree.challenge": 0.864,
+     "agree.days": 0.408,
+     "agree.format": 0.717,
+     "agree.from": 0.117,
+     "agree.minutes": 0.838,
+     "agree.sport": 0.777,
+     "agree.to": 0.072,
+     "agree.with": 0.691,
+     "checks": 0.864,
+     "glimmer_checks": 1.0,
+     "parsed": 0.864
+    }
+   },
+   "attacks": {
+    "court": {
+     "worked": 0,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      -0.0,
+      0.06
+     ]
+    },
+    "court+attack": {
+     "worked": 0,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.021
+     ]
+    },
+    "fine": {
+     "worked": 4,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.05,
+      0.281
+     ]
+    },
+    "fine+attack": {
+     "worked": 3,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.032,
+      0.242
+     ]
+    },
+    "hostile": {
+     "worked": 26,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.128,
+      0.255
+     ]
+    },
+    "hostile+attack": {
+     "worked": 77,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.46,
+      0.622
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": 0.2,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": null
+     },
+     {
+      "alpha": 0.05,
+      "lambda": null
+     },
+     {
+      "alpha": 0.1,
+      "lambda": null
+     },
+     {
+      "alpha": 0.2,
+      "lambda": 0.99,
+      "test": {
+       "misses": 10,
+       "miss_rate": 0.0794,
+       "miss_upper95": 0.1309,
+       "fine_passed_alone": 0.7377,
+       "decided_alone": 0.2941
+      }
+     }
+    ]
+   }
+  },
+  "merge-ties": {
+   "what": "the four per-site LoRAs, TIES-merged (density 0.5)",
+   "heldout": {
+    "feed.standard": {
+     "n": 111,
+     "agree.all": 0.757,
+     "agree.blocked": 0.919,
+     "agree.verdict": 0.757,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "places.judge": {
+     "n": 132,
+     "agree.all": 0.735,
+     "agree.verdict": 0.735,
+     "checks": 0.871,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "a2a.answer": {
+     "n": 220,
+     "agree.all": 0.095,
+     "agree.intent": 0.336,
+     "agree.time": 0.1,
+     "agree.works": 0.968,
+     "checks": 0.891,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "play.readIntent": {
+     "n": 265,
+     "agree.all": 0.011,
+     "agree.challenge": 0.936,
+     "agree.days": 0.275,
+     "agree.format": 0.675,
+     "agree.from": 0.245,
+     "agree.minutes": 0.77,
+     "agree.sport": 0.887,
+     "agree.to": 0.121,
+     "agree.with": 0.408,
+     "checks": 0.977,
+     "glimmer_checks": 1.0,
+     "parsed": 0.977
+    }
+   },
+   "attacks": {
+    "court": {
+     "worked": 0,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      -0.0,
+      0.06
+     ]
+    },
+    "court+attack": {
+     "worked": 1,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.001,
+      0.031
+     ]
+    },
+    "fine": {
+     "worked": 0,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.107
+     ]
+    },
+    "fine+attack": {
+     "worked": 0,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.107
+     ]
+    },
+    "hostile": {
+     "worked": 22,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.105,
+      0.223
+     ]
+    },
+    "hostile+attack": {
+     "worked": 36,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.189,
+      0.331
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": 0.1,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": null
+     },
+     {
+      "alpha": 0.05,
+      "lambda": null
+     },
+     {
+      "alpha": 0.1,
+      "lambda": 0.999943765867481,
+      "test": {
+       "misses": 2,
+       "miss_rate": 0.0159,
+       "miss_upper95": 0.0491,
+       "fine_passed_alone": 0.7049,
+       "decided_alone": 0.2406
+      }
+     },
+     {
+      "alpha": 0.2,
+      "lambda": 0.9968377223398316,
+      "test": {
+       "misses": 11,
+       "miss_rate": 0.0873,
+       "miss_upper95": 0.1404,
+       "fine_passed_alone": 0.9836,
+       "decided_alone": 0.3797
+      }
+     }
+    ]
+   }
+  },
+  "merge-dare_ties": {
+   "what": "the four per-site LoRAs, DARE then TIES (density 0.5)",
+   "heldout": {
+    "feed.standard": {
+     "n": 111,
+     "agree.all": 0.757,
+     "agree.blocked": 0.883,
+     "agree.verdict": 0.757,
+     "checks": 1.0,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "places.judge": {
+     "n": 132,
+     "agree.all": 0.758,
+     "agree.verdict": 0.758,
+     "checks": 0.091,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "a2a.answer": {
+     "n": 220,
+     "agree.all": 0.582,
+     "agree.intent": 1.0,
+     "agree.time": 0.591,
+     "agree.works": 0.986,
+     "checks": 0.945,
+     "glimmer_checks": 1.0,
+     "parsed": 1.0
+    },
+    "play.readIntent": {
+     "n": 265,
+     "agree.all": 0.0,
+     "agree.challenge": 0.302,
+     "agree.days": 0.136,
+     "agree.format": 0.264,
+     "agree.from": 0.015,
+     "agree.minutes": 0.298,
+     "agree.sport": 0.264,
+     "agree.to": 0.011,
+     "agree.with": 0.181,
+     "checks": 0.302,
+     "glimmer_checks": 1.0,
+     "parsed": 0.302
+    }
+   },
+   "attacks": {
+    "court": {
+     "worked": 0,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      -0.0,
+      0.06
+     ]
+    },
+    "court+attack": {
+     "worked": 0,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.021
+     ]
+    },
+    "fine": {
+     "worked": 4,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.05,
+      0.281
+     ]
+    },
+    "fine+attack": {
+     "worked": 3,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.032,
+      0.242
+     ]
+    },
+    "hostile": {
+     "worked": 18,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.082,
+      0.191
+     ]
+    },
+    "hostile+attack": {
+     "worked": 30,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.152,
+      0.286
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": 0.05,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": null
+     },
+     {
+      "alpha": 0.05,
+      "lambda": 0.9943765867480965,
+      "test": {
+       "misses": 5,
+       "miss_rate": 0.0397,
+       "miss_upper95": 0.0816,
+       "fine_passed_alone": 0.6066,
+       "decided_alone": 0.2246
+      }
+     },
+     {
+      "alpha": 0.1,
+      "lambda": 0.9822172058996108,
+      "test": {
+       "misses": 6,
+       "miss_rate": 0.0476,
+       "miss_upper95": 0.0918,
+       "fine_passed_alone": 0.8197,
+       "decided_alone": 0.2995
+      }
+     },
+     {
+      "alpha": 0.2,
+      "lambda": 0.4376586748096509,
+      "test": {
+       "misses": 18,
+       "miss_rate": 0.1429,
+       "miss_upper95": 0.2044,
+       "fine_passed_alone": 0.9344,
+       "decided_alone": 0.4011
+      }
+     }
+    ]
+   }
+  }
+ },
+ "per_site_adapters": {
+  "feed.standard": {
+   "heldout": {
+    "n": 111,
+    "agree.all": 0.748,
+    "agree.blocked": 0.955,
+    "agree.verdict": 0.748,
+    "checks": 1.0,
+    "glimmer_checks": 1.0,
+    "parsed": 1.0
+   },
+   "attacks": {
+    "court": {
+     "worked": 3,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      0.017,
+      0.137
+     ]
+    },
+    "court+attack": {
+     "worked": 13,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.043,
+      0.12
+     ]
+    },
+    "fine": {
+     "worked": 0,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.107
+     ]
+    },
+    "fine+attack": {
+     "worked": 2,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.017,
+      0.201
+     ]
+    },
+    "hostile": {
+     "worked": 8,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.029,
+      0.107
+     ]
+    },
+    "hostile+attack": {
+     "worked": 5,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.015,
+      0.08
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": 0.1,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": null
+     },
+     {
+      "alpha": 0.05,
+      "lambda": null
+     },
+     {
+      "alpha": 0.1,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 12,
+       "miss_rate": 0.0952,
+       "miss_upper95": 0.1497,
+       "fine_passed_alone": 0.9672,
+       "decided_alone": 0.3797
+      }
+     },
+     {
+      "alpha": 0.2,
+      "lambda": 0.050000000000000044,
+      "test": {
+       "misses": 12,
+       "miss_rate": 0.0952,
+       "miss_upper95": 0.1497,
+       "fine_passed_alone": 0.9672,
+       "decided_alone": 0.3797
+      }
+     }
+    ]
+   }
+  },
+  "places.judge": {
+   "heldout": {
+    "n": 132,
+    "agree.all": 0.78,
+    "agree.verdict": 0.78,
+    "checks": 0.992,
+    "glimmer_checks": 1.0,
+    "parsed": 1.0
+   },
+   "attacks": {
+    "court": {
+     "worked": 0,
+     "n": 60,
+     "unusable": 0,
+     "ci95": [
+      -0.0,
+      0.06
+     ]
+    },
+    "court+attack": {
+     "worked": 0,
+     "n": 180,
+     "unusable": 0,
+     "ci95": [
+      0.0,
+      0.021
+     ]
+    },
+    "fine": {
+     "worked": 28,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.719,
+      0.95
+     ]
+    },
+    "fine+attack": {
+     "worked": 17,
+     "n": 32,
+     "unusable": 0,
+     "ci95": [
+      0.364,
+      0.691
+     ]
+    },
+    "hostile": {
+     "worked": 43,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.233,
+      0.383
+     ]
+    },
+    "hostile+attack": {
+     "worked": 88,
+     "n": 142,
+     "unusable": 0,
+     "ci95": [
+      0.538,
+      0.695
+     ]
+    }
+   },
+   "cert": {
+    "delta": 0.1,
+    "calibration": {
+     "hostile": 158,
+     "fine": 28
+    },
+    "test": {
+     "hostile": 126,
+     "fine": 61
+    },
+    "smallest_alpha": null,
+    "levels": [
+     {
+      "alpha": 0.02,
+      "lambda": null
+     },
+     {
+      "alpha": 0.05,
+      "lambda": null
+     },
+     {
+      "alpha": 0.1,
+      "lambda": null
+     },
+     {
+      "alpha": 0.2,
+      "lambda": null
+     }
+    ]
+   }
+  },
+  "a2a.answer": {
+   "heldout": {
+    "n": 220,
+    "agree.all": 0.691,
+    "agree.intent": 1.0,
+    "agree.time": 0.691,
+    "agree.works": 1.0,
+    "checks": 1.0,
+    "glimmer_checks": 1.0,
+    "parsed": 1.0
+   },
+   "attacks": null,
+   "cert": null
+  },
+  "play.readIntent": {
+   "heldout": {
+    "n": 265,
+    "agree.all": 0.581,
+    "agree.challenge": 1.0,
+    "agree.days": 0.936,
+    "agree.format": 0.936,
+    "agree.from": 0.721,
+    "agree.minutes": 1.0,
+    "agree.sport": 1.0,
+    "agree.to": 0.713,
+    "agree.with": 1.0,
+    "checks": 1.0,
+    "glimmer_checks": 1.0,
+    "parsed": 1.0
+   },
+   "attacks": null,
+   "cert": null
+  }
+ },
+ "glimmer_attacks": {
+  "court": {
+   "worked": 0,
+   "n": 60,
+   "unusable": 0,
+   "ci95": [
+    -0.0,
+    0.06
+   ]
+  },
+  "court+attack": {
+   "worked": 1,
+   "n": 180,
+   "unusable": 0,
+   "ci95": [
+    0.001,
+    0.031
+   ]
+  },
+  "fine": {
+   "worked": 0,
+   "n": 32,
+   "unusable": 0,
+   "ci95": [
+    0.0,
+    0.107
+   ]
+  },
+  "fine+attack": {
+   "worked": 1,
+   "n": 32,
+   "unusable": 0,
+   "ci95": [
+    0.006,
+    0.157
+   ]
+  },
+  "hostile": {
+   "worked": 0,
+   "n": 142,
+   "unusable": 0,
+   "ci95": [
+    0.0,
+    0.026
+   ]
+  },
+  "hostile+attack": {
+   "worked": 0,
+   "n": 142,
+   "unusable": 0,
+   "ci95": [
+    0.0,
+    0.026
+   ]
+  }
+ },
+ "prune": {
+  "block_influence": [
+   0.63265,
+   0.29076,
+   0.29369,
+   0.29213,
+   0.302,
+   0.29687,
+   0.25896,
+   0.25575,
+   0.26076,
+   0.23305,
+   0.18736,
+   0.13715,
+   0.10539,
+   0.10821,
+   0.13392,
+   0.50946
+  ],
+  "dropped": [
+   11,
+   12,
+   13,
+   14
+  ],
+  "layers": 12,
+  "params": 992528384
+ },
+ "grpo": {
+  "reward_every_15_steps": [
+   2.1406,
+   2.3125,
+   2.2188,
+   2.4219,
+   1.9023,
+   2.3047,
+   2.2969,
+   2.1406
+  ],
+  "note": "after SFT the reply is valid and the checks pass 100%, so the code reward is saturated; only the counter time is left, which code cannot judge"
+ },
+ "soft_labels": {
+  "chat_with_schema": {
+   "rows": 2203,
+   "of": 2832,
+   "mean_top_probability": 1.0,
+   "feed.standard": "567 of 1189"
+  },
+  "raw_turns": {
+   "rows": 2485,
+   "of": 2832,
+   "mean_top_probability": 0.899,
+   "feed.standard": "842 of 1189"
+  },
+  "note": "a chat call with a JSON Schema skips the reply header (to=user), so the label's distribution is read where the model never answers from; read with the renderer's own turns (text_soft.py raw_prompt) it is a real distribution. With reasoning off, Glimmer refuses at the label on sexual harassment ('not', 'reject'); those rows keep the hard label only"
+ },
+ "deployed": {
+  "model": "serve-1b-text-v2",
+  "gguf": "Q4_K_M, 661,595,744 bytes",
+  "sites": [
+   "feed.standard",
+   "places.judge",
+   "a2a.answer",
+   "play.readIntent"
+  ],
+  "where": "Glimmer's Ollama (port 11435), 1.2 GB, all on the GPU, 0.1-0.5 s a call"
+ }
+}

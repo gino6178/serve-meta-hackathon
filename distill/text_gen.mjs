@@ -8,10 +8,15 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { inputs } from "./text_inputs.mjs";
+import { inputs as inputs1 } from "./text_inputs.mjs";
+import { inputs as inputs2 } from "./text_inputs_v2.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1] : d; };
 const OUT = arg("out", "../data/results.jsonl"), ONLY = arg("only", ""), LIMIT = +arg("limit", 0), CONC = +arg("conc", 2), [SHARD, SHARDS] = arg("shard", "0/1").split("/").map(Number);
+// (--inputs v2: the second round's four sites, distill/text_inputs_v2.mjs; every cheaper tier of a member's answer is off,
+// so each a2a input reaches Glimmer's full answer)
+const SET = arg("inputs", "v1"), inputs = SET === "v2" ? inputs2 : inputs1;
+if (SET === "v2") Object.assign(process.env, { A2A_TINY: "off", A2A_STUDENT: "off", A2A_DECIDER: "off", A2A_EARLY: "off", A2A_AGREE: "off", A2A_ROUTE: "off" });
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "serve-text1b-"));
 Object.assign(process.env, { STORE_FILE: `${tmp}/players.json`, FEED_FILE: `${tmp}/feed.json`, LOOP_FLAGS_FILE: `${tmp}/flags.json`, LOOP_HISTORY_FILE: `${tmp}/history.json`, LOOP_NOTES_FILE: `${tmp}/notes.json` });
 const life = await import("../agent/src/club/life.js");
@@ -23,6 +28,10 @@ const places = await import("../agent/src/club/places.js");
 const body = await import("../agent/src/body/body.js");
 const store = await import("../agent/src/core/store.js");
 const guard = await import("../agent/src/safety/guard.js");
+const talk = await import("../agent/src/a2a/talk.js");
+const play = await import("../agent/src/club/play.js");
+const { readClub } = await import("../agent/src/club/club.js");
+const { asChoices } = await import("./cases.mjs");
 
 const done = new Set(fs.existsSync(OUT) ? fs.readFileSync(OUT, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l).tag) : []);
 let all = inputs().map((x, i) => ({ ...x, tag: `i${i}` }));
@@ -55,6 +64,11 @@ async function run(x) {
       store.forget(id);
       return r;
     }
+    case "a2a.answer": {
+      const c = x.input, choices = asChoices(c), cur = choices.find((y) => y.id === c.cur);
+      return talk.fullAnswer(c.member, cur, choices, [], c.format, c.sport, c.minutes);
+    }
+    case "play.readIntent": return play.readIntent(x.input, readClub().members, new Date(x.now));
   }
   throw new Error(`no driver for ${x.site}`);
 }

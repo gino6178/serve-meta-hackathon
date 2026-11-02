@@ -1,0 +1,13 @@
+# Our Llama 3.2 1B pruned to 12 layers and distilled from Muse Glimmer (distill/text_prune.py, distill/text_train.py) for
+# four short sites (llm.js serve-1b-text-v2): a comment's verdict, a court's verdict, a member agent's answer in a talk,
+# a request to play. Same template as serve-1b-text; a 4,096-token context, as those calls are short.
+#   OLLAMA_HOST=127.0.0.1:11435 ollama create serve-1b-text-v2 -f models/Modelfile.serve-1b-text-v2
+FROM /home/gino/serve/models/serve-1b-text-v2-Q4_K_M.gguf
+TEMPLATE """{{- range .Messages }}<|start_header_id|>{{ .Role }}<|end_header_id|>
+
+{{ .Content }}<|eot_id|>{{- end }}<|start_header_id|>assistant<|end_header_id|>
+
+"""
+PARAMETER stop "<|eot_id|>"
+PARAMETER stop "<|end_of_text|>"
+PARAMETER num_ctx 4096
