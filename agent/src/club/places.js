@@ -960,7 +960,7 @@ export async function where(q) {
   if (wait) await new Promise(ok => setTimeout(ok, wait));
   lastGeo = Date.now();
   const r = await fetch(
-    `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(String(q).slice(0, 120))}`,
+    `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(String(q).slice(0, 120))}`,
     {
       headers: {'user-agent': UA, 'accept-language': 'en'},
       signal: AbortSignal.timeout(15000),
@@ -968,10 +968,26 @@ export async function where(q) {
   );
   const j = await r.json();
   if (!j[0]) throw new Error(`No place called "${q}" found`);
+  // an area before a building in it: "Daan District, Taipei" came back as a university there (test round 49)
+  const isArea = p =>
+    (p.class === 'boundary' && p.type === 'administrative') ||
+    /^(city_district|district|suburb|borough|quarter|neighbourhood|city|town|village)$/.test(p.addresstype || p.type || '');
+  let area = j.find(isArea);
+  // a name that reads as an area ("... District", "...區") with only buildings found: asked again for places only
+  if (!area && /district|city|town|area|區|市|鄉|鎮/i.test(String(q))) {
+    await new Promise(ok => setTimeout(ok, 1100));
+    lastGeo = Date.now();
+    const r2 = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&limit=3&featureType=settlement&q=${encodeURIComponent(String(q).slice(0, 120))}`,
+      {headers: {'user-agent': UA, 'accept-language': 'en'}, signal: AbortSignal.timeout(15000)},
+    ).catch(() => null);
+    area = ((await r2?.json().catch(() => [])) || []).find(isArea);
+  }
+  const p = area || j[0];
   return {
-    lat: +j[0].lat,
-    lon: +j[0].lon,
-    name: j[0].display_name.split(',').slice(0, 2).join(','),
+    lat: +p.lat,
+    lon: +p.lon,
+    name: p.display_name.split(',').slice(0, 2).join(','),
   };
 }
 

@@ -882,6 +882,18 @@ async function huddle(req, res, p, q, me, send, given = null) {
     return out(T.choose(me, b.q ?? b.id, b.pick));
   }
   if (p === '/api/huddle/start' && post) {
+    // a court named that is not near them is refused now, with the ones that are, rather than started and left stuck
+    // ("midtown", a sample court from the planner's demo town, sat at "stuck" with nothing said back: test round 49)
+    if (b.pin?.place && T.get(me).home) {
+      const t = T.get(me),
+        sport = String(b.sport || t.sports[0] || 'badminton');
+      const near = await D.placesNear(t.home, sport, {venues: 4, courts: 4}).catch(() => null);
+      if (near?.length && !near.some(x => x.id === String(b.pin.place)))
+        return send(400, {
+          error: `That court isn't one near you. Pick one of these as pin.place, or leave the court to the agents.`,
+          courts: near.slice(0, 8).map(x => ({id: x.id, name: x.name})),
+        });
+    }
     const r = H.start(me, b, {byAgent: !!req.byAgent});
     if (!r.error && !req.byAgent && (b.when || b.wantEach != null))
       T.askedFor(me, b.when, b.wantEach);
