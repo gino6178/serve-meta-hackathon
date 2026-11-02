@@ -514,15 +514,15 @@ test("a club's invite link: members share it, a public club is joined by it, a p
     404,
     "a private club's, not to outsiders",
   );
+  // a private club is not listed to outsiders at all (round 30: it was, without names); its link finds it
   const seen = (
     await route('GET', '/api/clubs', undefined, as(ben))
   ).body.clubs.find(c => c.id === priv.id);
-  assert.deepEqual(
-    seen.names,
-    [],
-    "a private club's members, not to outsiders",
-  );
-  assert.equal(seen.members, 1);
+  assert.equal(seen, undefined, 'a private club, not listed to outsiders');
+  const ours = (
+    await route('GET', '/api/clubs', undefined, as(ana))
+  ).body.clubs.find(c => c.id === priv.id);
+  assert.equal(ours.members, 1, 'its own members still see it');
   // what the link shows before sign-in: the club, never who is in it
   const pre = await route('GET', `/api/clubs/invite?code=${link.body.code}`);
   assert.equal(pre.code, 200);

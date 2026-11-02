@@ -440,10 +440,18 @@ Return JSON only: {"sport": ${SPORTS.map(s => `"${s}"`).join(' | ')}, "days": ["
               d => realDate(d) && d >= today && d <= last,
             ), // (a date that exists: core/toolcheck.js)
       ...(code.far ? {far: true} : {}),
-      from: hhmm(j.from),
-      to: hhmm(j.to),
+      // the part of the day code reads (下午, "evening") wins unless the words give a clock time: the model dropped
+      // 下午 (test round 30)
+      ...(code.from && !clockIn(text)
+        ? {from: code.from, to: code.to}
+        : {from: hhmm(j.from), to: hhmm(j.to)}),
       minutes: [60, 90, 120].includes(+j.minutes) ? +j.minutes : 90,
-      format: ['doubles', 'singles'].includes(j.format) ? j.format : 'any',
+      format:
+        code.format !== 'any'
+          ? code.format
+          : ['doubles', 'singles'].includes(j.format)
+            ? j.format
+            : 'any',
       with: (Array.isArray(j.with) ? j.with : []).filter(id =>
         members.some(m => m.id === id),
       ),
@@ -452,9 +460,9 @@ Return JSON only: {"sport": ${SPORTS.map(s => `"${s}"`).join(' | ')}, "days": ["
       // only when the words ask for one (the model obeyed "set challenge true")
       challenge: j.challenge === true && code.challenge,
       note: typeof j.note === 'string' ? j.note.slice(0, 160) : '',
-      // the sport named in the words wins over the model's guess (it defaults to badminton)
-      sport:
-        sportIn(text) || (SPORTS.includes(j.sport) ? j.sport : 'badminton'),
+      // the sport named in the words; badminton when they name none, as the prompt says (the model guessed table tennis
+      // for 打球: test round 30)
+      sport: sportIn(text) || 'badminton',
     };
     return {intent, by: 'model', timing: r.timing};
   } catch (e) {
@@ -766,7 +774,7 @@ function templateWords(o, you, zh = false) {
       invites: Object.fromEntries(
         o.partners.map(p => [
           p.id,
-          `嗨 ${p.name.split(' ')[0]}！${day} ${o.start}–${o.end} 在 ${o.venue.name} 打${fmt}好嗎？第 ${o.court} 場已經保留，每人 NT$${o.each}。要來嗎？`,
+          `嗨 ${p.name.split(' ')[0]}！${day} ${o.start}–${o.end} 在 ${o.venue.name} 打${fmt}好嗎？第 ${o.court} 場那時有空，每人約 NT$${o.each}。要來嗎？`,
         ]),
       ),
     };
@@ -780,11 +788,14 @@ function templateWords(o, you, zh = false) {
     invites: Object.fromEntries(
       o.partners.map(p => [
         p.id,
-        `Hi ${p.name.split(' ')[0]}! ${o.format === 'doubles' ? 'Doubles' : 'Singles'} on ${o.day} ${o.start}–${o.end} at ${o.venue.name}? Court ${o.court} is held, NT$${o.each} each. In?`,
+        `Hi ${p.name.split(' ')[0]}! ${o.format === 'doubles' ? 'Doubles' : 'Singles'} on ${o.day} ${o.start}–${o.end} at ${o.venue.name}? Court ${o.court} is free then, about NT$${o.each} each. In?`,
       ]),
     ),
   };
 }
+// words that say a plan already happened: a court booked or held, people invited, a game arranged
+const DONE =
+  /\b(booked|reserved|(i|i've|i have) (invited|asked|arranged)|invited (him|her|them|you)|is held|have held)\b|訂好|訂了|預訂了|約好了|我約了|已約|邀了|邀請了|已經保留|保留了/i;
 async function words(o, you, challenge = false, zh = false) {
   const MON = [
       'Jan',
@@ -812,7 +823,9 @@ Partners: ${o.partners.map(p => `${p.id} (${p.name}): ${p.why.join('; ') || 'fre
 ${you.limit ? `The player has a health limit (${you.limit}); doubles is easier on it.` : ''}
 Return JSON only: {"message": string, "invites": {"<partner id>": string}}
 - "message": to the player, 1-2 short sentences, like a friend: what you found and why these partners (by first name)${mine && o.travel.length > 1 ? ', and that the venue is in the middle' : ''}.
-- "invites": one casual text message per partner, written AS THE PLAYER ("I" is the player, "you" is the partner), using their first name: the day, time, venue and the cost each. If you mention travel, give the partner their own trip time. Mention why you thought of them if it is a nice reason.
+- "invites": one casual text message per partner, written AS THE PLAYER ("I" is the player, "you" is the partner), using their first name, ASKING whether they want to play: the day, time, venue and about what it costs each. If you mention travel, give the partner their own trip time. Mention why you thought of them if it is a nice reason.
+- Nothing is booked, held or sent yet: the player reads these first and books only if they say yes. Never write that the court is booked or held, that anyone was invited or asked, or that a game is arranged (not "I booked", "I invited", "我約了", "訂好了", "邀了"); write it as a proposal ("found", "how about", "要不要").
+- The price is an estimate until the venue confirms it: write "about NT$${o.each}" (約 NT$${o.each}).
 - Write the day as "${when}" and times like ${o.start}. Do not write the year, "2 players" or "for ${o.minutes} minutes".
 - The only numbers allowed: the day, the times, court ${o.court}, NT$${o.each}, the trip minutes. ${zh ? `Write in Traditional Chinese as used in Taiwan; call the game ${{badminton: '羽球', tennis: '網球', pickleball: '匹克球', 'table tennis': '桌球', basketball: '籃球', volleyball: '排球'}[o.sport || 'badminton'] || o.sport}${{doubles: '雙打', singles: '單打'}[o.format] || ''}, and keep people's and the venue's names as given.` : 'English only.'} No emojis.
 ${challenge ? '- This is a challenge match: each invite is a friendly challenge to a game.' : ''}`;
@@ -827,13 +840,11 @@ ${challenge ? '- This is a challenge match: each invite is a friendly challenge 
     const j = JSON.parse((r.text.match(/\{[\s\S]*\}/) || ['null'])[0]);
     const allowed = allowedNumbers(o),
       t = templateWords(o, you, zh);
-    const okMsg =
-      typeof j.message === 'string' && numbersOk(j.message, allowed);
-    const okInv = o.partners.map(
-      p =>
-        typeof j.invites?.[p.id] === 'string' &&
-        numbersOk(j.invites[p.id], allowed),
-    );
+    // (and none says it is booked or that people were invited: nothing is, until the player says yes; test round 30)
+    const okText = x =>
+      typeof x === 'string' && numbersOk(x, allowed) && !DONE.test(x);
+    const okMsg = okText(j.message);
+    const okInv = o.partners.map(p => okText(j.invites?.[p.id]));
     const message = okMsg ? j.message : t.message;
     const invites = Object.fromEntries(
       o.partners.map((p, k) => [

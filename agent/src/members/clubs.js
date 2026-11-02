@@ -121,7 +121,16 @@ export function view(c, viewer, from = null) {
 // the clubs near a point (the member's own first), or every club when there is no point
 export function list(viewer, {lat, lon, n = 50} = {}) {
   const from = pointOf({lat, lon});
-  const cs = data().clubs.map(c => view(c, viewer, from));
+  // a private club is found by its link, not in this list, unless the viewer is in it or asked to be (it showed to
+  // everyone nearby: test round 30)
+  const cs = data()
+    .clubs.filter(
+      c =>
+        c.privacy !== 'private' ||
+        c.members.some(m => m.id === viewer) ||
+        (c.requests || []).some(r => r.id === viewer),
+    )
+    .map(c => view(c, viewer, from));
   cs.sort(
     (a, b) =>
       b.joined - a.joined || (from ? a.km - b.km : b.members - a.members),

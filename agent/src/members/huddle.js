@@ -67,6 +67,9 @@ const MINUTES = 90,
   TRIES = 2,
   INDOOR = ['badminton', 'table tennis', 'squash'];
 const first = id => String(P.authorOf(id) || 'A member').split(' ')[0];
+// a named person who may not exist: their first name, or the id they were named by (an unknown id read as "A" from
+// "A member": test round 30)
+const named = id => (P.authorOf(id) ? first(id) : String(id).slice(0, 40));
 const names = xs =>
   xs.length > 1
     ? `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`
@@ -252,7 +255,7 @@ export function start(
   if (!invited.length)
     return {
       error: skipped.length
-        ? `${skipped.slice(0, 5).map(first).join(', ')} ${skipped.length > 1 ? "aren't" : "isn't"} in ${club ? club.name : 'any of your clubs'}, so nobody was asked. Invite them to the club first.`
+        ? `${skipped.slice(0, 5).map(named).join(', ')} ${skipped.length > 1 ? "aren't" : "isn't"} in ${club ? club.name : 'any of your clubs'}, so nobody was asked. Invite them to the club first.`
         : b.nearby
           ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet. Start a club, or post the game and share its link: the first friend needs no account.`
           : club
@@ -383,7 +386,7 @@ export function start(
       skipped.length
         ? `Not asked: ${skipped
             .slice(0, 5)
-            .map(first)
+            .map(named)
             .join(
               ', ',
             )}${skipped.length > 5 ? ` and ${skipped.length - 5} more` : ''}, who ${skipped.length > 1 ? "aren't" : "isn't"} in ${club ? club.name : 'any of your clubs'}. Invite them to the club first.`
@@ -1020,7 +1023,8 @@ async function run(h, now = new Date()) {
     );
   }
   let deal = {each: 0, price: 0},
-    shares = null;
+    shares = null,
+    openShare = null;
   if (o.place.kind === 'venue' && h.fill)
     deal = {
       each: P.find(h.fill)?.invite.each ?? 0,
@@ -1065,6 +1069,8 @@ async function run(h, now = new Date()) {
       const sp = S.split(deal.price, people, h.need);
       if (sp) {
         shares = sp.shares;
+        // each open spot's share, so the shares add up to the price (one spot's was missing: test round 30)
+        if (sp.open) openShare = {each: sp.open, spots: h.need - people.length};
         if (sp.covered.length)
           line(
             h,
@@ -1140,6 +1146,7 @@ async function run(h, now = new Date()) {
     off: deal.off || 0,
     sample: !!deal.sample,
     ...(shares ? {shares} : {}),
+    ...(openShare ? {openShare} : {}),
     ...(deal.quote ? {quote: deal.quote} : {}),
     km: Object.fromEntries(
       agreed.players.map(id => [id, knownKm(id, o.place)]),
@@ -1947,6 +1954,11 @@ export function view(h, me) {
                       v,
                     ]),
                   ),
+                  ...(o.openShare
+                    ? {
+                        open: `${o.openShare.spots} open spot${o.openShare.spots > 1 ? 's' : ''}, ${D.CURRENCY}${o.openShare.each} each, paid by whoever takes ${o.openShare.spots > 1 ? 'them' : 'it'}`,
+                      }
+                    : {}),
                 }
               : {}),
             signed: !!o.quote,
@@ -2010,6 +2022,18 @@ export function view(h, me) {
     fill: h.fill || null,
     ask: h.status === 'asking' && h.players.includes(me) && !h.answers[me],
     due: h.players.includes(me) ? dueBy(h, me) : dueBy(h),
+    // in plain words, what the game waits for and until when (the status alone said "asking": test round 30)
+    ...(h.status === 'asking'
+      ? (() => {
+          const w = h.players.filter(x => !h.answers[x]),
+            due = h.players.includes(me) ? dueBy(h, me) : dueBy(h);
+          return {
+            now: w.length
+              ? `Waiting for ${names(w.map(x => (x === me ? 'you' : first(x))))} to say yes${due ? `, until ${new Date(due).toLocaleString('en-GB', {weekday: 'short', hour: '2-digit', minute: '2-digit'})}` : ''}. People answer in their own time; ${h.host === me ? 'you can call it off any time' : 'the host can call it off any time'}.`
+              : 'Everyone said yes: confirming it now.',
+          };
+        })()
+      : {}),
   };
 }
 const LIVE = {asking: 0, talking: 1, on: 2, stuck: 3, stopped: 4, cancelled: 4};

@@ -45,6 +45,11 @@ export const RATES = {
   ask: [[10, DAY]],
   draft: [[10, DAY]],
   upload: [[20, DAY]],
+  // texts the checks refused: held on their own count, not the posts' (test round 30)
+  refused: [
+    [6, 10 * MIN],
+    [20, DAY],
+  ],
 };
 export function limited(player, kind) {
   const now = deps.now(),
@@ -55,7 +60,7 @@ export function limited(player, kind) {
     const inWin = at.filter(t => now - t < w);
     if (inWin.length >= n)
       return {
-        error: `That's the limit for now: ${n} ${kind === 'post' ? 'posts' : kind === 'comment' ? 'comments' : `${kind}s`} in ${w >= DAY ? 'a day' : `${Math.round(w / MIN)} minutes`}. Try again later.`,
+        error: `That's the limit for now: ${n} ${kind === 'post' ? 'posts' : kind === 'comment' ? 'comments' : kind === 'refused' ? 'refused posts or comments' : `${kind}s`} in ${w >= DAY ? 'a day' : `${Math.round(w / MIN)} minutes`}. Try again later.`,
         code: 429,
         retryIn: Math.ceil((w - (now - inWin[0])) / 1000),
       };
@@ -69,6 +74,17 @@ const count = (player, kind) =>
       ...(m[kind] || []).filter(t => deps.now() - t < DAY),
       deps.now(),
     ].slice(-200);
+  });
+// a refused post or comment: its count moves from the posts' (or comments') to the refused ones, so two refusals don't
+// spend half of the four posts in ten minutes (test round 30), and refusals over and over are still held
+const refusedOne = (player, kind) =>
+  S.change(d => {
+    const m = (d.rate[player] ||= {});
+    m[kind]?.pop();
+    m.refused = [
+      ...(m.refused || []).filter(t => deps.now() - t < DAY),
+      deps.now(),
+    ];
   });
 // a post or comment its author deleted stops counting toward the day's limit (it still counted: test round 29). One
 // deleted within 10 minutes keeps counting, so posting and deleting over and over is still held by the short window.
@@ -483,7 +499,9 @@ export async function post(
   const stop = paused(player);
   if (stop) return {error: pausedWhy(stop), code: 403, paused: true};
   // (a game the agents agreed is the result of a talk, not someone posting a lot: no rate limit for it)
-  const lim = fromHuddle ? null : limited(player, 'post');
+  const lim = fromHuddle
+    ? null
+    : limited(player, 'post') || limited(player, 'refused');
   if (lim) return lim;
   let photo = null;
   if (media) {
@@ -534,6 +552,7 @@ export async function post(
   );
   if (m.refused || m.helpline) {
     if (photo) dropUpload(player, photo.id);
+    if (!fromHuddle) refusedOne(player, 'post');
     return {
       refused: true,
       why: m.why,
@@ -614,10 +633,11 @@ export async function comment(player, postId, text, {agent = null} = {}) {
     return {error: 'That post is not in the feed any more.', code: 404};
   const stop = paused(player);
   if (stop) return {error: pausedWhy(stop), code: 403, paused: true};
-  const lim = limited(player, 'comment');
+  const lim = limited(player, 'comment') || limited(player, 'refused');
   if (lim) return lim;
   count(player, 'comment');
   const m = await moderate(t, player);
+  if (m.refused || m.helpline) refusedOne(player, 'comment');
   if (m.refused || m.helpline)
     return {
       refused: true,
@@ -1281,7 +1301,12 @@ export function report(
 }
 // an author deletes their own post or comment
 export function remove(player, postId, cid = null) {
-  const p = find(postId);
+  // a comment named on its own is found in its post (only the comment's id gave "not in the feed": test round 30)
+  const p =
+    find(postId) ||
+    (cid && !postId
+      ? S.data().posts.find(x => (x.comments || []).some(c => c.id === cid))
+      : null);
   if (!p) return {error: 'That post is not in the feed any more.', code: 404};
   if (cid) {
     const c = p.comments.find(x => x.id === cid);

@@ -181,7 +181,16 @@ export async function route(req, res, u, {json, o, forget}) {
     const r = M.demo(b.name);
     return r.error
       ? send(403, r)
-      : send(200, {member: r.member, session: M.sessionFor(r.member.id)});
+      : send(200, {
+          member: r.member,
+          session: M.sessionFor(r.member.id),
+          // a name kept differently from how it was sent says so
+          ...(b.name?.trim() && r.member.name !== b.name.trim()
+            ? {
+                note: `Your name is kept as "${r.member.name}": names keep letters, digits, spaces and . _ ' - ( ) only.`,
+              }
+            : {}),
+        });
   }
   if (p.startsWith('/api/agent-channel/')) return channel(req, res, p, send);
   // the trust chain, for anyone to check (trust.js): its entries (pseudonymous), the signed daily heads, and a replay
@@ -1037,11 +1046,16 @@ async function huddle(req, res, p, q, me, send, given = null) {
         t = new Date(y, mo - 1, d, hh, mm).getTime();
       if (!(t > Date.now() && t < Date.now() + 30 * 864e5))
         return send(400, {error: 'Pick a time in the next 30 days.'});
-      if (hh < 6 || hh * 60 + mm + 90 > 22 * 60)
+      if (hh < 6 || hh * 60 + mm + 90 > 22 * 60) {
+        // (say when the game would end: "open to 22:00" read as if 21:00 were fine, test round 30)
+        const end = hh * 60 + mm + 90;
         return send(400, {
           error:
-            'Venues here open 06:00 to 22:00; pick a 90-minute game inside that.',
+            hh < 6
+              ? 'Venues here open at 06:00; a game can start at 06:00 at the earliest.'
+              : `A 90-minute game from ${b.start} ends at ${String(Math.floor(end / 60) % 24).padStart(2, '0')}:${String(end % 60).padStart(2, '0')}, after venues close at 22:00. Start by 20:30.`,
         });
+      }
     }
     // a quote commits nobody, so it is given; what it breaks of the member's own limits is said with it
     const deal = D.talk(x, {
@@ -1116,7 +1130,32 @@ async function huddle(req, res, p, q, me, send, given = null) {
           "That place isn't among the courts near you or your games (GET /api/huddle/places lists them).",
       });
     const R = await import('../venues/report.js');
-    return send(200, {report: await R.report(x, {games: H.pastAt(x.id)})});
+    const rep = await R.report(x, {games: H.pastAt(x.id)});
+    // the lowest price at a time the member can play, when they set time windows (the week's lowest was at an hour
+    // outside them: test round 30)
+    if (x.kind === 'venue' && t.windows?.length) {
+      const fit = D.quietest(x, {n: 50})
+        .grid.filter(
+          g =>
+            !T.hardNo(
+              {...t, limitKm: null, limitEach: null, busyAt: [], declined: []},
+              {...g, km: null, each: 0},
+            ),
+        )
+        .map(g => ({...g, floor: D.terms(x, g.date, g.start).floor}))
+        .sort((a, b) => a.floor - b.floor)[0];
+      const day = g =>
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
+          new Date(`${g.date}T12:00:00`).getDay()
+        ];
+      rep.lines = [
+        ...(rep.lines || []),
+        fit
+          ? `In the times you set, the lowest is ${D.CURRENCY}${fit.floor}, ${day(fit)} ${fit.start}.`
+          : 'None of the times you set this week fits its hours.',
+      ];
+    }
+    return send(200, {report: rep});
   }
   return send(404, {error: 'no such route'});
 }

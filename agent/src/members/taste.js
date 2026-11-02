@@ -850,6 +850,9 @@ export function view(t) {
     grid,
     maxKm: +t.maxKm.toFixed(1),
     priceCap: Math.round(t.priceCap),
+    // (read as limits the member had set: test round 30)
+    leanings:
+      'maxKm and priceCap are what your agent leans to, from your answers (5 km and NT$250 to start): not limits. Your limits are limitKm and limitEach, null until you set them (POST /api/huddle/limits {maxKm, maxEach}).',
     answers: t.answers.length,
     pairs,
     sure: Math.min(1, t.answers.length / SURE_AT),

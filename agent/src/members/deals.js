@@ -350,7 +350,13 @@ export function talk(
       sample: true,
     };
   }
-  let ours = round10(list * (0.62 - 0.12 * push + 0.15 * t.busy)),
+  // the venue's floor for an hour is public (the venue report gives the week's lowest): the group's agent never offers
+  // more, and the venue comes down to it by the last round, so a quote at the report's hour is the report's price (one
+  // came NT$20 over: test round 30)
+  let ours = Math.min(
+      floor,
+      round10(list * (0.62 - 0.12 * push + 0.15 * t.busy)),
+    ),
     theirs = round10(list * (0.9 + 0.08 * t.busy));
   lines.push({
     from: us,
@@ -361,7 +367,10 @@ export function talk(
       lines.push({from: them, text: `Deal at ${C}${ours}.`});
       return done(ours);
     }
-    theirs = Math.max(floor, round10(theirs - (theirs - ours) * 0.4));
+    theirs =
+      r === 2
+        ? floor
+        : Math.max(floor, round10(theirs - (theirs - ours) * 0.4));
     const low =
       theirs === floor ? `, and that's as low as I go for that time` : '';
     lines.push({
@@ -375,7 +384,10 @@ export function talk(
       lines.push({from: us, text: `${C}${theirs} it is.`});
       return done(theirs);
     }
-    ours = round10(ours + (theirs - ours) * (0.35 + 0.3 * (1 - push)));
+    ours = Math.min(
+      floor,
+      round10(ours + (theirs - ours) * (0.35 + 0.3 * (1 - push))),
+    );
     lines.push({from: us, text: `Meet us at ${C}${ours}?`});
   }
   return done(theirs);

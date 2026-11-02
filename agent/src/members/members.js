@@ -196,7 +196,8 @@ export function join(
     ref,
     name:
       String(name || 'New member')
-        .replace(/[^\p{L}\p{N} ._'-]/gu, '')
+        // (letters, digits, spaces and . _ ' - ( ): brackets were dropped without a word, test round 30)
+        .replace(/[^\p{L}\p{N} ._'()-]/gu, '')
         .slice(0, 40) || 'New member',
     picture: picture && /^https:\/\//.test(picture) ? picture : null,
     ...(demo ? {demo: true} : {}),
