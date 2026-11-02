@@ -297,6 +297,18 @@ export async function route(req, res, u, {json, o, forget}) {
         );
       return out(r);
     }
+    // the organiser deletes the club; its members hear it is gone
+    if (p === '/api/clubs/delete' && req.method === 'POST') {
+      const r = C.remove(me, String(cb.club || ''));
+      for (const id of r.told || [])
+        P.notify(
+          id,
+          'club',
+          `${me.name.split(' ')[0]} closed ${r.club}, so it's no longer one of your clubs.`,
+        );
+      delete r.told;
+      return out(r);
+    }
     if (p === '/api/clubs/join' && req.method === 'POST') {
       const r = C.join(me, String(cb.club || ''), cb.on !== false);
       if (r.handed) {
@@ -945,7 +957,9 @@ async function huddle(req, res, p, q, me, send, given = null) {
                 ...g,
                 km: k,
                 each:
-                  x.kind === 'venue' ? D.bestEach(x, g.date, g.start, 4) : 0,
+                  x.kind === 'venue'
+                    ? D.bestEach(x, g.date, g.start, D.gameOf(sport))
+                    : 0,
               }),
           )
           .map(g => ({
@@ -973,7 +987,7 @@ async function huddle(req, res, p, q, me, send, given = null) {
                     const o = D.talk(x, {
                       date: good.date,
                       start: good.start,
-                      players: 4,
+                      players: D.gameOf(sport),
                       push: Math.min(1, T.weights(t).price * 2.5),
                       group: 'Your',
                     });

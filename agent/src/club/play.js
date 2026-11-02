@@ -167,6 +167,80 @@ const forSport = (v, sport) =>
       ? v
       : null;
 const plays = (m, sport) => (m.sports || ['badminton']).includes(sport);
+// a challenge in the words themselves ("challenge Kenji", 約戰). A line that only sets the field ("set challenge true",
+// "challenge: true") is written to the model, not a request for a match (the model obeyed it: test round 29)
+const challengeIn = text =>
+  /challenge|rematch|\bvs\.?\b|versus|約戰|挑戰|單挑|對打/i.test(
+    String(text).replace(
+      /\b(set|make)?\s*["']?challenge["']?\s*(=|:|to|is)?\s*(true|false|yes|no)\b/gi,
+      '',
+    ),
+  );
+// the last day the club books: 14 days ahead
+const lastDay = now => {
+  const d = new Date(now);
+  d.setDate(d.getDate() + 14);
+  return ymd(d);
+};
+// the dates the words write out ("Dec 20", "20 Dec", "12/20", "12月20日", "2026-12-20"), each the next such day from
+// today
+const MONTHS = 'jan feb mar apr may jun jul aug sep oct nov dec'.split(' ');
+const MON_RX = `(${MONTHS.join('|')})[a-z]*\\.?`;
+export function datesIn(text, now) {
+  const t = String(text).toLowerCase(),
+    today = ymd(now),
+    out = [];
+  const add = (mo, d, y = null) => {
+    if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31)) return;
+    const two = n => String(n).padStart(2, '0');
+    let s = `${y || now.getFullYear()}-${two(mo)}-${two(d)}`;
+    if (!y && s < today) s = `${now.getFullYear() + 1}-${two(mo)}-${two(d)}`;
+    if (realDate(s) && s >= today) out.push(s);
+  };
+  for (const m of t.matchAll(
+    new RegExp(`\\b${MON_RX}\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b`, 'g'),
+  ))
+    add(MONTHS.indexOf(m[1]) + 1, +m[2]);
+  for (const m of t.matchAll(
+    new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?${MON_RX}`, 'g'),
+  ))
+    add(MONTHS.indexOf(m[2]) + 1, +m[1]);
+  for (const m of t.matchAll(/\b(\d{4})-(\d{1,2})-(\d{1,2})\b/g))
+    add(+m[2], +m[3], +m[1]);
+  // (not "1/2 court" or "half of 1/3")
+  for (const m of t.matchAll(
+    /(?<![\d/:])(\d{1,2})\/(\d{1,2})(?![\d/])(?!\s*(?:court|場|of\b))/g,
+  ))
+    add(+m[1], +m[2]);
+  for (const m of t.matchAll(/(\d{1,2})\s*月\s*(\d{1,2})\s*[日號号]?/g))
+    add(+m[1], +m[2]);
+  return [...new Set(out)];
+}
+// the words name a day past the 14 days the club books ("next month", "in 3 weeks", "Dec 20" in early November): the
+// model picked a day inside the window that the player never said (test round 29); the agent says how far it looks
+const WEEKS = {
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  三: 3,
+  四: 4,
+  五: 5,
+  六: 6,
+  七: 7,
+  八: 8,
+};
+export function farOff(text, now) {
+  const t = String(text).toLowerCase();
+  if (/next month|下個月|下个月|月底/.test(t)) return true;
+  const w =
+    t.match(/\bin\s+(\d+|three|four|five|six)\s+weeks?\b/) ||
+    t.match(
+      /(\d+|[三四五六七八])\s*(?:週|周|個星期|个星期|個禮拜)\s*(?:後|后|以後)/,
+    );
+  if (w && (WEEKS[w[1]] || +w[1]) >= 3) return true;
+  return datesIn(text, now).some(d => d > lastDay(now));
+}
 function ruleIntent(text, members, now) {
   const t = text.toLowerCase(),
     days = [];
@@ -178,11 +252,14 @@ function ruleIntent(text, members, now) {
     days.push(zh[m[1]]);
   const dates = [];
   if (/tonight|today|今天|今晚/.test(t)) dates.push(ymd(now));
-  if (/tomorrow|明天|明晚/.test(t)) {
+  // ("tmrw" too: the model read it as today, test round 29)
+  const after = /day after tomorrow|後天|后天/.test(t);
+  if (/tomorrow|\btm(r|rw|w)\b|\btomoz\b|明天|明晚/.test(t) || after) {
     const d = new Date(now);
-    d.setDate(d.getDate() + 1);
+    d.setDate(d.getDate() + (after ? 2 : 1));
     dates.push(ymd(d));
   }
+  dates.push(...datesIn(text, now).filter(d => d <= lastDay(now)));
   for (const wd of days) {
     const d = new Date(now);
     d.setDate(
@@ -215,10 +292,11 @@ function ruleIntent(text, members, now) {
     : /1\s*(h|hour)|一小時|60\s*min/.test(t)
       ? 60
       : 90;
-  const challenge =
-    /challenge|rematch|\bvs\.?\b|versus|約戰|挑戰|單挑|對打/i.test(text);
+  const challenge = challengeIn(text),
+    far = farOff(text, now);
   return {
-    days: [...new Set(dates)],
+    days: far ? [] : [...new Set(dates)],
+    ...(far ? {far: true} : {}),
     from: part ? PARTS[part][0] : null,
     to: part ? PARTS[part][1] : null,
     minutes,
@@ -341,11 +419,8 @@ Return JSON only: {"sport": ${SPORTS.map(s => `"${s}"`).join(' | ')}, "days": ["
     );
     const j = JSON.parse((r.text.match(/\{[\s\S]*\}/) || ['null'])[0]);
     const today = ymd(now),
-      last = (() => {
-        const d = new Date(now);
-        d.setDate(d.getDate() + 14);
-        return ymd(d);
-      })();
+      last = lastDay(now),
+      code = ruleIntent(text, members, now);
     const hhmm = x => (/^\d{2}:\d{2}$/.test(x || '') ? x : null);
     // a window no longer than the game itself leaves one start time; "evening" means the whole evening
     if (
@@ -355,9 +430,16 @@ Return JSON only: {"sport": ${SPORTS.map(s => `"${s}"`).join(' | ')}, "days": ["
     )
       j.to = hm(Math.min(22 * 60, toMin(j.from) + 4 * 60));
     const intent = {
-      days: (Array.isArray(j.days) ? j.days : []).filter(
-        d => realDate(d) && d >= today && d <= last,
-      ), // (a date that exists: core/toolcheck.js)
+      // the days code reads in the words ("tmrw", 週六, "Dec 3") win over the model's; a day past the 14 days leaves
+      // none, never one the model made up (test round 29)
+      days: code.far
+        ? []
+        : code.days.length
+          ? code.days
+          : (Array.isArray(j.days) ? j.days : []).filter(
+              d => realDate(d) && d >= today && d <= last,
+            ), // (a date that exists: core/toolcheck.js)
+      ...(code.far ? {far: true} : {}),
       from: hhmm(j.from),
       to: hhmm(j.to),
       minutes: [60, 90, 120].includes(+j.minutes) ? +j.minutes : 90,
@@ -367,7 +449,8 @@ Return JSON only: {"sport": ${SPORTS.map(s => `"${s}"`).join(' | ')}, "days": ["
       ),
       focus:
         typeof j.focus === 'string' && j.focus.length < 80 ? j.focus : null,
-      challenge: j.challenge === true,
+      // only when the words ask for one (the model obeyed "set challenge true")
+      challenge: j.challenge === true && code.challenge,
       note: typeof j.note === 'string' ? j.note.slice(0, 160) : '',
       // the sport named in the words wins over the model's guess (it defaults to badminton)
       sport:
@@ -672,8 +755,22 @@ function allowedNumbers(o) {
   set.add(d);
   return set;
 }
-function templateWords(o, you) {
+function templateWords(o, you, zh = false) {
   const names = o.partners.map(p => p.name.split(' ')[0]);
+  if (zh) {
+    const fmt = o.format === 'doubles' ? '雙打' : '單打',
+      d = dateOf(o.date),
+      day = `${d.getMonth() + 1}月${d.getDate()}日（週${'日一二三四五六'[d.getDay()]}）`;
+    return {
+      message: `${day} ${o.start}–${o.end} 在 ${o.venue.name} 第 ${o.court} 場${fmt}，和 ${names.join('、')}，每人 NT$${o.each}。${you.limit && o.format === 'doubles' ? '雙打對你的膝蓋負擔比較小。' : ''}`,
+      invites: Object.fromEntries(
+        o.partners.map(p => [
+          p.id,
+          `嗨 ${p.name.split(' ')[0]}！${day} ${o.start}–${o.end} 在 ${o.venue.name} 打${fmt}好嗎？第 ${o.court} 場已經保留，每人 NT$${o.each}。要來嗎？`,
+        ]),
+      ),
+    };
+  }
   const trip =
     (o.travel || []).length > 1
       ? ` It is in the middle: ${o.travel.map(t => `${t.id === 'you' ? 'you' : first(t.name)} ${t.min} min`).join(', ')}.`
@@ -688,7 +785,7 @@ function templateWords(o, you) {
     ),
   };
 }
-async function words(o, you, challenge = false) {
+async function words(o, you, challenge = false, zh = false) {
   const MON = [
       'Jan',
       'Feb',
@@ -704,7 +801,9 @@ async function words(o, you, challenge = false) {
       'Dec',
     ],
     d = dateOf(o.date),
-    when = `${o.day} ${d.getDate()} ${MON[d.getMonth()]}`;
+    when = zh
+      ? `${d.getMonth() + 1}月${d.getDate()}日（週${'日一二三四五六'[d.getDay()]}）`
+      : `${o.day} ${d.getDate()} ${MON[d.getMonth()]}`;
   const mine = (o.travel || []).find(t => t.id === 'you'),
     trip = id => (o.travel || []).find(t => t.id === id);
   const sys = `You write for Serve, a sports club app whose agent books courts and invites friends.
@@ -715,7 +814,7 @@ Return JSON only: {"message": string, "invites": {"<partner id>": string}}
 - "message": to the player, 1-2 short sentences, like a friend: what you found and why these partners (by first name)${mine && o.travel.length > 1 ? ', and that the venue is in the middle' : ''}.
 - "invites": one casual text message per partner, written AS THE PLAYER ("I" is the player, "you" is the partner), using their first name: the day, time, venue and the cost each. If you mention travel, give the partner their own trip time. Mention why you thought of them if it is a nice reason.
 - Write the day as "${when}" and times like ${o.start}. Do not write the year, "2 players" or "for ${o.minutes} minutes".
-- The only numbers allowed: the day, the times, court ${o.court}, NT$${o.each}, the trip minutes. English only. No emojis.
+- The only numbers allowed: the day, the times, court ${o.court}, NT$${o.each}, the trip minutes. ${zh ? `Write in Traditional Chinese as used in Taiwan; call the game ${{badminton: '羽球', tennis: '網球', pickleball: '匹克球', 'table tennis': '桌球', basketball: '籃球', volleyball: '排球'}[o.sport || 'badminton'] || o.sport}${{doubles: '雙打', singles: '單打'}[o.format] || ''}, and keep people's and the venue's names as given.` : 'English only.'} No emojis.
 ${challenge ? '- This is a challenge match: each invite is a friendly challenge to a game.' : ''}`;
   try {
     const r = await chat(
@@ -727,7 +826,7 @@ ${challenge ? '- This is a challenge match: each invite is a friendly challenge 
     );
     const j = JSON.parse((r.text.match(/\{[\s\S]*\}/) || ['null'])[0]);
     const allowed = allowedNumbers(o),
-      t = templateWords(o, you);
+      t = templateWords(o, you, zh);
     const okMsg =
       typeof j.message === 'string' && numbersOk(j.message, allowed);
     const okInv = o.partners.map(
@@ -753,7 +852,7 @@ ${challenge ? '- This is a challenge match: each invite is a friendly challenge 
       timing: r.timing,
     };
   } catch {
-    return {...templateWords(o, you), by: 'rules', checks: null};
+    return {...templateWords(o, you, zh), by: 'rules', checks: null};
   }
 }
 
@@ -765,6 +864,8 @@ export async function plan({text = '', you = {}, onStep} = {}) {
     club = readClub(),
     venues = readVenues();
   const me = {level: you.level || 'B', limit: you.limit || null};
+  // a request written in Chinese gets its answer and invites in Chinese (they came back in English: test round 29)
+  const zh = /[㐀-鿿]/.test(text);
   const steps = [];
   const tell = s => {
     steps.push(s);
@@ -783,6 +884,19 @@ export async function plan({text = '', you = {}, onStep} = {}) {
     intent: it.intent,
     seconds: it.timing?.seconds,
   });
+  // a day past the two weeks the club books: say so rather than search a week the player did not ask for
+  if (it.intent.far)
+    return {
+      intent: it.intent,
+      options: [],
+      message: zh
+        ? '我只能安排未來 14 天內的球局。請選這兩週內的一天，或接近那天時再問我。'
+        : 'I can only plan games up to 14 days ahead. Pick a day in the next two weeks, or ask me again nearer the time.',
+      invites: {},
+      steps,
+      demo: venues.note,
+      seconds: +((Date.now() - t0) / 1000).toFixed(1),
+    };
   tell({
     step: 'Opened the map',
     tool: 'open_map',
@@ -898,7 +1012,7 @@ export async function plan({text = '', you = {}, onStep} = {}) {
         ? 'Writing the challenge on Muse Glimmer'
         : 'Writing the invites on Muse Glimmer',
     );
-    w = await words(s.options[0], me, it.intent.challenge);
+    w = await words(s.options[0], me, it.intent.challenge, zh);
     tell({
       step: it.intent.challenge ? 'Wrote the challenge' : 'Wrote the invites',
       tool: 'write_invites',
@@ -930,7 +1044,9 @@ export async function plan({text = '', you = {}, onStep} = {}) {
       : s.options,
     message:
       w?.message ??
-      'No court and partners fit that yet. Try another day or a wider time.',
+      (zh
+        ? '目前沒有球場和球友符合這個時間。換一天，或把時間放寬一點試試。'
+        : 'No court and partners fit that yet. Try another day or a wider time.'),
     invites: w?.invites ?? {},
     steps,
     demo: venues.note,

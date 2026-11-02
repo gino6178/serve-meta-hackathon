@@ -70,6 +70,16 @@ const count = (player, kind) =>
       deps.now(),
     ].slice(-200);
   });
+// a post or comment its author deleted stops counting toward the day's limit (it still counted: test round 29). One
+// deleted within 10 minutes keeps counting, so posting and deleting over and over is still held by the short window.
+const uncount = (player, kind, at) =>
+  S.change(d => {
+    const m = d.rate[player]?.[kind];
+    if (!m || deps.now() - at < 10 * MIN) return;
+    // counted a few seconds before it was made (the checks run in between)
+    const k = m.findIndex(t => t <= at && at - t < 5 * MIN);
+    if (k >= 0) m.splice(k, 1);
+  });
 
 // who a player is in the feed
 export function authorOf(player) {
@@ -1280,6 +1290,7 @@ export function remove(player, postId, cid = null) {
     S.change(() => {
       p.comments = p.comments.filter(x => x.id !== cid && x.reply !== cid);
     });
+    uncount(player, 'comment', c.at);
     return {deleted: true};
   }
   if (!(p.by.player === player || p.by.agentOf === player))
@@ -1300,6 +1311,7 @@ export function remove(player, postId, cid = null) {
     S.dropMedia(p.media);
     d.posts = d.posts.filter(x => x !== p);
   });
+  if (p.by.player === player) uncount(player, 'post', p.at);
   onRemoved(p.id);
   return {deleted: true};
 }

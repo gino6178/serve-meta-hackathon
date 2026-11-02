@@ -227,6 +227,13 @@ export function start(
         ? club.members.map(m => m.id)
         : [];
   invited = [...new Set(invited.filter(id => id !== me && can.has(id)))];
+  // the named people who are not asked (not in the club given, or in none of yours) are told back, not dropped without
+  // a word (test round 29)
+  const skipped = Array.isArray(b.invite)
+    ? [...new Set(b.invite.map(String))].filter(
+        id => id !== me && !invited.includes(id),
+      )
+    : [];
   // people nearby who said other agents may ask theirs (taste.js open), within about 5 km of the host
   const home = T.get(me).home;
   if (b.nearby && !home)
@@ -244,15 +251,17 @@ export function start(
     .slice(0, 24); // those already in the game aren't asked again
   if (!invited.length)
     return {
-      error: b.nearby
-        ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet. Start a club, or post the game and share its link: the first friend needs no account.`
-        : club
-          ? 'Nobody else is in that club yet.'
-          : !mine.length && !home
-            ? 'Share your rough area so your agent can ask people nearby, or join a club.'
-            : !mine.length
-              ? 'Tick "Also ask people nearby", or join a club.'
-              : 'Pick who to play with, or a club.',
+      error: skipped.length
+        ? `${skipped.slice(0, 5).map(first).join(', ')} ${skipped.length > 1 ? "aren't" : "isn't"} in ${club ? club.name : 'any of your clubs'}, so nobody was asked. Invite them to the club first.`
+        : b.nearby
+          ? `Nobody within about 5 km who plays ${sport} has let other agents ask theirs yet. Start a club, or post the game and share its link: the first friend needs no account.`
+          : club
+            ? 'Nobody else is in that club yet.'
+            : !mine.length && !home
+              ? 'Share your rough area so your agent can ask people nearby, or join a club.'
+              : !mine.length
+                ? 'Tick "Also ask people nearby", or join a club.'
+                : 'Pick who to play with, or a club.',
       code: 400,
     };
   if (invited.length < need - 1 && !club && !b.nearby)
@@ -371,12 +380,23 @@ export function start(
         : null,
       fillNote,
       gateNote,
+      skipped.length
+        ? `Not asked: ${skipped
+            .slice(0, 5)
+            .map(first)
+            .join(
+              ', ',
+            )}${skipped.length > 5 ? ` and ${skipped.length - 5} more` : ''}, who ${skipped.length > 1 ? "aren't" : "isn't"} in ${club ? club.name : 'any of your clubs'}. Invite them to the club first.`
+        : null,
     ]
       .filter(Boolean)
       .join(' ') || null;
-  return wait
-    ? job.then(() => ({huddle: view(h, me), ...(note ? {note} : {})}))
-    : {huddle: view(h, me), ...(note ? {note} : {})};
+  const out = {
+    huddle: view(h, me),
+    ...(note ? {note} : {}),
+    ...(skipped.length ? {skipped} : {}),
+  };
+  return wait ? job.then(() => ({...out, huddle: view(h, me)})) : out;
 }
 // when the host wants to play: some days (YYYY-MM-DD or Mon..Sun) and parts of the day (early, morning, afternoon, evening)
 function whenOf(w) {

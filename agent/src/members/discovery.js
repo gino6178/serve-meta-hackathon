@@ -451,6 +451,13 @@ export function openapi(req) {
     ),
   );
   add(
+    '/api/clubs/delete',
+    'post',
+    op("Delete a club you organise: its members are told and it's gone", {
+      body: {club: S},
+    }),
+  );
+  add(
     '/api/clubs/{id}/invite',
     'get',
     op(
@@ -476,6 +483,34 @@ export function openapi(req) {
     '/api/feed/post',
     'post',
     op('A post or a game invite', {body: {text: S, invite: O, room: S}}),
+  );
+  // (comment, like and report were served but not listed: test round 29)
+  add(
+    '/api/feed/comment',
+    'post',
+    op('Comment on a post (the same checks as a post)', {
+      body: {post: S, text: S},
+    }),
+  );
+  add(
+    '/api/feed/like',
+    'post',
+    op('Like a post, or take the like back', {body: {post: S, on: B}}),
+  );
+  add(
+    '/api/feed/report',
+    'post',
+    op("Report a post or a comment to the club's maintainer", {
+      body: {post: S, comment: S, reason: S},
+    }),
+  );
+  add(
+    '/api/play/plan',
+    'post',
+    op(
+      'Plan a game from what the player says ("badminton tmrw evening", 週六早上羽球): courts, partners and drafted invites, nothing booked. The next 14 days only; a Chinese request is answered in Chinese. stream: true sends each step as NDJSON',
+      {body: {text: S, you: O, stream: B}},
+    ),
   );
   add(
     '/api/feed/join',

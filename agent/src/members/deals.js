@@ -37,6 +37,15 @@ const PER_COURT = {
   squash: 2,
   soccer: 14,
 };
+// the players in an ordinary game, for a quote before anyone says how many: basketball is 3 on 3 (offers said 4 players:
+// test round 29)
+export const GAME = {
+  basketball: 6,
+  volleyball: 12,
+  squash: 2,
+  soccer: 10,
+};
+export const gameOf = sport => GAME[sport] || 4;
 const hash = s => (fnv(s) % 10000) / 10000;
 const round10 = x => Math.round(x / 10) * 10;
 const hourOf = start =>
@@ -190,7 +199,8 @@ export function quietest(
     days = 7,
     now = new Date(),
     games = [],
-    starts = ['07:00', '09:00', '12:00', '14:00', '17:00', '19:00', '21:00'],
+    // (a 90-minute game ends by 22:00, when venues close: 21:00 was offered and then refused, test round 29)
+    starts = ['07:00', '09:00', '12:00', '14:00', '17:00', '19:00', '20:30'],
     n = 3,
   } = {},
 ) {

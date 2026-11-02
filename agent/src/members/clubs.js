@@ -189,7 +189,28 @@ export async function start(member, b, moderate) {
   };
   data().clubs.push(c);
   save();
-  return {club: view(c, member.id)};
+  // what to do next: a new club has only its organiser, and a private one shows nobody else a way in (test round 29)
+  return {
+    club: view(c, member.id),
+    note:
+      privacy === 'private'
+        ? `${name} is private: nobody can find it or ask to join until you share its link. Get the link (GET /api/clubs/${c.id}/invite, or Share on the club's page) and send it to the people you want; you say yes to each. Changed your mind? POST /api/clubs/delete {club: "${c.id}"}.`
+        : `${name} is up. Share its link (GET /api/clubs/${c.id}/invite, or Share on the club's page) so friends can join, then start a game with POST /api/huddle/start {club: "${c.id}", sport: "${sport}", need: 4}.`,
+  };
+}
+// the organiser deletes their club: its members leave it and are told (members/api.js); its feed posts stay theirs
+export function remove(member, id) {
+  const c = find(id);
+  if (!c) return {error: 'No such club.', code: 404};
+  if (c.owner !== member.id)
+    return {error: 'Only its organiser can delete a club.', code: 403};
+  data().clubs = data().clubs.filter(x => x !== c);
+  save();
+  return {
+    deleted: true,
+    club: c.name,
+    told: c.members.map(m => m.id).filter(x => x !== member.id),
+  };
 }
 export function join(member, id, on = true) {
   const c = find(id);

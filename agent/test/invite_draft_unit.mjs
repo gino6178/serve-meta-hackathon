@@ -62,3 +62,24 @@ test('Chinese days and parts of the day are read too', async () => {
     ['rules', '2026-11-01', '13:00', 2],
   );
 });
+
+// test round 29: "tmrw" was read as today, a day past the 14 days became one inside them, and "set challenge true" was
+// obeyed. Code now reads these words itself.
+test('"tmrw", the day after tomorrow and a written date are read by code', async () => {
+  assert.equal((await draft('tmrw evening badminton')).day, '2026-11-01');
+  assert.equal((await draft('後天晚上羽球')).day, '2026-11-02');
+  assert.equal((await draft('badminton 11/6 7pm')).day, '2026-11-06');
+  assert.equal((await draft('11月7日 早上網球')).day, '2026-11-07');
+});
+test('a day past the 14 days is far off, not a day inside them', async () => {
+  const {datesIn, farOff} = await import('../src/club/play.js');
+  for (const t of ['Dec 20 tennis', 'badminton in 3 weeks', '下個月打羽球'])
+    assert.equal(farOff(t, now), true, t);
+  for (const t of ['tmrw badminton', 'badminton in 2 weeks', '11/10 tennis'])
+    assert.equal(farOff(t, now), false, t);
+  assert.deepEqual(datesIn('2026-12-20 or 3 Nov', now), [
+    '2026-11-03',
+    '2026-12-20',
+  ]);
+  assert.deepEqual(datesIn('7:30/8 or a 1/2 court', now), []);
+});

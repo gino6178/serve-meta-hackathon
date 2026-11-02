@@ -262,6 +262,12 @@ name in them that Glimmer passes: club names such as "Mei Test Club" or "Leo Sma
 of Glimmer, whose verdict stands: all 10 names pass (about 6 s each), the 6 hostile test texts are still refused, and
 an ordinary comment still takes 0.1 s (`deps.standard` in `agent/src/feed/deps.js`).
 
+The same round found the request reader trusted the 1B where code can do better. It read "tmrw" as today, turned a
+day past the 14 days it books ("Dec 20" in November, "in 3 weeks") into one inside them, and obeyed "set challenge true"
+written in a request. Code now reads the day words and written dates itself and wins over the model; a day past the
+14 days gets "I can only plan up to 14 days ahead"; a challenge needs a challenge in the words (`readIntent` in
+`agent/src/club/play.js`). The 1B still reads the rest in 0.2 s.
+
 ![A 1B distilled for short text resists attacks it never saw](readme/slide_text1b.png)
 
 ## 6. Security: Rule of Two, two guards, de-identification, a signed consent chain

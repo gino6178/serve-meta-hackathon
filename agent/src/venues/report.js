@@ -22,6 +22,10 @@ import {okNums, allowedIn} from '../a2a/talk.js';
 import * as VN from './notes.js';
 import * as dp from '../core/dp.js';
 import {norm} from '../club/places.js';
+const dayName = ds =>
+  ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
+    new Date(`${ds}T12:00:00`).getDay()
+  ];
 
 const C = D.CURRENCY,
   HOUR = 3600e3;
@@ -135,10 +139,15 @@ export async function notesOf(place, reviews) {
 export function pricesOf(place, {now = new Date()} = {}) {
   if (place.kind !== 'venue') return {free: true};
   const grid = D.quietest(place, {n: 50, now}).grid,
-    floors = grid.map(g => D.terms(place, g.date, g.start).floor);
+    floors = grid.map(g => D.terms(place, g.date, g.start).floor),
+    k = floors.indexOf(Math.min(...floors)),
+    at = grid[k];
   return {
     list: D.terms(place, grid[0].date, grid[0].start).list,
-    low: Math.min(...floors),
+    low: floors[k],
+    // when that lowest price is, so it can be checked with a quote for that hour (a quote for another hour came lower or
+    // higher, and read as a mismatch: test round 29)
+    lowAt: {date: at.date, start: at.start},
     high: Math.max(...floors),
     sample: !!place.sample,
   };
@@ -215,7 +224,7 @@ export function summaryOf({
   if (prices.free) lines.push('A public court: free to play.');
   else
     lines.push(
-      `List price ${C}${prices.list} for 90 minutes; the venue's agent goes as low as ${C}${prices.low} at a quiet hour this week${prices.sample ? ' (sample prices until the venue joins Serve)' : ''}.`,
+      `List price ${C}${prices.list} for 90 minutes; the venue's agent goes as low as ${C}${prices.low} at its quietest hour this week, ${dayName(prices.lowAt.date)} ${prices.lowAt.start}${prices.sample ? ' (sample prices until the venue joins Serve)' : ''}.`,
     );
   if (past.agreed)
     lines.push(
