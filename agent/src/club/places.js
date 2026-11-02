@@ -466,6 +466,11 @@ async function judged(p, sport, date, start, w) {
       r => `Review ${r.n} (${r.stars} stars, ${r.when}): ${r.text}`,
     ),
   ].join('\n');
+  // the facts that are not review text
+  const base = facts
+    .split(String.fromCharCode(10))
+    .filter(l => !/^Review \d+ \(/.test(l))
+    .join(' ');
   try {
     const {value: j} = await chatJSON(
       [
@@ -494,8 +499,10 @@ async function judged(p, sport, date, start, w) {
           )
         )
           return false;
+        // test round 31: a number must come from the map, the forecast or the place (or from the review the reason
+        // cites), not from any review: a review saying "rain 3%" let a weather reason say so over an 85% forecast
         return (
-          okNums(r.text, allowedIn(facts)) &&
+          okNums(r.text, allowedIn(base, rev ? rev.text : '')) &&
           !/\b(he|she|him|his|her)\b/i.test(r.text)
         );
       })

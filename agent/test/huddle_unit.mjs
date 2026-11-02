@@ -161,3 +161,39 @@ test('the trust chain: records come from it, and any change to a past entry is c
   assert.equal(Tr.verify().ok, true);
   assert.equal(Tr.badge('zed').agent.said, 0);
 });
+
+const S = await import('../src/members/split.js');
+test('open spots have a share, and the shares plus the open spots add up to the price', () => {
+  const sum = (r, spots) =>
+    Object.values(r.shares).reduce((a, b) => a + b, 0) + spots * r.open;
+  // two agreed to a four-player game: two spots open
+  for (const price of [600, 601, 799, 1000]) {
+    const people = [
+      {id: 'a', cap: null},
+      {id: 'b', cap: null},
+    ];
+    const r = S.split(price, people, 4);
+    assert.ok(r && r.open > 0, `price ${price}`);
+    // an open spot's share is rounded up to a whole dollar, so a price that does not divide evenly can come out
+    // up to one dollar per open spot over (601 gives 150 + 150 + 2 x 151 = 602); never under
+    const total = sum(r, 2);
+    assert.ok(total >= price && total - price < 2, `price ${price}: ${total}`);
+    if (price % 4 === 0) assert.equal(total, price, `price ${price}`);
+  }
+  // a capped player pays their limit; a cover player makes up the gap, and the total still holds
+  const r = S.split(
+    800,
+    [
+      {id: 'a', cap: 100},
+      {id: 'b', cap: 400, cover: true},
+    ],
+    4,
+  );
+  assert.ok(r, 'the group can split it');
+  assert.equal(r.shares.a, 100);
+  assert.equal(sum(r, 2), 800);
+  // everyone there: no open spot, no open share
+  const full = S.split(400, [{id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}], 4);
+  assert.equal(full.open, 0);
+  assert.equal(sum(full, 0), 400);
+});

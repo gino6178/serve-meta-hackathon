@@ -75,6 +75,8 @@ test("the sandbox: no network, loopback test servers only, no child processes, n
 );
 fs.mkdirSync(repo, {recursive: true});
 sh(repo, 'init', '--quiet', '-b', 'master');
+// no line-ending conversion: a Windows checkout would give the worktree CRLF files, and the test compares file contents
+sh(repo, 'config', 'core.autocrlf', 'false');
 sh(repo, 'add', '-A');
 sh(
   repo,

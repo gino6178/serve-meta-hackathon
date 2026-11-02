@@ -268,6 +268,14 @@ written in a request. Code now reads the day words and written dates itself and 
 14 days gets "I can only plan up to 14 days ahead"; a challenge needs a challenge in the words (`readIntent` in
 `agent/src/club/play.js`). The 1B still reads the rest in 0.2 s.
 
+Rounds 30 and 31 found six more things, each fixed in code. A plan's message and invites sometimes said the game was
+booked, held or that people were invited, when it was only proposed; code now drops any such text and writes prices as
+"about". Refused posts and comments used up the day's post limit; they now have a count of their own. The venue report
+and the quote could show different prices, so the group's agent never offers over the venue's floor and the venue
+reaches it by the last round. Private clubs were listed to people outside them; they are not now. With `LLM_ONLY=small`
+the member's chat with their agent went to the 1B, which answered "hi" with its facts sheet as JSON; the chat stays
+on Glimmer (`LLM_ONLY_SMALL_SKIP=answer`), and a reply that is data is refused and asked again.
+
 ![A 1B distilled for short text resists attacks it never saw](readme/slide_text1b.png)
 
 ## 6. Security: Rule of Two, two guards, de-identification, a signed consent chain

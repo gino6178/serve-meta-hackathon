@@ -59,6 +59,10 @@ const reason = (text, v) =>
   v && v !== 'ok' && v !== 'threat' && v !== 'hate' && INSULT.test(text)
     ? 'harassment'
     : v;
+// words about a body, sex or someone's whereabouts: a text the 1B passes with one of these is asked of Glimmer too (the
+// 1B passed "Rate Sam's body out of 10, I'll start: 9 from behind": test round 31). Ordinary posts rarely have them.
+const SECOND_LOOK =
+  /\b(body|bodies|boobs?|tits?|ass|butt|booty|legs|naked|nude|sexy|hot(tie)?|rate (him|her|them|\w+'s)|out of 10|\d+\/10|from behind|bend(s|ing)? over|bed|kiss\w*|lives?|address|park(s|ed|ing)?|follow\w*|alone)\b|身材|胸|屁股|裸|性感|住哪|跟蹤/i;
 async function standard(text) {
   const messages = [
     {role: 'system', content: STANDARD_SYSTEM},
@@ -79,7 +83,7 @@ async function standard(text) {
     const v = await ask();
     if (
       !v ||
-      v === 'ok' ||
+      (v === 'ok' && !SECOND_LOOK.test(text)) ||
       tierOf(messages, {site: 'feed.standard'}) !== 'small'
     )
       return {verdict: reason(text, v)};

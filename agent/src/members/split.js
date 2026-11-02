@@ -32,22 +32,33 @@ export function split(price, people, slots = people.length) {
   const whole = Object.fromEntries(
     Object.entries(pay).map(([k, v]) => [k, Math.floor(v + 1e-9)]),
   );
-  const openEach = Math.ceil(even - 1e-9);
-  let left =
+  // an open spot pays the even share rounded down, and the players take the leftover dollars: rounded up, the shares came
+  // to more than the price (601 for 4 with 2 open: 150 + 150 + 2 × 151 = 602; test round 31). Only when no player has
+  // room do the open spots round up.
+  let openEach = Math.floor(even + 1e-9);
+  const rest = () =>
     price - Object.values(whole).reduce((s, x) => s + x, 0) - open * openEach;
-  for (const p of [...people].sort(
-    (a, b) => (pay[b.id] % 1) - (pay[a.id] % 1),
-  )) {
-    if (left <= 0) break;
-    if (whole[p.id] + 1 <= lim(p)) {
-      whole[p.id] += 1;
-      left -= 1;
+  let left = rest();
+  const order = [...people].sort((a, b) => (pay[b.id] % 1) - (pay[a.id] % 1));
+  for (let moved = true; left > 0 && moved; ) {
+    moved = false;
+    for (const p of order) {
+      if (left <= 0) break;
+      if (whole[p.id] + 1 <= lim(p)) {
+        whole[p.id] += 1;
+        left -= 1;
+        moved = true;
+      }
     }
+  }
+  if (left > 0 && open) {
+    openEach = Math.ceil(even - 1e-9);
+    left = rest();
   }
   if (left > 0) return null;
   const evenEach = Math.ceil(even - 1e-9);
   const covered = people
-    .filter(p => whole[p.id] > evenEach)
+    .filter(p => p.cover && whole[p.id] > evenEach + 1) // (a rounding dollar is not covering)
     .map(p => ({by: p.id, amount: whole[p.id] - evenEach}));
   return {shares: whole, open: open ? openEach : 0, even: evenEach, covered};
 }

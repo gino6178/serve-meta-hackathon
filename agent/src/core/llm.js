@@ -141,13 +141,19 @@ const FAST = () =>
   API === 'ollama' &&
   fastLeft() > 0;
 export const fastOn = FAST;
-// 1B only (LLM_ONLY=small): every text call goes to our text 1B first, whatever its site or length, and nothing goes to
-// the Meta Model API (no fast lane, no long lane, no fallback). A reply the 1B can't give (empty, or not the schema) and
-// a tool loop, which the 1B was not trained for, stay on our own GPU with Glimmer. For running cheaply until the final
-// review; LLM_FAST=api brings the fast lane back.
+// 1B only (LLM_ONLY=small): nothing goes to the Meta Model API (no fast lane, no long lane, no fallback), and every
+// short call at a site our 1B was checked on (SMALL_SITES and SMALL_V2_SITES, whatever else the env lists) goes to the
+// 1B, which is the same rule as the normal one with the API taken away. Every other site keeps Glimmer on our own GPU
+// (it costs no API credit, so running cheaply loses nothing): the 1B was never trained or checked for them, and a
+// person reads what several of them write (the Match helper's ask, the body report, the pairing reason, a game's
+// invites, the highlight caption, the chat with the agent). Tried on the real 1Bs, an unchecked site came back with
+// the facts sheet as raw JSON, or a wrong day or name in the sentence. A tool loop, a call with images, a call past
+// LLM_SMALL_MAX and a reply the 1B can't give (empty, or not the schema) go to Glimmer too, as in the normal rule.
+// LLM_FAST=api brings the fast lane back.
 export const onlySmall = () => process.env.LLM_ONLY === 'small';
-// the sites Glimmer keeps even then: the member's own chat with their agent, which no 1B was trained or checked for (it
-// answered "嗨" with its facts sheet as JSON: a member's screenshot, 2 Nov 2026)
+// the sites Glimmer keeps even if the lists above name them: the member's own chat with their agent, which no 1B was
+// trained or checked for (it answered "嗨" with its facts sheet as JSON: a member's screenshot, 2 Nov 2026). It is not
+// in the lists, so this is a second lock, and a way to take a checked site out without editing the lists.
 const ONLY_SMALL_SKIP = () =>
   new Set(
     (process.env.LLM_ONLY_SMALL_SKIP ?? 'answer').split(',').filter(Boolean),
@@ -236,13 +242,15 @@ export const tokensOf = messages =>
 // which model a call goes to: "small", "local" or "api"
 export function tierOf(messages, {site = '', tools = false} = {}) {
   if (!ROUTE()) return 'local';
+  const n = tokensOf(messages);
   if (onlySmall())
     return tools ||
       messages.some(m => m.images?.length) ||
-      ONLY_SMALL_SKIP().has(site)
+      ONLY_SMALL_SKIP().has(site) ||
+      !(SMALL_SITES().has(site) || SMALL_V2_SITES.has(site)) ||
+      n > SMALL_MAX()
       ? 'local'
       : 'small';
-  const n = tokensOf(messages);
   if (n >= LONG_MIN() && (LONG || FALLBACK) && fastLeft() > 0) return 'api';
   const big = FAST() && !priorityOf() ? 'api' : 'local';
   if (tools || !SMALL_SITES().has(site) || messages.some(m => m.images?.length))

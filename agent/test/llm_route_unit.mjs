@@ -223,20 +223,56 @@ test("the fast lane's hourly ceiling: past it, calls go to Glimmer", async () =>
   }
 });
 
-test('1B only (LLM_ONLY=small): every text call to the 1B, long or not, no API at all; a tool loop on Glimmer', async () => {
+test('1B only (LLM_ONLY=small): only the checked sites go to a 1B, every other site keeps Glimmer, no API at all', async () => {
   process.env.LLM_ONLY = 'small';
   process.env.LLM_FAST = 'api';
   try {
-    assert.equal(tierOf(msgs(300), {site: 'life.read'}), 'small');
+    assert.equal(tierOf(msgs(300), {site: 'social.caption'}), 'small');
     assert.equal(
-      tierOf(msgs(9000), {site: 'life.read'}),
-      'small',
-      'even a very long call',
+      tierOf(msgs(9000), {site: 'social.caption'}),
+      'local',
+      'a call past LLM_SMALL_MAX is not what the 1B was checked on, and never goes to the API',
     );
-    assert.equal(tierOf(msgs(300), {site: 'life.read', tools: true}), 'local');
+    for (const site of [
+      'life.read',
+      'answer',
+      'ask.opening',
+      'body.summary',
+      'pairing.why',
+      'unknown',
+      '',
+    ])
+      assert.equal(
+        tierOf(msgs(300), {site}),
+        'local',
+        `${site || '(no site)'}: no 1B was checked for it`,
+      );
+    assert.equal(
+      tierOf(msgs(300), {site: 'feed.standard'}),
+      'small',
+      'a second-round site, even when LLM_SMALL_SITES does not list it',
+    );
+    assert.equal(
+      tierOf(msgs(300), {site: 'social.caption', tools: true}),
+      'local',
+    );
+    assert.equal(
+      tierOf(msgs(300, {images: ['iVBORw0']}), {site: 'social.caption'}),
+      'local',
+    );
+    process.env.LLM_ONLY_SMALL_SKIP = 'social.caption';
+    assert.equal(tierOf(msgs(300), {site: 'social.caption'}), 'local');
+    delete process.env.LLM_ONLY_SMALL_SKIP;
     reset();
-    const r = await chatJSON(msgs(300), SCHEMA, {site: 'life.read'});
+    const r = await chatJSON(msgs(300), SCHEMA, {site: 'social.caption'});
     assert.equal(r.value.caption, 'from serve-1b-text');
+    reset();
+    const g0 = await chatJSON(msgs(300), SCHEMA, {site: 'life.read'});
+    assert.equal(g0.value.caption, 'from muse-glimmer');
+    assert.deepEqual(
+      asked.map(a => a.model),
+      ['muse-glimmer'],
+    );
     reset();
     const v2 = await chatJSON(msgs(300), SCHEMA, {site: 'feed.standard'});
     assert.equal(
@@ -246,7 +282,7 @@ test('1B only (LLM_ONLY=small): every text call to the 1B, long or not, no API a
     );
     reset();
     bad = new Set(['serve-1b-text']);
-    const g = await chatJSON(msgs(300), SCHEMA, {site: 'life.read'});
+    const g = await chatJSON(msgs(300), SCHEMA, {site: 'social.caption'});
     assert.equal(
       g.value.caption,
       'from muse-glimmer',
@@ -256,6 +292,7 @@ test('1B only (LLM_ONLY=small): every text call to the 1B, long or not, no API a
   } finally {
     delete process.env.LLM_ONLY;
     delete process.env.LLM_FAST;
+    delete process.env.LLM_ONLY_SMALL_SKIP;
     bad = new Set();
   }
 });

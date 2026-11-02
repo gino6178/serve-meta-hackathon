@@ -1516,10 +1516,13 @@ test('a video from the composer: checked (a video, 100 MB, 90 s), the reel finds
     );
   else assert.match(busy.error, /GPU is busy/);
   S.reset();
+  // the GPU check reads nvidia-smi, not a dep: on a machine whose GPU is in use it would answer 503 here
+  process.env.REEL_MIN_FREE_MB = '0';
   const r = await H.fromVideo('app', make(4), {
     sport: 'tennis',
     onStep: e => steps.push(e.step),
   });
+  delete process.env.REEL_MIN_FREE_MB;
   assert.ok(r.draft, JSON.stringify(r));
   assert.equal(r.draft.caption.startsWith('My smash from'), true);
   assert.ok(

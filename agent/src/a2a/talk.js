@@ -812,9 +812,14 @@ export async function fullAnswer(
     (curBad && j.intent === 'accept') ||
     (j.intent === 'counter' && !listed(j.date, j.start))
   ) {
-    const own = (Array.isArray(value.works) ? value.works : [])
-      .map(w => choices.find(x => x.id === w))
-      .find(x => x && x !== cur);
+    // (test round 31: with the rules kept in code every listed time left keeps them, so when the model's own list
+    // names none, the first of them is the counter, as the routed path does; a decline there said "can't play" while
+    // times that work were listed)
+    const own =
+      (Array.isArray(value.works) ? value.works : [])
+        .map(w => choices.find(x => x.id === w))
+        .find(x => x && x !== cur) ||
+      (curBad && rulesInCode() ? choices.find(x => x !== cur) : null);
     // (overruled: the model's answer broke a rule and code put it right, which the member's span says)
     if (own)
       Object.assign(j, {
