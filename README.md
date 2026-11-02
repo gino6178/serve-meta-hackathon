@@ -17,14 +17,58 @@ Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Yo
 
 ## Contents
 
-[Try it](#for-judges-two-ways-in) · [Overview](#overview) · [How it works](#how-it-works) ·
-[Judging criteria](#how-this-entry-meets-the-judging-criteria) · [Meta models](#meta-models-used-and-where-each-runs) ·
-[Real-world use](#real-world-use) · [Run it](#run-it-yourself) · [Repository map](#repository-map) ·
-[Limitations](#limitations) · [Roadmap](#roadmap) · [Built during the hackathon](#built-during-the-hackathon-oct-27--nov-4-2026) ·
-[Credits](#credits-and-license)
-
-Deep dives: [how each part works, with measurements](docs/how_it_works.md) ·
-[technical report](submission/technical_report.md) · [what was built and the methods it follows](docs/built_during_hackathon.md)
+- **Start here**
+  - [For judges: two ways in](#for-judges-two-ways-in)
+  - [Overview](#overview)
+    - [The gap](#the-gap)
+    - [What a person sees](#what-a-person-sees)
+- **[How it works](#how-it-works)** (each part in full: [docs/how_it_works.md](docs/how_it_works.md))
+  - Agents
+    - [1. A2A negotiation](docs/how_it_works.md#1-a2a-v10-facts-only-one-round-by-intersection-30-minute-holds)
+    - [2. Who gets asked](docs/how_it_works.md#2-ranking-by-everyones-chance-of-yes-and-the-one-question-worth-most)
+    - [10. Outside agents](docs/how_it_works.md#10-an-open-door-for-outside-agents)
+    - [11. Venue agents](docs/how_it_works.md#11-a-venues-own-agent-and-a-fair-split)
+    - [12. Memory](docs/how_it_works.md#12-memory-retrieval-augmented-generation-rag)
+  - Models
+    - [3. Cache and router](docs/how_it_works.md#3-cache-and-router-a-tiered-decision-engine)
+    - [4. Decision 1B](docs/how_it_works.md#4-our-own-model-a-llama-32-1b-distilled-from-muse-glimmer)
+    - [5. Text 1B](docs/how_it_works.md#5-a-second-1b-for-short-text-hardened-against-attacks-it-never-saw)
+  - Trust
+    - [6. Security](docs/how_it_works.md#6-security-rule-of-two-two-guards-de-identification-a-signed-consent-chain)
+    - [16. Privacy](docs/how_it_works.md#16-privacy-by-design-encrypted-at-rest-differential-privacy-conversation-memory-a-data-lifecycle)
+  - Platform
+    - [7. Community loop](docs/how_it_works.md#7-a-community-that-evolves-the-platform-with-automatic-rollback)
+    - [8. Highlight reels](docs/how_it_works.md#8-social-highlight-reels-a-bonus-after-the-game)
+    - [9. Testing](docs/how_it_works.md#9-testing-177-ai-testers-in-28-rounds)
+    - [13. Observability](docs/how_it_works.md#13-observability-every-agent-step-traced)
+    - [14. Agents' faces](docs/how_it_works.md#14-agents-faces-designed-with-muse-image)
+    - [15. Scale](docs/how_it_works.md#15-built-for-100000-agents-online-compute-is-whats-short)
+- **[Judging criteria](#how-this-entry-meets-the-judging-criteria)**
+  - [Impact (30%)](#impact-30)
+  - [Use of Meta AI tooling (25%)](#use-of-meta-ai-tooling-25)
+  - [Demo (25%)](#demo-25)
+  - [Technical depth and execution (20%)](#technical-depth-and-execution-20)
+  - Bonus
+    - [Open weight models](#bonus-best-build-on-open-weight-models)
+    - [Agentic use-case](#bonus-best-agentic-use-case)
+    - [Creative build](#bonus-best-creative-build)
+  - [Submission items](#submission-items)
+- **Results and models**
+  - [Real-world use](#real-world-use)
+  - [What surprised us](#what-surprised-us)
+  - [Meta models used and where each runs](#meta-models-used-and-where-each-runs)
+  - [Our trained models](#our-trained-models)
+  - [Where the numbers come from](#where-the-numbers-come-from)
+- **Run it**
+  - [Run it yourself](#run-it-yourself)
+  - [Repository map](#repository-map)
+- **Limits and next steps**
+  - [Limitations](#limitations)
+  - [Roadmap](#roadmap)
+- **About**
+  - [Built during the hackathon](#built-during-the-hackathon-oct-27--nov-4-2026) (every part and its method: [docs/built_during_hackathon.md](docs/built_during_hackathon.md))
+  - [Credits and license](#credits-and-license)
+  - Technical report: [submission/technical_report.md](submission/technical_report.md)
 
 ## For judges: two ways in
 
