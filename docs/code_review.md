@@ -55,7 +55,7 @@ The five items left after the second pass, done since:
 
 ## Third pass: the whole codebase again
 
-Five reviews again (four by area, one for duplicates), 32 findings. All fixed but one duplicate group:
+Five reviews again (four by area, one for duplicates), 32 findings. All fixed:
 
 - **Who sees what.** A single post, its media and a report all go through the feed's one visibility rule, so a
   private club's or a hidden post stays out by every route. The agent channel posts and comments as its person, so
@@ -81,8 +81,8 @@ most every 200 ms (`laterStore` in `core/jsonfile.js`, 4); the feed store onto `
 (2); one-line text and number helpers (`core/text.js`, 4); whether agents are reached over A2A (`peer.overA2A`, 3).
 On the web: one JSON call with an optional strict refusal (`call` in `agent.js`, 5 copies), `web/src/time.js` for
 local dates and "ago" (8), `web/src/storage.js` for localStorage and the hash query (16), `usePoll` (3), and one
-`initials`/`cap`. Left: the two story viewers (Agent and Social), which differ in media and layout enough that one
-shared component would need slots for both; not worth it yet.
+`initials`/`cap`. The two story viewers (Agent's text stories, Social's clips) are one `StoryViewer` with slots:
+the page fills the face, name, line, media and body, and says whether a story moves on by itself or when its clip ends.
 
 ---
 

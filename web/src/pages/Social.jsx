@@ -1,5 +1,6 @@
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import Icon from '../components/Icon.jsx';
+import StoryViewer from '../components/StoryViewer.jsx';
 import Mark from '../components/Mark.jsx';
 import Feed from '../club/Feed.jsx';
 import {feedApi, mediaUrl} from '../club/feedApi.js';
@@ -16,7 +17,6 @@ import {
   agentKid,
   canSign,
 } from '../members.js';
-import {useReducedMotion} from '../hooks.js';
 import RealMap from '../components/RealMap.jsx';
 import './social.css';
 import {initials} from '../text.js';
@@ -281,14 +281,42 @@ function SocialHome({club, me, agents, reload}) {
         </aside>
       </div>
       {story != null && (
-        <Story
+        <StoryViewer
           items={stories}
           at={story}
+          auto={0}
           onClose={() => setStory(null)}
           onMove={d => {
             const k = story + d;
             setStory(k < 0 || k >= stories.length ? null : k);
           }}
+          view={(it, {still, next}) => ({
+            className: 'so-story',
+            label: `${it.by.name}'s story`,
+            media: (
+              <StoryClip
+                key={it.id}
+                media={it.media}
+                still={still}
+                next={next}
+              />
+            ),
+            face: (
+              <span className="so-face">
+                {initials(it.by.owner || it.by.name)}
+              </span>
+            ),
+            name: it.by.owner || it.by.name,
+            sub: it.simulated
+              ? 'Demo story · a simulated member'
+              : `Cut by ${it.by.name.replace(/^Your agent$/, 'your agent')} from their own video, posted with their yes`,
+            body: (
+              <>
+                {it.text && <p className="so-story-text">{it.text}</p>}
+                {it.credit && <p className="so-story-credit">{it.credit}</p>}
+              </>
+            ),
+          })}
         />
       )}
     </div>
@@ -578,88 +606,27 @@ function AgentPanel({me, agents, reload, onActed}) {
 }
 
 // a story: one highlight, full screen, playing, with whose agent cut it
-function Story({items, at, onClose, onMove}) {
-  const still = useReducedMotion(),
-    it = items[at],
-    box = useRef(null),
-    [src, setSrc] = useState(null);
-  useEffect(() => {
-    box.current?.focus();
-    const k = e => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight') onMove(1);
-      if (e.key === 'ArrowLeft') onMove(-1);
-    };
-    addEventListener('keydown', k);
-    return () => removeEventListener('keydown', k);
-  }, [at]);
+// a story's clip: a file the feed keeps (its address fetched), or a static one; it moves the story on when it ends
+function StoryClip({media, still, next}) {
+  const [src, setSrc] = useState(null);
   useEffect(() => {
     let live = true;
     setSrc(null);
-    if (it.media.static) setSrc(it.media.src);
-    else mediaUrl(it.media.id).then(u => live && setSrc(u));
+    if (media.static) setSrc(media.src);
+    else mediaUrl(media.id).then(u => live && setSrc(u));
     return () => {
       live = false;
     };
-  }, [it.id]);
-  return (
-    <div className="story-scrim" onClick={onClose}>
-      <div
-        ref={box}
-        tabIndex={-1}
-        className="so-story"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`${it.by.name}'s story`}
-        onClick={e => e.stopPropagation()}>
-        <div className="story-bars" aria-hidden="true">
-          {items.map((x, k) => (
-            <i
-              key={x.id}
-              className={
-                k < at ? 'done' : k === at ? (still ? 'done' : 'now') : ''
-              }
-            />
-          ))}
-        </div>
-        {src && (
-          <video
-            key={src}
-            src={src}
-            autoPlay={!still}
-            muted
-            playsInline
-            controls={still}
-            onEnded={() => onMove(1)}
-          />
-        )}
-        <header>
-          <span className="so-face">{initials(it.by.owner || it.by.name)}</span>
-          <span>
-            <b>{it.by.owner || it.by.name}</b>
-            <span className="tiny">
-              {it.simulated
-                ? 'Demo story · a simulated member'
-                : `Cut by ${it.by.name.replace(/^Your agent$/, 'your agent')} from their own video, posted with their yes`}
-            </span>
-          </span>
-          <button className="icon-btn sm" aria-label="Close" onClick={onClose}>
-            <Icon name="close" size={16} />
-          </button>
-        </header>
-        {it.text && <p className="so-story-text">{it.text}</p>}
-        {it.credit && <p className="so-story-credit">{it.credit}</p>}
-        <button
-          className="story-nav prev"
-          aria-label="Previous story"
-          onClick={() => onMove(-1)}
-        />
-        <button
-          className="story-nav next"
-          aria-label="Next story"
-          onClick={() => onMove(1)}
-        />
-      </div>
-    </div>
-  );
+  }, [media.id, media.src]); // eslint-disable-line react-hooks/exhaustive-deps
+  return src ? (
+    <video
+      key={src}
+      src={src}
+      autoPlay={!still}
+      muted
+      playsInline
+      controls={still}
+      onEnded={next}
+    />
+  ) : null;
 }

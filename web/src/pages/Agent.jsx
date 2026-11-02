@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 import Icon from '../components/Icon.jsx';
+import StoryViewer from '../components/StoryViewer.jsx';
 import Mark from '../components/Mark.jsx';
 import TaskCard from '../components/TaskCard.jsx';
 import {habits} from '../club/habits.js';
@@ -15,7 +16,6 @@ import {useGameAsk, soreNow, bodyLine, input} from '../club/ask.js';
 import {seedBody, useBody} from '../club/body.js';
 import {readGame} from '../club/game.js';
 import {week} from '../club/week.js';
-import {useReducedMotion} from '../hooks.js';
 import {go} from '../App.jsx';
 import VoiceAsk from '../voice/VoiceAsk.jsx';
 import LiveTalk from '../voice/LiveTalk.jsx';
@@ -39,76 +39,6 @@ const hello = () => {
 
 // the safety checks your agent made here (your questions, its answers and sentences, court reviews): read again when
 // a job finishes. Only the verdict and what happened are kept, never the words.
-
-function Story({items, at, onClose, onMove}) {
-  const still = useReducedMotion(),
-    it = items[at],
-    box = useRef(null);
-  useEffect(() => {
-    box.current?.focus();
-    const k = e => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight') onMove(1);
-      if (e.key === 'ArrowLeft') onMove(-1);
-    };
-    addEventListener('keydown', k);
-    return () => removeEventListener('keydown', k);
-  }, [at]);
-  useEffect(() => {
-    if (still) return;
-    const id = setTimeout(() => onMove(1), 6000);
-    return () => clearTimeout(id);
-  }, [at, still]);
-  if (!it) return null;
-  return (
-    <div className="story-scrim" onClick={onClose}>
-      <div
-        ref={box}
-        tabIndex={-1}
-        className="story dark-scope"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`${it.name}'s story`}
-        onClick={e => e.stopPropagation()}
-        style={{'--cc': it.color}}>
-        <div className="story-bars" aria-hidden="true">
-          {items.map((x, k) => (
-            <i
-              key={x.id}
-              className={
-                k < at ? 'done' : k === at ? (still ? 'done' : 'now') : ''
-              }
-            />
-          ))}
-        </div>
-        <header>
-          <span className="mav story-mav" aria-hidden="true">
-            {initials(it.name)}
-          </span>
-          <span>
-            <b>{it.name}</b>
-            <span className="tiny">{it.sub}</span>
-          </span>
-          <button className="icon-btn sm" aria-label="Close" onClick={onClose}>
-            <Icon name="close" size={16} />
-          </button>
-        </header>
-        <p className="story-text">{it.text}</p>
-        <div className="story-actions">{it.actions}</div>
-        <button
-          className="story-nav prev"
-          aria-label="Previous story"
-          onClick={() => onMove(-1)}
-        />
-        <button
-          className="story-nav next"
-          aria-label="Next story"
-          onClick={() => onMove(1)}
-        />
-      </div>
-    </div>
-  );
-}
 
 export default function Agent({club}) {
   const tasks = useTasks();
@@ -692,11 +622,29 @@ export default function Agent({club}) {
         )}
       </div>
       {story != null && (
-        <Story
+        <StoryViewer
           items={stories}
           at={story}
           onClose={() => setStory(null)}
           onMove={move}
+          view={it => ({
+            className: 'story dark-scope',
+            style: {'--cc': it.color},
+            label: `${it.name}'s story`,
+            face: (
+              <span className="mav story-mav" aria-hidden="true">
+                {initials(it.name)}
+              </span>
+            ),
+            name: it.name,
+            sub: it.sub,
+            body: (
+              <>
+                <p className="story-text">{it.text}</p>
+                <div className="story-actions">{it.actions}</div>
+              </>
+            ),
+          })}
         />
       )}
       {talk && club && (
