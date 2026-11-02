@@ -1,7 +1,8 @@
 # Serve
 
-**Play more. Manage less.** A platform where personal AI agents negotiate real-world plans for their people, and each
-person says one yes.
+**Play more. Manage less.** A self-evolving agent-to-agent (A2A) platform: personal AI agents negotiate real-world plans
+with each other through Serve, which keeps every exchange safe, and each person says one yes. Sport is the first place
+we built it for, not the limit.
 
 Meta Global AI Developer Hackathon 2026 · Indie Developer track · Build for Your World · built October 27 to November 4, 2026
 
@@ -115,6 +116,18 @@ Ed25519 key can only tighten its person's limits, and a yes still needs the pers
 ---
 
 ## Overview
+
+**Serve is a self-evolving A2A platform.** People's agents never talk to each other directly: they talk through Serve,
+the intermediary that checks who is speaking, what each agent may see and say, and what it may agree to. Prompt Guard
+and Llama Guard read what comes in, code keeps every hard rule, every yes is signed into a hash chain, and no agent
+holds untrusted input, private data and the power to act at once (the Agents Rule of Two). The platform also keeps
+changing itself: members' requests become changes that pass nine gates, run on a canary and roll back on their own
+when they hurt ([community loop](docs/how_it_works.md#7-a-community-that-evolves-the-platform-with-automatic-rollback)).
+The evolving side is moving to **Muse Wonder**, chosen for its debugging; today the
+community loop's builder runs on Muse Glimmer.
+
+Sport is the first domain, because it is the hardest everyday case we know. The same intermediary fits any plan that
+needs several people's yes: a dinner, a study group, a carpool, a volunteer shift.
 
 People don't quit the sport; they quit organizing it. Coordinating group chats, matching schedules and booking courts
 drain the fun out of recreational sports. Serve is an autonomous multi-agent platform that takes over every tedious
@@ -396,7 +409,7 @@ evaluations and the members the agent testers met are simulated and labelled as 
 | **Muse Voice Transcribe** | Meta Model API | Live full-duplex voice with your agent; Kokoro speaks the reply on the server |
 | **Muse Image** | Meta Model API | Faces for the club's agents and the art of rematch posters |
 | **SAM 3.1** | Meta Model API | Cross-checks SAM 2.1's player outline: 0.974 IoU on a smash frame |
-| **Muse Wonder** | Meta Model API | Judges 3D replay frames: agreed with the labels on 87% of 84 frames |
+| **Muse Wonder** | Meta Model API | Judges 3D replay frames: agreed with the labels on 87% of 84 frames. Next: the platform's evolving side (the community loop's builder, and finding why a change failed), for its debugging |
 
 Also from Meta: the **Agents Rule of Two**, **LlamaFirewall's CodeShield rules** (community specs and generated code)
 and the **Messenger Platform** (signed webhook, Send API, quick replies).
@@ -497,12 +510,16 @@ OLLAMA_HOST=127.0.0.1:11436 ollama pull llama-guard3:1b
 
 ## Roadmap
 
-1. **Venues join:** a venue registers its own agent (`POST /api/venues/agents`) and its real prices replace the samples.
-2. **More real clubs:** beyond one club, most evidence is still agents and simulation.
-3. **The community loop on real members.**
-4. **Less waiting:** move more of Glimmer's 20 to 40 s path to the small models.
-5. **Longer reels:** 3D replays beyond today's ±6 to 12°.
-6. **100,000 people at once:** continuous batching (vLLM or SGLang), a database instead of JSON files, stateless
+1. **Muse Wonder runs the evolving side:** the community loop's builder, and the debugging of a change that failed its
+   gates or rolled back, move from Muse Glimmer to Muse Wonder.
+2. **Beyond sport:** the same intermediary for any plan that needs several people's yes, starting with the parts that
+   are not about sport already (identity, consent, the signed yes chain, the guards, the price split).
+3. **Venues join:** a venue registers its own agent (`POST /api/venues/agents`) and its real prices replace the samples.
+4. **More real clubs:** beyond one club, most evidence is still agents and simulation.
+5. **The community loop on real members.**
+6. **Less waiting:** move more of Glimmer's 20 to 40 s path to the small models.
+7. **Longer reels:** 3D replays beyond today's ±6 to 12°.
+8. **100,000 people at once:** continuous batching (vLLM or SGLang), a database instead of JSON files, stateless
    gateways and a prefix-aware GPU router, then an actor per agent on a message bus; the plan and the arithmetic are
    in [docs/scale_100k_research.md](docs/scale_100k_research.md).
 
