@@ -212,7 +212,7 @@ export function check(text, sheet, extra = '') {
 const CAN = `/game a game at your usual times · /autopilot the whole week lined up · /courts courts near a place · /body your body log · /report your body report · /week your calendar · /idea an idea for the club · /forget delete everything`;
 function prompt(sheet) {
   return `You are the player's own agent in Serve, a sports social app. You get people playing: you line up games with the people they play best with, agree them with the other players' agents, keep their body log and find courts. You are not a coach: you don't analyse how anyone plays or prescribe training.
-Answer the player's message in one to three short sentences, under 70 words, warm and direct, in the language they write in.
+Answer the player's message in one to three short sentences, under 70 words, warm and direct, in the language they write in (Chinese: Traditional Chinese as used in Taiwan).
 For anything about their games, calendar, body or club, use only these facts. Every number, date and time you write must appear in a fact or in what the player wrote.
 FACTS:
 ${sheet.facts.map(f => `[${f.id}] ${f.text}`).join('\n')}
@@ -267,6 +267,9 @@ export function alternate(turns) {
 // one answer; history is the conversation so far ({ role, content }), for a Messenger player taken from the store.
 // who keys the conversation memory: the Messenger player, else the caller's own id (member:<id> for a signed-in
 // member, 'app' for the gateway's owner), so two people never share one conversation
+// a reply that is data rather than words: a JSON object or list, or two or more "key": value fields
+export const asData = t =>
+  /^\s*[[{]/.test(t) || (String(t).match(/"[\w ]+"\s*:/g) || []).length >= 2;
 export async function answer({
   text,
   playerId = null,
@@ -299,7 +302,12 @@ ${ctx.note}`,
               {role: 'assistant', content: 'Noted.'},
             ]
           : []),
-        ...alternate(ctx.messages),
+        // (a reply kept as data, as the 1B once answered, is left out: the next reply copied it)
+        ...alternate(
+          ctx.messages.filter(
+            m => !(m.role === 'assistant' && asData(String(m.content))),
+          ),
+        ),
       ]
     : (player ? player.history || [] : history)
         .slice(-6)
@@ -318,10 +326,12 @@ ${ctx.note}`,
     tries = 0;
   try {
     for (; tries < 2; tries++) {
+      // a second try goes to Glimmer: with LLM_ONLY=small the first goes to our text 1B, which was not trained to chat
       const r = await chat(msgs, {
         temperature: tries ? 0.1 : 0.3,
         maxTokens: 220,
         site: 'answer',
+        ...(tries ? {tier: 'local'} : {}),
       });
       out = String(r.text || '')
         .replace(/\s*\[F\d+(?:,\s*F?\d+)*\]/g, '')
@@ -330,14 +340,19 @@ ${ctx.note}`,
       verdict = check(out, sheet, extra);
       if (out && coaching(out))
         verdict = {...verdict, ok: false, coaching: true};
+      // the facts sheet echoed back as JSON or "key": value fields is not an answer (the 1B answered "嗨" with it: the
+      // member's screenshot, 2 Nov 2026)
+      if (out && asData(out)) verdict = {...verdict, ok: false, data: true};
       if (out && verdict.ok) break;
       msgs.push(
         {role: 'assistant', content: r.text || ''},
         {
           role: 'user',
-          content: verdict?.coaching
-            ? 'That gives a training tip. You are not a coach: answer again without any drill, technique or training advice, and offer what you can do instead.'
-            : `${out ? `These numbers are not in the facts: ${verdict.bad.join(', ')}.` : 'That was empty.'} Answer again, using only numbers, dates and times from the facts.`,
+          content: verdict?.data
+            ? 'That is data, not a reply. Answer the member in one or two friendly sentences of plain text, in the language they wrote in.'
+            : verdict?.coaching
+              ? 'That gives a training tip. You are not a coach: answer again without any drill, technique or training advice, and offer what you can do instead.'
+              : `${out ? `These numbers are not in the facts: ${verdict.bad.join(', ')}.` : 'That was empty.'} Answer again, using only numbers, dates and times from the facts.`,
         },
       );
     }

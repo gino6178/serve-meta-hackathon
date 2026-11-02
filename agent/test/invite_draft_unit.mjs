@@ -83,3 +83,33 @@ test('a day past the 14 days is far off, not a day inside them', async () => {
   ]);
   assert.deepEqual(datesIn('7:30/8 or a 1/2 court', now), []);
 });
+
+// test round 30: a challenge's invites read like an ordinary "want to play?". The checked fallback text says challenge.
+test('a challenge reads as a challenge in the fallback text, English and Chinese', async () => {
+  const {templateWords} = await import('../src/club/play.js');
+  const o = {
+    format: 'singles',
+    day: 'Fri',
+    date: '2026-11-06',
+    start: '19:00',
+    end: '20:00',
+    court: 2,
+    each: 150,
+    venue: {name: 'Da An Hall'},
+    partners: [{id: 'k', name: 'Kenji Mori', why: []}],
+  };
+  const you = {};
+  for (const zh of [false, true]) {
+    const plain = templateWords(o, you, zh).invites.k,
+      ch = templateWords(o, you, zh, true);
+    assert.notEqual(ch.invites.k, plain);
+    assert.match(ch.invites.k, zh ? /約戰|挑戰/ : /challeng/i);
+    assert.match(ch.message, zh ? /挑戰/ : /challenge/i);
+    assert.doesNotMatch(plain, zh ? /約戰|挑戰/ : /challeng/i);
+    assert.match(ch.invites.k, /about NT\$150|約 NT\$150/);
+    assert.doesNotMatch(
+      ch.invites.k + ch.message,
+      /\b(booked|invited)\b|我約了|訂好|邀了/i,
+    );
+  }
+});

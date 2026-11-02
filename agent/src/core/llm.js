@@ -146,6 +146,12 @@ export const fastOn = FAST;
 // a tool loop, which the 1B was not trained for, stay on our own GPU with Glimmer. For running cheaply until the final
 // review; LLM_FAST=api brings the fast lane back.
 export const onlySmall = () => process.env.LLM_ONLY === 'small';
+// the sites Glimmer keeps even then: the member's own chat with their agent, which no 1B was trained or checked for (it
+// answered "嗨" with its facts sheet as JSON: a member's screenshot, 2 Nov 2026)
+const ONLY_SMALL_SKIP = () =>
+  new Set(
+    (process.env.LLM_ONLY_SMALL_SKIP ?? 'answer').split(',').filter(Boolean),
+  );
 const TEMPLATE_TOKENS = /<\|[a-z_]+\|>/gi,
   untrusted = t => String(t).replace(TEMPLATE_TOKENS, ' ');
 const INPUT_ROLE = {
@@ -231,7 +237,11 @@ export const tokensOf = messages =>
 export function tierOf(messages, {site = '', tools = false} = {}) {
   if (!ROUTE()) return 'local';
   if (onlySmall())
-    return tools || messages.some(m => m.images?.length) ? 'local' : 'small';
+    return tools ||
+      messages.some(m => m.images?.length) ||
+      ONLY_SMALL_SKIP().has(site)
+      ? 'local'
+      : 'small';
   const n = tokensOf(messages);
   if (n >= LONG_MIN() && (LONG || FALLBACK) && fastLeft() > 0) return 'api';
   const big = FAST() && !priorityOf() ? 'api' : 'local';

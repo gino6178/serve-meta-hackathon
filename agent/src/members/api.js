@@ -507,7 +507,8 @@ export async function route(req, res, u, {json, o, forget}) {
   }
   if (p === '/api/members/leave' && req.method === 'POST') {
     const names = {[me.id]: M.nameOf(me.id)},
-      ids = M.leave(me.id);
+      who = M.leaveWho(me.id),
+      ids = who.map(x => x.id);
     for (const id of ids) {
       forget?.(id, {name: names[id] || null});
       for (const h of C.forget(id) || [])
@@ -519,7 +520,8 @@ export async function route(req, res, u, {json, o, forget}) {
       H.forget(id, names[id] || null);
       Sk.store().forget(id);
     }
-    return send(200, {deleted: ids});
+    // what each deleted id is: the member, then their agents (a tester read an id as another member's: test round 30)
+    return send(200, {deleted: ids, who});
   }
   if (p === '/api/members/refusals')
     return send(200, {refusals: M.refusals(me.id)});
@@ -939,7 +941,7 @@ async function huddle(req, res, p, q, me, send, given = null) {
       sport,
       currency: D.CURRENCY,
       looking,
-      ...(looking ? {retryAfter: 20} : {}),
+      ...(looking ? {retryAfter: 20, note: D.LOOKING_NOTE} : {}),
       ...(down
         ? {
             note: "The map of courts isn't answering right now. Name the place yourself (pin: {place}) or try again in ten minutes.",

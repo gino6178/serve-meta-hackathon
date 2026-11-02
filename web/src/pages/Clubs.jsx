@@ -114,7 +114,8 @@ function JoinByLink({code}) {
           </p>
           {c.about && <p className="cl-about">{c.about}</p>}
           <p className="cl-meta">
-            {c.where} · {c.members} member{c.members === 1 ? '' : 's'}
+            {c.where ? `${c.where} · ` : ''}
+            {c.members} member{c.members === 1 ? '' : 's'}
           </p>
           {done ? (
             <p role="status">{done}</p>
@@ -600,7 +601,9 @@ function ClubRoom({id}) {
       <RealMap
         courts={false}
         height={180}
-        marks={[{id: c.id, name: c.where, lat: c.at.lat, lon: c.at.lon}]}
+        marks={[
+          {id: c.id, name: c.where || c.name, lat: c.at.lat, lon: c.at.lon},
+        ]}
       />
       {c.requests?.length > 0 && (
         <section className="panel cl-requests" aria-label="Asked to join">

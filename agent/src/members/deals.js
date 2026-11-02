@@ -59,6 +59,9 @@ const pending = new Map(),
 const areaKey = (at, sport) =>
   `${(+at.lat).toFixed(2)},${(+at.lon).toFixed(2)},${sport}`;
 export const loading = (at, sport) => !!at && pending.has(areaKey(at, sport));
+// what to tell the person while the first lookup of an area runs (it can take most of a minute: test round 30)
+export const LOOKING_NOTE =
+  'Looking up courts near you for the first time; ask again in 20 s.';
 // a lookup the map didn't answer: not tried again for ten minutes, and said so instead of "still looking"
 const failed = new Map(),
   FAIL_WAIT = 10 * 60e3;

@@ -383,6 +383,10 @@ export function start(
         : null,
       fillNote,
       gateNote,
+      // what the host does next (test round 30): their own start is their yes; their agent's start may ask them
+      byAgent
+        ? 'Your agent started this game, so you may be asked for your own yes before it goes ahead: if the game says ask is true, answer with POST /api/huddle/reply {id, yes}.'
+        : "You're in this game already and don't need to answer it: the agents are asking the others, and you only wait or call it off.",
       skipped.length
         ? `Not asked: ${skipped
             .slice(0, 5)
@@ -1890,6 +1894,16 @@ P.onFill(post => {
     yes: others.filter(x => h.answers[x] === 'yes').length,
   };
 });
+// the open game found for the host (h.found): they can join it instead, by the same route as any recommended game
+function foundOffer(h, me) {
+  const f = h.found,
+    g = f && h.host === me ? P.find(f.post) : null;
+  if (!g || g.kind !== 'invite' || !['talking', 'asking'].includes(h.status))
+    return null;
+  if (g.invite.going.includes(me) || g.invite.going.length >= g.invite.spots)
+    return null;
+  return `You can join ${f.host}'s ${f.sport} game ${f.when} at ${f.where} instead (${f.left} spot${f.left > 1 ? 's' : ''} left): POST /api/huddle/game {post: "${f.post}", yes: true}. Nobody joins for you; this game carries on if you don't.`;
+}
 export function view(h, me) {
   const o = h.pick;
   return {
@@ -2006,6 +2020,8 @@ export function view(h, me) {
       ? {
           found: {
             ...h.found,
+            // the open game found for the host, as a plain step; nobody is joined without a yes (test round 30)
+            ...(foundOffer(h, me) ? {offer: foundOffer(h, me)} : {}),
             hostTrust: (() => {
               const g = P.find(h.found.post);
               return g ? trustOf(g.by.player || g.by.agentOf) : undefined;
@@ -2029,7 +2045,7 @@ export function view(h, me) {
             due = h.players.includes(me) ? dueBy(h, me) : dueBy(h);
           return {
             now: w.length
-              ? `Waiting for ${names(w.map(x => (x === me ? 'you' : first(x))))} to say yes${due ? `, until ${new Date(due).toLocaleString('en-GB', {weekday: 'short', hour: '2-digit', minute: '2-digit'})}` : ''}. People answer in their own time; ${h.host === me ? 'you can call it off any time' : 'the host can call it off any time'}.`
+              ? `Waiting for ${names(w.map(x => (x === me ? 'you' : first(x))))} to say yes${due ? `, until ${new Date(due).toLocaleString('en-GB', {weekday: 'short', hour: '2-digit', minute: '2-digit'})}` : ''}. ${w.includes(me) ? 'Your yes is needed: POST /api/huddle/reply {id, yes}. ' : h.host === me ? "You're in already: nothing for you to answer. " : ''}People answer in their own time; ${h.host === me ? 'you can call it off any time' : 'the host can call it off any time'}.${foundOffer(h, me) ? ` ${foundOffer(h, me)}` : ''}`
               : 'Everyone said yes: confirming it now.',
           };
         })()

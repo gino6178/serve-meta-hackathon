@@ -197,8 +197,8 @@ export async function moderate(text, player) {
     };
   // a guard that is on but did not answer (an error, or nothing back) holds the text; guards switched off on this server
   // (no error, not checked) pass it on to the checks below, as they do for Llama Guard
-  if (!pg.length || pg.some(x => x?.injected == null && x?.error))
-    return {down: true};
+  const guardDown = !pg.length || pg.some(x => x?.injected == null && x?.error);
+  // (code's checks need no model: a text they refuse is refused now, not held to be refused a week later, test round 30)
   for (const b of T.personProblems(text, {
     author: authorOf(player),
     names: othersNames(),
@@ -209,6 +209,7 @@ export async function moderate(text, player) {
       code: b.code,
       check: 'code',
     };
+  if (guardDown) return {down: true};
   const g = await deps.screen([{role: 'user', content: text}], {
     site: 'feed.person',
     timeoutMs: +(process.env.GUARD_OUT_TIMEOUT_MS || 8000),
@@ -243,6 +244,18 @@ export async function moderate(text, player) {
     standard: 'ok',
   };
 }
+
+// plain words for who refused it, beside the short `check` code agents read (test round 30: "standard" and "code" confused people)
+const CHECKED_BY = {
+  code: "Serve's own rules",
+  standard: "the club's standard",
+  'llama-guard': 'the safety check',
+  'prompt-guard': 'the check for text that instructs agents',
+  vision: 'the photo check',
+  helpline: 'the safety check',
+};
+const checkedBy = m =>
+  CHECKED_BY[m.helpline ? 'helpline' : m.check] || 'the safety check';
 
 // ---- a photo, screened by a model before anyone sees it ----
 // Muse Glimmer looks at it under a strict policy and answers with a verdict, a description and the text written in it
@@ -557,6 +570,7 @@ export async function post(
       refused: true,
       why: m.why,
       check: m.helpline ? 'helpline' : m.check,
+      checkedBy: checkedBy(m),
       ...(m.helpline ? {helpline: true} : {}),
     };
   }
@@ -643,6 +657,7 @@ export async function comment(player, postId, text, {agent = null} = {}) {
       refused: true,
       why: m.why.replace(/^Not posted/, 'Not sent'),
       check: m.helpline ? 'helpline' : m.check,
+      checkedBy: checkedBy(m),
       ...(m.helpline ? {helpline: true} : {}),
     };
   const asks =
@@ -1381,9 +1396,12 @@ export async function retryHeld() {
       out.dropped++;
       continue;
     }
-    const m = c
-      ? await moderate(x.text, who)
-      : await screenPost(p.text, p.kind === 'photo' ? p.media : null, who);
+    // one check that throws leaves the item waiting; it must not stop the ones after it (test round 30)
+    const m = await (
+      c
+        ? moderate(x.text, who)
+        : screenPost(p.text, p.kind === 'photo' ? p.media : null, who)
+    ).catch(() => ({down: true}));
     if (m.down) {
       out.waiting++;
       continue;
@@ -1408,13 +1426,15 @@ function drop(
 ) {
   S.change(d => {
     const by = (c || p).by,
-      who = by.player || by.agentOf;
+      who = by.player || by.agentOf,
+      // the start of the text, so the author knows which one it was (a held post just vanished, test round 30)
+      start = T.tidy((c || p).text || '', 40);
     (d.notices ||= []).push({
       player: who,
       at: deps.now(),
       text: why.replace(
         /^Not posted/,
-        c ? 'Your comment was not posted' : 'Your post was not posted',
+        `${c ? 'Your comment' : 'Your post'}${start ? ` "${start}"` : ''} was held for the safety check and then not posted`,
       ),
     });
     if (c) p.comments = p.comments.filter(x => x !== c);

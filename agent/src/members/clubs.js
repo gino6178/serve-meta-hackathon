@@ -182,7 +182,8 @@ export async function start(member, b, moderate) {
     name,
     sport,
     about,
-    where: where || name,
+    // no place name given: say nothing rather than repeat the club's name (test round 30)
+    where: where || null,
     at,
     privacy,
     kind,
@@ -399,7 +400,7 @@ export function planSession(owner, id, b) {
   if (error) return {error, code};
   const roster = c.program?.roster || [],
     present = (b.present || []).filter(x => roster.includes(x));
-  const r = G.youthPlan({...b, present, sport: c.sport, where: c.where});
+  const r = G.youthPlan({...b, present, sport: c.sport, where: c.where || ''});
   if (r.error) return {error: r.error, code: 400};
   c.program = {...c.program, plan: r.plan};
   save();

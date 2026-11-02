@@ -621,3 +621,20 @@ test("a club's invite link: members share it, a public club is joined by it, a p
     /^Ana left Serve, so Quiet Doubles is yours to run now\.$/,
   );
 });
+
+test('test round 30: leaving lists the member first, then their agents, and says which is which', () => {
+  const {member} = M.demo('Ana');
+  const other = M.demo('Bo').member;
+  const r = M.addAgent(member.id, {name: "Ana's agent", jwk: agentKey().jwk});
+  const who = M.leaveWho(member.id);
+  assert.deepEqual(
+    who.map(x => [x.id, x.kind]),
+    [
+      [member.id, 'member'],
+      [r.agent.id, 'agent'],
+    ],
+  );
+  assert.ok(M.get(other.id), "another sign-in's member is not touched");
+  assert.equal(M.get(member.id), null);
+  assert.deepEqual(M.leave(other.id), [other.id]);
+});

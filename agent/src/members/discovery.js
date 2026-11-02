@@ -150,10 +150,19 @@ Every route, with its body: ${u}/api/openapi.json
 What is kept and who sees it: ${u}/privacy.txt
 MCP servers (Streamable HTTP): ${u}/mcp (a person's agent), ${u}/mcp/venues, ${u}/mcp/a2a
 
+## If you are a person reading this yourself
+Serve is a small sports club app: you say when, where and how far you will go, and software agents find players, a court and a time. You say one yes per game. Nothing is paid in Serve; you pay the venue yourself. The same steps work for you with any tool that sends web requests (the web app does them for you). The first five calls:
+1. POST /api/auth/demo {"name": "Sam"}: any name works, and it is optional. You get a session; send it as the header x-serve-session on every call after.
+2. POST /api/huddle/home {"place": "Daan District, Taipei"}: your rough area. Then POST /api/huddle/sports {"sports": ["badminton"]}.
+3. POST /api/huddle/limits {"windows": [{"days": ["Sat"], "from": "10:00", "to": "14:00"}], "maxKm": 3, "maxEach": 150}: when you can play, how far you will go (km) and the most you will pay each (NT$).
+4. GET /api/huddle/today: games near you and anything waiting for your yes.
+5. POST /api/huddle/start {"sport": "badminton", "need": 4, "nearby": true}: start a game, then GET /api/huddle/one?id=<id> a few times. When it says "asking", POST /api/huddle/reply {"id", "yes": true}.
+The rest of this page is written for an agent acting for a person ("your person" below is you).
+
 ## Quick start (a badminton game for your person, in six calls)
-1. POST /api/auth/demo {"name": "<their first name>"} (or their Facebook/Instagram sign-in): you get a session; send it as x-serve-session.
+1. POST /api/auth/demo {"name": "<their name>"} (any name works, and it is optional; or their Facebook/Instagram sign-in): you get a session; send it as x-serve-session.
 2. POST /api/huddle/home {"lat": 25.031, "lon": 121.536} (or {"place": "Daan District, Taipei"}) and POST /api/huddle/sports {"sports": ["badminton"]}.
-3. POST /api/huddle/limits {"windows": [{"days": ["Mon","Tue","Wed","Thu","Fri"], "from": "18:00", "to": "22:00"}], "maxKm": 3, "maxEach": 150}
+3. POST /api/huddle/limits {"windows": [{"days": ["Mon","Tue","Wed","Thu","Fri"], "from": "18:00", "to": "22:00"}], "maxKm": 3, "maxEach": 150} (the limits are sent as maxKm and maxEach; see "Limits: two names" below)
 4. GET /api/huddle/today: games near them, and any yes waiting. Nothing there? Start one:
 5. POST /api/huddle/start {"sport": "badminton", "need": 4, "nearby": true}. It answers at once; the agents work it out in a few seconds: poll GET /api/huddle/one?id=<id>.
 6. When status is "asking", the time and place are agreed: your person says yes (POST /api/huddle/reply {"id", "yes": true}). It's "on" once everyone has said yes.
@@ -173,8 +182,12 @@ Good to know before you start:
 - GET /api/status: is the server up
 - GET /api/auth/providers: which sign-ins this server has (facebook, instagram, demo)
 - GET /api/invite?id=<post>: an open game someone shared as a link
-- GET /api/clubs/invite?code=<code>: a club someone shared as a link (#/club?join=<code>): its name, sport, place and size, never who is in it
+- GET /api/clubs/invite?code=<code>: a club someone shared as a link (#/club?join=<code>): its name, sport, place and size, shows no names before sign-in (see Clubs below)
 - GET /api/trust/chain, GET /api/trust/verify, GET /a2a/keys.json: the public trust chain and the key that signs it (verify it yourself: each entry's hash is sha256(JSON.stringify([n, at, kind, who, d, prev])); heads are signed as "serve-trust-head:<day>:<n>:<hash>")
+
+## Limits: two names
+- You send limits as maxKm (km) and maxEach (NT$ per person) to POST /api/huddle/limits, and maxEach to POST /api/huddle/delegate.
+- Responses show your limits as limitKm and limitEach (null until set). maxKm and priceCap in a response (GET /api/huddle/me, under taste) are something else: what your agent has learned you lean to from your answers (starting at 5 km and NT$250). They are not limits and they never go above your limits.
 
 ## Who am I
 - GET /api/me (with the session) or GET /api/agent-channel/me (signed with your key): the member, and the agent the key belongs to
@@ -197,6 +210,7 @@ Good to know before you start:
 - POST /api/huddle/game {"post", "yes": true}: join a recommended game (or yes:false with "why": "busy"|"time"|"place"|"price"|"quiet"|"none"). yes:false on a game they are already in (or waiting for) leaves it, as POST /api/feed/join {"post", "on": false} does.
 - Your person may join a game outside their limits themself (POST /api/feed/join with their session): it stands, and the reply's "note" says which limit it breaks. Over your key (/api/agent-channel/join) the same game is refused (403, needs: "person"), a waitlist place too.
 - Notices (a club's answer, who joined or left a game, "Game on", a game called off): GET /api/feed/notices, taken once; GET /api/feed returns them in "notices" and takes them too. GET /api/agent-channel/feed shows them to your agent and leaves them for your person.
+- Who sees a club's members: GET /api/clubs shows public clubs' member first names to anyone signed in; a private club is not listed to outsiders and never shows its members; the invite link before sign-in shows the club (name, sport, place, size) and no names. A club's "where" is null when its organiser gave no place name.
 - Clubs: GET /api/clubs (near ?lat=&lon=), POST /api/clubs {"name", "sport", "at": {lat, lon}, "privacy"?: "private"}, POST /api/clubs/join {"club"}. To invite people, a member gets the club's link with GET /api/clubs/<id>/invite ({"link": "/#/club?join=<code>"}); whoever opens it and signs in joins with POST /api/clubs/join {"code"}. A private club's link asks to join: its organiser is told, sees who asked in that club's "requests" (GET /api/clubs), and says yes or no (POST /api/clubs/answer {"club", "member", "yes"}); whoever asked takes it back with POST /api/clubs/join {"club", "on": false}.
 - A weekly game is a new post each week: start a fill for each week's post (it shows under the host's games).
 - POST /api/huddle/start {"sport", "need" (players in all, you included), "club"?, "invite"?: [ids], "nearby"?: true, "gate"?: {"minShow": 0 to 1, usually 0, 0.75 or 0.9}, "pin"?: {"date", "start", "place"?}, "when"?: {"days": ["Sat","Sun"] or dates, "parts": ["morning","evening"]}, "fill"?: "<a game you posted>"} (it needs "club" or "nearby": true, to say whom to ask; "invite" and "fill" alone are not enough): the agents (with fill, they find people for the open spots of your posted game) work out a time and a place; poll GET /api/huddle/one?id=
@@ -288,7 +302,7 @@ const HUDDLE = {
   '/huddle/limits': [
     'post',
     op(
-      "Hard limits: time windows, max distance, max price per person, and whether they'd cover more than an equal share up to that price",
+      "Hard limits: time windows, max distance, max price per person, and whether they'd cover more than an equal share up to that price. Sent as maxKm and maxEach; responses show them as limitKm and limitEach (null until set), while maxKm and priceCap in GET /api/huddle/me (taste) are only what the agent has learned (not limits)",
       {body: {windows: A, maxKm: N, maxEach: N, cover: B}},
     ),
   ],
@@ -298,9 +312,12 @@ const HUDDLE = {
   ],
   '/huddle/delegate': [
     'post',
-    op('Let their agent answer yes for them, within limits', {
-      body: {on: B, maxEach: N, newPeople: B},
-    }),
+    op(
+      'Let their agent answer yes for them, within limits (maxEach is a price limit here, as in /huddle/limits)',
+      {
+        body: {on: B, maxEach: N, newPeople: B},
+      },
+    ),
   ],
   '/huddle/start': [
     'post',
@@ -433,7 +450,10 @@ export function openapi(req) {
   add(
     '/api/clubs',
     'get',
-    op('Clubs near a point', {query: {lat: 'latitude', lon: 'longitude'}}),
+    op(
+      'Clubs near a point. Public clubs list member first names to anyone signed in; private clubs are listed only to their members and people who asked, and never show members to outsiders',
+      {query: {lat: 'latitude', lon: 'longitude'}},
+    ),
   );
   add(
     '/api/clubs',

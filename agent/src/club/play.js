@@ -763,18 +763,20 @@ function allowedNumbers(o) {
   set.add(d);
   return set;
 }
-function templateWords(o, you, zh = false) {
+export function templateWords(o, you, zh = false, challenge = false) {
   const names = o.partners.map(p => p.name.split(' ')[0]);
   if (zh) {
     const fmt = o.format === 'doubles' ? '雙打' : '單打',
       d = dateOf(o.date),
       day = `${d.getMonth() + 1}月${d.getDate()}日（週${'日一二三四五六'[d.getDay()]}）`;
     return {
-      message: `${day} ${o.start}–${o.end} 在 ${o.venue.name} 第 ${o.court} 場${fmt}，和 ${names.join('、')}，每人 NT$${o.each}。${you.limit && o.format === 'doubles' ? '雙打對你的膝蓋負擔比較小。' : ''}`,
+      message: `${challenge ? '挑戰賽：' : ''}${day} ${o.start}–${o.end} 在 ${o.venue.name} 第 ${o.court} 場${fmt}，和 ${names.join('、')}，每人 NT$${o.each}。${you.limit && o.format === 'doubles' ? '雙打對你的膝蓋負擔比較小。' : ''}`,
       invites: Object.fromEntries(
         o.partners.map(p => [
           p.id,
-          `嗨 ${p.name.split(' ')[0]}！${day} ${o.start}–${o.end} 在 ${o.venue.name} 打${fmt}好嗎？第 ${o.court} 場那時有空，每人約 NT$${o.each}。要來嗎？`,
+          challenge
+            ? `嗨 ${p.name.split(' ')[0]}！跟你約戰一場${fmt}，敢不敢接受挑戰？${day} ${o.start}–${o.end} 在 ${o.venue.name}，第 ${o.court} 場，每人約 NT$${o.each}。來比一場吧！`
+            : `嗨 ${p.name.split(' ')[0]}！${day} ${o.start}–${o.end} 在 ${o.venue.name} 打${fmt}好嗎？第 ${o.court} 場那時有空，每人約 NT$${o.each}。要來嗎？`,
         ]),
       ),
     };
@@ -784,11 +786,13 @@ function templateWords(o, you, zh = false) {
       ? ` It is in the middle: ${o.travel.map(t => `${t.id === 'you' ? 'you' : first(t.name)} ${t.min} min`).join(', ')}.`
       : '';
   return {
-    message: `${o.format === 'doubles' ? 'Doubles' : 'Singles'} on ${o.day} ${o.start}–${o.end} at ${o.venue.name}, court ${o.court}, with ${names.join(', ')}: NT$${o.each} each.${trip}${you.limit && o.format === 'doubles' ? ' Doubles keeps the load on your knee down.' : ''}`,
+    message: `${challenge ? 'A friendly challenge: ' : ''}${o.format === 'doubles' ? 'Doubles' : 'Singles'} on ${o.day} ${o.start}–${o.end} at ${o.venue.name}, court ${o.court}, with ${names.join(', ')}: NT$${o.each} each.${trip}${you.limit && o.format === 'doubles' ? ' Doubles keeps the load on your knee down.' : ''}`,
     invites: Object.fromEntries(
       o.partners.map(p => [
         p.id,
-        `Hi ${p.name.split(' ')[0]}! ${o.format === 'doubles' ? 'Doubles' : 'Singles'} on ${o.day} ${o.start}–${o.end} at ${o.venue.name}? Court ${o.court} is free then, about NT$${o.each} each. In?`,
+        challenge
+          ? `Hi ${p.name.split(' ')[0]}! I'm challenging you to a friendly ${o.format === 'doubles' ? 'doubles' : 'singles'} match on ${o.day} ${o.start}–${o.end} at ${o.venue.name}. Court ${o.court} is free then, about NT$${o.each} each. Think you can take me? Up for it?`
+          : `Hi ${p.name.split(' ')[0]}! ${o.format === 'doubles' ? 'Doubles' : 'Singles'} on ${o.day} ${o.start}–${o.end} at ${o.venue.name}? Court ${o.court} is free then, about NT$${o.each} each. In?`,
       ]),
     ),
   };
@@ -828,7 +832,7 @@ Return JSON only: {"message": string, "invites": {"<partner id>": string}}
 - The price is an estimate until the venue confirms it: write "about NT$${o.each}" (約 NT$${o.each}).
 - Write the day as "${when}" and times like ${o.start}. Do not write the year, "2 players" or "for ${o.minutes} minutes".
 - The only numbers allowed: the day, the times, court ${o.court}, NT$${o.each}, the trip minutes. ${zh ? `Write in Traditional Chinese as used in Taiwan; call the game ${{badminton: '羽球', tennis: '網球', pickleball: '匹克球', 'table tennis': '桌球', basketball: '籃球', volleyball: '排球'}[o.sport || 'badminton'] || o.sport}${{doubles: '雙打', singles: '單打'}[o.format] || ''}, and keep people's and the venue's names as given.` : 'English only.'} No emojis.
-${challenge ? '- This is a challenge match: each invite is a friendly challenge to a game.' : ''}`;
+${challenge ? `- This is a challenge match (test round 30): the player is challenging each partner. The message calls it a friendly challenge and every invite reads as one, a playful dare to a match ("I challenge you to ...", "think you can take me?"${zh ? ', 約戰 / 挑戰' : ''}), still only a proposal, never an ordinary "want to play?".` : ''}`;
   try {
     const r = await chat(
       [
@@ -839,7 +843,7 @@ ${challenge ? '- This is a challenge match: each invite is a friendly challenge 
     );
     const j = JSON.parse((r.text.match(/\{[\s\S]*\}/) || ['null'])[0]);
     const allowed = allowedNumbers(o),
-      t = templateWords(o, you, zh);
+      t = templateWords(o, you, zh, challenge);
     // (and none says it is booked or that people were invited: nothing is, until the player says yes; test round 30)
     const okText = x =>
       typeof x === 'string' && numbersOk(x, allowed) && !DONE.test(x);
@@ -863,7 +867,7 @@ ${challenge ? '- This is a challenge match: each invite is a friendly challenge 
       timing: r.timing,
     };
   } catch {
-    return {...templateWords(o, you, zh), by: 'rules', checks: null};
+    return {...templateWords(o, you, zh, challenge), by: 'rules', checks: null};
   }
 }
 

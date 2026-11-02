@@ -248,12 +248,25 @@ export function view(m) {
   };
 }
 // leaving: the member and their agents are gone (what they posted goes with the feed's own /forget)
+// the member's own id first, then the ids of their agents (ag-...): a tester read the list as "other members"
+// (test round 30). A demo sign-in makes a new member each time, so two sign-ins have two different ids.
 export function leave(id) {
+  return leaveWho(id).map(m => m.id);
+}
+// the same, saying what each id is: { id, kind: 'member' | 'agent', name }
+export function leaveWho(id) {
   const d = data(),
-    gone = Object.values(d.members).filter(m => m.id === id || m.owner === id);
+    gone = Object.values(d.members)
+      .filter(m => m.id === id || m.owner === id)
+      .sort((a, b) => (b.id === id) - (a.id === id));
+  const who = gone.map(m => ({
+    id: m.id,
+    kind: m.id === id ? 'member' : 'agent',
+    name: m.name || null,
+  }));
   for (const m of gone) delete d.members[m.id];
   save();
-  return gone.map(m => m.id);
+  return who;
 }
 
 // ---- agents --------------------------------------------------------------------------------------------------------
