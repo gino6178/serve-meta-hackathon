@@ -206,7 +206,7 @@ if (cluster.isPrimary) {
     }
   };
   const work = (agent, id, tier) => {
-    if (!TIERS[tier])
+    if (!Object.hasOwn(TIERS, tier))
       return say(actors.get(agent), {
         t: 'error',
         id,

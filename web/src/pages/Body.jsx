@@ -17,6 +17,7 @@ import {autopilotInput} from '../tasks.js';
 import {go} from '../App.jsx';
 import './body.css';
 import {cap} from '../text.js';
+import {ymd} from '../time.js';
 
 // Body: you tell your agent what hurts or how you feel (here, in Messenger or as a voice note) and it keeps your words. Your health app's
 // export (Apple Health, Google Fit, or a GPX, TCX or CSV from any app) fills in your workouts, routes, heart rate and
@@ -351,7 +352,7 @@ function PartRow({p, today, on, pick}) {
   const days = Array.from({length: 14}, (_, i) => {
     const d = day(today);
     d.setDate(d.getDate() - 13 + i);
-    return d.toISOString().slice(0, 10);
+    return ymd(d);
   });
   return (
     <li className={on ? 'on' : ''}>

@@ -7,6 +7,7 @@
 // makes them different to negotiate with: the members' agents decide by the same rule, from different people.
 // Used to measure what changes as a club grows (test/scale_eval.mjs): the members your agent looks at are found by code
 // (free then, plays that, ranked by fit and trip), so what the model reads stays the same size at 11 members or 1,000.
+import {rng} from '../core/rand.js'; // the same seed, the same club
 
 const FIRST = [
   'Mira',
@@ -135,17 +136,6 @@ const HABITS = [
   [n => `${n} avoids two games on consecutive days.`, null],
 ];
 
-// a small seeded generator (mulberry32): the same seed, the same club
-function rng(seed) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 const pickW = (r, xs) => {
   const tot = xs.reduce((a, x) => a + x[3], 0);
   let u = r() * tot;

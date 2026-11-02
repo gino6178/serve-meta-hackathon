@@ -85,13 +85,17 @@ export const META_POLICY = [
 // Llama Guard 3's prompt in the model card's format, built here and sent raw (Ollama's /api/generate), since Ollama's
 // template for the model has the category list written into it. A policy entry is [code, name] or [code, name,
 // description] (a description goes on the lines after the name).
+const unmark = t =>
+  String(t)
+    .replace(/<\|[^|>]{0,40}\|>/g, '')
+    .replace(/<\s*(BEGIN|END)\b[^>]{0,60}>/gi, '');
 export function prompt(messages, policy = POLICY) {
   const who = m => (m.role === 'user' ? 'User' : 'Agent'),
     role = who(messages.at(-1));
   return (
     `<|start_header_id|>user<|end_header_id|>\n\nTask: Check if there is unsafe content in '${role}' messages in conversations according our safety policy with the below categories.\n\n` +
     `<BEGIN UNSAFE CONTENT CATEGORIES>\n${policy.map(([k, name, about]) => `${k}: ${name}${about ? `\n${about}` : ''}`).join('\n')}\n<END UNSAFE CONTENT CATEGORIES>\n\n` +
-    `<BEGIN CONVERSATION>\n\n${messages.map(m => `${who(m)}: ${String(m.content).slice(0, 4000)}\n\n`).join('')}<END CONVERSATION>\n\n` +
+    `<BEGIN CONVERSATION>\n\n${messages.map(m => `${who(m)}: ${unmark(String(m.content).slice(0, 4000))}\n\n`).join('')}<END CONVERSATION>\n\n` +
     `Provide your safety assessment for ONLY THE LAST ${role} message in the above conversation:\n - First line must read 'safe' or 'unsafe'.\n - If unsafe, a second line must include a comma-separated list of violated categories.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`
   );
 }

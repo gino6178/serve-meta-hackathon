@@ -20,7 +20,8 @@
 // deletes a member's rows and the rows where they asked (match/index.js).
 import path from 'node:path';
 import {readFileSync} from 'node:fs';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {laterStore} from '../core/jsonfile.js';
+import {demoFile} from '../core/paths.js';
 
 const DAY = 864e5,
   DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -94,17 +95,7 @@ const prior = () =>
   (auditPrior ||= (() => {
     try {
       return priorFrom(
-        JSON.parse(
-          readFileSync(
-            path.resolve(
-              path.dirname(
-                new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'),
-              ),
-              '../../../web/public/data/club.json',
-            ),
-            'utf8',
-          ),
-        ).members,
+        JSON.parse(readFileSync(demoFile('club.json'), 'utf8')).members,
       );
     } catch {
       return priorFrom([]);
@@ -165,18 +156,12 @@ const dayOfCell = c => DAYS.indexOf(c.slice(0, 3)),
 // the ledger: { pair: { "member|asker": { cell: at } }, member: { member: { cell: at } }, told: { "member|asker":
 // { cell: { v, n } } } }, on disk (DISCLOSURE_FILE) or in memory (the evals and tests make their own)
 export function createLedger(file = null) {
-  const db = file
-    ? readJSON(file, {pair: {}, member: {}, told: {}})
-    : {pair: {}, member: {}, told: {}};
+  const {db, save, flush} = laterStore(file, () => ({
+    pair: {},
+    member: {},
+    told: {},
+  }));
   db.told ||= {};
-  let timer = null;
-  const save = () => {
-    if (file && !timer)
-      timer = setTimeout(() => {
-        timer = null;
-        writeJSON(file, db);
-      }, 200);
-  };
   // a map of cells, with the ones older than the window dropped
   const live = (o, since) => {
     for (const [c, at] of Object.entries(o)) if (at < since) delete o[c];
@@ -272,13 +257,7 @@ export function createLedger(file = null) {
       delete db.member[id];
       save();
     },
-    flush() {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
-      if (file) writeJSON(file, db);
-    },
+    flush,
   };
 }
 let main = null;

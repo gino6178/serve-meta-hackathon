@@ -47,10 +47,11 @@ export const agentFetch = (path, init = {}) => {
 // A refused call, as an Error with the gateway's own message when it sent one ({ error }), else its status.
 const refusal = async r => {
   const said = await r.json().catch(() => ({}));
-  return new Error(said.error || `gateway ${r.status}`);
+  return new Error(said.error || `The server answered ${r.status}.`);
 };
-// One JSON call: a POST when there is a body, a GET when there is none.
-const call = async (path, body) => {
+// One JSON call: a POST when there is a body, a GET when there is none. strict: an answer the gateway refused
+// ({ refused, why }, a post the guard stopped) is thrown too.
+export const call = async (path, body, {strict = false} = {}) => {
   const r = await agentFetch(
     path,
     body
@@ -61,8 +62,10 @@ const call = async (path, body) => {
         }
       : {},
   );
-  if (r.ok) return r.json();
-  throw await refusal(r);
+  if (!r.ok) throw await refusal(r);
+  const j = await r.json();
+  if (strict && j?.refused) throw new Error(j.why || 'That was not sent.');
+  return j;
 };
 const read = path => call(path);
 const post = (path, body = {}) => call(path, body);
@@ -150,7 +153,8 @@ export const agentBasemap = ({s, w, n, e}) =>
 async function steps(r, onEvent) {
   if (!r.ok || !r.body)
     throw new Error(
-      (await r.json().catch(() => ({}))).error || `gateway ${r.status}`,
+      (await r.json().catch(() => ({}))).error ||
+        `The server answered ${r.status}.`,
     );
   const rd = r.body.getReader(),
     dec = new TextDecoder();

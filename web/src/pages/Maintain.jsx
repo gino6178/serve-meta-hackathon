@@ -19,8 +19,9 @@ import {
 } from '../loop/parts.jsx';
 import '../loop/loop.css';
 import Reports from '../club/Reports.jsx';
+import {hashQuery} from '../storage.js';
 
-const query = () => new URLSearchParams(location.hash.split('?')[1] || '');
+const query = () => hashQuery();
 function useQuery() {
   const [q, setQ] = useState(query);
   useEffect(() => {

@@ -115,6 +115,7 @@ const SMALL_SITES = () =>
 // work (judging ahead, the autopilot), which nobody waits for.
 // The fast lane spends Meta Model API credit, so it has a ceiling (LLM_FAST_HOURLY, 900 calls an hour, across everyone):
 // past it, calls go to Glimmer until the hour turns, so a flood of requests can slow the site but not run up the bill.
+// A long call (the long lane) counts against the same ceiling.
 const fastUsed = {hour: -1, n: 0};
 export const fastLeft = (now = Date.now()) => {
   const h = Math.floor(now / 3600e3);
@@ -180,7 +181,7 @@ export function tierOf(messages, {site = '', tools = false} = {}) {
   if (onlySmall())
     return tools || messages.some(m => m.images?.length) ? 'local' : 'small';
   const n = tokensOf(messages);
-  if (n >= LONG_MIN() && (LONG || FALLBACK)) return 'api';
+  if (n >= LONG_MIN() && (LONG || FALLBACK) && fastLeft() > 0) return 'api';
   const big = FAST() && !priorityOf() ? 'api' : 'local';
   if (tools || !SMALL_SITES().has(site) || messages.some(m => m.images?.length))
     return big;
@@ -509,7 +510,7 @@ export function chat(messages, opts = {}) {
         const to = LONG || FALLBACK,
           long = tokensOf(messages) >= LONG_MIN();
         try {
-          if (!long) fastUsed.n++;
+          fastUsed.n++;
           const {m, secs, n} = await onFallback(site, messages, {
             maxTokens: opts.maxTokens ?? 420,
             temperature: opts.temperature ?? 0.4,

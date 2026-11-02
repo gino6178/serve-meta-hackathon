@@ -9,7 +9,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import * as client from '../a2a/client.js';
 import {validate, LIKELY, LIKELY_ANSWER} from '../core/schema.js';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {laterStore} from '../core/jsonfile.js';
 import {binomCdf} from './fit.js';
 import {answer as localAnswer, EXT_PATH} from './likely.js';
 import * as peer from '../a2a/peer.js';
@@ -24,22 +24,11 @@ import {a2aCall} from '../core/trace.js';
 export const on = () => process.env.MATCH !== 'off';
 const PROBE = 12,
   FAIR = 2;
-const viaA2A = () =>
-  process.env.A2A_TRANSPORT !== 'local' && !!process.env.A2A_BASE;
+const viaA2A = peer.overA2A;
 
 // the calibration ledger and the asks sent this week, kept by the gateway (MATCH_STATE_FILE), or in memory (evals)
 export function createLedger(file = null) {
-  let db = file
-    ? readJSON(file, {ledger: {}, sent: {}})
-    : {ledger: {}, sent: {}};
-  let timer = null;
-  const save = () => {
-    if (file && !timer)
-      timer = setTimeout(() => {
-        timer = null;
-        writeJSON(file, db);
-      }, 200);
-  };
+  const {db, save} = laterStore(file, () => ({ledger: {}, sent: {}}));
   const week = t => Math.floor((t + 3 * 864e5) / (7 * 864e5));
   return {
     // a band given, and what happened next: a yes (the talk agreed and the member took the game) or a no

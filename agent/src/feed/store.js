@@ -3,13 +3,12 @@
 // list of papers it has already looked at and its run log, and each player's recent actions for the rate limits.
 //   data/feed.json         (FEED_FILE overrides)
 //   data/feed_media/<id>   photos, clips and cover frames (FEED_MEDIA_DIR overrides)
-// A write goes to a temporary file first and is then renamed over the old one, so a crash leaves the old file or the
-// new one. A file that cannot be read is moved aside and the feed starts empty.
+// It is a jsonStore (core/jsonfile.js): a write goes to a temporary file and is renamed over the old one, a file that
+// cannot be read is moved aside, and one sealed with another data key stops the gateway rather than start empty.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {parse, storeOf} from '../core/jsonfile.js';
-import * as crypt from '../core/crypt.js';
+import {jsonStore} from '../core/jsonfile.js';
 
 export const file = () =>
   path.resolve(process.env.FEED_FILE || 'data/feed.json');
@@ -27,45 +26,13 @@ const blank = () => ({
   seeded: false,
 });
 
-let db = null,
-  from = null;
-function load() {
-  const f = file();
-  if (!fs.existsSync(f)) return blank();
-  try {
-    const j = parse(fs.readFileSync(f, 'utf8'), f);
-    return {...blank(), ...j, papers: {...blank().papers, ...(j.papers || {})}};
-  } catch (e) {
-    const aside = `${f}.unreadable-${Date.now()}`;
-    try {
-      fs.renameSync(f, aside);
-    } catch {
-      /* left where it is */
-    }
-    console.error(
-      `feed: ${path.basename(f)} could not be read (${e.message}); moved to ${path.basename(aside)}, starting empty`,
-    );
-    return blank();
-  }
-}
-// the feed as it is now (read again when FEED_FILE points somewhere else, as the tests do)
-export function data() {
-  if (!db || from !== file()) {
-    db = load();
-    from = file();
-  }
-  return db;
-}
-export function save() {
-  const f = file();
-  fs.mkdirSync(path.dirname(f), {recursive: true});
-  const tmp = `${f}.${process.pid}.${crypto.randomBytes(3).toString('hex')}.tmp`;
-  fs.writeFileSync(
-    tmp,
-    JSON.stringify(crypt.encryptOn() ? crypt.seal(data(), storeOf(f)) : data()),
-  );
-  fs.renameSync(tmp, f);
-}
+// the feed as it is now (read again when FEED_FILE points somewhere else, as the tests do); an older file gets what it lacks
+const store = jsonStore(file, blank, d => {
+  for (const [k, v] of Object.entries(blank())) d[k] ??= v;
+  d.papers = {...blank().papers, ...d.papers};
+});
+export const data = store.data,
+  save = store.save;
 // change the feed and keep it
 export function change(fn) {
   const r = fn(data());
@@ -74,8 +41,7 @@ export function change(fn) {
 }
 // start from nothing (tests)
 export function reset() {
-  db = blank();
-  from = file();
+  store.set(blank());
   save();
   fs.rmSync(mediaDir(), {recursive: true, force: true});
 }

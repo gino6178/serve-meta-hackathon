@@ -16,6 +16,7 @@ import {readJSON, writeJSON} from '../core/jsonfile.js';
 import {record} from '../core/ledger.js';
 import * as update from './memory_update.js';
 import {readClub} from '../club/club.js';
+import {readVenues} from '../core/paths.js';
 
 const FILE = path.resolve(process.env.MEMORY_FILE || 'data/memory.json'),
   DIM = +(process.env.MEMORY_DIM || 768),
@@ -193,17 +194,7 @@ const fade = (n, now) => {
 };
 const venueNames = () => {
   try {
-    return JSON.parse(
-      fs.readFileSync(
-        path.resolve(
-          path.dirname(
-            new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'),
-          ),
-          '../../../web/public/data/venues.json',
-        ),
-        'utf8',
-      ),
-    ).venues.map(v => v.name);
+    return readVenues().venues.map(v => v.name);
   } catch {
     return [];
   }
@@ -396,6 +387,7 @@ export async function forgetAbout(player, about) {
   }
   if (!gone.length) return {by, deleted: []};
   // (a note one of these had replaced stays replaced: forgetting the newer words does not bring back the older ones)
+  generation.set(player, (generation.get(player) || 0) + 1);
   db.players[player] = have.filter(n => !gone.includes(n));
   if (!db.players[player].length) delete db.players[player];
   save();

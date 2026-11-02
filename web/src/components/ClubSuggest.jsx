@@ -2,17 +2,12 @@ import {useEffect, useState} from 'react';
 import {agentFetch} from '../agent.js';
 import {agentFace} from '../club/faces.js';
 import {myPlace} from '../where.js';
+import {stored} from '../storage.js';
 
 // Your agent recommends the nearest club you are not in yet (agent members/clubs.js suggest): join in a tap, look at
 // it, or not now (that club is not suggested again in this browser).
 const KEY = 'serve.clubs.skip.v1';
-const skipped = () => {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) || '[]');
-  } catch {
-    return [];
-  }
-};
+const skipped = () => stored(KEY, []);
 export default function ClubSuggest({sport = null}) {
   const [s, setS] = useState(null),
     [busy, setBusy] = useState(false),

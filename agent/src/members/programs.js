@@ -9,6 +9,7 @@
 //   charity  a tournament for a cause. Players enter with a level (1 to 5) and a pledge, which is a promise to the cause
 //            and only recorded (Serve handles no money); the organiser makes the draw: balanced doubles teams, a round
 //            robin, each match on a court and a time.
+import {line as tidy} from '../core/text.js';
 export const KINDS = ['club', 'youth', 'seniors', 'charity'];
 const RACKET = ['badminton', 'tennis', 'pickleball', 'table tennis', 'squash'];
 const hm = s => {
@@ -17,12 +18,6 @@ const hm = s => {
 };
 const clock = n =>
   `${String(Math.floor(n / 60) % 24).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`;
-const tidy = (s, n) =>
-  String(s || '')
-    .replace(/[\u0000-\u001f\u007f]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, n);
 
 // ---- gentle games ----
 export const GENTLE = {from: '08:00', last: '16:00', minutes: 60, spots: 8};

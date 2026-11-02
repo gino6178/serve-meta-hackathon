@@ -10,6 +10,8 @@
 // proactive assistant: same productivity, preference ~90% to 47%). Measured in test/ask_gate_sim.mjs.
 //   ASK_GATE=off restores the fixed hour (ASK_HOUR); ASK_GATE_HOURS (8-21) the hours it may ask in.
 import crypto from 'node:crypto';
+import {rng} from '../core/rand.js';
+export {rng};
 
 const H = 36e5,
   DAY = 24 * H,
@@ -158,15 +160,6 @@ export function burden(rows, now = Date.now(), p = PARAMS) {
 // seeded draws: mulberry32 from a hash of (player, day), Beta from two Gammas (Marsaglia-Tsang)
 const seedOf = s =>
   parseInt(crypto.createHash('sha256').update(s).digest('hex').slice(0, 8), 16);
-export function rng(seed) {
-  return () => {
-    seed |= 0;
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 function gamma(k, u) {
   if (k < 1) return gamma(k + 1, u) * Math.pow(u() || 1e-12, 1 / k);
   const d = k - 1 / 3,

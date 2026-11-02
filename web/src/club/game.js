@@ -1,20 +1,11 @@
+import {stored, store} from '../storage.js';
 // The club state of yours (your posts, cheers, results, invites, what the club sees, the Autopilot's goal), kept in this browser. Pages that show it listen for
 // "serve:game", which fires when an agent task or a share changes it from somewhere else.
 export const GAME = 'serve.game.v1';
-export const readGame = () => {
-  try {
-    return JSON.parse(localStorage.getItem(GAME)) || {};
-  } catch {
-    return {};
-  }
-};
+export const readGame = () => stored(GAME, {});
 // a page saving its own state: no event, so it does not hear itself
 export const saveGame = s => {
-  try {
-    localStorage.setItem(GAME, JSON.stringify(s));
-  } catch {
-    /* private mode: this visit only */
-  }
+  store(GAME, s);
 };
 export function patchGame(fn) {
   const s = fn(readGame());
@@ -29,4 +20,3 @@ export function isoWeek(d = new Date()) {
   const y = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
   return `${t.getUTCFullYear()}-W${String(Math.ceil(((t - y) / 864e5 + 1) / 7)).padStart(2, '0')}`;
 }
-export const today = () => new Date().toISOString().slice(0, 10);

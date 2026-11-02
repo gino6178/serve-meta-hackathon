@@ -19,6 +19,7 @@ Object.assign(process.env, {
   LEDGER_FILE: path.join(data, 'ledger.jsonl'),
   TRACE_FILE: path.join(data, 'traces.jsonl'),
   CONV_DIR: path.join(data, 'conversations'),
+  FEED_FILE: path.join(data, 'feed.json'),
   BACKUP_DIR: path.join(tmp, 'backups'),
   BACKUP_KEEP: '2',
 });

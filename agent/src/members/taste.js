@@ -13,8 +13,8 @@
 import path from 'node:path';
 import {jsonStore} from '../core/jsonfile.js';
 import * as prefs from '../memory/prefs.js';
-import {ymd, DAYS} from '../core/time.js';
-import {LONG, dateOf} from '../core/time.js';
+import {ymd, DAYS, LONG, dateOf, PARTS, partOf} from '../core/time.js';
+export {PARTS, partOf};
 import {km} from '../core/geo.js';
 export {km};
 export {dateOf};
@@ -38,19 +38,8 @@ export const NO = {
   quiet: 'too busy then',
   busy: 'busy then',
 };
-export const PARTS = ['early', 'morning', 'afternoon', 'evening'];
 export const SURE_AT = 5; // answers before the agent answers for its member in a negotiation without asking
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-export const partOf = start => {
-  const h = +String(start).slice(0, 2);
-  return h < 9
-    ? 'early'
-    : h < 12
-      ? 'morning'
-      : h < 17
-        ? 'afternoon'
-        : 'evening';
-};
 export const cellOf = (date, start) =>
   `${DAYS[dateOf(date).getDay()]} ${partOf(start)}`;
 const groupOf = cell => {

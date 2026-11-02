@@ -66,6 +66,7 @@ import {
 import {prefsBreak} from '../memory/prefs.js';
 import {tinyAnswer} from '../agents/tiny.js';
 import {first} from '../core/time.js';
+import {nums} from '../core/text.js';
 export {first};
 
 const {windows, travelMin, kmBetween, ymd, hm, toMin, dateOf, DAYS} = helpers;
@@ -88,7 +89,6 @@ export const when = (date, start) => {
   const d = dateOf(date);
   return `${DAYS[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]} ${start}`;
 };
-const nums = t => String(t).match(/\d+(?:[.:]\d+)?/g) || [];
 export const allowedIn = (...texts) => new Set(texts.flatMap(t => nums(t)));
 export const okNums = (t, allowed) => nums(t).every(n => allowed.has(n));
 export const PRONOUN = /\b(he|she|him|his|her|hers)\b/i;
@@ -910,9 +910,7 @@ async function answer(m, cur, choices, log, format, sport, minutes = 90) {
 // How your agent reaches a member's agent: over A2A (a2a_client.js) when the gateway serves the members' agents
 // (A2A_BASE is set by server.js), or in this process (tests and evals run without a gateway, or A2A_TRANSPORT=local).
 // A member whose agent is on a peer gateway (<id>@<peer>, peer.js) is always reached over A2A, at that gateway.
-const viaA2A = m =>
-  peer.isRemote(m) ||
-  (process.env.A2A_TRANSPORT !== 'local' && !!process.env.A2A_BASE);
+const viaA2A = m => peer.isRemote(m) || peer.overA2A();
 // (a member whose hold is kept in this process, so code can read it back: the Autopilot's postcondition)
 export const holdsHere = m => !viaA2A(m);
 // a peer gateway that does not answer now: its members are "not reachable now" at once (peer.js reachable)

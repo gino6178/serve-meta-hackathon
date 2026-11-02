@@ -257,6 +257,7 @@ export async function negotiate(
     if (!(await call({...base, offer: ours, last, round: r})))
       return {failed: true, lines};
     if (q.accept) {
+      if (q.price > budget) return over();
       lines.push({from: them, text: `Deal at ${C}${q.price}.`});
       return done(q.price);
     }

@@ -17,7 +17,7 @@ import {VERDICT, NAMES} from '../core/schema.js';
 import {okNums, allowedIn} from '../a2a/talk.js';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
 import * as flags from '../loop/flags.js';
-import {ymd} from '../core/time.js';
+import {ymd, hm} from '../core/time.js';
 import {meters, rad} from '../core/geo.js';
 export {meters};
 
@@ -117,8 +117,18 @@ async function overpass(q, rounds = 4) {
   throw last;
 }
 
+// a sport is a short word (anything else would be written into the Overpass query, and would grow the cache), a
+// radius 500 m to 5 km
+const sportOf = s =>
+    /^[a-z][a-z _-]{0,29}$/.test(String(s).toLowerCase())
+      ? String(s).toLowerCase()
+      : 'badminton',
+  radiusOf = r => Math.min(5000, Math.max(500, +r || 2000));
+
 // 1: the map
 async function fromMap({lat, lon, sport, radius}) {
+  sport = sportOf(sport);
+  radius = radiusOf(radius);
   const key = `${lat.toFixed(3)},${lon.toFixed(3)},${radius},${sport}`;
   if (cache[key] && Date.now() - cache[key].at < 30 * 864e5)
     return cache[key].places;
@@ -736,12 +746,10 @@ export async function search({
 // are judged for the hour after and the hour before, as background work (behind anything a person waits for), so
 // moving the time on the map finds them judged. Only the model's verdict is done ahead: nothing is shown or stored.
 export const speculateOn = () => process.env.PLACES_SPECULATE !== 'off';
-const hhmm = m =>
-  `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 export const nextStarts = start => {
   const [h, m] = start.split(':').map(Number),
     t = h * 60 + m;
-  return [t + 60, t - 60].filter(x => x >= 7 * 60 && x <= 22 * 60).map(hhmm);
+  return [t + 60, t - 60].filter(x => x >= 7 * 60 && x <= 22 * 60).map(hm);
 };
 async function ahead(here, sport, date, start, pick) {
   for (const alt of nextStarts(start)) {
@@ -829,11 +837,8 @@ export async function nearby({
     Math.abs(at.lon) > 180
   )
     throw new Error('No location to search around.');
-  // a sport is a short word: anything else would be written into the Overpass query, and would grow the cache
-  const r = Math.min(5000, Math.max(500, +radius || 2000)),
-    sp = /^[a-z][a-z _-]{0,29}$/.test(String(sport).toLowerCase())
-      ? String(sport).toLowerCase()
-      : 'badminton',
+  const r = radiusOf(radius),
+    sp = sportOf(sport),
     key = `${at.lat},${at.lon},${r},${sp}`;
   const hit = near.get(key) || cache[`near:${key}`];
   if (hit && Date.now() - hit.at < 30 * 864e5) return hit.places;

@@ -6,31 +6,17 @@
 // The demo club (club.json "demo": true) gets a simulated history once, so its members' bands mean something; a real
 // club never does (MATCH_DEMO_RECORDS=0 turns it off, =1 forces it).
 import path from 'node:path';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {laterStore} from '../core/jsonfile.js';
 
 const MAX = {asked: 300, own: 120, games: 150};
 const clean = (k, v) => (k.startsWith('_') ? undefined : v); // cached keys (features.js) are not saved
 
 export function createStore(file = null) {
-  let db = file ? readJSON(file, {members: {}}) : {members: {}};
+  // written whole, at most every 200 ms (a talk notes several answers at once)
+  const {db, save, flush} = laterStore(file, () => ({members: {}}), {
+    out: d => JSON.parse(JSON.stringify(d, clean)),
+  });
   db.members ||= {};
-  let timer = null;
-  const save = () => {
-    if (!file) return;
-    // written whole, at most every 200 ms (a talk notes several answers at once)
-    if (!timer)
-      timer = setTimeout(() => {
-        timer = null;
-        writeJSON(file, JSON.parse(JSON.stringify(db, clean)));
-      }, 200);
-  };
-  const flush = () => {
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-    if (file) writeJSON(file, JSON.parse(JSON.stringify(db, clean)));
-  };
   const rec = id =>
     (db.members[id] ||= {asked: [], own: [], games: [], sore: []});
   const trim = (r, k) => {
@@ -137,7 +123,7 @@ export function createStore(file = null) {
       save();
     },
     replace(members) {
-      db = {members};
+      db.members = members;
       save();
     },
     flush,

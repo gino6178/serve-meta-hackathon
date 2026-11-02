@@ -1,6 +1,8 @@
 import Icon from './Icon.jsx';
 import {dismiss, plain, answerMoved} from '../tasks.js';
 import Mark from './Mark.jsx';
+import {ago} from '../time.js';
+export {ago};
 
 // One job the agent did or is doing: what was asked, where it stands, and the trail of steps behind it. A game the
 // Match helper set up also shows the agents' last messages, and, when they moved the time, asks to book it.
@@ -13,16 +15,6 @@ const JOB = {
   game: 'Match · Talk',
 };
 // the messages worth showing: the counters and noes, and your agent's last word, in the order they were said
-export function ago(t) {
-  const s = Math.round((Date.now() - t) / 1000);
-  return s < 45
-    ? 'just now'
-    : s < 3600
-      ? `${Math.round(s / 60)} min ago`
-      : s < 86400
-        ? `${Math.round(s / 3600)} h ago`
-        : `${Math.round(s / 86400)} d ago`;
-}
 function action(t) {
   if (t.state === 'failed') return null;
   if (t.kind === 'play')

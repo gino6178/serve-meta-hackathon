@@ -1,23 +1,9 @@
 // Getting a game together, and how the member likes to play: the calls to the club's gateway (agent
 // src/members/huddle.js, taste.js, deals.js). Every one needs a signed-in member.
-import {agentFetch} from './agent.js';
+import {call} from './agent.js';
 import {myPlace} from './where.js';
 
-export async function call(path, body) {
-  const r = await agentFetch(
-    path,
-    body
-      ? {
-          method: 'POST',
-          headers: {'content-type': 'application/json'},
-          body: JSON.stringify(body),
-        }
-      : {},
-  );
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.error || `The server answered ${r.status}.`);
-  return j;
-}
+export {call};
 export const today = () => call('/api/huddle/today');
 export const mine = () => call('/api/huddle/me');
 export const one = id => call(`/api/huddle/one?id=${encodeURIComponent(id)}`);

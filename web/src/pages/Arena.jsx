@@ -17,6 +17,7 @@ import {go} from '../App.jsx';
 import {agentReadScore} from '../agent.js';
 import Poster from '../club/Poster.jsx';
 import {first, initials} from '../text.js';
+import {hashQuery} from '../storage.js';
 
 // The club's competitive side, in two tabs of the Club page.
 //   Rankings: the club rating (Elo from every challenge), games played in the club challenge and wins, with a podium
@@ -341,7 +342,7 @@ export function Challenges({club, members, r, rec, g, you, me}) {
       ...s,
       arena: fn({results: [], answered: {}, sent: [], ...(s.arena || {})}),
     }));
-  const q = new URLSearchParams(location.hash.split('?')[1] || '');
+  const q = hashQuery();
   const [fmt, setFmt] = useState(
     q.get('fmt') === 'doubles' ? 'doubles' : 'singles',
   );

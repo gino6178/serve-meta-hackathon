@@ -5,27 +5,16 @@ import {useEffect, useState} from 'react';
 import {agentAskNext, agentAskAnswer} from '../agent.js';
 import {autopilotInput, startGame} from '../tasks.js';
 import {bodyInput, readBody} from './body.js';
+import {ymd} from '../time.js';
+import {stored, store} from '../storage.js';
 
 const KEY = 'serve.ask.v1';
-const today = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
-let state = (() => {
-  try {
-    return JSON.parse(localStorage.getItem(KEY)) || {};
-  } catch {
-    return {};
-  }
-})();
+const today = () => ymd();
+let state = stored(KEY, {});
 const subs = new Set();
 function set(patch) {
   state = {...state, ...patch};
-  try {
-    localStorage.setItem(KEY, JSON.stringify(state));
-  } catch {
-    /* private mode: this visit only */
-  }
+  store(KEY, state);
   subs.forEach(f => f(state));
 }
 // what the gateway needs: your games, what is booked, and the body log (without GPS routes); a question for your agent

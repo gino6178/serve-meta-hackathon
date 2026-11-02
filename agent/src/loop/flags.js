@@ -25,6 +25,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {secretFile} from '../core/crypt.js';
 import * as anytime from './anytime.js';
 import {toMin} from '../core/time.js';
 import {DAY} from '../core/time.js';
@@ -113,18 +114,7 @@ const secrets = new Map();
 function secret() {
   const f = files.secret();
   if (secrets.has(f)) return secrets.get(f);
-  if (!fs.existsSync(f)) {
-    fs.mkdirSync(path.dirname(f), {recursive: true});
-    try {
-      fs.writeFileSync(f, crypto.randomBytes(32).toString('hex'), {
-        mode: 0o600,
-        flag: 'wx',
-      });
-    } catch (e) {
-      if (e.code !== 'EEXIST') throw e;
-    }
-  }
-  const s = fs.readFileSync(f, 'utf8').trim();
+  const s = secretFile(f);
   secrets.set(f, s);
   return s;
 }

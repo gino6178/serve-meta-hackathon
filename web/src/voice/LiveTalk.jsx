@@ -61,12 +61,14 @@ export default function LiveTalk({facts, onClose}) {
             channelCount: 1,
           },
         });
+        if (!live) return stream.current.getTracks().forEach(t => t.stop());
         const ac = (ctx.current = new AudioContext({sampleRate: 24000}));
         await ac.audioWorklet.addModule(
           URL.createObjectURL(
             new Blob([PROC], {type: 'application/javascript'}),
           ),
         );
+        if (!live) return;
         const src = ac.createMediaStreamSource(stream.current),
           node = new AudioWorkletNode(ac, 'pcm');
         src.connect(node);
@@ -133,7 +135,8 @@ export default function LiveTalk({facts, onClose}) {
       live = false;
       stopVoice();
       try {
-        ws.current?.send(JSON.stringify({type: 'stop'}));
+        if (ws.current?.readyState === 1)
+          ws.current.send(JSON.stringify({type: 'stop'}));
         ws.current?.close();
       } catch {
         /* gone */

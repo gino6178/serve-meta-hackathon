@@ -1,7 +1,7 @@
 # Code review, November 2026
 
-Two passes: the first (below the line) merged the shared time helpers and applied Meta's style; the second read the
-whole codebase for bugs and duplicate code.
+Three passes: the first (below the line) merged the shared time helpers and applied Meta's style; the second and
+third read the whole codebase for bugs and duplicate code.
 
 ## Second pass: the whole codebase
 
@@ -53,6 +53,37 @@ The five items left after the second pass, done since:
   refuses the booking and leaves the mandate usable for a retry. Check, book and use happen in one synchronous step,
   so two copies of one mandate can't both get through.
 
+## Third pass: the whole codebase again
+
+Five reviews again (four by area, one for duplicates), 32 findings. All fixed but one duplicate group:
+
+- **Who sees what.** A single post, its media and a report all go through the feed's one visibility rule, so a
+  private club's or a hidden post stays out by every route. The agent channel posts and comments as its person, so
+  the person's pause, rate limits and counts apply. The people list and the pending results show first names only.
+- **Limits.** An MCP tool call takes the sign-in and heavy limits of the route it calls (its own HTTP call comes from
+  loopback). A long call to the Meta Model API counts against the hourly ceiling, and stops with it. The proxy ends the
+  gateway call when the client goes away, and counts a JSON body sent without a length. At most two health exports are read at
+  once, and a reader that runs ten minutes is stopped. The Autopilot run from the app never gets a
+  messenger from the request.
+- **Inputs.** A hub tier is one of its own names (not `constructor`). Llama Guard's prompt drops the special tokens
+  and section markers a message writes. The map search checks its sport and radius whoever calls it. A proposal's own
+  date must exist; a message id resent with other times while the first is being answered is refused; a time with no
+  venue counts as unplaced for a longest-trip rule.
+- **Correctness.** Bodies and worker output are decoded once, whole (a character split across chunks stays one). A
+  worker that never says it is ready is stopped and started again next time. Forgetting by topic stops a waiting
+  write from bringing the notes back. A venue deal is within the budget however it is reached. An unknown venue lets
+  go of its holds. A best-of-five won 3-0 is read as finished. "Yes, see you later" is a yes; "I sat in the sun" names
+  no day. Leaving a club takes you out of its draw. Dates in the body context and on the web are local dates.
+
+Duplicates merged: a secret file read or made once (`secretFile` in `core/crypt.js`, 8 copies); a store written at
+most every 200 ms (`laterStore` in `core/jsonfile.js`, 4); the feed store onto `jsonStore`; the demo data folder and
+`readVenues` (`core/paths.js`, 6); FNV-1a and mulberry32 (`core/rand.js`, 5); `PARTS`/`partOf` into `core/time.js`
+(2); one-line text and number helpers (`core/text.js`, 4); whether agents are reached over A2A (`peer.overA2A`, 3).
+On the web: one JSON call with an optional strict refusal (`call` in `agent.js`, 5 copies), `web/src/time.js` for
+local dates and "ago" (8), `web/src/storage.js` for localStorage and the hash query (16), `usePoll` (3), and one
+`initials`/`cap`. Left: the two story viewers (Agent and Social), which differ in media and layout enough that one
+shared component would need slots for both; not worth it yet.
+
 ---
 
 
@@ -80,7 +111,7 @@ their own width. Line count went from 49,432 to 132,655. That is the same code, 
 
 Modules that exported one of these (`club/life.js`, `members/taste.js`, `members/calendar.js`,
 `memory/memory_update.js`, `a2a/talk.js`) re-export it, so no caller changed. These stay apart on purpose:
-`body/context.js`'s `ymd` is the UTC date, `agents/tiny.js`'s `DAYS` starts on Monday, and `club/life.js`'s `hm` takes
+`agents/tiny.js`'s `DAYS` starts on Monday, and `club/life.js`'s `hm` takes
 a Date.
 
 ## Left as it is, and why
@@ -90,11 +121,9 @@ a Date.
 - **Four views of what a person likes.** `memory/prefs.js` (dated records), `prefs_of.js` (reads them from what is
   stored), `beliefs.js` (weekly abstractions) and `members/taste.js` (weights learned from answers). `prefs.js` already
   settles them into one answer. `taste.js`, at 897 lines, is the file most worth splitting next.
-- **The same file-store pattern 29 times.** `data()` loads a JSON file once and `save()` writes it. A helper
-  `store(file, empty)` in `core/jsonfile.js` could replace about 4 lines in each. That is a mechanical next step, not
-  done here.
+- **The same file-store pattern.** Done since: `jsonStore` and `laterStore` in `core/jsonfile.js`.
 
 ## Checks
 
-`npm test`: 458 tests. All pass except the 2 that fail only on Windows (the video composer needs the GPU server; the
+`npm test`: 463 tests (458 pass, 3 skipped). All pass except the 2 that fail only on Windows (the video composer needs the GPU server; the
 builder's write test uses POSIX paths). The web build passes.

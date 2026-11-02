@@ -1,22 +1,12 @@
-import {useEffect, useState} from 'react';
-import {agentFetch} from '../agent.js';
+import {useEffect, useRef, useState} from 'react';
+import {call} from '../agent.js';
 import './MatchSettings.css';
 
 // Finding a game: what your agent tells other players' agents, whether your records help improve the predictions,
 // and (for the club) fair exposure; for the maintainer, the prediction in use, retraining and rolling back. Everything
 // starts off for you, and /forget in Messenger sets it back to off. The settings live on your gateway.
-const get = p =>
-  agentFetch(p).then(r =>
-    r.ok ? r.json() : Promise.reject(new Error(`gateway ${r.status}`)),
-  );
-const post = (p, body) =>
-  agentFetch(p, {
-    method: 'POST',
-    headers: {'content-type': 'application/json'},
-    body: JSON.stringify(body),
-  }).then(r =>
-    r.ok ? r.json() : Promise.reject(new Error(`gateway ${r.status}`)),
-  );
+const get = p => call(p),
+  post = (p, body) => call(p, body);
 const label = v => String(v || '').replace(/^likely-[a-z]+-/, '');
 
 function Switch({id, on, disabled, onChange, children, note}) {
@@ -42,7 +32,9 @@ export default function MatchSettings({player = 'you'}) {
   const [s, setS] = useState(null),
     [err, setErr] = useState(''),
     [models, setModels] = useState(null),
-    [job, setJob] = useState(null);
+    [job, setJob] = useState(null),
+    poll = useRef(null);
+  useEffect(() => () => clearInterval(poll.current), []);
   const load = () =>
     get(`/api/match/settings?player=${encodeURIComponent(player)}`)
       .then(setS)
@@ -65,7 +57,8 @@ export default function MatchSettings({player = 'you'}) {
     post('/api/match/retrain', {})
       .then(r => {
         setJob(r.job);
-        const t = setInterval(
+        clearInterval(poll.current);
+        const t = (poll.current = setInterval(
           () =>
             get('/api/match/retrain').then(j => {
               setJob(j);
@@ -75,7 +68,7 @@ export default function MatchSettings({player = 'you'}) {
               }
             }),
           3000,
-        );
+        ));
       })
       .catch(e => setErr(`Couldn't start (${e.message}).`));
   const back = () =>

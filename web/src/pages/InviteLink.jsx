@@ -7,13 +7,13 @@ import {pendingInvite} from '../invite.js';
 import {Join} from './Social.jsx';
 import './invite.css';
 import {cap} from '../text.js';
+import {hashQuery} from '../storage.js';
 
 // #/invite?id=...: a game someone shared as a link. Anyone sees the game and the spots left (never who is going);
 // signing in joins it, also after a Facebook or Instagram login that left the page (pendingInvite).
 
 export default function InviteLink() {
-  const id =
-    new URLSearchParams(location.hash.split('?')[1] || '').get('id') || '';
+  const id = hashQuery().get('id') || '';
   const [m] = useMember();
   const [v, setV] = useState(null),
     [err, setErr] = useState(null),

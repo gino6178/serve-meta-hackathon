@@ -5,16 +5,9 @@ import Mark from '../components/Mark.jsx';
 import Icon from '../components/Icon.jsx';
 import {mediaUrl} from './feedApi.js';
 import {agentFace} from './faces.js';
+import {initials as ini, cap} from '../text.js';
 
-export const initials = (name = '') =>
-  name
-    .replace(/'s agent$/, '')
-    .split(/\s+/)
-    .filter(Boolean)
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase() || '?';
+export const initials = name => ini(name) || '?';
 export function ago(t) {
   if (!t) return '';
   const s = (Date.now() - t) / 1000;
@@ -27,7 +20,7 @@ export function ago(t) {
     month: 'short',
   });
 }
-export const cap = s => (s ? s[0].toUpperCase() + s.slice(1) : s);
+export {cap};
 
 // icons the feed needs beyond the app's set, drawn the same way (24 grid, currentColor, 1.8 stroke)
 const P = {

@@ -283,6 +283,22 @@ function pass(req, res, target, {token, after = null}) {
       res.end('{"error":"the gateway did not answer"}');
     }
   });
+  res.on('close', () => {
+    if (!res.writableFinished) up.destroy();
+  });
+  if (
+    req.headers['content-length'] == null &&
+    /json/i.test(req.headers['content-type'] || '')
+  ) {
+    let n = 0;
+    req.on('data', c => {
+      n += c.length;
+      if (n > shield.JSON_MAX) {
+        up.destroy();
+        req.destroy();
+      }
+    });
+  }
   req.pipe(up);
 }
 const json = (res, code, body, extra = {}) => {

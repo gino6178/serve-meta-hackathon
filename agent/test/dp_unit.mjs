@@ -14,6 +14,7 @@ Object.assign(process.env, {
   DP_KEY_FILE: path.join(tmp, 'keys/dp.key'),
   VENUE_NOTES_FILE: path.join(tmp, 'venue_notes.json'),
   TRUST_FILE: path.join(tmp, 'trust.json'),
+  FEED_FILE: path.join(tmp, 'feed.json'),
   PLACES_FILE: path.join(tmp, 'places.json'),
   GUARD: 'off',
 });

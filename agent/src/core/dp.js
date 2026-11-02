@@ -10,7 +10,6 @@
 // DP=off turns all three off (tests that check exact counts). DP_EPS_MARK (default 2: with three values, a mark is kept
 // as given 79% of the time), DP_EPS_COUNT (default 1) and DP_MIN_GROUP (default 5) set the parameters.
 import crypto from 'node:crypto';
-import fs from 'node:fs';
 import path from 'node:path';
 import * as crypt from './crypt.js';
 
@@ -63,19 +62,16 @@ function key() {
     );
   else {
     try {
-      secret = Buffer.from(fs.readFileSync(from, 'utf8').trim(), 'base64url');
+      secret = Buffer.from(
+        crypt.secretFile(from, () =>
+          crypto.randomBytes(32).toString('base64url'),
+        ),
+        'base64url',
+      );
     } catch {
       secret = null;
     }
-    if (!secret || secret.length !== 32) {
-      secret = crypto.randomBytes(32);
-      try {
-        fs.mkdirSync(path.dirname(from), {recursive: true, mode: 0o700});
-        fs.writeFileSync(from, secret.toString('base64url'), {mode: 0o600});
-      } catch {
-        /* kept in memory only */
-      }
-    }
+    if (!secret || secret.length !== 32) secret = crypto.randomBytes(32); // kept in memory only
   }
   return secret;
 }

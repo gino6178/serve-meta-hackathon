@@ -779,6 +779,8 @@ test(
       LEDGER_FILE: `${dir}/ledger.jsonl`,
       TRACE_FILE: `${dir}/traces.jsonl`,
       FEEDBACK_FILE: `${dir}/feedback.json`,
+      FEED_FILE: `${dir}/feed.json`,
+      FEED_MEDIA_DIR: `${dir}/feed_media`,
       PLAYBOOK_FILE: `${dir}/playbooks.json`,
       KB_FILE: `${dir}/kb.json`,
       LOOP_DIR: `${dir}/loop`,

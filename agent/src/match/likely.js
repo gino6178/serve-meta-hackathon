@@ -11,7 +11,7 @@
 // deletes the member's rows and the rows where they asked.
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {laterStore} from '../core/jsonfile.js';
 import {features} from './features.js';
 import {
   predict,
@@ -40,17 +40,7 @@ export const limits = () => ({
 
 // the audit and the cache: on disk (MATCH_AUDIT_FILE), or in memory for the evals
 export function createState(file = null, {keep = 5000} = {}) {
-  let db = file
-    ? readJSON(file, {audit: [], cache: {}})
-    : {audit: [], cache: {}};
-  let timer = null;
-  const save = () => {
-    if (file && !timer)
-      timer = setTimeout(() => {
-        timer = null;
-        writeJSON(file, db);
-      }, 200);
-  };
+  const {db, save, flush} = laterStore(file, () => ({audit: [], cache: {}}));
   // the budgets count answered, uncached estimates: kept as times per asker and member, per member, per asker
   const idx = {pair: new Map(), member: new Map(), from: new Map()};
   const push = (m, k, t) => {
@@ -102,13 +92,7 @@ export function createState(file = null, {keep = 5000} = {}) {
             m.delete(k);
       save();
     },
-    flush() {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
-      if (file) writeJSON(file, db);
-    },
+    flush,
   };
 }
 let main = null;

@@ -25,11 +25,10 @@
 // keeps too few promises, or is marked a prober, cannot say yes for its person, so the person is asked themself. No
 // money is ever involved: no deposits, no fees.
 //   data/trust.json (TRUST_FILE): { chain: [...entries], heads: [...signed heads], checks: {...games waiting for votes} }
-import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {jsonStore} from '../core/jsonfile.js';
-import {sha256Hex as sha} from '../core/crypt.js';
+import {sha256Hex as sha, secretFile} from '../core/crypt.js';
 
 const FILE = () => path.resolve(process.env.TRUST_FILE || 'data/trust.json');
 let state = null;
@@ -90,20 +89,7 @@ let secret = null,
 function key() {
   if (secret && secretFrom === SECRET_FILE()) return secret;
   const f = SECRET_FILE();
-  try {
-    secret = fs.readFileSync(f, 'utf8').trim();
-  } catch {
-    secret = null;
-  }
-  if (!secret) {
-    secret = crypto.randomBytes(32).toString('hex');
-    fs.mkdirSync(path.dirname(f), {recursive: true});
-    try {
-      fs.writeFileSync(f, secret, {mode: 0o600, flag: 'wx'});
-    } catch {
-      secret = fs.readFileSync(f, 'utf8').trim();
-    }
-  }
+  secret = secretFile(f);
   secretFrom = f;
   return secret;
 }

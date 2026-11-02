@@ -12,13 +12,14 @@
 // part of the build.
 import {AGENT_URL, agentFetch} from '../agent.js';
 import * as mock from './mock.js';
+import {hashQuery} from '../storage.js';
 
 // THE SWITCH. "mock": the sample data in mock.js, until the loop's routes are on the gateway. "live": the gateway.
 // Set VITE_LOOP_SOURCE=live (or mock) in web/.env.local, or change the default here once the routes land. To try the
 // other one without a restart, add loop=live or loop=mock to the page's address (#/maintain?loop=live).
 const DEFAULT_SOURCE = 'mock';
 export function source() {
-  const q = new URLSearchParams(location.hash.split('?')[1] || '').get('loop');
+  const q = hashQuery().get('loop');
   if (q === 'live' || q === 'mock') return q;
   const env = import.meta.env.VITE_LOOP_SOURCE;
   return env === 'live' || env === 'mock' ? env : DEFAULT_SOURCE;

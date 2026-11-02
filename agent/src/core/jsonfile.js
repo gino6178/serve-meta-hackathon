@@ -60,6 +60,29 @@ export function writeJSON(file, obj) {
   fs.renameSync(tmp, file);
 }
 
+// A store written at most every 200 ms (several changes at once are one write), or kept in memory only (file null:
+// the evals make their own). save() schedules the write, flush() writes now; out(db) is what is written.
+export function laterStore(file, empty, {out = d => d} = {}) {
+  const db = file ? readJSON(file, empty()) : empty();
+  let timer = null;
+  const write = () => file && writeJSON(file, out(db));
+  return {
+    db,
+    save() {
+      if (file && !timer)
+        timer = setTimeout(() => {
+          timer = null;
+          write();
+        }, 200);
+    },
+    flush() {
+      clearTimeout(timer);
+      timer = null;
+      write();
+    },
+  };
+}
+
 // A JSON store kept in memory, the pattern every store module shares: data() reads the file once (and again whenever
 // its path changes, as the tests switch it), fill(d) adds what an older file lacks, save() writes it, set(v) replaces
 // what is kept (a reset). empty() makes a fresh empty value each time, so two stores never share one object.

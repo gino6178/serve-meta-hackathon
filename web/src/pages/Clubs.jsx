@@ -3,11 +3,12 @@ import Icon from '../components/Icon.jsx';
 import RealMap from '../components/RealMap.jsx';
 import Feed from '../club/Feed.jsx';
 import {InviteComposer} from './Social.jsx';
-import {agentFetch, SESSION_KEY} from '../agent.js';
+import {agentFetch, call as agentCall, SESSION_KEY} from '../agent.js';
 import {knownPlace, myPlace} from '../where.js';
 import ClubSuggest from '../components/ClubSuggest.jsx';
 import Program, {KINDS} from '../club/Programs.jsx';
 import './clubs.css';
+import {hashQuery} from '../storage.js';
 
 // Clubs members start themselves (agent members/clubs.js): the clubs near you on a real map, your own first, a club of
 // your own in a few taps, and each club with its own games and posts (#/club?room=<id>). The demo club stays at
@@ -23,26 +24,9 @@ const SPORTS = [
   'squash',
   'running',
 ];
-const call = async (path, body) => {
-  const r = await agentFetch(
-    path,
-    body
-      ? {
-          method: 'POST',
-          headers: {'content-type': 'application/json'},
-          body: JSON.stringify(body),
-        }
-      : {},
-  );
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok || j.refused)
-    throw new Error(j.why || j.error || `The server answered ${r.status}.`);
-  return j;
-};
-const roomOf = () =>
-  new URLSearchParams(location.hash.split('?')[1] || '').get('room');
-const joinOf = () =>
-  new URLSearchParams(location.hash.split('?')[1] || '').get('join');
+const call = (path, body) => agentCall(path, body, {strict: true});
+const roomOf = () => hashQuery().get('room');
+const joinOf = () => hashQuery().get('join');
 const signedIn = () => {
   try {
     return !!localStorage.getItem(SESSION_KEY);

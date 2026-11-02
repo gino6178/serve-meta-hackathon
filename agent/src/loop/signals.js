@@ -9,10 +9,10 @@
 // (LOOP_SECRET, or agent/data/loop/secret, made once with mode 600, never committed). The words of an unmet request stay
 // in the player's own record (store.js) until shared, never in loop data. Body and health data never become signals.
 // /forget deletes all of it: signals, pending offers, shared items and votes (by recomputing `who`).
-import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {secretFile} from '../core/crypt.js';
 import {chatJSON} from '../core/llm.js';
 import {validate} from '../core/schema.js';
 import * as store from '../core/store.js';
@@ -50,22 +50,7 @@ let secretValue = null;
 function secret() {
   if (secretValue) return secretValue;
   if (process.env.LOOP_SECRET) return (secretValue = process.env.LOOP_SECRET);
-  try {
-    secretValue = fs.readFileSync(SECRET_FILE, 'utf8').trim();
-    if (secretValue) return secretValue;
-  } catch {
-    /* made below */
-  }
-  fs.mkdirSync(path.dirname(SECRET_FILE), {recursive: true});
-  const s = crypto.randomBytes(32).toString('hex');
-  try {
-    fs.writeFileSync(SECRET_FILE, s, {mode: 0o600, flag: 'wx'});
-    secretValue = s;
-  } catch (e) {
-    if (e.code !== 'EEXIST') throw e;
-    secretValue = fs.readFileSync(SECRET_FILE, 'utf8').trim();
-  } // another process made it first
-  return secretValue;
+  return (secretValue = secretFile(SECRET_FILE));
 }
 export const whoOf = player =>
   crypto.createHmac('sha256', secret()).update(String(player)).digest('hex');

@@ -5,20 +5,15 @@ import * as members from '../members/members.js';
 import fs from 'node:fs';
 import {parse} from '../core/jsonfile.js';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import * as guard from '../safety/guard.js';
 import * as align from '../safety/align.js';
 import {chatJSON} from '../core/llm.js';
 import * as signals from '../loop/signals.js';
 import * as store from '../core/store.js';
+import {demoFile} from '../core/paths.js';
 
 const CLUB = () =>
-  path.resolve(
-    process.env.FEED_CLUB_FILE ||
-      fileURLToPath(
-        new URL('../../../web/public/data/club.json', import.meta.url),
-      ),
-  );
+  path.resolve(process.env.FEED_CLUB_FILE || demoFile('club.json'));
 let clubCache = null;
 // The club's standard for what people post, read by Muse Glimmer after Llama Guard: { verdict: "ok" | one of the
 // reasons, or null when the model did not answer }. It has no tools and sees only the one text.

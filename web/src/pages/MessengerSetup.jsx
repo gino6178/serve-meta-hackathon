@@ -1,4 +1,5 @@
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
+import {usePoll} from '../hooks.js';
 import {
   AGENT_URL,
   agentPlayers,
@@ -34,19 +35,17 @@ const checksOf = ps =>
   );
 const useGateway = () => {
   const [seen, setSeen] = useState({st: null, ps: [], err: null, checks: {}});
-  useEffect(() => {
-    const ask = () =>
+  usePoll(
+    () =>
       Promise.all([agentStatus(), agentPlayers()])
         .then(async ([st, ps]) => {
           setSeen(s => ({...s, st, ps, err: null}));
           const checks = Object.fromEntries(await checksOf(ps));
           setSeen(s => ({...s, checks}));
         })
-        .catch(e => setSeen(s => ({...s, err: e.message})));
-    ask();
-    const timer = setInterval(ask, EVERY_MS);
-    return () => clearInterval(timer);
-  }, []);
+        .catch(e => setSeen(s => ({...s, err: e.message}))),
+    EVERY_MS,
+  );
   return seen;
 };
 // the three readings at the top: the model, the Page, and how many players are linked

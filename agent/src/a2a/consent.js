@@ -8,7 +8,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {sha256Hex as sha} from '../core/crypt.js';
+import {sha256Hex as sha, secretFile} from '../core/crypt.js';
+import {newPem} from './peer.js';
 
 const DIR = () => path.resolve(process.env.AGENT_KEYS_DIR || 'data/agent_keys');
 const b64u = b => Buffer.from(b).toString('base64url');
@@ -35,15 +36,8 @@ function keyOf(id, {create = true} = {}) {
   );
   if (!fs.existsSync(f) && old !== f && fs.existsSync(old))
     fs.renameSync(old, f);
-  if (!fs.existsSync(f)) {
-    if (!create) return null;
-    fs.mkdirSync(DIR(), {recursive: true});
-    const {privateKey} = crypto.generateKeyPairSync('ed25519');
-    fs.writeFileSync(f, privateKey.export({type: 'pkcs8', format: 'pem'}), {
-      mode: 0o600,
-    });
-  }
-  return crypto.createPrivateKey(fs.readFileSync(f));
+  if (!create && !fs.existsSync(f)) return null;
+  return crypto.createPrivateKey(secretFile(f, newPem));
 }
 export const publicOf = (id, opts) => {
   const k = keyOf(id, opts);

@@ -14,7 +14,11 @@ const SCRIPT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   'health_import.py',
 );
-const MAX = +(process.env.HEALTH_MAX_MB || 800) * 1e6;
+const MAX = +(process.env.HEALTH_MAX_MB || 800) * 1e6,
+  AT_ONCE = +(process.env.HEALTH_AT_ONCE || 2),
+  TIMEOUT = +(process.env.HEALTH_TIMEOUT_S || 600) * 1000;
+let busy = 0;
+const BUSY = 'Another export is being read now. Try again in a few minutes.';
 const clean = s =>
   String(s || 'export')
     .replace(/[^\w.\- ]/g, '')
@@ -22,6 +26,8 @@ const clean = s =>
 
 // read a file already on disk (a Messenger attachment) or the request body (the app's upload)
 export async function read(src, {name = 'export', days = 120, tz = 480} = {}) {
+  if (busy >= AT_ONCE) throw new Error(BUSY);
+  busy++;
   const out = src + '.json';
   try {
     await new Promise((ok, bad) => {
@@ -35,6 +41,11 @@ export async function read(src, {name = 'export', days = 120, tz = 480} = {}) {
         String(Math.round(+tz) || 0),
       ]);
       let err = '';
+      const t = setTimeout(() => {
+        p.kill();
+        bad(new Error('The file took too long to read.'));
+      }, TIMEOUT);
+      p.on('exit', () => clearTimeout(t));
       p.stderr.on('data', c => {
         err = (err + c).slice(-3000);
       });
@@ -51,11 +62,13 @@ export async function read(src, {name = 'export', days = 120, tz = 480} = {}) {
     });
     return JSON.parse(fs.readFileSync(out, 'utf8'));
   } finally {
+    busy--;
     fs.rmSync(out, {force: true});
   }
 }
 
 export async function upload(req, send, opts = {}) {
+  if (busy >= AT_ONCE) throw new Error(BUSY);
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'health-')),
     src = path.join(dir, 'in');
   try {

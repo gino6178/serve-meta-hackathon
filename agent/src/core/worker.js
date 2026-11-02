@@ -51,13 +51,18 @@ export function pyWorker({
       proc = p;
       const pend = (p.pend = {waiting: new Map(), queue: []});
       const timer = readyLine
-        ? setTimeout(
-            () => fail(new Error(`${name} took too long to load`)),
-            readyMs,
-          )
+        ? setTimeout(() => {
+            fail(new Error(`${name} took too long to load`));
+            if (proc === p) {
+              proc = null;
+              ready = null;
+            }
+            p.kill();
+          }, readyMs)
         : null;
       if (!readyLine) ok();
       let buf = '';
+      p.stdout.setEncoding('utf8');
       p.stdout.on('data', d => {
         buf += d;
         for (let i; (i = buf.indexOf('\n')) >= 0; ) {

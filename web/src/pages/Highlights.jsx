@@ -12,6 +12,7 @@ import {
   effectFrame,
   playEffect,
 } from '../components/Effect.jsx';
+import {ymd} from '../time.js';
 import './highlights.css';
 
 // Film a highlight: a clip you filmed of your own game, in any ball sport, becomes a reel to post. The clip goes to your
@@ -908,7 +909,7 @@ export default function Highlights() {
       await feedApi.draft(file.blob, {
         sport: d?.sport || sport,
         moment: kind,
-        date: new Date().toISOString().slice(0, 10),
+        date: ymd(),
       });
       setMsg(
         'Your agent drafted a club post. It waits in the Club feed for your yes.',

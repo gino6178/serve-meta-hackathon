@@ -9,11 +9,8 @@ import {AsyncLocalStorage} from 'node:async_hooks';
 import {population} from './population.js';
 import * as store from '../core/store.js';
 import * as settings from '../match/settings.js';
+import {demoFile} from '../core/paths.js';
 
-const DATA = path.resolve(
-  path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')),
-  '../../../web/public/data',
-);
 // SIM_USERS=<folder>: the simulated users' members (its members.json, test/sim_users/seed) join the club, each marked
 // simulated, with an A2A agent like every member (a member that is not marked simulated is left out)
 const simUsers = () => {
@@ -30,7 +27,7 @@ const simUsers = () => {
   }
 };
 const baseClub = () => {
-  const c = JSON.parse(fs.readFileSync(path.join(DATA, 'club.json'), 'utf8')),
+  const c = JSON.parse(fs.readFileSync(demoFile('club.json'), 'utf8')),
     n = +(process.env.SIM_MEMBERS || 0),
     extra = simUsers();
   const members = [

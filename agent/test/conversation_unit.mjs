@@ -11,6 +11,7 @@ import path from 'node:path';
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'conv-'));
 Object.assign(process.env, {
   CONV_DIR: path.join(tmp, 'conversations'),
+  FEED_FILE: path.join(tmp, 'feed.json'),
   DATA_ENCRYPT: 'on',
   DATA_KEY_FILE: path.join(tmp, 'keys/master.key'),
   DATA_KEYRING_FILE: path.join(tmp, 'keys/subjects.json'),

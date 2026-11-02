@@ -1,4 +1,5 @@
 import {useEffect, useRef, useState} from 'react';
+import {usePoll} from '../hooks.js';
 import Icon from '../components/Icon.jsx';
 import {agentAnswer, agentFetch, agentInviteDraft} from '../agent.js';
 import {agentFace} from '../club/faces.js';
@@ -9,26 +10,15 @@ import ClubSuggest from '../components/ClubSuggest.jsx';
 import {shareInvite} from '../invite.js';
 import './clubs.css';
 import './messages.css';
+import {stored, store, hashQuery} from '../storage.js';
 
 // Your agent, as a chat: write to it and it answers from what it knows about you (agent answer.js, past Llama Guard on
 // your server, every number checked). Say you want a game ("Saturday morning doubles, need 3") and it drafts the
 // invite (agent play.js inviteDraft): the sport, the day and time, how many, the nearest court; on your yes it posts it
 // in your club for that sport (else the shared feed), and shows who has joined. The conversation stays in this browser.
 const KEY = 'serve.chat.v1';
-const read = () => {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) || '[]');
-  } catch {
-    return [];
-  }
-};
-const keep = ms => {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(ms.slice(-100)));
-  } catch {
-    /* private mode */
-  }
-};
+const read = () => stored(KEY, []);
+const keep = ms => store(KEY, ms.slice(-100));
 const HELLO = {
   from: 'agent',
   text: "Hi! Tell me what you want to play and when, and I'll post it and find people. Or ask me anything about your week.",
@@ -58,9 +48,7 @@ export default function Messages() {
   }, [ms, busy]);
   // a message from the home page's box (#/messages?say=…) is sent at once
   useEffect(() => {
-    const say = new URLSearchParams(location.hash.split('?')[1] || '').get(
-      'say',
-    );
+    const say = hashQuery().get('say');
     if (say) {
       history.replaceState(null, '', '#/messages');
       ask(say);
@@ -260,23 +248,17 @@ function Draft({d, onChange, onPost, onCancel}) {
 function Joined({id}) {
   const [p, setP] = useState(null),
     [copied, setCopied] = useState(false);
-  useEffect(() => {
-    let live = true;
-    const ask = () =>
+  // and at once when a notice arrives (a game that just filled)
+  usePoll(
+    live =>
       feedApi
         .one(id)
-        .then(r => live && setP(r.post || r))
-        .catch(() => {});
-    // and at once when a notice arrives (a game that just filled)
-    ask();
-    const t = setInterval(ask, 30000);
-    addEventListener('serve:notices', ask);
-    return () => {
-      live = false;
-      clearInterval(t);
-      removeEventListener('serve:notices', ask);
-    };
-  }, [id]);
+        .then(r => live() && setP(r.post || r))
+        .catch(() => {}),
+    30000,
+    [id],
+    {on: ['serve:notices']},
+  );
   const v = p?.invite;
   if (!v) return null;
   const share = async () => {

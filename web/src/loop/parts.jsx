@@ -1,6 +1,8 @@
 // Small pieces both loop pages use: status and class labels, the loading, error and empty states, times.
 import Icon from '../components/Icon.jsx';
 import {source} from './api.js';
+import {ago} from '../time.js';
+export {ago};
 
 // a proposal's status, as the club reads it; the tone colours a dot beside the label, never the only signal
 export const STATUS = {
@@ -138,17 +140,6 @@ export function withParam(k, v) {
   return `${path || '#/'}${s ? `?${s}` : ''}`;
 }
 
-export function ago(t) {
-  if (!t) return '';
-  const s = (Date.now() - t) / 1000;
-  return s < 60
-    ? 'just now'
-    : s < 3600
-      ? `${Math.round(s / 60)} min ago`
-      : s < 86400
-        ? `${Math.round(s / 3600)} h ago`
-        : `${Math.round(s / 86400)} d ago`;
-}
 export const when = t =>
   t
     ? new Date(t).toLocaleString('en-GB', {

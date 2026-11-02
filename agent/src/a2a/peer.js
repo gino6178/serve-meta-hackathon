@@ -45,6 +45,7 @@ import crypto from 'node:crypto';
 import http from 'node:http';
 import https from 'node:https';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {secretFile} from '../core/crypt.js';
 
 const DATA = () => path.resolve(process.env.A2A_DATA || 'data');
 const b64u = b => Buffer.from(b).toString('base64url');
@@ -71,29 +72,14 @@ export const kidOf = x =>
 // ---- this gateway's own key: one Ed25519 key for its Agent Cards (a2a_server.js) and its requests to peers --------
 // (A2A_DATA/card-key.pem, made once when there is none: another process that made it first wins, and its key is read back)
 const own = new Map();
+export const newPem = () =>
+  crypto
+    .generateKeyPairSync('ed25519')
+    .privateKey.export({type: 'pkcs8', format: 'pem'});
 export function ownKey(dir = DATA()) {
   const file = path.join(path.resolve(dir), 'card-key.pem');
   if (own.has(file)) return own.get(file);
-  let pem = null;
-  try {
-    pem = fs.readFileSync(file);
-  } catch (e) {
-    if (e.code !== 'ENOENT') throw e;
-  }
-  if (!pem) {
-    const made = crypto
-      .generateKeyPairSync('ed25519')
-      .privateKey.export({type: 'pkcs8', format: 'pem'});
-    fs.mkdirSync(path.dirname(file), {recursive: true});
-    try {
-      fs.writeFileSync(file, made, {mode: 0o600, flag: 'wx'});
-      pem = made;
-    } catch (e) {
-      if (e.code !== 'EEXIST') throw e;
-      pem = fs.readFileSync(file);
-    }
-  }
-  const key = crypto.createPrivateKey(pem),
+  const key = crypto.createPrivateKey(secretFile(file, newPem)),
     jwk = crypto.createPublicKey(key).export({format: 'jwk'});
   const k = {file, key, jwk, kid: kidOf(jwk.x)};
   own.set(file, k);
@@ -275,6 +261,10 @@ export function remoteOf(m) {
   };
 }
 export const isRemote = m => !!remoteOf(m);
+// the members' agents are reached over A2A when the gateway serves them (A2A_BASE, set by server.js), unless
+// A2A_TRANSPORT=local (tests and evals run in one process)
+export const overA2A = () =>
+  process.env.A2A_TRANSPORT !== 'local' && !!process.env.A2A_BASE;
 export function baseFor(m) {
   const r = remoteOf(m);
   if (!r) return `${process.env.A2A_BASE}/a2a/members/${m.id}`;

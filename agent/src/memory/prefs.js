@@ -21,8 +21,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {jsonStore} from '../core/jsonfile.js';
 import {people, daysIn, norm, DAYS} from './memory_update.js';
-import {ymd} from '../core/time.js';
-import {LONG} from '../core/time.js';
+import {ymd, LONG, PARTS, partOf} from '../core/time.js';
+export {PARTS, partOf};
 
 // (beside the taste file when only that is moved, so a run with its own taste file keeps its records there too)
 const FILE = () =>
@@ -43,22 +43,11 @@ const data = DB.data,
   save = DB.save;
 export const on = () => process.env.PREF_RECORDS !== 'off';
 export const KINDS = ['time', 'partner', 'venue', 'format'];
-export const PARTS = ['early', 'morning', 'afternoon', 'evening'];
 export const SAME_AGE = 864e5,
   HARD = 0.7;
 // how sure each source is: the player's words (and the rules checked from them), a belief that cites two notes or
 // more, the habit in their games, one answer to one game
 export const CONF = {said: 0.9, belief: 0.7, habit: 0.6, reply: 0.5};
-export const partOf = start => {
-  const h = +String(start).slice(0, 2);
-  return h < 9
-    ? 'early'
-    : h < 12
-      ? 'morning'
-      : h < 17
-        ? 'afternoon'
-        : 'evening';
-};
 
 // ---- from words to records (code) ----
 const PART_RE = [

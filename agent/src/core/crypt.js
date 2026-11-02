@@ -23,25 +23,37 @@ let master = null,
   masterFrom = null;
 export const encryptOn = () =>
   process.env.DATA_ENCRYPT === 'on' || !!process.env.DATA_KEY;
+// a secret kept in a file (mode 600), made by make() the first time it is needed; written with wx, so when two
+// processes start at once both use the first one written. Returns the file's text.
+export function secretFile(
+  file,
+  make = () => crypto.randomBytes(32).toString('hex'),
+) {
+  try {
+    const s = fs.readFileSync(file, 'utf8').trim();
+    if (s) return s;
+  } catch (e) {
+    if (e.code !== 'ENOENT') throw e;
+  }
+  fs.mkdirSync(path.dirname(file), {recursive: true, mode: 0o700});
+  const s = String(make()).trim();
+  try {
+    fs.writeFileSync(file, s, {mode: 0o600, flag: 'wx'});
+    return s;
+  } catch (e) {
+    if (e.code !== 'EEXIST') throw e;
+    return fs.readFileSync(file, 'utf8').trim();
+  }
+}
 export function masterKey() {
   const from = `${process.env.DATA_KEY || ''}|${KEY_FILE()}`;
   if (master && masterFrom === from) return master;
   masterFrom = from;
   if (process.env.DATA_KEY)
     master = Buffer.from(process.env.DATA_KEY, 'base64'); // (Node reads base64url here too)
-  else if (fs.existsSync(KEY_FILE()))
-    master = unb64(fs.readFileSync(KEY_FILE(), 'utf8').trim());
-  else if (encryptOn()) {
-    fs.mkdirSync(path.dirname(KEY_FILE()), {recursive: true, mode: 0o700});
-    master = crypto.randomBytes(32);
-    // wx: when two processes start at once, the first key written is the one both use
-    try {
-      fs.writeFileSync(KEY_FILE(), b64(master), {mode: 0o600, flag: 'wx'});
-    } catch (e) {
-      if (e.code !== 'EEXIST') throw e;
-      master = unb64(fs.readFileSync(KEY_FILE(), 'utf8').trim());
-    }
-  } else master = null;
+  else if (fs.existsSync(KEY_FILE()) || encryptOn())
+    master = unb64(secretFile(KEY_FILE(), () => b64(crypto.randomBytes(32))));
+  else master = null;
   if (master && master.length !== 32)
     throw new Error('the data key must be 32 bytes');
   return master;

@@ -7,7 +7,6 @@
 // Glimmer writes the proposal and one invite per partner; every time, price and count in them must match the option.
 // Nothing is booked until the player confirms; then the court is held, invites go out, and a partner who declines is
 // replaced by the next best one.
-import fs from 'node:fs';
 import path from 'node:path';
 import {chat} from '../core/llm.js';
 import {realDate} from '../core/toolcheck.js';
@@ -18,6 +17,8 @@ import * as consentMod from '../a2a/consent.js';
 import {privateFor} from '../safety/privacy.js';
 import {toMin, ymd, hm, DAYS, first} from '../core/time.js';
 import {dateOf} from '../core/time.js';
+import {readVenues} from '../core/paths.js';
+import {fnv, mix} from '../core/rand.js';
 
 // hooks the matchmaker installs (match/index.js): the options' partners ordered by their agents' bands, and an invite's
 // in or out noted for that member (and the ledger of the bands). a2a.js installs confirm and unbook: partners whose
@@ -30,28 +31,10 @@ export const hooks = {
   confirm: null,
   unbook: null,
 };
-const DATA = path.resolve(
-  path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')),
-  '../../../web/public/data',
-);
 const FILE = path.resolve(process.env.BOOKINGS_FILE || 'data/bookings.json');
 const LEVEL = {A: 3, B: 2, C: 1};
-const readVenues = () =>
-  JSON.parse(fs.readFileSync(path.join(DATA, 'venues.json'), 'utf8'));
 // FNV-1a with a final mix, so similar keys (same venue, next hour) still spread evenly over 0..1
-const hash = s => {
-  let h = 2166136261;
-  for (const c of s) {
-    h ^= c.charCodeAt(0);
-    h = Math.imul(h, 16777619);
-  }
-  h ^= h >>> 16;
-  h = Math.imul(h, 0x85ebca6b);
-  h ^= h >>> 13;
-  h = Math.imul(h, 0xc2b2ae35);
-  h ^= h >>> 16;
-  return (h >>> 0) / 4294967295;
-};
+const hash = s => mix(fnv(s)) / 4294967295;
 
 // Venue adapter. The demo venues answer from a fixed pseudo-random timetable, so the same question gives the same
 // courts; a real venue implements the same two calls against its booking system.
@@ -1186,7 +1169,10 @@ async function bookNow({option, invites = {}, you = {}} = {}) {
     save();
     return status(b.id);
   }
-  if (!v) return {error: 'unknown venue'};
+  if (!v) {
+    mine.forEach(r => release(r));
+    return {error: 'unknown venue'};
+  }
   const date = dateOf(option.date);
   let hold = demoVenues.hold(
     v,
@@ -1291,7 +1277,9 @@ export function status(id) {
         });
       if (!inv.accept && !inv.asked) {
         const used = new Set(b.invites.map(x => x.id)),
-          next = b.spare.find(x => !used.has(x));
+          next = b.spare.find(
+            x => !used.has(x) && club.members.some(m => m.id === x),
+          );
         if (next) {
           const m = club.members.find(x => x.id === next);
           b.invites.push({

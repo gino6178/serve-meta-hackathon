@@ -63,6 +63,7 @@
 //   POST /api/agent-channel/comment {post, text}     a comment, as "<member>'s agent"
 //   POST /api/agent-channel/join {post, on}          join an invite for its member
 import * as M from './members.js';
+import {first} from '../core/time.js';
 // a JSON body that is not an object (null, a number, a list) reads as no fields, never a crash
 const obj = x => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
 import * as P from '../feed/posts.js';
@@ -410,7 +411,7 @@ export async function route(req, res, u, {json, o, forget}) {
   if (p === '/api/members/skill' && req.method === 'GET')
     return send(200, {skill: Sk.store().view(me.id)});
   if (p === '/api/members/result/pending' && req.method === 'GET') {
-    const nm = id => (id === me.id ? 'You' : M.nameOf(id) || 'A member');
+    const nm = id => (id === me.id ? 'You' : first(M.nameOf(id)) || 'A member');
     return send(200, {
       pending: Sk.store()
         .pendingFor(me.id)
@@ -578,7 +579,7 @@ async function channel(req, res, p, send) {
           },
         },
       };
-      const r = await P.post(ag.id, {
+      const r = await P.post(owner, {
         text: b.text,
         invite: b.invite,
         agent: {id: ag.id, owner},
@@ -595,7 +596,7 @@ async function channel(req, res, p, send) {
   }
   if (p === '/api/agent-channel/post' && req.method === 'POST')
     return out(
-      await P.post(ag.id, {
+      await P.post(owner, {
         text: b.text,
         invite: b.invite || null,
         agent: {id: ag.id, owner},
@@ -603,7 +604,7 @@ async function channel(req, res, p, send) {
     );
   if (p === '/api/agent-channel/comment' && req.method === 'POST')
     return out(
-      await P.comment(ag.id, String(b.post || ''), b.text, {
+      await P.comment(owner, String(b.post || ''), b.text, {
         agent: {id: ag.id, owner},
       }),
     );
@@ -654,17 +655,7 @@ async function channel(req, res, p, send) {
         const bad = badInput('/huddle/limits', b);
         if (bad) return send(400, {error: bad});
       } // (checked before comparing)
-      const t = T.get(owner),
-        _mins = ws =>
-          (ws || []).reduce(
-            (n, w) =>
-              n +
-              w.days.length *
-                (+w.to.slice(0, 2) * 60 +
-                  +w.to.slice(3) -
-                  (+w.from.slice(0, 2) * 60 + +w.from.slice(3))),
-            0,
-          );
+      const t = T.get(owner);
       const looser =
         (b.maxKm != null && t.limitKm != null && +b.maxKm > t.limitKm) ||
         (b.maxEach != null &&

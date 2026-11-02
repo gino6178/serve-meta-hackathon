@@ -13,6 +13,8 @@ import Feed from '../club/Feed.jsx';
 import './club.css';
 import './agent.css';
 import {first, initials} from '../text.js';
+import {ago} from '../time.js';
+import {hashQuery} from '../storage.js';
 
 // The club: the feed (what members post, open games to join, a challenge to take up) beside the top of the table and
 // what the club sees of you; the leaderboard; the challenges (best match, random match, challenges for you, results
@@ -69,8 +71,7 @@ export default function Club({club}) {
     joined: {},
     ...readGame(),
   }));
-  const tabOf = () =>
-    new URLSearchParams(location.hash.split('?')[1] || '').get('tab') || 'feed';
+  const tabOf = () => hashQuery().get('tab') || 'feed';
   const [tab, setTab] = useState(tabOf);
   const [hash, setHash] = useState(location.hash); // a new ask (#/club?tab=challenges&spin=1&fmt=doubles) starts the draw again
   useEffect(() => {
@@ -308,13 +309,4 @@ export default function Club({club}) {
     </div>
   );
 }
-function agoOf(t) {
-  const s = (Date.now() - t) / 1000;
-  return s < 60
-    ? 'just now'
-    : s < 3600
-      ? `${Math.round(s / 60)} min`
-      : s < 86400
-        ? `${Math.round(s / 3600)} h`
-        : `${Math.round(s / 86400)} d`;
-}
+const agoOf = t => ago(t, {short: true});

@@ -19,6 +19,7 @@ import './club.css';
 import './agent.css';
 import './play.css';
 import {first, initials} from '../text.js';
+import {hashQuery} from '../storage.js';
 
 // Play: say you want to play and the agent does the tedious part, in the open: it reads the request on Muse Glimmer,
 // opens the map, checks the courts, lines up everyone's calendar, picks the venue in the middle and writes the invites.
@@ -59,8 +60,7 @@ function Band({p}) {
     </span>
   );
 }
-const hashParam = k =>
-  new URLSearchParams(location.hash.split('?')[1] || '').get(k);
+const hashParam = k => hashQuery().get(k);
 
 function ics(b) {
   const o = b.option,

@@ -8,9 +8,9 @@
 //              holds it for 30 minutes; a booking or a no releases it sooner)
 import * as client from '../a2a/client.js';
 import {held} from '../club/play.js';
+import {overA2A} from '../a2a/peer.js';
 
-const viaA2A = () =>
-  process.env.A2A_TRANSPORT !== 'local' && !!process.env.A2A_BASE;
+const viaA2A = overA2A;
 const memberUrl = id =>
   `${String(process.env.A2A_BASE || '').replace(/\/$/, '')}/a2a/members/${id}/`;
 

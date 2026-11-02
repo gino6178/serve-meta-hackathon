@@ -1,5 +1,6 @@
 import {SESSION_KEY, agentFetch} from './agent.js';
 import {useEffect, useRef, useState} from 'react';
+import {usePoll} from './hooks.js';
 import Agent from './pages/Agent.jsx';
 import Landing from './pages/Landing.jsx';
 import Club from './pages/Club.jsx';
@@ -453,14 +454,13 @@ function Shell({page, club}) {
 // a game the member is in just filled: "Game on", wherever they are in the app (asked every half minute and on return)
 function GameOn() {
   const [notes, setNotes] = useState([]);
-  useEffect(() => {
-    let live = true;
-    const ask = () => {
+  usePoll(
+    live => {
       if (document.visibilityState !== 'visible') return;
       agentFetch('/api/feed/notices')
         .then(r => r.json())
         .then(j => {
-          if (live && j.notices?.length) {
+          if (live() && j.notices?.length) {
             setNotes(x => [...x, ...j.notices]);
             hear(j.notices);
             dispatchEvent(new Event('serve:notices'));
@@ -471,23 +471,18 @@ function GameOn() {
       agentFetch('/api/huddle/nudge')
         .then(r => r.json())
         .then(j => {
-          if (live && j.nudge) {
+          if (live() && j.nudge) {
             const n = {kind: 'nudge', text: j.nudge.text, nudge: true};
             setNotes(x => [...x, n]);
             hear([n]);
           }
         })
         .catch(() => {});
-    };
-    ask();
-    const t = setInterval(ask, 30000);
-    addEventListener('visibilitychange', ask);
-    return () => {
-      live = false;
-      clearInterval(t);
-      removeEventListener('visibilitychange', ask);
-    };
-  }, []);
+    },
+    30000,
+    [],
+    {on: ['visibilitychange']},
+  );
   const n = notes[0];
   // a game just answered: its "one yes from you?" toasts are stale
   useEffect(() => {

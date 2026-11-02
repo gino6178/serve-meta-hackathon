@@ -1135,8 +1135,17 @@ test("a score checked against its sport's rules: tennis sets and match tiebreaks
     'first',
     'best of five',
   );
+  assert.equal(
+    elevenMatch(S([11, 7], [11, 8], [11, 9])).winner,
+    'first',
+    'a best of five won 3-0',
+  );
   assert.ok(
-    !elevenMatch(S([11, 7], [11, 8], [11, 9])).valid,
+    !elevenMatch(S([11, 7], [11, 8], [11, 9]), {bestOf: 3}).valid,
+    'a game after the match was won (best of three)',
+  );
+  assert.ok(
+    !elevenMatch(S([11, 7], [11, 8], [9, 11])).valid,
     'a game after the match was won',
   );
 });

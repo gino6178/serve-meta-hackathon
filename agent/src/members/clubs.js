@@ -12,6 +12,7 @@ import crypto from 'node:crypto';
 import {jsonStore} from '../core/jsonfile.js';
 import * as G from './programs.js';
 import {km} from '../core/geo.js';
+import {line as tidy} from '../core/text.js';
 
 const FILE = () => path.resolve(process.env.CLUBS_FILE || 'data/clubs.json');
 const DB = jsonStore(FILE, () => ({clubs: []}));
@@ -29,12 +30,6 @@ const SPORTS = [
   'running',
 ];
 const MAX_OWNED = 3;
-const tidy = (s, n) =>
-  String(s || '')
-    .replace(/[\u0000-\u001f\u007f]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, n);
 const pointOf = x => {
   if (x?.lat == null || x?.lon == null || x.lat === '' || x.lon === '')
     return null;
@@ -214,7 +209,11 @@ export function join(member, id, on = true) {
   if (!on) c.requests = (c.requests || []).filter(r => r.id !== member.id);
   if (on && !inIt)
     c.members.push({id: member.id, name: member.name, at: Date.now()});
-  if (!on && inIt) c.members = c.members.filter(m => m.id !== member.id);
+  if (!on && inIt) {
+    c.members = c.members.filter(m => m.id !== member.id);
+    if (c.program?.entrants)
+      c.program.entrants = c.program.entrants.filter(e => e.id !== member.id);
+  }
   if (!c.members.length) data().clubs = data().clubs.filter(x => x !== c);
   let handed = null;
   if (c.members.length && c.owner === member.id && !on)

@@ -25,6 +25,7 @@ import {SESSION_KEY} from '../agent.js';
 import './clubs.css';
 import './agent.css';
 import {first, initials} from '../text.js';
+import {stored} from '../storage.js';
 
 // The agent home, the way Muse is laid out: say what you want, and every job the agent takes on shows up as a card
 // with its steps, running in the background and checking back when it needs you. Above it, stories from the club.
@@ -122,13 +123,7 @@ export default function Agent({club}) {
   const [text, setText] = useState('');
   const [story, setStory] = useState(null),
     [talk, setTalk] = useState(false); // talk: the live voice line (voice/LiveTalk.jsx)
-  const [seen, setSeen] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('serve.stories.v1')) || [];
-    } catch {
-      return [];
-    }
-  });
+  const [seen, setSeen] = useState(() => stored('serve.stories.v1', []));
   const field = useRef(null);
   useEffect(() => {
     if (club) seedBody(club);

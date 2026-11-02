@@ -5,13 +5,15 @@ import TrustBadge from '../components/TrustBadge.jsx';
 import * as H from '../huddle.js';
 import {AGENT_URL} from '../agent.js';
 import {cap, pct, FACTOR, WHY} from '../huddle.js';
+import {ymdIn} from '../time.js';
 import './huddle.css';
+import {hashQuery} from '../storage.js';
 
 // Huddle: getting a game together with real people. Each person's agent answers for them the way they would (it
 // learns how they like to play from a few answers), the agents agree a time and a place, a venue's agent is asked for
 // a price, and everyone says yes once (agent src/members/huddle.js). Three tabs: get a game, courts and prices near
 // you (quiet hours, what a venue's agent would take), and how you play (what your agent has learned).
-const params = () => new URLSearchParams(location.hash.split('?')[1] || '');
+const params = () => hashQuery();
 // the person's own words from the home box, kept for this visit so How you play can offer them as limits
 const saidWords = () => {
   const s = params().get('say');
@@ -388,11 +390,6 @@ function Needs() {
   );
 }
 // when to play, as the form offers it (and as read from what someone typed to their agent)
-const ymdIn = n => {
-  const d = new Date();
-  d.setDate(d.getDate() + n);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
   DAYNAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const WHEN = {

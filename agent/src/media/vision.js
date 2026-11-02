@@ -172,10 +172,19 @@ export function elevenGame(a, b) {
         : `${a}-${b}: a game is won by two clear points`,
   };
 }
-export function elevenMatch(games) {
+export function elevenMatch(games, {bestOf = null} = {}) {
+  // the games the winner took: best of three, five or seven (2, 3 or 4), unless the length is given
+  const wins = {first: 0, second: 0};
+  for (const g of games) {
+    const r = elevenGame(g.first, g.second);
+    if (r.ok) wins[r.winner]++;
+  }
+  const most = Math.max(wins.first, wins.second);
   const problems = [],
     won = {first: 0, second: 0},
-    need = games.length <= 3 ? 2 : games.length <= 5 ? 3 : 4;
+    need = bestOf
+      ? Math.ceil(bestOf / 2)
+      : Math.min(4, Math.max(2, most, Math.ceil(games.length / 2)));
   games.forEach((g, i) => {
     if (won.first === need || won.second === need) {
       problems.push(`game ${i + 1} comes after the match was already won`);

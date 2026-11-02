@@ -15,12 +15,11 @@
 // The scores shown are DRAMA's cosine similarities for this question (raw) and after the fade (score), as computed.
 import * as memory from '../memory/memory.js';
 import {keyOf, nameOf} from './body.js';
-import {DAY} from '../core/time.js';
+import {DAY, ymd} from '../core/time.js';
 
 export const HALF_LIFE = {body: 7, health: 14, game: 14, said: 30};
 export const QUESTION =
   'Planning my games this week: how my body feels, anything sore or tired, my training load, and what to keep in mind.';
-const ymd = t => new Date(t).toISOString().slice(0, 10);
 const at = s => new Date(s.length > 10 ? s : `${s}T12:00:00`).getTime();
 
 // the notes: { id, text, kind, at (ms), part (a body-log key), src }

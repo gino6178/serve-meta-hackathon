@@ -2,19 +2,8 @@
 // goal, the weeks in a row you played, and the club's challenge. It is counted from the club (club.json: your past
 // games, the members' games) and from this browser (the games your agent booked, the results you reported); nothing
 // here is measured from a video.
-const DAY = 864e5;
-const pad = n => String(n).padStart(2, '0');
-export const ymd = d =>
-  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const dateOf = s => {
-  const [y, m, d] = s.split('-').map(Number);
-  return new Date(y, m - 1, d);
-};
-export const monday = d => {
-  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
-  return x;
-};
+import {DAY, ymd, dateOf, monday} from '../time.js';
+export {ymd, monday};
 const weekOf = (date, now) =>
   Math.round((monday(now) - monday(dateOf(date))) / (7 * DAY)); // 0 this week, 1 last week
 

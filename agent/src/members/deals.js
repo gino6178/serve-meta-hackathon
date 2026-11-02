@@ -13,6 +13,7 @@
 //   is the first offer the venue's rule accepts. Code does all of it; nothing is booked or paid here.
 import {nearby, cachedNear, readable} from '../club/places.js';
 import {km, dateOf, ymd, DAYS} from './taste.js';
+import {fnv} from '../core/rand.js';
 
 export const CURRENCY = 'NT$';
 // a court for an hour, by sport (sample prices, a little different at each venue)
@@ -36,14 +37,7 @@ const PER_COURT = {
   squash: 2,
   soccer: 14,
 };
-const hash = s => {
-  let h = 2166136261;
-  for (const c of String(s)) {
-    h ^= c.charCodeAt(0);
-    h = Math.imul(h, 16777619);
-  }
-  return ((h >>> 0) % 10000) / 10000;
-};
+const hash = s => (fnv(s) % 10000) / 10000;
 const round10 = x => Math.round(x / 10) * 10;
 const hourOf = start =>
   +String(start).slice(0, 2) + (+String(start).slice(3, 5) || 0) / 60;

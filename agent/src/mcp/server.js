@@ -11,6 +11,7 @@
 // x-serve-session header the client sends. JSON-RPC 2.0: initialize, tools/list, tools/call, ping; notifications get
 // 202. No server-to-client stream (GET answers 405), which the protocol allows.
 import crypto from 'node:crypto';
+import * as shield from '../safety/shield.js';
 
 export const VERSION = '2025-06-18',
   KNOWN = ['2025-06-18', '2025-03-26', '2024-11-05'];
@@ -310,6 +311,17 @@ export async function handle(srv, msg, ctx, api) {
         ? params.arguments
         : {};
     const [m, path, body] = t.call(args);
+    const lim = ctx.limit?.(m, path);
+    if (lim && !lim.ok)
+      return rpc(id, {
+        content: [
+          {
+            type: 'text',
+            text: `Too many requests: try again in ${lim.retry} s.`,
+          },
+        ],
+        isError: true,
+      });
     const r = await api(m, path, body, ctx.session).catch(e => ({
       status: 502,
       body: {error: String(e.message || e).slice(0, 200)},
@@ -385,6 +397,13 @@ export async function route(req, res, u, {bodyOf, port}) {
   const s = id ? sessions.get(id) : null;
   const ctx = {
     session: String(req.headers['x-serve-session'] || '') || s?.session || null,
+    limit: (m, path) =>
+      shield.take(
+        shield
+          .classesOf(m, path)
+          .filter(c => c === 'signin' || c === 'heavy')
+          .map(c => [c, shield.clientOf(req)]),
+      ),
     setSession: v => {
       if (s) {
         s.session = v;

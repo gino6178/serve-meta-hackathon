@@ -1234,6 +1234,12 @@ export function report(
   const p = find(postId);
   if (!p) return {error: 'That post is not in the feed any more.', code: 404};
   if (!REASONS[reason]) return {error: 'Pick a reason.', code: 400};
+  // only a post the member can see (one hidden by reports still takes reports on it and its comments)
+  if (
+    !visible(p, player) &&
+    !(p.hidden && visible({...p, hidden: false}, player))
+  )
+    return {error: 'That post is not in the feed any more.', code: 404};
   const target = cid ? p.comments.find(c => c.id === cid) : p;
   if (!target) return {error: 'That comment is not there any more.', code: 404};
   if (
@@ -1332,7 +1338,7 @@ export async function retryHeld() {
   ];
   for (const [p, c] of items) {
     const x = c || p,
-      who = x.by.player;
+      who = x.by.player || x.by.agentOf;
     if (deps.now() - x.at > 7 * DAY) {
       drop(p, c);
       out.dropped++;
@@ -1364,7 +1370,8 @@ function drop(
   why = 'Not posted: it waited a week for the safety check.',
 ) {
   S.change(d => {
-    const who = (c || p).by.player;
+    const by = (c || p).by,
+      who = by.player || by.agentOf;
     (d.notices ||= []).push({
       player: who,
       at: deps.now(),
@@ -1492,7 +1499,7 @@ export function notify(player, kind, text, extra = {}) {
     (d.notices ||= []).push({player, at: deps.now(), kind, text, ...extra});
   });
 }
-function visible(p, viewer) {
+export function visible(p, viewer) {
   const mine = p.by.player === viewer || p.by.agentOf === viewer;
   if ((p.held || p.hidden) && !mine) return false;
   // a private club's post is its members' only, by every route (a post, its media, a comment, a like)

@@ -40,8 +40,10 @@ const STANDING =
   /\b(any ?more|no longer|from now on|starting (this|next)|these days|every (mon|tue|wed|thu|fri|sat|sun|week)\w*|(mon|tues|wednes|thurs|fri|satur|sun)days|weekdays|weekends)\b|從.{0,8}開始|以後|都不(能|打|行)/i;
 const BACK =
   /\b(can'?t|cannot|can not|won'?t|unable to|not able to)\s+(make|come|go|play|do it|do that)\b|\bsomething came up\b|\bhave to (cancel|drop out|pull out|bail)\b|\bdrop(ping)? (me )?out\b|\bpull(ing)? out\b|\bcount me out\b|\bi'?m out\b|\bcancel (it|my|the|that)\b|不能去|去不了|不能來|來不了|臨時不能|沒辦法去|要取消|取消/i;
+// a hedge, whatever else is said; and softer words that only count when there is no clear yes or no
 const VAGUE =
-  /\b(maybe|not sure|unsure|depends|might|perhaps|possibly|let me see|will know|i guess|we'?ll see|probably|could be|later|dunno|not yet)\b|可能|也許|不確定|再看看|再說|應該|看看|晚點|不一定/i;
+  /\b(maybe|not sure|unsure|depends|perhaps|possibly|let me see|will know|i guess|we'?ll see|dunno|not yet)\b|可能|也許|不確定|再看看|再說|不一定/i;
+const SOFT = /\b(might|probably|could be|later)\b|應該|看看|晚點/i;
 const OTHER =
   /\b(another|other|different) (time|day)\b|改天|換個時間|別的時間/i;
 const NO =
@@ -56,6 +58,7 @@ export function answerWords(text) {
   if (OTHER.test(t)) return 'other';
   if (NO.test(t)) return 'no';
   if (YES.test(t)) return 'yes';
+  if (SOFT.test(t)) return 'vague';
   return null;
 }
 // a back-out from one game ("sorry, something came up, I can't make Thursday 19:00 after all"), not a standing change
@@ -64,11 +67,16 @@ export const backOut = text =>
 // the day and the start a text names, either may be null ("Thursday 19:00", "週四", "thu")
 export function whenOf(text) {
   const t = String(text || '');
-  const m = /\b(sun|mon|tue|wed|thu|fri|sat)[a-z]*\b/i.exec(t),
+  // a day's name, or a short form that is not also a word ("sun", "sat" and "wed" are)
+  const m =
+      /\b(sun|mon|tues|wednes|thurs|fri|satur)days?\b|\b(mon|tue|tues|thu|thur|thurs|fri)\b\.?/i.exec(
+        t,
+      ),
     z = /(?:星期|週|周|禮拜)([日天一二三四五六])/.exec(t),
     s = /\b(\d{1,2}):(\d{2})\b/.exec(t);
+  const d = m && (m[1] || m[2]);
   const day = m
-    ? m[1][0].toUpperCase() + m[1].slice(1, 3).toLowerCase()
+    ? d[0].toUpperCase() + d.slice(1, 3).toLowerCase()
     : z
       ? ZH_DAY[z[1]]
       : null;

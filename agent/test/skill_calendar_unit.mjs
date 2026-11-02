@@ -800,7 +800,7 @@ test('ics route: an event-less or broken file is never saved over the limits; sa
   const mine = (await call('GET', '/api/members/result/pending')).body.pending;
   assert.equal(mine[0].id, id);
   assert.equal(mine[0].by, 'You');
-  assert.equal(mine[0].teams[1][0].name, 'Bo Lin');
+  assert.equal(mine[0].teams[1][0].name, 'Bo', 'first names only');
   const Sk2 = Sk.store();
   assert.equal(Sk2.confirm(bo.id, id).rated, false);
   const last = Sk2.confirm(cy.id, id);

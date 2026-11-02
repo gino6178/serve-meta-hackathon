@@ -20,6 +20,7 @@
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {jsonStore} from '../core/jsonfile.js';
+import {first as firstName} from '../core/time.js';
 import * as T from './taste.js';
 import * as D from './deals.js';
 import * as S from './split.js';
@@ -90,7 +91,11 @@ export function people(me) {
   for (const c of C.mine(me))
     for (const m of c.members)
       if (m.id !== me) {
-        const x = out.get(m.id) || {id: m.id, name: m.name, clubs: []};
+        const x = out.get(m.id) || {
+          id: m.id,
+          name: firstName(m.name),
+          clubs: [],
+        };
         x.clubs.push(c.name);
         out.set(m.id, x);
       }

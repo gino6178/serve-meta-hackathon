@@ -542,6 +542,14 @@ class MemberExecutor {
           bus.publish(status(ctx, TaskState.TASK_STATE_COMPLETED));
           return;
         }
+        bus.publish(
+          status(
+            ctx,
+            TaskState.TASK_STATE_FAILED,
+            `${first(m.name)}'s agent is answering message ${msg.messageId}, about other times; send the new times in a new message.`,
+          ),
+        );
+        return;
       }
       let settle;
       answering.set(
@@ -554,7 +562,10 @@ class MemberExecutor {
       this.running.set(ctx.taskId, ctx);
       // a date that doesn't exist (2026-02-31) would roll over to another day in dateOf: refused, not read as March
       const realDate = d => ymd(dateOf(d)) === d;
-      if (!p.choices.every(x => realDate(x.date))) {
+      if (
+        !p.choices.every(x => realDate(x.date)) ||
+        (p.proposal?.date && !realDate(p.proposal.date))
+      ) {
         bus.publish(
           status(
             ctx,
@@ -575,7 +586,7 @@ class MemberExecutor {
         them = first(m.name);
       // the member's own trip, from its own home to a club venue or a public place a search found, never the one the
       // proposer says (which could be low to get past a longest-trip rule). A venue this side can't place has no trip,
-      // and a longest-trip rule then says no (a2a.js breaks).
+      // and a longest-trip rule then says no (a2a.js breaks); so does a time with no venue yet.
       const own = x => {
         try {
           const vs = readVenues(),
@@ -594,12 +605,12 @@ class MemberExecutor {
       };
       const offer = x => {
         const t = own(x);
-        const y = t != null ? {...x, trip: t} : x;
+        const y = {...x, trip: t ?? undefined};
         return {
           id: x.id,
           slot: {date: x.date, day: DAYS[dateOf(x.date).getDay()]},
           start: toMin(x.start),
-          ...(t != null ? {trip: t} : x.venue ? {unplaced: true} : {}),
+          ...(t != null ? {trip: t} : {unplaced: true}),
           text: spell(y, minutes, them),
         };
       };

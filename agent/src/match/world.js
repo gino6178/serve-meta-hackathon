@@ -12,6 +12,7 @@
 import {helpers, partnerScore} from '../club/play.js';
 import {dayNum, atOf} from './features.js';
 import {toMin, ymd, hm} from '../core/time.js';
+import {fnv, mix} from '../core/rand.js';
 
 const {windows, travelMin, readVenues, DAYS} = helpers;
 const MIN = 90,
@@ -19,17 +20,7 @@ const MIN = 90,
   WEEK = 7 * DAY;
 export const sig = z => 1 / (1 + Math.exp(-z));
 const h01 = s => {
-  let h = 2166136261;
-  for (const c of String(s)) {
-    h ^= c.charCodeAt(0);
-    h = Math.imul(h, 16777619);
-  }
-  h ^= h >>> 16;
-  h = Math.imul(h, 0x85ebca6b);
-  h ^= h >>> 13;
-  h = Math.imul(h, 0xc2b2ae35);
-  h ^= h >>> 16;
-  return ((h >>> 0) + 0.5) / 4294967297;
+  return (mix(fnv(s)) + 0.5) / 4294967297;
 };
 function rng(seed) {
   let a = seed >>> 0;

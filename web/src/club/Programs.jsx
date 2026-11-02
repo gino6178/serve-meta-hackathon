@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {agentFetch} from '../agent.js';
+import {call as agentCall} from '../agent.js';
 
 // A club's program on its page (agent members/programs.js): gentle games for older adults, children's sessions run by
 // a teacher or volunteer, a charity tournament. The server holds every rule; this shows them and asks.
@@ -9,17 +9,7 @@ export const KINDS = [
   ['youth', 'Children', 'A teacher or volunteer runs it; private'],
   ['charity', 'Charity cup', 'A tournament for a cause'],
 ];
-const call = async (path, body) => {
-  const r = await agentFetch(path, {
-    method: 'POST',
-    headers: {'content-type': 'application/json'},
-    body: JSON.stringify(body),
-  });
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok || j.refused)
-    throw new Error(j.why || j.error || `The server answered ${r.status}.`);
-  return j;
-};
+const call = (path, body) => agentCall(path, body, {strict: true});
 async function shareText(text) {
   if (navigator.share) {
     try {

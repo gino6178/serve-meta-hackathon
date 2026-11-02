@@ -18,6 +18,7 @@ import {prefersReducedMotion} from './hooks.js';
 import {myPlace, knownPlace} from './where.js';
 import {sayCheck} from './components/Safety.jsx';
 import {first} from './text.js';
+import {ymd} from './time.js';
 
 // The agent's jobs. Everything the agent does for the player is a task: what was asked, the trail of steps as each one
 // finishes (streamed from the gateway), and where it stands: running, needs you (a choice to make), done or failed.
@@ -306,7 +307,7 @@ function credit(b) {
       activity: [
         ...(s.activity || []),
         {
-          date: new Date().toISOString().slice(0, 10),
+          date: ymd(),
           week: isoWeek(),
           kind: 'game',
           id: b.id,
@@ -351,7 +352,7 @@ export function autopilotInput() {
   const history = (g.arena?.results || [])
     .filter(x => x.played)
     .map(x => ({
-      date: new Date(x.at).toISOString().slice(0, 10),
+      date: ymd(x.at),
       start: x.start || '19:00',
       sport: x.sport || 'badminton',
       format: x.vs.length > 1 ? 'doubles' : 'singles',

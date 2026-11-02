@@ -120,17 +120,17 @@ const stream = async (res, origin, run) => {
 // cap the connection is closed and the route never runs (never with an empty body in place of the real one)
 const BODY_MAX = +(process.env.BODY_MAX || 8e6);
 const capped = (req, max, done) => {
-  let b = '',
-    n = 0;
+  const b = [];
+  let n = 0;
   req.on('data', c => {
     n += c.length;
     if (n > max) {
       if (!req.destroyed) req.destroy();
       return;
     }
-    b += c;
+    b.push(c);
   });
-  req.on('end', () => done(b));
+  req.on('end', () => done(Buffer.concat(b).toString('utf8')));
 };
 const rawOf = req => new Promise(ok => capped(req, 1e6, ok));
 // a raw body up to a size, or null when it is bigger
@@ -1165,7 +1165,7 @@ const gateway = http
         res.writeHead(200, {
           'content-type': 'text/plain; charset=utf-8',
           'cache-control': 'max-age=300',
-          ...o,
+          ...cors(o),
         });
         return res.end(
           u.pathname === '/llms.txt' ? D.llmsTxt(req) : D.privacyTxt(req),
@@ -1471,7 +1471,14 @@ const gateway = http
         const b = await bodyOf(req);
         const now = apNow();
         return stream(res, o, send =>
-          autopilot.run({...b, now, player: 'app', notes: null, onStep: send}),
+          autopilot.run({
+            ...b,
+            now,
+            player: 'app',
+            notes: null,
+            messenger: undefined,
+            onStep: send,
+          }),
         );
       }
       // where a run is (its stream ends with the gateway; a run cut off by a restart goes on by itself): working, with the
@@ -1698,7 +1705,10 @@ const gateway = http
             'cache-control': 'private, max-age=86400',
             ...cors(o),
           });
-          return fs.createReadStream(r.file).pipe(res);
+          return fs
+            .createReadStream(r.file)
+            .on('error', () => res.destroy())
+            .pipe(res);
         } catch (e) {
           return json(res, e.code || 500, {error: e.message}, o);
         }

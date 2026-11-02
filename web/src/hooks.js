@@ -1,5 +1,25 @@
 import {useEffect, useRef, useState, useSyncExternalStore} from 'react';
 
+// Asking again: fn(live) now, every ms, and on each window event in `on`, until the component goes away or deps change;
+// live() is false from then on, so an answer that comes back late is dropped.
+export function usePoll(fn, ms, deps = [], {on = []} = {}) {
+  const f = useRef(fn);
+  f.current = fn;
+  useEffect(() => {
+    let alive = true;
+    const live = () => alive,
+      run = () => f.current(live);
+    run();
+    const t = setInterval(run, ms);
+    on.forEach(e => addEventListener(e, run));
+    return () => {
+      alive = false;
+      clearInterval(t);
+      on.forEach(e => removeEventListener(e, run));
+    };
+  }, deps); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
 // Whether the viewer asked their system for less motion. The hook re-renders when they change it with the page open;
 // the plain function is for code outside React (the task runner's pauses).
 const lessMotion =

@@ -15,6 +15,18 @@ export const toMin = t => {
 };
 // 1170 -> "19:30"
 export const hm = m => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+// the part of the day a start falls in
+export const PARTS = ['early', 'morning', 'afternoon', 'evening'];
+export const partOf = start => {
+  const h = +String(start).slice(0, 2);
+  return h < 9
+    ? 'early'
+    : h < 12
+      ? 'morning'
+      : h < 17
+        ? 'afternoon'
+        : 'evening';
+};
 export const first = n => String(n || '').split(' ')[0];
 export const DAY = 864e5;
 export const LONG = {

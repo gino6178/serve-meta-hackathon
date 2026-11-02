@@ -132,7 +132,7 @@ export async function handle(
       return send(200, {notices: P.takeNotices(player)});
     if (p === '/api/feed/post' && !post) {
       const x = P.find(String(q('id') || ''));
-      return x && !(x.held && x.by.player !== player)
+      return x && P.visible(x, player)
         ? send(200, {post: P.view(x, player)})
         : send(404, {error: 'That post is not in the feed any more.'});
     }
@@ -375,15 +375,7 @@ export async function handle(
 function media(res, id, player, cors, send) {
   const d = S.data(),
     of = m => m && (m.id === id || m.poster?.id === id);
-  const inPost = d.posts.find(
-    x =>
-      of(x.media) &&
-      !(
-        (x.held || x.hidden) &&
-        x.by.player !== player &&
-        x.by.agentOf !== player
-      ),
-  );
+  const inPost = d.posts.find(x => of(x.media) && P.visible(x, player));
   const own =
     d.drafts.find(x => x.player === player && of(x.media)) ||
     d.uploads.find(x => x.player === player && x.id === id);

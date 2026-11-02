@@ -18,13 +18,12 @@
 //   checkToken, the same as between gateways). A request that is unsigned, signed by an unknown or revoked key,
 //   replayed, changed, or meant for another path is refused, and the refusal is logged with its reason. What an agent
 //   posts says it is an agent, and whose.
-import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {jsonStore} from '../core/jsonfile.js';
 import {checkToken, kidOf, HEADER} from '../a2a/peer.js';
 import {badSignature} from './trust.js';
-import {sha256Hex as hash} from '../core/crypt.js';
+import {sha256Hex as hash, secretFile} from '../core/crypt.js';
 
 const FILE = () =>
   path.resolve(process.env.MEMBERS_FILE || 'data/members.json');
@@ -44,17 +43,7 @@ export const reset = () => {
 let secret = null;
 function key() {
   if (secret) return secret;
-  try {
-    secret = Buffer.from(fs.readFileSync(KEYFILE(), 'utf8').trim(), 'hex');
-  } catch {
-    /* made below */
-  }
-  if (!secret || secret.length < 32) {
-    secret = crypto.randomBytes(32);
-    fs.mkdirSync(path.dirname(KEYFILE()), {recursive: true});
-    fs.writeFileSync(KEYFILE(), secret.toString('hex'), {mode: 0o600});
-  }
-  return secret;
+  return (secret = Buffer.from(secretFile(KEYFILE()), 'hex'));
 }
 const mac = s =>
   crypto.createHmac('sha256', key()).update(s).digest('base64url');

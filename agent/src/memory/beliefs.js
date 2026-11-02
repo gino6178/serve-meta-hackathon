@@ -10,6 +10,7 @@ import path from 'node:path';
 import {jsonStore} from '../core/jsonfile.js';
 import {chat} from '../core/llm.js';
 import * as memory from './memory.js';
+import {nums} from '../core/text.js';
 
 const FILE = () =>
   path.resolve(process.env.BELIEFS_FILE || 'data/beliefs.json');
@@ -20,7 +21,6 @@ export const on = () => process.env.BELIEFS !== 'off';
 const WEEK = 7 * 864e5,
   MIN_NOTES = 3,
   MAX = 6;
-const nums = t => String(t).match(/\d+(?:[.:]\d+)?/g) || [];
 const GENERAL =
   /\b(usually|prefers?|always|never|tends? to|mostly|every)\b|通常|總是|從不|偏好|都/i;
 
