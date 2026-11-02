@@ -11,7 +11,7 @@
 //   eval) are named as not run, for the maintainer to run (test/loop_gates.mjs).
 // Nothing here merges, pushes or deploys: the maintainer does, outside the app.
 import path from 'node:path';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 import * as proposals from './proposals.js';
 import {DIR} from './signals.js';
 
@@ -41,10 +41,10 @@ export const gatesWanted = () => {
           .filter(g => ALL_GATES.includes(g));
 };
 const DIFF_MAX = 120000;
-let db = null,
-  running = null;
-const read = () => (db ||= readJSON(FILE(), {}));
-const save = () => writeJSON(FILE(), read());
+let running = null;
+const DB = jsonStore(FILE, () => ({}));
+const read = DB.data,
+  save = DB.save;
 const put = (id, patch) => {
   const d = read();
   d[id] = {...(d[id] || {}), ...patch, at: Date.now()};

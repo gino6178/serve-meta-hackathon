@@ -6,20 +6,18 @@
 // running into. The sentences are fixed and written by code, so there is nothing personal in them to check.
 //   data/needs.json (NEEDS_FILE): { kinds: { <kind>: { huddles: [ids], sent: at|null } } }
 import path from 'node:path';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 
 const FILE = () => path.resolve(process.env.NEEDS_FILE || 'data/needs.json');
-let db = null,
-  from = null;
-const data = () => {
-  if (from !== FILE()) {
-    db = readJSON(FILE(), {kinds: {}});
-    db.kinds ||= {};
-    from = FILE();
-  }
-  return db;
-};
-const save = () => writeJSON(FILE(), data());
+const DB = jsonStore(
+  FILE,
+  () => ({kinds: {}}),
+  d => {
+    d.kinds ||= {};
+  },
+);
+const data = DB.data,
+  save = DB.save;
 export const AT = 3; // different huddles before the agents suggest a change
 export const KINDS = {
   no_time: {

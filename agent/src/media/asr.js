@@ -5,7 +5,8 @@
 //   ASR_PYTHON  the worker's Python (default ~/serve/asr/env/bin/python)
 //   ASR_MODEL   the model card (default omniASR_CTC_1B), ASR_DEVICE cpu (default) or cuda
 //   ASR_DENOISE off skips the light denoiser ffmpeg runs on the app's clips (docs/web_features.md has what it changes)
-import {spawn, execFile} from 'node:child_process';
+import {execFile} from 'node:child_process';
+import {pyWorker} from '../core/worker.js';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -20,67 +21,17 @@ const WORKER = path.resolve(
 );
 const IDLE = +(process.env.ASR_IDLE_MIN || 10) * 60000,
   MAX_SECONDS = 120;
-let proc = null,
-  ready = null,
-  waiting = new Map(),
-  idle = null,
-  buf = '';
-
+let idle = null;
+// the worker (core/worker.js): it says {"ready": true} once the model is loaded, then answers each clip by its id
+const omni = pyWorker({
+  name: 'the speech worker',
+  byId: true,
+  readyLine: true,
+  stderr: 'ignore', // the model's own logging
+  spec: () => ({python: PY, args: [WORKER], env: {PYTHONUNBUFFERED: '1'}}),
+});
 export const available = () => fs.existsSync(PY) && fs.existsSync(WORKER);
-function start() {
-  if (ready) return ready;
-  ready = new Promise((ok, fail) => {
-    proc = spawn(PY, [WORKER], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env: {...process.env, PYTHONUNBUFFERED: '1'},
-    });
-    const timer = setTimeout(
-      () => fail(new Error('the speech model took too long to load')),
-      300000,
-    );
-    proc.stdout.on('data', d => {
-      buf += d;
-      for (let i = buf.indexOf('\n'); i >= 0; i = buf.indexOf('\n')) {
-        const line = buf.slice(0, i);
-        buf = buf.slice(i + 1);
-        let j;
-        try {
-          j = JSON.parse(line);
-        } catch {
-          continue;
-        }
-        if ('ready' in j) {
-          clearTimeout(timer);
-          j.ready ? ok(j) : fail(new Error(j.error));
-          continue;
-        }
-        const w = waiting.get(j.id);
-        if (!w) continue;
-        waiting.delete(j.id);
-        j.error ? w.fail(new Error(j.error)) : w.ok(j);
-      }
-    });
-    proc.stderr.on('data', () => {}); // the model's own logging
-    // a worker that can't start or dies before it is ready fails at once (not after the 5-minute load timer), and
-    // a closed pipe is an error of that worker, never of the gateway
-    const stopped = e => {
-      clearTimeout(timer);
-      proc = null;
-      ready = null;
-      fail(e instanceof Error ? e : new Error('the speech worker stopped'));
-      for (const w of waiting.values())
-        w.fail(new Error('the speech worker stopped'));
-      waiting.clear();
-    };
-    proc.on('error', stopped);
-    proc.stdin.on('error', () => {});
-    proc.on('exit', stopped);
-  });
-  ready.catch(() => {
-    ready = null;
-  });
-  return ready;
-}
+const start = () => omni.start();
 // a light denoiser (a high-pass, then non-local means) before the model, for the app's clips: through the app in
 // Chrome it took the words wrong on our six test requests from 19% to 13.5%, and with pink noise about 21 dB under the
 // voice from 46% to 10%, for about 0.25 s of CPU per 3 s of audio. Messenger's voice notes go without it (on the e2e's
@@ -120,7 +71,7 @@ const ffmpeg = (src, dst, denoise) =>
   );
 const rest = () => {
   clearTimeout(idle);
-  idle = setTimeout(() => proc?.kill(), IDLE);
+  idle = setTimeout(() => omni.stop(), IDLE);
 };
 
 // load the model ahead of a clip (the app asks when its mic opens, so the first clip does not wait the ~9 s the model
@@ -152,22 +103,12 @@ export async function transcribe(
     ).toFixed(2); // 16 kHz, 16-bit mono
     await start();
     clearTimeout(idle);
-    const r = await new Promise((ok, fail) => {
-      if (!proc) return fail(new Error('the speech worker stopped'));
-      // a clip the worker never answers fails after ASR_TIMEOUT_S (300 s), rather than waiting forever
-      const t = setTimeout(
-        () => {
-          if (waiting.delete(id))
-            fail(new Error('the speech worker did not answer'));
-        },
-        +(process.env.ASR_TIMEOUT_S || 300) * 1000,
-      );
-      waiting.set(id, {
-        ok: j => (clearTimeout(t), ok(j)),
-        fail: e => (clearTimeout(t), fail(e)),
-      });
-      proc.stdin.write(JSON.stringify({id, path: wav, lang}) + '\n');
-    });
+    // a clip the worker never answers fails after ASR_TIMEOUT_S (300 s), rather than waiting forever
+    const r = await omni.call(
+      {path: wav, lang},
+      {timeoutMs: +(process.env.ASR_TIMEOUT_S || 300) * 1000},
+    );
+    if (r.error) throw new Error(r.error);
     record({
       site,
       model: process.env.ASR_MODEL || 'omniASR_CTC_1B',

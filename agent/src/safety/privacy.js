@@ -6,12 +6,12 @@
 //   a Messenger player: their prefs in the store (store.js), so /forget deletes the choice with the rest
 // A talk keeps the mode it started in (a2a.js saves it with the talk, so a talk resumed after a restart does too).
 import path from 'node:path';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 
 const FILE = () => path.resolve(process.env.PREFS_FILE || 'data/prefs.json');
-let db = null;
-const read = () => (db ||= readJSON(FILE(), {players: {}}));
-const save = () => writeJSON(FILE(), read());
+const DB = jsonStore(FILE, () => ({players: {}}));
+const read = DB.data,
+  save = DB.save;
 const isBool = v => v === true || v === false;
 
 export const serverDefault = () => process.env.A2A_PRIVATE === '1';

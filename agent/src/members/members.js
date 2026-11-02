@@ -21,7 +21,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 import {checkToken, kidOf, HEADER} from '../a2a/peer.js';
 import {badSignature} from './trust.js';
 import {sha256Hex as hash} from '../core/crypt.js';
@@ -32,11 +32,11 @@ const KEYFILE = () =>
   path.resolve(process.env.MEMBERS_KEY_FILE || 'data/members.key');
 const DAY = 864e5,
   SESSION_DAYS = 30;
-let db = null;
-const data = () => (db ||= readJSON(FILE(), {members: {}, log: []}));
-const save = () => writeJSON(FILE(), data());
+const DB = jsonStore(FILE, () => ({members: {}, log: []}));
+const data = DB.data,
+  save = DB.save;
 export const reset = () => {
-  db = {members: {}, log: []};
+  DB.set({members: {}, log: []});
   save();
 };
 

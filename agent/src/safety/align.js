@@ -9,7 +9,7 @@
 // it is on by default where its model endpoint is set (ALIGN_URL), and ALIGN_CHECK=on uses LLM_URL when ALIGN_URL is
 // not set. Every check is a ledger row (site, seconds, verdict; never the text). Measured in test/align_eval.mjs
 // (docs/security.md, "Goal check").
-import {spawn} from 'node:child_process';
+import {pyWorker} from '../core/worker.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -58,72 +58,30 @@ export function verdictOf(line) {
 
 // one worker, kept running; requests carry an id, so an answer that comes after its request timed out is dropped.
 // Each worker has its own requests waiting (a worker stopped, or one that died, answers only its own with an error)
-let worker = null,
-  seq = 0;
-function workerUp() {
-  if (worker) return worker;
-  const py =
-      process.env.ALIGN_PYTHON || path.resolve('../attack/lfenv/bin/python'),
-    script = process.env.ALIGN_WORKER || path.join(HERE, 'align_worker.py');
-  if (!fs.existsSync(py))
-    throw new Error(`no Python for the goal check at ${py}`);
-  let w;
-  // -I: the worker's own directory and the current one are not on Python's path (it imports only the venv's packages)
-  const args = /\.py$/.test(script) ? ['-I', script] : [script];
-  try {
-    w = spawn(py, args, {
-      stdio: ['pipe', 'pipe', 'inherit'],
+const checker = pyWorker({
+  name: 'the goal check',
+  stderr: 'inherit',
+  byId: true,
+  spec: () => {
+    const py =
+        process.env.ALIGN_PYTHON || path.resolve('../attack/lfenv/bin/python'),
+      script = process.env.ALIGN_WORKER || path.join(HERE, 'align_worker.py');
+    if (!fs.existsSync(py))
+      throw new Error(`no Python for the goal check at ${py}`);
+    // -I: the worker's own directory and the current one are not on Python's path (it imports only the venv's packages)
+    return {
+      python: py,
+      args: /\.py$/.test(script) ? ['-I', script] : [script],
       env: {
-        ...process.env,
         ALIGN_URL: endpoint(),
         ALIGN_MODEL: MODEL(),
         CUDA_VISIBLE_DEVICES: '',
       },
-    });
-  } catch (e) {
-    throw new Error(
-      `the goal check did not start (${String(e.code || e.message).slice(0, 80)})`,
-    );
-  }
-  worker = w;
-  const waiting = (w.waiting = new Map());
-  let buf = '';
-  const stop = why => {
-    if (worker === w) worker = null;
-    for (const [k, f] of waiting) {
-      waiting.delete(k);
-      f(JSON.stringify({id: k, error: why}));
-    }
-  };
-  w.stdout.on('data', d => {
-    buf += d;
-    for (let i; (i = buf.indexOf('\n')) >= 0; ) {
-      const line = buf.slice(0, i);
-      buf = buf.slice(i + 1);
-      let id = null;
-      try {
-        id = JSON.parse(line).id;
-      } catch {
-        /* not JSON: dropped */
-      }
-      const f = waiting.get(id);
-      if (f) {
-        waiting.delete(id);
-        f(line);
-      }
-    }
-  });
-  w.on('error', e =>
-    stop(`the goal check did not start (${e.code || e.message})`),
-  );
-  w.stdin.on('error', () => {});
-  w.on('exit', () => stop('the goal check stopped'));
-  return w;
-}
+    };
+  },
+});
 export function stopWorker() {
-  const w = worker;
-  worker = null;
-  w?.kill();
+  checker.stop();
 }
 
 // The check. goal: the request, in words; actions: [{ action, input, thought, result }], the last one the action about
@@ -135,39 +93,23 @@ export async function check({
   timeoutMs = +(process.env.ALIGN_TIMEOUT_MS || 120000),
 } = {}) {
   if (!alignOn()) return {aligned: true, checked: false, off: true};
-  const t0 = Date.now(),
-    id = ++seq;
-  let timer,
-    v,
-    w = null;
+  const t0 = Date.now();
+  let v;
   try {
-    w = workerUp();
-    const line = await Promise.race([
-      new Promise(ok => {
-        w.waiting.set(id, ok);
-        w.stdin.write(
-          JSON.stringify({id, goal: String(goal || ''), actions}) + '\n',
-        );
-      }),
-      new Promise((_, no) => {
-        timer = setTimeout(
-          () => no(new Error('the goal check did not answer in time')),
-          timeoutMs,
-        );
-      }),
-    ]);
-    v = verdictOf(line);
+    const j = await checker.call(
+      {goal: String(goal || ''), actions},
+      {timeoutMs},
+    );
+    v = verdictOf(j);
   } catch (e) {
-    w?.waiting?.delete(id);
-    if (w && worker === w && /in time/.test(e.message)) stopWorker(); // a worker that stopped answering is started again next time
+    // a worker that stopped answering is started again next time
+    if (/in time/.test(e.message)) stopWorker();
     v = {
       aligned: false,
       checked: false,
       error: String(e.message || e).slice(0, 160),
       tokens: {prompt: 0, output: 0},
     };
-  } finally {
-    clearTimeout(timer);
   }
   const seconds = (Date.now() - t0) / 1000;
   if (v.checked) {

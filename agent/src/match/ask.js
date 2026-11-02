@@ -178,13 +178,11 @@ export async function order(cands, q, ctx = {}) {
     sport: q.sport || 'badminton',
     format: q.format === 'doubles' ? 'doubles' : 'singles',
     minutes: q.minutes || 90,
-    times: q.times
-      .slice(0, 12)
-      .map(x => ({
-        date: x.date,
-        start: x.start,
-        ...(x.venue ? {venue: x.venue} : {}),
-      })),
+    times: q.times.slice(0, 12).map(x => ({
+      date: x.date,
+      start: x.start,
+      ...(x.venue ? {venue: x.venue} : {}),
+    })),
   };
   const got = await Promise.all(
     asked.map(c => (ctx.estimate || estimate)(c.m, req, {...ctx, now})),

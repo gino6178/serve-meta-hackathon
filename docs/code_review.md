@@ -35,10 +35,23 @@ distance into `core/geo.js` (3); the Elo expected score into `club/skill.js` (3)
 (3); `norm` and the sports list (2 each); and on the web, `first`, `initials`, `plural` and `cap` into
 `web/src/text.js` (27 copies).
 
-Left for later, each a change of its own: one `jsonStore()` helper for the JSON-file store pattern (about 20 files,
-three caching variants); one Python worker client for the five JSON-lines workers; the booking race in `club/play.js`
-(a hold persisted before the peer call); a consent key file name that can't collide (`bob@clubA` and `bob_clubA`);
-and a mandate marked used only after the booking succeeds.
+The five items left after the second pass, done since:
+
+- **One JSON store helper.** `jsonStore(file, empty, fill)` in `core/jsonfile.js` replaces the hand-written
+  `data()`/`save()` pair in 13 store modules (members, clubs, huddles, trust, taste, needs, prefs, beliefs, privacy,
+  venue notes, the critic, builds, match settings). Each re-reads when its path changes and can be reset with `set()`.
+  The few stores read once at start (players, the Autopilot, asks, play, memory) keep their own line.
+- **One Python worker client.** `core/worker.js` serves the embedder, Prompt Guard, the goal check, speech out and
+  speech in. In order or by id, with a ready line where a model loads first. A timed-out request keeps its place, so a
+  late answer is never handed to the next request (the old embedder and guard queues could do that). A worker that
+  can't start or dies fails only its own requests, never those of the one started after it.
+- **The booking race.** `club/play.js` books one game at a time: the checks, the court's hold and the booking row
+  happen with no other booking in between, even across the await on a peer gateway's confirmation.
+- **Consent key files.** An id with characters a file name can't hold gets its plain part plus a hash, so `bob@clubA`
+  and `bob_clubA` never share a key. Checking a signature never creates a key.
+- **Mandates.** A peer's booking mandate is checked, then used only once the booking is made. A hold that lapsed
+  refuses the booking and leaves the mandate usable for a retry. Check, book and use happen in one synchronous step,
+  so two copies of one mandate can't both get through.
 
 ---
 

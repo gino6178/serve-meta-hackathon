@@ -9,14 +9,14 @@
 // deleted.
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 import * as G from './programs.js';
 import {km} from '../core/geo.js';
 
 const FILE = () => path.resolve(process.env.CLUBS_FILE || 'data/clubs.json');
-let db = null;
-const data = () => (db ||= readJSON(FILE(), {clubs: []}));
-const save = () => writeJSON(FILE(), data());
+const DB = jsonStore(FILE, () => ({clubs: []}));
+const data = DB.data,
+  save = DB.save;
 const SPORTS = [
   'badminton',
   'tennis',

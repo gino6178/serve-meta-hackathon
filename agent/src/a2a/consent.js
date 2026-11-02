@@ -12,14 +12,21 @@ import {sha256Hex as sha} from '../core/crypt.js';
 
 const DIR = () => path.resolve(process.env.AGENT_KEYS_DIR || 'data/agent_keys');
 const b64u = b => Buffer.from(b).toString('base64url');
-const safe = id =>
-  String(id)
-    .replace(/[^\w.-]/g, '_')
-    .slice(0, 64);
-// the agent's key, made the first time it is needed
-function keyOf(id) {
-  const f = path.join(DIR(), `${safe(id)}.pem`);
+// the key file's name: the id itself when it is a plain name, else its plain part and a hash of the whole id, so two ids
+// that differ only in characters a file name can't hold (bob@clubA, bob_clubA) never share one key
+const fileOf = id => {
+  const s = String(id),
+    plain = s.replace(/[^\w.-]/g, '_').slice(0, 64);
+  return path.join(
+    DIR(),
+    `${plain === s ? plain : `${plain.slice(0, 40)}-${sha(s).slice(0, 16)}`}.pem`,
+  );
+};
+// the agent's key, made the first time it is needed (create: false, only read: a check never makes keys)
+function keyOf(id, {create = true} = {}) {
+  const f = fileOf(id);
   if (!fs.existsSync(f)) {
+    if (!create) return null;
     fs.mkdirSync(DIR(), {recursive: true});
     const {privateKey} = crypto.generateKeyPairSync('ed25519');
     fs.writeFileSync(f, privateKey.export({type: 'pkcs8', format: 'pem'}), {
@@ -28,8 +35,10 @@ function keyOf(id) {
   }
   return crypto.createPrivateKey(fs.readFileSync(f));
 }
-export const publicOf = id =>
-  crypto.createPublicKey(keyOf(id)).export({format: 'jwk'}).x;
+export const publicOf = (id, opts) => {
+  const k = keyOf(id, opts);
+  return k ? crypto.createPublicKey(k).export({format: 'jwk'}).x : null;
+};
 // the game as every agent signs it
 export function canonical(o) {
   const players = ['you', ...(o.partners || []).map(p => p.id)]
@@ -64,7 +73,11 @@ export function verify(o, sigs = []) {
           null,
           body,
           crypto.createPublicKey({
-            key: {kty: 'OKP', crv: 'Ed25519', x: publicOf(s.by)},
+            key: {
+              kty: 'OKP',
+              crv: 'Ed25519',
+              x: publicOf(s.by, {create: false}),
+            },
             format: 'jwk',
           }),
           Buffer.from(s.sig, 'base64url'),
@@ -214,10 +227,10 @@ export function record(
   return r;
 }
 // a member's public key, only if they have one (checking never makes a key)
-const pubOf = id =>
-  fs.existsSync(path.join(DIR(), `${safe(id)}.pem`))
-    ? crypto.createPublicKey(keyOf(id))
-    : null;
+const pubOf = id => {
+  const k = keyOf(id, {create: false});
+  return k ? crypto.createPublicKey(k) : null;
+};
 // replay the log: every link, every hash, every signature; the first broken record stops it
 export function verifyLog(list = records()) {
   let prev = GENESIS;

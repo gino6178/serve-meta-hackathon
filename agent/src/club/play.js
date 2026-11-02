@@ -1058,7 +1058,16 @@ export const clearLeases = () => {
   save();
 };
 
-export async function book({option, invites = {}, you = {}} = {}) {
+// One booking at a time on this gateway: every check below (the same game again, a partner's clash, the court's hold)
+// and the row that makes the court taken happen with no other booking in between, even across the await on a peer
+// gateway's confirmation. Two talks booking the same court or partner at once: the second sees the first's row.
+let booking = Promise.resolve();
+export function book(args) {
+  const run = booking.then(() => bookNow(args));
+  booking = run.catch(() => {});
+  return run;
+}
+async function bookNow({option, invites = {}, you = {}} = {}) {
   // (option may move to another free court below)
   const venues = readVenues(),
     v = venues.venues.find(x => x.id === option?.venue?.id);

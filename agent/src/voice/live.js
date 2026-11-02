@@ -7,7 +7,8 @@
 //   Barge-in: the transcriber says when you start speaking (speechStart); the app stops the agent's voice at once and
 //   the gateway drops any reply still on its way, so you can cut it off the way you would a person.
 // A session ends after VOICE_MAX_S seconds (180) or when the app closes it. Transcription costs $0.18 an hour of audio.
-import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {pyWorker} from '../core/worker.js';
 import path from 'node:path';
 import {WebSocketServer} from 'ws';
 
@@ -15,65 +16,27 @@ const ASR = process.env.VOICE_ASR_URL || 'wss://api.meta.ai/v1/asr/realtime';
 const MAX_S = +(process.env.VOICE_MAX_S || 180);
 export const ready = () => !!process.env.META_API_KEY;
 
-// ---- speech: one Kokoro worker, kept loaded ----
-let worker = null,
-  waiting = new Map(),
-  seq = 0,
-  buf = '';
-function tts() {
-  if (worker) return worker;
-  const py = process.env.VOICE_TTS_PYTHON;
-  if (!py) return null;
-  worker = spawn(
-    py,
-    [
-      path.join(
-        path.dirname(
-          new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'),
-        ),
-        'tts_worker.py',
-      ),
+// ---- speech: one Kokoro worker, kept loaded (core/worker.js) ----
+const kokoro = pyWorker({
+  name: 'the speech worker',
+  byId: true,
+  spec: () => ({
+    python: process.env.VOICE_TTS_PYTHON,
+    args: [
+      path.join(path.dirname(fileURLToPath(import.meta.url)), 'tts_worker.py'),
     ],
-    {stdio: ['pipe', 'pipe', 'ignore'], env: process.env},
-  );
-  worker.stdout.on('data', c => {
-    buf += c;
-    for (let i; (i = buf.indexOf('\n')) >= 0; ) {
-      const l = buf.slice(0, i);
-      buf = buf.slice(i + 1);
-      try {
-        const j = JSON.parse(l);
-        waiting.get(j.id)?.(j);
-        waiting.delete(j.id);
-      } catch {
-        /* not a reply */
-      }
-    }
-  });
-  // a worker that can't start (ENOENT) or a pipe it closed (EPIPE) ends the worker, never the gateway
-  const stopped = () => {
-    worker = null;
-    for (const f of waiting.values()) f({error: 'the speech worker stopped'});
-    waiting.clear();
-  };
-  worker.on('error', stopped);
-  worker.stdin.on('error', () => {});
-  worker.on('exit', stopped);
-  return worker;
-}
-// a reply as speech: a WAV, or null when there is no speech worker
-export function speak(text) {
-  const w = tts();
-  if (!w) return Promise.resolve(null);
-  const id = ++seq,
-    lang = /[㐀-鿿]/.test(text) ? 'zh' : 'en';
-  return new Promise(ok => {
-    waiting.set(id, j => ok(j.wav ? Buffer.from(j.wav, 'base64') : null));
-    w.stdin.write(JSON.stringify({id, text, lang}) + '\n');
-    setTimeout(() => {
-      if (waiting.delete(id)) ok(null);
-    }, 20000);
-  });
+  }),
+});
+// a reply as speech: a WAV, or null when there is no speech worker (or it doesn't answer in 20 s)
+export async function speak(text) {
+  if (!process.env.VOICE_TTS_PYTHON) return null;
+  const lang = /[㐀-鿿]/.test(text) ? 'zh' : 'en';
+  try {
+    const j = await kokoro.call({text, lang}, {timeoutMs: 20000});
+    return j.wav ? Buffer.from(j.wav, 'base64') : null;
+  } catch {
+    return null;
+  }
 }
 
 // a reply in sentences (Chinese full stops too), short ones joined to the next

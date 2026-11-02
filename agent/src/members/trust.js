@@ -28,27 +28,26 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 import {sha256Hex as sha} from '../core/crypt.js';
 
 const FILE = () => path.resolve(process.env.TRUST_FILE || 'data/trust.json');
-let db = null,
-  from = null,
-  state = null;
-const data = () => {
-  if (from !== FILE()) {
-    db = readJSON(FILE(), {});
-    db.chain ||= [];
-    db.heads ||= [];
-    db.checks ||= {};
-    from = FILE();
+let state = null;
+const DB = jsonStore(
+  FILE,
+  () => ({}),
+  d => {
+    d.chain ||= [];
+    d.heads ||= [];
+    d.checks ||= {};
     state = null;
     carry();
-  }
-  return db;
-};
+  },
+);
+const data = DB.data;
 // records kept before the chain (plain counters) go onto it once, as "carried" entries, so nothing is lost
 function carry() {
+  const db = data();
   if (db.chain.length || (!db.people && !db.agents)) return;
   const old = {people: db.people || {}, agents: db.agents || {}};
   delete db.people;
@@ -66,7 +65,7 @@ function carry() {
   for (const [id, a] of Object.entries(old.agents))
     add('carried', id, {agent: {said: a.said, kept: a.kept}});
 }
-const save = () => writeJSON(FILE(), data());
+const save = DB.save;
 const HOUR = 3600e3,
   DAY = 24 * HOUR;
 export const NEW_UNDER = 3,

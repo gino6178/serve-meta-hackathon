@@ -7,15 +7,15 @@
 // with how many notes stand behind it. BELIEFS=off turns it off.
 //   data/beliefs.json (BELIEFS_FILE): { players: { [player]: { at, from: n, beliefs: [{ text, cites: [noteId], n }] } } }
 import path from 'node:path';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 import {chat} from '../core/llm.js';
 import * as memory from './memory.js';
 
 const FILE = () =>
   path.resolve(process.env.BELIEFS_FILE || 'data/beliefs.json');
-let db = null;
-const data = () => (db ||= readJSON(FILE(), {players: {}}));
-const save = () => writeJSON(FILE(), data());
+const DB = jsonStore(FILE, () => ({players: {}}));
+const data = DB.data,
+  save = DB.save;
 export const on = () => process.env.BELIEFS !== 'off';
 const WEEK = 7 * 864e5,
   MIN_NOTES = 3,

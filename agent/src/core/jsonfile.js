@@ -59,3 +59,28 @@ export function writeJSON(file, obj) {
   );
   fs.renameSync(tmp, file);
 }
+
+// A JSON store kept in memory, the pattern every store module shares: data() reads the file once (and again whenever
+// its path changes, as the tests switch it), fill(d) adds what an older file lacks, save() writes it, set(v) replaces
+// what is kept (a reset). empty() makes a fresh empty value each time, so two stores never share one object.
+export function jsonStore(file, empty, fill = () => {}) {
+  let db = null,
+    from = null;
+  const data = () => {
+    const f = file();
+    if (from !== f) {
+      db = readJSON(f, empty());
+      from = f;
+      fill(db);
+    }
+    return db;
+  };
+  return {
+    data,
+    save: () => writeJSON(file(), data()),
+    set: v => {
+      from = file();
+      return (db = v);
+    },
+  };
+}

@@ -11,7 +11,7 @@
 // them in a sentence, and they can see and reset all of it. Everything here is code: no model guesses a preference.
 //   data/taste.json (TASTE_FILE): { members: { <id>: { home, sports, raw, cells, maxKm, priceCap, answers, learned } } }
 import path from 'node:path';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 import * as prefs from '../memory/prefs.js';
 import {ymd, DAYS} from '../core/time.js';
 import {LONG, dateOf} from '../core/time.js';
@@ -21,16 +21,9 @@ export {dateOf};
 export {ymd, DAYS};
 
 const FILE = () => path.resolve(process.env.TASTE_FILE || 'data/taste.json');
-let db = null,
-  from = null;
-const data = () => {
-  if (from !== FILE()) {
-    db = readJSON(FILE(), {members: {}});
-    from = FILE();
-  }
-  return db;
-};
-const save = () => writeJSON(FILE(), data());
+const DB = jsonStore(FILE, () => ({members: {}}));
+const data = DB.data,
+  save = DB.save;
 export const FACTORS = ['time', 'place', 'price', 'quiet'];
 export const SAY = {
   time: 'the time',

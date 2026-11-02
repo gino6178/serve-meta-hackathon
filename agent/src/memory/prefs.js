@@ -19,7 +19,7 @@
 //   data/pref_records.json (PREF_RECORDS_FILE): { players: { [id]: [record] } }: records not in any note (a member's answers, settings)
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 import {people, daysIn, norm, DAYS} from './memory_update.js';
 import {ymd} from '../core/time.js';
 import {LONG} from '../core/time.js';
@@ -32,17 +32,15 @@ const FILE = () =>
         ? path.join(path.dirname(process.env.TASTE_FILE), 'pref_records.json')
         : 'data/pref_records.json'),
   );
-let db = null,
-  from = null;
-const data = () => {
-  if (from !== FILE()) {
-    db = readJSON(FILE(), {players: {}});
-    db.players ||= {};
-    from = FILE();
-  }
-  return db;
-};
-const save = () => writeJSON(FILE(), data());
+const DB = jsonStore(
+  FILE,
+  () => ({players: {}}),
+  d => {
+    d.players ||= {};
+  },
+);
+const data = DB.data,
+  save = DB.save;
 export const on = () => process.env.PREF_RECORDS !== 'off';
 export const KINDS = ['time', 'partner', 'venue', 'format'];
 export const PARTS = ['early', 'morning', 'afternoon', 'evening'];

@@ -11,7 +11,7 @@
 //   only once at least DP_MIN_GROUP players rated it.
 //   data/venue_notes.json (VENUE_NOTES_FILE): { notes: [{ place, name, game, by, at, marks, note }], done: { <member>: [game ids] } }
 import path from 'node:path';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 import * as Tr from '../members/trust.js';
 import * as guard from '../safety/guard.js';
 import * as dp from '../core/dp.js';
@@ -20,18 +20,16 @@ export const MARKS = ['courts', 'light', 'air', 'price'],
   VALUES = ['good', 'ok', 'bad'];
 const FILE = () =>
   path.resolve(process.env.VENUE_NOTES_FILE || 'data/venue_notes.json');
-let db = null,
-  from = null;
-const data = () => {
-  if (from !== FILE()) {
-    db = readJSON(FILE(), {});
-    db.notes ||= [];
-    db.done ||= {};
-    from = FILE();
-  }
-  return db;
-};
-const save = () => writeJSON(FILE(), data());
+const DB = jsonStore(
+  FILE,
+  () => ({}),
+  d => {
+    d.notes ||= [];
+    d.done ||= {};
+  },
+);
+const data = DB.data,
+  save = DB.save;
 
 export const answered = (me, game) => (data().done[me] || []).includes(game);
 

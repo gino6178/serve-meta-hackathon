@@ -883,7 +883,17 @@ export const mandateFor = (o, who = 'you') => {
 // the asking gateway knows it by, <id>@<this gateway's name>); seen keeps each mandate's use per member
 export function checkMandate(
   token,
-  {key, ref, date, start, minutes, member, seen, now = Date.now()},
+  {
+    key,
+    ref,
+    date,
+    start,
+    minutes,
+    member,
+    seen,
+    now = Date.now(),
+    defer = false,
+  },
 ) {
   const parts = String(token || '').split('.');
   if (parts.length !== 3 || parts.some(x => !/^[A-Za-z0-9_-]+$/.test(x)))
@@ -942,8 +952,10 @@ export function checkMandate(
   const n = `${c.jti}|${member}`;
   if (seen.has(n, now))
     return no('mandate-replay', 'this mandate was already used');
-  seen.add(n, (c.exp + SKEW()) * 1000);
-  return {ok: true, claims: c};
+  // defer: checked now, used (use()) only once what it allows is done, so a booking that fails keeps it usable
+  const use = () => seen.add(n, (c.exp + SKEW()) * 1000);
+  if (!defer) use();
+  return {ok: true, claims: c, ...(defer ? {use} : {})};
 }
 let mseen = null;
 const mandateSeen = () =>
@@ -954,11 +966,15 @@ const mandateSeen = () =>
         s: createSeen(path.join(DATA(), 'mandate_seen.json')),
       }).s;
 // the receiving side: a peer's mandate for a booking of one of this gateway's members, checked, and kept as the receipt
+// The mandate is checked here and used only by use(), once the booking it allows is made: a hold that lapsed meanwhile
+// refuses the booking and leaves the mandate usable for a retry. (The caller checks, books and uses in one synchronous
+// step, so two copies of one mandate can't both get through.)
 export function acceptMandate(
   token,
   {caller, ref, date, start, minutes, member},
 ) {
   const r = checkMandate(token, {
+    defer: true,
     key: pinOf(caller),
     ref,
     date,
@@ -976,22 +992,28 @@ export function acceptMandate(
     });
     return r;
   }
-  try {
-    fs.mkdirSync(DATA(), {recursive: true});
-    fs.appendFileSync(
-      path.join(DATA(), 'mandates.jsonl'),
-      JSON.stringify({
-        at: new Date().toISOString(),
-        peer: caller,
-        member,
-        mandate: token,
-      }) + '\n',
-    );
-  } catch {
-    /* the hold still records the booking */
-  }
-  count('mandate.accepted');
-  return r;
+  const use = r.use;
+  return {
+    ...r,
+    use() {
+      use();
+      try {
+        fs.mkdirSync(DATA(), {recursive: true});
+        fs.appendFileSync(
+          path.join(DATA(), 'mandates.jsonl'),
+          JSON.stringify({
+            at: new Date().toISOString(),
+            peer: caller,
+            member,
+            mandate: token,
+          }) + '\n',
+        );
+      } catch {
+        /* the hold still records the booking */
+      }
+      count('mandate.accepted');
+    },
+  };
 }
 
 // ---- reachability ---------------------------------------------------------------------------------------------------

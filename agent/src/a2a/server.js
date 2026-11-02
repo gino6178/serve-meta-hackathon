@@ -428,6 +428,8 @@ class MemberExecutor {
                       )
                     ? {held: false, reason: mandateOk.message}
                     : holdAnswer(m, {...p, ref});
+        // the mandate is used only by a booking that was made (peer.js acceptMandate: a failed one leaves it usable)
+        if (p.action === 'book' && mandateOk?.ok && d.booked) mandateOk.use?.();
         bus.publish(heldArtifact(ctx, d));
         bus.publish(status(ctx, TaskState.TASK_STATE_COMPLETED));
         return;

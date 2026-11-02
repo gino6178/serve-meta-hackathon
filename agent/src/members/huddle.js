@@ -19,7 +19,7 @@
 //   data/huddles.json (HUDDLE_FILE): { huddles: [...], nudged: { <member>: { at, seen } } }
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 import * as T from './taste.js';
 import * as D from './deals.js';
 import * as S from './split.js';
@@ -33,17 +33,15 @@ import * as VN from '../venues/notes.js';
 import {SPORTS} from './taste.js';
 
 const FILE = () => path.resolve(process.env.HUDDLE_FILE || 'data/huddles.json');
-let db = null,
-  from = null;
-const data = () => {
-  if (from !== FILE()) {
-    db = readJSON(FILE(), {huddles: [], nudged: {}});
-    db.nudged ||= {};
-    from = FILE();
-  }
-  return db;
-};
-const save = () => writeJSON(FILE(), data());
+const DB = jsonStore(
+  FILE,
+  () => ({huddles: [], nudged: {}}),
+  d => {
+    d.nudged ||= {};
+  },
+);
+const data = DB.data,
+  save = DB.save;
 // starting times: a 90-minute game ends by 22:00 (when sports centres here close); a public court, whose lights the map
 // doesn't tell, starts by 19:30. A time picked from Courts & prices is used as it is.
 export const STARTS = [

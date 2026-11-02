@@ -7,7 +7,8 @@
 // guard is not running, too slow or failing, the check is skipped and counted, and nothing else changes. A guard that
 // failed is not waited on again for a while (GUARD_PAUSE_MS). GUARD=off turns both off.
 // Measured in test/guard_eval.mjs (docs/security.md, "Guard models").
-import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {pyWorker} from '../core/worker.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import {record} from '../core/ledger.js';
@@ -406,31 +407,27 @@ function checked(on, run, describe) {
 // (guard_worker.py keeps the model loaded; it answers one JSON line per request). No Python, a worker that did not
 // start or stopped, or no answer in time: skipped, and not tried again for GUARD_PAUSE_MS. Weights it can't load (not
 // downloaded, or the Hugging Face access not granted yet): skipped, and tried again in ten minutes by a new worker.
-let worker = null,
-  queue = [],
-  pgPausedUntil = 0;
-function workerUp() {
-  if (worker) return worker;
-  const py = process.env.GUARD_PYTHON || path.resolve('../asr/env/bin/python'),
-    script = path.resolve(
-      path.dirname(
-        new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'),
-      ),
-      'guard_worker.py',
-    );
-  if (!fs.existsSync(py))
-    throw new Error(`no Python for the guard worker at ${py}`);
-  // on the CPU: the worker never sees a GPU. It reads the model at a pinned commit from the local cache only
-  // (GUARD_HF_CACHE, else HF_HUB_CACHE, else the default) and never downloads
-  const hf = process.env.GUARD_HF_CACHE;
-  // (a spawn that throws at once, where child processes are refused, is a worker that did not start, as one that
-  // fails a moment later is)
-  let w;
-  try {
-    w = spawn(py, [script], {
-      stdio: ['pipe', 'pipe', 'inherit'],
+let pgPausedUntil = 0;
+const PG_PY = () =>
+  process.env.GUARD_PYTHON || path.resolve('../asr/env/bin/python');
+// on the CPU: the worker never sees a GPU. It reads the model at a pinned commit from the local cache only
+// (GUARD_HF_CACHE, else HF_HUB_CACHE, else the default) and never downloads
+const pg = pyWorker({
+  name: 'the guard worker',
+  stderr: 'inherit',
+  spec: () => {
+    if (!fs.existsSync(PG_PY()))
+      throw new Error(`no Python for the guard worker at ${PG_PY()}`);
+    const hf = process.env.GUARD_HF_CACHE;
+    return {
+      python: PG_PY(),
+      args: [
+        path.resolve(
+          path.dirname(fileURLToPath(import.meta.url)),
+          'guard_worker.py',
+        ),
+      ],
       env: {
-        ...process.env,
         ...(hf ? {HF_HUB_CACHE: hf} : {}),
         HF_HUB_OFFLINE: '1',
         CUDA_VISIBLE_DEVICES: '',
@@ -440,33 +437,9 @@ function workerUp() {
           process.env.PROMPT_GUARD_REVISION ||
           'a8ded8e697ce7c355e395a0df51f94adb4a2fd27',
       },
-    });
-  } catch (e) {
-    throw new Error(
-      `the guard worker did not start (${String(e.code || e.message).slice(0, 80)})`,
-    );
-  }
-  worker = w;
-  let buf = '';
-  const stop = why => {
-    if (worker === w) worker = null;
-    queue.splice(0).forEach(f => f(JSON.stringify({error: why})));
-  };
-  w.stdout.on('data', d => {
-    buf += d;
-    for (let i; (i = buf.indexOf('\n')) >= 0; ) {
-      const line = buf.slice(0, i);
-      buf = buf.slice(i + 1);
-      queue.shift()?.(line);
-    }
-  });
-  w.on('error', e =>
-    stop(`the guard worker did not start (${e.code || e.message})`),
-  );
-  w.stdin.on('error', () => {}); // a write after the worker died: its exit answers the request
-  w.on('exit', () => stop('the guard worker stopped'));
-  return w;
-}
+    };
+  },
+});
 export async function injected(
   texts,
   {
@@ -519,25 +492,11 @@ async function injectedNow(texts, {site, timeoutMs}) {
     }));
   }
   const t0 = Date.now();
-  let timer;
   try {
-    const w = workerUp();
-    const line = await Promise.race([
-      new Promise(ok => {
-        queue.push(ok);
-        w.stdin.write(
-          JSON.stringify({texts: texts.map(t => String(t).slice(0, 2000))}) +
-            '\n',
-        );
-      }),
-      new Promise((_, no) => {
-        timer = setTimeout(
-          () => no(new Error('the guard worker did not answer')),
-          timeoutMs,
-        );
-      }),
-    ]);
-    const j = JSON.parse(line);
+    const j = await pg.call(
+      {texts: texts.map(t => String(t).slice(0, 2000))},
+      {timeoutMs},
+    );
     if (j.error) {
       if (/not available/.test(j.error)) {
         stopWorker();
@@ -569,13 +528,9 @@ async function injectedNow(texts, {site, timeoutMs}) {
       injected: null,
       error: String(e.message || e).slice(0, 120),
     }));
-  } finally {
-    clearTimeout(timer);
   }
 }
 // the worker stopped (the eval does, to time a start; a gateway keeps it)
 export function stopWorker() {
-  const w = worker;
-  worker = null;
-  w?.kill();
+  pg.stop();
 }

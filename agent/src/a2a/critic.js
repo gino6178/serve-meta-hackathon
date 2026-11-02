@@ -8,13 +8,13 @@
 //             FAIR_MARGIN minutes over the next one, is refused, and the talk carries on with the other times
 // A refused counter is said in the trail, with why. CRITIC=off turns it off. test/critic_unit.mjs.
 import path from 'node:path';
-import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {jsonStore} from '../core/jsonfile.js';
 
 const FILE = () =>
   path.resolve(process.env.FAIRNESS_FILE || 'data/fairness.json');
-let db = null;
-const data = () => (db ||= readJSON(FILE(), {games: []}));
-const save = () => writeJSON(FILE(), data());
+const DB = jsonStore(FILE, () => ({games: []}));
+const data = DB.data,
+  save = DB.save;
 export const PROBE_MAX = 2,
   FAIR_MARGIN = 10;
 const asked = new Map(); // talk id -> member id -> Set of times it countered with
@@ -70,6 +70,6 @@ export function review({talk, member, counter, player = 'you'}) {
 }
 export const forgetTalk = talk => asked.delete(talk);
 export const reset = () => {
-  db = {games: []};
+  DB.set({games: []});
   asked.clear();
 };

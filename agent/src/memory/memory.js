@@ -10,7 +10,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {pyWorker} from '../core/worker.js';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
 import {record} from '../core/ledger.js';
 import * as update from './memory_update.js';
@@ -23,74 +24,48 @@ let db = readJSON(FILE, {players: {}});
 const save = () => writeJSON(FILE, db);
 export const memoryOn = () => process.env.MEMORY !== 'off';
 
-// ---- the embedder: one Python process kept running, one JSON line per request ----
-let worker = null,
-  waiting = [],
-  broken = false;
+// ---- the embedder: one Python process kept running, one JSON line per request (core/worker.js) ----
+let broken = false;
 const vecCache = new Map(); // text -> vector, for notes handed in for one run (the evaluation's)
-function up() {
-  if (worker || broken) return worker;
-  const py = process.env.EMBED_PYTHON || path.resolve('../asr/env/bin/python'),
-    here = path.dirname(
-      new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'),
-    );
-  if (!fs.existsSync(py)) {
+const PY = () =>
+  process.env.EMBED_PYTHON || path.resolve('../asr/env/bin/python');
+const embedder = pyWorker({
+  name: 'the embedder',
+  spec: () => {
+    const hf = process.env.HF_HUB_CACHE || process.env.REEL_HF_CACHE;
+    return {
+      python: PY(),
+      args: [
+        path.join(
+          path.dirname(fileURLToPath(import.meta.url)),
+          'embed_worker.py',
+        ),
+      ],
+      env: {
+        ...(hf ? {HF_HUB_CACHE: hf} : {}),
+        HF_HUB_OFFLINE: '1',
+        TRANSFORMERS_VERBOSITY: 'error',
+      },
+    };
+  },
+});
+export async function embed(texts, {query = false} = {}) {
+  if (process.env.MEMORY_EMBED === 'bm25' || !texts.length) return null;
+  if (broken || !fs.existsSync(PY())) {
     broken = true;
     return null;
   }
-  const hf = process.env.HF_HUB_CACHE || process.env.REEL_HF_CACHE;
-  worker = spawn(py, [path.join(here, 'embed_worker.py')], {
-    stdio: ['pipe', 'pipe', 'ignore'],
-    env: {
-      ...process.env,
-      ...(hf ? {HF_HUB_CACHE: hf} : {}),
-      HF_HUB_OFFLINE: '1',
-      TRANSFORMERS_VERBOSITY: 'error',
-    },
-  });
-  let buf = '';
-  worker.stdout.on('data', d => {
-    buf += d;
-    for (let i; (i = buf.indexOf('\n')) >= 0; ) {
-      const line = buf.slice(0, i);
-      buf = buf.slice(i + 1);
-      waiting.shift()?.(line);
-    }
-  });
-  worker.on('exit', () => {
-    worker = null;
-    waiting
-      .splice(0)
-      .forEach(f => f(JSON.stringify({error: 'the embedder stopped'})));
-  });
-  return worker;
-}
-export async function embed(texts, {query = false} = {}) {
-  if (process.env.MEMORY_EMBED === 'bm25' || !texts.length) return null;
-  const w = up();
-  if (!w) return null;
   const t0 = Date.now();
   try {
-    const line = await Promise.race([
-      new Promise(ok => {
-        waiting.push(ok);
-        w.stdin.write(
-          JSON.stringify({
-            [query ? 'queries' : 'documents']: texts.map(t =>
-              String(t).slice(0, 2000),
-            ),
-            dim: DIM,
-          }) + '\n',
-        );
-      }),
-      new Promise((_, no) =>
-        setTimeout(
-          () => no(new Error('the embedder did not answer')),
-          +(process.env.EMBED_TIMEOUT_MS || 60000),
+    const j = await embedder.call(
+      {
+        [query ? 'queries' : 'documents']: texts.map(t =>
+          String(t).slice(0, 2000),
         ),
-      ),
-    ]);
-    const j = JSON.parse(line);
+        dim: DIM,
+      },
+      {timeoutMs: +(process.env.EMBED_TIMEOUT_MS || 60000)},
+    );
     if (j.error) {
       if (/not available/.test(j.error)) broken = true;
       throw new Error(j.error);
@@ -476,15 +451,7 @@ export async function scoreIn(notes, query, {weight = () => 1} = {}) {
 }
 // the embedder's process ends with this one (a run that is done must not be kept alive by it)
 export function close() {
-  if (worker) {
-    try {
-      worker.stdin.end();
-      worker.kill();
-    } catch {
-      /* gone */
-    }
-    worker = null;
-  }
+  embedder.stop();
 }
 export function forget(player) {
   generation.set(player, (generation.get(player) || 0) + 1);
