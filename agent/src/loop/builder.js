@@ -124,7 +124,10 @@ export function neverList(repo) {
       .filter(
         s => /[/*]|\.\w{1,5}$/.test(s) && !/^(https?:|node |npm )/.test(s),
       );
-    return [...new Set([...NEVER, ...own])];
+    // a bare file name in never.md (health.js) means that file wherever it is in the repository
+    return [
+      ...new Set([...NEVER, ...own.map(s => (/[/*]/.test(s) ? s : `**/${s}`))]),
+    ];
   } catch {
     return NEVER;
   }

@@ -28,6 +28,7 @@ export const prompt = (sport, format) =>
 
 const making = new Map();
 // the art's file for one challenge, made the first time it is asked for; the same challenge never costs twice
+const madeAt = [];
 export async function art({id, sport = 'badminton', format = 'singles'}) {
   if (!SPORTS[sport]) sport = 'badminton';
   format = format === 'doubles' ? 'doubles' : 'singles';
@@ -41,6 +42,15 @@ export async function art({id, sport = 'badminton', format = 'singles'}) {
       {code: 503},
     );
   if (making.has(file)) return making.get(file);
+  // each new picture is a paid generation: at most POSTER_PER_DAY (20) a day, whatever ids are asked for
+  const now = Date.now();
+  while (madeAt.length && now - madeAt[0] > 864e5) madeAt.shift();
+  if (madeAt.length >= +(process.env.POSTER_PER_DAY || 20))
+    throw Object.assign(
+      new Error('Enough posters were made today; try again tomorrow.'),
+      {code: 429},
+    );
+  madeAt.push(now);
   const job = (async () => {
     const t0 = Date.now();
     const r = await fetch('https://api.meta.ai/v1/images/generations', {

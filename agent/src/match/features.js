@@ -5,6 +5,7 @@
 //   rec: { asked: [{ t, from, date, start, yes }], own: [{ t, yes }], games: [{ t, date, start, with: [ids], over }], sore: [{ from, to }] }
 //   q:   { from, date, start, minutes, format, now, gap (rating points), trip (minutes), prefersDoubles, sore (optional) }
 import {toMin} from '../core/time.js';
+import {DAY} from '../core/time.js';
 export const MU0 = 0.25; // the prior the smoothed rates shrink towards (about the club's rate in the simulated logs)
 export const FEATURES = [
   'yes rate, asks in the last 28 days',
@@ -39,7 +40,6 @@ export const FEATURES = [
 ];
 // the features the first model (likely-lr-20261028) was trained on: the 24 above the asker's reliability
 export const V1 = FEATURES.slice(0, 24);
-const DAY = 864e5;
 // a date's day number and weekday, without time zones getting in the way
 export const dayNum = date => {
   const [y, m, d] = String(date).split('-').map(Number);

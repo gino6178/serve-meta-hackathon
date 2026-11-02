@@ -133,7 +133,9 @@ export function of(placeId) {
       notes,
     };
   const n = dp.noisyCount(list.length, `venue-notes|${placeId}`);
-  if (!dp.enough(list.length)) return {n: 0, marks: {}, notes, few: true};
+  // the threshold reads the noisy count, so the moment the record appears doesn't give the exact number away
+  // (and no notes either: under the threshold a note and its time could point at the one player who left it)
+  if (!dp.enough(n)) return {n: 0, marks: {}, notes: [], few: true};
   const byEps = list.reduce(
     (g, x) => g.set(x.rr || 0, [...(g.get(x.rr || 0) || []), x]),
     new Map(),

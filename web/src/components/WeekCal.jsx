@@ -1,5 +1,6 @@
 // Everyone's week side by side: one row per day, a lane per person for the times they are free, the band where
 // everyone is free, and the slot the agent picked.
+import {first} from '../text.js';
 const FROM = 7 * 60,
   TO = 23 * 60,
   span = TO - FROM;
@@ -9,7 +10,6 @@ const wid = (a, b) =>
   `${(100 * (Math.min(TO, b) - Math.max(FROM, a))) / span}%`;
 const hm = m =>
   `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
-const first = n => n.split(' ')[0];
 
 export default function WeekCal({calendar: c}) {
   if (!c) return null;

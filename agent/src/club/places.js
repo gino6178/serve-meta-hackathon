@@ -17,6 +17,9 @@ import {VERDICT, NAMES} from '../core/schema.js';
 import {okNums, allowedIn} from '../a2a/talk.js';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
 import * as flags from '../loop/flags.js';
+import {ymd} from '../core/time.js';
+import {meters, rad} from '../core/geo.js';
+export {meters};
 
 const FILE = path.resolve(process.env.PLACES_FILE || 'data/places_cache.json');
 const KEY = process.env.GOOGLE_MAPS_API_KEY || '';
@@ -59,15 +62,6 @@ const GOOGLE_Q = {
   football: 'football field',
 };
 
-const rad = d => (d * Math.PI) / 180;
-export const meters = (a, b) => {
-  const h =
-    Math.sin(rad(b.lat - a.lat) / 2) ** 2 +
-    Math.cos(rad(a.lat)) *
-      Math.cos(rad(b.lat)) *
-      Math.sin(rad(b.lon - a.lon) / 2) ** 2;
-  return Math.round(12742e3 * Math.asin(Math.sqrt(h)));
-};
 const bearing = (a, b) =>
   [
     'north',
@@ -391,7 +385,7 @@ export function rules(p, sport, start, w) {
   };
 }
 
-const norm = t =>
+export const norm = t =>
   String(t)
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, ' ')
@@ -576,7 +570,7 @@ export async function search({
   const here = {lat: +lat, lon: +lon};
   if (!isFinite(here.lat) || !isFinite(here.lon))
     throw new Error('No location to search around.');
-  date ||= new Date().toISOString().slice(0, 10);
+  date ||= ymd(new Date()); // today here, not in UTC (before 08:00 in Taiwan, UTC is still yesterday)
   work('Searching OpenStreetMap for courts and parks');
   let mapped;
   try {
@@ -835,8 +829,11 @@ export async function nearby({
     Math.abs(at.lon) > 180
   )
     throw new Error('No location to search around.');
+  // a sport is a short word: anything else would be written into the Overpass query, and would grow the cache
   const r = Math.min(5000, Math.max(500, +radius || 2000)),
-    sp = String(sport).toLowerCase(),
+    sp = /^[a-z][a-z _-]{0,29}$/.test(String(sport).toLowerCase())
+      ? String(sport).toLowerCase()
+      : 'badminton',
     key = `${at.lat},${at.lon},${r},${sp}`;
   const hit = near.get(key) || cache[`near:${key}`];
   if (hit && Date.now() - hit.at < 30 * 864e5) return hit.places;

@@ -81,7 +81,12 @@ async function memberOf(sess) {
   }).catch(() => null);
   const me = r?.ok ? await r.json().catch(() => null) : null;
   const id = me?.member?.id || me?.id || null;
-  seen.set(sess, {id, until: Date.now() + 60000});
+  // only a real answer is kept (a failed call to the gateway is asked again), and the cache is bounded: random
+  // session strings can't grow it without end
+  if (r && (r.ok || r.status === 401)) {
+    if (seen.size >= 5000) seen.delete(seen.keys().next().value);
+    seen.set(sess, {id, until: Date.now() + 60000});
+  }
   return id;
 }
 
@@ -309,7 +314,12 @@ const TYPES = {
 };
 function file(req, res, p) {
   let f = path.join(WEB, decodeURIComponent(p));
-  if (!f.startsWith(WEB) || !fs.existsSync(f) || fs.statSync(f).isDirectory())
+  // inside WEB itself: a sibling folder whose name starts the same (dist-old) is not
+  if (
+    !f.startsWith(WEB + path.sep) ||
+    !fs.existsSync(f) ||
+    fs.statSync(f).isDirectory()
+  )
     f = path.join(WEB, 'index.html');
   const type =
       TYPES[path.extname(f).toLowerCase()] || 'application/octet-stream',

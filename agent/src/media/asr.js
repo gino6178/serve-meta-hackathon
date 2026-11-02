@@ -61,13 +61,20 @@ function start() {
       }
     });
     proc.stderr.on('data', () => {}); // the model's own logging
-    proc.on('exit', () => {
+    // a worker that can't start or dies before it is ready fails at once (not after the 5-minute load timer), and
+    // a closed pipe is an error of that worker, never of the gateway
+    const stopped = e => {
+      clearTimeout(timer);
       proc = null;
       ready = null;
+      fail(e instanceof Error ? e : new Error('the speech worker stopped'));
       for (const w of waiting.values())
         w.fail(new Error('the speech worker stopped'));
       waiting.clear();
-    });
+    };
+    proc.on('error', stopped);
+    proc.stdin.on('error', () => {});
+    proc.on('exit', stopped);
   });
   ready.catch(() => {
     ready = null;
@@ -146,7 +153,19 @@ export async function transcribe(
     await start();
     clearTimeout(idle);
     const r = await new Promise((ok, fail) => {
-      waiting.set(id, {ok, fail});
+      if (!proc) return fail(new Error('the speech worker stopped'));
+      // a clip the worker never answers fails after ASR_TIMEOUT_S (300 s), rather than waiting forever
+      const t = setTimeout(
+        () => {
+          if (waiting.delete(id))
+            fail(new Error('the speech worker did not answer'));
+        },
+        +(process.env.ASR_TIMEOUT_S || 300) * 1000,
+      );
+      waiting.set(id, {
+        ok: j => (clearTimeout(t), ok(j)),
+        fail: e => (clearTimeout(t), fail(e)),
+      });
       proc.stdin.write(JSON.stringify({id, path: wav, lang}) + '\n');
     });
     record({

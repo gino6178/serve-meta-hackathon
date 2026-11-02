@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import Icon from './Icon.jsx';
 import {agentHolds} from '../agent.js';
 import './webfeat.css';
+import {first} from '../text.js';
 
 // What a talk between agents says about itself, shown quietly next to its messages and on the card that asks for a
 // yes (the gateway's talk_meta.js):
@@ -9,7 +10,6 @@ import './webfeat.css';
 //              (your agent listed only times that fit the club's calendars)
 //   HoldClock  once the agents agree a time, each member's agent holds it for 30 minutes while you decide
 //   CardsNote  the other agents' Agent Cards were signed and matched the address they answered at
-const first = n => String(n || '').split(' ')[0];
 
 export function Calendars({mode, short = false}) {
   if (mode !== 'private' && mode !== 'shared') return null;

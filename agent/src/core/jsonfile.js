@@ -4,7 +4,8 @@
 // starts empty, rather than the gateway failing to start.
 // Sealed at rest (core/crypt.js): with DATA_ENCRYPT=on (or DATA_KEY) every store written here is AES-256-GCM sealed
 // under its own key, except caches and evaluation output that hold nothing about a person (OPEN_STORE). A file still
-// in plain JSON is read as it is and sealed on its next write, so turning encryption on needs no migration step.
+// in plain JSON is read as it is and sealed on its next write, so turning encryption on needs no migration step. A
+// sealed file that doesn't open throws: it is never moved aside, since that would start the store empty.
 import fs from 'node:fs';
 import path from 'node:path';
 import * as crypt from './crypt.js';
@@ -23,8 +24,10 @@ export function parse(text, file) {
 export const readSealed = file => parse(fs.readFileSync(file, 'utf8'), file);
 export function readJSON(file, empty) {
   if (!fs.existsSync(file)) return empty;
+  const text = fs.readFileSync(file, 'utf8');
+  let j;
   try {
-    return parse(fs.readFileSync(file, 'utf8'), file);
+    j = JSON.parse(text);
   } catch (e) {
     const aside = `${file}.bad-${Date.now()}`;
     try {
@@ -36,6 +39,15 @@ export function readJSON(file, empty) {
       `${path.basename(file)} could not be read (${e.message}); moved aside to ${path.basename(aside)}, starting empty`,
     );
     return empty;
+  }
+  // a sealed file that won't open means the wrong data key, not a broken file: stop, rather than start empty
+  if (!crypt.sealed(j)) return j;
+  try {
+    return crypt.open(j, storeOf(file));
+  } catch (e) {
+    throw new Error(
+      `${path.basename(file)} is sealed and does not open with this data key (${e.message}); check DATA_KEY / DATA_KEY_FILE`,
+    );
   }
 }
 export function writeJSON(file, obj) {

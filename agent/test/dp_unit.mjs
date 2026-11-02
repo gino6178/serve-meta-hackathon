@@ -144,3 +144,23 @@ test("a venue's marks are randomized before they are kept, and its record waits 
     'one game: no prices or dates shown',
   );
 });
+
+test('with the wrong data key a sealed store and the keyring throw, and nothing is moved aside or wiped', async () => {
+  const f = path.join(tmp, 'players.json');
+  J.writeJSON(f, {players: {a: 1}});
+  crypt.subjectKey('kim');
+  const ring = fs.readFileSync(process.env.DATA_KEYRING_FILE, 'utf8');
+  process.env.DATA_KEY = Buffer.alloc(32, 7).toString('base64');
+  assert.throws(() => J.readJSON(f, {}), /does not open with this data key/);
+  assert.ok(fs.existsSync(f), 'the sealed file stays where it is');
+  const other = path.join(tmp, 'keys2/subjects.json');
+  fs.mkdirSync(path.dirname(other), {recursive: true});
+  fs.writeFileSync(other, ring);
+  process.env.DATA_KEYRING_FILE = other;
+  assert.throws(
+    () => crypt.subjectKey('new-person'),
+    'an unreadable keyring is never replaced by an empty one',
+  );
+  assert.equal(fs.readFileSync(other, 'utf8'), ring);
+  delete process.env.DATA_KEY;
+});

@@ -260,7 +260,7 @@ export async function prepare(
   }
   if (!branch) throw new Error('a C1-C3 change is gated on its branch');
   // its own worktree, with this tree's tests and dependencies
-  const base = process.env.LOOP_BASE || 'master',
+  const base = process.env.LOOP_BASE || 'main',
     wt = path.join(scratch, 'wt');
   ctx.diff = git(['diff', `${base}...${branch}`]);
   git(['worktree', 'add', '--detach', wt, branch]);
@@ -291,8 +291,12 @@ const added = diff => {
   const out = [];
   let file = null,
     line = 0;
+  let prev = '';
   for (const l of diff.split('\n')) {
-    if (l.startsWith('+++ ')) {
+    // a file's header is "+++ " right after its "--- " line; an added line that starts "++ " is code
+    const header = l.startsWith('+++ ') && prev.startsWith('--- ');
+    prev = l;
+    if (header) {
       file = l.slice(6);
       continue;
     }

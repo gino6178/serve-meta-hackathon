@@ -53,6 +53,8 @@ import {noteOwn} from '../match/records.js';
 import * as align from '../safety/align.js';
 import * as fb from './freebusy.js';
 import {privateFor} from '../safety/privacy.js';
+import {expect} from '../club/skill.js';
+import {LONG} from '../core/time.js';
 
 const {
   windows,
@@ -70,7 +72,6 @@ let db = readJSON(FILE, {runs: [], pending: {}});
 const save = () => {
   writeJSON(FILE, db);
 };
-const expect = (a, b) => 1 / (1 + 10 ** ((b - a) / 400));
 // lean (the default; AUTOPILOT_LEAN=0 for the earlier loop, to compare): the system prompt is the same in every run, so
 // the server reuses it and the tool definitions from cache, and the week's details go in the first message; get_week
 // and check_limits, which every run starts with, are run by code before the model's first turn; and once a game is agreed,
@@ -84,15 +85,6 @@ Work only through the tools, one step at a time:
 4. When games are agreed, request_approval once. If nothing could be agreed, nudge the player instead.
 5. Then finish with one sentence for the player.
 Use only member ids and times that tools returned. Give a one-sentence "reason" for every choice. Never write he or she; use first names. Follow what the player told you before (get_week's fromMemory, or recall): leave out a person, time or place they asked you to avoid (a person: pass their id in find_partners' leaveOut).`;
-const LONG_DAY = {
-  Mon: 'Monday',
-  Tue: 'Tuesday',
-  Wed: 'Wednesday',
-  Thu: 'Thursday',
-  Fri: 'Friday',
-  Sat: 'Saturday',
-  Sun: 'Sunday',
-};
 
 // ---- what it learns ---------------------------------------------------------------------------------------------
 // habits: the weekday and start time you keep playing at, over the eight weeks before your latest game
@@ -1229,7 +1221,7 @@ async function runWeek({
   // the request the Autopilot works for, in the player's words, and the plan it is about to send (for the goal check)
   const request = `Get me ${perWeek} ${g.sport} game${perWeek > 1 ? 's' : ''} this week, at the times I usually play, with the partners I play best with${limit ? `, keeping to the limit from my body log (${limit})` : ''}. Ask me before anything is booked.`;
   const planLine = o =>
-    `${o.sport || g.sport} ${o.format} ${LONG_DAY[o.day]} ${o.date} ${o.start}-${o.end} at ${o.venue.name}${o.venue.public ? ' (public court)' : ''} with ${o.partners.map(p => p.name).join(', ')}; longest trip ${o.longest} min`;
+    `${o.sport || g.sport} ${o.format} ${LONG[o.day]} ${o.date} ${o.start}-${o.end} at ${o.venue.name}${o.venue.public ? ' (public court)' : ''} with ${o.partners.map(p => p.name).join(', ')}; longest trip ${o.longest} min`;
   const alignCheck = async args => {
     const r = await align.check({
       site: 'align.autopilot',
@@ -1927,7 +1919,7 @@ Use only member ids and times that tools returned. Give a one-sentence "reason" 
     agreed
       .map(
         o =>
-          `${o.day} ${LONG_DAY[o.day]} ${o.date} ${o.start} ${o.end} ${o.minutes} ${o.venue.name} ${o.partners.map(p => p.name).join(' ')}`,
+          `${o.day} ${LONG[o.day]} ${o.date} ${o.start} ${o.end} ${o.minutes} ${o.venue.name} ${o.partners.map(p => p.name).join(' ')}`,
       )
       .join(' ') + ` ${perWeek} ${g.perWeek} ${minutes}`;
   const said = String(finished || ''),
@@ -2181,4 +2173,4 @@ export async function resumeRuns(hooks = () => ({})) {
   return out;
 }
 export const describe = o =>
-  `${o.sport && o.sport !== 'badminton' ? o.sport[0].toUpperCase() + o.sport.slice(1) + ' ' + (o.format === 'doubles' ? '2 on 2' : '1 on 1') : o.format === 'doubles' ? 'Doubles' : 'Singles'} ${LONG_DAY[o.day]} ${o.start} at ${o.venue.name}${o.venue.public ? ' (public court, free)' : ''} with ${o.partners.map(p => first(p.name)).join(', ')}`;
+  `${o.sport && o.sport !== 'badminton' ? o.sport[0].toUpperCase() + o.sport.slice(1) + ' ' + (o.format === 'doubles' ? '2 on 2' : '1 on 1') : o.format === 'doubles' ? 'Doubles' : 'Singles'} ${LONG[o.day]} ${o.start} at ${o.venue.name}${o.venue.public ? ' (public court, free)' : ''} with ${o.partners.map(p => first(p.name)).join(', ')}`;

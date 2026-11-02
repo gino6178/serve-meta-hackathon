@@ -16,8 +16,9 @@ const ISO_DAY = /^\d{4}-\d\d-\d\d$/;
 // entries checked after their schema (core/toolcheck.js): a date that exists, from two weeks back to a year ahead,
 // and a start and end in HH:MM, the end after the start. One that is not is asked for again, typed; one still wrong
 // after that is not filed
+// (the local date, as the rest of the calendar: the UTC one is a day behind before 08:00 in Taiwan)
 const DAY_MS = 864e5,
-  iso = t => new Date(t).toISOString().slice(0, 10);
+  iso = t => ymd(t);
 const entryErrors = (e, now) => {
   if (
     !realDate(e?.date) ||

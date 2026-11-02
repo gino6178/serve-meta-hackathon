@@ -64,6 +64,8 @@ const forwarded = req =>
     h => req.headers?.[h],
   );
 export const openTo = req =>
-  required() ||
-  (loopback(req) && !forwarded(req)) ||
-  process.env.AGENT_OPEN === '1';
+  required() || fromThisMachine(req) || process.env.AGENT_OPEN === '1';
+// a request from this machine itself: loopback, and not passed on by a proxy or tunnel here (tenants/proxy.js marks
+// what it passes on from the public address with x-serve-public)
+export const fromThisMachine = req =>
+  loopback(req) && !forwarded(req) && req.headers?.['x-serve-public'] !== '1';

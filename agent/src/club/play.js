@@ -17,6 +17,7 @@ import * as fb from '../agents/freebusy.js';
 import * as consentMod from '../a2a/consent.js';
 import {privateFor} from '../safety/privacy.js';
 import {toMin, ymd, hm, DAYS, first} from '../core/time.js';
+import {dateOf} from '../core/time.js';
 
 // hooks the matchmaker installs (match/index.js): the options' partners ordered by their agents' bands, and an invite's
 // in or out noted for that member (and the ledger of the bands). a2a.js installs confirm and unbook: partners whose
@@ -35,10 +36,6 @@ const DATA = path.resolve(
 );
 const FILE = path.resolve(process.env.BOOKINGS_FILE || 'data/bookings.json');
 const LEVEL = {A: 3, B: 2, C: 1};
-const dateOf = s => {
-  const [y, m, d] = s.split('-').map(Number);
-  return new Date(y, m - 1, d);
-};
 const readVenues = () =>
   JSON.parse(fs.readFileSync(path.join(DATA, 'venues.json'), 'utf8'));
 // FNV-1a with a final mix, so similar keys (same venue, next hour) still spread evenly over 0..1
@@ -1334,6 +1331,7 @@ export const helpers = {
 export function cancel(id) {
   const b = db.bookings.find(x => x.id === id);
   if (!b) return {error: 'no such booking'};
+  if (b.cancelled) return status(id); // cancelled already: partners aren't told twice
   b.cancelled = true;
   b.log.push({
     at: Date.now(),

@@ -18,6 +18,7 @@ import * as fb from '../agents/freebusy.js';
 import {privateFor} from '../safety/privacy.js';
 import * as Sk from './skill.js';
 import {first} from '../core/time.js';
+import {expect} from './skill.js';
 
 const {
   windows,
@@ -30,7 +31,6 @@ const {
   readVenues,
   DAYS,
 } = helpers;
-const expect = (a, b) => 1 / (1 + 10 ** ((b - a) / 400));
 const MON = [
   'Jan',
   'Feb',
@@ -210,22 +210,20 @@ export async function best({
     .sort((a, b) => b.score - a.score);
   const max = ranked[0]?.score ?? 1,
     min = ranked.at(-1)?.score ?? 0;
-  const top = ranked
-    .slice(0, 3)
-    .map(x => ({
-      id: x.m.id,
-      name: x.m.name,
-      level: x.m.level,
-      rating: r(x.m.id),
-      ...(sk[x.m.id]
-        ? {mu: +sk[x.m.id].mu.toFixed(1), sigma: +sk[x.m.id].sigma.toFixed(1)}
-        : {}),
-      chance: x.chance,
-      fit: Math.round(60 + 40 * ((x.score - min) / Math.max(0.01, max - min))),
-      parts: x.parts
-        .sort((a, b) => b.w - a.w)
-        .map(({k, text, w}) => ({k, text, good: w > 0})),
-    }));
+  const top = ranked.slice(0, 3).map(x => ({
+    id: x.m.id,
+    name: x.m.name,
+    level: x.m.level,
+    rating: r(x.m.id),
+    ...(sk[x.m.id]
+      ? {mu: +sk[x.m.id].mu.toFixed(1), sigma: +sk[x.m.id].sigma.toFixed(1)}
+      : {}),
+    chance: x.chance,
+    fit: Math.round(60 + 40 * ((x.score - min) / Math.max(0.01, max - min))),
+    parts: x.parts
+      .sort((a, b) => b.w - a.w)
+      .map(({k, text, w}) => ({k, text, good: w > 0})),
+  }));
   tell({
     step: 'Scored every member',
     tool: 'score',

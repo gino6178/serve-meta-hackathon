@@ -281,3 +281,5 @@ export const store = () =>
   (shared ||= createSkill(
     path.resolve(process.env.SKILL_FILE || path.join('data', 'skill.json')),
   ));
+// the Elo expected score of a against b (ratings on the 400-point scale)
+export const expect = (a, b) => 1 / (1 + 10 ** ((b - a) / 400));

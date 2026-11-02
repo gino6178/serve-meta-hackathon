@@ -16,6 +16,7 @@ import {randomMatch, askFor, stakes, WHEN} from '../club/arena.js';
 import {go} from '../App.jsx';
 import {agentReadScore} from '../agent.js';
 import Poster from '../club/Poster.jsx';
+import {first, initials} from '../text.js';
 
 // The club's competitive side, in two tabs of the Club page.
 //   Rankings: the club rating (Elo from every challenge), games played in the club challenge and wins, with a podium
@@ -25,14 +26,6 @@ import Poster from '../club/Poster.jsx';
 //   games, where you report the result and the ratings move; open challenges on the club board; recent results.
 // Booking always goes through your agent on Play (map, calendars, the venue in the middle), so a challenge accepted
 // here is booked the same way as one you type.
-const initials = name =>
-  name
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-const first = name => name.split(' ')[0];
 const DAY = {
   Mon: 'Monday',
   Tue: 'Tuesday',

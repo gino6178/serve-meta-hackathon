@@ -82,7 +82,7 @@ export async function answer(b, answerer) {
         verified: {ok: true, numbers: 0, bad: []},
         facts: 0,
       };
-    const r = await answerer({text, app: b.you || {}});
+    const r = await answerer({text, app: b.you || {}, who: b.who || null});
     const out = await guard.checkOut(r.text, {ask: text, fallback: FALLBACK});
     return out.flagged ? {...r, text: out.text, replaced: true} : r;
   });

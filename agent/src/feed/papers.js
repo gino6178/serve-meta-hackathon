@@ -20,9 +20,9 @@ import * as S from './store.js';
 import * as T from './text.js';
 import * as Q from './query.js';
 import * as src from './sources.js';
+import {DAY} from '../core/time.js';
 
 export const KEY = 'feed.papers.perWeek';
-const DAY = 864e5;
 // the ISO week a time falls in ("2026-W44") and the day of that week (Monday 1 to Sunday 7)
 export function weekOf(t) {
   const d = new Date(t),

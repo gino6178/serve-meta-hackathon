@@ -1758,7 +1758,9 @@ async function rounds({
               x.from <= toMin(j.start || '00:00') &&
               toMin(j.start || '00:00') + minutes <= x.to,
           );
-        const o0 = s && same(offer(s, toMin(j.start)));
+        // (offer is null when no court is free then: no counter to take)
+        const o1 = s && offer(s, toMin(j.start)),
+          o0 = o1 && same(o1);
         // the critic reviews the counter for the player before it can be taken (critic.js: probing, fairness)
         const cr = o0
           ? critic.review({talk: id, member: m, counter: o0, player: me.id})

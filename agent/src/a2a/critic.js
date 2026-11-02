@@ -49,7 +49,8 @@ export function review({talk, member, counter, player = 'you'}) {
       check: 'probing',
       why: `${member.name.split(' ')[0]}'s agent has asked about ${seen.size} different times in this talk, more than a game needs: its other times are not taken`,
     };
-  const t = counter.travel || [],
+  // an offer from talk.js keeps its trips under c (the option it was made from)
+  const t = counter.travel || counter.c?.travel || [],
     mine = t.find(x => x.id === player),
     others = t.filter(x => x.id !== player).map(x => x.min);
   if (mine && others.length) {

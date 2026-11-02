@@ -30,6 +30,7 @@ import * as Tr from './trust.js';
 import * as N from './needs.js';
 import * as Consent from '../a2a/consent.js';
 import * as VN from '../venues/notes.js';
+import {SPORTS} from './taste.js';
 
 const FILE = () => path.resolve(process.env.HUDDLE_FILE || 'data/huddles.json');
 let db = null,
@@ -66,16 +67,6 @@ const MINUTES = 90,
   ROUNDS = 4,
   TRIES = 2,
   INDOOR = ['badminton', 'table tennis', 'squash'];
-const SPORTS = [
-  'badminton',
-  'tennis',
-  'pickleball',
-  'table tennis',
-  'basketball',
-  'volleyball',
-  'soccer',
-  'squash',
-];
 const first = id => String(P.authorOf(id) || 'A member').split(' ')[0];
 const names = xs =>
   xs.length > 1
@@ -1471,6 +1462,10 @@ export const dueBy = (h, id = null) =>
     : null;
 // everyone said yes: the game goes on the feed with them in it (the feed's own "Game on" follows)
 async function book(h) {
+  // once: a second yes arriving while the post is being checked (a double tap, the person and their agent) finds
+  // the game already booking
+  if (['booking', 'on'].includes(h.status)) return;
+  h.status = 'booking';
   const o = h.pick;
   if (h.fill && P.find(h.fill)) {
     h.status = 'on';
@@ -2529,6 +2524,20 @@ export function forget(me, name = null) {
     h.invited = h.invited.filter(x => x !== me);
     h.players = h.players.filter(x => x !== me);
     delete h.answers[me];
+    // the leaver's id goes from every list the game keeps about its players
+    for (const k of ['alternates', 'waitlist', 'nearby', 'out'])
+      if (Array.isArray(h[k])) h[k] = h[k].filter(x => (x?.id ?? x) !== me);
+    if (h.pick?.km) delete h.pick.km[me];
+    if (h.pick?.shares) delete h.pick.shares[me];
+    // the leaver may have been the only one not to answer yet: everyone left said yes, so the game goes on
+    if (
+      h.status === 'asking' &&
+      h.players.length &&
+      h.players.every(x => h.answers[x] === 'yes')
+    )
+      book(h)
+        .then(save)
+        .catch(e => console.error('huddle book after a leaver', e.message));
     if (was && ['talking', 'asking', 'on'].includes(h.status)) {
       const t = `${who} left Serve, so they're out of this game.`;
       line(h, 'host', t, {who});

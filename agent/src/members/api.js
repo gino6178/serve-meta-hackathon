@@ -499,7 +499,8 @@ export async function route(req, res, u, {json, o, forget}) {
     }
     return send(200, {deleted: ids});
   }
-  if (p === '/api/members/refusals') return send(200, {refusals: M.refusals()});
+  if (p === '/api/members/refusals')
+    return send(200, {refusals: M.refusals(me.id)});
   return send(404, {error: 'no such route'});
 }
 
@@ -549,9 +550,15 @@ async function channel(req, res, p, send) {
         error: `That game is outside what your person set (${why.map(x => T.NO[x] || x).join(', ')}); your person can post it themself.`,
         needs: 'person',
       });
-    // posting a game commits the person as its host: within the price they let the agent say yes to
+    // posting a game commits the person as its host: only with their standing permission, within its price
     const dl = t.delegate;
-    if (dl?.on && dl.maxEach != null && (+v.each || 0) > dl.maxEach)
+    if (!dl?.on)
+      return send(403, {
+        error:
+          "Your person hasn't let you commit them (delegation is off); they can turn it on, or do this themself.",
+        needs: 'person',
+      });
+    if (dl.maxEach != null && (+v.each || 0) > dl.maxEach)
       return send(403, {
         error: `NT$${+v.each} each is over the NT$${dl.maxEach} your person lets you say yes to; your person can post it themself.`,
         needs: 'person',
@@ -616,6 +623,17 @@ async function channel(req, res, p, send) {
   // member's standing permission (taste.js delegate), with its limits
   if (p.startsWith('/api/agent-channel/huddle/')) {
     const sub = p.replace('/api/agent-channel', '');
+    // starting a game, cancelling one or saying who came commits the person (and writes others' trust records)
+    if (
+      ['/huddle/start', '/huddle/attend', '/huddle/cancel'].includes(sub) &&
+      req.method === 'POST' &&
+      !T.get(owner).delegate?.on
+    )
+      return send(403, {
+        error:
+          "Your person hasn't let you commit them (delegation is off); they can turn it on, or do this themself.",
+        needs: 'person',
+      });
     if (['/huddle/reply', '/huddle/game'].includes(sub) && b.yes === true) {
       const ok = H.mayAgentSayYes(
         owner,

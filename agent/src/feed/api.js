@@ -282,7 +282,8 @@ export async function handle(
         await R.answer(player, String(body.recap || ''), body.yes === true),
       );
     if (p === '/api/feed/recaps/check' && post)
-      return send(200, await R.tick({force: q('force') === '1'}));
+      // (force, the test hook that drafts recaps of games not played yet, is the maintainer's only)
+      return send(200, await R.tick({force: q('force') === '1' && maintainer}));
     // the maintainer's own: the queue of reports, an action on one item, the log of actions
     if (
       [

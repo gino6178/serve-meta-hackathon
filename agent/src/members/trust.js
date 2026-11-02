@@ -29,6 +29,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
+import {sha256Hex as sha} from '../core/crypt.js';
 
 const FILE = () => path.resolve(process.env.TRUST_FILE || 'data/trust.json');
 let db = null,
@@ -113,7 +114,6 @@ export const subject = id =>
     .update(`serve-trust:${id}`)
     .digest('hex')
     .slice(0, 16);
-const sha = s => crypto.createHash('sha256').update(s).digest('hex');
 export const hashOf = e =>
   sha(JSON.stringify([e.n, e.at, e.kind, e.who, e.d, e.prev]));
 // the gateway's signature on a head; tests pass their own signer

@@ -132,6 +132,12 @@ export async function make(
       p.stderr.on('data', c => {
         err = (err + c).slice(-4000);
       });
+      // a reel that hangs (a stalled GPU, a bad video) is stopped after REEL_TIMEOUT_S (900 s), so the next can run
+      const stop = setTimeout(
+        () => p.kill('SIGKILL'),
+        +(process.env.REEL_TIMEOUT_S || 900) * 1000,
+      );
+      p.on('close', () => clearTimeout(stop));
       p.on('error', bad);
       p.on('close', code =>
         code === 0

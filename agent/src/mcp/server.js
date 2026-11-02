@@ -253,9 +253,12 @@ export const SERVERS = {
 // MCP sessions: the person's Serve session for each, 24 hours, in memory only
 const sessions = new Map(),
   DAY = 864e5;
+// (bounded too: a session never signed in is dropped after an hour, and past 10,000 the oldest goes)
 const sweep = () => {
   const now = Date.now();
-  for (const [k, v] of sessions) if (now - v.at > DAY) sessions.delete(k);
+  for (const [k, v] of sessions)
+    if (now - v.at > (v.session ? DAY : DAY / 24)) sessions.delete(k);
+  while (sessions.size >= 10000) sessions.delete(sessions.keys().next().value);
 };
 
 const rpc = (id, result) => ({jsonrpc: '2.0', id, result});

@@ -57,7 +57,7 @@ import {ensureDemo} from '../match/records.js';
 import {memberById} from '../match/players.js';
 import {job, totals} from '../core/ledger.js';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
-import {authorized, loopback, required} from '../core/auth.js';
+import {authorized, fromThisMachine, required} from '../core/auth.js';
 import {crashPoint} from '../core/crash.js';
 import {span, within, agentAttrs} from '../core/trace.js';
 import {withPriority} from '../core/llm.js';
@@ -68,7 +68,7 @@ import * as ext from './ext.js';
 import * as V from '../venues/agent.js';
 import {venueById, idOfSlug, slugOf, knownVenues} from '../members/deals.js';
 
-const {toMin, hm, dateOf, readVenues, travelMin, DAYS} = helpers;
+const {toMin, hm, ymd, dateOf, readVenues, travelMin, DAYS} = helpers;
 const DATA = path.resolve(process.env.A2A_DATA || 'data');
 const atomic = writeJSON,
   load = readJSON;
@@ -187,12 +187,14 @@ const remember = (id, a) => {
 // a hold is only for a time this agent said works in that talk (its contextId), so another agent can't use holds to
 // block a member's week
 // (an answer saved before holds existed has no list: any time it answered about counts)
-const agreedIn = (ref, agent, date, start) =>
+// (and no longer than the game it answered about: a hold can't stretch a 90-minute yes into an evening)
+const agreedIn = (ref, agent, date, start, minutes) =>
   Object.values(answers).some(
     a =>
       a.contextId === ref &&
       a.agent === agent &&
-      (!a.oks || a.oks.includes(`${date} ${start}`)),
+      (!a.oks || a.oks.includes(`${date} ${start}`)) &&
+      (!a.minutes || (+minutes || 90) <= a.minutes),
   );
 const answeredIn = (ref, agent) =>
   Object.values(answers).some(a => a.contextId === ref && a.agent === agent);
@@ -402,7 +404,7 @@ class MemberExecutor {
             : p.action === 'book' && !caller
               ? {held: false, reason: 'this gateway books its own games'}
               : ['hold', 'book'].includes(p.action) &&
-                  !agreedIn(ref, m.id, p.date, p.start)
+                  !agreedIn(ref, m.id, p.date, p.start, p.minutes)
                 ? {
                     held: false,
                     reason: 'not a time this agent said works in that talk',
@@ -511,7 +513,8 @@ class MemberExecutor {
       // answered once: the same message gets the same answer, if it is the same proposal; a known id with other times
       // is refused (an old yes must not be read against new times)
       const fp = fingerprint(p),
-        mid = sc.id(msg.messageId),
+        // keyed by the agent too: one message id sent to two members is two answers
+        mid = `${m.id}|${sc.id(msg.messageId)}`,
         prior = answers[mid];
       if (prior && prior.agent === m.id) {
         if (prior.fp !== fp) {
@@ -547,6 +550,18 @@ class MemberExecutor {
       );
       settled = {mid, settle};
       this.running.set(ctx.taskId, ctx);
+      // a date that doesn't exist (2026-02-31) would roll over to another day in dateOf: refused, not read as March
+      const realDate = d => ymd(dateOf(d)) === d;
+      if (!p.choices.every(x => realDate(x.date))) {
+        bus.publish(
+          status(
+            ctx,
+            TaskState.TASK_STATE_FAILED,
+            'a date in the proposal does not exist',
+          ),
+        );
+        return;
+      }
       bus.publish(
         status(
           ctx,
@@ -648,7 +663,7 @@ class MemberExecutor {
         return;
       }
       // what the member's disclosure budget lets this asker learn (disclosure.js): a time over it is withheld
-      const j = budgeted(m, p.from || 'you', cur, choices, j0);
+      const j = budgeted(m, sc.from(p.from || 'you'), cur, choices, j0);
       // asked which times could work with a limit stretched (stretch.js, a second round): code marks them, no model
       const marks = p.stretch
         ? marksFor(m, choices, j.works || [], minutes, breaks, j.withheld || [])
@@ -674,6 +689,7 @@ class MemberExecutor {
       remember(mid, {
         agent: m.id,
         contextId: ref,
+        minutes,
         fp,
         when: cur.text,
         decision: data,
@@ -1052,12 +1068,10 @@ app.get(V.EXT_PATH, (req, res) => res.json(V.describeExt()));
 app.use('/a2a/venues/:slug', (req, res, next) => {
   const id = idOfSlug(req.params.slug);
   if (!id || !venueById(id))
-    return res
-      .status(404)
-      .json({
-        error:
-          "no such venue agent (a venue's agent appears once Serve has looked up courts near it: GET /a2a/venues)",
-      });
+    return res.status(404).json({
+      error:
+        "no such venue agent (a venue's agent appears once Serve has looked up courts near it: GET /a2a/venues)",
+    });
   venueRouterFor(id, rootFor(req))
     .then(r => r(req, res, next))
     .catch(() =>
@@ -1160,16 +1174,14 @@ app.use((req, res, next) => {
     if (e) return res.status(400).json(rpcError('not a JSON body', -32700));
     const now = OLD_METHODS[req.body?.method];
     if (now)
-      return res
-        .status(200)
-        .json({
-          jsonrpc: '2.0',
-          id: req.body.id ?? null,
-          error: {
-            code: -32601,
-            message: `This server speaks A2A 1.0: use "${now}" (not "${req.body.method}") with the header A2A-Version: 1.0. Message shapes and examples: /llms.txt`,
-          },
-        });
+      return res.status(200).json({
+        jsonrpc: '2.0',
+        id: req.body.id ?? null,
+        error: {
+          code: -32601,
+          message: `This server speaks A2A 1.0: use "${now}" (not "${req.body.method}") with the header A2A-Version: 1.0. Message shapes and examples: /llms.txt`,
+        },
+      });
     next();
   });
 });
@@ -1223,7 +1235,7 @@ app.use('/a2a/members/:id', (req, res, next) => {
   // carries an allow-listed peer gateway's signature (peer.js)
   if (req.method !== 'GET') {
     if (req.headers[peer.HEADER]) return fromPeer(m, req, res, next);
-    if (!loopback(req) && process.env.A2A_PUBLIC !== '1')
+    if (!fromThisMachine(req) && process.env.A2A_PUBLIC !== '1')
       return res
         .status(403)
         .json(rpcError('this agent answers requests from its own server only'));

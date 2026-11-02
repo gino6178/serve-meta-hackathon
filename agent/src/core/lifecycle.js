@@ -18,12 +18,13 @@
 // The gateway runs purge once a day (LIFECYCLE_HOURS, default 24; 0 turns it off), and a backup with it when
 // BACKUP_DIR is set.
 import fs from 'node:fs';
+import {execFile} from 'node:child_process';
 import path from 'node:path';
 import * as crypt from './crypt.js';
 import * as dp from './dp.js';
 import {readSealed, writeJSON, OPEN_STORE} from './jsonfile.js';
+import {DAY} from './time.js';
 
-const DAY = 864e5;
 const d = (env, def) => () => path.resolve(process.env[env] || def);
 // [store, file, class, retention in days (null: while a member; Infinity: kept), what it holds]
 export const STORES = [
@@ -64,7 +65,7 @@ export const STORES = [
   ],
   [
     'conversations',
-    d('CONV_FILE', 'data/conversations.json'),
+    d('CONV_DIR', 'data/conversations'),
     'personal',
     +(process.env.MEMORY_CONV_KEEP_DAYS || 90),
     'conversation memory, sealed per person',
@@ -175,8 +176,26 @@ const NEVER = rel =>
   );
 
 // what is on disk for a store: size, last write, sealed or not (from its first bytes; nothing is opened)
+// a folder (one file per person) counts its files, and is sealed when every file is
 function peek(file) {
   try {
+    if (fs.statSync(file).isDirectory()) {
+      const each = fs
+        .readdirSync(file)
+        .filter(f => f.endsWith('.json'))
+        .map(f => peek(path.join(file, f)))
+        .filter(Boolean);
+      return {
+        files: each.length,
+        bytes: each.reduce((a, x) => a + x.bytes, 0),
+        modified:
+          each
+            .map(x => x.modified)
+            .sort()
+            .at(-1) || null,
+        sealed: each.length > 0 && each.every(x => x.sealed),
+      };
+    }
     const st = fs.statSync(file),
       fd = fs.openSync(file, 'r'),
       b = Buffer.alloc(64);
@@ -276,7 +295,7 @@ export async function purge({now = Date.now(), people = []} = {}) {
   const conv = await import('../memory/conversation.js');
   const c = conv.sweep(now);
   for (const id of people) {
-    const r = conv.sweepOne(id, now);
+    const r = await conv.sweepOne(id, now);
     c.closed += r.closed;
     c.dropped += r.dropped;
   }
@@ -351,6 +370,26 @@ export function backup({now = Date.now(), dir = DIR()} = {}) {
     kid: env.kid,
   };
 }
+// the same backup in a process of its own, so reading and sealing the whole data folder never stalls the gateway
+export const backupInChild = () =>
+  new Promise(resolve =>
+    execFile(
+      process.execPath,
+      [
+        '--input-type=module',
+        '-e',
+        `const L = await import(${JSON.stringify(new URL(import.meta.url).href)}); process.stdout.write(JSON.stringify(L.backup()));`,
+      ],
+      {maxBuffer: 1 << 20, timeout: 10 * 60e3},
+      (err, out) => {
+        try {
+          resolve(JSON.parse(out));
+        } catch {
+          resolve({error: String(err?.message || 'the backup did not finish')});
+        }
+      },
+    ),
+  );
 // a backup opened into a folder of its own (never over the live data): for a restore drill, or a restore by hand
 export function restore(file, to) {
   const j = JSON.parse(fs.readFileSync(file, 'utf8')),

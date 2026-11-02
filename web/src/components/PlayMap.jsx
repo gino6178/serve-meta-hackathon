@@ -1,17 +1,10 @@
 import {useWidth} from '../hooks.js';
+import {first, initials} from '../text.js';
 
 // The club map, drawn here: no map tiles from anywhere, so it works offline and nobody's area leaves the app.
 // It follows the agent's steps: the town and the venues, then everyone's home area (an area, never an address), the
 // venues with a court free, and finally the venue in the middle with each person's trip to it.
 const S = 100; // px of viewBox per km
-const initials = n =>
-  n
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-const first = n => n.split(' ')[0];
 const smooth = pts =>
   pts
     .map(([x, y], i) => {

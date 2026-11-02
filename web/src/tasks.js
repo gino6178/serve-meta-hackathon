@@ -17,6 +17,7 @@ import {postToClub} from './club/share.js';
 import {prefersReducedMotion} from './hooks.js';
 import {myPlace, knownPlace} from './where.js';
 import {sayCheck} from './components/Safety.jsx';
+import {first} from './text.js';
 
 // The agent's jobs. Everything the agent does for the player is a task: what was asked, the trail of steps as each one
 // finishes (streamed from the gateway), and where it stands: running, needs you (a choice to make), done or failed.
@@ -24,7 +25,6 @@ import {sayCheck} from './components/Safety.jsx';
 // answers is followed again after a reload.
 const KEY = 'serve.tasks.v1';
 const wait = ms => new Promise(r => setTimeout(r, ms));
-const first = n => n.split(' ')[0];
 const subs = new Set();
 let list = (() => {
   try {

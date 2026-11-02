@@ -4,19 +4,12 @@ import Mark from '../components/Mark.jsx';
 import {useTasks} from '../tasks.js';
 import {agentFace} from '../club/faces.js';
 import './chats.css';
+import {first, initials} from '../text.js';
 
 // Agent chats: every conversation your agent had with other members' agents, the way Messenger shows a chat. Your agent
 // on the right, theirs on the left, round by round, each message with what it meant (proposes, agrees, a counter-offer,
 // declines) and whether code checked it against everyone's calendar. Nothing here is a summary: these are the messages
 // the agents sent each other over A2A, as the jobs streamed them in.
-const initials = (n = '') =>
-  n
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-const first = (n = '') => n.split(' ')[0];
 const INTENT = {
   propose: 'Proposes',
   counter: 'Counter-offer',

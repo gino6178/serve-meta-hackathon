@@ -24,6 +24,7 @@ import crypto from 'node:crypto';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
 import {checkToken, kidOf, HEADER} from '../a2a/peer.js';
 import {badSignature} from './trust.js';
+import {sha256Hex as hash} from '../core/crypt.js';
 
 const FILE = () =>
   path.resolve(process.env.MEMBERS_FILE || 'data/members.json');
@@ -38,7 +39,6 @@ export const reset = () => {
   db = {members: {}, log: []};
   save();
 };
-const hash = s => crypto.createHash('sha256').update(String(s)).digest('hex');
 
 // ---- this gateway's session key -------------------------------------------------------------------------------------
 let secret = null;
@@ -401,8 +401,10 @@ export function checkAgent(req, body, p, now = Date.now()) {
       const m = Object.values(data().members).find(
         x => x.kind === 'agent' && x.kid === kid,
       );
-      if (m?.owner && m.worked && ['replay', 'bad-signature'].includes(r.why))
+      // only a replay counts: a bad signature can be sent by anyone who knows the key id, so it proves nothing
+      if (m?.owner && m.worked && r.why === 'replay')
         badSignature(m.owner, r.why);
+      if (m?.owner) r.owner = m.owner;
     } catch {
       /* not a token we can read */
     }
@@ -420,12 +422,18 @@ export function checkAgent(req, body, p, now = Date.now()) {
   } // from now on, failed checks with this key count against the agent
   return {ok: true, agent: m};
 }
+// a refusal is kept in memory with the store and written with its next save: an unsigned flood can't turn into a
+// disk write each
 function logged(r, p) {
   data().log = [
     ...(data().log || []),
-    {at: Date.now(), path: p, why: r.why},
+    {at: Date.now(), path: p, why: r.why, ...(r.owner ? {owner: r.owner} : {})},
   ].slice(-200);
-  save();
   return r;
 }
-export const refusals = (n = 20) => (data().log || []).slice(-n).reverse();
+// the refusals of one member's own agents (all of them, for the tests and the maintainer, when no owner is given)
+export const refusals = (owner, n = 20) =>
+  (data().log || [])
+    .filter(x => owner == null || x.owner === owner)
+    .slice(-n)
+    .reverse();

@@ -25,17 +25,9 @@ import {state as estimates} from './likely.js';
 import {store as records} from './records.js';
 import {rankMembers} from './rank.js';
 import {ledger, said} from './ask.js';
+import {LONG} from '../core/time.js';
 
 const {windows, ymd, hm, toMin, dateOf, readVenues, DAYS} = helpers;
-const LONG = {
-  Mon: 'Monday',
-  Tue: 'Tuesday',
-  Wed: 'Wednesday',
-  Thu: 'Thursday',
-  Fri: 'Friday',
-  Sat: 'Saturday',
-  Sun: 'Sunday',
-};
 
 // a message that asks for a game, in English or Chinese ("I want to play", "anyone for doubles Thursday?", "想打球")
 const PLAY = [
@@ -427,15 +419,13 @@ async function talkThrough({
     talks,
     par,
     turnedAway: away,
-    ordered: ordered
-      .slice(0, 8)
-      .map(c => ({
-        id: c.m.id,
-        name: c.m.name,
-        band: c.band,
-        ...(c.p != null ? {p: c.p} : {}),
-        probed: c.probed,
-      })),
+    ordered: ordered.slice(0, 8).map(c => ({
+      id: c.m.id,
+      name: c.m.name,
+      band: c.band,
+      ...(c.p != null ? {p: c.p} : {}),
+      probed: c.probed,
+    })),
     times: cp.times,
     seconds: +((Date.now() - t0) / 1000).toFixed(1),
     by: it.by,
@@ -518,13 +508,11 @@ async function talkThrough({
       process.env.MATCH_VOI === 'off'
         ? null
         : voi.bestQuestion({
-            members: ordered
-              .slice(0, 12)
-              .map(c => ({
-                id: c.m.id,
-                chance: voi.chanceOf(c),
-                mem: memoryOf(c.m.id),
-              })),
+            members: ordered.slice(0, 12).map(c => ({
+              id: c.m.id,
+              chance: voi.chanceOf(c),
+              mem: memoryOf(c.m.id),
+            })),
             slots: cp.slots || [],
             prior,
             tried: new Set(

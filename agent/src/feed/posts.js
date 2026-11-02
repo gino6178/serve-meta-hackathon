@@ -1495,6 +1495,14 @@ export function notify(player, kind, text, extra = {}) {
 function visible(p, viewer) {
   const mine = p.by.player === viewer || p.by.agentOf === viewer;
   if ((p.held || p.hidden) && !mine) return false;
+  // a private club's post is its members' only, by every route (a post, its media, a comment, a like)
+  if (
+    p.room &&
+    !mine &&
+    clubOf(p.room)?.privacy === 'private' &&
+    !clubOf(p.room).members.some(m => m.id === viewer)
+  )
+    return false;
   if ((p.hiddenFor || []).includes(viewer)) return false;
   // a paper beyond the week's number for this viewer (a canary's extra) is not shown to them
   if (p.kind === 'paper' && p.rank > perWeekFor(viewer)) return false;

@@ -6,6 +6,7 @@ import {shareLinks, postToClub} from '../club/share.js';
 import {week, challenge} from '../club/week.js';
 import './club.css';
 import './goals.css';
+import {first, initials, plural} from '../text.js';
 
 // Goals: this week, the social way. How many games you play against your own goal, the weeks in a row you have
 // played, the club's challenge that every member's games count towards, and bringing someone new to the club. All of
@@ -19,15 +20,6 @@ const DAY = {
   Sat: 'Saturday',
   Sun: 'Sunday',
 };
-const first = n => n.split(' ')[0];
-const initials = n =>
-  n
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 export default function Goals({club}) {
   const tasks = useTasks();

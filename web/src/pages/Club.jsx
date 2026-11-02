@@ -12,19 +12,12 @@ import Ideas from '../loop/Ideas.jsx';
 import Feed from '../club/Feed.jsx';
 import './club.css';
 import './agent.css';
+import {first, initials} from '../text.js';
 
 // The club: the feed (what members post, open games to join, a challenge to take up) beside the top of the table and
 // what the club sees of you; the leaderboard; the challenges (best match, random match, challenges for you, results
 // that move the club rating; see Arena.jsx); and the ideas members share to make Serve better (loop/Ideas.jsx).
 // Your posts and results live in this browser; the club only sees what you share. Goals is a page of its own.
-const initials = name =>
-  name
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-const first = name => name.split(' ')[0];
 const hurt = texts =>
   texts.some(
     t =>

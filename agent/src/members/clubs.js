@@ -11,6 +11,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
 import * as G from './programs.js';
+import {km} from '../core/geo.js';
 
 const FILE = () => path.resolve(process.env.CLUBS_FILE || 'data/clubs.json');
 let db = null;
@@ -34,15 +35,6 @@ const tidy = (s, n) =>
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, n);
-const rad = d => (d * Math.PI) / 180;
-const km = (a, b) => {
-  const h =
-    Math.sin(rad(b.lat - a.lat) / 2) ** 2 +
-    Math.cos(rad(a.lat)) *
-      Math.cos(rad(b.lat)) *
-      Math.sin(rad(b.lon - a.lon) / 2) ** 2;
-  return 12742 * Math.asin(Math.sqrt(h));
-};
 const pointOf = x => {
   if (x?.lat == null || x?.lon == null || x.lat === '' || x.lon === '')
     return null;
@@ -88,11 +80,19 @@ function programView(c, viewer, inIt) {
       entrants: es.length,
       pledged: es.reduce((n, e) => n + e.pledge, 0),
       ...(me ? {entry: {level: me.level, pledge: me.pledge}} : {}),
-      ...(g.draw ? {draw: g.draw} : {}),
+      // the draw names the entrants: their first names, and to the club's members only
+      ...(g.draw && inIt ? {draw: firstNames(g.draw)} : {}),
     };
   }
   return {kind};
 }
+// a draw with each player's first name only (the draw is kept with full names for the organiser's own records)
+const firstNames = draw =>
+  JSON.parse(JSON.stringify(draw), (k, v) =>
+    (k === 'players' || k === 'waiting') && Array.isArray(v)
+      ? v.map(n => String(n || '').split(' ')[0])
+      : v,
+  );
 // a club as a member sees it
 export function view(c, viewer, from = null) {
   const inIt = c.members.some(m => m.id === viewer),
@@ -381,6 +381,9 @@ export function enter(member, id, b) {
   const c = find(id);
   if (!c || c.kind !== 'charity')
     return {error: 'Not a charity tournament.', code: 400};
+  // a private club's tournament is entered by its members: entering is not a way past the organiser's yes
+  if (c.privacy === 'private' && !c.members.some(m => m.id === member.id))
+    return {error: 'This club is private: ask to join it first.', code: 403};
   if (c.program.draw)
     return {error: 'The draw is made: entries are closed.', code: 409};
   c.program.entrants = (c.program.entrants || []).filter(

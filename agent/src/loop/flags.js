@@ -27,6 +27,7 @@ import {fileURLToPath} from 'node:url';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
 import * as anytime from './anytime.js';
 import {toMin} from '../core/time.js';
+import {DAY} from '../core/time.js';
 
 export const CANARY = 0.2,
   CANARY_DAYS = 7,
@@ -37,7 +38,6 @@ export const CANARY = 0.2,
   GUARD_MARGIN = 0.02,
   WATCH_AFTER_DAYS = 7;
 export const STATUSES = ['off', 'canary', 'on', 'rolledBack'];
-const DAY = 864e5;
 
 // ---- where things are ----------------------------------------------------------------------------------------
 const dir = () => path.resolve(process.env.LOOP_DIR || 'data/loop');
@@ -130,8 +130,17 @@ function secret() {
 }
 const hmac = text =>
   crypto.createHmac('sha256', secret()).update(String(text)).digest();
+// (the same HMAC signals.js makes, with LOOP_SECRET first when it is set, so a member's id never changes once
+// signals.js has loaded)
+const envSecret = () => process.env.LOOP_SECRET || '';
 export const whoOf = player =>
-  (deps.signals || signalsNow)?.whoOf?.(player) ?? hmac(player).toString('hex');
+  (deps.signals || signalsNow)?.whoOf?.(player) ??
+  (envSecret()
+    ? crypto
+        .createHmac('sha256', envSecret())
+        .update(String(player))
+        .digest('hex')
+    : hmac(player).toString('hex'));
 export function use(over = {}) {
   if (over.reset) {
     for (const k of Object.keys(deps)) deps[k] = null;

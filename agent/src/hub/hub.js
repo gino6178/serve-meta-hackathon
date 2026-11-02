@@ -36,7 +36,7 @@ const ok = (agent, sig) =>
   agent.length <= 120 &&
   !!SECRET &&
   !!sig &&
-  sig.length === 22 &&
+  Buffer.byteLength(sig) === 22 &&
   crypto.timingSafeEqual(Buffer.from(sigOf(agent, SECRET)), Buffer.from(sig));
 
 if (cluster.isPrimary) {

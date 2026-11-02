@@ -116,12 +116,22 @@ const stream = async (res, origin, run) => {
   }
   res.end();
 };
-const rawOf = req =>
-  new Promise(ok => {
-    let b = '';
-    req.on('data', c => (b += c));
-    req.on('end', () => ok(b));
+// a body is read up to a cap (BODY_MAX, 8 MB), past which reading stops: a huge POST can't fill the memory
+const BODY_MAX = +(process.env.BODY_MAX || 8e6);
+const capped = (req, max, done) => {
+  let b = '',
+    n = 0;
+  req.on('data', c => {
+    n += c.length;
+    if (n > max) {
+      req.destroy();
+      return done(null);
+    }
+    b += c;
   });
+  req.on('end', () => done(b));
+};
+const rawOf = req => new Promise(ok => capped(req, 1e6, b => ok(b ?? '')));
 // a raw body up to a size, or null when it is bigger
 const rawBytes = (req, max) =>
   new Promise(ok => {
@@ -137,9 +147,7 @@ const rawBytes = (req, max) =>
   });
 const bodyOf = req =>
   new Promise(ok => {
-    let b = '';
-    req.on('data', c => (b += c));
-    req.on('end', () => {
+    capped(req, BODY_MAX, b => {
       try {
         const j = JSON.parse(b || '{}');
         ok(j && typeof j === 'object' && !Array.isArray(j) ? j : {});
@@ -807,11 +815,13 @@ async function weatherTick(now = new Date(), force = false) {
         e.date,
         e.start,
       );
+      // no forecast (a timeout, a missing hour): not marked checked, so the next tick asks again
+      if (!w) continue;
       store.update(p.id, q => {
         const x = q.events.find(y => y.id === e.id);
-        if (x) x.weather = {...(w || {}), at: Date.now()};
+        if (x) x.weather = {...w, at: Date.now()};
       });
-      if (!w || w.rain < WET) continue;
+      if (w.rain < WET) continue;
       const venues = play.helpers.readVenues(),
         club0 = club.readClub(),
         d = new Date(`${e.date}T12:00`);
@@ -1058,7 +1068,10 @@ async function dataLifecycle() {
   const purged = await lifecycle.purge({
     people: ['app', ...store.players().map(p => p.id)],
   });
-  return {purged, backup: process.env.BACKUP_DIR ? lifecycle.backup() : null};
+  return {
+    purged,
+    backup: process.env.BACKUP_DIR ? await lifecycle.backupInChild() : null,
+  };
 }
 if (+(process.env.LIFECYCLE_HOURS ?? 24) > 0)
   setTimeout(() => {
@@ -1405,8 +1418,10 @@ const gateway = http
             (await routerMod.isPlay(t)))
         )
           return json(res, 200, {play: true}, o);
-        // a signed-in member: their own coming games (posted, joined, waited for), not the demo club's
+        // a signed-in member: their own coming games (posted, joined, waited for), not the demo club's; and whose
+        // conversation memory it is, set here and never taken from the body
         const mem = membersApi.member(req);
+        b.who = mem ? `member:${mem.id}` : 'app';
         if (mem) {
           const H = await import('./members/huddle.js');
           b.you = {
@@ -1974,13 +1989,20 @@ liveVoice.attach(gateway, {
       return false;
     const t = u.searchParams.get('auth'),
       sess = u.searchParams.get('session');
-    if (t) return auth.authorized({headers: {authorization: `Bearer ${t}`}});
-    return !!(sess && membersApi.member({headers: {'x-serve-session': sess}}));
+    // who is talking, for the conversation memory: the owner ('app') or member:<id>; false refuses
+    // (with no AGENT_TOKEN any ?auth= passes authorized(), so the owner's voice is this machine's only, as on HTTP)
+    if (t)
+      return auth.authorized({headers: {authorization: `Bearer ${t}`}}) &&
+        auth.openTo(req)
+        ? 'app'
+        : false;
+    const mem = sess && membersApi.member({headers: {'x-serve-session': sess}});
+    return mem ? `member:${mem.id}` : false;
   },
   // the same answer as the app's typed questions: Llama Guard on what was said and on the reply, every number checked
   answer: async (text, ctx) => {
     const r = await webapi.answer(
-      {text, you: ctx.app || {}},
+      {text, you: ctx.app || {}, who: ctx.who},
       agentAnswer.answer,
     );
     return {text: r.text, checked: !!r.verified?.ok};

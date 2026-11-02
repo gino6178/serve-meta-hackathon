@@ -3,8 +3,8 @@
 // else goes to your agent (ask: true), which answers on Muse Glimmer.
 import {week, challenge} from '../club/week.js';
 import {ratings} from '../club/arena.js';
+import {plural} from '../text.js';
 
-const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 const DAY = {
   Mon: 'Monday',
   Tue: 'Tuesday',

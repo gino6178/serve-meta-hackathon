@@ -55,6 +55,8 @@ import {privateFor} from '../safety/privacy.js';
 import * as gate from '../match/gate.js';
 import * as prefs from '../memory/prefs.js';
 import * as prefsOf from '../memory/prefs_of.js';
+import {DAY, LONG, monday} from '../core/time.js';
+import {expect} from '../club/skill.js';
 
 const {
   windows,
@@ -70,7 +72,6 @@ const FILE = path.resolve(process.env.ASK_FILE || 'data/asks.json');
 let db = readJSON(FILE, {asks: {}, snooze: {}});
 db.trial ||= [];
 const save = () => writeJSON(FILE, db);
-const DAY = 24 * 36e5;
 // a talk cut off by a restart is picked up only if it stopped less than RESUME_MAX_MIN minutes ago (30) and its time
 // is still ahead; an older one ends, and nothing is booked
 const RESUME_MAX = () => +(process.env.RESUME_MAX_MIN || 30) * 60000;
@@ -81,22 +82,6 @@ const startOf = o => {
   return d.getTime();
 };
 export const passed = (o, now = Date.now()) => startOf(o) <= now;
-const LONG = {
-  Mon: 'Monday',
-  Tue: 'Tuesday',
-  Wed: 'Wednesday',
-  Thu: 'Thursday',
-  Fri: 'Friday',
-  Sat: 'Saturday',
-  Sun: 'Sunday',
-};
-const expect = (a, b) => 1 / (1 + 10 ** ((b - a) / 400));
-const monday = now => {
-  const d = new Date(now);
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return d;
-};
 const names = ps =>
   ps
     .map(p => first(p.name))

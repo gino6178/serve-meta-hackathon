@@ -31,8 +31,18 @@ export const verifyQuote = (q, key) =>
 // the venue agent's answer to one ask: the rule's price, signed. A last quote that isn't its own, unchanged, is ignored.
 export function answer(place, ask) {
   const key = quoteKey(place),
+    // (and for this same ask: a cheap quote signed for a quiet hour can't be replayed into a peak one)
+    same = q =>
+      q.date === ask.date &&
+      q.start === ask.start &&
+      q.minutes === (ask.minutes || 90) &&
+      q.players === (ask.players || 4) &&
+      !!q.weekly === !!ask.weekly,
     mine =
-      ask.last && ask.last.venue === place.id && verifyQuote(ask.last, key)
+      ask.last &&
+      ask.last.venue === place.id &&
+      same(ask.last) &&
+      verifyQuote(ask.last, key)
         ? ask.last.price
         : null;
   const r = D.venueRule(place, {

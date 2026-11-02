@@ -21,14 +21,10 @@ import {VENUE_NOTES} from '../core/schema.js';
 import {okNums, allowedIn} from '../a2a/talk.js';
 import * as VN from './notes.js';
 import * as dp from '../core/dp.js';
+import {norm} from '../club/places.js';
 
 const C = D.CURRENCY,
   HOUR = 3600e3;
-const norm = t =>
-  String(t)
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, ' ')
-    .trim();
 const median = xs => {
   const s = [...xs].sort((a, b) => a - b),
     m = s.length >> 1;
@@ -151,12 +147,24 @@ export function pricesOf(place, {now = new Date()} = {}) {
 export function pastOf(games, place = '') {
   const paid = games.filter(g => g.price > 0 && g.state !== 'called off'),
     count = (n, what) => dp.noisyCount(n, `venue-past|${place}|${what}`);
+  // each count noised, then made consistent (played and called off never more than agreed): post-processing keeps
+  // the privacy; the thresholds read the noisy counts
+  const agreed = count(games.length, 'agreed'),
+    played = Math.min(
+      agreed,
+      count(games.filter(g => g.state === 'played').length, 'played'),
+    ),
+    calledOff = Math.min(
+      agreed - played,
+      count(games.filter(g => g.state === 'called off').length, 'off'),
+    );
   return {
-    games: dp.enough(games.length) ? games.slice(0, 6) : [],
-    agreed: count(games.length, 'agreed'),
-    played: count(games.filter(g => g.state === 'played').length, 'played'),
-    calledOff: count(games.filter(g => g.state === 'called off').length, 'off'),
-    ...(paid.length && dp.enough(paid.length)
+    // the rows themselves are exact (dates, prices, players), so with DP on they are never listed, only counted
+    games: dp.on() ? [] : games.slice(0, 6),
+    agreed,
+    played,
+    calledOff,
+    ...(paid.length && dp.enough(count(paid.length, 'paid'))
       ? {
           low: Math.min(...paid.map(g => g.price)),
           high: Math.max(...paid.map(g => g.price)),

@@ -14,20 +14,13 @@ import {bodyInput, seedBody} from '../club/body.js';
 import TraceView from '../components/TraceView.jsx';
 import TalkFacts, {Calendars} from '../components/TalkFacts.jsx';
 import './autopilot.css';
+import {first, initials} from '../text.js';
 
 // Autopilot: your agent keeps you playing. It learns when you usually play and who you play best with (games that run
 // past the booking), and against your weekly goal it runs the week by itself on Muse Glimmer: it checks what is booked,
 // picks your usual times that are still open, ranks partners, negotiates with their agents (all three at once for
 // doubles), re-plans when someone counters or declines, and asks you once before anything is booked. Every step shows
 // which tool ran, who decided (the model or, if it stalled, the rules), and why.
-const initials = n =>
-  n
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-const first = n => n.split(' ')[0];
 const DAY = {
   Mon: 'Monday',
   Tue: 'Tuesday',

@@ -2,13 +2,13 @@ import {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import Icon from '../components/Icon.jsx';
 import {agentFetch} from '../agent.js';
+import {first} from '../text.js';
 
 // A matchup poster for a challenge: the art is made once on your server with Meta's Muse Image (agent media/poster.js,
 // two of the club's mascots facing off, no words in it), and the words are drawn here from the challenge itself: who,
 // the sport, when, the stake. Share it to Instagram or Facebook from the phone's share sheet, or save it.
 const W = 1080,
   H = 1350;
-const first = (n = '') => n.split(' ')[0];
 
 export default function Poster({c, from, club, sport = 'badminton', onClose}) {
   const canvas = useRef(null),

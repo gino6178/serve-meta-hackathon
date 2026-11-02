@@ -20,18 +20,9 @@ import crypto from 'node:crypto';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
 import * as prefs from '../memory/prefs.js';
 import {first} from '../core/time.js';
+import {DAY, LONG} from '../core/time.js';
 
 export const MAX_ROUNDS = 3; // searches after the first, per request
-const DAY = 864e5;
-const LONG = {
-  Sun: 'Sunday',
-  Mon: 'Monday',
-  Tue: 'Tuesday',
-  Wed: 'Wednesday',
-  Thu: 'Thursday',
-  Fri: 'Friday',
-  Sat: 'Saturday',
-};
 const ZH_DAY = {
   日: 'Sun',
   天: 'Sun',
@@ -238,7 +229,10 @@ export function createConfirm(deps) {
     P.status = 'booked';
     sync(P);
     save();
-    const b = await deps.book(P.by, P.option);
+    // a book that throws is a failed booking too: the ask never stays "booked" with nothing booked
+    const b = await Promise.resolve()
+      .then(() => deps.book(P.by, P.option))
+      .catch(e => ({error: String(e?.message || e)}));
     if (b?.error) {
       P.status = 'off';
       save();

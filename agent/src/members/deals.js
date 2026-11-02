@@ -282,7 +282,8 @@ export function venueRule(
     };
   if (offer != null && offer >= floor)
     return {...base, price: offer, accept: true, final: true};
-  const prev = last ?? round10(list * (0.9 + 0.08 * t.busy)),
+  // a last quote never takes the price under the floor
+  const prev = Math.max(floor, last ?? round10(list * (0.9 + 0.08 * t.busy))),
     price =
       offer == null
         ? prev

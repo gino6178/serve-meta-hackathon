@@ -6,10 +6,10 @@ import {feedApi} from '../club/feedApi.js';
 import {pendingInvite} from '../invite.js';
 import {Join} from './Social.jsx';
 import './invite.css';
+import {cap} from '../text.js';
 
 // #/invite?id=...: a game someone shared as a link. Anyone sees the game and the spots left (never who is going);
 // signing in joins it, also after a Facebook or Instagram login that left the page (pendingInvite).
-const cap = (s = '') => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function InviteLink() {
   const id =

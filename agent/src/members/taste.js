@@ -14,6 +14,10 @@ import path from 'node:path';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
 import * as prefs from '../memory/prefs.js';
 import {ymd, DAYS} from '../core/time.js';
+import {LONG, dateOf} from '../core/time.js';
+import {km} from '../core/geo.js';
+export {km};
+export {dateOf};
 export {ymd, DAYS};
 
 const FILE = () => path.resolve(process.env.TASTE_FILE || 'data/taste.json');
@@ -41,22 +45,9 @@ export const NO = {
   quiet: 'too busy then',
   busy: 'busy then',
 };
-const LONG = {
-  Sun: 'Sunday',
-  Mon: 'Monday',
-  Tue: 'Tuesday',
-  Wed: 'Wednesday',
-  Thu: 'Thursday',
-  Fri: 'Friday',
-  Sat: 'Saturday',
-};
 export const PARTS = ['early', 'morning', 'afternoon', 'evening'];
 export const SURE_AT = 5; // answers before the agent answers for its member in a negotiation without asking
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-export const dateOf = s => {
-  const [y, m, d] = String(s).split('-').map(Number);
-  return new Date(y, m - 1, d);
-};
 export const partOf = start => {
   const h = +String(start).slice(0, 2);
   return h < 9
@@ -80,15 +71,6 @@ export const cellWords = cell => {
 export const cellWord = cell => {
   const [d, p] = cell.split(' ');
   return p === 'early' ? `${LONG[d]} before 9` : `${LONG[d]} ${p}`;
-};
-const rad = d => (d * Math.PI) / 180;
-export const km = (a, b) => {
-  const h =
-    Math.sin(rad(b.lat - a.lat) / 2) ** 2 +
-    Math.cos(rad(a.lat)) *
-      Math.cos(rad(b.lat)) *
-      Math.sin(rad(b.lon - a.lon) / 2) ** 2;
-  return 12742 * Math.asin(Math.sqrt(h));
 };
 
 const blank = () => ({

@@ -33,8 +33,23 @@ export function clientOf(req) {
       ? String(req.headers['cf-connecting-ip']).trim()
       : peer;
   ip = ip.replace(/^::ffff:/, '');
-  if (ip.includes(':')) ip = ip.split(':').slice(0, 4).join(':') + '::/64';
+  if (ip.includes(':')) ip = prefix64(ip);
   return ip;
+}
+// an IPv6 address's /64, from its full form: "2001:db8::a:b:c:d" is 2001:0:db8:0 written short, never "2001:db8::a"
+function prefix64(ip) {
+  const [head, tail = ''] = ip.split('%')[0].split('::'),
+    h = head ? head.split(':') : [],
+    t = ip.includes('::') && tail ? tail.split(':') : [],
+    full = ip.includes('::')
+      ? [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill('0'), ...t]
+      : h;
+  return (
+    full
+      .slice(0, 4)
+      .map(g => (parseInt(g, 16) || 0).toString(16))
+      .join(':') + '::/64'
+  );
 }
 
 // the requests that start model work (a talk, the agent's answer, a court search, a report, a voice note, a post)

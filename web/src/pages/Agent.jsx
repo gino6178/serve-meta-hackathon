@@ -24,20 +24,13 @@ import ForYou from '../components/ForYou.jsx';
 import {SESSION_KEY} from '../agent.js';
 import './clubs.css';
 import './agent.css';
+import {first, initials} from '../text.js';
 
 // The agent home, the way Muse is laid out: say what you want, and every job the agent takes on shows up as a card
 // with its steps, running in the background and checking back when it needs you. Above it, stories from the club.
 // Your agent has three helpers, each with what it is on right now: Body keeps the body log, Match watches your usual
 // times and asks "want a game?" (its question is the first card that needs you), Talk agrees games with the other
 // players' agents.
-const initials = n =>
-  n
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-const first = n => n.split(' ')[0];
 const hello = () => {
   const h = new Date().getHours();
   return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';

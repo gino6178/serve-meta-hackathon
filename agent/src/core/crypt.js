@@ -78,9 +78,14 @@ export function sealWith(key, value, aad) {
   };
 }
 export function openWith(key, env, aad) {
-  const d = crypto.createDecipheriv('aes-256-gcm', key, unb64(env.iv));
+  // the full 16-byte tag only: Node would take a tag as short as 4 bytes, which is far easier to forge
+  const tag = unb64(env.tag);
+  if (tag.length !== 16) throw new Error('a sealed value needs a 16-byte tag');
+  const d = crypto.createDecipheriv('aes-256-gcm', key, unb64(env.iv), {
+    authTagLength: 16,
+  });
   d.setAAD(Buffer.from(String(aad)));
-  d.setAuthTag(unb64(env.tag));
+  d.setAuthTag(tag);
   return JSON.parse(
     Buffer.concat([d.update(unb64(env.ct)), d.final()]).toString('utf8'),
   );
@@ -96,13 +101,19 @@ let ring = null,
   ringFrom = null;
 function keyring() {
   if (ring && ringFrom === RING()) return ring;
-  ringFrom = RING();
+  // only a missing keyring starts empty: one that can't be read or opened (a wrong master key, a half-written file)
+  // throws, since saving an empty ring over it would shred every person's key at once
+  let text;
   try {
-    const j = JSON.parse(fs.readFileSync(RING(), 'utf8'));
-    ring = sealed(j) ? open(j, 'keyring') : j;
-  } catch {
-    ring = {};
+    text = fs.readFileSync(RING(), 'utf8');
+  } catch (e) {
+    if (e.code !== 'ENOENT') throw e;
+    ringFrom = RING();
+    return (ring = {});
   }
+  const j = JSON.parse(text);
+  ring = sealed(j) ? open(j, 'keyring') : j;
+  ringFrom = RING();
   return ring;
 }
 const saveRing = () => {
@@ -134,3 +145,6 @@ export function shred(id) {
   return true;
 }
 export const keyringSize = () => Object.keys(keyring()).length;
+// a SHA-256 as hex, for ids and fingerprints (not a key)
+export const sha256Hex = s =>
+  crypto.createHash('sha256').update(String(s)).digest('hex');

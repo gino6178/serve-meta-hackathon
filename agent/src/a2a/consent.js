@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import {sha256Hex as sha} from '../core/crypt.js';
 
 const DIR = () => path.resolve(process.env.AGENT_KEYS_DIR || 'data/agent_keys');
 const b64u = b => Buffer.from(b).toString('base64url');
@@ -121,7 +122,6 @@ const LOG = () =>
     process.env.CONSENT_LOG || path.join(path.dirname(DIR()), 'consent.jsonl'),
   );
 export const GENESIS = '0'.repeat(64);
-const sha = s => crypto.createHash('sha256').update(s).digest('hex');
 // JSON with its keys sorted all the way down, so one game always reads the same
 export const stable = x =>
   Array.isArray(x)

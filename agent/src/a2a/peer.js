@@ -704,12 +704,9 @@ export async function checkAnswer(p, res, jti) {
 export function createSeen(file = null, cap = 50000) {
   let v = file ? readJSON(file, {}) : {},
     timer = null;
+  // written at once: a nonce accepted and then lost in a crash could be replayed after the restart
   const save = () => {
-    if (file && !timer)
-      timer = setTimeout(() => {
-        timer = null;
-        writeJSON(file, v);
-      }, 50);
+    if (file) writeJSON(file, v);
   };
   return {
     has: (n, now = Date.now()) => (v[n] || 0) > now,

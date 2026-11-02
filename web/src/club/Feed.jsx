@@ -20,8 +20,8 @@ import {
 import {ShareSheet, ReportSheet} from './FeedSheets.jsx';
 import {shareInvite} from '../invite.js';
 import './feed.css';
+import {first} from '../text.js';
 
-const first = (n = '') => n.split(' ')[0];
 // room: a club members started (its own posts and games); without it, the feed everyone shares
 export default function Feed({
   club,

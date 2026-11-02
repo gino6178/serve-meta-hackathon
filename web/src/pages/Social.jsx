@@ -19,6 +19,7 @@ import {
 import {useReducedMotion} from '../hooks.js';
 import RealMap from '../components/RealMap.jsx';
 import './social.css';
+import {initials} from '../text.js';
 const memberNow = () => {
   try {
     return !!localStorage.getItem('serve.session');
@@ -48,13 +49,6 @@ const TABS = [
   ['know', 'Sports science', ['paper']],
   ['hl', 'Highlights', ['highlight', 'recap']],
 ];
-const initials = (n = '') =>
-  n
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
 const PROV = {
   facebook: 'Facebook',
   instagram: 'Instagram',

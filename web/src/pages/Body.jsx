@@ -16,6 +16,7 @@ import {
 import {autopilotInput} from '../tasks.js';
 import {go} from '../App.jsx';
 import './body.css';
+import {cap} from '../text.js';
 
 // Body: you tell your agent what hurts or how you feel (here, in Messenger or as a voice note) and it keeps your words. Your health app's
 // export (Apple Health, Google Fit, or a GPX, TCX or CSV from any app) fills in your workouts, routes, heart rate and
@@ -41,7 +42,6 @@ const ACT = {
 const SPORTS = ['badminton', 'running', 'tennis', 'pickleball', 'basketball']; // fixed colour slots, by sport
 const colorOf = s =>
   SPORTS.includes(s) ? `var(--vz-${SPORTS.indexOf(s) + 1})` : 'var(--vz-other)';
-const cap = s => s[0].toUpperCase() + s.slice(1);
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const day = iso => new Date(iso.length > 10 ? iso : `${iso}T12:00:00`);
 const short = iso => {

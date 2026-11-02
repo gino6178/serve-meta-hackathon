@@ -18,6 +18,7 @@ import {go} from '../App.jsx';
 import './club.css';
 import './agent.css';
 import './play.css';
+import {first, initials} from '../text.js';
 
 // Play: say you want to play and the agent does the tedious part, in the open: it reads the request on Muse Glimmer,
 // opens the map, checks the courts, lines up everyone's calendar, picks the venue in the middle and writes the invites.
@@ -58,14 +59,6 @@ function Band({p}) {
     </span>
   );
 }
-const initials = n =>
-  n
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-const first = n => n.split(' ')[0];
 const hashParam = k =>
   new URLSearchParams(location.hash.split('?')[1] || '').get(k);
 

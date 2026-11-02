@@ -7,6 +7,7 @@ import Icon from '../components/Icon.jsx';
 import {loop} from './api.js';
 import {StatusPill, statusOf, Loading, Failed, Empty, ago} from './parts.jsx';
 import './loop.css';
+import {plural} from '../text.js';
 
 const VOTABLE = new Set(['open', 'review']); // voting closes once a maintainer or the rules decide
 const rank = c =>
@@ -29,7 +30,6 @@ const GROUPS = [
   ],
   ['done', 'Decided', 'Shipped, rolled back or refused, each with its reason.'],
 ];
-const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 const OTHER = {weekday: 'weekend', weekend: 'weekday'};
 
 export default function Ideas() {

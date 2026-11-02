@@ -50,11 +50,15 @@ function tts() {
       }
     }
   });
-  worker.on('exit', () => {
+  // a worker that can't start (ENOENT) or a pipe it closed (EPIPE) ends the worker, never the gateway
+  const stopped = () => {
     worker = null;
     for (const f of waiting.values()) f({error: 'the speech worker stopped'});
     waiting.clear();
-  });
+  };
+  worker.on('error', stopped);
+  worker.stdin.on('error', () => {});
+  worker.on('exit', stopped);
   return worker;
 }
 // a reply as speech: a WAV, or null when there is no speech worker
@@ -195,10 +199,15 @@ export function attach(server, {authorize, answer}) {
   server.on('upgrade', (req, socket, head) => {
     const u = new URL(req.url, 'http://x');
     if (u.pathname !== '/api/voice/live') return socket.destroy();
-    if (!ready() || !authorize(req, u)) {
+    const who = ready() && authorize(req, u);
+    if (!who) {
       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
       return socket.destroy();
     }
-    wss.handleUpgrade(req, socket, head, ws => session(ws, {answer}));
+    // authorize says who is talking (a string), kept with each turn for that person's conversation memory
+    const as = typeof who === 'string' ? who : null;
+    wss.handleUpgrade(req, socket, head, ws =>
+      session(ws, {answer: (text, ctx) => answer(text, {...ctx, who: as})}),
+    );
   });
 }

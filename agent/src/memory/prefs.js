@@ -22,6 +22,7 @@ import crypto from 'node:crypto';
 import {readJSON, writeJSON} from '../core/jsonfile.js';
 import {people, daysIn, norm, DAYS} from './memory_update.js';
 import {ymd} from '../core/time.js';
+import {LONG} from '../core/time.js';
 
 // (beside the taste file when only that is moved, so a run with its own taste file keeps its records there too)
 const FILE = () =>
@@ -50,15 +51,6 @@ export const SAME_AGE = 864e5,
 // how sure each source is: the player's words (and the rules checked from them), a belief that cites two notes or
 // more, the habit in their games, one answer to one game
 export const CONF = {said: 0.9, belief: 0.7, habit: 0.6, reply: 0.5};
-const LONG = {
-  Sun: 'Sunday',
-  Mon: 'Monday',
-  Tue: 'Tuesday',
-  Wed: 'Wednesday',
-  Thu: 'Thursday',
-  Fri: 'Friday',
-  Sat: 'Saturday',
-};
 export const partOf = start => {
   const h = +String(start).slice(0, 2);
   return h < 9
