@@ -1412,7 +1412,12 @@ const gateway = http
           t = String(b.text || '');
         if (
           b.play !== false &&
+          !agentAnswer.health(t) &&
+          // (a question about their games is not a request for one: "我常跟誰一起打", round 41)
+          !/誰|幾場|多少|最常|常跟|平常跟|\bwho\b|\bhow many\b|\bmost\b/i.test(t) &&
           (matchmaking.isPlayRequest(t) ||
+            // ("find me a basketball game this week" went to the chat: round 48)
+            /\b(find|get|line up|set up|book|organi[sz]e|arrange)\b (me |us )?(a|an|some)\b.{0,25}\b(game|match|session)\b/i.test(t) ||
             /(想|要|來|去)?打(羽球|羽毛球|網球|桌球|籃球|排球|匹克球|球)|揪|缺.{0,3}人|找人打|一起打/.test(
               t,
             ) ||
@@ -1423,8 +1428,30 @@ const gateway = http
         // conversation memory it is, set here and never taken from the body
         const mem = membersApi.member(req);
         b.who = mem ? `member:${mem.id}` : 'app';
+        // (whose record it is comes from the session only: a member field from the caller is dropped)
+        if (b.you && typeof b.you === 'object') delete b.you.member;
+        // a member's own gateway (tenants/proxy.js starts it with TENANT_OF): the caller is that member, never the demo
+        // player, though no session reaches it
+        // (what the club gateway keeps of them comes from the proxy, x-serve-you, which drops a caller's own)
+        if (!mem && process.env.TENANT_OF) {
+          let club = {};
+          try {
+            club = JSON.parse(decodeURIComponent(String(req.headers['x-serve-you'] || ''))) || {};
+          } catch {
+            club = {};
+          }
+          const {sports, area, limitKm, limitEach, clubs, name} = club;
+          b.you = {
+            ...(b.you && typeof b.you === 'object' ? b.you : {}),
+            ...(typeof name === 'string' && name ? {name} : {}),
+            ...(Array.isArray(sports) ? {sports, area: !!area, limitKm, limitEach} : {}),
+            ...(Array.isArray(clubs) ? {clubs} : {}),
+            member: process.env.TENANT_OF,
+          };
+        }
         if (mem) {
-          const H = await import('./members/huddle.js');
+          const H = await import('./members/huddle.js'),
+            T = await import('./members/taste.js');
           b.you = {
             ...(b.you || {}),
             upcoming: [
@@ -1452,9 +1479,21 @@ const gateway = http
               })),
             ],
             history: [],
+            // (theirs only: answer.js leaves the demo club's record out for a member)
+            member: mem.id,
+            sports: T.get(mem.id).sports || [],
+            area: !!T.get(mem.id).home,
           };
         }
-        return json(res, 200, await webapi.answer(b, agentAnswer.answer), o);
+        // (stream: true sends each sentence as it passes the checks, then {type: "done", result}; result.replaced says the
+        // text in it is not what was streamed)
+        return b.stream
+          ? stream(res, o, send =>
+              webapi.answer(b, agentAnswer.answer, {
+                onDelta: text => send({type: 'delta', text}),
+              }),
+            )
+          : json(res, 200, await webapi.answer(b, agentAnswer.answer), o);
       }
       // play: "I want to play" -> courts, partners and invites; nothing is booked until the player confirms
       if (u.pathname === '/api/play/plan' && req.method === 'POST') {

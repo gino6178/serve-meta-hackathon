@@ -11,8 +11,10 @@ test('S9 needs a weapon in the text; other categories stand as they were', () =>
   assert.equal(g.blocks(s9, 'Fun doubles, smashes like a bomb'), false);
   assert.equal(g.blocks(s9, 'bring a gun to the court'), true);
   assert.equal(g.replaces(s9, 'Round 3 starts at seven.'), false);
+  // (S1 needs words of violence too: round 46)
+  assert.equal(g.stopsIn({safe: false, categories: ['S9', 'S1']}, 'round 27'), null);
   assert.deepEqual(
-    g.stopsIn({safe: false, categories: ['S9', 'S1']}, 'round 27'),
+    g.stopsIn({safe: false, categories: ['S9', 'S1']}, 'how do I attack him after the game'),
     ['S1'],
   );
   assert.equal(g.stopsIn(s9, 'round 27'), null);

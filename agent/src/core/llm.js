@@ -90,7 +90,24 @@ const SMALL_V2 = process.env.LLM_SMALL_V2_MODEL || 'serve-1b-text-v2',
       'feed.standard,places.judge,a2a.answer,play.readIntent'
     ).split(','),
   ),
-  smallModel = site => (SMALL_V2_SITES.has(site) ? SMALL_V2 : SMALL);
+  // serve-1b-chat: a member's chat with their agent (site "answer", agent/src/agents/answer.js), distilled from Muse
+  // Glimmer's replies to 4,779 chats (distill/chat_inputs.mjs, chat_teacher.mjs); about 0.13 s a reply where Glimmer
+  // takes 6. Its prompt carries the facts sheet and the earlier turns, so it may be longer than the other small sites'
+  // (trained up to 2,048 tokens); a reply that fails the agent's checks is asked again of Glimmer (answer.js)
+  SMALL_CHAT = process.env.LLM_SMALL_CHAT_MODEL || 'serve-1b-chat',
+  SMALL_CHAT_SITES = new Set(
+    (process.env.LLM_SMALL_CHAT_SITES ?? 'answer').split(',').filter(Boolean),
+  ),
+  smallModel = site =>
+    SMALL_CHAT_SITES.has(site)
+      ? SMALL_CHAT
+      : SMALL_V2_SITES.has(site)
+        ? SMALL_V2
+        : SMALL;
+const smallCap = site =>
+  SMALL_CHAT_SITES.has(site)
+    ? +(process.env.LLM_SMALL_CHAT_MAX || 1800)
+    : SMALL_MAX();
 const SMALL_MAX = () => +(process.env.LLM_SMALL_MAX || 700),
   LONG_MIN = () => +(process.env.LLM_LONG_MIN || 12000);
 const LONG =
@@ -151,13 +168,11 @@ export const fastOn = FAST;
 // LLM_SMALL_MAX and a reply the 1B can't give (empty, or not the schema) go to Glimmer too, as in the normal rule.
 // LLM_FAST=api brings the fast lane back.
 export const onlySmall = () => process.env.LLM_ONLY === 'small';
-// the sites Glimmer keeps even if the lists above name them: the member's own chat with their agent, which no 1B was
-// trained or checked for (it answered "嗨" with its facts sheet as JSON: a member's screenshot, 2 Nov 2026). It is not
-// in the lists, so this is a second lock, and a way to take a checked site out without editing the lists.
+// the sites Glimmer keeps even if the lists above name them, a way to take a checked site out without editing the lists
+// (the chat was here until serve-1b-chat was trained for it: the text 1B, never trained to chat, answered "嗨" with its
+// facts sheet as JSON, a member's screenshot, 2 Nov 2026)
 const ONLY_SMALL_SKIP = () =>
-  new Set(
-    (process.env.LLM_ONLY_SMALL_SKIP ?? 'answer').split(',').filter(Boolean),
-  );
+  new Set((process.env.LLM_ONLY_SMALL_SKIP ?? '').split(',').filter(Boolean));
 const TEMPLATE_TOKENS = /<\|[a-z_]+\|>/gi,
   untrusted = t => String(t).replace(TEMPLATE_TOKENS, ' ');
 const INPUT_ROLE = {
@@ -247,15 +262,23 @@ export function tierOf(messages, {site = '', tools = false} = {}) {
     return tools ||
       messages.some(m => m.images?.length) ||
       ONLY_SMALL_SKIP().has(site) ||
-      !(SMALL_SITES().has(site) || SMALL_V2_SITES.has(site)) ||
-      n > SMALL_MAX()
+      !(
+        SMALL_SITES().has(site) ||
+        SMALL_V2_SITES.has(site) ||
+        SMALL_CHAT_SITES.has(site)
+      ) ||
+      n > smallCap(site)
       ? 'local'
       : 'small';
   if (n >= LONG_MIN() && (LONG || FALLBACK) && fastLeft() > 0) return 'api';
   const big = FAST() && !priorityOf() ? 'api' : 'local';
-  if (tools || !SMALL_SITES().has(site) || messages.some(m => m.images?.length))
+  if (
+    tools ||
+    !(SMALL_SITES().has(site) || SMALL_CHAT_SITES.has(site)) ||
+    messages.some(m => m.images?.length)
+  )
     return big;
-  return n <= SMALL_MAX() ? 'small' : big;
+  return n <= smallCap(site) ? 'small' : big;
 }
 // worth trying the fallback for: the server is not there, or it failed (5xx); never a 4xx (the request itself), never a timeout
 const unreachable = e =>
@@ -1036,6 +1059,132 @@ export function chatStream(
         release();
       }
     },
+  );
+}
+
+// A chat on Glimmer whose reply is read as it is written: onDelta(text, stop) hears each piece of the reply (not the
+// reasoning) as it arrives, and a caller that has heard enough calls stop(), which ends the generation. Returns what
+// chat() returns ({ text, logprobs, timing, tier }), plus firstMs (the wait for the first piece) and stopped. It
+// follows chat()'s routing: a call that goes to the 1B or the Meta Model API, or a server that is not Ollama, is made
+// the ordinary way and its whole reply comes as one piece, so the caller's checks work the same on any path.
+export function chatDeltas(messages, opts = {}) {
+  const site = opts.site || siteOf(),
+    onDelta = opts.onDelta || (() => {});
+  const whole = async () => {
+    const r = await chat(messages, opts);
+    onDelta(r.text, () => {});
+    return {...r, firstMs: Math.round(r.timing?.seconds * 1000) || null};
+  };
+  const tier = opts.tier || tierOf(messages, {site});
+  if (API !== 'ollama' || tier !== 'local') return whole();
+  const {
+    maxTokens = 420,
+    temperature = 0.4,
+    format = null,
+    think = null,
+    budget: own = null,
+    timeoutMs = TIMEOUT,
+  } = opts;
+  return callSpan(
+    site,
+    {
+      'gen_ai.request.temperature': temperature,
+      'gen_ai.request.max_tokens': maxTokens,
+      'serve.stream': true,
+      'serve.tier': 'local',
+    },
+    marked(async () => {
+      // (the wait for a slot counts against the call's time limit, as in rawChat)
+      const prio = priorityOf(),
+        w0 = Date.now(),
+        release = await acquire(prio, timeoutMs),
+        q = {queuedMs: Date.now() - w0, priority: prio ? 'background' : 'now'};
+      if (q.queuedMs >= timeoutMs) {
+        release();
+        throw slotError(timeoutMs);
+      }
+      const ctl = new AbortController(),
+        t = setTimeout(() => ctl.abort(), timeoutMs - q.queuedMs),
+        t0 = begin();
+      const level = levelOf(think),
+        budget = level === false ? 0 : budgetOf(site, own);
+      let thinking = '',
+        text = '',
+        last = null,
+        stopped = false,
+        firstMs = null;
+      const stop = () => {
+        stopped = true;
+        ctl.abort();
+      };
+      const take = j => {
+        if (j.done) last = j;
+        if (j.message?.thinking) thinking += j.message.thinking;
+        const c = j.message?.content;
+        if (c) {
+          firstMs ??= Date.now() - t0;
+          text += c;
+          if (!stopped) onDelta(c, stop);
+        }
+      };
+      try {
+        const r = await send(`${ROOT}/api/chat`, {
+          signal: ctl.signal,
+          body: JSON.stringify({
+            model: MODEL,
+            messages,
+            stream: true,
+            think: level,
+            keep_alive: '24h',
+            ...(format ? {format} : {}),
+            options: {num_predict: maxTokens + budget, temperature},
+          }),
+        });
+        const dec = new TextDecoder();
+        let buf = '';
+        try {
+          for await (const chunk of r.body) {
+            buf += dec.decode(chunk, {stream: true});
+            for (let nl; (nl = buf.indexOf('\n')) >= 0 && !stopped; ) {
+              const line = buf.slice(0, nl).trim();
+              buf = buf.slice(nl + 1);
+              if (line) take(JSON.parse(line));
+            }
+            if (stopped) break;
+          }
+          if (!stopped && buf.trim()) take(JSON.parse(buf));
+        } catch (e) {
+          if (!stopped) throw e;
+        }
+        const secs = (Date.now() - t0) / 1000;
+        // (a stopped reply has no final counts: its output is estimated at four characters a token)
+        const j = last || {
+          prompt_eval_count: 0,
+          eval_count: Math.round((thinking.length + text.length) / 4),
+        };
+        ledgerRow(site, {...j, message: {thinking, content: text}}, secs, {
+          model: MODEL,
+          budget,
+          format: !!format,
+          ...q,
+          stream: true,
+          ...(stopped ? {stopped: true} : {}),
+        });
+        const genSecs = j.eval_duration / 1e9;
+        return {
+          text: text.replace(THINK, '').trim(),
+          logprobs: null,
+          timing: timing(secs, genSecs ? j.eval_count / genSecs : null),
+          tier: 'local',
+          firstMs,
+          stopped,
+        };
+      } finally {
+        clearTimeout(t);
+        end(t0);
+        release();
+      }
+    }),
   );
 }
 

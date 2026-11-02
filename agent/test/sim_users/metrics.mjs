@@ -86,7 +86,7 @@ const USER = new Set([
   'choice:beta',
 ]);
 const REFUSAL =
-  /^I can't help with that\. I'm here for your games|^I'm sorry you're going through this/;
+  /^I can't help with that\. I'm here for your games|^I'm really sorry you're feeling this way/;
 
 export function measure({
   run,

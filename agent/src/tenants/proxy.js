@@ -90,6 +90,29 @@ async function memberOf(sess) {
   return id;
 }
 
+// what the club gateway keeps of a member for their agent's answers, as one header (x-serve-you, set here only: a
+// caller's own is dropped); null when the club gateway does not answer in time
+async function youOf(sess) {
+  const get = p =>
+    fetch(new URL(p, MAIN), {
+      headers: {'x-serve-session': sess, origin: INTERNAL},
+      signal: AbortSignal.timeout(1500),
+    })
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null);
+  const [me, cl, who] = await Promise.all([get('/api/huddle/me'), get('/api/clubs'), get('/api/me')]);
+  if (!me?.taste) return null;
+  const t = me.taste;
+  return JSON.stringify({
+    ...(who?.member?.name ? {name: String(who.member.name).slice(0, 60)} : {}),
+    sports: t.sports || [],
+    area: !!t.home,
+    limitKm: t.limitKm ?? null,
+    limitEach: t.limitEach ?? null,
+    ...(cl?.clubs ? {clubs: cl.clubs.filter(c => c.joined).map(c => String(c.name || '').slice(0, 60))} : {}),
+  });
+}
+
 // the players' own gateways: one process each, its folder named by a hash of the member id
 const running = new Map(); // id -> { port, proc, last, ready }
 const folderOf = id =>
@@ -249,6 +272,7 @@ const DROP = new Set([
   'cdn-loop',
   'true-client-ip',
   'x-serve-public',
+  'x-serve-you',
 ]);
 function headersFor(req, {token}) {
   const h = {};
@@ -259,14 +283,16 @@ function headersFor(req, {token}) {
   if (token) h.authorization = `Bearer ${TOKEN}`;
   return h;
 }
-function pass(req, res, target, {token, after = null}) {
+function pass(req, res, target, {token, after = null, you = null}) {
+  const headers = headersFor(req, {token});
+  if (you) headers['x-serve-you'] = encodeURIComponent(you);
   const up = http.request(
     {
       host: target.hostname,
       port: target.port,
       method: req.method,
       path: req.url,
-      headers: headersFor(req, {token}),
+      headers,
     },
     r => {
       if (after) r.on('end', () => after(r.statusCode));
@@ -439,7 +465,13 @@ const server = http.createServer(async (req, res) => {
     if (!id)
       return json(res, 401, {error: 'Sign in to use your agent', signIn: true});
     const t = await tenant(id);
-    return pass(req, res, new URL(`http://127.0.0.1:${t.port}`), {token: true});
+    // a question for the member's agent: what the club gateway keeps of them (sports, area, limits, clubs) goes with it,
+    // since their own gateway holds none of it and the agent said "no sports listed" right after they set them
+    const you =
+      p === '/api/agent/answer' && req.method === 'POST'
+        ? await youOf(req.headers['x-serve-session'])
+        : null;
+    return pass(req, res, new URL(`http://127.0.0.1:${t.port}`), {token: true, you});
   } catch (e) {
     return json(res, 503, {error: String(e.message || e).slice(0, 200)});
   }

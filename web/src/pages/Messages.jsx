@@ -1,7 +1,12 @@
 import {useEffect, useRef, useState} from 'react';
 import {usePoll} from '../hooks.js';
 import Icon from '../components/Icon.jsx';
-import {agentAnswer, agentFetch, agentInviteDraft} from '../agent.js';
+import {
+  agentAnswer,
+  agentAnswerStream,
+  agentFetch,
+  agentInviteDraft,
+} from '../agent.js';
 import {agentFace} from '../club/faces.js';
 import {feedApi} from '../club/feedApi.js';
 import {intentOf} from '../tasks.js';
@@ -31,11 +36,14 @@ const DAYNAME = d =>
         month: 'short',
       })
     : d;
+// (a question about their games, "我常跟誰一起打" or "who do I play with most", is not a request for one)
 const wantsGame = t =>
-  intentOf(t) === 'play' ||
-  /(想|要|來|去)?打(羽球|羽毛球|網球|桌球|籃球|排球|匹克球|球)|揪|缺.{0,3}人|有人.{0,6}打|一起打|need \d|looking for (players|people)|anyone (up )?for/i.test(
-    t,
-  );
+  !/誰|幾場|多少|最常|常跟|平常跟|\bwho\b|\bhow many\b|\bmost\b/i.test(t) &&
+  (intentOf(t) === 'play' ||
+    /\b(find|get|line up|set up|book|organi[sz]e|arrange)\b (me |us )?(a|an|some)\b.{0,25}\b(game|match|session)\b/i.test(t) ||
+    /(想|要|來|去)?打(羽球|羽毛球|網球|桌球|籃球|排球|匹克球|球)|揪|缺.{0,3}人|有人.{0,6}打|一起打|need \d|looking for (players|people)|anyone (up )?for/i.test(
+      t,
+    ));
 
 export default function Messages() {
   const [ms, setMs] = useState(read),
@@ -59,10 +67,27 @@ export default function Messages() {
     if (!t || busy) return;
     setBusy(true);
     add({from: 'you', text: t});
+    // the agent's reply grows in one bubble (live) as its sentences arrive; the finished answer then replaces it, since
+    // the server may have swapped the text (a reply that failed a check at the end, or the safety check)
+    const live = `live${Date.now()}`;
+    const drop = () => setMs(x => x.filter(m => m.live !== live));
     try {
       // a game you want becomes an invite to post (the app's words first, else the server says so: { play: true })
-      const r = wantsGame(t) ? {play: true} : await agentAnswer(t, {});
+      const r = wantsGame(t)
+        ? {play: true}
+        : await agentAnswerStream(t, {}, s =>
+            setMs(x =>
+              x.some(m => m.live === live)
+                ? x.map(m => (m.live === live ? {...m, text: m.text + s} : m))
+                : [...x, {at: Date.now(), from: 'agent', text: s, live}],
+            ),
+          ).catch(() => {
+            // (no stream, or it broke: drop what it showed and ask the ordinary way)
+            drop();
+            return agentAnswer(t, {});
+          });
       if (r.play) {
+        drop();
         const d = await agentInviteDraft(t, await myPlace());
         add({
           from: 'agent',
@@ -70,12 +95,19 @@ export default function Messages() {
           draft: d.draft,
           text: "Here's the invite. Change how many, then post it:",
         });
-      } else
-        add({
-          from: 'agent',
-          text: r.refused ? "I can't help with that one." : r.text,
-        });
+      } else {
+        // (a refusal's own words: for self-harm they carry the helpline, which a stock line hid)
+        const said = r.text || "I can't help with that one.";
+        setMs(x =>
+          x.some(m => m.live === live)
+            ? x.map(m =>
+                m.live === live ? {at: m.at, from: 'agent', text: said} : m,
+              )
+            : [...x, {at: Date.now(), from: 'agent', text: said}],
+        );
+      }
     } catch (err) {
+      drop();
       add({
         from: 'agent',
         text: `I couldn't answer just now (${err.message}).`,
@@ -173,7 +205,7 @@ export default function Messages() {
             </div>
           </li>
         ))}
-        {busy && (
+        {busy && !ms.some(m => m.live) && (
           <li className="mc-msg agent">
             <div className="mc-bubble">
               <p className="mc-dots">

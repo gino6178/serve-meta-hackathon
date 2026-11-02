@@ -235,7 +235,6 @@ test('1B only (LLM_ONLY=small): only the checked sites go to a 1B, every other s
     );
     for (const site of [
       'life.read',
-      'answer',
       'ask.opening',
       'body.summary',
       'pairing.why',
@@ -252,6 +251,12 @@ test('1B only (LLM_ONLY=small): only the checked sites go to a 1B, every other s
       'small',
       'a second-round site, even when LLM_SMALL_SITES does not list it',
     );
+    // the chat has its own 1B (serve-1b-chat) and a longer cap, since its prompt carries the facts and earlier turns
+    assert.equal(tierOf(msgs(1500), {site: 'answer'}), 'small');
+    assert.equal(tierOf(msgs(9000), {site: 'answer'}), 'local');
+    process.env.LLM_ONLY_SMALL_SKIP = 'answer';
+    assert.equal(tierOf(msgs(300), {site: 'answer'}), 'local');
+    delete process.env.LLM_ONLY_SMALL_SKIP;
     assert.equal(
       tierOf(msgs(300), {site: 'social.caption', tools: true}),
       'local',

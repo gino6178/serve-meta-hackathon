@@ -24,6 +24,7 @@ import * as prefsOf from '../memory/prefs_of.js';
 import * as safety from '../safety/safety.js';
 import * as store from '../core/store.js';
 import * as guard from '../safety/guard.js';
+import {urgentCare} from '../agents/answer.js';
 import {holds} from '../agents/talk_meta.js';
 import * as builds from '../loop/builds.js';
 import * as asr from '../media/asr.js';
@@ -56,12 +57,16 @@ const notesOf = who => ({
 });
 const FALLBACK =
   "I can't answer that one here. Ask me about your games, your week or what hurts, and I'll plan around it.";
+const FALLBACK_ZH = '這個我在這裡沒辦法回答。可以問我你的球局、這週的行程或哪裡不舒服，我來幫你安排。';
 
 // the app's question to its agent (answer.js, POST /api/agent/answer { text, you }), past the same guards as a
 // Messenger message: Llama Guard on the way in (a message about violence, crime, weapons, hate, sexual content or
 // self-harm is not acted on; self-harm gets the helpline) and on the answer on the way out (a diagnosis, a dose or a
 // hazard is replaced). The checks it made come back with the answer (safety), so the app can show them.
-export async function answer(b, answerer) {
+// With onDelta, the answer's sentences are sent on as the agent writes them (each one already past the number, coaching
+// and data checks); Llama Guard on the way in still runs before the first, and on the way out it runs on the whole
+// text at the end: a reply it flags comes back replaced (replaced: true), and the app swaps what it showed for it.
+export async function answer(b, answerer, {onDelta = null} = {}) {
   const text = String(b.text || '').slice(0, 600);
   const {result, checks} = await safety.collect('app', async () => {
     if (!text)
@@ -76,14 +81,26 @@ export async function answer(b, answerer) {
     );
     if (stop)
       return {
-        text: guard.refusal(stop),
+        // (too many pills or a bad injury stopped by the guard still gets the emergency line: round 41's "my friend
+        // took 10 sleeping pills" got the stock refusal)
+        // (self-harm keeps its own words, which carry 119 and the helpline)
+        text: (!stop.includes('S11') && urgentCare(text, '')) || guard.refusal(stop, text),
         refused: true,
         helpline: stop.includes('S11'),
         verified: {ok: true, numbers: 0, bad: []},
         facts: 0,
       };
-    const r = await answerer({text, app: b.you || {}, who: b.who || null});
-    const out = await guard.checkOut(r.text, {ask: text, fallback: FALLBACK});
+    const r = await answerer({
+      text,
+      app: b.you || {},
+      who: b.who || null,
+      ...(onDelta ? {onDelta} : {}),
+    });
+    // (a Chinese message gets its fallback in Chinese: round 42's flagged answer came back in English)
+    const out = await guard.checkOut(r.text, {
+      ask: text,
+      fallback: /[㐀-鿿]/.test(text) ? FALLBACK_ZH : FALLBACK,
+    });
     return out.flagged ? {...r, text: out.text, replaced: true} : r;
   });
   return {...result, safety: checks};

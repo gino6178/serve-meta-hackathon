@@ -233,7 +233,7 @@ test('every check is noted with its verdict and what happened, for its own playe
     assert.equal(b.checks[0].action, 'passed');
     assert.equal(b.checks[0].verdict, 'safe');
     // a model's answer that Llama Guard flags is replaced
-    say = 'unsafe\nS1';
+    say = 'unsafe\nS10';
     const c = await safety.collect('chat-b', () =>
       guard.checkOut("a model's answer", {fallback: 'the safe reply'}),
     );

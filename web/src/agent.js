@@ -182,6 +182,21 @@ export const agentPlayers = () => read('/api/players');
 export const agentRemind = () => post('/api/remind');
 export const agentAnswer = (text, you) =>
   post('/api/agent/answer', {text, you});
+// the same, with the reply streamed: onDelta(text) hears each sentence as it passes the server's checks, and the result
+// is the whole answer, which replaces what was streamed when result.replaced is set. The gateway answers a game request
+// ({ play: true }) as plain JSON, which is read here too.
+export async function agentAnswerStream(text, you, onDelta) {
+  const r = await agentFetch('/api/agent/answer', {
+    method: 'POST',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify({text, you, stream: true}),
+  });
+  if (/json/.test(r.headers.get('content-type') || '') || !r.body) {
+    if (!r.ok) throw await refusal(r);
+    return r.json();
+  }
+  return steps(r, e => e.type === 'delta' && onDelta?.(e.text));
+}
 // an invite drafted from what you told your agent ({ draft }); nothing is posted until you say yes in the app
 export const agentInviteDraft = (text, near) =>
   post('/api/agent/invite-draft', {text, near});

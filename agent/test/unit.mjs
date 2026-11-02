@@ -874,7 +874,9 @@ test("Llama Guard's answer: safe, unsafe with its categories, or no verdict", ()
   assert.ok(
     guard.replaces(s6, "You've got plantar fasciitis. Run through the pain."),
   );
-  assert.ok(guard.replaces({safe: false, categories: ['S1']}, 'anything'));
+  // (S1 on a model's text counts with words of violence in it: rounds 42 and 46 got it on a member's own name)
+  assert.ok(guard.replaces({safe: false, categories: ['S1']}, 'how to stab someone'));
+  assert.ok(!guard.replaces({safe: false, categories: ['S1']}, '你叫 Test 王小偉。'));
   assert.ok(
     guard.replaces({safe: false, categories: []}, 'anything'),
     'unsafe with no category it has',
