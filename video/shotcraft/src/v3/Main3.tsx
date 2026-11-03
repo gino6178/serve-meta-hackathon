@@ -1,4 +1,4 @@
-// The v3.1 film (video/storyboard_zh_v3.md): the gap between personal agents, Serve as the place they negotiate, the
+// The v3.1 film: the gap between personal agents, Serve as the place they negotiate, the
 // real app on the local copy with the server's models, the open door for outside agents, the layers that make
 // negotiating fast, what Meta's models taught us, the AI testers, safety, the close. SHOTS is the one timeline: each
 // shot is as long as its narration needs (narration.json, Kokoro) plus a breath, and every sound cue and voice line is

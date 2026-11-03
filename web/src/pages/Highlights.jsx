@@ -309,7 +309,7 @@ function serveView(ctx, box, d, t, cam, phase) {
   );
 }
 
-// one frame of the reel: phase is live, replay, impact, effect or winner (the demo recorder, video/record.mjs, waits on
+// one frame of the reel: phase is live, replay, impact, effect or winner (a recorder waits on
 // it); in the effect, video is the server's effect clip
 function draw(ctx, F, d, video, t, cam, phase) {
   const {W, H, vid} = F,

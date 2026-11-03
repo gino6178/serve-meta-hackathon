@@ -1,4 +1,4 @@
-// The v4.3 film (the v4.3 storyboard): the problem and who Serve is for, then one game of Mia's from start to end on
+// The v4.3 film: the problem and who Serve is for, then one game of Mia's from start to end on
 // the real app (the local copy) and the court, A2A and Messenger pages in Taipei, then the layers that make it fast,
 // the fifteen Meta models, federated clubs, the AI testers, safety and the club that evolves itself. It reuses the v3
 // shots as they are and keeps every shot as long as its narration needs, with no pauses left in.
