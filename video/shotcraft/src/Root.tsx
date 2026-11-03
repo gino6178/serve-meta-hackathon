@@ -15,12 +15,14 @@ import { LiveNumbers, LIVE_NUMBERS_DURATION } from './serve/LiveNumbers';
 import { Outro, OUTRO_DURATION } from './serve/Outro';
 import { Swarm, SWARM_DURATION } from './serve/Swarm';
 import { ServeV3, TOTAL3 } from './v3/Main3';
+import { ServeV43, TOTAL43 } from './v43/Main43';
 
 const Live: React.FC = () => <LiveFrame segs={LIVE} />;
 
 // each shot as its own composition for stills while it is built; the film is ServePromo (Main.tsx)
 export const Root: React.FC = () => (
   <>
+    <Composition id="ServeV43" component={ServeV43} durationInFrames={TOTAL43} fps={30} width={1920} height={1080} defaultProps={{ bgm: true, voice: true, subs: true }} />
     <Composition id="ServeV3" component={ServeV3} durationInFrames={TOTAL3} fps={30} width={1920} height={1080} defaultProps={{ bgm: true, voice: true, subs: true }} />
     <Composition id="ServePromo" component={ServePromo} durationInFrames={TOTAL} fps={30} width={1920} height={1080} defaultProps={{ bgm: true, voice: true, subs: true }} />
     <Composition id="ColdOpen" component={ColdOpen} durationInFrames={COLD_OPEN_DURATION} fps={30} width={1920} height={1080} />

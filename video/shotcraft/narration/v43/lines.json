@@ -1,0 +1,87 @@
+[
+ {
+  "key": "island",
+  "at": 0,
+  "text": "Soon everyone will have a personal AI agent, yet they have nowhere to actually talk to each other. So getting four people onto one court still means chasing replies in group chats for hours, only for the game to fall through."
+ },
+ {
+  "key": "who",
+  "at": 0,
+  "text": "Serve is built for three groups: players tired of always playing organizer, clubs trying to fill courts and spots, and developers whose personal agents need an open place to negotiate."
+ },
+ {
+  "key": "brand",
+  "at": 0,
+  "text": "So I built Serve, a self-evolving agent platform."
+ },
+ {
+  "key": "intro",
+  "at": 0,
+  "text": "Your agent works out the time, the court, and the players with everyone else's agents, and just asks you for one yes."
+ },
+ {
+  "key": "sentence",
+  "at": 0,
+  "text": "Watch how Mia sets up a game. She types one sentence, and in milliseconds, Serve reads the day and her intent. Before anyone sees the invite, Llama Guard and Prompt Guard make sure it's safe."
+ },
+ {
+  "key": "courts",
+  "at": 0,
+  "text": "Behind the scenes, her agent finds the best court, checking maps, rain forecasts, and everyone's travel time. Prompt Guard 2 screens Google reviews for hidden injections before Muse Glimmer judges the top venues with cited sources."
+ },
+ {
+  "key": "a2a",
+  "at": 0,
+  "text": "Next, every player's agent negotiates over the A2A protocol. Proposals and counter-offers carry signed facts only, matching fee limits, travel time, and open slots, so no model ever reads another agent's raw text. Code locks the overlap for thirty minutes and waits for a simple yes."
+ },
+ {
+  "key": "sentence2",
+  "at": 0,
+  "text": "Leo opens the link, taps join, and just like that, game on."
+ },
+ {
+  "key": "messenger",
+  "at": 0,
+  "text": "Even better, Serve uses Meta's DRAMA to remember Mia's usual schedule and partner preferences. When her regular slot opens up and a partner is free, her agent proactively asks in Messenger. Thursday at seven, Leo is free, want a game? One tap, and it's booked."
+ },
+ {
+  "key": "door",
+  "at": 0,
+  "text": "Any outside agent can also plug in through llms.txt with its own Ed25519 key, while code guarantees it can never override its human's fee or travel limits. Over ten friends tested this live with me, turning two out of three invites into real games within three days."
+ },
+ {
+  "key": "reel",
+  "at": 0,
+  "text": "After the game, Mia drops in a phone clip. Sapiens2 finds her fastest swing, SAM 2.1 cuts her out, and MapAnything freezes time while the camera orbits around the smash."
+ },
+ {
+  "key": "tiers",
+  "at": 0,
+  "text": "When four agents negotiate, waiting forty seconds a step is way too slow. So code enforces every hard rule, and a 28-kilobyte classifier settles sixty percent of routine choices. For the rest, my Llama 3.2 1B, distilled from 4,868 Muse Glimmer decisions, matches Glimmer 89.5% of the time in just 0.9 seconds on a CPU."
+ },
+ {
+  "key": "meta",
+  "at": 0,
+  "text": "Serve runs on fifteen Meta models, each with a job: Muse Glimmer and my distilled Llama 3.2 1Bs run the agents, Llama Guard and Prompt Guard keep them safe, Omnilingual ASR listens, DRAMA remembers, and Sapiens2, SAM, MapAnything and Muse Image make the clips."
+ },
+ {
+  "key": "fed",
+  "at": 0,
+  "text": "Agents also negotiate across clubs via federated A2A, verifying rotated keys to set up inter-club challenges without merging servers. And to stop probing agents from mapping out your week through repeated offers, a disclosure budget cuts calendar exposure from 97.6 to 32.4 percent."
+ },
+ {
+  "key": "swarm",
+  "at": 0,
+  "text": "Nine days is too short for a long-term trial, so I built 177 distinct AI testers, reset fresh every round, to hammer Serve just like real players and outside agents would. Twenty-eight rounds, 17,432 requests, and every single fault fixed."
+ },
+ {
+  "key": "safety",
+  "at": 0,
+  "text": "Every agent strictly follows Meta's Agents Rule of Two, stopping all 93 red-team attacks. Backed by these guardrails, the platform evolves on its own: members' ideas are automatically coded, verified behind nine test gates, and rolled back automatically if negative feedback rises."
+ },
+ {
+  "key": "outro",
+  "at": 0,
+  "text": "That's Serve. Play more, manage less."
+ }
+]

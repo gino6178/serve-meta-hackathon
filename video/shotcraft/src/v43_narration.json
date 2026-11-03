@@ -1,0 +1,289 @@
+[
+ {
+  "key": "island",
+  "dur": 8.957,
+  "subs": [
+   {
+    "text": "Soon everyone will have a personal AI agent, yet they have nowhere to actually talk to each other.",
+    "start": 0.0,
+    "end": 3.816
+   },
+   {
+    "text": "So getting four people onto one court still means chasing replies in group chats for hours, only for the game to fall through.",
+    "start": 4.136,
+    "end": 8.956
+   }
+  ]
+ },
+ {
+  "key": "who",
+  "dur": 7.758,
+  "subs": [
+   {
+    "text": "Serve is built for three groups:",
+    "start": 0.0,
+    "end": 1.117
+   },
+   {
+    "text": "players tired of always playing organizer, clubs trying to fill courts and spots, and developers whose personal agents need an open place to negotiate.",
+    "start": 1.337,
+    "end": 7.758
+   }
+  ]
+ },
+ {
+  "key": "brand",
+  "dur": 2.079,
+  "subs": [
+   {
+    "text": "So I built Serve, a self-evolving agent platform.",
+    "start": 0.0,
+    "end": 2.079
+   }
+  ]
+ },
+ {
+  "key": "intro",
+  "dur": 4.906,
+  "subs": [
+   {
+    "text": "Your agent works out the time, the court, and the players with everyone else's agents, and just asks you for one yes.",
+    "start": 0.0,
+    "end": 4.906
+   }
+  ]
+ },
+ {
+  "key": "sentence",
+  "dur": 8.127,
+  "subs": [
+   {
+    "text": "Watch how Mia sets up a game.",
+    "start": 0.0,
+    "end": 1.119
+   },
+   {
+    "text": "She types one sentence, and in milliseconds, Serve reads the day and her intent.",
+    "start": 1.439,
+    "end": 4.708
+   },
+   {
+    "text": "Before anyone sees the invite, Llama Guard and Prompt Guard make sure it's safe.",
+    "start": 5.028,
+    "end": 8.127
+   }
+  ]
+ },
+ {
+  "key": "courts",
+  "dur": 10.175,
+  "subs": [
+   {
+    "text": "Behind the scenes, her agent finds the best court, checking maps, rain forecasts, and everyone's travel time.",
+    "start": 0.0,
+    "end": 4.558
+   },
+   {
+    "text": "Prompt Guard 2 screens Google reviews for hidden injections before Muse Glimmer judges the top venues with cited sources.",
+    "start": 4.878,
+    "end": 10.175
+   }
+  ]
+ },
+ {
+  "key": "a2a",
+  "dur": 12.675,
+  "subs": [
+   {
+    "text": "Next, every player's agent negotiates over the A2A protocol.",
+    "start": 0.0,
+    "end": 2.546
+   },
+   {
+    "text": "Proposals and counter-offers carry signed facts only, matching fee limits, travel time, and open slots, so no model ever reads another agent's raw text.",
+    "start": 2.866,
+    "end": 9.718
+   },
+   {
+    "text": "Code locks the overlap for thirty minutes and waits for a simple yes.",
+    "start": 10.038,
+    "end": 12.675
+   }
+  ]
+ },
+ {
+  "key": "sentence2",
+  "dur": 2.421,
+  "subs": [
+   {
+    "text": "Leo opens the link, taps join, and just like that, game on.",
+    "start": 0.0,
+    "end": 2.421
+   }
+  ]
+ },
+ {
+  "key": "messenger",
+  "dur": 11.671,
+  "subs": [
+   {
+    "text": "Even better, Serve uses Meta's DRAMA to remember Mia's usual schedule and partner preferences.",
+    "start": 0.0,
+    "end": 4.035
+   },
+   {
+    "text": "When her regular slot opens up and a partner is free, her agent proactively asks in Messenger.",
+    "start": 4.355,
+    "end": 8.31
+   },
+   {
+    "text": "Thursday at seven, Leo is free, want a game?",
+    "start": 8.63,
+    "end": 10.385
+   },
+   {
+    "text": "One tap, and it's booked.",
+    "start": 10.705,
+    "end": 11.671
+   }
+  ]
+ },
+ {
+  "key": "door",
+  "dur": 13.741,
+  "subs": [
+   {
+    "text": "Any outside agent can also plug in through llms.txt with its own Ed25519 key, while code guarantees it can never override its human's fee or travel limits.",
+    "start": 0.0,
+    "end": 8.934
+   },
+   {
+    "text": "Over ten friends tested this live with me, turning two out of three invites into real games within three days.",
+    "start": 9.254,
+    "end": 13.741
+   }
+  ]
+ },
+ {
+  "key": "reel",
+  "dur": 8.22,
+  "subs": [
+   {
+    "text": "After the game, Mia drops in a phone clip.",
+    "start": 0.0,
+    "end": 1.576
+   },
+   {
+    "text": "Sapiens2 finds her fastest swing, SAM 2.1 cuts her out, and MapAnything freezes time while the camera orbits around the smash.",
+    "start": 1.896,
+    "end": 8.22
+   }
+  ]
+ },
+ {
+  "key": "tiers",
+  "dur": 18.069,
+  "subs": [
+   {
+    "text": "When four agents negotiate, waiting forty seconds a step is way too slow.",
+    "start": 0.0,
+    "end": 2.963
+   },
+   {
+    "text": "So code enforces every hard rule, and a 28-kilobyte classifier settles sixty percent of routine choices.",
+    "start": 3.283,
+    "end": 8.122
+   },
+   {
+    "text": "For the rest, my Llama 3.2 1B, distilled from 4,868 Muse Glimmer decisions, matches Glimmer 89.5% of the time in just 0.9 seconds on a CPU.",
+    "start": 8.442,
+    "end": 18.069
+   }
+  ]
+ },
+ {
+  "key": "meta",
+  "dur": 13.467,
+  "subs": [
+   {
+    "text": "Serve runs on fifteen Meta models, each with a job:",
+    "start": 0.0,
+    "end": 2.189
+   },
+   {
+    "text": "Muse Glimmer and my distilled Llama 3.2 1Bs run the agents, Llama Guard and Prompt Guard keep them safe, Omnilingual ASR listens, DRAMA remembers, and Sapiens2, SAM, MapAnything and Muse Image make the clips.",
+    "start": 2.409,
+    "end": 13.467
+   }
+  ]
+ },
+ {
+  "key": "fed",
+  "dur": 14.055,
+  "subs": [
+   {
+    "text": "Agents also negotiate across clubs via federated A2A, verifying rotated keys to set up inter-club challenges without merging servers.",
+    "start": 0.0,
+    "end": 6.354
+   },
+   {
+    "text": "And to stop probing agents from mapping out your week through repeated offers, a disclosure budget cuts calendar exposure from 97.6 to 32.4 percent.",
+    "start": 6.674,
+    "end": 14.055
+   }
+  ]
+ },
+ {
+  "key": "swarm",
+  "dur": 12.85,
+  "subs": [
+   {
+    "text": "Nine days is too short for a long-term trial, so I built 177 distinct AI testers, reset fresh every round, to hammer Serve just like real players and outside agents would.",
+    "start": 0.0,
+    "end": 8.478
+   },
+   {
+    "text": "Twenty-eight rounds, 17,432 requests, and every single fault fixed.",
+    "start": 8.798,
+    "end": 12.85
+   }
+  ]
+ },
+ {
+  "key": "safety",
+  "dur": 12.353,
+  "subs": [
+   {
+    "text": "Every agent strictly follows Meta's Agents Rule of Two, stopping all 93 red-team attacks.",
+    "start": 0.0,
+    "end": 4.005
+   },
+   {
+    "text": "Backed by these guardrails, the platform evolves on its own:",
+    "start": 4.325,
+    "end": 6.512
+   },
+   {
+    "text": "members' ideas are automatically coded, verified behind nine test gates, and rolled back automatically if negative feedback rises.",
+    "start": 6.732,
+    "end": 12.353
+   }
+  ]
+ },
+ {
+  "key": "outro",
+  "dur": 1.838,
+  "subs": [
+   {
+    "text": "That's Serve.",
+    "start": 0.0,
+    "end": 0.551
+   },
+   {
+    "text": "Play more, manage less.",
+    "start": 0.871,
+    "end": 1.838
+   }
+  ]
+ }
+]
