@@ -63,6 +63,7 @@ const shared = p =>
   p === '/api/clubs' ||
   p.startsWith('/api/clubs/') ||
   p.startsWith('/api/huddle/') ||
+  p === '/api/play/plan' ||
   p.startsWith('/api/trust/') ||
   p === '/api/openapi.json' ||
   p === '/api/invite' ||

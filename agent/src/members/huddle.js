@@ -58,7 +58,7 @@ export const STARTS = [
   '19:30',
   '20:30',
 ];
-const opensFor = (place, start) =>
+export const opensFor = (place, start) =>
   place.kind === 'public' ? start <= '19:30' : start <= '20:30';
 // two games clash when they overlap: a game runs 90 minutes (the feed refuses the same)
 const CLASH = 90 * 60e3;
@@ -66,6 +66,7 @@ const MINUTES = 90,
   ROUNDS = 4,
   TRIES = 2,
   INDOOR = ['badminton', 'table tennis', 'squash'];
+export {INDOOR, CLASH, startMs};
 const first = id => String(P.authorOf(id) || 'A member').split(' ')[0];
 // a named person who may not exist: their first name, or the id they were named by (an unknown id read as "A" from
 // "A member": test round 30)
@@ -460,7 +461,7 @@ const committed = (id, except = null) => [
 ];
 const freeAt = (id, h, o) =>
   !committed(id, h.id).some(t => Math.abs(t - startMs(o)) < CLASH);
-const busyOf = (id, except = null, game = null) => [
+export const busyOf = (id, except = null, game = null) => [
   ...P.busyAt(id).filter(t => !game || t !== game),
   ...data()
     .huddles.filter(

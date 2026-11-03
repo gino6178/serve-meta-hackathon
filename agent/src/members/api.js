@@ -105,6 +105,7 @@ export const memberRoute = p =>
   p.startsWith('/api/feed/') ||
   p === '/api/clubs' ||
   p.startsWith('/api/clubs/') ||
+  p === '/api/play/plan' ||
   p.startsWith('/api/huddle/');
 export const publicRoute = p =>
   p.startsWith('/api/auth/') ||

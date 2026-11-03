@@ -503,6 +503,13 @@ export async function injected(
     },
   );
 }
+// the worker loaded when the gateway starts, not on the first member's post: loading the model took 28 s on the first
+// call (a club took 35 to 77 s to start right after a restart, test round 49), then 0.8 s a call. The wait is long, so a
+// slow load is never taken for a guard that failed (which would pause it)
+export const warm = () =>
+  guardOn() && process.env.PROMPT_GUARD !== 'off'
+    ? injectedNow(['warming up'], {site: 'guard.warm', timeoutMs: 180000}).catch(() => null)
+    : null;
 async function injectedNow(texts, {site, timeoutMs}) {
   if (!guardOn() || process.env.PROMPT_GUARD === 'off' || !texts.length)
     return texts.map(() => ({injected: null}));

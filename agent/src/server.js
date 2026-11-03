@@ -34,6 +34,7 @@ const {readJSON, writeJSON} = await import('./core/jsonfile.js');
 const bodylog = await import('./body/body.js');
 const bodyContext = await import('./body/context.js');
 const membersApi = await import('./members/api.js');
+const memberPlan = await import('./members/plan.js');
 const poster = await import('./media/poster.js');
 const liveVoice = await import('./voice/live.js');
 const peerMod = await import('./a2a/peer.js');
@@ -1498,6 +1499,15 @@ const gateway = http
       // play: "I want to play" -> courts, partners and invites; nothing is booked until the player confirms
       if (u.pathname === '/api/play/plan' && req.method === 'POST') {
         const b = await bodyOf(req);
+        // a signed-in member: courts near their own area and the people in their clubs (members/plan.js); the demo town
+        // is for the token and the single-user mode
+        const mem = membersApi.member(req);
+        if (mem)
+          return b.stream
+            ? stream(res, o, send =>
+                memberPlan.plan(mem.id, {text: b.text, onStep: send}),
+              )
+            : json(res, 200, await memberPlan.plan(mem.id, {text: b.text}), o);
         return b.stream
           ? stream(res, o, send =>
               play.plan({text: b.text, you: b.you, onStep: send}),
@@ -1982,6 +1992,9 @@ const gateway = http
     console.log(
       `agent gateway on http://127.0.0.1:${PORT} · LLM ${process.env.LLM_URL || 'http://127.0.0.1:11435/v1'} · Messenger ${msn.state.enabled ? 'on' : 'off (no page token)'} · API ${auth.required() ? 'needs its token' : process.env.AGENT_OPEN === '1' ? 'OPEN to this network (AGENT_OPEN=1): set AGENT_TOKEN' : 'this machine only: set AGENT_TOKEN'}`,
     );
+    // Prompt Guard loaded now, so the first post or club after a restart does not wait for it (guard.js warm); the club's
+    // gateway only, where posts and clubs are checked, not each member's own (a model in memory for every one of them)
+    if (!process.env.TENANT_OF) guard.warm();
     // after a restart: results not yet sent go out, and talks that were cut off are finished (once the server listens,
     // since the members' agents are reached over A2A on this same server)
     (async () => {

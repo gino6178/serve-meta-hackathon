@@ -528,7 +528,7 @@ export function openapi(req) {
     '/api/play/plan',
     'post',
     op(
-      'Plan a game from what the player says ("badminton tmrw evening", 週六早上羽球): courts, partners and drafted invites, nothing booked. The next 14 days only; a Chinese request is answered in Chinese. stream: true sends each step as NDJSON',
+      'Plan a game from what the player says ("badminton tmrw evening", 週六早上羽球). Signed in as a member: courts near your own area and people from your clubs whose limits fit; each option has a huddle body to POST to /api/huddle/start, and nothing is asked or booked. With the gateway token: a demo town, drafted invites, nothing booked. The next 14 days only; a Chinese request is answered in Chinese. stream: true sends each step as NDJSON',
       {body: {text: S, you: O, stream: B}},
     ),
   );
