@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom/client';
 import App from './App.jsx'; // (first, as said above)
 import './theme.css'; // the tokens, light and dark, and the base rules
 import './app.css'; // the shell and the parts every page shares
+import './motion.css'; // how things arrive and answer a press: one set of rules for every page
 import Waiting, {watchFetch} from './components/Waiting.jsx';
 watchFetch();
 const root = ReactDOM.createRoot(document.getElementById('root'));

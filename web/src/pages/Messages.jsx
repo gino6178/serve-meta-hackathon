@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from 'react';
-import {usePoll} from '../hooks.js';
+import {usePoll, prefersReducedMotion} from '../hooks.js';
 import Icon from '../components/Icon.jsx';
 import {
   agentAnswer,
@@ -28,6 +28,12 @@ const HELLO = {
   from: 'agent',
   text: "Hi! Tell me what you want to play and when, and I'll post it and find people. Or ask me anything about your week.",
 };
+// what a first-time visitor can tap to fill the box
+const TRY = [
+  'Saturday morning doubles, need 3',
+  'Who do I play with most?',
+  "What's my week look like?",
+];
 const DAYNAME = d =>
   /^\d{4}-\d{2}-\d{2}$/.test(d)
     ? new Date(`${d}T12:00:00`).toLocaleDateString('en-GB', {
@@ -50,9 +56,16 @@ export default function Messages() {
     [text, setText] = useState(''),
     [busy, setBusy] = useState(false);
   const end = useRef(null);
+  // messages that were already here when the page opened sit still; only what arrives while you watch moves in
+  const base = useRef(ms.length);
+  const opened = useRef(false);
   useEffect(() => {
     keep(ms);
-    end.current?.scrollIntoView({block: 'end'});
+    end.current?.scrollIntoView({
+      block: 'end',
+      behavior: opened.current && !prefersReducedMotion() ? 'smooth' : 'auto',
+    });
+    opened.current = true;
   }, [ms, busy]);
   // a message from the home page's box (#/messages?say=…) is sent at once
   useEffect(() => {
@@ -166,7 +179,12 @@ export default function Messages() {
         <img className="mc-face" src={agentFace('you')} alt="" />
         <b>Your agent</b>
         {ms.length > 0 && (
-          <button className="link" onClick={() => setMs([])}>
+          <button
+            className="link"
+            onClick={() => {
+              base.current = 0;
+              setMs([]);
+            }}>
             Clear
           </button>
         )}
@@ -178,7 +196,11 @@ export default function Messages() {
         {shown.map((m, i) => (
           <li
             key={i}
-            className={`mc-msg ${m.from}${m.failed ? ' failed' : ''}`}>
+            className={`mc-msg ${m.from}${m.failed ? ' failed' : ''}${
+              i >= base.current ? ' enter' : ''
+            }${shown[i - 1]?.from === m.from ? ' cont' : ''}${
+              shown[i + 1]?.from === m.from ? '' : ' last'
+            }`}>
             <div className="mc-bubble">
               <p>{m.text}</p>
               {m.kind === 'draft' && (
@@ -205,8 +227,21 @@ export default function Messages() {
             </div>
           </li>
         ))}
+        {ms.length === 0 && !busy && (
+          <li className="mc-try" aria-label="Things to try">
+            {TRY.map(t => (
+              <button
+                key={t}
+                type="button"
+                className="chip"
+                onClick={() => setText(t)}>
+                {t}
+              </button>
+            ))}
+          </li>
+        )}
         {busy && !ms.some(m => m.live) && (
-          <li className="mc-msg agent">
+          <li className="mc-msg agent enter last">
             <div className="mc-bubble">
               <p className="mc-dots">
                 <span className="dots">
@@ -241,6 +276,12 @@ export default function Messages() {
 
 // the invite the agent drafted: everything at a glance, how many players to change, then post
 function Draft({d, onChange, onPost, onCancel}) {
+  // the number rolls only when you changed it, not when the card first appears
+  const was = useRef(d.spots);
+  const rolled = was.current !== d.spots;
+  useEffect(() => {
+    was.current = d.spots;
+  }, [d.spots]);
   const n = k =>
     onChange({...d, spots: Math.min(12, Math.max(1, d.spots + k))});
   return (
@@ -258,7 +299,10 @@ function Draft({d, onChange, onPost, onCancel}) {
           −
         </button>
         <span>
-          {d.spots} more player{d.spots === 1 ? '' : 's'}
+          <i className={`mc-n${rolled ? ' roll' : ''}`} key={d.spots}>
+            {d.spots}
+          </i>{' '}
+          more player{d.spots === 1 ? '' : 's'}
         </span>
         <button type="button" onClick={() => n(1)} aria-label="One more">
           +

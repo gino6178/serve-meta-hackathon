@@ -1,0 +1,74 @@
+/* One motion language for the whole app, kept apart from the pages' own css so it can be read in one place.
+   The rules it follows: a thing moves because something happened (a page opened, a card arrived, a button was
+   pressed); it enters from where it came from, a few pixels at most, with the one easing curve in theme.css; things
+   in a group arrive a beat apart, never all at once, and never more than six of them; nothing that was already on
+   screen moves again. The end state is always the plain page, so asking for less motion (the rule at the end, and the
+   one in theme.css) leaves nothing behind. */
+
+/* A page opens: its parts rise in one after another, header first. Only the first six are staged. */
+@keyframes stage-in { from { opacity: 0; transform: translateY(8px); } }
+main > .page > * { animation: stage-in 440ms var(--ease) backwards; }
+main > .page > :nth-child(2) { animation-delay: 45ms; }
+main > .page > :nth-child(3) { animation-delay: 90ms; }
+main > .page > :nth-child(4) { animation-delay: 135ms; }
+main > .page > :nth-child(5) { animation-delay: 180ms; }
+main > .page > :nth-child(6) { animation-delay: 225ms; }
+main > .page > :nth-child(n+7) { animation-duration: 300ms; animation-delay: 260ms; }
+/* the chat page is a fixed frame: staging its parts would shift the box, so it stages only its header */
+main > .page.msg-chat > :not(.mc-head) { animation: none; }
+
+/* A list fills in: cards, rows, posts */
+@keyframes row-in { from { opacity: 0; transform: translateY(10px) scale(.985); } }
+.fd-list > .fd-card, .cl-list > li, .hd-list li { animation: row-in 460ms var(--ease) backwards; }
+.fd-list > :nth-child(2), .cl-list > :nth-child(2), .hd-list li:nth-child(2) { animation-delay: 60ms; }
+.fd-list > :nth-child(3), .cl-list > :nth-child(3), .hd-list li:nth-child(3) { animation-delay: 120ms; }
+.fd-list > :nth-child(4), .cl-list > :nth-child(4), .hd-list li:nth-child(4) { animation-delay: 180ms; }
+.fd-list > :nth-child(n+5), .cl-list > :nth-child(n+5), .hd-list li:nth-child(n+5) { animation-delay: 220ms; }
+
+/* Pressing: everything you can tap answers under the finger, and lets go with a small spring */
+.btn, .chip, .icon-btn, .tabbar a, .cl-list a, .hd-list button, .hd-people button, .pg-chips button, .cl-privacy button {
+  -webkit-tap-highlight-color: transparent;
+}
+.chip, .icon-btn { transition: background var(--dur-1), color var(--dur-1), border-color var(--dur-1), transform var(--dur-1) var(--ease); }
+.chip:active:not(:disabled), .icon-btn:active:not(:disabled) { transform: scale(.95); }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.cl-list a, .hd-list button, .hd-people button, .pg-chips button, .cl-privacy button {
+  transition: background var(--dur-1), border-color var(--dur-2), box-shadow var(--dur-2), transform var(--dur-1) var(--ease);
+}
+.cl-list a:active, .hd-list button:active, .hd-people button:active, .pg-chips button:active, .cl-privacy button:active { transform: scale(.985); }
+@media (hover: hover) {
+  .cl-list a:hover, .hd-list button:hover { border-color: var(--rule-strong); background: var(--surface); }
+}
+
+/* Cards that carry the agent's voice are quiet at rest and settle in when they appear */
+.hd-note, .hd-pick, .club-suggest, .fx-note { animation: row-in 520ms var(--ease) backwards; }
+
+/* The tab bar: the tab you are on gets a small bar that slides in, and its icon lifts a little */
+@media (max-width: 640px) {
+  .tabbar a { position: relative; transition: color var(--dur-2); }
+  .tabbar a::before {
+    content: ""; position: absolute; top: 0; left: 50%; width: 24px; height: 2px; border-radius: 0 0 2px 2px;
+    background: var(--ink); transform: translateX(-50%) scaleX(0); transition: transform 320ms var(--ease);
+  }
+  .tabbar a[aria-current="page"]::before { transform: translateX(-50%) scaleX(1); }
+  .tabbar a .icon { transition: transform 320ms var(--ease); }
+  .tabbar a[aria-current="page"] .icon { transform: translateY(-1px) scale(1.06); }
+  .tabbar a:active .icon { transform: scale(.88); }
+}
+
+/* Type: balanced headings and no stranded last word; numbers keep their width so they do not jitter as they change */
+.h1, .h2, .h3, .panel-h { text-wrap: balance; }
+p, li, .muted, .tiny { text-wrap: pretty; }
+.h1 { letter-spacing: -.02em; }
+.nav-count, .mono, time { font-variant-numeric: tabular-nums; }
+
+/* An empty list says so in a quiet frame, not a bare line */
+.cl-empty:not(:empty) { padding: var(--s5) var(--s4); text-align: center; border: 1px dashed var(--rule-strong); border-radius: var(--r-lg); color: var(--ink-3); animation: row-in 520ms var(--ease) backwards; }
+.hd-empty { animation: row-in 520ms var(--ease) backwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  main > .page > *, .fd-list > .fd-card, .cl-list > li, .hd-list li, .hd-note, .hd-pick, .club-suggest, .fx-note,
+  .cl-empty, .hd-empty { animation: none !important; }
+  .btn:active, .chip:active, .icon-btn:active, .cl-list a:active, .hd-list button:active { transform: none !important; }
+  .tabbar a::before, .tabbar a .icon { transition: none; }
+}
