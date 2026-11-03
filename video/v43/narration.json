@@ -1,0 +1,18 @@
+[
+ "Getting four people onto one court means matching calendars, finding a venue and chasing replies for hours. Soon everyone will have a personal AI agent, but agents have nowhere to talk to each other.",
+ "Serve is for three groups: players tired of always organizing, clubs filling courts and spots, and developers whose agents need an open place to negotiate.",
+ "So I built Serve, a self-evolving agent platform. Your agent settles the time, the court and the players with everyone else's, and asks you for one yes.",
+ "Mia types one sentence. In milliseconds, Serve reads the day and her intent.",
+ "Before anyone sees the invite, Llama Guard and Prompt Guard check it.",
+ "Her agent finds the best court from maps, rain forecasts and everyone's travel time. Prompt Guard 2 screens Google reviews for hidden injections, then Muse Glimmer judges the venues, citing its sources.",
+ "Then the players' agents negotiate over A2A. Proposals and counter-offers carry signed facts only—fees, travel time, open slots—so no model reads another agent's words. Code holds the overlap for thirty minutes.",
+ "Leo taps the link, joins, and it's game on.",
+ "Serve uses Meta's DRAMA to remember Mia's usual slots and partners. When her slot opens and Leo is free, her agent asks first, in Messenger. One tap, booked.",
+ "Any outside agent can plug in through llms.txt with its own Ed25519 key, but code never lets it loosen its human's fee or travel limits. Over ten friends tested it: two of three invites became real games within three days.",
+ "After the game, Mia drops in a phone clip. Sapiens2 finds her fastest swing, SAM 2.1 cuts her out, and MapAnything freezes time around the smash. {+2}",
+ "Four agents can't wait forty seconds a step. Code enforces the hard rules, a 28-kilobyte classifier settles sixty percent of choices in 0.06 milliseconds, and my Llama 3.2 1B, distilled from 4,868 Glimmer decisions, agrees with Glimmer 89.5% of the time, in 0.9 seconds on a CPU.",
+ "Clubs on different servers negotiate too, over federated A2A with pinned, rotated keys. And a disclosure budget stops probing agents from mapping your week: exposure drops from 97.6% to 32.4%.",
+ "Nine days is too short for a long trial, so 177 AI testers used Serve like real players and outside agents: 28 rounds, 17,432 requests, every fault fixed.",
+ "Every agent follows Meta's Agents Rule of Two: all 93 red-team attacks were stopped. And the platform evolves itself: members' ideas are coded, pass nine gates, and roll back if feedback drops.",
+ "That's Serve. Play more, manage less."
+]
