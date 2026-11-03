@@ -32,3 +32,9 @@ video/*.mp4
 video/shotcraft/out/
 video/shotcraft/public/clips/*.webm
 video/shotcraft/narration/*/out/
+# the v4.3 film's HTML stage: voice, previews, scene renders and the final cut are rebuilt (video/v43/*.py, render.mjs)
+video/v43/*.mp4
+video/v43/build/
+video/v43/preview/
+video/v43/audio/
+video/v43/assets/
